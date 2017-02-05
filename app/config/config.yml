@@ -2,6 +2,7 @@ imports:
     - { resource: parameters.yml }
     - { resource: security.yml }
     - { resource: services.yml }
+    - { resource: "@PlatformBundle/Resources/config/services.yml" }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
@@ -38,6 +39,32 @@ framework:
 twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
+    
+assetic:
+    debug:          '%kernel.debug%'
+    use_controller: '%kernel.debug%'
+    assets:
+       font-awesome-eot: 
+          inputs: '@PlatformBundle/Resources/font-awesome/fonts/fontawesome-webfont.eot'
+          output: 'Resources/font-awesome/fonts/fontawesome-webfont.eot'
+       font-awesome-otf: 
+          inputs: '@PlatformBundle/Resources/font-awesome/fonts/FontAwesome.otf'
+          output: '/Resources/font-awesome/fonts/fontawesome-webfont.otf'    
+       font-awesome-svg: 
+          inputs: '@PlatformBundle/Resources/font-awesome/fonts/fontawesome-webfont.svg'
+          output: '/Resources/font-awesome/fonts/fontawesome-webfont.svg'
+       font-awesome-ttf: 
+          inputs: '@PlatformBundle/Resources/font-awesome/fonts/fontawesome-webfont.ttf'
+          output: '/Resources/font-awesome/fonts/fontawesome-webfont.ttf' 
+       font-awesome-woff: 
+          inputs: '@PlatformBundle/Resources/font-awesome/fonts/fontawesome-webfont.woff'
+          output: '/Resources/font-awesome/fonts/fontawesome-webfont.woff' 
+       font-awesome-woff2: 
+          inputs: '@PlatformBundle/Resources/font-awesome/fonts/fontawesome-webfont.woff2'
+          output: '/Resources/font-awesome/fonts/fontawesome-webfont.woff2'    
+                  
+    filters:
+        cssrewrite: ~    
 
 # Doctrine Configuration
 doctrine:
