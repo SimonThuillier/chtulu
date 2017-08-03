@@ -33,12 +33,14 @@ class UserManager
      * if parameters are ok returns the created user, else error message
      * @return User
      */
-    public function create($username="",$email=""){   
+    public function create($username="",$email=""){  
+        $now = new \DateTime();
         $user = new User();
         $user->setUsername($username)
         ->setEmail($email)
-        ->setCreation(new \DateTime())
-        ->setLastLogin(new \DateTime())
+        ->setCreation($now)
+        ->setLastUpdate($now)
+        ->setLastLogin($now)
         ->setEnabled(true); 
         
         return $user;

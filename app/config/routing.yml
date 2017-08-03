@@ -8,11 +8,7 @@ article:
     type:     annotation
     prefix:   /article
 
-platform:
-    resource: "@PlatformBundle/Controller/"
-    type:     annotation
-    prefix:   /platform
-
 app:
     resource: "@AppBundle/Controller/"
     type:     annotation
+    prefix: ~

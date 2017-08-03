@@ -2,7 +2,6 @@ imports:
     - { resource: parameters.yml }
     - { resource: security.yml }
     - { resource: services.yml }
-    - { resource: "@PlatformBundle/Resources/config/services.yml" }
     - { resource: "@ArticleBundle/Resources/config/services.yml" }
     - { resource: "@EntityBundle/Resources/config/services.yml" }
 
@@ -47,37 +46,37 @@ assetic:
     use_controller: '%kernel.debug%'
     assets:
        font-awesome-eot: 
-          inputs: '@PlatformBundle/Resources/font-awesome/fonts/fontawesome-webfont.eot'
-          output: 'Resources/font-awesome/fonts/fontawesome-webfont.eot'
+          inputs: '@AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.eot'
+          output: 'Resources/third-party/font-awesome/fonts/fontawesome-webfont.eot'
        font-awesome-otf: 
-          inputs: '@PlatformBundle/Resources/font-awesome/fonts/FontAwesome.otf'
-          output: '/Resources/font-awesome/fonts/fontawesome-webfont.otf'    
+          inputs: '@AppBundle/Resources/third-party/font-awesome/fonts/FontAwesome.otf'
+          output: '/Resources/third-party/font-awesome/fonts/fontawesome-webfont.otf'    
        font-awesome-svg: 
-          inputs: '@PlatformBundle/Resources/font-awesome/fonts/fontawesome-webfont.svg'
-          output: '/Resources/font-awesome/fonts/fontawesome-webfont.svg'
+          inputs: '@AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.svg'
+          output: '/Resources/third-party/font-awesome/fonts/fontawesome-webfont.svg'
        font-awesome-ttf: 
-          inputs: '@PlatformBundle/Resources/font-awesome/fonts/fontawesome-webfont.ttf'
-          output: '/Resources/font-awesome/fonts/fontawesome-webfont.ttf' 
+          inputs: '@AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.ttf'
+          output: '/Resources/third-party/font-awesome/fonts/fontawesome-webfont.ttf' 
        font-awesome-woff: 
-          inputs: '@PlatformBundle/Resources/font-awesome/fonts/fontawesome-webfont.woff'
-          output: '/Resources/font-awesome/fonts/fontawesome-webfont.woff' 
+          inputs: '@AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.woff'
+          output: '/Resources/third-party/font-awesome/fonts/fontawesome-webfont.woff' 
        font-awesome-woff2: 
-          inputs: '@PlatformBundle/Resources/font-awesome/fonts/fontawesome-webfont.woff2'
-          output: '/Resources/font-awesome/fonts/fontawesome-webfont.woff2'  
+          inputs: '@AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.woff2'
+          output: '/Resources/third-party/font-awesome/fonts/fontawesome-webfont.woff2'  
        tinymce-css: 
-          inputs: '@PlatformBundle/Resources/tinymce/tests/manual/css/development.css'
-          output: '/Resources/tinymce/css/development.css'   
+          inputs: '@AppBundle/Resources/third-party/tinymce/tests/manual/css/development.css'
+          output: '/Resources/third-party/tinymce/css/development.css'   
        tinymce-skin-css: 
-          inputs: '@PlatformBundle/Resources/tinymce/js/tinymce/skins/lightgray/skin.min.css'
+          inputs: '@AppBundle/Resources/third-party/tinymce/js/tinymce/skins/lightgray/skin.min.css'
           output: '/js/skins/lightgray/skin.min.css'
        tinymce-ttf: 
-          inputs: '@PlatformBundle/Resources/tinymce/js/tinymce/skins/lightgray/fonts/tinymce.ttf'
+          inputs: '@AppBundle/Resources/third-party/tinymce/js/tinymce/skins/lightgray/fonts/tinymce.ttf'
           output: '/js/skins/lightgray/fonts/tinymce.ttf' 
        tinymce-woff: 
-          inputs: '@PlatformBundle/Resources/tinymce/js/tinymce/skins/lightgray/fonts/tinymce.woff'
+          inputs: '@AppBundle/Resources/third-party/tinymce/js/tinymce/skins/lightgray/fonts/tinymce.woff'
           output: '/js/skins/lightgray/fonts/tinymce.woff'    
        tinymce-autolink: 
-          inputs: '@PlatformBundle/Resources/tinymce/js/tinymce/plugins/autolink/plugin.js'
+          inputs: '@AppBundle/Resources/third-party/tinymce/js/tinymce/plugins/autolink/plugin.js'
           output: '/js/plugins/autolink/plugin.js'               
                   
     filters:
