@@ -2,9 +2,10 @@
 namespace AppBundle\Service;
 
 use Doctrine\ORM\EntityManager;
-use Symfony\Component\Validator\Validation;
-use Symfony\Component\Validator\Constraints\Email;
-use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use AppBundle\Entity\User;
+use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
  * 
@@ -13,45 +14,66 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  */
 class UserManager
 {
+    /** EntityManager $em */
     private $em;
     private $validator;
+    private $encoder;
     
-    public function __construct(EntityManager $em)
+    public function __construct(EntityManager $em,ValidatorInterface $validator,UserPasswordEncoderInterface $encoder)
     {
         $this->em = $em;
-        $this->validator = Validation::createValidator();  // couldn't acces Validator Service here, hence this old style use
+        $this->validator = $validator;
+        $this->encoder = $encoder;
     }
 
     /**
-     * @param string
-     * function that checks if a username is valid (specific rules to define) and unused
-     * TODO  define specific validation rules
-     * @return boolean|string
+     * @param $username string
+     * @param $email string
+     * function that creates user and set automatic variables
+     * if parameters are ok returns the created user, else error message
+     * @return User
      */
-    public function isValidUsername($username){
-        if($this->em->getRepository('AppBundle:User')->usernameExists($username)){
-            return 'Username . \'' . $username . '\' is already used. Please choose another.';
-        }
-        return true;
+    public function create($username="",$email=""){   
+        $user = new User();
+        $user->setUsername($username)
+        ->setEmail($email)
+        ->setCreation(new \DateTime())
+        ->setLastLogin(new \DateTime())
+        ->setEnabled(true); 
+        
+        return $user;
     }
     
     /**
-     * @param string
-     * function that checks if an email is valid (email standard rules and unused
-     * @return boolean|string
+     * encode password and update salt and plain password
+     * @param User $user
      */
-    public function isValidEmail($email){
-        $errors = $this->validator->validate($email, array(
-            new NotBlank(array("message" => "email {{ value }} is empty.")),
-            new Email(array("message" => "email {{ value }} is not a valid email address.","checkMX" => true))
-        ));
-        return var_dump($errors);
-        
-        
-        if($this->em->getRepository('AppBundle:User')->emailExists($email)){
-            return 'email . \'' . $email . '\' is already used. Please choose another.';
+    public function encodePassword(User $user){
+        $user->setSalt($this->generateSalt());
+        $user->setPassword($this->encoder->encodePassword($user, $user->getPlainPassword()));
+        $user->setPlainPassword(null);
+    }
+    
+    /**
+     * generate custome salt for password encoding
+     * @param integer $length
+     * @return string
+     */
+    public function generateSalt($length=15){
+        $chars = str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789" . (new \DateTime())->format('His'));
+        $salt="";
+        for($i=0;$i<$length;$i++){
+            $salt.=substr($chars,mt_rand(0,strlen($chars)),1);
         }
-        return true;
+        return substr(md5($salt),0,255); 
+    }
+    
+    /**
+     * @param User $user
+     * @return ConstraintViolationList
+     */
+    public function validate($user){
+        return $this->validator->validate($user);
     }
     
     

@@ -3,19 +3,24 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * User
  *
  * @ORM\Table(name="user")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\UserRepository")
+ * @UniqueEntity(fields="username", message="Username {{ value }} is already used. Please choose another.")
+ * @UniqueEntity(fields="email", message="Email {{ value }} is already used. Please choose another.")
  */
-class User implements UserInterface
+class User implements AdvancedUserInterface, \Serializable
 {
     /**
      * @var int
-     *
+     * 
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
@@ -26,6 +31,8 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="username", type="string", length=64, unique=true)
+     * @Assert\NotNull(message="username is null.")
+     * @Assert\NotBlank(message="username {{ value }} is empty.")
      */
     private $username;
 
@@ -47,27 +54,49 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=255, unique=true)
+     * @Assert\NotNull(message="email is null.")
+     * @Assert\NotBlank(message="email {{ value }} is empty.")
+     * @Assert\Email(message="email {{ value }} is not a valid email address.",checkMX=true)
      */
     private $email;
+    
+    /**
+     * @var string
+     * @ORM\Column(name="salt", type="string", length=255)
+     */
+    private $salt;
 
     /**
      * @var string
-     *
      * @ORM\Column(name="password", type="string", length=255)
      */
     private $password;
+    
+    /**
+     * @var string
+     * @Assert\NotBlank(message="password {{ value }} is empty.")
+     */
+    private $plainPassword;
+    
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="creation", type="date")
+     * @ORM\Column(name="creation", type="datetime")
      */
     private $creation;
+    
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="last_update", type="datetime")
+     */
+    private $lastUpdate;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="last_login", type="date")
+     * @ORM\Column(name="last_login", type="datetime")
      */
     private $lastLogin;
 
@@ -84,8 +113,18 @@ class User implements UserInterface
      * @ORM\Column(name="description", type="string", length=1024, nullable=true)
      */
     private $description;
-
-
+    
+    /**
+     * @var boolean
+     * @ORM\Column(name="enabled", type="boolean")
+     */
+    private $enabled;
+    
+    
+    public function __construct(){
+        $this->plainPassword = "aValidDummyPassword";
+    }
+    
     /**
      * Get id
      *
@@ -178,7 +217,6 @@ class User implements UserInterface
     public function setEmail($email)
     {
         $this->email = $email;
-
         return $this;
     }
 
@@ -191,18 +229,36 @@ class User implements UserInterface
     {
         return $this->email;
     }
+    
+    /**
+     * Get plainPassword
+     * @return string
+     */
+    public function getPlainPassword(){
+        return $this->plainPassword;
+    }
 
     /**
-     * Set password
+     * Set plainPassword
      *
      * @param string $password
-     *
+     * @return User
+     */
+    public function setPlainPassword($password)
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+    
+    /**
+     * Set password
+     * @param string
      * @return User
      */
     public function setPassword($password)
     {
         $this->password = $password;
-
         return $this;
     }
 
@@ -238,6 +294,24 @@ class User implements UserInterface
     public function getCreation()
     {
         return $this->creation;
+    }
+    
+    /**
+     * Get lastUpdate
+     * @return \DateTime
+     */
+    public function getLastUpdate(){
+        return $this->lastUpdate;
+    }
+    
+    /**
+     * Set lastUpdate
+     * @param \DateTime $lastUpdate
+     * @return User
+     */
+    public function setLastUpdate($lastUpdate){
+        $this->lastUpdate = $lastUpdate;
+        return $this;
     }
 
     /**
@@ -290,9 +364,7 @@ class User implements UserInterface
 
     /**
      * Set description
-     *
      * @param string $description
-     *
      * @return User
      */
     public function setDescription($description)
@@ -304,21 +376,108 @@ class User implements UserInterface
 
     /**
      * Get description
-     *
      * @return string
      */
     public function getDescription()
     {
         return $this->description;
     }
+    
+    /**
+     * Get enabled
+     * @return boolean
+     */
+    public function getEnabled(){
+        return $this->enabled;
+    }
+    
+    /**
+     * Set enabled
+     * @param boolean $enabled
+     * @return User
+     */
+    public function setEnabled($enabled){
+        $this->enabled = $enabled;
+        return $this;
+    }
+    
     public function eraseCredentials()
     {}
 
+    /**
+     * @return string
+     * {@inheritDoc}
+     * @see \Symfony\Component\Security\Core\User\UserInterface::getSalt()
+     */
     public function getSalt()
-    {}
-
+    {
+        return $this->salt;
+    }
+    
+    /**
+     * Set salt
+     * @param string
+     * @return User
+     */
+    public function setSalt($salt)
+    {
+        $this->salt = $salt;
+        return $this;
+    }
+    
     public function getRoles()
-    {}
+    {
+        return array("ROLE_USER");
+    }
+    
+    /**
+     * @return string
+     */
+    public function serialize()
+    {
+        return serialize(array(
+            $this->id,
+            $this->username,
+            $this->password,
+            $this->salt
+        ));  
+    }
+    
+    /**
+     * @param \Serializable $serialized
+     * @return User;
+     */
+    public function unserialize($serialized)
+    {
+        list (
+            $this->id,
+            $this->username,
+            $this->password,
+            $this->salt
+            ) = unserialize($serialized);  
+        return $this;
+    }
+    
+    
+    public function isAccountNonExpired()
+    {
+        return true;
+    }
+
+    public function isCredentialsNonExpired()
+    {
+        return true;    
+    }
+
+    public function isEnabled()
+    {
+        return $this->enabled;
+    }
+
+    public function isAccountNonLocked()
+    {
+        return true;
+    }
 
 }
 
