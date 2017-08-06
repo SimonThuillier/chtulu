@@ -1,6 +1,6 @@
 <?php
 
-namespace EntityBundle\Form;
+namespace AppBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -11,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use AppBundle\Entity\Evolution;
 
 class EvolutionType extends AbstractType
 {
@@ -62,7 +63,7 @@ class EvolutionType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'EntityBundle\Entity\Evolution'
+            'data_class' => Evolution::class
         ));
     }
 

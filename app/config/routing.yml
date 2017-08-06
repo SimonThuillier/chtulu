@@ -1,14 +1,10 @@
-entity:
-    resource: "@EntityBundle/Controller/"
-    type:     annotation
-    prefix:   /
-
-article:
-    resource: "@ArticleBundle/Controller/"
-    type:     annotation
-    prefix:   /article
-
 app:
     resource: "@AppBundle/Controller/"
     type:     annotation
     prefix: ~
+    
+homepage:     
+    path:   /
+    defaults:  { _controller: AppBundle:Default:index }    
+    
+    

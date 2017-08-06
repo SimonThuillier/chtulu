@@ -1,6 +1,6 @@
 <?php
 
-namespace EntityBundle\Repository;
+namespace AppBundle\Repository;
 
 /**
  * EvolutionRepository

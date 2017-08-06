@@ -15,7 +15,6 @@ class SecurityController extends Controller
 {
     /**
      * @Route("/login",name="login")
-     * @Template()
      */
     public function loginAction(Request $request,AuthenticationUtils $authUtils)
     {
@@ -25,10 +24,10 @@ class SecurityController extends Controller
         // last username entered by the user
         $lastUsername = $authUtils->getLastUsername();
         
-        return array(
+        return $this->render('AppBundle:security:login.html.twig', array(
             'last_username' => $lastUsername,
             'error'         => $error,
-        );
+        ));
     }
 
 }

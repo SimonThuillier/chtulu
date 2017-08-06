@@ -1,15 +1,21 @@
 <?php
 
-namespace ArticleBundle\Controller;
+namespace AppBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use EntityBundle\Entity\Article;
-use EntityBundle\Form\ArticleType;
+use AppBundle\Entity\Article;
+use AppBundle\Form\ArticleType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
-class DefaultController extends Controller
+/**
+ * 
+ * @author belze
+ * @Route("/article")
+ */
+class ArticleController extends Controller
 {
     /**
      * @Route("/")
@@ -21,6 +27,7 @@ class DefaultController extends Controller
     
     /**
      * @Route("/create")
+     * @Template()
      */
     public function createAction(Request $request)
     {
@@ -44,11 +51,12 @@ class DefaultController extends Controller
     				array('id' => $article->getId())
     				));
     	}
-    	return $this->render('ArticleBundle:Default:create.html.twig',array('form_article' => $form->createView()));
+    	return array('form_article' => $form->createView());
     }
     
     /**
      * @Route("/edit/{id}")
+     * @Template()
      */
     public function editAction(Request $request,$id)
     {
@@ -62,6 +70,6 @@ class DefaultController extends Controller
     		$em = $this->getDoctrine()->getManager();
     		$em->flush();
     	}
-    	return $this->render('ArticleBundle:Default:edit.html.twig',array('form_article' => $form->createView()));
+    	return array('form_article' => $form->createView());
     }
 }
