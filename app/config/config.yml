@@ -43,6 +43,9 @@ assetic:
     debug:          '%kernel.debug%'
     use_controller: '%kernel.debug%'
     assets:
+       font-awesome-css:
+          inputs: '@AppBundle/Resources/third-party/font-awesome/css/font-awesome.css'
+          output: '/Resources/third-party/font-awesome/css/font-awesome.css'
        font-awesome-eot: 
           inputs: '@AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.eot'
           output: 'Resources/third-party/font-awesome/fonts/fontawesome-webfont.eot'
@@ -61,6 +64,27 @@ assetic:
        font-awesome-woff2: 
           inputs: '@AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.woff2'
           output: '/Resources/third-party/font-awesome/fonts/fontawesome-webfont.woff2'  
+       glyphicons-halflings-regular-ttf:
+          inputs: '@AppBundle/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.ttf'
+          output: '/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.ttf'
+       glyphicons-halflings-regular-woff:
+          inputs: '@AppBundle/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.woff'
+          output: '/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.woff'   
+       glyphicons-halflings-regular-woff2:
+          inputs: '@AppBundle/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.woff2'
+          output: '/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.woff2'
+       icheck-square-blue:
+          inputs: '@AppBundle/resources/third-party/iCheck/css/square/blue.png'
+          output: '/resources/third-party/iCheck/css/square/blue.png'    
+       icheck-square-blue2:
+          inputs: '@AppBundle/resources/third-party/iCheck/css/square/blue@2x.png'
+          output: '/resources/third-party/iCheck/css/square/blue@2x.png'              
+       ionicons-ttf:
+          inputs: '@AppBundle/Resources/third-party/ionicons/fonts/ionicons.ttf'
+          output: '/Resources/third-party/ionicons/fonts/ionicons.ttf'  
+       ionicons-woff:
+          inputs: '@AppBundle/Resources/third-party/ionicons/fonts/ionicons.woff'
+          output: '/Resources/third-party/ionicons/fonts/ionicons.woff'                                                                                                           
        tinymce-css: 
           inputs: '@AppBundle/Resources/third-party/tinymce/tests/manual/css/development.css'
           output: '/Resources/third-party/tinymce/css/development.css'   

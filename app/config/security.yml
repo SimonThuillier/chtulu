@@ -31,9 +31,18 @@ security:
 
         main:
             pattern: ^/
+            anonymous: false
             form_login:
                 login_path: login
                 check_path: login
+                always_use_default_target_path: true
+                default_target_path: homepage
+                
+                
+            logout:
+                path: logout
+                target: login    
+                
             provider: main_provider
             # activate different ways to authenticate
 

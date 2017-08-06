@@ -17,13 +17,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
  */
 class ArticleController extends Controller
 {
-    /**
-     * @Route("/")
-     */
-    public function indexAction()
-    {
-        return $this->render('ArticleBundle:Default:index.html.twig');
-    }
     
     /**
      * @Route("/create")
