@@ -19,7 +19,7 @@ class ArticleController extends Controller
 {
     
     /**
-     * @Route("/create")
+     * @Route("/create",name="article_create")
      * @Template()
      */
     public function createAction(Request $request)
