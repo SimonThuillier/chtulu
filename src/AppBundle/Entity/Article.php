@@ -1,21 +1,26 @@
 <?php
 
+/**
+ * 
+ */
+
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * Article
- *
+ * @author Belze
  * @ORM\Table(name="article")
- * @ORM\Entity(repositoryClass="EntityBundle\Repository\ArticleRepository")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\ArticleRepository")
+ * @UniqueEntity(fields="title", message="Another article named {{ value }} exists. Consider editing it instead or rename your article.")
  */
 class Article
 {
     /**
      * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
+     * @ORM\Column(name="id", type="bigint")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
@@ -23,57 +28,94 @@ class Article
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="title", type="string", length=128)
+     * @ORM\Column(name="title", type="string", length=50)
      */
     private $title;
-    
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="abstract", type="string", length=255)
-     */
-    private $abstract;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="content", type="text", nullable=true)
+     * @var User
+     * @ORM\ManyToOne(targetEntity="User",inversedBy="createdArticles")
+     * @ORM\JoinColumn(name="creation_user_id", referencedColumnName="id")
      */
-    private $content;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="user_creation_id", type="bigint", nullable=true)
-     */
-    private $userCreationId;
+    private $creationUser;
 
     /**
      * @var \DateTime
-     *
-     * @ORM\Column(name="creation_date", type="date")
+     * @ORM\Column(name="creation_date", type="datetime")
      */
     private $creationDate;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="user_edition_id", type="bigint", nullable=true)
+     * @var User
+     * @ORM\ManyToOne(targetEntity="User",inversedBy="editedArticles")
+     * @ORM\JoinColumn(name="edition_user_id", referencedColumnName="id")
      */
-    private $userEditionId;
+    private $editionUser;
 
     /**
      * @var \DateTime
-     *
-     * @ORM\Column(name="edition_date", type="date")
+     * @ORM\Column(name="edition_date", type="datetime")
      */
     private $editionDate;
-
-
+    
+    /**
+     * @var string
+     * @ORM\Column(name="abstract", type="string", length=255)
+     */
+    private $abstract;
+    
+    /**
+     * @var ArticleType
+     * @ORM\ManyToOne(targetEntity="ArticleType")
+     * @ORM\JoinColumn(name="type_id", referencedColumnName="id")
+     */
+    private $type;
+    
+    /**
+     * @ORM\ManyToOne(targetEntity="ArticleSubType")
+     * @ORM\JoinColumn(name="subtype_id", referencedColumnName="id")
+     */
+    private $subType;
+    
+    /**
+     * @var string
+     * @ORM\Column(name="content", type="text", nullable=true)
+     */
+    private $content;
+    
+    /**
+     * @var \DateTime
+     * @ORM\Column(name="min_begin_date", type="date",nullable=true)
+     */
+    private $minBeginDate;
+    
+    /**
+     * @var \DateTime
+     * @ORM\Column(name="max_begin_date", type="date", nullable=true)
+     */
+    private $maxBeginDate;
+    
+    /**
+     * @var \DateTime
+     * @ORM\Column(name="min_end_date", type="date", nullable=true)
+     */
+    private $minEndDate;
+    
+    /**
+     * @var \DateTime
+     * @ORM\Column(name="max_end_date", type="date", nullable=true)
+     */
+    private $maxEndDate;
+    
+    /**
+     * @var array
+     * @ORM\Column(name="domain", type="simple_array",nullable=true)
+     */
+    private $domain=array(0,0,0,0,0,0,0,0); // all 0 by default
+    
+    
     /**
      * Get id
-     *
      * @return int
      */
     public function getId()
@@ -82,211 +124,97 @@ class Article
     }
 
     /**
-     * Set title
-     *
-     * @param string $title
-     *
-     * @return Article
-     */
-    public function setTitle($title)
-    {
-        $this->title = $title;
-
-        return $this;
-    }
-
-    /**
      * Get title
-     *
      * @return string
      */
-    public function getTitle()
-    {
+    public function getTitle(){
         return $this->title;
     }
 
     /**
-     * Set beginMinDate
-     *
-     * @param \DateTime $beginMinDate
-     *
+     * Set title
+     * @param string $title
      * @return Article
      */
-    public function setBeginMinDate($beginMinDate)
-    {
-        $this->beginMinDate = $beginMinDate;
-
+    public function setTitle($title){
+        $this->title = $title;
         return $this;
     }
 
     /**
-     * Get beginMinDate
-     *
-     * @return \DateTime
+     * Get creationUser
+     * @return User
      */
-    public function getBeginMinDate()
-    {
-        return $this->beginMinDate;
+    public function getCreationUser(){
+        return $this->creationUser;
     }
 
     /**
-     * Set beginMaxDate
-     *
-     * @param \DateTime $beginMaxDate
-     *
+     * Set creationUser
+     * @param User $creationUser
      * @return Article
      */
-    public function setBeginMaxDate($beginMaxDate)
-    {
-        $this->beginMaxDate = $beginMaxDate;
-
-        return $this;
-    }
-
-    /**
-     * Get beginMaxDate
-     *
-     * @return \DateTime
-     */
-    public function getBeginMaxDate()
-    {
-        return $this->beginMaxDate;
-    }
-    
-    
-
-    /**
-     * Set content
-     *
-     * @param string $content
-     *
-     * @return Article
-     */
-    public function setContent($content)
-    {
-        $this->content = $content;
-
-        return $this;
-    }
-
-    /**
-     * Get content
-     *
-     * @return string
-     */
-    public function getContent()
-    {
-        return $this->content;
-    }
-
-    /**
-     * Set userCreationId
-     *
-     * @param integer $userCreationId
-     *
-     * @return Article
-     */
-    public function setUserCreationId($userCreationId)
-    {
-        $this->userCreationId = $userCreationId;
-
-        return $this;
-    }
-
-    /**
-     * Get userCreationId
-     *
-     * @return int
-     */
-    public function getUserCreationId()
-    {
-        return $this->userCreationId;
-    }
-
-    /**
-     * Set creationDate
-     *
-     * @param \DateTime $creationDate
-     *
-     * @return Article
-     */
-    public function setCreationDate($creationDate)
-    {
-        $this->creationDate = $creationDate;
-
+    public function setCreationUser($creationUser){
+        $this->creationUser = $creationUser;
         return $this;
     }
 
     /**
      * Get creationDate
-     *
      * @return \DateTime
      */
-    public function getCreationDate()
-    {
+    public function getCreationDate(){
         return $this->creationDate;
     }
 
     /**
-     * Set userEditionId
-     *
-     * @param integer $userEditionId
-     *
+     * Set creationDate
+     * @param \DateTime $creationDate
      * @return Article
      */
-    public function setUserEditionId($userEditionId)
-    {
-        $this->userEditionId = $userEditionId;
-
+    public function setCreationDate($creationDate){
+        $this->creationDate = $creationDate;
         return $this;
     }
 
     /**
-     * Get userEditionId
-     *
-     * @return int
+     * Get editionUser
+     * @return User
      */
-    public function getUserEditionId()
-    {
-        return $this->userEditionId;
+    public function getEditionUser(){
+        return $this->editionUser;
     }
 
     /**
-     * Set editionDate
-     *
-     * @param \DateTime $editionDate
-     *
+     * Set editionUser
+     * @param User $editionUser
      * @return Article
      */
-    public function setEditionDate($editionDate)
-    {
-        $this->editionDate = $editionDate;
-
+    public function setEditionUser($editionUser){
+        $this->editionUser = $editionUser;
         return $this;
     }
 
     /**
      * Get editionDate
-     *
      * @return \DateTime
      */
-    public function getEditionDate()
-    {
+    public function getEditionDate(){
         return $this->editionDate;
     }
 
     /**
-     * id
-     * @param unkown $id
+     * Set editionDate
+     * @param \DateTime $editionDate
      * @return Article
      */
-    public function setId($id){
-        $this->id = $id;
+    public function setEditionDate($editionDate){
+        $this->editionDate = $editionDate;
         return $this;
     }
 
     /**
-     * abstract
+     * Get abstract
      * @return string
      */
     public function getAbstract(){
@@ -294,13 +222,147 @@ class Article
     }
 
     /**
-     * abstract
+     * Set abstract
      * @param string $abstract
      * @return Article
      */
     public function setAbstract($abstract){
         $this->abstract = $abstract;
         return $this;
+    }
+
+    /**
+     * Get type
+     * @return ArticleType
+     */
+    public function getType(){
+        return $this->type;
+    }
+
+    /**
+     * Set type
+     * @param ArticleType $type
+     * @return Article
+     */
+    public function setType($type){
+        $this->type = $type;
+        return $this;
+    }
+
+    /**
+     * Get subType
+     * @return ArticleSubType
+     */
+    public function getSubType(){
+        return $this->subType;
+    }
+
+    /**
+     * Set subType
+     * @param ArticleSubType $subType
+     * @return Article
+     */
+    public function setSubType($subType){
+        $this->subType = $subType;
+        return $this;
+    }
+
+    /**
+     * Get content
+     * @return string
+     */
+    public function getContent(){
+        return $this->content;
+    }
+
+    /**
+     * Set content
+     * @param string $content
+     * @return Article
+     */
+    public function setContent($content){
+        $this->content = $content;
+        return $this;
+    }
+
+    /**
+     * Get minBeginDate
+     * @return \DateTime
+     */
+    public function getMinBeginDate(){
+        return $this->minBeginDate;
+    }
+
+    /**
+     * Set minBeginDate
+     * @param \DateTime $minBeginDate
+     * @return Article
+     */
+    public function setMinBeginDate($minBeginDate){
+        $this->minBeginDate = $minBeginDate;
+        return $this;
+    }
+
+    /**
+     * Get maxBeginDate
+     * @return \DateTime
+     */
+    public function getMaxBeginDate(){
+        return $this->maxBeginDate;
+    }
+
+    /**
+     * Set maxBeginDate
+     * @param \DateTime $maxBeginDate
+     * @return Article
+     */
+    public function setMaxBeginDate($maxBeginDate){
+        $this->maxBeginDate = $maxBeginDate;
+        return $this;
+    }
+
+    /**
+     * Get minEndDate
+     * @return \DateTime
+     */
+    public function getMinEndDate(){
+        return $this->minEndDate;
+    }
+
+    /**
+     * Set minEndDate
+     * @param \DateTime $minEndDate
+     * @return Article
+     */
+    public function setMinEndDate($minEndDate){
+        $this->minEndDate = $minEndDate;
+        return $this;
+    }
+
+    /**
+     * Get maxEndDate
+     * @return \DateTime
+     */
+    public function getMaxEndDate(){
+        return $this->maxEndDate;
+    }
+
+    /**
+     * Set maxEndDate
+     * @param \DateTime $maxEndDate
+     * @return Article
+     */
+    public function setMaxEndDate($maxEndDate){
+        $this->maxEndDate = $maxEndDate;
+        return $this;
+    }
+
+    /**
+     * Get domain
+     * @return array
+     */
+    public function getDomain(){
+        return $this->domain;
     }
 
 }

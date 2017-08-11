@@ -221,7 +221,8 @@
 				<form action="#" method="get" class="sidebar-form">
 					<div class="input-group">
 						<input type="text" name="q" class="form-control"
-							placeholder="Rechercher..."> <span class="input-group-btn">
+							placeholder="Rechercher..."> <span
+							class="input-group-btn">
 							<button type="submit" name="search" id="search-btn"
 								class="btn btn-flat">
 								<i class="fa fa-search"></i>
@@ -239,8 +240,8 @@
 								class="fa fa-angle-left pull-right"></i>
 						</span>
 					</a>
-					<li class="treeview"><a href={{ path('article_create') }}> <i
-							class="fa fa-dashboard"></i> <span>Creer Article</span> <span
+					<li class="treeview"><a href={{ path('article_create') }}>
+							<i class="fa fa-dashboard"></i> <span>Creer Article</span> <span
 							class="pull-right-container"> <i
 								class="fa fa-angle-left pull-right"></i>
 						</span>
@@ -420,7 +421,6 @@
 		<div class="content-wrapper">
 			<!-- Content Header (Page header) -->
 			<section class="content-header">
-				{% block content_header %}
 				{% for label, messages in app.flashes() %}
 				{% for message in messages %}
 				<div class="alert alert-{{ label }}">
@@ -428,7 +428,7 @@
 				</div>
 				{% endfor %}
 				{% endfor %}
-				{%  endblock %}
+				{% block content_header '' %}
 			</section>
 
 			<!-- Main content -->

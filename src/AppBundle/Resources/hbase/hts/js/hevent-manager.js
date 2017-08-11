@@ -73,7 +73,7 @@ HEventManager.prototype.setMaxY =  function(newMaxY){
 HEventManager.prototype.updateRender =  function(){
 	var manager = this;
 	this.events.sort(function(e1,e2){return manager.compareRank(e1,e2);});
-	console.log(this.events);
+	//console.log(this.events);
 	
 	var index = 0;
 	var events = this.events;
@@ -84,8 +84,8 @@ HEventManager.prototype.updateRender =  function(){
 		if(index >= events.length-1) return;
 		
 		events[index+1].adjustedY = events[index+1].y;
-		console.log(events[index+1].adjustedY - event.adjustedY,(events[index+1].adjustedY - event.adjustedY) < deltaYMin);
-		console.log(event.displayIntersect(events[index+1]));
+		//console.log(events[index+1].adjustedY - event.adjustedY,(events[index+1].adjustedY - event.adjustedY) < deltaYMin);
+		//console.log(event.displayIntersect(events[index+1]));
 		
 		if ((events[index+1].adjustedY - event.adjustedY) < deltaYMin && event.displayIntersect(events[index+1])){
 			events[index+1].adjustedY += deltaYMin - (events[index+1].adjustedY - event.adjustedY) + overY;

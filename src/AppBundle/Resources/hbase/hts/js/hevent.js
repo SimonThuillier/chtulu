@@ -305,7 +305,7 @@ HEvent.prototype.setForm = function(){
 
 
 
-//check if event form is valid : returns true or false
+/** check if event form is valid : returns true or false */
 HEvent.prototype.checkFormValidity = function(){
 	// control begin Date
 	if (! $("#input-begin-date-imprecise:checked").length>0){
@@ -333,7 +333,7 @@ HEvent.prototype.checkFormValidity = function(){
 }
 
 
-//function to handle event edition (with modal display)
+/** function to handle event edition (with modal display) */
 HEvent.prototype.edit = function(){
 	var message= 'Edition de l\'évenement';
 	if(! this.rendered){
@@ -379,6 +379,10 @@ HEvent.prototype.edit = function(){
 					}
 					
 					if (! htsEvent.rendered) htsEvent.render();
+					htsEvent.text.text(htsEvent.name);
+					/* if(htsEvent.type === 'main'){
+						$(".hts-article-title").empty().append(htsEvent.name);
+					}*/
 					htsEvent.updateRender();
 					if(htsEvent.manager === null) htsEvent.hts.eventManager.addEvent(htsEvent);
 					return true;

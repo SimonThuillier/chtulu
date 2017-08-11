@@ -60,6 +60,12 @@ svg.hts-event-container {
 	fill-opacity:1;
 	opacity:1;
 }
+.hts-time-arrow-scope{
+	fill:Orange;
+}
+.hts-time-arrow-scope:hover{
+	fill:Gold;
+}
 
 .hts-grad {
 	cursor:pointer;

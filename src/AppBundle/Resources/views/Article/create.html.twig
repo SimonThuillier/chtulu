@@ -12,6 +12,29 @@ Creer un article
 {% endblock %}
 
 
+{% block content_header %}
+      <h1 class="hts-article-title">
+        Nouvel article
+      </h1>
+{% endblock %}
+
+
+
+
+
+{% block content %}
+	<div id="wrapper">
+		<div id="header"></div>
+
+		<div id="page">
+			<div id="hts-container" class="hts-container">
+				<svg id="hts-svgcontainer" class="hts-container" width="1150"  height="150"></svg>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+
 
 
 
@@ -61,17 +84,3 @@ $(function () {
 
 </script>
 {% endblock%}
-
-
-
-{% block content %}
-	<div id="wrapper">
-		<div id="header"></div>
-
-		<div id="page">
-			<div id="hts-container" class="hts-container">
-				<svg id="hts-svgcontainer" class="hts-container" width="1150"  height="150"></svg>
-			</div>
-		</div>
-	</div>
-{% endblock %}

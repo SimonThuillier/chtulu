@@ -32,6 +32,7 @@ function HTimeScroller(parentId,beginDate,endDate,eBeginDate,eEndDate,options) {
 	this.id=this.idGenerator();
 	this.parentId = parentId;
 	this.parent = d3.select(this.parentId); 
+	this.scope = [null,null]; // contains begin and end Date of scope
 	this.domComponents = []; // array of DOM components (except parent) with update functions
 
 	this.eventInitialized = false; // to check if event was initialized
@@ -183,7 +184,7 @@ function HTimeScroller(parentId,beginDate,endDate,eBeginDate,eEndDate,options) {
 			)
 			.call(d3.zoom()
 					.scaleExtent(hts.ZOOM_SCALE)
-					.on("start", function(){return hts.dateZoomStarted(d3.event,hts);})
+					.on("start", function(){return hts.dateZoomStarted(d3.event,hts,d3.mouse(this));})
 					.on("zoom",  function(){return hts.dateZoomed(d3.event,hts);})
 					.on("end", function(){return hts.dateZoomEnded(d3.event,hts);})
 			);
@@ -199,6 +200,29 @@ function HTimeScroller(parentId,beginDate,endDate,eBeginDate,eEndDate,options) {
 				.attr('d',pathPoints);
 			};
 			hts.domComponents.push({name:'main-arrow',component:subComponent,drawer:drawer});
+			
+			// scope rectangle : appears when date are selected ( function setScope)
+			subComponent = component
+			.append("rect")
+			.attr("title","time-arrow-scope")
+			.attr("class","hts-time-arrow-scope")
+			.attr("id","hts-time-arrow-scope");
+			
+			drawer = function(hts,component){
+				var x = -10;
+				var y = - 10;
+				var width = 0;
+				var height = 0;
+				if(hts.scope[0] !== null & hts.scope[1] !== null){
+					y = hts.htsHUpperSpace;
+					height = hts.htsBaseHeight;
+					x = hts.dateScale(hts.scope[0]);
+					width = hts.dateScale(hts.scope[1]) - x;
+				}
+				component.attr("x",x).attr("width",width).attr("y",y).attr("height",height);	
+			};
+			hts.domComponents.push({name:'scope-rectangle',component:subComponent,drawer:drawer});
+			
 		}
 
 		/** function that creates the event DOM components of the HTimeScroller **/
@@ -287,7 +311,8 @@ HTimeScroller.prototype.findComponentByName = function(thisName){
 	}).component;
 };
 
-/** this function computes spatial datas used for rendering,can be used at the beginning of class or in case of redimensionning to be responsive */
+/** this function computes spatial datas used for rendering,can be used at the beginning of class
+ *  or in case of redimensionning to be responsive */
 HTimeScroller.prototype.updateSpatialData = function(redrawAll=true){
 	this.htsWMargin = this.REL_W_MARGIN*this.parent.attr("width");
 	this.htsWDateMargin = this.REL_WDATE_MARGIN*this.parent.attr("width");
@@ -310,22 +335,33 @@ HTimeScroller.prototype.updateSpatialData = function(redrawAll=true){
 	}
 };
 
-//function that updates date scales used by different elements to update their positions when dates/hts dimension are changed 
+/** function that updates date scales used by different elements to update their positions when dates/hts dimension are changed */
 HTimeScroller.prototype.setScale = function(){
 	// the scale will be used to render elements
 	this.dateScale
 	.domain([this.beginDate,this.endDate])
 	.range([0,this.htsBaseWidth]);
-	// then update grads and event position
+	// then update grads and event position and redraw
 	if (typeof this.hRange !== 'undefined' && this.hRange !== null){
 		this.hRange.grads.forEach(function(hGrad){
 			hGrad.updateScale();
 		});
 	}
+	// redraw scope area
+	this.redrawComponent('scope-rectangle');
+	// redraw events
 	this.eventManager.updateRender();
 };
 
-//function that updates range, graduations and event positions when begin and/or end date are changed 
+/**  function that updates active scope and display it */
+HTimeScroller.prototype.setScope(beginDate,endDate){
+	this.scope[0] = beginDate;
+	this.scope[1] = endDate;
+	// redraw scope area
+	this.redrawComponent('scope-rectangle');
+}
+
+/**  function that updates range, graduations and event positions when begin and/or end date are changed */
 HTimeScroller.prototype.setDates = function(beginDate,endDate){
 	this.beginDate = beginDate;
 	this.endDate = endDate;
@@ -362,14 +398,16 @@ HTimeScroller.prototype.dateDragged = function (event,hts) {
 };
 HTimeScroller.prototype.dateDragEnded = function (event,hts) {} ;
 
-HTimeScroller.prototype.dateZoomStarted =function (event,hts){
-	hts.initialZoomX = event.sourceEvent.clientX - hts.htsWMargin ;
+HTimeScroller.prototype.dateZoomStarted =function (event,hts,mousePos){
+	console.log(mousePos);
+	hts.initialZoomX = mousePos[0];
 	var adjRatio=0;
 	if(typeof hts.initialZoomK === 'undefined' ){adjRatio = event.transform.k;}
 	else{adjRatio = hts.initialZoomK;}
 
 	hts.initialZoomK = adjRatio;
 	hts.initialZoomDate = hts.dateScale.invert(hts.initialZoomX).clone();
+	console.log(' - ',hts.initialZoomX," - ",hts.htsWMargin," - ",hts.parent.x," - ",hts.dateScale.invert(hts.initialZoomX).clone());
 	hts.initialZoomDate.addDay(1);
 
 	var nbJBegin = hts.initialZoomDate.dayDiff(hts.beginDate);
@@ -445,7 +483,7 @@ HTimeScroller.prototype.setBoundDates = function(flag){
 	if(this.eventInitialized) this.renderEvent();
 };
 
-//TODO : refactor, function to draw events on the event area
+//TODO : DEPRECATED with scope system to delete later
 HTimeScroller.prototype.renderEvent = function(){
 
 	if(this.eBeginDate == null || this.eEndDate == null){

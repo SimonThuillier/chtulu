@@ -4,13 +4,13 @@ namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * User
- *
+ * @author Belze
  * @ORM\Table(name="user")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\UserRepository")
  * @UniqueEntity(fields="username", message="Username {{ value }} is already used. Please choose another.")
@@ -20,8 +20,7 @@ class User implements AdvancedUserInterface, \Serializable
 {
     /**
      * @var int
-     * 
-     * @ORM\Column(name="id", type="integer")
+     * @ORM\Column(name="id", type="bigint")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
@@ -29,8 +28,7 @@ class User implements AdvancedUserInterface, \Serializable
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="username", type="string", length=64, unique=true)
+     * @ORM\Column(name="username", type="string", length=50, unique=true)
      * @Assert\NotNull(message="username is null.")
      * @Assert\NotBlank(message="username {{ value }} is empty.")
      */
@@ -38,22 +36,19 @@ class User implements AdvancedUserInterface, \Serializable
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="firstname", type="string", length=128, nullable=true)
+     * @ORM\Column(name="firstname", type="string", length=50, nullable=true)
      */
     private $firstname;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="lastname", type="string", length=128, nullable=true)
+     * @ORM\Column(name="lastname", type="string", length=50, nullable=true)
      */
     private $lastname;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="email", type="string", length=255, unique=true)
+     * @ORM\Column(name="email", type="string", length=100, unique=true)
      * @Assert\NotNull(message="email is null.")
      * @Assert\NotBlank(message="email {{ value }} is empty.")
      * @Assert\Email(message="email {{ value }} is not a valid email address.",checkMX=true)
@@ -77,39 +72,33 @@ class User implements AdvancedUserInterface, \Serializable
      * @Assert\NotBlank(message="password {{ value }} is empty.")
      */
     private $plainPassword;
-    
 
     /**
      * @var \DateTime
-     *
      * @ORM\Column(name="creation", type="datetime")
      */
     private $creation;
     
     /**
      * @var \DateTime
-     *
      * @ORM\Column(name="last_update", type="datetime")
      */
     private $lastUpdate;
 
     /**
      * @var \DateTime
-     *
      * @ORM\Column(name="last_login", type="datetime")
      */
     private $lastLogin;
 
     /**
      * @var \DateTime
-     *
      * @ORM\Column(name="birth", type="date", nullable=true)
      */
     private $birth;
 
     /**
      * @var string
-     *
      * @ORM\Column(name="description", type="string", length=1024, nullable=true)
      */
     private $description;
@@ -120,6 +109,18 @@ class User implements AdvancedUserInterface, \Serializable
      */
     private $enabled;
     
+    /**
+     * @var ArrayCollection
+     * @ORM\OneToMany(targetEntity="Article", mappedBy="creationUser")
+     */
+    private $createdArticles;
+    
+    /**
+     * @var ArrayCollection
+     * @ORM\OneToMany(targetEntity="Article", mappedBy="editionUser")
+     */
+    private $editedArticles;
+    
     
     public function __construct(){
         $this->plainPassword = "aValidDummyPassword";
@@ -127,7 +128,6 @@ class User implements AdvancedUserInterface, \Serializable
     
     /**
      * Get id
-     *
      * @return int
      */
     public function getId()
@@ -137,21 +137,17 @@ class User implements AdvancedUserInterface, \Serializable
 
     /**
      * Set username
-     *
      * @param string $username
-     *
      * @return User
      */
     public function setUsername($username)
     {
         $this->username = $username;
-
         return $this;
     }
 
     /**
      * Get username
-     *
      * @return string
      */
     public function getUsername()
@@ -161,9 +157,7 @@ class User implements AdvancedUserInterface, \Serializable
 
     /**
      * Set firstname
-     *
      * @param string $firstname
-     *
      * @return User
      */
     public function setFirstname($firstname)
@@ -175,7 +169,6 @@ class User implements AdvancedUserInterface, \Serializable
 
     /**
      * Get firstname
-     *
      * @return string
      */
     public function getFirstname()
@@ -185,9 +178,7 @@ class User implements AdvancedUserInterface, \Serializable
 
     /**
      * Set lastname
-     *
      * @param string $lastname
-     *
      * @return User
      */
     public function setLastname($lastname)
@@ -199,7 +190,6 @@ class User implements AdvancedUserInterface, \Serializable
 
     /**
      * Get lastname
-     *
      * @return string
      */
     public function getLastname()
@@ -209,9 +199,7 @@ class User implements AdvancedUserInterface, \Serializable
 
     /**
      * Set email
-     *
      * @param string $email
-     *
      * @return User
      */
     public function setEmail($email)
@@ -222,7 +210,6 @@ class User implements AdvancedUserInterface, \Serializable
 
     /**
      * Get email
-     *
      * @return string
      */
     public function getEmail()
@@ -240,7 +227,6 @@ class User implements AdvancedUserInterface, \Serializable
 
     /**
      * Set plainPassword
-     *
      * @param string $plainPassword
      * @return User
      */
@@ -263,7 +249,6 @@ class User implements AdvancedUserInterface, \Serializable
 
     /**
      * Get password
-     *
      * @return string
      */
     public function getPassword()
@@ -273,9 +258,7 @@ class User implements AdvancedUserInterface, \Serializable
 
     /**
      * Set creation
-     *
      * @param \DateTime $creation
-     *
      * @return User
      */
     public function setCreation($creation)
@@ -287,7 +270,6 @@ class User implements AdvancedUserInterface, \Serializable
 
     /**
      * Get creation
-     *
      * @return \DateTime
      */
     public function getCreation()
@@ -315,9 +297,7 @@ class User implements AdvancedUserInterface, \Serializable
 
     /**
      * Set lastLogin
-     *
      * @param \DateTime $lastLogin
-     *
      * @return User
      */
     public function setLastLogin($lastLogin)
@@ -329,7 +309,6 @@ class User implements AdvancedUserInterface, \Serializable
 
     /**
      * Get lastLogin
-     *
      * @return \DateTime
      */
     public function getLastLogin()
@@ -339,9 +318,7 @@ class User implements AdvancedUserInterface, \Serializable
 
     /**
      * Set birth
-     *
      * @param \DateTime $birth
-     *
      * @return User
      */
     public function setBirth($birth)
@@ -353,7 +330,6 @@ class User implements AdvancedUserInterface, \Serializable
 
     /**
      * Get birth
-     *
      * @return \DateTime
      */
     public function getBirth()
@@ -404,6 +380,7 @@ class User implements AdvancedUserInterface, \Serializable
     {}
 
     /**
+     * Get salt
      * @return string
      * {@inheritDoc}
      * @see \Symfony\Component\Security\Core\User\UserInterface::getSalt()
@@ -424,6 +401,10 @@ class User implements AdvancedUserInterface, \Serializable
         return $this;
     }
     
+    /**
+     * Get roles
+     * @return array
+     */
     public function getRoles()
     {
         return array("ROLE_USER");
@@ -457,25 +438,52 @@ class User implements AdvancedUserInterface, \Serializable
         return $this;
     }
     
-    
+    /**
+     * @return boolean
+     */
     public function isAccountNonExpired()
     {
         return true;
     }
 
+    /**
+     * @return boolean
+     */
     public function isCredentialsNonExpired()
     {
         return true;    
     }
 
+    /**
+     * @return boolean
+     */
     public function isEnabled()
     {
         return $this->enabled;
     }
 
+    /**
+     * @return boolean
+     */
     public function isAccountNonLocked()
     {
         return true;
+    }
+    
+    /**
+     * Get createdArticles
+     * @return ArrayCollection
+     */
+    public function getCreatedArticles(){
+        return $this->createdArticles;
+    }
+
+    /**
+     * Get editedArticles
+     * @return ArrayCollection
+     */
+    public function getEditedArticles(){
+        return $this->editedArticles;
     }
 
 }
