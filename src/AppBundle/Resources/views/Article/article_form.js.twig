@@ -1,0 +1,59 @@
+	/** begin or end as argument */
+	function hidePreciseDate(arg){
+			$("#form_main_" + arg + "Date_row").hide();
+	}
+	/** begin or end as argument */
+	function showPreciseDate(arg){
+			$("#form_main_" + arg + "Date_row").show();
+	}
+	/** begin or end,true or false */
+	function requirePreciseDate(arg,required){
+			$("#form_main_" + arg + "_row").attr("required",arg);
+	}
+	
+	/** begin or end as argument */
+	function hideApproxDate(arg){
+			$("#form_main_min" + arg.capitalize() + "Date_row").hide();
+			$("#form_main_max" + arg.capitalize() + "Date_row").hide();
+	}
+	/** begin or end as argument */
+	function showApproxDate(arg){
+			$("#form_main_min" + arg.capitalize() + "Date_row").show();
+			$("#form_main_max" + arg.capitalize() + "Date_row").show();
+	}
+	/** begin or end,true or false */
+	function requireApproxDate(arg,required){
+			$("#form_main_min" + arg.capitalize() + "Date").attr("required",required);
+			$("#form_main_max" + arg.capitalize() + "Date").attr("required",required);
+	}
+	
+	$("#form_main_isBeginDateApprox").on("click",
+		function() {
+		if (this.checked) {
+			hidePreciseDate("begin");
+			requirePreciseDate("begin",false);
+			showApproxDate("begin");
+			requireApproxeDate("begin",true);
+		}
+		else {
+			showPreciseDate("begin");
+			requirePreciseDate("begin",true);
+			hideApproxDate("begin");
+			requireApproxeDate("begin",false);
+		}
+	});
+	$("#form_main_isEndDateApprox").on("click",
+		function() {
+		if (this.checked) {
+			hidePreciseDate("end");
+			requirePreciseDate("end",false);
+			showApproxDate("end");
+			requireApproxeDate("end",true);
+		}
+		else {
+			showPreciseDate("end");
+			requirePreciseDate("end",true);
+			hideApproxDate("end");
+			requireApproxeDate("end",false);
+		}
+	});

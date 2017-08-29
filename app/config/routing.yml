@@ -5,6 +5,6 @@ app:
     
 homepage:     
     path:   /
-    defaults:  { _controller: AppBundle:Default:index }    
+    defaults:  { _controller: 'AppBundle:Default:index' }    
     
     

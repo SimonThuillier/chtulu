@@ -9,6 +9,8 @@ use AppBundle\Form\ArticleType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use AppBundle\Service\DTO\ArticleDTO;
+use Symfony\Component\Form\FormBuilderInterface;
 
 /**
  * 
@@ -25,8 +27,14 @@ class ArticleController extends Controller
     public function createAction(Request $request)
     {
     	$article= new Article();
-    	$form = $this->createForm(ArticleType::class, $article)
-    	->add('save', SubmitType::class, array('label' => 'Creer article'));
+    	$articleDTO = new ArticleDTO();
+    	// $form = $this->createForm(ArticleType::class, $articleDTO);
+    	/** @var FormBuilderInterface $formBuilder */
+    	$formBuilder = $this->get('form.factory')->createNamedBuilder('form_main',ArticleType::class);
+    	/** @var FormInterface $form */
+    	$form = $formBuilder->setData($articleDTO)->getForm();
+    	
+    	//->add('save', SubmitType::class, array('label' => 'Creer article'));
     	
     	$form->handleRequest($request);
     	
@@ -44,7 +52,7 @@ class ArticleController extends Controller
     				array('id' => $article->getId())
     				));
     	}
-    	return array('form_article' => $form->createView());
+    	return array('form' => $form->createView());
     }
     
     /**

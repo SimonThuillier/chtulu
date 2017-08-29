@@ -117,7 +117,7 @@ function HTimeScroller(parentId,beginDate,endDate,eBeginDate,eEndDate,options) {
 			component = component.append("xhtml:div")
 			.append("input")
 			.attr('id','hts-date-input-left')
-			.attr('class','hts-date-input')
+			.attr('class','hts-date-input hts-border-date-input')
 			.attr('placeholder','JJ/MM/AAAA')
 			.attr('regex',dateRegex())
 			.on('change',function() { hts.setBoundDates(-1);});
@@ -143,7 +143,7 @@ function HTimeScroller(parentId,beginDate,endDate,eBeginDate,eEndDate,options) {
 			component = component.append("xhtml:div")
 			.append("input")
 			.attr('id','hts-date-input-right')
-			.attr('class','hts-date-input')
+			.attr('class','hts-date-input hts-border-date-input')
 			.attr('placeholder','JJ/MM/AAAA')
 			.attr('regex',dateRegex())
 			.on('change',function() { hts.setBoundDates(1);});
@@ -301,7 +301,7 @@ HTimeScroller.prototype.redrawComponent = function(thisName){
 	});
 	var component = compoundComponent.component;
 	var drawer = compoundComponent.drawer;
-	drawer(hts,component);
+	drawer(this,component);
 };
 
 /**  callback function to find the adhoc formatter function */
@@ -354,7 +354,7 @@ HTimeScroller.prototype.setScale = function(){
 };
 
 /**  function that updates active scope and display it */
-HTimeScroller.prototype.setScope(beginDate,endDate){
+HTimeScroller.prototype.setScope = function(beginDate,endDate){
 	this.scope[0] = beginDate;
 	this.scope[1] = endDate;
 	// redraw scope area

@@ -33,6 +33,10 @@ class ArticleType
      */
     private $subTypes;
 
+    public function __toString()
+    {
+        return $this->label;
+    }
 
     /**
      * Get id

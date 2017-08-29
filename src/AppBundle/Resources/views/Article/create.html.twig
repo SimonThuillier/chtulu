@@ -13,9 +13,7 @@ Creer un article
 
 
 {% block content_header %}
-      <h1 class="hts-article-title">
-        Nouvel article
-      </h1>
+<h1 class="hts-article-title">Nouvel article</h1>
 {% endblock %}
 
 
@@ -23,15 +21,17 @@ Creer un article
 
 
 {% block content %}
-	<div id="wrapper">
-		<div id="header"></div>
+<div id="wrapper">
+	<div id="header"></div>
 
-		<div id="page">
-			<div id="hts-container" class="hts-container">
-				<svg id="hts-svgcontainer" class="hts-container" width="1150"  height="150"></svg>
-			</div>
+	<div id="page">
+		{% include 'AppBundle:Article:article_main_form.html.twig' with {'form':form} %}
+		<div id="hts-container" class="hts-container">
+			<svg id="hts-svgcontainer" class="hts-container" width="1150"
+				height="150"></svg>
 		</div>
 	</div>
+</div>
 {% endblock %}
 
 
@@ -51,6 +51,8 @@ Creer un article
 < --- les scripts hts --->
 <script type="text/javascript" src="{{ asset_url }}"></script>
 {% endjavascripts %}
+
+<script type="text/javascript">{% include '@AppBundle/Resources/views/Article/article_form.js.twig' %}</script>
 
 <script>
 var htsOptions = [hasMainEvent=false];

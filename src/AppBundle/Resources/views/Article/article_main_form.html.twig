@@ -1,0 +1,57 @@
+{{ form_errors(form) }}
+<table class="table-condensed">
+
+	<tr>
+		<td/>{{ form_label(form.title) }}
+		<td/>{{ form_widget(form.title) }}
+	</tr>
+	<tr>
+		<td/>{{ form_label(form.type) }}   
+		<td/>{{ form_widget(form.type) }}
+	</tr>
+	<tr>
+		<td/>{{ form_label(form.subType) }}   
+		<td/>{{ form_widget(form.subType) }}
+	</tr>	
+	<tr>
+		<td/>{{ form_label(form.abstract) }}   
+		<td/>{{ form_widget(form.abstract) }}
+	</tr>
+	<tr id="form_main_isBeginDateApprox_row">
+		<td/>{{ form_label(form.isBeginDateApprox) }}   
+		<td/>{{ form_widget(form.isBeginDateApprox) }}
+	</tr>
+	<tr id="form_main_beginDate_row">
+		<td/>{{ form_label(form.beginDate) }}   
+		<td/>{{ form_widget(form.beginDate) }}
+	</tr>			
+    <tr id="form_main_minBeginDate_row">
+		<td/>{{ form_label(form.minBeginDate) }}   
+		<td/>{{ form_widget(form.minBeginDate) }}
+	</tr>
+	<tr id="form_main_maxBeginDate_row">
+		<td/>{{ form_label(form.maxBeginDate) }}   
+		<td/>{{ form_widget(form.maxBeginDate) }}
+	</tr>				
+	<tr id="form_main_isEndDateApprox_row">
+		<td/>{{ form_label(form.isEndDateApprox) }}   
+		<td/>{{ form_widget(form.isEndDateApprox) }}
+	</tr>
+	<tr id="form_main_hasNotEndDate_row">
+		<td/>{{ form_label(form.hasNotEndDate) }}   
+		<td/>{{ form_widget(form.hasNotEndDate) }}
+	</tr>	
+	<tr id="form_main_endDate_row">
+		<td/>{{ form_label(form.endDate) }}   
+		<td/>{{ form_widget(form.endDate) }}
+	</tr>			
+    <tr id="form_main_minEndDate_row">
+		<td/>{{ form_label(form.minEndDate) }}   
+		<td/>{{ form_widget(form.minEndDate) }}
+	</tr>
+	<tr id="form_main_maxEndDate_row">
+		<td/>{{ form_label(form.maxEndDate) }}   
+		<td/>{{ form_widget(form.maxEndDate) }}
+	</tr>
+
+</table>

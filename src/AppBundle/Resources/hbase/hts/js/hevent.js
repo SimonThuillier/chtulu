@@ -15,7 +15,7 @@ function HEvent(hts,type,attachment=null,y=null,name=null){
 	this.y = (this.type === 'main')?20:y;
 	this.adjustedY=y; // adjusted y to prevent event overflow when time dezoomed
 	this.adjustedX=0; // adjusted x for text display
-	
+
 	this.name=name;
 	this.abstract=null;
 	this.rendered = false;
@@ -41,14 +41,14 @@ HEvent.prototype.dateFormatter = myFormatPatternDate("d/m/Y");
 /** function to create graphic components of events */
 HEvent.prototype.render = function(){
 	if(this.rendered) return;
-	
+
 	this.rectId = 'hts-event-rect-' + this.type + '-' + this.id;
 	this.textId = 'hts-event-title-' + this.type + '-' + this.id;
 	this.pinPointId = 'hts-event-pin-' + this.type + '-' + this.id;
 
 	var htsEvent=this;
 	var color = (this.type === 'main')?"Orange":"MediumSlateBlue";
-	
+
 
 	this.rect = this.hts.findComponentByName('event-area')
 	.append("rect")
@@ -60,14 +60,14 @@ HEvent.prototype.render = function(){
 	.on('click',function(){
 		console.log("edition event existant");	
 		htsEvent.edit();
-	d3.event.preventDefault();
-	d3.event.stopPropagation();});	
-	
+		d3.event.preventDefault();
+		d3.event.stopPropagation();});	
+
 	this.text = this.hts.findComponentByName('event-area')
 	.append("text")
 	.attr("id","<a href='' >" + this.textId + "</a>")
 	.text(this.name);
-	
+
 	this.pinPoint = this.hts.findComponentByName('event-area')
 	.append("circle")
 	.attr("id",this.pinPointId)
@@ -77,31 +77,31 @@ HEvent.prototype.render = function(){
 	.attr("stroke","orange")
 	.attr("stroke-width",2)
 	.call(d3.drag()
-		.on("start", function(){htsEvent.deltaY = htsEvent.y - d3.event.y;})
-		.on("drag",  function(){	
-			if((d3.event.y + htsEvent.deltaY) < htsEvent.manager.yMargin) return;
-			htsEvent.y = d3.event.y + htsEvent.deltaY;
-			htsEvent.adjustedY = htsEvent.y;
-			htsEvent.manager.setMaxY(htsEvent.y + htsEvent.manager.yMargin);
-			htsEvent.updateRender();})
-		.on("end", function(){})
+			.on("start", function(){htsEvent.deltaY = htsEvent.y - d3.event.y;})
+			.on("drag",  function(){	
+				if((d3.event.y + htsEvent.deltaY) < htsEvent.manager.yMargin) return;
+				htsEvent.y = d3.event.y + htsEvent.deltaY;
+				htsEvent.adjustedY = htsEvent.y;
+				htsEvent.manager.setMaxY(htsEvent.y + htsEvent.manager.yMargin);
+				htsEvent.updateRender();})
+				.on("end", function(){})
 	)
 	.on('click',function(){
 		console.log("edition event existant");	
 		htsEvent.edit();
-	d3.event.preventDefault();
-	d3.event.stopPropagation();})
-	
-	
-	this.rendered=true;
+		d3.event.preventDefault();
+		d3.event.stopPropagation();})
+
+
+		this.rendered=true;
 }
 
 /** function returning true if two events cross in time, false otherwise */
 HEvent.prototype.cross = function(HEvent2){
-	 if((this.getDisplayedEndDate() >= HEvent2.getDisplayedBeginDate() && 
-			 this.getDisplayedBeginDate() <= HEvent2.getDisplayedEndDate()) ||
-			 (this.getDisplayedBeginDate() <= HEvent2.getDisplayedEndDate() &&
-			  this.getDisplayedEndDate() >= HEvent2.getDisplayedBeginDate()	)){return true;}
+	if((this.getDisplayedEndDate() >= HEvent2.getDisplayedBeginDate() && 
+			this.getDisplayedBeginDate() <= HEvent2.getDisplayedEndDate()) ||
+			(this.getDisplayedBeginDate() <= HEvent2.getDisplayedEndDate() &&
+					this.getDisplayedEndDate() >= HEvent2.getDisplayedBeginDate()	)){return true;}
 	return false;
 }
 
@@ -113,8 +113,8 @@ HEvent.prototype.displayIntersect = function(HEvent2){
 	var width2 = HEvent2.text.node().getBBox().width;
 	var minX2 = Number(HEvent2.text.attr("x")) - width2/2;
 	var maxX2 = Number(HEvent2.text.attr("x")) + width2/2;
-	 if((maxX1 >= minX2 && minX1 <= maxX2)|| (minX2 <= maxX1 && maxX2 >= minX1)){return true;} // check textArea
-    width1 = Number(this.rect.attr("width"));
+	if((maxX1 >= minX2 && minX1 <= maxX2)|| (minX2 <= maxX1 && maxX2 >= minX1)){return true;} // check textArea
+	width1 = Number(this.rect.attr("width"));
 	minX1 = Number(this.rect.attr("x")) - width1/2 - this.rPinPoint/2;
 	maxX1 = Number(this.rect.attr("x")) + width1/2;
 	width2 = Number(HEvent2.rect.attr("width"));
@@ -130,13 +130,13 @@ HEvent.prototype.displayIntersect = function(HEvent2){
 /** function to create graphic components of events */
 HEvent.prototype.updateRender = function(){
 	var hEvent = this;
-	
+
 	this.pinPoint
 	.transition()
 	.attr("cy",this.adjustedY + this.hts.ABS_EVENT_HEIGHT/2 )
 	.attr("cx",this.hts.dateScale(this.beginDate.getBoundDate(0)))
 	.duration(hEvent.animationTime);
-	
+
 	this.rect
 	.transition()
 	.attr("x",this.hts.dateScale(this.getDisplayedBeginDate()))
@@ -144,9 +144,9 @@ HEvent.prototype.updateRender = function(){
 	.attr("width",this.hts.dateScale(this.getDisplayedEndDate()) - this.hts.dateScale(this.getDisplayedBeginDate()))
 	.attr("height",this.hts.ABS_EVENT_HEIGHT)
 	.duration(hEvent.animationTime);
-	
-	
-	
+
+
+
 	this.adjustedX = (this.hts.dateScale(this.getDisplayedBeginDate()) + this.hts.dateScale(this.getDisplayedEndDate()) - this.text.node().getBBox().width)/2 ; // default X
 	if(this.getDisplayedBeginDate() < this.hts.beginDate && 
 			this.getDisplayedEndDate() > this.hts.beginDate &&
@@ -161,19 +161,19 @@ HEvent.prototype.updateRender = function(){
 	}
 	else if(this.getDisplayedEndDate() > this.hts.endDate && 
 			this.getDisplayedBeginDate() < this.hts.beginDate){
-		
+
 		var ratio = (this.hts.endDate.dayDiff(this.hts.beginDate)) / (this.getDisplayedEndDate().dayDiff(this.getDisplayedBeginDate()));
 		var offset = (this.getDisplayedEndDate().dayDiff(this.hts.endDate)) - (this.hts.beginDate.dayDiff(this.getDisplayedBeginDate()));
-		
+
 		var virtualDate = this.hts.beginDate.clone().addDay(offset);
-		
+
 		console.log(this.hts.dateScale(virtualDate),ratio);
-		
+
 		this.adjustedX = this.hts.htsBaseWidth/2 + this.hts.dateScale(virtualDate)*ratio/1.5;
 		this.adjustedX = Math.max(this.adjustedX,5);
 		this.adjustedX = Math.min(this.adjustedX,this.hts.htsBaseWidth - this.text.node().getBBox().width-5);
 	}
-	
+
 	this.text
 	.attr("text-anchor","start")  
 	.attr("height",this.hts.ABS_EVENT_HEIGHT)
@@ -181,8 +181,8 @@ HEvent.prototype.updateRender = function(){
 	.attr("y",this.adjustedY -5)
 	.attr("x",this.adjustedX)
 	.duration(hEvent.animationTextTime);
-	
-	
+
+
 	;	
 }
 
@@ -377,7 +377,7 @@ HEvent.prototype.edit = function(){
 					else{	
 						htsEvent.endDate = new HDate(myParseDate($("#input-end-date-precise").val()));					
 					}
-					
+
 					if (! htsEvent.rendered) htsEvent.render();
 					htsEvent.text.text(htsEvent.name);
 					/* if(htsEvent.type === 'main'){
@@ -394,7 +394,7 @@ HEvent.prototype.edit = function(){
 	});	
 	// add form event
 	this.addFormEvent();
-	
+
 }
 
 

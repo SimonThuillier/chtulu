@@ -32,6 +32,11 @@ class ArticleSubType
      * @ORM\JoinColumn(name="type_id", referencedColumnName="id")
      */
     private $type;
+    
+    public function __toString()
+    {
+        return $this->label;
+    }
 
 
     /**
