@@ -12,6 +12,11 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class ArticleSubType
 {
+    const EVENT_SHORT=1;
+    const EVENT_MEDIUM=2;
+    const EVENT_LONG=3;
+    
+    
     /**
      * @var int
      * @ORM\Column(name="id", type="bigint")

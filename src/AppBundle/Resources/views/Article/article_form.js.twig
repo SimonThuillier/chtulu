@@ -33,13 +33,13 @@
 			hidePreciseDate("begin");
 			requirePreciseDate("begin",false);
 			showApproxDate("begin");
-			requireApproxeDate("begin",true);
+			requireApproxDate("begin",true);
 		}
 		else {
 			showPreciseDate("begin");
 			requirePreciseDate("begin",true);
 			hideApproxDate("begin");
-			requireApproxeDate("begin",false);
+			requireApproxDate("begin",false);
 		}
 	});
 	$("#form_main_isEndDateApprox").on("click",
@@ -48,12 +48,29 @@
 			hidePreciseDate("end");
 			requirePreciseDate("end",false);
 			showApproxDate("end");
-			requireApproxeDate("end",true);
+			requireApproxDate("end",true);
 		}
 		else {
 			showPreciseDate("end");
 			requirePreciseDate("end",true);
 			hideApproxDate("end");
-			requireApproxeDate("end",false);
+			requireApproxDate("end",false);
+		}
+	});
+	$("#form_main_hasNotEndDate").on("click",
+		function() {
+		if (this.checked) {
+			hidePreciseDate("end");
+			hideApproxDate("end");
+			requirePreciseDate("end",false);
+			requireApproxDate("end",false);
+			$("#form_main_isEndDateApprox_row").hide();
+		}
+		else {
+			showPreciseDate("end");
+			hideApproxDate("end");
+			requirePreciseDate("end",true);
+			requireApproxDate("end",false);		
+			$("#form_main_isEndDateApprox_row").show();
 		}
 	});

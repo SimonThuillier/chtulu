@@ -13,6 +13,10 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class ArticleType
 {
+    const EVENT=1;
+    const CHARACTER=2;
+    const THEME=3;
+    
     /**
      * @var int
      * @ORM\Column(name="id", type="bigint")

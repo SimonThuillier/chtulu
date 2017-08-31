@@ -40,18 +40,24 @@ class ArticleType extends AbstractType
         ))
             ->add('isBeginDateApprox', CheckboxType::class, array(
             'label' => "Date de début approximative ?",
-            'attr' => array('class' => 'checkbox icheck')    
+            'attr' => array(
+                'class' => 'checkbox icheck'
+            )
         ))
             ->add('beginDate', DateType::class, $this->dateOptions('Date de début'))
             ->add('minBeginDate', DateType::class, $this->dateOptions('Date de début min'))
             ->add('maxBeginDate', DateType::class, $this->dateOptions('Date de début Max'))
-            ->add('isEndDateApprox', CheckboxType::class, array(
-                'label' => "Date de fin approximative ?",
-                'attr' => array('class' => 'checkbox icheck') 
-        ))
-        ->add('hasNotEndDate', CheckboxType::class, array(
+            ->add('hasNotEndDate', CheckboxType::class, array(
             'label' => "Pas de date de fin",
-            'attr' => array('class' => 'checkbox icheck')
+            'attr' => array(
+                'class' => 'checkbox icheck'
+            )
+        ))
+            ->add('isEndDateApprox', CheckboxType::class, array(
+            'label' => "Date de fin approximative ?",
+            'attr' => array(
+                'class' => 'checkbox icheck'
+            )
         ))
             ->add('endDate', DateType::class, $this->dateOptions('Date de fin'))
             ->add('minEndDate', DateType::class, $this->dateOptions('Date de fin min'))

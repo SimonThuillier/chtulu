@@ -27,7 +27,7 @@ class ArticleController extends Controller
     public function createAction(Request $request)
     {
     	$article= new Article();
-    	$articleDTO = new ArticleDTO();
+    	$articleDTO = $this->get("app.factory.article_dto_factory")->newInstance("main");
     	// $form = $this->createForm(ArticleType::class, $articleDTO);
     	/** @var FormBuilderInterface $formBuilder */
     	$formBuilder = $this->get('form.factory')->createNamedBuilder('form_main',ArticleType::class);
