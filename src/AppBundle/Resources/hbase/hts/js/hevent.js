@@ -26,7 +26,7 @@ function HEvent(hts,type,attachment=null,y=null,name=null){
 	this.pinPointId = null;
 
 	this.beginDate=null; // HDate
-	this.hasEndDate=true; // boolean
+	this.hasNotEndDate=false; // boolean
 	this.endDate=null; // HDate
 	this.rendered = false;
 	this.manager = null;
@@ -34,9 +34,10 @@ function HEvent(hts,type,attachment=null,y=null,name=null){
 
 /** make the idGenerator for the event prototype */
 HEvent.prototype.idGenerator = idGenerator();
+/** form id where events are bound to */
+HEvent.prototype.FORM_ID = "article_modal";
 
 HEvent.prototype.dateFormatter = myFormatPatternDate("d/m/Y");
-
 
 /** function to create graphic components of events */
 HEvent.prototype.render = function(){
@@ -187,6 +188,7 @@ HEvent.prototype.updateRender = function(){
 }
 
 HEvent.prototype.getDisplayedEndDate = function(){
+	if(this.endDate === null) return new Date();
 	return this.endDate.getBoundDate(0).clone().addDay(1);
 }
 HEvent.prototype.getDisplayedBeginDate = function(){
@@ -195,64 +197,91 @@ HEvent.prototype.getDisplayedBeginDate = function(){
 
 /** create the html form for the event */
 HEvent.prototype.getFormHtml = function(){
-	// oddly it didn't work directly selecting object args to the input, hence this trick
-	var formValues = [];
-
-	formValues["input-title-event"] = this.name;
-	formValues["description-event"] = this.abstract;
-	formValues["input-begin-date-precise"] = (this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(0)):"";
-	formValues["input-begin-date-imprecise"] = (this.beginDate != null)?this.beginDate.isExact():false;
-	formValues["begin-date-min"] = (this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(0)):""  ;
-	formValues["begin-date-max"] = (this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(1)):"";
-	// formValues[] = ;
-	formValues["input-end-date-precise"] = (this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"" ;
-	formValues["input-end-date-imprecise"] = (this.endDate != null)?this.endDate.isExact():false;
-	formValues["end-date-min"] = (this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"";
-	formValues["end-date-max"] = (this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(1)):"";
-	// formValues[] = ;
-
-	var dateRegex = "^(0?[1-9]|[1-2][0-9]|3[0-1])/(0?[1-9]|1[0-2])/(-?[1-9][0-9]*)$";
-
-	return ['<form id="hts-form-event" action="" method="post">',
-		'<div id="warning-event" />',
-		'<div id="title-event"><input name="title-event" id="input-title-event" type="text" placeholder="nom" size=55 required=true value="',
-		formValues["input-title-event"],
-		'"></input></div>',
-		'<br>',
-		'<div><textarea id="description-event" rows="4" cols="80" placeholder="description" required=true value="">',
-		formValues["description-event"],
-		'</textarea></div>',
-		'<b>Début</b><br>',
-		'<div id="begin-date-precise">',
-		'<input name="date" id="input-begin-date-precise" type="text" pattern="'+ dateRegex + '" placeholder="JJ/MM/AAAA" required=true value="' ,
-		formValues["input-begin-date-precise"],
-		'"/></div>',
-		'Approx.?<input id="input-begin-date-imprecise" type="checkbox" value=',
-		formValues["input-begin-date-imprecise"],
-		'/>',
-		'<div hidden=true id="begin-date-min">Date min estimée <input name="date" id="input-begin-date-min" type="text" pattern="'+ dateRegex + '" placeholder="JJ/MM/AAAA" value="',
-		formValues["begin-date-min"],
-		'" /></div>',
-		'<div hidden=true id="begin-date-max">Date Max estimée <input name="date" id="input-begin-date-max" type="text" pattern="'+ dateRegex + '" placeholder="JJ/MM/AAAA" value="' ,
-		formValues["begin-date-max"],
-		'"/></div><br>',
-		'<b>Fin</b> <input id="input-end-date-nonexists" type="checkbox" /><br>',
-		'<div id="end-date-precise">',
-		'<input name="date" id="input-end-date-precise" type="text" pattern="'+ dateRegex + '" placeholder="JJ/MM/AAAA" required=true value="', 
-		formValues["input-end-date-precise"],
-		'"/></div>',
-		'Approx.?<input id="input-end-date-imprecise" type="checkbox" value=',
-		formValues["input-end-date-imprecise"],
-		'/>',
-		'<div hidden=true id="end-date-min">Date min estimée <input name="date" id="input-end-date-min" type="text" pattern="'+ dateRegex + '" placeholder="JJ/MM/AAAA" value="', 
-		formValues["end-date-min"],
-		'"/></div>',
-		'<div hidden=true id="end-date-max">Date Max estimée <input name="date" id="input-end-date-max" type="text" pattern="'+ dateRegex + '" placeholder="JJ/MM/AAAA" value="', 
-		formValues["end-date-max"],
-		'"/></div>',
-		'<div hidden=true><input hidden=true type="submit" id="hts-fake-submitter" class="validateDontSubmit" value=""></div>',
-		'</form>'].join('');	
+	var regexp = new RegExp('id="' + this.FORM_ID,'g');
+	return regexp[Symbol.replace]($("#" + this.FORM_ID).html(), 'id="' + this.FORM_ID + '_live');
 }
+
+/** update a from of given id with the data from this object */
+HEvent.prototype.bindToForm = function(formId){
+	$("input#" + formId + "_title").val(this.name);
+	$("textarea#" + formId + "_abstract").val(this.abstract);
+	
+	$("input#" + formId + "_isBeginDateApprox:checked").val((this.beginDate != null)?this.beginDate.isExact():false);
+	$("input#" + formId + "_beginDate").val((this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(0)):"");
+	$("input#" + formId + "_minBeginDate").val((this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(0)):"");
+	$("input#" + formId + "_maxBeginDate").val((this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(1)):"");
+	
+	$("input#" + formId + "_hasNotEndDate:checked").val(this.hasNotEndDate);
+	$("input#" + formId + "_isEndDateApprox:checked").val((this.endDate != null)?this.endDate.isExact():false);
+	$("input#" + formId + "_endDate").val((this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"");
+	$("input#" + formId + "_minEndDate").val((this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"");
+	$("input#" + formId + "_maxEndDate").val((this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(1)):"");
+}
+
+/** update the object from the form of given Id */
+HEvent.prototype.updateFromForm = function(formId){
+	this.name = $("input#" + formId + "_title").val();
+	this.abstract = $("textarea#" + formId + "_abstract").val();
+	
+	if ($("input#" + formId + "_isBeginDateApprox").is(":checked")){
+		this.beginDate = new HDate(myParseDate($("input#" + formId + "_minBeginDate").val()),
+		myParseDate($("input#" + formId + "_maxBeginDate").val()));
+	}
+	else{	
+		this.beginDate = new HDate(myParseDate($("input#" + formId + "_beginDate").val()));					
+	}
+
+	this.hasNotEndDate = ($("input#" + formId + "_hasNotEndDate").is(":checked"));
+	this.endDate = null;
+	if(! this.hasNotEndDate){
+		if ($("input#" + formId + "_isEndDateApprox").is(":checked")){
+			this.endDate = new HDate(myParseDate($("input#" + formId + "_minEndDate").val()),
+			myParseDate($("input#" + formId + "_maxEndDate").val()));
+		}
+		else{	
+			this.endDate = new HDate(myParseDate($("input#" + formId + "_endDate").val()));					
+		}
+	}
+}
+
+/** check if event form is valid : returns true or false */
+HEvent.prototype.checkFormValidity = function(formId){
+	// control begin Date
+	var selector;
+	if ($("input#" + formId + "_isBeginDateApprox").is(":checked")){
+		selector = "input#" + formId + "_minBeginDate";
+		if (myParseDate($(selector).val()) === null) $(selector).val(null);
+		selector = "input#" + formId + "_maxBeginDate";
+		if (myParseDate($(selector).val()) === null) $(selector).val(null);
+	}
+	else{	
+		selector = "input#" + formId + "_beginDate";
+		if (myParseDate($(selector).val()) === null) $(selector).val(null);				
+	}
+	// control end date if present
+	if (! $("input#" + formId + "_hasNotEndDate").is(":checked")){
+		if ($("input#" + formId + "_isEndDateApprox").is(":checked")){
+			selector = "input#" + formId + "_minEndDate";
+			if (myParseDate($(selector).val()) === null) $(selector).val(null);
+			selector = "input#" + formId + "_maxEndDate";
+			if (myParseDate($(selector).val()) === null) $(selector).val(null);
+		}
+		else{				
+			selector = "input#" + formId + "_endDate";
+			if (myParseDate($(selector).val()) === null) $(selector).val(null);						
+		}
+	}
+
+	if(! document.getElementById(formId).checkValidity()){
+		$("#" + formId + "_fake_submitter").click();
+		return false;
+	}
+	return true;
+}
+
+
+
+
 /** define events applied to form components, once it's defined */
 HEvent.prototype.addFormEvent = function(){
 	// add requirement attributes according to which date inputs are relevant (precise or unprecise)
@@ -296,43 +325,6 @@ HEvent.prototype.addFormEvent = function(){
 	});
 }
 
-
-
-/** handle form submission and create the event */
-HEvent.prototype.setForm = function(){
-	this.checkFormValidity();
-}
-
-
-
-/** check if event form is valid : returns true or false */
-HEvent.prototype.checkFormValidity = function(){
-	// control begin Date
-	if (! $("#input-begin-date-imprecise:checked").length>0){
-		if (myParseDate($("#input-begin-date-min").val()) === null) $("#input-begin-date-min").val(null);
-		if (myParseDate($("#input-begin-date-max").val()) === null) $("#input-begin-date-max").val(null);
-	}
-	else{			
-		if (myParseDate($("#input-begin-date-precise").val()) === null) $("#input-begin-date-precise").val(null);					
-	}
-	// control end date
-	if (! $("#input-end-date-imprecise:checked").length>0){
-		if (myParseDate($("#input-end-date-min").val()) === null) $("#input-end-date-min").val(null);
-		if (myParseDate($("#input-end-date-max").val()) === null) $("#input-end-date-max").val(null);
-	}
-	else{				
-		if (subDate = myParseDate($("#input-end-date-precise").val()) === null) $("#input-end-date-precise").val(null);					
-	}
-
-	if(! document.getElementById("hts-form-event").checkValidity()){
-		$("#hts-fake-submitter").click();
-		return false;
-	}
-
-	return true;
-}
-
-
 /** function to handle event edition (with modal display) */
 HEvent.prototype.edit = function(){
 	var message= 'Edition de l\'évenement';
@@ -344,10 +336,11 @@ HEvent.prototype.edit = function(){
 	}
 
 	var htsEvent = this;
+	var formId = htsEvent.FORM_ID + '_live';
 	var form = vex.dialog.open({
 		className: 'vex-theme-os',
 		message: message,
-		input: htsEvent.getFormHtml(),
+		input: htsEvent.getFormHtml(formId),
 		defaultOptions:{escapeButtonCloses: false,showCloseButton: true},
 		buttons: [
 			$.extend({}, vex.dialog.buttons.YES, { id: 'hts-event-add', text: 'Ajouter' }),
@@ -356,27 +349,12 @@ HEvent.prototype.edit = function(){
 			callback: function (value) {
 				if (value == 0) return; // cancel button
 
-				if(! htsEvent.checkFormValidity()){
+				if(! htsEvent.checkFormValidity(formId)){
 					throw new Error("form is not valid"); // prevent callback return and hence modal closing
 				}
 				else{
 					console.log("form is valid");
-					htsEvent.name = $("#input-title-event").val();
-					htsEvent.abstract = $("#description-event").val();
-					console.log(htsEvent.abstract);		        		  if ($("#input-begin-date-imprecise:checked").length>0){
-						htsEvent.beginDate = new HDate(myParseDate($("#input-begin-date-min").val()),
-								myParseDate($("#input-begin-date-max").val()));
-					}
-					else{	
-						htsEvent.beginDate = new HDate(myParseDate($("#input-begin-date-precise").val()));					
-					}
-					if ($("#input-end-date-imprecise:checked").length>0){
-						htsEvent.endDate = new HDate(myParseDate($("#input-end-date-min").val()),
-								myParseDate($("#input-end-date-max").val()));
-					}
-					else{	
-						htsEvent.endDate = new HDate(myParseDate($("#input-end-date-precise").val()));					
-					}
+					htsEvent.updateFromForm(formId);
 
 					if (! htsEvent.rendered) htsEvent.render();
 					htsEvent.text.text(htsEvent.name);
@@ -387,14 +365,13 @@ HEvent.prototype.edit = function(){
 					if(htsEvent.manager === null) htsEvent.hts.eventManager.addEvent(htsEvent);
 					return true;
 				}
-
-
-
 			}
 	});	
+	
+	// bind new form to Hevent
+	this.bindToForm(formId);
 	// add form event
 	this.addFormEvent();
-
 }
 
 

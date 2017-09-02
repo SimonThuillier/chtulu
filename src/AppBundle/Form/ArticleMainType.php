@@ -8,14 +8,14 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use AppBundle\Service\DTO\ArticleDTO;
+use AppBundle\DTO\ArticleMainDTO;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
-class ArticleType extends AbstractType
+class ArticleMainType extends AbstractType
 {
 
     public function buildForm(FormBuilderInterface $builder, array $options)
-    {
+    {  
         $builder->add('title', TextType::class, array(
             'label' => 'Titre',
             'required' => true,
@@ -40,6 +40,7 @@ class ArticleType extends AbstractType
         ))
             ->add('isBeginDateApprox', CheckboxType::class, array(
             'label' => "Date de début approximative ?",
+            'required' => false,    
             'attr' => array(
                 'class' => 'checkbox icheck'
             )
@@ -83,7 +84,7 @@ class ArticleType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => ArticleDTO::class
+            'data_class' => ArticleMainDTO::class
         ));
     }
 }

@@ -1,8 +1,7 @@
 <?php
 
-namespace AppBundle\Service\DTO;
+namespace AppBundle\DTO;
 
-use Doctrine\ORM\EntityManager;
 use AppBundle\Entity\ArticleType;
 use AppBundle\Entity\ArticleSubType;
 
@@ -12,9 +11,8 @@ use AppBundle\Entity\ArticleSubType;
  * @author belze
  * DTO for handling article form and mapping with entities (Article,...)
  */
-class ArticleDTO
+class ArticleModalDTO implements ArticleDTOInterface
 {
-    
     /** @var string */
     private $title;
     /** @var ArticleType */
@@ -53,7 +51,7 @@ class ArticleDTO
     /**
      * title
      * @param string $title
-     * @return ArticleDTO
+     * @return self
      */
     public function setTitle($title){
         $this->title = $title;
@@ -71,7 +69,7 @@ class ArticleDTO
     /**
      * type
      * @param ArticleType $type
-     * @return ArticleDTO
+     * @return self
      */
     public function setType($type){
         $this->type = $type;
@@ -89,7 +87,7 @@ class ArticleDTO
     /**
      * subType
      * @param ArticleSubType $subType
-     * @return ArticleDTO
+     * @return self
      */
     public function setSubType($subType){
         $this->subType = $subType;
@@ -107,7 +105,7 @@ class ArticleDTO
     /**
      * abstract
      * @param string $abstract
-     * @return ArticleDTO
+     * @return self
      */
     public function setAbstract($abstract){
         $this->abstract = $abstract;
@@ -125,7 +123,7 @@ class ArticleDTO
     /**
      * beginDate
      * @param \DateTime $beginDate
-     * @return ArticleDTO
+     * @return self
      */
     public function setBeginDate($beginDate){
         $this->beginDate = $beginDate;
@@ -143,7 +141,7 @@ class ArticleDTO
     /**
      * minBeginDate
      * @param \DateTime $minBeginDate
-     * @return ArticleDTO
+     * @return self
      */
     public function setMinBeginDate($minBeginDate){
         $this->minBeginDate = $minBeginDate;
@@ -161,7 +159,7 @@ class ArticleDTO
     /**
      * maxBeginDate
      * @param \DateTime $maxBeginDate
-     * @return ArticleDTO
+     * @return self
      */
     public function setMaxBeginDate($maxBeginDate){
         $this->maxBeginDate = $maxBeginDate;
@@ -179,7 +177,7 @@ class ArticleDTO
     /**
      * isBeginDateApprox
      * @param boolean $isBeginDateApprox
-     * @return ArticleDTO
+     * @return self
      */
     public function setIsBeginDateApprox($isBeginDateApprox){
         $this->isBeginDateApprox = $isBeginDateApprox;
@@ -197,7 +195,7 @@ class ArticleDTO
     /**
      * hasNotEndDate
      * @param boolean $hasNotEndDate
-     * @return ArticleDTO
+     * @return self
      */
     public function setHasNotEndDate($hasNotEndDate){
         $this->hasNotEndDate = $hasNotEndDate;
@@ -215,7 +213,7 @@ class ArticleDTO
     /**
      * endDate
      * @param \DateTime $endDate
-     * @return ArticleDTO
+     * @return self
      */
     public function setEndDate($endDate){
         $this->endDate = $endDate;
@@ -233,7 +231,7 @@ class ArticleDTO
     /**
      * minEndDate
      * @param \DateTime $minEndDate
-     * @return ArticleDTO
+     * @return self
      */
     public function setMinEndDate($minEndDate){
         $this->minEndDate = $minEndDate;
@@ -251,7 +249,7 @@ class ArticleDTO
     /**
      * maxEndDate
      * @param \DateTime $maxEndDate
-     * @return ArticleDTO
+     * @return self
      */
     public function setMaxEndDate($maxEndDate){
         $this->maxEndDate = $maxEndDate;
@@ -269,7 +267,7 @@ class ArticleDTO
     /**
      * isEndDateApprox
      * @param boolean $isEndDateApprox
-     * @return ArticleDTO
+     * @return self
      */
     public function setIsEndDateApprox($isEndDateApprox){
         $this->isEndDateApprox = $isEndDateApprox;

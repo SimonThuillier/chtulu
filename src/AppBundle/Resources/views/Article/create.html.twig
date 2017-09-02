@@ -32,6 +32,10 @@ Creer un article
 		</div>
 	</div>
 </div>
+<div id="{{ modalForm.vars.id }}" hidden=true>{% include 'AppBundle:Article:article_modal_form.html.twig' with {'form':modalForm} %}</div>
+
+
+
 {% endblock %}
 
 
@@ -39,6 +43,7 @@ Creer un article
 
 
 {% block javascript %}
+
 {% javascripts      
                '@AppBundle/Resources/third-party/attrchange/attrchange.js'
 			   '@AppBundle/Resources/hbase/hts/js/hdate.js'
@@ -55,6 +60,7 @@ Creer un article
 <script type="text/javascript">{% include '@AppBundle/Resources/views/Article/article_form.js.twig' %}</script>
 
 <script>
+
 var htsOptions = [hasMainEvent=false];
 
 var d1 = new Date(1800,0,7);

@@ -1,4 +1,0 @@
-services:
-    app.factory.article_dto_factory:
-        class:     AppBundle\Factory\ArticleDTOFactory
-        arguments: ['@doctrine']

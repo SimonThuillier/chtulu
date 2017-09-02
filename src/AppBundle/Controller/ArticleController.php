@@ -5,12 +5,14 @@ namespace AppBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use AppBundle\Entity\Article;
-use AppBundle\Form\ArticleType;
+use AppBundle\Form\ArticleMainType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use AppBundle\Service\DTO\ArticleDTO;
+use AppBundle\DTO\ArticleMainDTO;
 use Symfony\Component\Form\FormBuilderInterface;
+use AppBundle\Factory\ArticleDTOFactory;
+use AppBundle\Form\ArticleModalType;
 
 /**
  * 
@@ -24,15 +26,16 @@ class ArticleController extends Controller
      * @Route("/create",name="article_create")
      * @Template()
      */
-    public function createAction(Request $request)
+    public function createAction(Request $request,ArticleDTOFactory $articleDTOFactory)
     {
     	$article= new Article();
-    	$articleDTO = $this->get("app.factory.article_dto_factory")->newInstance("main");
+    	$articleDTO = $articleDTOFactory->newInstance("main");
+    	$articleModalDTO = $articleDTOFactory->newInstance("modal");
     	// $form = $this->createForm(ArticleType::class, $articleDTO);
-    	/** @var FormBuilderInterface $formBuilder */
-    	$formBuilder = $this->get('form.factory')->createNamedBuilder('form_main',ArticleType::class);
     	/** @var FormInterface $form */
-    	$form = $formBuilder->setData($articleDTO)->getForm();
+    	$form = $this->get('form.factory')->createBuilder(ArticleMainType::class)->setData($articleDTO)->getForm();
+    	/** @var FormInterface $form */
+    	$modalForm = $this->get('form.factory')->createBuilder(ArticleModalType::class)->setData($articleModalDTO)->getForm();
     	
     	//->add('save', SubmitType::class, array('label' => 'Creer article'));
     	
@@ -52,7 +55,10 @@ class ArticleController extends Controller
     				array('id' => $article->getId())
     				));
     	}
-    	return array('form' => $form->createView());
+    	return array(
+    	    'form' => $form->createView(),
+    	    'modalForm' => $modalForm->createView()
+    	);
     }
     
     /**
@@ -62,7 +68,7 @@ class ArticleController extends Controller
     public function editAction(Request $request,$id)
     {
     	$article= $this->getDoctrine()->getRepository('EntityBundle:Article')->find($id);
-    	$form = $this->createForm(ArticleType::class, $article)
+    	$form = $this->createForm(ArticleMainType::class, $article)
     	->add('save', SubmitType::class, array('label' => 'Editer article'));
     	
     	$form->handleRequest($request);

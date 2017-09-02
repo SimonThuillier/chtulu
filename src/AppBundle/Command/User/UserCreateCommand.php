@@ -1,14 +1,13 @@
 <?php
 
 namespace AppBundle\Command\User;
-
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
-use AppBundle\Service\UserManager;
+use AppBundle\Manager\UserManager;
 use Doctrine\ORM\EntityManager;
 use AppBundle\Entity as HE;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
