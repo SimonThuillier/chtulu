@@ -284,45 +284,7 @@ HEvent.prototype.checkFormValidity = function(formId){
 
 /** define events applied to form components, once it's defined */
 HEvent.prototype.addFormEvent = function(){
-	// add requirement attributes according to which date inputs are relevant (precise or unprecise)
-	$("#input-begin-date-imprecise").on("click",
-			function() {
-		if (this.checked) {
-			$("#begin-date-precise").hide();
-			$("#input-begin-date-precise").attr("required",false);
-			$("#begin-date-min").show();
-			$("#begin-date-max").show();
-			$("#input-begin-date-min").attr("required",true);
-			$("#input-begin-date-max").attr("required",true);
-		}
-		else {
-			$("#begin-date-precise").show();
-			$("#input-begin-date-precise").attr("required",true);
-			$("#begin-date-min").hide();
-			$("#begin-date-max").hide();
-			$("#input-begin-date-min").attr("required",false);
-			$("#input-begin-date-max").attr("required",false);
-		}
-	});
-	$("#input-end-date-imprecise").on("click",
-			function() {
-		if (this.checked) {
-			$("#end-date-precise").hide();
-			$("#input-end-date-precise").attr("required",false);
-			$("#end-date-min").show();
-			$("#end-date-max").show();
-			$("#input-end-date-min").attr("required",true);
-			$("#input-end-date-max").attr("required",true);						
-		}
-		else {
-			$("#end-date-precise").show();
-			$("#input-end-date-precise").attr("required",true);					
-			$("#end-date-min").hide();
-			$("#end-date-max").hide();
-			$("#input-end-date-min").attr("required",false);
-			$("#input-end-date-max").attr("required",false);	
-		}
-	});
+	instanciateFormEvent('modal_live');
 }
 
 /** function to handle event edition (with modal display) */

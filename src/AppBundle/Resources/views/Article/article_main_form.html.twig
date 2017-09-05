@@ -1,3 +1,4 @@
+<form id="article_main_form">
 {{ form_errors(form) }}
 <table class="table-condensed">
 	<tr>
@@ -16,41 +17,51 @@
 		<td/>{{ form_label(form.abstract) }}   
 		<td/>{{ form_widget(form.abstract) }}
 	</tr>
-	<tr id="form_main_isBeginDateApprox_row">
+	<tr id="article_main_isBeginDateApprox_row">
 		<td/>{{ form_label(form.isBeginDateApprox) }}   
 		<td/>{{ form_widget(form.isBeginDateApprox) }}
 	</tr>
-	<tr id="form_main_beginDate_row">
+	<tr id="article_main_beginDate_row">
 		<td/>{{ form_label(form.beginDate) }}   
 		<td/>{{ form_widget(form.beginDate) }}
 	</tr>			
-    <tr id="form_main_minBeginDate_row">
+    <tr id="article_main_minBeginDate_row">
 		<td/>{{ form_label(form.minBeginDate) }}   
 		<td/>{{ form_widget(form.minBeginDate) }}
 	</tr>
-	<tr id="form_main_maxBeginDate_row">
+	<tr id="article_main_maxBeginDate_row">
 		<td/>{{ form_label(form.maxBeginDate) }}   
 		<td/>{{ form_widget(form.maxBeginDate) }}
 	</tr>	
-	<tr id="form_main_hasNotEndDate_row">
+	<tr id="article_main_hasNotEndDate_row">
 		<td/>{{ form_label(form.hasNotEndDate) }}   
 		<td/>{{ form_widget(form.hasNotEndDate) }}
 	</tr>			
-	<tr id="form_main_isEndDateApprox_row">
+	<tr id="article_main_isEndDateApprox_row">
 		<td/>{{ form_label(form.isEndDateApprox) }}   
 		<td/>{{ form_widget(form.isEndDateApprox) }}
 	</tr>	
-	<tr id="form_main_endDate_row">
+	<tr id="article_main_endDate_row">
 		<td/>{{ form_label(form.endDate) }}   
 		<td/>{{ form_widget(form.endDate) }}
 	</tr>			
-    <tr id="form_main_minEndDate_row">
+    <tr id="article_main_minEndDate_row">
 		<td/>{{ form_label(form.minEndDate) }}   
 		<td/>{{ form_widget(form.minEndDate) }}
 	</tr>
-	<tr id="form_main_maxEndDate_row">
+	<tr id="article_main_maxEndDate_row">
 		<td/>{{ form_label(form.maxEndDate) }}   
 		<td/>{{ form_widget(form.maxEndDate) }}
 	</tr>
-
+	<tr>
+		<td/>{{ form_label(form.subEvents) }}   
+		<td/>{{ form_widget(form.subEvents) }}
+	</tr>
 </table>
+		<div id="hts-container" class="hts-container">
+			<svg id="hts-svgcontainer" class="hts-container" width="1150"
+				height="150">
+			</svg>
+		</div>
+	<div>{{ form_widget(form.submit) }}</div>
+</form>

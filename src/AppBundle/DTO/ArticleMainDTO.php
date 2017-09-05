@@ -39,6 +39,8 @@ class ArticleMainDTO extends ArticleModalDTO implements ArticleDTOInterface
     private $maxEndDate;
     /** @var boolean */
     private $isEndDateApprox;
+    /** @var string */
+    private $subEvents;
 
     /**
      * title
@@ -271,6 +273,24 @@ class ArticleMainDTO extends ArticleModalDTO implements ArticleDTOInterface
      */
     public function setIsEndDateApprox($isEndDateApprox){
         $this->isEndDateApprox = $isEndDateApprox;
+        return $this;
+    }
+
+    /**
+     * subEvents
+     * @return string
+     */
+    public function getSubEvents(){
+        return $this->subEvents;
+    }
+
+    /**
+     * subEvents
+     * @param string $subEvents
+     * @return self
+     */
+    public function setSubEvents($subEvents){
+        $this->subEvents = $subEvents;
         return $this;
     }
 

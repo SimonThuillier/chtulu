@@ -26,10 +26,6 @@ Creer un article
 
 	<div id="page">
 		{% include 'AppBundle:Article:article_main_form.html.twig' with {'form':form} %}
-		<div id="hts-container" class="hts-container">
-			<svg id="hts-svgcontainer" class="hts-container" width="1150"
-				height="150"></svg>
-		</div>
 	</div>
 </div>
 <div id="{{ modalForm.vars.id }}" hidden=true>{% include 'AppBundle:Article:article_modal_form.html.twig' with {'form':modalForm} %}</div>
@@ -57,7 +53,7 @@ Creer un article
 <script type="text/javascript" src="{{ asset_url }}"></script>
 {% endjavascripts %}
 
-<script type="text/javascript">{% include '@AppBundle/Resources/views/Article/article_form.js.twig' %}</script>
+<script type="text/javascript">{% include '@AppBundle/Resources/views/Article/article_form.js' %}</script>
 
 <script>
 
@@ -85,6 +81,12 @@ $(function () {
 			}  
 		}
 	});
+});
+
+$("#article_main_form").on("submit",function(event){
+	  event.preventDefault();
+	  console.log( $( this ).serialize() );
+	  $("#article_main_subEvents").val($( this ).serialize());
 });
 
 

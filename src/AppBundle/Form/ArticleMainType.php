@@ -10,6 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use AppBundle\DTO\ArticleMainDTO;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
 class ArticleMainType extends AbstractType
 {
@@ -50,19 +51,28 @@ class ArticleMainType extends AbstractType
             ->add('maxBeginDate', DateType::class, $this->dateOptions('Date de début Max'))
             ->add('hasNotEndDate', CheckboxType::class, array(
             'label' => "Pas de date de fin",
+            'required' => false, 
             'attr' => array(
                 'class' => 'checkbox icheck'
             )
         ))
             ->add('isEndDateApprox', CheckboxType::class, array(
             'label' => "Date de fin approximative ?",
+            'required' => false, 
             'attr' => array(
                 'class' => 'checkbox icheck'
             )
         ))
             ->add('endDate', DateType::class, $this->dateOptions('Date de fin'))
             ->add('minEndDate', DateType::class, $this->dateOptions('Date de fin min'))
-            ->add('maxEndDate', DateType::class, $this->dateOptions('Date de fin Max'));
+            ->add('maxEndDate', DateType::class, $this->dateOptions('Date de fin Max'))
+            ->add('subEvents',TextareaType::class,array(
+                'required' => false,   
+                'label' => 'sous-events'
+            ))
+            ->add('submit', SubmitType::class, array(
+                'label' => 'Enregistrer'
+            ));
         // ->add('content', TextareaType::class,array('required'=>false,'label'=>''))
     }
 
