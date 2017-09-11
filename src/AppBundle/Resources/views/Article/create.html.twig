@@ -28,7 +28,7 @@ Creer un article
 		{% include 'AppBundle:Article:article_main_form.html.twig' with {'form':form} %}
 	</div>
 </div>
-<div id="{{ modalForm.vars.id }}" hidden=true>{% include 'AppBundle:Article:article_modal_form.html.twig' with {'form':modalForm} %}</div>
+<div id="{{ modalForm.vars.id }}">{% include 'AppBundle:Article:article_modal_form.html.twig' with {'form':modalForm} %}</div>
 
 
 
@@ -84,9 +84,7 @@ $(function () {
 });
 
 $("#article_main_form").on("submit",function(event){
-	  event.preventDefault();
-	  console.log( $( this ).serialize() );
-	  $("#article_main_subEvents").val($( this ).serialize());
+	  hts.eventManager.prepareSubmission('article_modal','article_main');	
 });
 
 

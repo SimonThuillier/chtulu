@@ -17,7 +17,9 @@ class ArticleMainType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {  
-        $builder->add('title', TextType::class, array(
+        $builder->setMethod('POST')
+        
+        ->add('title', TextType::class, array(
             'label' => 'Titre',
             'required' => true,
             'label_attr' => array(
@@ -83,6 +85,7 @@ class ArticleMainType extends AbstractType
             'widget' => 'single_text',
             'data' => null,
             'html5' => false,
+            'format' => 'dd/MM/yyyy',
             'attr' => [
                 'class' => 'hts-date-input',
                 'pattern' => "^(0?[1-9]|[1-2][0-9]|3[0-1])/(0?[1-9]|1[0-2])/(-?[1-9][0-9]*)$",
@@ -94,7 +97,8 @@ class ArticleMainType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => ArticleMainDTO::class
+            'data_class' => ArticleMainDTO::class,
+            'allow_extra_fields' => true
         ));
     }
 }

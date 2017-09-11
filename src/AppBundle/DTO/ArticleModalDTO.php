@@ -39,6 +39,8 @@ class ArticleModalDTO implements ArticleDTOInterface
     private $maxEndDate;
     /** @var boolean */
     private $isEndDateApprox;
+    /** @var float */
+    private $y;
 
     /**
      * title
@@ -271,6 +273,24 @@ class ArticleModalDTO implements ArticleDTOInterface
      */
     public function setIsEndDateApprox($isEndDateApprox){
         $this->isEndDateApprox = $isEndDateApprox;
+        return $this;
+    }
+
+    /**
+     * y
+     * @return float
+     */
+    public function getY(){
+        return $this->y;
+    }
+
+    /**
+     * y
+     * @param float $y
+     * @return self
+     */
+    public function setY($y){
+        $this->y = $y;
         return $this;
     }
 

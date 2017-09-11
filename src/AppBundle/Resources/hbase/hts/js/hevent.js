@@ -30,6 +30,9 @@ function HEvent(hts,type,attachment=null,y=null,name=null){
 	this.endDate=null; // HDate
 	this.rendered = false;
 	this.manager = null;
+	
+	// to handle submission
+	this.toUpdate = true;
 }
 
 /** make the idGenerator for the event prototype */
@@ -216,6 +219,7 @@ HEvent.prototype.bindToForm = function(formId){
 	$("input#" + formId + "_endDate").val((this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"");
 	$("input#" + formId + "_minEndDate").val((this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"");
 	$("input#" + formId + "_maxEndDate").val((this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(1)):"");
+	$("input#" + formId + "_y").val(this.y);
 }
 
 /** update the object from the form of given Id */
@@ -323,6 +327,7 @@ HEvent.prototype.edit = function(){
 					/* if(htsEvent.type === 'main'){
 						$(".hts-article-title").empty().append(htsEvent.name);
 					}*/
+					htsEvent.toUpdate = true;
 					htsEvent.updateRender();
 					if(htsEvent.manager === null) htsEvent.hts.eventManager.addEvent(htsEvent);
 					return true;

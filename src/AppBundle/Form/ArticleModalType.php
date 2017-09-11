@@ -64,7 +64,10 @@ class ArticleModalType extends AbstractType
         ))
             ->add('endDate', DateType::class, $this->dateOptions('Date de fin'))
             ->add('minEndDate', DateType::class, $this->dateOptions('Date de fin min'))
-            ->add('maxEndDate', DateType::class, $this->dateOptions('Date de fin Max'));
+            ->add('maxEndDate', DateType::class, $this->dateOptions('Date de fin Max'))
+            ->add('y', DateType::class, array(
+                'attr' => array('hidden' => true)
+            ));
         // ->add('content', TextareaType::class,array('required'=>false,'label'=>''))
     }
 
@@ -75,6 +78,7 @@ class ArticleModalType extends AbstractType
             'widget' => 'single_text',
             'data' => null,
             'html5' => false,
+            'format' => 'dd/MM/yyyy',
             'attr' => [
                 'class' => 'hts-date-input',
                 'pattern' => "^(0?[1-9]|[1-2][0-9]|3[0-1])/(0?[1-9]|1[0-2])/(-?[1-9][0-9]*)$",

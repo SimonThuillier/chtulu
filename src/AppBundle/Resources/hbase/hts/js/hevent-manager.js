@@ -5,7 +5,7 @@
 HEventManager.prototype.yMargin = 15;
 
 function HEventManager(hts){
-	
+
 	this.hts = hts;
 	this.events = [];
 	this.bufferEvent = null;
@@ -17,16 +17,16 @@ function HEventManager(hts){
  * 
  */
 HEventManager.prototype.createEvent =  function(x,y,beginX=null){
-	
+
 	var type = 'attached';
 	if(this.events.length === 0 ) type = 'main';
 	this.bufferEvent = new HEvent(this.hts,type,null,y);
-	
+
 	if(typeof beginX !=='undefined' && beginX !== null) var selectedBeginDate = this.hts.dateScale.invert(beginX);
 	else var selectedBeginDate = this.hts.dateScale.invert(x);
-	
+
 	var selectedEndDate = this.hts.dateScale.invert(x);
-	
+
 	this.bufferEvent.beginDate = new HDate(selectedBeginDate);
 	this.bufferEvent.endDate = new HDate(selectedEndDate);
 
@@ -37,11 +37,11 @@ HEventManager.prototype.createEvent =  function(x,y,beginX=null){
 HEventManager.prototype.addEvent =  function(event){
 	event.manager = this;
 	this.events.push(event);
-	
+
 	var manager = this;
 	this.events.sort(function(e1,e2){manager.compareRank(e1,e2);});
 	console.log(this.events);
-	
+
 	this.setMaxY(event.y+this.yMargin);
 }
 
@@ -74,7 +74,7 @@ HEventManager.prototype.updateRender =  function(){
 	var manager = this;
 	this.events.sort(function(e1,e2){return manager.compareRank(e1,e2);});
 	//console.log(this.events);
-	
+
 	var index = 0;
 	var events = this.events;
 	var eventsLength = events.length;
@@ -82,19 +82,37 @@ HEventManager.prototype.updateRender =  function(){
 	var overY = 5;
 	this.events.forEach(function(event){
 		if(index >= events.length-1) return;
-		
+
 		events[index+1].adjustedY = events[index+1].y;
 		//console.log(events[index+1].adjustedY - event.adjustedY,(events[index+1].adjustedY - event.adjustedY) < deltaYMin);
 		//console.log(event.displayIntersect(events[index+1]));
-		
+
 		if ((events[index+1].adjustedY - event.adjustedY) < deltaYMin && event.displayIntersect(events[index+1])){
 			events[index+1].adjustedY += deltaYMin - (events[index+1].adjustedY - event.adjustedY) + overY;
 		}
 		index++;
-	})
-	
-	
+	});
+
+
 	this.events.forEach(function(hEvent){
 		hEvent.updateRender();
 	});
+}
+
+/** this function check all modal sub events and serialize them to the requested form to submit them */
+HEventManager.prototype.prepareSubmission = function(formId,formMainId){
+	var eventCollection = {'count' : 0, 'data' : []};
+	
+	this.events.forEach(function(event){
+		if(event.toUpdate){
+			event.bindToForm(formId);
+			console.log("#" + formId);
+			console.log($("form#" + formId).serialize());
+			eventCollection.count++;
+			eventCollection.data.push($("form#" + formId).serialize());
+		}
+	});
+	console.log(eventCollection);
+	console.log(JSON.stringify(eventCollection));
+	$("#" + formMainId + "_subEvents").val(JSON.stringify(eventCollection));
 }
