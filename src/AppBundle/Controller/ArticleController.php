@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use AppBundle\DTO\ArticleMainDTO;
 use Symfony\Component\Form\FormBuilderInterface;
+use AppBundle\DTO\ArticleCollectionDTO;
 use AppBundle\Factory\ArticleDTOFactory;
 use AppBundle\Form\ArticleModalType;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,14 +28,14 @@ class ArticleController extends Controller
      * @Route("/create",name="article_create")
      * @Template()
      */
-    public function createAction(Request $request, ArticleDTOFactory $articleDTOFactory, SerializerInterface $serializer)
+    public function createAction(Request $request, ArticleDTOFactory $articleDTOFactory,SerializerInterface $serializer)
     {
         $article = new Article();
         /** @var ArticleMainDTO $articleDTO */
         $articleDTO = $articleDTOFactory->newInstance("main");
         $articleModalDTO = $articleDTOFactory->newInstance("modal");
         // $form = $this->createForm(ArticleType::class, $articleDTO);
-                /** @var ArticleMainType $form */
+        /** @var ArticleMainType $form */
         $form = $this->get('form.factory')
             ->createBuilder(ArticleMainType::class)
             ->setData($articleDTO)
@@ -47,28 +48,30 @@ class ArticleController extends Controller
         
         // ->add('save', SubmitType::class, array('label' => 'Creer article'));
         
-
         $form->handleRequest($request);
         
-        if ($form->isSubmitted() )  {
+        if ($form->isSubmitted()) {
             if ($form->isValid()) {
-                $articleDTO=$form->getData();
+                $articleDTO = $form->getData();
                 $test = $serializer->serialize($form, 'json');
+                /** @var ArticleCollectionDTO $articleCollectionDTO */
+                $articleCollectionDTO = $serializer->deserialize($articleDTO->getSubEvents(), ArticleCollectionDTO::class, 'json');
+                
                 
                 
                 return $this->render('::debug.html.twig', array(
                     'debug' => array(
                         'serialized_form' => $test,
                         "title" => $articleDTO->getTitle(),
-                    "test" => $articleDTO->getSubEvents())
+                        "test" => $articleDTO->getSubEvents(),
+                        "count" => $articleCollectionDTO->getCount()
+                    )
                 ));
             } else {
                 
-                
-                
                 return $this->render('::debug.html.twig', array(
                     'debug' => array(
-                        'formErrors' => json_encode($form->getErrors(true,false)),
+                        'formErrors' => json_encode($form->getErrors(true, false)),
                         'form_submitted' => json_encode($form->isSubmitted()),
                         'form_valid' => json_encode($form->isValid())
                     )
