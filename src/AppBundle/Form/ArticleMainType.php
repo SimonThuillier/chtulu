@@ -11,15 +11,17 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use AppBundle\DTO\ArticleMainDTO;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use AppBundle\Entity\ArticleType;
+use AppBundle\Entity\ArticleSubType;
+use Doctrine\ORM\EntityRepository;
 
 class ArticleMainType extends AbstractType
 {
 
     public function buildForm(FormBuilderInterface $builder, array $options)
-    {  
+    {
         $builder->setMethod('POST')
-        
-        ->add('title', TextType::class, array(
+            ->add('title', TextType::class, array(
             'label' => 'Titre',
             'required' => true,
             'label_attr' => array(
@@ -28,13 +30,19 @@ class ArticleMainType extends AbstractType
         ))
             ->add('type', EntityType::class, array(
             'label' => "Type ",
-            'class' => 'AppBundle:ArticleType',
+            'class' => ArticleType::class,
+            'query_builder' => function (EntityRepository $er) {
+                return $er->getFindAllQB();
+            },
             'required' => true,
             'empty_data' => 'Selectionnez un type d\'article'
         ))
             ->add('subType', EntityType::class, array(
             'label' => "Sous-type ",
-            'class' => 'AppBundle:ArticleSubType',
+            'class' => ArticleSubType::class,
+            'query_builder' => function (EntityRepository $er) {
+                return $er->getFindAllQB();
+            },
             'required' => true,
             'empty_data' => 'Selectionnez un sous-type'
         ))
@@ -43,7 +51,7 @@ class ArticleMainType extends AbstractType
         ))
             ->add('isBeginDateApprox', CheckboxType::class, array(
             'label' => "Date de début approximative ?",
-            'required' => false,    
+            'required' => false,
             'attr' => array(
                 'class' => 'checkbox icheck'
             )
@@ -53,14 +61,14 @@ class ArticleMainType extends AbstractType
             ->add('maxBeginDate', DateType::class, $this->dateOptions('Date de début Max'))
             ->add('hasNotEndDate', CheckboxType::class, array(
             'label' => "Pas de date de fin",
-            'required' => false, 
+            'required' => false,
             'attr' => array(
                 'class' => 'checkbox icheck'
             )
         ))
             ->add('isEndDateApprox', CheckboxType::class, array(
             'label' => "Date de fin approximative ?",
-            'required' => false, 
+            'required' => false,
             'attr' => array(
                 'class' => 'checkbox icheck'
             )
@@ -68,13 +76,13 @@ class ArticleMainType extends AbstractType
             ->add('endDate', DateType::class, $this->dateOptions('Date de fin'))
             ->add('minEndDate', DateType::class, $this->dateOptions('Date de fin min'))
             ->add('maxEndDate', DateType::class, $this->dateOptions('Date de fin Max'))
-            ->add('subEvents',TextareaType::class,array(
-                'required' => false,   
-                'label' => 'sous-events'
-            ))
+            ->add('subEvents', TextareaType::class, array(
+            'required' => false,
+            'label' => 'sous-events'
+        ))
             ->add('submit', SubmitType::class, array(
-                'label' => 'Enregistrer'
-            ));
+            'label' => 'Enregistrer'
+        ));
         // ->add('content', TextareaType::class,array('required'=>false,'label'=>''))
     }
 

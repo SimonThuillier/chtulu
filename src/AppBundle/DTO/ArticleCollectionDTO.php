@@ -2,17 +2,18 @@
 
 namespace AppBundle\DTO;
 
-class ArticleCollectionDTO
+class ArticleCollectionDTO extends ArticleMainDTO
 {
-    /** integer $count */
-    public $count;
-    /** array $data */
-    public $data;
+    /** integer $subEventsCount */
+    public $subEventsCount;
+    /** array $subEventsArray */
+    public $subEventsArray;
     
     
     public function __construct()
     {
-        $this->data = [];
+        parent::__construct();
+        $this->subEventsArray = [];
     } 
     
     

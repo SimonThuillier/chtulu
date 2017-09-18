@@ -16,6 +16,7 @@ use AppBundle\Form\ArticleModalType;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
 use AppBundle\Helper\ArticleHelper;
+use AppBundle\Entity\ArticleType;
 
 /**
  *
@@ -31,9 +32,8 @@ class ArticleController extends Controller
      */
     public function createAction(Request $request, ArticleDTOFactory $articleDTOFactory,ArticleHelper $helper)
     {
-        $article = new Article();
-        /** @var ArticleMainDTO $articleDTO */
-        $articleDTO = $articleDTOFactory->newInstance("main");
+        /** @var ArticleCollectionDTO $articleDTO */
+        $articleDTO = $articleDTOFactory->newInstance("main_collection");
         $articleModalDTO = $articleDTOFactory->newInstance("modal");
         // $form = $this->createForm(ArticleType::class, $articleDTO);
         /** @var ArticleMainType $form */
@@ -54,7 +54,10 @@ class ArticleController extends Controller
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
                 $articleDTO = $form->getData();
-                $test = $helper->deserializeSubEvents($articleDTO->subEvents);
+                if (! $helper->deserializeSubEvents($articleDTO))
+                {
+                    throw new \Exception("An error occured during subArticles recovery. No data was saved.");
+                }
                 /** @var ArticleCollectionDTO $articleCollectionDTO */
                 // $articleCollectionDTO = $serializer->deserialize($articleDTO->getSubEvents(), null, 'json');
                 
@@ -63,7 +66,7 @@ class ArticleController extends Controller
                 return $this->render('::debug.html.twig', array(
                     'debug' => array(
                         "title" => $articleDTO->title,
-                        "test" => $test
+                        "titlesub1" => $articleDTO->subEventsArray[0]->title,
                     )
                 ));
             } else {
@@ -79,6 +82,7 @@ class ArticleController extends Controller
         }
         
         return array(
+            'typeSubtypeArray' => $this->getDoctrine()->getManager()->getRepository(ArticleType::class)->getTypeSubTypeArray(),
             'form' => $form->createView(),
             'modalForm' => $modalForm->createView()
         );

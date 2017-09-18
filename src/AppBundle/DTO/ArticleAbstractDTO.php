@@ -13,6 +13,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 abstract class ArticleAbstractDTO
 {
+    public function __construct()
+    {
+    }  
+    
     /** @var string 
      * @Groups("group1")
      */

@@ -21,51 +21,38 @@ class ArticleHelper
     /** @var ArticleDTOFactory $articleDTOFactory */
     private $articleDTOFactory;
     
-    public function __construct(SerializerInterface $serializer,ArticleDTOFactory $articleDTOFactory)
+    public function __construct(ArticleDTOFactory $articleDTOFactory)
     {
-        $this->serializer = $serializer;
         $this->articleDTOFactory = $articleDTOFactory;
+        $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
+        $normalizer = new ObjectNormalizer($classMetadataFactory);
+        $this->serializer = new Serializer(array($normalizer),array(new JsonEncoder()));
     }
     
     /**
-     * @param string $subEvents
-     * @return array
+     * @param ArticleCollectionDTO $articleDTO
+     * @return void
      */
-    public function deserializeSubEvents($subEvents)
+    public function deserializeSubEvents($articleDTO)
     {
-        /** @var ArticleCollectionDTO $articleCollectionDTO */
-        $articleCollectionDTO = $this->serializer->deserialize($subEvents, ArticleCollectionDTO::class, 'json');
+        $this->serializer->deserialize($articleDTO->subEvents, ArticleCollectionDTO::class, 'json',
+            array('object_to_populate' => $articleDTO,'allow_extra_attributes' => true));
+        $articleDTO->subEvents = null;
         
-        /** @var array $articleModalDTOs */
-        $articleModalDTOs = [];
-        
-        $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
-        $normalizer = new ObjectNormalizer($classMetadataFactory);
-        /*$normalizer->setCircularReferenceLimit(1);
-        // Add Circular reference handler
-        $normalizer->setCircularReferenceHandler(function ($object) {
-            return $object->getId();
-        });*/
-            $normalizers = array($normalizer);
-            $serializer = new Serializer($normalizers,array(new JsonEncoder()));
-        
-        
-        foreach ($articleCollectionDTO->data as $item){
+        $processedCount = 0;
+        $subEventsArray = [];
+        foreach ($articleDTO->subEventsArray as $item){
             $articleModalDTO = $this->articleDTOFactory->newInstance("modal");
-            
-            $articleModalDTO = $serializer->denormalize($item, ArticleModalDTO::class);
-            
-            $data = $serializer->normalize($articleModalDTO,null,array('groups' => array('group1')));
-            
-            // $itemDecoded = $serializer->decode($item, 'json');
-            //$item = $serializer->encode($item, 'json');
-            
-            return  $serializer->encode($data, 'json') ;
-            $articleModalDTOs[] = $this->serializer->deserialize($item, ArticleModalDTO::class, 
-                'json',array('object_to_populate' => $articleModalDTO,'allow_extra_attributes' => true));
+            // $articleModalDTO = $this->serializer->denormalize($item, ArticleModalDTO::class);
+            //$data = $serializer->normalize($articleModalDTO,null,array('groups' => array('group1')));
+            // return  $serializer->encode($data, 'json') ;
+            $this->serializer->denormalize($item, ArticleModalDTO::class, 
+                'jso',array('object_to_populate' => $articleModalDTO,'allow_extra_attributes' => true));
+            $subEventsArray[] = $articleModalDTO;
+            $processedCount++;
         }
-        
-        return $articleModalDTOs;
+        $articleDTO->subEventsArray = $subEventsArray;
+        return $processedCount == $articleDTO->subEventsCount;
     }
     
     

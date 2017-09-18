@@ -4,12 +4,13 @@ namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM; 
 use Symfony\Component\Serializer\Annotation\Groups;
+use AppBundle\Repository\ArticleSubTypeRepository;
 
 /**
  * ArticleSubType
  * @author Belze
  * @ORM\Table(name="article_sub_type")
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\ArticleSubTypeRepository")
  */
 class ArticleSubType
 {

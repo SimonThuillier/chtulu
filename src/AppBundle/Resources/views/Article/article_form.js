@@ -67,14 +67,38 @@ function hideDate(formType,arg){
 	}
 }
 
+function autoloadSubType(formType){
+	var idType =  $("select#article_" + formType + "_type").find(":selected").val();
+	var array = JSON.parse($("#type_subtype_array").val());
+	var availableSubTypes = array[idType];
+	var reSelect = true;
+	$("select#article_" + formType + "_subType > option").each(function() {
+		if($.inArray($(this).val(),availableSubTypes) < 0 ){
+			$(this).hide();
+		}
+		else{
+			if (reSelect){
+				$("select#article_" + formType + "_subType").val($(this).val()).change();
+				reSelect= false;
+			}
+			$(this).show();
+		}
+	});
+}
+
 var argForApprox = ['begin','end'];
 instanciateFormEvent('main');
 
 function instanciateFormEvent(formType){
+	autoloadSubType(formType);
+	$("#article_" + formType + "_type").change(function(){
+		autoloadSubType(formType);
+	});
+
 	var arg = "begin";
 	hideApproxDate(formType,arg);
 	requireApproxDate(formType,arg,false);
-	
+
 	arg = "end";
 	hideApproxDate(formType,arg);
 	requireApproxDate(formType,arg,false);

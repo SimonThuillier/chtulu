@@ -5,12 +5,13 @@ namespace AppBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use AppBundle\Repository;
 
 /**
  * ArticleType
  * @author Belze
  * @ORM\Table(name="article_type")
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\ArticleTypeRepository")
  */
 class ArticleType
 {

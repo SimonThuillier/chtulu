@@ -101,17 +101,12 @@ HEventManager.prototype.updateRender =  function(){
 
 /** this function check all modal sub events and serialize them to the requested form to submit them */
 HEventManager.prototype.prepareSubmission = function(formId,formMainId){
-	var eventCollection = {'count' : 0, 'data' : []};
-	
+	var eventCollection = {'subEventsCount' : 0, 'subEventsArray' : []};
 	this.events.forEach(function(event){
 		if(event.toUpdate){
-			eventCollection.count++;
-			console.log(event.normalize());
-			console.log(JSON.stringify(event.normalize()));
-			eventCollection.data.push(event.normalize());
+			eventCollection.subEventsCount++;
+			eventCollection.subEventsArray.push(event.normalize());
 		}
 	});
-	console.log(eventCollection);
-	console.log(JSON.stringify(eventCollection));
 	$("#" + formMainId + "_subEvents").val(JSON.stringify(eventCollection));
 }

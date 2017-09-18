@@ -25,7 +25,7 @@ Creer un article
 	<div id="header"></div>
 
 	<div id="page">
-		{% include 'AppBundle:Article:article_main_form.html.twig' with {'form':form} %}
+		{% include 'AppBundle:Article:article_main_form.html.twig' with {'form':form,'typeSubtypeArray':typeSubtypeArray} %}
 	</div>
 </div>
 <div id="{{ modalForm.vars.id }}">{% include 'AppBundle:Article:article_modal_form.html.twig' with {'form':modalForm} %}</div>
