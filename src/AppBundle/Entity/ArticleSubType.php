@@ -3,6 +3,7 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM; 
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * ArticleSubType
@@ -22,12 +23,14 @@ class ArticleSubType
      * @ORM\Column(name="id", type="bigint")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Groups("group1")
      */
     private $id;
 
     /**
      * @var string
      * @ORM\Column(name="label", type="string", length=50, unique=true)
+     * @Groups("group1")
      */
     private $label;
     

@@ -105,11 +105,10 @@ HEventManager.prototype.prepareSubmission = function(formId,formMainId){
 	
 	this.events.forEach(function(event){
 		if(event.toUpdate){
-			event.bindToForm(formId);
-			console.log("#" + formId);
-			console.log($("form#" + formId).serialize());
 			eventCollection.count++;
-			eventCollection.data.push($("form#" + formId).serialize());
+			console.log(event.normalize());
+			console.log(JSON.stringify(event.normalize()));
+			eventCollection.data.push(event.normalize());
 		}
 	});
 	console.log(eventCollection);

@@ -31,6 +31,9 @@ function HEvent(hts,type,attachment=null,y=null,name=null){
 	this.rendered = false;
 	this.manager = null;
 	
+	this.articleType = 1;
+	this.articleSubType = 1;
+	
 	// to handle submission
 	this.toUpdate = true;
 }
@@ -204,8 +207,11 @@ HEvent.prototype.getFormHtml = function(){
 	return regexp[Symbol.replace]($("#" + this.FORM_ID).html(), 'id="' + this.FORM_ID + '_live');
 }
 
-/** update a from of given id with the data from this object */
+/** bind a form of given id with the data from this hevent object */
 HEvent.prototype.bindToForm = function(formId){
+	$("input#" + formId + "_title").val(this.name);
+	$("select#" + formId + "_type").val(this.articleType).change();
+	$("select#" + formId + "_subType").val(this.articleSubType).change();
 	$("input#" + formId + "_title").val(this.name);
 	$("textarea#" + formId + "_abstract").val(this.abstract);
 	
@@ -222,9 +228,35 @@ HEvent.prototype.bindToForm = function(formId){
 	$("input#" + formId + "_y").val(this.y);
 }
 
+/** returns normalized associative array of the hevent */
+HEvent.prototype.normalize = function(formId){
+	var dto = {};
+	dto.title = this.name;
+	dto.type = this.articleType;
+	dto.subType = this.articleSubType;
+	dto.abstract = this.abstract;
+	
+	dto.isBeginDateApprox = (this.beginDate != null)?this.beginDate.isExact():false;
+	dto.beginDate = (this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(0)):"";
+	dto.minBeginDate = (this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(0)):"";
+	dto.minBeginDate = (this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(1)):"";
+	
+	dto.hasNotEndDate = this.hasNotEndDate;
+	dto.isEndDateApprox = (this.endDate != null)?this.endDate.isExact():false;
+	dto.endDate = (this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"";
+	dto.minEndDate = (this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"";
+	dto.minEndDate = (this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(1)):"";
+	
+	dto.y = this.y;
+	return dto;
+}
+
+
 /** update the object from the form of given Id */
 HEvent.prototype.updateFromForm = function(formId){
 	this.name = $("input#" + formId + "_title").val();
+	this.articleType = $("select#" + formId + "_type").find(":selected").val();
+	this.articleSubType = $("select#" + formId + "_subType").find(":selected").val();
 	this.abstract = $("textarea#" + formId + "_abstract").val();
 	
 	if ($("input#" + formId + "_isBeginDateApprox").is(":checked")){

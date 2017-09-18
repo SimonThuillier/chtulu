@@ -4,6 +4,7 @@ namespace AppBundle\Factory;
 
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use AppBundle\DTO\ArticleMainDTO;
+use AppBundle\DTO\ArticleModalDTO;
 use AppBundle\Entity\ArticleType;
 use AppBundle\Entity\ArticleSubType;
 use AppBundle\DTO\ArticleDTOInterface;
@@ -37,7 +38,8 @@ class ArticleDTOFactory{
      */
     public function newInstance($flag = "main")
     {
-        $this->articleDTO = new ArticleMainDTO();
+        if($flag === "main"){$this->articleDTO = new ArticleMainDTO();}
+        elseif($flag === "modal"){$this->articleDTO = new ArticleModalDTO();}
         $this->setData($flag);
         return $this->articleDTO;
     }
@@ -66,8 +68,8 @@ class ArticleDTOFactory{
         /**
          * ArticleMainDTO $this->articleDTO
          */
-        $this->articleDTO->setType($type);
-        $this->articleDTO->setSubType($subType);
+        $this->articleDTO->type = $type;
+        $this->articleDTO->subType = $subType;
     }
     
     /**
@@ -83,10 +85,10 @@ class ArticleDTOFactory{
         /**
          * ArticleModalDTO $this->articleDTO
          */
-        $this->articleDTO->setType($type);
-        $this->articleDTO->setSubType($subType);
-        $this->articleDTO->setTitle("<_TITLE_>");
-        $this->articleDTO->setAbstract("<_ABSTRACT_>");
+        $this->articleDTO->type = $type;
+        $this->articleDTO->subType=$subType;
+        $this->articleDTO->title = "<_TITLE_>";
+        $this->articleDTO->abstract="<_ABSTRACT_>";
     }
      
 }

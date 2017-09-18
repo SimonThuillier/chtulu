@@ -15,6 +15,7 @@ use AppBundle\Factory\ArticleDTOFactory;
 use AppBundle\Form\ArticleModalType;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
+use AppBundle\Helper\ArticleHelper;
 
 /**
  *
@@ -28,7 +29,7 @@ class ArticleController extends Controller
      * @Route("/create",name="article_create")
      * @Template()
      */
-    public function createAction(Request $request, ArticleDTOFactory $articleDTOFactory,SerializerInterface $serializer)
+    public function createAction(Request $request, ArticleDTOFactory $articleDTOFactory,ArticleHelper $helper)
     {
         $article = new Article();
         /** @var ArticleMainDTO $articleDTO */
@@ -40,7 +41,7 @@ class ArticleController extends Controller
             ->createBuilder(ArticleMainType::class)
             ->setData($articleDTO)
             ->getForm();
-        /** @var FormInterface $form */
+        /** @var FormInterface $modaForm */
         $modalForm = $this->get('form.factory')
             ->createBuilder(ArticleModalType::class)
             ->setData($articleModalDTO)
@@ -53,18 +54,16 @@ class ArticleController extends Controller
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
                 $articleDTO = $form->getData();
-                $test = $serializer->serialize($form, 'json');
+                $test = $helper->deserializeSubEvents($articleDTO->subEvents);
                 /** @var ArticleCollectionDTO $articleCollectionDTO */
-                $articleCollectionDTO = $serializer->deserialize($articleDTO->getSubEvents(), ArticleCollectionDTO::class, 'json');
+                // $articleCollectionDTO = $serializer->deserialize($articleDTO->getSubEvents(), null, 'json');
                 
                 
                 
                 return $this->render('::debug.html.twig', array(
                     'debug' => array(
-                        'serialized_form' => $test,
-                        "title" => $articleDTO->getTitle(),
-                        "test" => $articleDTO->getSubEvents(),
-                        "count" => $articleCollectionDTO->getCount()
+                        "title" => $articleDTO->title,
+                        "test" => $test
                     )
                 ));
             } else {
