@@ -6,7 +6,7 @@ use Throwable;
 /**
  * Class FactoryException
  *
- * @package Kelp\AppBundle\Exception
+ * @package Hbase\AppBundle\Exception
  */
 class FactoryException extends \Exception
 {

@@ -27,7 +27,7 @@ abstract class AbstractEntityFactory implements EntityFactoryInterface
         $className = self::ENTITY_NAME_SPACE . $entity;
 
         if (!class_exists($className)) {
-            throw new FactoryException('');
+            throw new \Exception('');
         }
         $this->dto = $dto;
         $this->entity = new $className();
@@ -51,4 +51,27 @@ abstract class AbstractEntityFactory implements EntityFactoryInterface
         }
         return $entityName;
     }
+    
+    
+
+    /**
+     * dto
+     * @param $dto
+     * @return self
+     */
+    public function setDto($dto){
+        $this->dto = $dto;
+        return $this;
+    }
+
+    /**
+     * entity
+     * @param $entity
+     * @return self
+     */
+    public function setEntity($entity){
+        $this->entity = $entity;
+        return $this;
+    }
+
 }

@@ -5,6 +5,8 @@ namespace AppBundle\DTO;
 use AppBundle\Entity\ArticleType;
 use AppBundle\Entity\ArticleSubType;
 use Symfony\Component\Serializer\Annotation\Groups;
+use AppBundle\Entity\Article;
+use AppBundle\Entity\ArticleLink;
 
 
 /**
@@ -45,4 +47,10 @@ class ArticleModalDTO extends ArticleAbstractDTO
     /** @var float 
      * @Groups("group1") */
     public $y;
+    /** @var integer */
+    public $parentId;
+    /** @var Article */
+    public $parentArticle;
+    /** @var ArticleLink $link */
+    public $link;
 }

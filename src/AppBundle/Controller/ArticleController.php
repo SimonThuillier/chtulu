@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
 use AppBundle\Helper\ArticleHelper;
 use AppBundle\Entity\ArticleType;
+use AppBundle\Mapper\ArticleCollectionDoctrineMapper;
 
 /**
  *
@@ -46,7 +47,7 @@ class ArticleController extends Controller
             ->createBuilder(ArticleModalType::class)
             ->setData($articleModalDTO)
             ->getForm();
-        
+            
         // ->add('save', SubmitType::class, array('label' => 'Creer article'));
         
         $form->handleRequest($request);
@@ -60,7 +61,9 @@ class ArticleController extends Controller
                 }
                 /** @var ArticleCollectionDTO $articleCollectionDTO */
                 // $articleCollectionDTO = $serializer->deserialize($articleDTO->getSubEvents(), null, 'json');
-                
+                /** ArticleCollectionDoctrineMapper $mapper */
+                $mapper = $this->get(ArticleCollectionDoctrineMapper::class);
+                $mapper->add($articleDTO);
                 
                 
                 return $this->render('::debug.html.twig', array(

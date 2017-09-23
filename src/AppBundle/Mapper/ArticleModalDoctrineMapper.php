@@ -4,25 +4,26 @@ namespace AppBundle\Mapper;
 
 use Symfony\Component\Form\Exception\LogicException;
 use AppBundle\DTO\ArticleCollectionDTO;
+use AppBundle\DTO\ArticleAbstractDTO;
+use AppBundle\DTO\ArticleModalDTO;
+use AppBundle\Entity\Article;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
-use AppBundle\Factory\EntityFactoryInterface;
+use AppBundle\Factory\ArticleFactory;
 use AppBundle\Factory\PaginatorFactoryInterface;
 use AppBundle\Entity\User;
-use AppBundle\DTO\ArticleModalDTO;
+use AppBundle\Factory\EntityFactoryInterface;
+use AppBundle\Entity\ArticleLink;
 use AppBundle\Factory\ArticleLinkFactory;
-use AppBundle\Factory\ArticleFactory;
-use AppBundle\Entity\Article;
 
 /**
  * Class ArticleCollectionDoctrineMapper
  *
  * @package AppBundle\Mapper
  */
-class ArticleCollectionDoctrineMapper extends ArticleMainDoctrineMapper
+class ArticleModalDoctrineMapper extends AbstractDoctrineMapper
 {
-    /** @var ArticleModalDoctrineMapper $modalMapper */
-    private $modalMapper;
-    
+    /** @var ArticleLinkFactory */
+    private $linkFactory;
     /**
      * ArticleCollectionDoctrineMapper
      *
@@ -38,21 +39,25 @@ class ArticleCollectionDoctrineMapper extends ArticleMainDoctrineMapper
         ArticleFactory $entityFactory,
         PaginatorFactoryInterface $paginatorFactory = null,
         User $user = null,
-        ArticleModalDoctrineMapper $modalMapper,
         ArticleLinkFactory $linkFactory
         )
-    { 
-        parent::__construct($doctrine, $entityName,$entityFactory,$paginatorFactory,$user,$linkFactory);
-        $this->modalMapper = $modalMapper;
+    {
+        parent::__construct($doctrine, $entityName,$entityFactory,$paginatorFactory,$user);
+        $this->linkFactory = $linkFactory;
     }
     
+    
     /**
-     * @param ArticleCollectionDTO $dto
+     * @param ArticleModalDTO $dto
+     * @return Article
      */
     public function add($dto)
     {
-        $article = parent::add($dto);
-        $this->handleChildrenArticle($article, $dto);
+        $article = $this->entityFactory->newInstance($dto);
+        $this->getManager()->persist($article);
+        $this->getManager()->flush();
+        $dto->link = $this->handleLink($article, $dto);
+        return $article;
     }
 
     /**
@@ -73,17 +78,28 @@ class ArticleCollectionDoctrineMapper extends ArticleMainDoctrineMapper
     }
     
     /**
-     * @param Article $article
-     * @param ArticleCollectionDTO $dto
+     * @param ArticleModalDTO $dto
+     * @return ArticleLink
      */
-    private function handleChildrenArticle(Article $article ,ArticleCollectionDTO $dto)
-    {
-        /** @var ArticleModalDTO $modalDTO */
-        foreach($dto->subEventsArray as $modalDTO){
-            $modalDTO->parentArticle = $article;
-            $this->modalMapper->add($modalDTO);
+    private function handleLink(Article $article,ArticleModalDTO $dto)
+    {  
+        $link = $this->doctrine->getRepository('AppBundle:ArticleLink')
+        ->findByParentChild($dto->parentArticle->getId(), $article->getId());
+        
+        if ($link === null){
+            if($dto->parentArticle === null){
+                $dto->parentArticle = $this->doctrine->getRepository('AppBundle:Article')->find($dto->parentId);
+            }
+            $link = $this->linkFactory->newInstance($dto);
+            $this->getManager()->persist($link);
         }
+        else{
+            $this->linkFactory->setEntity($link)->setDto($dto)->setData();
+        }
+        $this->getManager()->flush();
+        return $link;
     }
+
 
     /**
      * @param $page

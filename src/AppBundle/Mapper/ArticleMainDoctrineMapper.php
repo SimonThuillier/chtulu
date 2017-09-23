@@ -4,25 +4,24 @@ namespace AppBundle\Mapper;
 
 use Symfony\Component\Form\Exception\LogicException;
 use AppBundle\DTO\ArticleCollectionDTO;
+use AppBundle\DTO\ArticleAbstractDTO;
+use AppBundle\DTO\ArticleModalDTO;
+use AppBundle\DTO\ArticleMainDTO;
+use AppBundle\Entity\Article;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
-use AppBundle\Factory\EntityFactoryInterface;
+use AppBundle\Factory\ArticleFactory;
 use AppBundle\Factory\PaginatorFactoryInterface;
 use AppBundle\Entity\User;
-use AppBundle\DTO\ArticleModalDTO;
+use AppBundle\Factory\EntityFactoryInterface;
 use AppBundle\Factory\ArticleLinkFactory;
-use AppBundle\Factory\ArticleFactory;
-use AppBundle\Entity\Article;
 
 /**
  * Class ArticleCollectionDoctrineMapper
  *
  * @package AppBundle\Mapper
  */
-class ArticleCollectionDoctrineMapper extends ArticleMainDoctrineMapper
+class ArticleMainDoctrineMapper extends ArticleModalDoctrineMapper
 {
-    /** @var ArticleModalDoctrineMapper $modalMapper */
-    private $modalMapper;
-    
     /**
      * ArticleCollectionDoctrineMapper
      *
@@ -38,21 +37,23 @@ class ArticleCollectionDoctrineMapper extends ArticleMainDoctrineMapper
         ArticleFactory $entityFactory,
         PaginatorFactoryInterface $paginatorFactory = null,
         User $user = null,
-        ArticleModalDoctrineMapper $modalMapper,
         ArticleLinkFactory $linkFactory
         )
-    { 
+    {
         parent::__construct($doctrine, $entityName,$entityFactory,$paginatorFactory,$user,$linkFactory);
-        $this->modalMapper = $modalMapper;
     }
     
+    
+    
+    
     /**
-     * @param ArticleCollectionDTO $dto
+     * @param ArticleMainDTO $dto
+     * @return Article
      */
     public function add($dto)
     {
         $article = parent::add($dto);
-        $this->handleChildrenArticle($article, $dto);
+        return $article;
     }
 
     /**
@@ -71,19 +72,9 @@ class ArticleCollectionDoctrineMapper extends ArticleMainDoctrineMapper
         $site->setAccompaniment($dto->accompaniment);
         $this->getManager()->flush();*/
     }
-    
-    /**
-     * @param Article $article
-     * @param ArticleCollectionDTO $dto
-     */
-    private function handleChildrenArticle(Article $article ,ArticleCollectionDTO $dto)
-    {
-        /** @var ArticleModalDTO $modalDTO */
-        foreach($dto->subEventsArray as $modalDTO){
-            $modalDTO->parentArticle = $article;
-            $this->modalMapper->add($modalDTO);
-        }
-    }
+
+
+
 
     /**
      * @param $page
