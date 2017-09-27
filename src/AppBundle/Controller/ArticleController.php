@@ -31,7 +31,8 @@ class ArticleController extends Controller
      * @Route("/create",name="article_create")
      * @Template()
      */
-    public function createAction(Request $request, ArticleDTOFactory $articleDTOFactory,ArticleHelper $helper)
+    public function createAction(Request $request, ArticleDTOFactory $articleDTOFactory,ArticleHelper $helper,
+        ArticleCollectionDoctrineMapper $collectionMapper)
     {
         /** @var ArticleCollectionDTO $articleDTO */
         $articleDTO = $articleDTOFactory->newInstance("main_collection");
@@ -62,8 +63,7 @@ class ArticleController extends Controller
                 /** @var ArticleCollectionDTO $articleCollectionDTO */
                 // $articleCollectionDTO = $serializer->deserialize($articleDTO->getSubEvents(), null, 'json');
                 /** ArticleCollectionDoctrineMapper $mapper */
-                $mapper = $this->get(ArticleCollectionDoctrineMapper::class);
-                $mapper->add($articleDTO);
+                $collectionMapper->add($articleDTO);
                 
                 
                 return $this->render('::debug.html.twig', array(

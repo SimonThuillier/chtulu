@@ -1,0 +1,115 @@
+@CHARSET "ISO-8859-1";
+
+div.hts-container {
+	background-color: PeachPluff;
+	min-width: 200px;
+	min-height: 50px;
+	max-width:1150px;
+    color: Gray;
+    overflow: auto;
+	border:solid;
+	border-width:1px;
+}
+
+svg.hts-container {
+	background-color: PeachPluff;
+	min-width: 200px;
+	min-height: 50px;
+	max-width:1150px;
+    color: Gray;
+}
+
+div.hts-event-container {
+	background-color: White;
+    color: Gray;
+	overflow-x: hidden;
+	border:solid;
+	font-size:14 px;
+	position:auto;
+	overflow-y: auto;
+	resize: vertical;
+	border-width:1px;
+}
+
+svg.hts-event-container {
+	cursor:crosshair;
+	background-color: White;
+	border:blank;
+	font-size:14 px;
+}
+
+.hts-time-arrow {
+	stroke:blank;
+	fill:LightSteelBlue;
+	opacity:1;
+	fill-opacity:1;
+	cursor:progress;
+	pointer-events: all;
+}
+.hts-time-arrow:active {
+	fill:LightSkyBlue;
+	fill-opacity:1;
+	opacity:1;
+}
+.hts-time-arrow:hover {
+	fill:LightSkyBlue;
+	fill-opacity:1;
+	opacity:1;
+}
+.hts-time-arrow-scope{
+	fill:Orange;
+}
+.hts-time-arrow-scope:hover{
+	fill:Gold;
+}
+
+.hts-grad {
+	cursor:pointer;
+}
+text.hts-grad {
+	fill:black;
+	font-size:11px;
+	text-anchor:middle;
+	font-family:sans-serif;
+}
+text.hts-grad:hover {
+	fill:DimGray;
+	font-size:16px;
+	font-weight:Bold;	
+}
+line.hts-grad {
+	stroke-width:2;
+	stroke:black;
+}
+line.hts-grad:hover {
+	stroke-width:4;
+	stroke:Gray;
+}
+
+.hts-svg-chevron{
+  fill:LightGray;
+  stroke:LightSlateGray
+}
+
+.hts-svg-chevron:hover{
+  fill:LightSlateGray;
+  stroke:blank;
+  cursor:ew-resize;
+}
+
+
+input.hts-border-date-input{
+	border: 1px solid;
+	border-color: LightSlateGray;
+	width:84px;
+	background:Wheat;
+	font:14px;
+	text-align:center;
+	height:13px;;
+}
+
+input.hts-date-input{
+}
+
+
+

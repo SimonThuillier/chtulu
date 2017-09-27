@@ -23,7 +23,7 @@ abstract class AbstractEntityFactory implements EntityFactoryInterface
      */
     public function newInstance($dto)
     {
-        $entity = $this->getEntityName(get_class($dto));
+        $entity = $this->getEntityName($dto);
         $className = self::ENTITY_NAME_SPACE . $entity;
 
         if (!class_exists($className)) {
@@ -40,11 +40,12 @@ abstract class AbstractEntityFactory implements EntityFactoryInterface
     
     /**
      * 
-     * @param string $dtoClassName
+     * @param $dto
      * @return string
      */
-    private function getEntityName($dtoClassName){
-        $entityName = end(explode('\\', get_class($dtoClassName)));
+    private function getEntityName($dto){
+        $explodedClassName = explode('\\', get_class($dto));
+        $entityName = end($explodedClassName);
         $throwableTokens = ['DTO','Collection','Main','Modal'];
         foreach($throwableTokens as $token){
             $entityName = str_replace($token, '', $entityName);

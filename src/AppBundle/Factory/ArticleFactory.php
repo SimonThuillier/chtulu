@@ -26,10 +26,11 @@ class ArticleFactory  extends AbstractEntityFactory
         $article = $this->entity;
         /** @var ArticleModalDTO $dto */
         $dto = $this->dto;
+        $article->setEditionDate(new \DateTime());
         $article->setTitle($dto->title);
         $article->setAbstract($dto->abstract);
         $article->setType($dto->type);
-        $article->setSubType($dto->type);
+        $article->setSubType($dto->subType);
         if($dto->isBeginDateApprox){
             $article->setMinBeginDate($dto->minBeginDate);
             $article->setMaxBeginDate($dto->maxBeginDate);

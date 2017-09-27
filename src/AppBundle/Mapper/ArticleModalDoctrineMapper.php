@@ -14,6 +14,8 @@ use AppBundle\Entity\User;
 use AppBundle\Factory\EntityFactoryInterface;
 use AppBundle\Entity\ArticleLink;
 use AppBundle\Factory\ArticleLinkFactory;
+use AppBundle\Validator\ArticleModalDTOValidator;
+use AppBundle\DTO\ArticleLinkDTO;
 
 /**
  * Class ArticleCollectionDoctrineMapper
@@ -24,6 +26,8 @@ class ArticleModalDoctrineMapper extends AbstractDoctrineMapper
 {
     /** @var ArticleLinkFactory */
     private $linkFactory;
+    /** @var ArticleModalDTOValidator */
+    private $modalValidator;
     /**
      * ArticleCollectionDoctrineMapper
      *
@@ -44,6 +48,7 @@ class ArticleModalDoctrineMapper extends AbstractDoctrineMapper
     {
         parent::__construct($doctrine, $entityName,$entityFactory,$paginatorFactory,$user);
         $this->linkFactory = $linkFactory;
+        $this->modalValidator = new ArticleModalDTOValidator($doctrine);
     }
     
     
@@ -53,10 +58,15 @@ class ArticleModalDoctrineMapper extends AbstractDoctrineMapper
      */
     public function add($dto)
     {
+        if($dto instanceof ArticleModalDTO){
+            $this->modalValidator->validate($dto);
+        }
         $article = $this->entityFactory->newInstance($dto);
         $this->getManager()->persist($article);
         $this->getManager()->flush();
-        $dto->link = $this->handleLink($article, $dto);
+        if($dto instanceof ArticleModalDTO){
+            $dto->link = $this->handleLink($article, $dto);
+        }
         return $article;
     }
 
@@ -79,18 +89,18 @@ class ArticleModalDoctrineMapper extends AbstractDoctrineMapper
     
     /**
      * @param ArticleModalDTO $dto
-     * @return ArticleLink
+     * @return ArticleLink|null
      */
-    private function handleLink(Article $article,ArticleModalDTO $dto)
+    private function handleLink(Article $article,$dto)
     {  
-        $link = $this->doctrine->getRepository('AppBundle:ArticleLink')
-        ->findByParentChild($dto->parentArticle->getId(), $article->getId());
+        if($dto->parentArticle === null && $dto->parentId === null) return null;
         
+        $link = $dto->link;
         if ($link === null){
             if($dto->parentArticle === null){
                 $dto->parentArticle = $this->doctrine->getRepository('AppBundle:Article')->find($dto->parentId);
             }
-            $link = $this->linkFactory->newInstance($dto);
+            $link = $this->linkFactory->newInstance(new ArticleLinkDTO($dto->parentArticle, $article, $dto->y));
             $this->getManager()->persist($link);
         }
         else{
