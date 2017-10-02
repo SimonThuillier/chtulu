@@ -31,11 +31,16 @@ class ArticleFactory  extends AbstractEntityFactory
         $article->setAbstract($dto->abstract);
         $article->setType($dto->type);
         $article->setSubType($dto->subType);
+        
+        
+        $article->setMinBeginDate($dto->beginDate);
+        $article->setMaxBeginDate(null);
         if($dto->isBeginDateApprox){
             $article->setMinBeginDate($dto->minBeginDate);
             $article->setMaxBeginDate($dto->maxBeginDate);
         }
         if(! $dto->hasNotEndDate){
+            $article->setMinEndDate(null);
             $article->setMaxEndDate($dto->endDate);
             if($dto->isEndDateApprox){
                 $article->setMinEndDate($dto->minEndDate);

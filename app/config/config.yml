@@ -38,6 +38,8 @@ framework:
 twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
+    paths:
+        "%kernel.root_dir%/../src/AppBundle/Resources/views": AppBundle
     
 assetic:
     debug:          '%kernel.debug%'
@@ -126,6 +128,15 @@ doctrine:
         auto_generate_proxy_classes: "%kernel.debug%"
         naming_strategy: doctrine.orm.naming_strategy.underscore
         auto_mapping: true
+        dql:
+            string_functions:
+                CONCAT_WS: AppBundle\DQL\ConcatWs
+            numeric_functions:
+                FLOOR: AppBundle\DQL\Floor
+                IF: AppBundle\DQL\IfElse
+                IFNULL: AppBundle\DQL\IfNull
+            datetime_functions: 
+                DATE_FORMAT: AppBundle\DQL\DateFormat
 
 # Swiftmailer Configuration
 swiftmailer:
