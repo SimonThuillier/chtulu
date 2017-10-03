@@ -174,6 +174,9 @@ class Article extends AbstractBindableEntity
      * @return Article
      */
     public function setCreationDate($creationDate){
+        if($creationDate > new \DateTime()){
+            throw new \Exception('Entering dates after the actual date is not allowed; This is history, not science fiction !');
+        }
         $this->creationDate = $creationDate;
         return $this;
     }
@@ -210,6 +213,9 @@ class Article extends AbstractBindableEntity
      * @return Article
      */
     public function setEditionDate($editionDate){
+        if($editionDate > new \DateTime()){
+            throw new \Exception('Entering dates after the actual date is not allowed; This is history, not science fiction !');
+        }
         $this->editionDate = $editionDate;
         return $this;
     }
@@ -300,6 +306,9 @@ class Article extends AbstractBindableEntity
      * @return Article
      */
     public function setMinBeginDate($minBeginDate){
+        if($minBeginDate > new \DateTime()){
+            throw new \Exception('Entering dates after the actual date is not allowed; This is history, not science fiction !');
+        }
         $this->minBeginDate = $minBeginDate;
         return $this;
     }
@@ -318,6 +327,9 @@ class Article extends AbstractBindableEntity
      * @return Article
      */
     public function setMaxBeginDate($maxBeginDate){
+        if($maxBeginDate > new \DateTime()){
+            throw new \Exception('Entering dates after the actual date is not allowed; This is history, not science fiction !');
+        }
         $this->maxBeginDate = $maxBeginDate;
         return $this;
     }
@@ -336,6 +348,9 @@ class Article extends AbstractBindableEntity
      * @return Article
      */
     public function setMinEndDate($minEndDate){
+        if($minEndDate > new \DateTime()){
+            throw new \Exception('Entering dates after the actual date is not allowed; This is history, not science fiction !');
+        }
         $this->minEndDate = $minEndDate;
         return $this;
     }
@@ -354,6 +369,9 @@ class Article extends AbstractBindableEntity
      * @return Article
      */
     public function setMaxEndDate($maxEndDate){
+        if($maxEndDate > new \DateTime()){
+            throw new \Exception('Entering dates after the actual date is not allowed; This is history, not science fiction !');
+        }
         $this->maxEndDate = $maxEndDate;
         return $this;
     }
