@@ -1,6 +1,6 @@
 /** args : main|modal,begin|end,true|false */
 function requirePreciseDate(formType,arg,required){
-	$("#article_" + formType + "_" + arg + "Date").attr("required",arg);
+	$("#article_" + formType + "_" + arg + "Date").attr("required",required);
 }
 /** args : main|modal,begin|end,true|false */
 function requireApproxDate(formType,arg,required){

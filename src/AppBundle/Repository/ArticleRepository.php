@@ -3,6 +3,12 @@
 namespace AppBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use AppBundle\Entity\Article;
+use AppBundle\Factory\ArticleDTOFactory;
+use AppBundle\Factory\ArticleCollectionDTOFactory;
+use AppBundle\DTO\ArticleModalDTO;
+use AppBundle\DTO\ArticleMainDTO;
+use AppBundle\DTO\ArticleCollectionDTO;
 
 /**
  * ArticleRepository
@@ -12,24 +18,50 @@ use Doctrine\ORM\EntityRepository;
  */
 class ArticleRepository extends EntityRepository
 {
-    public function getDTO($id)
+    
+    public function bindDTO($id,$dto)
     {
         $qb = $this->createQueryBuilder('a')
-        ->join('a.type','t')
-        ->join('a.subType','s')
-        ->select('a.title')
-        ->addSelect('t.id')
-        ->addSelect('s.id')
-        ->addSelect('a.abstract')
-        ->addSelect('IF(a.maxBeginDate IS NULL,true,false) AS isBeginDateApprox')
-        ->addSelect('a.minBeginDate')
-        ->addSelect('a.maxBeginDate')
-        ->addSelect('IF(a.minEndDate IS NULL,true,false) AS isEndDateApprox')
-        ->addSelect('a.minEndDate')
-        ->addSelect('a.maxEndDate')
+        ->select('a')
         ->where('a.id = :id')
         ->setParameter('id', $id);
+        /** @var Article */
+        $article = $qb->getQuery()->getOneOrNullResult();
+        if ($article === null)return false;
+        $this->bindModalDTO($dto, $article);
+        if($dto instanceof ArticleMainDTO || $dto instanceof ArticleCollectionDTO){
+            $dto->content = "test";
+        }
         
-        return $qb->getQuery()->getArrayResult();
+         return true;
     }
+        
+    private function bindModalDTO($dto,Article $article)
+    {
+        $article->bindDTO($dto);
+        $dto->isBeginDateApprox = true;
+        $dto->beginDate = null;
+        if($article->getMinBeginDate() !== null && $article->getMaxBeginDate() === null){
+            $dto->isBeginDateApprox = false;
+            $dto->beginDate = $article->getMinBeginDate();
+            $dto->minBeginDate = null;
+            $dto->maxBeginDate = null;
+        }
+        $dto->hasNotEndDate = true;
+        $dto->isEndDateApprox = false;
+        $dto->endDate = null;
+        if($article->getMinEndDate() === null && $article->getMaxEndDate() !== null){
+            $dto->hasNotEndDate = false;
+            $dto->endDate = $article->getMaxEndDate();
+            $dto->minEndDate = null;
+            $dto->maxEndDate = null;
+        }
+        else if($article->getMinEndDate() !== null && $article->getMaxEndDate() !== null){
+            $dto->hasNotEndDate = false;
+            $dto->isEndDateApprox = true;
+        }
+    }
+    
+    
+
 }

@@ -8,6 +8,7 @@ namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use AppBundle\DTO\ArticleMainDTO;
 
 /**
  * Article
@@ -16,7 +17,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @ORM\Entity(repositoryClass="AppBundle\Repository\ArticleRepository")
  * @UniqueEntity(fields="title", message="Another article named {{ value }} exists. Consider editing it instead or rename your article.")
  */
-class Article
+class Article extends AbstractBindableEntity
 {
     /**
      * @var int
@@ -24,94 +25,94 @@ class Article
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string
      * @ORM\Column(name="title", type="string", length=50)
      */
-    private $title;
+    protected $title;
 
     /**
      * @var User
      * @ORM\ManyToOne(targetEntity="User",inversedBy="createdArticles")
      * @ORM\JoinColumn(name="creation_user_id", referencedColumnName="id")
      */
-    private $creationUser;
+    protected $creationUser;
 
     /**
      * @var \DateTime
      * @ORM\Column(name="creation_date", type="datetime")
      */
-    private $creationDate;
+    protected $creationDate;
 
     /**
      * @var User
      * @ORM\ManyToOne(targetEntity="User",inversedBy="editedArticles")
      * @ORM\JoinColumn(name="edition_user_id", referencedColumnName="id")
      */
-    private $editionUser;
+    protected $editionUser;
 
     /**
      * @var \DateTime
      * @ORM\Column(name="edition_date", type="datetime")
      */
-    private $editionDate;
+    protected $editionDate;
     
     /**
      * @var string
      * @ORM\Column(name="abstract", type="string", length=255)
      */
-    private $abstract;
+    protected $abstract;
     
     /**
      * @var ArticleType
      * @ORM\ManyToOne(targetEntity="ArticleType")
      * @ORM\JoinColumn(name="type_id", referencedColumnName="id")
      */
-    private $type;
+    protected $type;
     
     /**
      * @ORM\ManyToOne(targetEntity="ArticleSubType")
      * @ORM\JoinColumn(name="subtype_id", referencedColumnName="id")
      */
-    private $subType;
+    protected $subType;
     
     /**
      * @var string
      * @ORM\Column(name="content", type="text", nullable=true)
      */
-    private $content;
+    protected $content;
     
     /**
      * @var \DateTime
      * @ORM\Column(name="min_begin_date", type="date",nullable=true)
      */
-    private $minBeginDate;
+    protected $minBeginDate;
     
     /**
      * @var \DateTime
      * @ORM\Column(name="max_begin_date", type="date", nullable=true)
      */
-    private $maxBeginDate;
+    protected $maxBeginDate;
     
     /**
      * @var \DateTime
      * @ORM\Column(name="min_end_date", type="date", nullable=true)
      */
-    private $minEndDate;
+    protected $minEndDate;
     
     /**
      * @var \DateTime
      * @ORM\Column(name="max_end_date", type="date", nullable=true)
      */
-    private $maxEndDate;
+    protected $maxEndDate;
     
     /**
      * @var array
      * @ORM\Column(name="domain", type="simple_array",nullable=true)
      */
-    private $domain=array(0,0,0,0,0,0,0,0); // all 0 by default
+    protected $domain=array(0,0,0,0,0,0,0,0); // all 0 by default
     
     
     /**

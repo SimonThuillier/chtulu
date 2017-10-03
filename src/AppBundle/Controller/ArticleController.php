@@ -103,19 +103,24 @@ class ArticleController extends Controller
 
     /**
      * @Route("/edit/{article}",name="article_edit",requirements={"page": "\d+"})
+     * @ParamConverter("article", class="AppBundle:Article")
      * @Method({"GET","POST"})
      */
-    public function editAction($article,Request $request, ArticleDTOFactory $articleDTOFactory,ArticleHelper $helper,
+    public function editAction(Article $article,Request $request, ArticleDTOFactory $articleDTOFactory,ArticleHelper $helper,
         ArticleCollectionDoctrineMapper $collectionMapper)
     {
         /** @var ArticleRepository */
         $repo = $this->getDoctrine()->getRepository('AppBundle:Article');
         
-        $dto = $repo->getDTO($article);
+        $dto = $articleDTOFactory->newInstance("main_collection");
+        $result = $repo->bindDTO($article->getId(),$dto);
         
         return $this->render('::debug.html.twig', array(
             'debug' => array(
-                'dto' => json_encode($dto)
+                'article_title' => $article->getTitle(),
+                'result' => $result,
+                'dto' => json_encode($dto),
+                'bloup' => $dto->type->getLabel()
             )
         ));
         
