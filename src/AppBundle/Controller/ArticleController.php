@@ -34,7 +34,7 @@ class ArticleController extends Controller
      * @Route("/create",name="article_create")
      * @Method({"GET","POST"})
      */
-    public function createAction(Request $request, ArticleDTOFactory $articleDTOFactory,ArticleHelper $helper,
+    public function createAction(Request $request, ArticleDTOFactory $articleDTOFactory,
         ArticleCollectionDoctrineMapper $collectionMapper)
     {
         /** @var ArticleCollectionDTO $articleDTO */
@@ -55,16 +55,7 @@ class ArticleController extends Controller
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
                 $articleDTO = $form->getData();
-                if (! $helper->deserializeSubEvents($articleDTO))
-                {
-                    throw new \Exception("An error occured during subArticles recovery. No data was saved.");
-                }
-                /** @var ArticleCollectionDTO $articleCollectionDTO */
-                // $articleCollectionDTO = $serializer->deserialize($articleDTO->getSubEvents(), null, 'json');
-                /** ArticleCollectionDoctrineMapper $mapper */
                 $collectionMapper->add($articleDTO);
-                
-                
                 return $this->render('::debug.html.twig', array(
                     'debug' => array(
                         "title" => $articleDTO->title,
@@ -114,6 +105,8 @@ class ArticleController extends Controller
         
         $dto = $articleDTOFactory->newInstance("main_collection");
         $result = $repo->bindDTO($article->getId(),$dto);
+        $helper->serializeSubEvents($dto);
+        $helper->deserializeSubEvents($dto);
         
         return $this->render('::debug.html.twig', array(
             'debug' => array(

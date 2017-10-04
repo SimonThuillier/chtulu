@@ -9,6 +9,7 @@ namespace AppBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use AppBundle\DTO\ArticleMainDTO;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Article
@@ -113,6 +114,12 @@ class Article extends AbstractBindableEntity
      * @ORM\Column(name="domain", type="simple_array",nullable=true)
      */
     protected $domain=array(0,0,0,0,0,0,0,0); // all 0 by default
+    
+    /**
+     * @var ArrayCollection
+     * @ORM\OneToMany(targetEntity="ArticleLink", mappedBy="parentArticle")
+     */
+    protected $links;
     
     
     /**
@@ -382,6 +389,37 @@ class Article extends AbstractBindableEntity
      */
     public function getDomain(){
         return $this->domain;
+    }
+    
+    
+
+
+    /**
+     * domain
+     * @param string $domain
+     * @return Article
+     */
+    public function setDomain($domain){
+        $this->domain = $domain;
+        return $this;
+    }
+
+    /**
+     * Get links
+     * @return ArrayCollection
+     */
+    public function getLinks(){
+        return $this->links;
+    }
+
+    /**
+     * Add links
+     * @param ArticleLink $link
+     * @return self
+     */
+    public function addLink($link){
+        $this->links[] = $link;
+        return $this;
     }
 
 }

@@ -14,6 +14,5 @@ abstract class AbstractBindableEntity{
                 $dto->$key = $value;
             }
         }
-        // $dto->title= $this->getTitle();
     }
 }

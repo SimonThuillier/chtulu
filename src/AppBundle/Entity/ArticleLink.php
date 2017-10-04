@@ -23,7 +23,7 @@ class ArticleLink
     
     /**
      * @var Article
-     * @ORM\ManyToOne(targetEntity="Article")
+     * @ORM\ManyToOne(targetEntity="Article",inversedBy="links")
      * @ORM\JoinColumn(name="parent_article_id", referencedColumnName="id")
      */
     private $parentArticle;

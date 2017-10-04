@@ -9,6 +9,7 @@ use AppBundle\Factory\ArticleCollectionDTOFactory;
 use AppBundle\DTO\ArticleModalDTO;
 use AppBundle\DTO\ArticleMainDTO;
 use AppBundle\DTO\ArticleCollectionDTO;
+use AppBundle\Helper\StaticHelper;
 
 /**
  * ArticleRepository
@@ -17,11 +18,10 @@ use AppBundle\DTO\ArticleCollectionDTO;
  * repository methods below.
  */
 class ArticleRepository extends EntityRepository
-{
+{ 
     
     public function bindDTO($id,$dto)
     {
-        
         $qb = $this->createQueryBuilder('a')
         ->select('a')
         ->where('a.id = :id')
@@ -29,37 +29,35 @@ class ArticleRepository extends EntityRepository
         /** @var Article */
         $article = $qb->getQuery()->getOneOrNullResult();
         if ($article === null)return false;
-        $this->bindModalDTO($dto, $article);
+        $article->bindDTO($dto);
+        ArticleModalDTO::finalize($dto);
         if($dto instanceof ArticleMainDTO || $dto instanceof ArticleCollectionDTO){
-            $dto->content = "test";
+            $this->hydrateSubEvents($id, $dto);
         }
         
          return true;
     }
-        
-    private function bindModalDTO($dto,Article $article)
+    
+    private function hydrateSubEvents($id,$dto)
     {
-        $article->bindDTO($dto);
-        $dto->isBeginDateApprox = true;
-        $dto->beginDate = null;
-        if($article->getMinBeginDate() !== null && $article->getMaxBeginDate() === null){
-            $dto->isBeginDateApprox = false;
-            $dto->beginDate = $article->getMinBeginDate();
-            $dto->minBeginDate = null;
-            $dto->maxBeginDate = null;
-        }
-        $dto->hasNotEndDate = true;
-        $dto->isEndDateApprox = false;
-        $dto->endDate = null;
-        if($article->getMinEndDate() === null && $article->getMaxEndDate() !== null){
-            $dto->hasNotEndDate = false;
-            $dto->endDate = $article->getMaxEndDate();
-            $dto->minEndDate = null;
-            $dto->maxEndDate = null;
-        }
-        else if($article->getMinEndDate() !== null && $article->getMaxEndDate() !== null){
-            $dto->hasNotEndDate = false;
-            $dto->isEndDateApprox = true;
+        $qb = $this->createQueryBuilder('a')
+        ->join('a.links','l')
+        ->join('l.childArticle','sa')
+        ->join('sa.type','t')
+        ->select('sa.title')
+        ->select('t.id as type')
+        ->addSelect('l.y')
+        ->where('a.id = :id')
+        ->setParameter('id', $id);
+        
+        $results = $qb->getQuery()->getArrayResult();
+
+        foreach ($results as $result){
+            $modalDTO = new ArticleModalDTO();
+            StaticHelper::mapArrayToObject($result, $modalDTO);
+            ArticleModalDTO::finalize($dto);
+            $dto->subEventsArray[] = $modalDTO;
+            $dto->subEventsCount++;
         }
     }
     

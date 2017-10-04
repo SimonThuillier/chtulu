@@ -12,6 +12,7 @@ use AppBundle\DTO\ArticleModalDTO;
 use AppBundle\Factory\ArticleLinkFactory;
 use AppBundle\Factory\ArticleFactory;
 use AppBundle\Entity\Article;
+use AppBundle\Helper\ArticleHelper;
 
 /**
  * Class ArticleCollectionDoctrineMapper
@@ -22,6 +23,8 @@ class ArticleCollectionDoctrineMapper extends ArticleMainDoctrineMapper
 {
     /** @var ArticleModalDoctrineMapper $modalMapper */
     private $modalMapper;
+    /** @var ArticleHelper */
+    private $articleHelper;
     
     /**
      * ArticleCollectionDoctrineMapper
@@ -31,6 +34,9 @@ class ArticleCollectionDoctrineMapper extends ArticleMainDoctrineMapper
      * @param EntityFactoryInterface|null $entityFactory
      * @param PaginatorFactoryInterface|null $paginatorFactory
      * @param User $user
+     * @param ArticleModalDoctrineMapper $modalMapper
+     * @param ArticleLinkFactory $linkFactory
+     * @param ArticleHelper $helper
      */
     public function __construct(
         ManagerRegistry $doctrine,
@@ -39,18 +45,25 @@ class ArticleCollectionDoctrineMapper extends ArticleMainDoctrineMapper
         PaginatorFactoryInterface $paginatorFactory = null,
         User $user = null,
         ArticleModalDoctrineMapper $modalMapper,
-        ArticleLinkFactory $linkFactory
+        ArticleLinkFactory $linkFactory,
+        ArticleHelper $helper
         )
     { 
         parent::__construct($doctrine, $entityName,$entityFactory,$paginatorFactory,$user,$linkFactory);
+        $this->articleHelper = $helper;
         $this->modalMapper = $modalMapper;
     }
     
     /**
      * @param ArticleCollectionDTO $dto
+     * @throws \Exception
      */
     public function add($dto)
     {
+        if (! $this->articleHelper->deserializeSubEvents($dto))
+        {
+            throw new \Exception("An error occured during subArticles recovery. No data was saved.");
+        }
         $article = parent::add($dto);
         $this->handleChildrenArticle($article, $dto);
     }
