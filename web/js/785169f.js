@@ -487,15 +487,18 @@ HEvent.prototype.bindToForm = function(formId){
 	$("textarea#" + formId + "_abstract").val(this.abstract);
 	
 	$("input#" + formId + "_isBeginDateApprox:checked").val((this.beginDate != null)?!this.beginDate.isExact():false);
+	$("input#" + formId + "_hasNotEndDate:checked").val(this.hasNotEndDate);
+	$("input#" + formId + "_isEndDateApprox:checked").val((this.endDate != null)?!this.endDate.isExact():false);
+	
+	
 	$("input#" + formId + "_beginDate").val((this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(0)):"");
 	$("input#" + formId + "_minBeginDate").val((this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(0)):"");
 	$("input#" + formId + "_maxBeginDate").val((this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(1)):"");
 	
-	$("input#" + formId + "_hasNotEndDate:checked").val(this.hasNotEndDate);
-	$("input#" + formId + "_isEndDateApprox:checked").val((this.endDate != null)?!this.endDate.isExact():false);
 	$("input#" + formId + "_endDate").val((this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"");
 	$("input#" + formId + "_minEndDate").val((this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"");
 	$("input#" + formId + "_maxEndDate").val((this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(1)):"");
+	
 	$("input#" + formId + "_y").val(this.y);
 }
 

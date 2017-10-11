@@ -91,7 +91,6 @@ class ArticleMainType extends AbstractType
         return array(
             'label' => $label,
             'widget' => 'single_text',
-            'data' => null,
             'html5' => false,
             'format' => 'dd/MM/yyyy',
             'attr' => [

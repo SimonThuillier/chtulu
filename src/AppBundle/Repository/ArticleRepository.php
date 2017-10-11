@@ -26,11 +26,12 @@ class ArticleRepository extends EntityRepository
         ->select('a')
         ->where('a.id = :id')
         ->setParameter('id', $id);
-        /** @var Article */
+        /** @var Article $article */
+        /** @var ArticleCollectionDTO $dto */
         $article = $qb->getQuery()->getOneOrNullResult();
         if ($article === null)return false;
         $article->bindDTO($dto);
-        ArticleModalDTO::finalize($dto);
+        StaticHelper::finalizeArticleDTO($dto);
         if($dto instanceof ArticleMainDTO || $dto instanceof ArticleCollectionDTO){
             $this->hydrateSubEvents($id, $dto);
         }
@@ -55,7 +56,7 @@ class ArticleRepository extends EntityRepository
         foreach ($results as $result){
             $modalDTO = new ArticleModalDTO();
             StaticHelper::mapArrayToObject($result, $modalDTO);
-            ArticleModalDTO::finalize($dto);
+            StaticHelper::finalizeArticleDTO($modalDTO);
             $dto->subEventsArray[] = $modalDTO;
             $dto->subEventsCount++;
         }

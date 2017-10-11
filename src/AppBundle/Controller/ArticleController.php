@@ -38,18 +38,13 @@ class ArticleController extends Controller
         ArticleCollectionDoctrineMapper $collectionMapper)
     {
         /** @var ArticleCollectionDTO $articleDTO */
-        $articleDTO = $articleDTOFactory->newInstance("main_collection");
-        $articleModalDTO = $articleDTOFactory->newInstance("modal");
+        /** @var ArticleModalDTO $articleModalDTO */
         /** @var ArticleMainType $form */
-        $form = $this->get('form.factory')
-            ->createBuilder(ArticleMainType::class)
-            ->setData($articleDTO)
-            ->getForm();
+        $form = $this->get('form.factory')->createBuilder(ArticleMainType::class)
+            ->setData($articleDTO)->getForm();
         /** @var FormInterface $modaForm */
-        $modalForm = $this->get('form.factory')
-            ->createBuilder(ArticleModalType::class)
-            ->setData($articleModalDTO)
-            ->getForm();
+        $modalForm = $this->get('form.factory')->createBuilder(ArticleModalType::class)
+            ->setData($articleDTOFactory->newInstance("modal"))->getForm();
         
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
@@ -102,38 +97,30 @@ class ArticleController extends Controller
     {
         /** @var ArticleRepository */
         $repo = $this->getDoctrine()->getRepository('AppBundle:Article');
-        
-        $dto = $articleDTOFactory->newInstance("main_collection");
-        $result = $repo->bindDTO($article->getId(),$dto);
-        $helper->serializeSubEvents($dto);
-        $helper->deserializeSubEvents($dto);
-        
-        return $this->render('::debug.html.twig', array(
-            'debug' => array(
-                'article_title' => $article->getTitle(),
-                'result' => $result,
-                'dto' => json_encode($dto),
-                'bloup' => $dto->type->getLabel()
-            )
-        ));
-        
-        
-        
-        
-        
         /** @var ArticleCollectionDTO $articleDTO */
         $articleDTO = $articleDTOFactory->newInstance("main_collection");
-        $articleModalDTO = $articleDTOFactory->newInstance("modal");
+        $repo->bindDTO($article->getId(),$articleDTO);
+        $helper->serializeSubEvents($articleDTO);
+        /** @var ArticleModalDTO $articleModalDTO */
         /** @var ArticleMainType $form */
-        $form = $this->get('form.factory')
-        ->createBuilder(ArticleMainType::class)
-        ->setData($articleDTO)
-        ->getForm();
+        
+        
+        $form = $this->get('form.factory')->createBuilder(ArticleMainType::class)
+        ->setData($articleDTO)->getForm();
         /** @var FormInterface $modaForm */
-        $modalForm = $this->get('form.factory')
-        ->createBuilder(ArticleModalType::class)
-        ->setData($articleModalDTO)
-        ->getForm();
+        $modalForm = $this->get('form.factory')->createBuilder(ArticleModalType::class)
+        ->setData($articleDTOFactory->newInstance("modal"))->getForm();
+        
+        /*return $this->render('::debug.html.twig', array(
+            'debug' => array(
+                'date' => $article->getMinBeginDate(),
+                'date2' => $articleDTO->beginDate,
+                'date3' => $articleDTO->minBeginDate,
+                'article_title' => $article->getTitle(),
+                'dto' => json_encode($articleDTO),
+            )
+        ));*/
+        
         
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
@@ -167,7 +154,8 @@ class ArticleController extends Controller
             }
         }
         
-        return $this->render('@AppBundle/Article/create.html.twig',array(
+        return $this->render('@AppBundle/Article/edit.html.twig',array(
+            'article' => $articleDTO,
             'typeSubtypeArray' => $this->getDoctrine()->getManager()->getRepository(ArticleType::class)->getTypeSubTypeArray(),
             'form' => $form->createView(),
             'modalForm' => $modalForm->createView()

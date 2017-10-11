@@ -86,6 +86,35 @@ function autoloadSubType(formType){
 	});
 }
 
+function finalizeFormState(formType){
+	var creation = $("input#article_" + formType + "_title").val() === null;
+	
+	if($("#article_"+ formType + "_isBeginDateApprox").is((":checked"))){
+		hidePreciseDate(formType,'begin');
+		showApproxDate(formType,'begin');
+	}
+	else{
+		showPreciseDate(formType,'begin');
+		hideApproxDate(formType,'begin');
+	}
+	
+	if($("#article_" + formType + "_hasNotEndDate").is((":checked"))){
+		hidePreciseDate(formType,'end');
+		hideApproxDate(formType,'end');
+	}
+	else{
+		if($("#article_"+ formType + "_isEndDateApprox").is((":checked"))){
+			hidePreciseDate(formType,'end');
+			showApproxDate(formType,'end');
+		}
+		else{
+			showPreciseDate(formType,'end');
+			hideApproxDate(formType,'end');
+		}
+	}
+}
+
+finalizeFormState('main');
 var argForApprox = ['begin','end'];
 instanciateFormEvent('main');
 
