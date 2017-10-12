@@ -38,6 +38,7 @@ class ArticleController extends Controller
         ArticleCollectionDoctrineMapper $collectionMapper)
     {
         /** @var ArticleCollectionDTO $articleDTO */
+        $articleDTO = $articleDTOFactory->newInstance("main_collection");
         /** @var ArticleModalDTO $articleModalDTO */
         /** @var ArticleMainType $form */
         $form = $this->get('form.factory')->createBuilder(ArticleMainType::class)
@@ -113,7 +114,7 @@ class ArticleController extends Controller
         
         /*return $this->render('::debug.html.twig', array(
             'debug' => array(
-                'date' => $article->getMinBeginDate(),
+                'subEvents' => $articleDTO->subEvents,
                 'date2' => $articleDTO->beginDate,
                 'date3' => $articleDTO->minBeginDate,
                 'article_title' => $article->getTitle(),

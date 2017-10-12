@@ -58,13 +58,9 @@ function showDate(formType,arg){
 /** args : main|modal,begin|end*/
 function hideDate(formType,arg){
 	$("#article_"+ formType + "_is"+ arg.capitalize() + "DateApprox_row").hide();
-	if($("#article_"+ formType + "_is"+ arg.capitalize() + "DateApprox").is((":checked"))){
-		$("#article_" + formType + "_min" + arg.capitalize() + "Date_row").hide();
-		$("#article_" + formType + "_max" + arg.capitalize() + "Date_row").hide();
-	}
-	else{
-		$("#article_" + formType + "_" + arg + "Date_row").hide();
-	}
+	$("#article_" + formType + "_min" + arg.capitalize() + "Date_row").hide();
+	$("#article_" + formType + "_max" + arg.capitalize() + "Date_row").hide();
+	$("#article_" + formType + "_" + arg + "Date_row").hide();
 }
 
 function autoloadSubType(formType){
@@ -90,47 +86,43 @@ function finalizeFormState(formType){
 	var creation = $("input#article_" + formType + "_title").val() === null;
 	
 	if($("#article_"+ formType + "_isBeginDateApprox").is((":checked"))){
+		requirePreciseDate(formType,'begin',false);
 		hidePreciseDate(formType,'begin');
+		requireApproxDate(formType,'begin',true);
 		showApproxDate(formType,'begin');
 	}
 	else{
+		requirePreciseDate(formType,'begin',true);
 		showPreciseDate(formType,'begin');
+		requireApproxDate(formType,'begin',false);
 		hideApproxDate(formType,'begin');
 	}
-	
 	if($("#article_" + formType + "_hasNotEndDate").is((":checked"))){
-		hidePreciseDate(formType,'end');
-		hideApproxDate(formType,'end');
+		requireDate(formType,'end',false);
+		hideDate(formType,'end');
 	}
 	else{
 		if($("#article_"+ formType + "_isEndDateApprox").is((":checked"))){
+			requirePreciseDate(formType,'end',false);
 			hidePreciseDate(formType,'end');
+			requireApproxDate(formType,'end',true);
 			showApproxDate(formType,'end');
 		}
 		else{
+			requirePreciseDate(formType,'end',true);
 			showPreciseDate(formType,'end');
+			requireApproxDate(formType,'end',false);
 			hideApproxDate(formType,'end');
 		}
 	}
 }
 
-finalizeFormState('main');
-var argForApprox = ['begin','end'];
-instanciateFormEvent('main');
-
-function instanciateFormEvent(formType){
-	autoloadSubType(formType);
+function finalizeFormEvent(formType){
 	$("#article_" + formType + "_type").change(function(){
 		autoloadSubType(formType);
 	});
 
-	var arg = "begin";
-	hideApproxDate(formType,arg);
-	requireApproxDate(formType,arg,false);
-
-	arg = "end";
-	hideApproxDate(formType,arg);
-	requireApproxDate(formType,arg,false);
+	var arg = "end";
 	$("#article_" + formType + "_hasNotEndDate").on("click",
 			function() {
 		if (this.checked) {
@@ -143,6 +135,7 @@ function instanciateFormEvent(formType){
 		}
 	});
 
+	var argForApprox = ['begin','end'];
 	argForApprox.forEach(function(arg){
 		$("#article_" + formType + "_is" + arg.capitalize() + "DateApprox").on("click",
 				function() {
@@ -161,6 +154,13 @@ function instanciateFormEvent(formType){
 		});
 	});
 }
+
+function finalizeForm(formType){
+	finalizeFormState(formType);
+	finalizeFormEvent(formType);
+}
+
+
 
 
 

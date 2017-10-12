@@ -215,9 +215,11 @@ HEvent.prototype.bindToForm = function(formId){
 	$("input#" + formId + "_title").val(this.name);
 	$("textarea#" + formId + "_abstract").val(this.abstract);
 	
-	$("input#" + formId + "_isBeginDateApprox:checked").val((this.beginDate != null)?!this.beginDate.isExact():false);
-	$("input#" + formId + "_hasNotEndDate:checked").val(this.hasNotEndDate);
-	$("input#" + formId + "_isEndDateApprox:checked").val((this.endDate != null)?!this.endDate.isExact():false);
+	console.log("beginDateApprox", (this.beginDate != null)?!this.beginDate.isExact():false);
+	
+	$("input#" + formId + "_isBeginDateApprox").attr('checked',(this.beginDate != null)?!this.beginDate.isExact():false);
+	$("input#" + formId + "_hasNotEndDate").attr('checked',this.hasNotEndDate);
+	$("input#" + formId + "_isEndDateApprox").attr('checked',(this.endDate != null)?!this.endDate.isExact():false);
 	
 	
 	$("input#" + formId + "_beginDate").val((this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(0)):"");
@@ -318,14 +320,6 @@ HEvent.prototype.checkFormValidity = function(formId){
 	return true;
 }
 
-
-
-
-/** define events applied to form components, once it's defined */
-HEvent.prototype.addFormEvent = function(){
-	instanciateFormEvent('modal_live');
-}
-
 /** function to handle event edition (with modal display) */
 HEvent.prototype.edit = function(){
 	var message= 'Edition de l\'évenement';
@@ -372,8 +366,8 @@ HEvent.prototype.edit = function(){
 	
 	// bind new form to Hevent
 	this.bindToForm(formId);
-	// add form event
-	this.addFormEvent();
+	// add form  and initial state
+	finalizeForm('modal_live');
 }
 
 
