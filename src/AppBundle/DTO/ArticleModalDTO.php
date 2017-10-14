@@ -47,10 +47,19 @@ class ArticleModalDTO extends ArticleAbstractDTO
     /** @var float 
      * @Groups("group1") */
     public $y;
-    /** @var integer */
+    /** @var integer
+     @Groups("group1") */
+    public $id;
+    /** @var Article */
+    public $article;
+    /** @var integer
+     @Groups("group1") */
     public $parentId;
     /** @var Article */
     public $parentArticle;
+    /** @var integer
+     @Groups("group1") */
+    public $linkId;
     /** @var ArticleLink $link */
     public $link;
 }

@@ -48,29 +48,19 @@ class ArticleMainDoctrineMapper extends ArticleModalDoctrineMapper
     
     /**
      * @param ArticleMainDTO $dto
-     * @return Article
      */
     public function add($dto)
     {
-        $article = parent::add($dto);
-        return $article;
+        parent::add($dto);
     }
 
     /**
-     * @param string $id
+     * @param integer $id
      * @param  $dto
      */
-    public function edit(string $id, $dto)
+    public function edit($id, $dto)
     {
-        /*
-        $site = $this->getRepository()->find($id);
-        if (!$site) {
-            throw new \LogicException(sprintf('impossible to find information for id %s', $id));
-        }
-        $site->setLabel($dto->label);
-        $site->setNumber($dto->number);
-        $site->setAccompaniment($dto->accompaniment);
-        $this->getManager()->flush();*/
+        parent::edit($id,$dto);
     }
 
 

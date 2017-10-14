@@ -10,12 +10,6 @@ abstract class AbstractEntityFactory implements EntityFactoryInterface
 {
     const ENTITY_NAME_SPACE =  'AppBundle\Entity\\';
 
-    /** @var   */
-    protected $entity;
-
-    /** @var   */
-    protected $dto;
-
     /**
      * @param $dto
      * @return mixed
@@ -29,14 +23,18 @@ abstract class AbstractEntityFactory implements EntityFactoryInterface
         if (!class_exists($className)) {
             throw new \Exception('');
         }
-        $this->dto = $dto;
-        $this->entity = new $className();
-        $this->setData();
+        $entity = new $className();
+        $this->setData($dto,$entity);
 
-        return $this->entity;
+        return $entity;
     }
 
-    abstract public function setData();
+    /**
+     * @param $dto
+     * @param $entity
+     * @throws FactoryException
+     */
+    abstract public function setData($dto,$entity);
     
     /**
      * 
@@ -52,27 +50,4 @@ abstract class AbstractEntityFactory implements EntityFactoryInterface
         }
         return $entityName;
     }
-    
-    
-
-    /**
-     * dto
-     * @param $dto
-     * @return self
-     */
-    public function setDto($dto){
-        $this->dto = $dto;
-        return $this;
-    }
-
-    /**
-     * entity
-     * @param $entity
-     * @return self
-     */
-    public function setEntity($entity){
-        $this->entity = $entity;
-        return $this;
-    }
-
 }

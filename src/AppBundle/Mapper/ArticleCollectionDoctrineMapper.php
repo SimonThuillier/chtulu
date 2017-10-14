@@ -60,29 +60,24 @@ class ArticleCollectionDoctrineMapper extends ArticleMainDoctrineMapper
      */
     public function add($dto)
     {
-        if (! $this->articleHelper->deserializeSubEvents($dto))
-        {
+        if (! $this->articleHelper->deserializeSubEvents($dto)){
             throw new \Exception("An error occured during subArticles recovery. No data was saved.");
         }
-        $article = parent::add($dto);
-        $this->handleChildrenArticle($article, $dto);
+        parent::add($dto);
+        $this->handleChildrenArticle($dto->article, $dto);
     }
 
     /**
-     * @param string $id
+     * @param integer $id
      * @param  $dto
      */
-    public function edit(string $id, $dto)
+    public function edit($id, $dto)
     {
-        /*
-        $site = $this->getRepository()->find($id);
-        if (!$site) {
-            throw new \LogicException(sprintf('impossible to find information for id %s', $id));
+        if (! $this->articleHelper->deserializeSubEvents($dto)){
+            throw new \Exception("An error occured during subArticles recovery. No data was saved.");
         }
-        $site->setLabel($dto->label);
-        $site->setNumber($dto->number);
-        $site->setAccompaniment($dto->accompaniment);
-        $this->getManager()->flush();*/
+        parent::edit($id,$dto);
+        $this->handleChildrenArticle($dto->article, $dto);
     }
     
     /**
@@ -94,7 +89,13 @@ class ArticleCollectionDoctrineMapper extends ArticleMainDoctrineMapper
         /** @var ArticleModalDTO $modalDTO */
         foreach($dto->subEventsArray as $modalDTO){
             $modalDTO->parentArticle = $article;
-            $this->modalMapper->add($modalDTO);
+            $modalDTO->parentId = $article->getId();
+            if($modalDTO->id === null){
+                $this->modalMapper->add($modalDTO);
+            }
+            else{
+                $this->modalMapper->edit($modalDTO->id,$modalDTO);
+            }
         }
     }
 

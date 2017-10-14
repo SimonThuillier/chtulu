@@ -127,20 +127,16 @@ class ArticleController extends Controller
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
                 $articleDTO = $form->getData();
-                if (! $helper->deserializeSubEvents($articleDTO))
-                {
-                    throw new \Exception("An error occured during subArticles recovery. No data was saved.");
-                }
                 /** @var ArticleCollectionDTO $articleCollectionDTO */
                 // $articleCollectionDTO = $serializer->deserialize($articleDTO->getSubEvents(), null, 'json');
                 /** ArticleCollectionDoctrineMapper $mapper */
-                $collectionMapper->add($articleDTO);
+                $collectionMapper->edit($article->getId(),$articleDTO);
                 
                 
                 return $this->render('::debug.html.twig', array(
                     'debug' => array(
-                        "title" => $articleDTO->title,
-                        "titlesub1" => $articleDTO->subEventsArray[0]->title,
+                        "dto" => json_encode($articleDTO),
+                        "title" => $articleDTO->title
                     )
                 ));
             } else {

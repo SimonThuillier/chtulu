@@ -170,12 +170,14 @@ function HEventManager(hts){
 	this.bufferEvent = null;
 	this.maxYEvent = 100;
 	this.maxYArea = 50;
+	this.eventFactory = new HEventFactory(hts,null);
+	this.parentId = hts.articleParentId;
 }
 
 /**
  * 
  */
-HEventManager.prototype.createEvent =  function(x,y,beginX=null){
+HEventManager.prototype.createEvent = function(x,y,beginX=null){
 
 	var type = 'attached';
 	if(this.events.length === 0 ) type = 'main';
@@ -195,6 +197,7 @@ HEventManager.prototype.createEvent =  function(x,y,beginX=null){
 
 HEventManager.prototype.addEvent =  function(event){
 	event.manager = this;
+	event.articleParentId = this.parentId;
 	this.events.push(event);
 
 	var manager = this;
@@ -269,6 +272,31 @@ HEventManager.prototype.prepareSubmission = function(formId,formMainId){
 	});
 	$("#" + formMainId + "_subEvents").val(JSON.stringify(eventCollection));
 }
+
+/** this function load events in subEvents field */
+HEventManager.prototype.loadSubEvents = function(formMainId){
+	console.log($("#" + formMainId + "_subEvents").val());
+	this.loadSubEventsFromData($("#" + formMainId + "_subEvents").val());
+}
+
+/** this function load events in subEvents field */
+HEventManager.prototype.loadSubEventsFromData = function(data){
+	var array = JSON.parse(data);
+	var event = null;
+	var manager = this;
+	
+	array.subEventsArray.forEach(function(eventDTO){
+		console.log(eventDTO);
+		event = manager.eventFactory.newInstance(eventDTO);
+		console.log(event);
+		if (! event.rendered) event.render();
+		event.text.text(event.name);
+		event.updateRender();
+		manager.addEvent(event);
+	});
+	
+	manager.updateRender();
+}
 /**
  * 
  */
@@ -280,6 +308,9 @@ HEvent.prototype.rPinPoint = 5;
 //prototype events
 function HEvent(hts,type,attachment=null,y=null,name=null){
 	this.id=this.idGenerator();
+	this.internId = null;
+	this.articleParentId = null;
+	this.linkId = null;
 	this.hts = hts;
 	this.type = type; // is the event detailed (with article) of not ? : can be main, attached or unattached
 	this.hasArticle = false; // indicate if the event has a detailed article
@@ -307,6 +338,11 @@ function HEvent(hts,type,attachment=null,y=null,name=null){
 	
 	// to handle submission
 	this.toUpdate = true;
+}
+
+/** returns true if event exists in database ( article) or false otherwise (newly created event) */
+HEvent.prototype.isPersisted = function(){
+	return (this.internId > 0);
 }
 
 /** make the idGenerator for the event prototype */
@@ -408,6 +444,8 @@ HEvent.prototype.displayIntersect = function(HEvent2){
 /** function to create graphic components of events */
 HEvent.prototype.updateRender = function(){
 	var hEvent = this;
+	
+	console.log(this.adjustedY + this.hts.ABS_EVENT_HEIGHT/2);
 
 	this.pinPoint
 	.transition()
@@ -524,6 +562,10 @@ HEvent.prototype.normalize = function(formId){
 	dto.maxEndDate = (this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(1)):"";
 	
 	dto.y = this.y;
+	dto.id = this.internId;
+	dto.parentId = this.articleParentId;
+	dto.linkId = this.linkId;
+	
 	return dto;
 }
 
@@ -990,9 +1032,11 @@ HTimeScroller.prototype.formatBoundDates = myFormatPatternDate('d/m/Y');
 
 /** constructor for horizontal time scroller 
  * parentId must be existing id of an SVG component */
-function HTimeScroller(parentId,beginDate,endDate,eBeginDate,eEndDate,options) {
+function HTimeScroller(parentId,beginDate,endDate,eBeginDate,eEndDate,articleParentId,options) {
 	this.id=this.idGenerator();
 	this.parentId = parentId;
+	this.articleParentId = articleParentId;
+	
 	this.parent = d3.select(this.parentId); 
 	this.scope = [null,null]; // contains begin and end Date of scope
 	this.domComponents = []; // array of DOM components (except parent) with update functions

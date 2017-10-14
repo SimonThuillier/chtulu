@@ -9,6 +9,9 @@ HEvent.prototype.rPinPoint = 5;
 //prototype events
 function HEvent(hts,type,attachment=null,y=null,name=null){
 	this.id=this.idGenerator();
+	this.internId = null;
+	this.articleParentId = null;
+	this.linkId = null;
 	this.hts = hts;
 	this.type = type; // is the event detailed (with article) of not ? : can be main, attached or unattached
 	this.hasArticle = false; // indicate if the event has a detailed article
@@ -36,6 +39,11 @@ function HEvent(hts,type,attachment=null,y=null,name=null){
 	
 	// to handle submission
 	this.toUpdate = true;
+}
+
+/** returns true if event exists in database ( article) or false otherwise (newly created event) */
+HEvent.prototype.isPersisted = function(){
+	return (this.internId > 0);
 }
 
 /** make the idGenerator for the event prototype */
@@ -137,6 +145,8 @@ HEvent.prototype.displayIntersect = function(HEvent2){
 /** function to create graphic components of events */
 HEvent.prototype.updateRender = function(){
 	var hEvent = this;
+	
+	console.log(this.adjustedY + this.hts.ABS_EVENT_HEIGHT/2);
 
 	this.pinPoint
 	.transition()
@@ -253,6 +263,10 @@ HEvent.prototype.normalize = function(formId){
 	dto.maxEndDate = (this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(1)):"";
 	
 	dto.y = this.y;
+	dto.id = this.internId;
+	dto.parentId = this.articleParentId;
+	dto.linkId = this.linkId;
+	
 	return dto;
 }
 

@@ -39,20 +39,7 @@ Creer un article
 
 
 {% block javascript %}
-
-{% javascripts output="js/hts-total.js"      
-               '@AppBundle/Resources/third-party/attrchange/attrchange.js'
-			   '@AppBundle/Resources/hbase/hts/js/hdate.js'
-			   '@AppBundle/Resources/hbase/hts/js/hevent-manager.js'
-			   '@AppBundle/Resources/hbase/hts/js/hevent.js'
-			   '@AppBundle/Resources/hbase/hts/js/hgrad.js'
-			   '@AppBundle/Resources/hbase/hts/js/hrange.js'
-			   '@AppBundle/Resources/hbase/hts/js/hts.js'
-%}
-< --- les scripts hts --->
-<script type="text/javascript" src="../../js/hts-total.js"></script>
-{% endjavascripts %}
-
+    {% include 'AppBundle:Article:hts-package.js.twig' %}
 <script type="text/javascript">{% include '@AppBundle/Resources/views/Article/article_form.js' %}</script>
 
 <script>
@@ -63,7 +50,7 @@ var d1 = new Date(1800,0,7);
 d1.setHours(0,0,0,0);
 var d2 = new Date(1880,0,28);
 d2.setHours(0,0,0,0);
-var hts = new HTimeScroller("#hts-svgcontainer",d1,d2,null, htsOptions);
+var hts = new HTimeScroller("#hts-svgcontainer",d1,d2,null,null, htsOptions);
 
 $(function () {
 	var prevHeight = $('div#hts-event-container').height();

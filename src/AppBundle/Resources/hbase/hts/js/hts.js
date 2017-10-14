@@ -28,9 +28,11 @@ HTimeScroller.prototype.formatBoundDates = myFormatPatternDate('d/m/Y');
 
 /** constructor for horizontal time scroller 
  * parentId must be existing id of an SVG component */
-function HTimeScroller(parentId,beginDate,endDate,eBeginDate,eEndDate,options) {
+function HTimeScroller(parentId,beginDate,endDate,eBeginDate,eEndDate,articleParentId,options) {
 	this.id=this.idGenerator();
 	this.parentId = parentId;
+	this.articleParentId = articleParentId;
+	
 	this.parent = d3.select(this.parentId); 
 	this.scope = [null,null]; // contains begin and end Date of scope
 	this.domComponents = []; // array of DOM components (except parent) with update functions
