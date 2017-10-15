@@ -92,7 +92,7 @@ class ArticleMainType extends AbstractType
             'label' => $label,
             'widget' => 'single_text',
             'html5' => false,
-            'format' => 'dd/MM/yyyy',
+            'format' => 'dd/MM/r',
             'attr' => [
                 'class' => 'hts-date-input',
                 'pattern' => "^(0?[1-9]|[1-2][0-9]|3[0-1])/(0?[1-9]|1[0-2])/(-?[1-9][0-9]*)$",

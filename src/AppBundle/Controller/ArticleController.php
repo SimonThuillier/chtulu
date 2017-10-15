@@ -73,7 +73,9 @@ class ArticleController extends Controller
         return $this->render('@AppBundle/Article/create.html.twig',array(
             'typeSubtypeArray' => $this->getDoctrine()->getManager()->getRepository(ArticleType::class)->getTypeSubTypeArray(),
             'form' => $form->createView(),
-            'modalForm' => $modalForm->createView()
+            'modalForm' => $modalForm->createView(),
+            'beginDate' => (new \DateTime())->sub(new \DateInterval('P30D')),
+            'endDate' =>(new \DateTime())
         ));
     }
     /**
@@ -81,8 +83,14 @@ class ArticleController extends Controller
      */
     public function testAction()
     {
+        /** @var \DateTime $date */
+        $date = \DateTime::createFromFormat('d/m/Y', "01/05/9000");
+        $date->setDate(-$date->format('Y'), $date->format('m'), $date->format('d'));
+        
+        
         return $this->render('::debug.html.twig', array(
             'debug' => array(
+                'date' => $date->format('d/m/Y'),
                 'value' => Article::class
             )
         ));
@@ -101,11 +109,13 @@ class ArticleController extends Controller
         /** @var ArticleCollectionDTO $articleDTO */
         $articleDTO = $articleDTOFactory->newInstance("main_collection");
         $repo->bindDTO($article->getId(),$articleDTO);
+        
+        foreach($articleDTO->subEventsArray as $subEvent){
+            $subEvent->url = $this->generateUrl('article_edit',array("article" => $subEvent->id));
+        }
         $helper->serializeSubEvents($articleDTO);
         /** @var ArticleModalDTO $articleModalDTO */
         /** @var ArticleMainType $form */
-        
-        
         $form = $this->get('form.factory')->createBuilder(ArticleMainType::class)
         ->setData($articleDTO)->getForm();
         /** @var FormInterface $modaForm */
@@ -143,7 +153,7 @@ class ArticleController extends Controller
                 
                 return $this->render('::debug.html.twig', array(
                     'debug' => array(
-                        'formErrors' => json_encode($form->getErrors(true, false)),
+                        'formErrors' => json_encode($form['endDate']->getErrors()),
                         'form_submitted' => json_encode($form->isSubmitted()),
                         'form_valid' => json_encode($form->isValid())
                     )
@@ -155,7 +165,10 @@ class ArticleController extends Controller
             'article' => $articleDTO,
             'typeSubtypeArray' => $this->getDoctrine()->getManager()->getRepository(ArticleType::class)->getTypeSubTypeArray(),
             'form' => $form->createView(),
-            'modalForm' => $modalForm->createView()
+            'modalForm' => $modalForm->createView(),
+            'beginDate' => ($articleDTO->isBeginDateApprox)?$articleDTO->minBeginDate:$articleDTO->beginDate,
+            'endDate' =>($articleDTO->hasNotEndDate)?new \DateTime():
+            (($articleDTO->isEndDateApprox)?$articleDTO->maxEndDate:$articleDTO->endDate)
         ));
     }
 }

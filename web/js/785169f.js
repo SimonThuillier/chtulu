@@ -290,7 +290,7 @@ HEventManager.prototype.loadSubEventsFromData = function(data){
 		event = manager.eventFactory.newInstance(eventDTO);
 		console.log(event);
 		if (! event.rendered) event.render();
-		event.text.text(event.name);
+		event.text.html(event.getLabelHtml());
 		event.updateRender();
 		manager.addEvent(event);
 	});
@@ -301,8 +301,8 @@ HEventManager.prototype.loadSubEventsFromData = function(data){
  * 
  */
 
-HEvent.prototype.animationTime = 500;
-HEvent.prototype.animationTextTime = 650;
+HEvent.prototype.animationTime = 400;
+HEvent.prototype.animationTextTime = 500;
 HEvent.prototype.rPinPoint = 5;
 
 //prototype events
@@ -311,6 +311,7 @@ function HEvent(hts,type,attachment=null,y=null,name=null){
 	this.internId = null;
 	this.articleParentId = null;
 	this.linkId = null;
+	this.url = null;
 	this.hts = hts;
 	this.type = type; // is the event detailed (with article) of not ? : can be main, attached or unattached
 	this.hasArticle = false; // indicate if the event has a detailed article
@@ -332,10 +333,12 @@ function HEvent(hts,type,attachment=null,y=null,name=null){
 	this.endDate=null; // HDate
 	this.rendered = false;
 	this.manager = null;
-	
+
 	this.articleType = 1;
 	this.articleSubType = 1;
-	
+
+	this.redirect = false;
+
 	// to handle submission
 	this.toUpdate = true;
 }
@@ -344,6 +347,17 @@ function HEvent(hts,type,attachment=null,y=null,name=null){
 HEvent.prototype.isPersisted = function(){
 	return (this.internId > 0);
 }
+
+HEvent.prototype.getLabelHtml = function(){
+
+	if(this.url != null){
+		return "<span style=\"white-space:nowrap\" \"text-anchor\"=\"start\"><a href=\"" + this.url + 
+		"\" title=\"" + this.name + "\" >" + 
+		this.name + "</a></span>";
+	}
+	return "<span style=\"white-space:nowrap\" \"text-anchor\",\"start\"><i><p>" + 
+	this.name + "</p></i></span>";
+}	
 
 /** make the idGenerator for the event prototype */
 HEvent.prototype.idGenerator = idGenerator();
@@ -372,15 +386,17 @@ HEvent.prototype.render = function(){
 	.attr("opacity","1")
 	.attr("cursor","pointer")
 	.on('click',function(){
-		console.log("edition event existant");	
 		htsEvent.edit();
 		d3.event.preventDefault();
-		d3.event.stopPropagation();});	
+		d3.event.stopPropagation();
+	});
 
 	this.text = this.hts.findComponentByName('event-area')
-	.append("text")
-	.attr("id","<a href='' >" + this.textId + "</a>")
-	.text(this.name);
+	.append("foreignObject")
+	.attr("id",this.textId)
+	.attr("text-anchor","middle")
+	.html(this.getLabelHtml())
+	.on('click',function(){d3.event.stopPropagation();});
 
 	this.pinPoint = this.hts.findComponentByName('event-area')
 	.append("circle")
@@ -397,11 +413,10 @@ HEvent.prototype.render = function(){
 				htsEvent.y = d3.event.y + htsEvent.deltaY;
 				htsEvent.adjustedY = htsEvent.y;
 				htsEvent.manager.setMaxY(htsEvent.y + htsEvent.manager.yMargin);
-				htsEvent.updateRender();})
+				htsEvent.updateRender(0,0);})
 				.on("end", function(){})
 	)
 	.on('click',function(){
-		console.log("edition event existant");	
 		htsEvent.edit();
 		d3.event.preventDefault();
 		d3.event.stopPropagation();})
@@ -442,16 +457,14 @@ HEvent.prototype.displayIntersect = function(HEvent2){
 
 
 /** function to create graphic components of events */
-HEvent.prototype.updateRender = function(){
+HEvent.prototype.updateRender = function(animationTime = this.animationTime,animationTextTime = this.animationTextTime){
 	var hEvent = this;
-	
-	console.log(this.adjustedY + this.hts.ABS_EVENT_HEIGHT/2);
 
 	this.pinPoint
 	.transition()
 	.attr("cy",this.adjustedY + this.hts.ABS_EVENT_HEIGHT/2 )
 	.attr("cx",this.hts.dateScale(this.beginDate.getBoundDate(0)))
-	.duration(hEvent.animationTime);
+	.duration(animationTime);
 
 	this.rect
 	.transition()
@@ -459,7 +472,7 @@ HEvent.prototype.updateRender = function(){
 	.attr("y",this.adjustedY)   
 	.attr("width",this.hts.dateScale(this.getDisplayedEndDate()) - this.hts.dateScale(this.getDisplayedBeginDate()))
 	.attr("height",this.hts.ABS_EVENT_HEIGHT)
-	.duration(hEvent.animationTime);
+	.duration(animationTime);
 
 
 
@@ -483,23 +496,17 @@ HEvent.prototype.updateRender = function(){
 
 		var virtualDate = this.hts.beginDate.clone().addDay(offset);
 
-		console.log(this.hts.dateScale(virtualDate),ratio);
-
 		this.adjustedX = this.hts.htsBaseWidth/2 + this.hts.dateScale(virtualDate)*ratio/1.5;
 		this.adjustedX = Math.max(this.adjustedX,5);
 		this.adjustedX = Math.min(this.adjustedX,this.hts.htsBaseWidth - this.text.node().getBBox().width-5);
 	}
 
-	this.text
-	.attr("text-anchor","start")  
+	this.text 
 	.attr("height",this.hts.ABS_EVENT_HEIGHT)
 	.transition()
-	.attr("y",this.adjustedY -5)
-	.attr("x",this.adjustedX)
-	.duration(hEvent.animationTextTime);
-
-
-	;	
+	.attr("y",this.adjustedY -20)
+	.attr("x",this.adjustedX - 10)
+	.duration(animationTextTime);	
 }
 
 HEvent.prototype.getDisplayedEndDate = function(){
@@ -523,22 +530,22 @@ HEvent.prototype.bindToForm = function(formId){
 	$("select#" + formId + "_subType").val(this.articleSubType).change();
 	$("input#" + formId + "_title").val(this.name);
 	$("textarea#" + formId + "_abstract").val(this.abstract);
-	
+
 	console.log("beginDateApprox", (this.beginDate != null)?!this.beginDate.isExact():false);
-	
+
 	$("input#" + formId + "_isBeginDateApprox").attr('checked',(this.beginDate != null)?!this.beginDate.isExact():false);
 	$("input#" + formId + "_hasNotEndDate").attr('checked',this.hasNotEndDate);
 	$("input#" + formId + "_isEndDateApprox").attr('checked',(this.endDate != null)?!this.endDate.isExact():false);
-	
-	
+
+
 	$("input#" + formId + "_beginDate").val((this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(0)):"");
 	$("input#" + formId + "_minBeginDate").val((this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(0)):"");
 	$("input#" + formId + "_maxBeginDate").val((this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(1)):"");
-	
+
 	$("input#" + formId + "_endDate").val((this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"");
 	$("input#" + formId + "_minEndDate").val((this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"");
 	$("input#" + formId + "_maxEndDate").val((this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(1)):"");
-	
+
 	$("input#" + formId + "_y").val(this.y);
 }
 
@@ -549,23 +556,23 @@ HEvent.prototype.normalize = function(formId){
 	dto.type = this.articleType;
 	dto.subType = this.articleSubType;
 	dto.abstract = this.abstract;
-	
+
 	dto.isBeginDateApprox = (this.beginDate != null)?!this.beginDate.isExact():false;
 	dto.beginDate = (this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(0)):"";
 	dto.minBeginDate = (this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(0)):"";
 	dto.maxBeginDate = (this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(1)):"";
-	
+
 	dto.hasNotEndDate = this.hasNotEndDate;
 	dto.isEndDateApprox = (this.endDate != null)?!this.endDate.isExact():false;
 	dto.endDate = (this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"";
 	dto.minEndDate = (this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"";
 	dto.maxEndDate = (this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(1)):"";
-	
+
 	dto.y = this.y;
 	dto.id = this.internId;
 	dto.parentId = this.articleParentId;
 	dto.linkId = this.linkId;
-	
+
 	return dto;
 }
 
@@ -576,10 +583,10 @@ HEvent.prototype.updateFromForm = function(formId){
 	this.articleType = $("select#" + formId + "_type").find(":selected").val();
 	this.articleSubType = $("select#" + formId + "_subType").find(":selected").val();
 	this.abstract = $("textarea#" + formId + "_abstract").val();
-	
+
 	if ($("input#" + formId + "_isBeginDateApprox").is(":checked")){
 		this.beginDate = new HDate(myParseDate($("input#" + formId + "_minBeginDate").val()),
-		myParseDate($("input#" + formId + "_maxBeginDate").val()));
+				myParseDate($("input#" + formId + "_maxBeginDate").val()));
 	}
 	else{	
 		this.beginDate = new HDate(myParseDate($("input#" + formId + "_beginDate").val()));					
@@ -590,7 +597,7 @@ HEvent.prototype.updateFromForm = function(formId){
 	if(! this.hasNotEndDate){
 		if ($("input#" + formId + "_isEndDateApprox").is(":checked")){
 			this.endDate = new HDate(myParseDate($("input#" + formId + "_minEndDate").val()),
-			myParseDate($("input#" + formId + "_maxEndDate").val()));
+					myParseDate($("input#" + formId + "_maxEndDate").val()));
 		}
 		else{	
 			this.endDate = new HDate(myParseDate($("input#" + formId + "_endDate").val()));					
@@ -665,10 +672,7 @@ HEvent.prototype.edit = function(){
 					htsEvent.updateFromForm(formId);
 
 					if (! htsEvent.rendered) htsEvent.render();
-					htsEvent.text.text(htsEvent.name);
-					/* if(htsEvent.type === 'main'){
-						$(".hts-article-title").empty().append(htsEvent.name);
-					}*/
+					htsEvent.text.html(htsEvent.getLabelHtml());
 					htsEvent.toUpdate = true;
 					htsEvent.updateRender();
 					if(htsEvent.manager === null) htsEvent.hts.eventManager.addEvent(htsEvent);
@@ -676,7 +680,7 @@ HEvent.prototype.edit = function(){
 				}
 			}
 	});	
-	
+
 	// bind new form to Hevent
 	this.bindToForm(formId);
 	// add form  and initial state

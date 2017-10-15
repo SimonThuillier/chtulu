@@ -131,7 +131,7 @@ HEventManager.prototype.loadSubEventsFromData = function(data){
 		event = manager.eventFactory.newInstance(eventDTO);
 		console.log(event);
 		if (! event.rendered) event.render();
-		event.text.text(event.name);
+		event.text.html(event.getLabelHtml());
 		event.updateRender();
 		manager.addEvent(event);
 	});

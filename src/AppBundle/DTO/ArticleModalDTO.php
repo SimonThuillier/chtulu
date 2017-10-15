@@ -62,4 +62,7 @@ class ArticleModalDTO extends ArticleAbstractDTO
     public $linkId;
     /** @var ArticleLink $link */
     public $link;
+    /** @var string
+     @Groups("group1") */
+    public $url;
 }

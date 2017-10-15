@@ -13,6 +13,7 @@ HEventFactory.prototype.newInstance = function(dto){
 
 HEventFactory.prototype.setData = function(event,dto){
 	event.hts = this.hts;
+	event.url = dto.url;
 	event.internId = dto.id;
 	event.articleParentId = dto.parentId;
 	event.linkId = dto.linkId;
