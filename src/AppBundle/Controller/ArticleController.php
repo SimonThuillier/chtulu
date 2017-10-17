@@ -78,9 +78,10 @@ class ArticleController extends Controller
             'endDate' =>(new \DateTime())
         ));
     }
+    
     /**
      * @Route("/test",name="article_test")
-     */
+     */ 
     public function testAction()
     {
         /** @var \DateTime $date */
