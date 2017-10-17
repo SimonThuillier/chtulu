@@ -5,7 +5,8 @@ namespace AppBundle\Factory;
 use AppBundle\DTO\ArticleCollectionDTO;
 
 
-class ArticleCollectionDTOFactory{
+class ArticleCollectionDTOFactory implements DTOFactoryInterface
+{
     
     /** ArticleCollectionDTO $articleCollectionDTO */
     private $articleCollectionDTO;

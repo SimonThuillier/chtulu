@@ -21,6 +21,7 @@ use AppBundle\Mapper\ArticleCollectionDoctrineMapper;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use AppBundle\Repository\ArticleRepository;
+use AppBundle\Processor\GenericProcessor;
 
 /**
  *
@@ -172,4 +173,22 @@ class ArticleController extends Controller
             (($articleDTO->isEndDateApprox)?$articleDTO->maxEndDate:$articleDTO->endDate)
         ));
     }
+    
+    /**
+     * @Route("/list",name="article_list")
+     * @Method({"GET","POST"})
+     */
+    public function listAction(Request $request,GenericProcessor $processor)
+    {
+        
+        
+        
+        
+        
+        return $this->render('@AppBundle/Article/list.html.twig',array(
+            
+        ));
+    }
+    
+    
 }

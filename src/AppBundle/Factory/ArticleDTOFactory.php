@@ -11,7 +11,8 @@ use AppBundle\Entity\ArticleSubType;
 use AppBundle\DTO\ArticleAbstractDTO;
 
 
-class ArticleDTOFactory{
+class ArticleDTOFactory
+{
     
     /** ManagerRegistry $doctrine */
     private $doctrine;

@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+Liste des articles
+{% endblock %}
+
+{% block stylesheets %}
+{% stylesheets '@AppBundle/Resources/hbase/hts/css/hts.css'
+  filter='cssrewrite' %}
+<link rel="stylesheet" href="{{ asset_url }}" />
+{% endstylesheets %}
+{% endblock %}
+
+
+{% block content_header %}
+<h1 class="hts-article-title">Liste des articles</h1>
+{% endblock %}
+
+{%  block content %}
+<p>la liste viendra ci-dessous</p>
+{% endblock %}
