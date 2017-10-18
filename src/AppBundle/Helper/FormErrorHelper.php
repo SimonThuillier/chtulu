@@ -6,6 +6,7 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormErrorIterator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use AppBundle\Factory\JsonResponseFactory;
 
 /**
  * Class FormErrorHelper
@@ -15,7 +16,7 @@ class FormErrorHelper
 {
     protected $jsonResponseFactory;
 
-    public function __construct($jsonResponseFactory)
+    public function __construct(JsonResponseFactory $jsonResponseFactory)
     {
         $this->jsonResponseFactory = $jsonResponseFactory;
     }

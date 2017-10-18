@@ -4,5 +4,5 @@ namespace AppBundle\Helper;
 
 interface TableActionHelperInterface
 {
-    public function addTableAction($table, array $element);
+    public function addTableAction($table,$idName, array $element);
 }

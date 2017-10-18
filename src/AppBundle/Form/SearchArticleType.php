@@ -4,12 +4,13 @@ namespace AppBundle\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use AppBundle\Entity\Article;
-use Doctrine\DBAL\Types\TextType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use AppBundle\Entity\ArticleType;
 use Doctrine\ORM\EntityRepository;
 use AppBundle\Entity\ArticleSubType;
 use Symfony\Component\Form\FormBuilderInterface;
+use AppBundle\DTO\ArticleCollectionDTO;
 
 /**
  * 
@@ -52,7 +53,7 @@ class SearchArticleType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => Article::class,
+            'data_class' => ArticleCollectionDTO::class,
             'allow_extra_fields' => true
         ));
     }

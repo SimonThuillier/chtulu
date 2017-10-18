@@ -27,7 +27,7 @@ class ArticleCollectionDTOFactory implements DTOFactoryInterface
     {
         $this->articleCollectionDTO = new ArticleCollectionDTO();
         $this->setData();
-        return $this->articleDTO;
+        return $this->articleCollectionDTO;
     }
     
     /**
@@ -36,7 +36,7 @@ class ArticleCollectionDTOFactory implements DTOFactoryInterface
      */
     public function setData()
     {
-        $this->articleCollectionDTO->setCount(0);
+        $this->articleCollectionDTO->subEventsCount=0;
         return $this;
     }
      

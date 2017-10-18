@@ -1,12 +1,12 @@
 <?php
 
-namespace AppBundle\EventListener;
+namespace AppBundle\Listener;
 
 use Symfony\Component\EventDispatcher\GenericEvent;
 
 /**
  * Interface ListenerInterface
- * @package AppBundle\EventListener
+ * @package AppBundle\Listener
  */
 interface ListenerInterface
 {

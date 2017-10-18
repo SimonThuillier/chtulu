@@ -27,10 +27,11 @@ class TableActionHelper implements TableActionHelperInterface
 
     /**
      * @param array $table
+     * @param string $idName
      * @param array $element
      * @return array
      */
-    public function addTableAction($table, array $element):array
+    public function addTableAction($table,$idName, array $element):array
     {
         $tableAction = [];
         foreach ($table as $key => $value) {
@@ -54,7 +55,7 @@ class TableActionHelper implements TableActionHelperInterface
                 }
 
                 $methodAction = $event.'Action';
-                $action[] = $this->$methodAction($element, $id);
+                $action[] = $this->$methodAction($element,$idName, $id);
             }
 
             $action[]          = '</div>';
@@ -63,74 +64,74 @@ class TableActionHelper implements TableActionHelperInterface
         return $tableAction;
     }
 
-    public function deleteAction($element, $id)
+    public function deleteAction($element,$idName, $id)
     {
-        $explodeElement = explode('.', $element['delete']);
+        $explodeElement = explode('_', $element['delete']);
         $deleteUrl      = $this->router->generate(
             $element['delete'],
-            ['id' => $id]
+            [$idName => $id]
         );
 
-        return '<button type="button" class="btn btn-delete btn-delete-' . $explodeElement[2] .
+        return '<button type="button" class="btn btn-delete btn-delete-' . $explodeElement[0] .
                ' btn-danger btn-xs" title="supprimer"' .
                'data-url="' . $deleteUrl . '">' .
                '<i class="fa fa-trash-o fa-lg"></i>' .
                '</button>';
     }
 
-    public function editAction($element, $id)
+    public function editAction($element,$idName,  $id)
     {
-        $explodeElement = explode('.', $element['edit']);
+        $explodeElement = explode('_', $element['edit']);
         $editUrl        = $this->router->generate(
             $element['edit'],
-            ['id' => $id]
+            [$idName => $id]
         );
 
-        return '<button type="button" class="btn-edit-' . $explodeElement[2] .
+        return '<button type="button" class="btn-edit-' . $explodeElement[0] .
                ' btn btn-secondary btn-xs" title="Editer"' .
                'data-url="' . $editUrl . '" data-id="' . $id . '">' .
                '<i class="fa fa-pencil fa-lg"></i>' .
                '</button>';
     }
 
-    public function showAction($element, $id)
+    public function showAction($element,$idName,  $id)
     {
-        $explodeElement = explode('.', $element['show']);
+        $explodeElement = explode('_', $element['show']);
         $showUrl        = $this->router->generate(
             $element['show'],
-            ['id' => $id]
+            [$idName => $id]
         );
 
-        return '<a class="btn-show-' . $explodeElement[2] .
+        return '<a class="btn-show-' . $explodeElement[0] .
                ' btn btn-secondary btn-xs" href="' . $showUrl . '">' .
                '<i class="fa fa-eye fa-lg"></i>' .
                '</a>';
     }
 
-    public function infoAction($element, $id)
+    public function infoAction($element,$idName,  $id)
     {
-        $explodeElement = explode('.', $element['info']);
+        $explodeElement = explode('_', $element['info']);
         $infoUrl        = $this->router->generate(
             $element['info'],
-            ['id' => $id]
+            [$idName => $id]
         );
 
-        return '<button type="button" class="btn btn-info-' . $explodeElement[2] .
+        return '<button type="button" class="btn btn-info-' . $explodeElement[0] .
                ' btn-secondary btn-xs" title="information"' .
                'data-url="' . $infoUrl . '">' .
                '<i class="fa fa-info-circle fa-lg"></i>' .
                '</button>';
     }
 
-    public function downloadAction($element, $id)
+    public function downloadAction($element,$idName,  $id)
     {
-        $explodeElement = explode('.', $element['download']);
+        $explodeElement = explode('_', $element['download']);
         $showUrl        = $this->router->generate(
             $element['download'],
-            ['id' => $id]
+            [$idName => $id]
         );
 
-        return '<a class="btn-download-' . $explodeElement[2] .
+        return '<a class="btn-download-' . $explodeElement[0] .
                ' btn btn-info btn-xs" href="' . $showUrl . '">' .
                '<i class="fa fa-download fa-lg"></i>' .
                '</a>';

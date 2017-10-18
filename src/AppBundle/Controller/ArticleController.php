@@ -22,6 +22,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use AppBundle\Repository\ArticleRepository;
 use AppBundle\Processor\GenericProcessor;
+use AppBundle\Listener\SearchArticleFormListener;
 
 /**
  *
@@ -178,16 +179,12 @@ class ArticleController extends Controller
      * @Route("/list",name="article_list")
      * @Method({"GET","POST"})
      */
-    public function listAction(Request $request,GenericProcessor $processor)
+    public function listAction(Request $request,GenericProcessor $processor,SearchArticleFormListener $listener)
     {
+        /** @var Event$result */
+        $result = $processor->addSubscriber($listener)->process($request);
         
-        
-        
-        
-        
-        return $this->render('@AppBundle/Article/list.html.twig',array(
-            
-        ));
+        return $this->render('@AppBundle/Article/list.html.twig',$result);
     }
     
     

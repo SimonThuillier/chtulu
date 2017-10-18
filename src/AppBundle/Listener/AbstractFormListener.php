@@ -1,6 +1,6 @@
 <?php
 
-namespace AppBundle\EventListener;
+namespace AppBundle\Listener;
 
 use AppBundle\Factory\DTOFactoryInterface;
 use AppBundle\Entity\User;
@@ -10,12 +10,11 @@ use AppBundle\Mapper\AbstractDoctrineMapper;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\HttpFoundation\Request;
 use AppBundle\Mapper\MapperInterface;
 
 /**
  * Class AbstractFormListener
- * @package Synerail\AppBundle\EventListener
+ * @package AppBundle\Listener
  */
 abstract class AbstractFormListener implements EventSubscriberInterface, ListenerInterface
 {
@@ -31,10 +30,6 @@ abstract class AbstractFormListener implements EventSubscriberInterface, Listene
      * @var AbstractDoctrineMapper
      */
     protected $mapper;
-    /**
-     * @var Request
-     */
-    protected $request;
 
     /**
      * @var FormErrorHelper
@@ -59,7 +54,6 @@ abstract class AbstractFormListener implements EventSubscriberInterface, Listene
      * @param DTOFactoryInterface $dtoFactory
      * @param FormFactoryInterface $formFactory
      * @param MapperInterface $mapper
-     * @param Request $request
      * @param FormErrorHelper $formError
      * @param TableActionHelperInterface $tableHelper
      */
@@ -67,14 +61,12 @@ abstract class AbstractFormListener implements EventSubscriberInterface, Listene
         DTOFactoryInterface $dtoFactory,
         FormFactoryInterface $formFactory,
         MapperInterface $mapper,
-        Request $request,
         FormErrorHelper $formError,
         TableActionHelperInterface $tableHelper = null
     ) {
         $this->dtoFactory  = $dtoFactory;
         $this->formFactory = $formFactory;
         $this->mapper      = $mapper;
-        $this->request     = $request;
         $this->formError   = $formError;
         $this->tableHelper = $tableHelper;
     }

@@ -102,16 +102,20 @@ class ArticleCollectionDoctrineMapper extends ArticleMainDoctrineMapper
     /**
      * @param $page
      * @param $maxPage
-     * @param null $label
-     * @param null $number
-     * @param null $accompaniment
+     * @param string|null $title
+     * @param null $type
+     * @param null $subType
      * @return array
      */
-    public function findBySearch($page, $maxPage, $label = null, $number = null, $accompaniment = null)
+    public function findBySearch($page,
+        $maxPage,
+        $title = null,
+        $type = null, 
+        $subType = null)
     {
         $paginator = [];
-        if ($this->getRepository()->findBySearch($label, $number, $accompaniment) !== null) {
-            $query = $this->getRepository()->findBySearch($label, $number, $accompaniment);
+        if ($this->getRepository()->findBySearch($title, $type, $subType) !== null) {
+            $query = $this->getRepository()->findBySearch($title, $type, $subType);
 
             $firstResult = ($page - 1) * $maxPage;
             $query->setFirstResult($firstResult)->setMaxResults($maxPage);
