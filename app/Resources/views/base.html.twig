@@ -637,6 +637,7 @@
 
 {% javascripts output="js/app.js"
                '@AppBundle/Resources/third-party/jQuery/jquery-2.2.3.min.js'
+               '@AppBundle/Resources/third-party/jQueryUI/jquery-ui.min.js'
 			   '@AppBundle/Resources/third-party/AdminLTE/js/app.min.js'
                '@AppBundle/Resources/third-party/bootstrap/js/bootstrap.min.js'
 			   '@AppBundle/Resources/third-party/slimScroll/jquery.slimscroll.min.js'
@@ -646,6 +647,8 @@
 			   '@AppBundle/Resources/third-party/vex/js/vex.combined.min.js'
 			   '@AppBundle/Resources/hbase/util/util-misc.js'
 			   '@AppBundle/Resources/hbase/util/date-supp.js'
+			   '@AppBundle/Resources/hbase/hts/js/hdate.js'
+			   '@AppBundle/Resources/hbase/hts/js/hbase.js'
 			   '@AppBundle/Resources/hbase/util/d3-geometry.js'
 %}
 <script src="{{ path('homepage') }}js/app.js"></script>

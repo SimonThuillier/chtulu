@@ -47,13 +47,8 @@ Creer un article
 <script>
 finalizeForm('main');
 
-var htsOptions = [hasMainEvent=false];
 var d1 = new Date({{ beginDate|date("Y")}},{{ beginDate|date("m") - 1 }},{{ beginDate|date("d") }});
-d1.setHours(0,0,0,0);
 var d2 = new Date({{ endDate|date("Y")}},{{ endDate|date("m") - 1 }},{{ endDate|date("d") }});
-d2.setHours(0,0,0,0);
-var hts = new HTimeScroller("#hts-svgcontainer",d1,d2,null,null, htsOptions);
-
 d1 = null;
 d2 = null;
 $("#article_main_beginDate").on("change",function(event){

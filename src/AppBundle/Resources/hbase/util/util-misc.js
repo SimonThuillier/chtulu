@@ -46,3 +46,8 @@ function arabicToRomanNumber(number){
 	}
 	return romanNo;
 };
+
+/** util function to capitalize strings */ 
+String.prototype.capitalize = function() { 
+    return this.charAt(0).toUpperCase() + this.slice(1); 
+}

@@ -89,7 +89,7 @@ $.hbase.modalFactory = function(type)
 		{
 			if (modal.element !== null){modal.unbind();}
 			modal.element=element;
-			element.addClass( "hb-enabled" );
+			element.addClass( "hdatepicker-enabled" );
 			this.attr("title","Entrez une date");
 			if(typeof (this.element.first().attr("hdatepicker-label")) != 'undefined'){this.dialog('option','title',this.element.first().attr("hdatepicker-label"));}
 			var position = $(element).offset();
@@ -115,7 +115,7 @@ $.hbase.modalFactory = function(type)
 			var element = modal.element;
 			this.dialog("close");
 			modal.element=null;
-			setTimeout(function(){$(element).removeClass( "hb-enabled" );}, 40);
+			setTimeout(function(){$(element).removeClass( "hdatepicker-enabled" );}, 40);
 		};
 
 		modal.refresh = function(total = false)
@@ -261,7 +261,7 @@ $.widget( "hbase.hdatepicker", {
 	_create: function() {
 
 		function enableDatePicker(element){
-			if(! element.hasClass("hb-enabled")){
+			if(! element.hasClass("hdatepicker-enabled")){
 				$.hbase.modals.hdatepicker.bind($(element));
 			}
 		};
@@ -279,11 +279,36 @@ $.widget( "hbase.hdatepicker", {
 	}
 });
 
+$.widget( "hbase.htimescroller", {
+	// default options
+	options: {
+	},
 
+	// The constructor
+	_create: function() {
+
+		function enableDatePicker(element){
+			if(! element.hasClass("htimescroller-enabled")){
+				var htsOptions = [hasMainEvent=false];
+				var endDate = new Date();
+				var beginDate = endDate.addDay(-7);
+				var hts = new HTimeScroller(element.first().attr('id'),d1,d2,null,null, htsOptions);
+				
+				element.addClass("htimescroller-enabled");
+			}
+		};
+	},
+	// Events bound via _on are removed automatically
+	// revert other modifications here
+	_destroy: function() {
+	}
+});
 
 $(function(){
 	$.hbase.modals.hdatepicker = $.hbase.modalFactory("hdatepicker");
 	$(".hbase-hdatepicker").hdatepicker();
+	$(".hbase-hdatepicker").hdatepicker();
+	$(".hbase-htimescroller").htimescroller();
 	$(".hbase-hdatepicker").change(function(){
 		var $element = $(this).first();
 		if($element.attr("hdate") === 'undefined' || $element.attr("hdate") === null || $element.attr("hdate") === "") return;
