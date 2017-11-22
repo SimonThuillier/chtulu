@@ -62,7 +62,7 @@ class Article extends AbstractBindableEntity
     
     /**
      * @var string
-     * @ORM\Column(name="abstract", type="string", length=255)
+     * @ORM\Column(name="abstract", type="string", length=2000)
      */
     protected $abstract;
     
