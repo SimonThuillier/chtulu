@@ -45,6 +45,9 @@ assetic:
     debug:          '%kernel.debug%'
     use_controller: '%kernel.debug%'
     assets:
+       jquery-ui-icons:
+          inputs: '@AppBundle/Resources/third-party/jQueryUI/images/ui-icons_444444_256x240.png'
+          output: '/Resources/third-party/jQueryUI/images/ui-icons_444444_256x240.png'
        font-awesome-css:
           inputs: '@AppBundle/Resources/third-party/font-awesome/css/font-awesome.css'
           output: '/Resources/third-party/font-awesome/css/font-awesome.css'

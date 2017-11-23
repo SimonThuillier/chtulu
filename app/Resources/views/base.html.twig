@@ -15,6 +15,8 @@
        folder instead of downloading all of them to reduce the load. -->
 {% stylesheets output='css/app.css'
 				 '@AppBundle/Resources/third-party/bootstrap/css/bootstrap.min.css'
+				 '@AppBundle/Resources/third-party/jQueryUI/jquery-ui.theme.min.css'
+				 '@AppBundle/Resources/third-party/jQueryUI/jquery-ui.css'
                  '@AppBundle/Resources/third-party/AdminLTE/css/AdminLTE.min.css'
                  '@AppBundle/Resources/third-party/AdminLTE/css/skins/_all-skins.min.css' 
                  '@AppBundle/Resources/third-party/ionicons/css/ionicons.min.css'
@@ -22,8 +24,8 @@
                  '@AppBundle/Resources/third-party/vex/css/vex.css'
                  '@AppBundle/Resources/third-party/vex/css/vex-theme-os.css'
   filter='cssrewrite' %}
-<link rel="stylesheet" href="{{ path('homepage') }}css/app.css" />
 {% endstylesheets %}
+<link rel="stylesheet" href="{{ path('homepage') }}css/app.css" />
 {% block stylesheets %}
 {% endblock %}
 
@@ -651,9 +653,8 @@
 			   '@AppBundle/Resources/hbase/hts/js/hbase.js'
 			   '@AppBundle/Resources/hbase/util/d3-geometry.js'
 %}
-<script src="{{ path('homepage') }}js/app.js"></script>
 {% endjavascripts %}
-
+<script src="{{ path('homepage') }}js/app.js"></script>
 {% block javascript %}
 {% endblock %}
 

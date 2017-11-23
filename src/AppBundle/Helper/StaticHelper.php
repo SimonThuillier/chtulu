@@ -53,9 +53,9 @@ class StaticHelper
             'html5' => false,
             'format' => 'dd/MM/r',
             'attr' => [
-                'class' => 'hts-date-input',
-                'pattern' => "^(0?[1-9]|[1-2][0-9]|3[0-1])/(0?[1-9]|1[0-2])/(-?[1-9][0-9]*)$",
-                'placeholder' => "JJ/MM/AAAA"
+                'class' => 'hts-date-input hbase-hdatepicker',
+                //'pattern' => "^(0?[1-9]|[1-2][0-9]|3[0-1])/(0?[1-9]|1[0-2])/(-?[1-9][0-9]*)$",
+                'placeholder' => "Date"
             ]
         );
     }

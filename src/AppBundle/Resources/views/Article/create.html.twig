@@ -51,55 +51,7 @@ var d1 = new Date({{ beginDate|date("Y")}},{{ beginDate|date("m") - 1 }},{{ begi
 var d2 = new Date({{ endDate|date("Y")}},{{ endDate|date("m") - 1 }},{{ endDate|date("d") }});
 d1 = null;
 d2 = null;
-$("#article_main_beginDate").on("change",function(event){
-	initializeBeginDate($("#article_main_beginDate").val());
-});
-$("#article_main_minBeginDate").on("change",function(event){
-	initializeBeginDate($("#article_main_minBeginDate").val());
-});
-$("#article_main_endDate").on("change",function(event){
-	initializeEndDate($("#article_main_endDate").val());
-});
-$("#article_main_maxEndDate").on("change",function(event){
-	initializeEndDate($("#article_main_maxEndDate").val());
-});
 
-function initializeBeginDate(value){
-	if(d1===null){
-		d1 = myParseDate(value);
-		if (d1===null) return;
-		var adjustedEndDate = new Date();
-		if(d2 !== null) adjustedEndDate =d2;
-		hts.setDates(d1,adjustedEndDate);
-	}
-}
-function initializeEndDate(value){
-	if(d2===null){
-		d2 = myParseDate(value);
-		if (d2===null) return;
-		var adjustedBeginDate = d2.clone().addDay(-30);
-		if(d1 !== null && d1 <=d2) adjustedBeginDate =d1;
-		hts.setDates(adjustedBeginDate,d2);
-	}
-}
-
-$(function () {
-	var prevHeight = $('div#hts-event-container').height();
-	var deltaHeight = $("#hts-svgcontainer").attr("height") - prevHeight;
-	$('div#hts-event-container').attrchange({
-		callback: function (e) {
-			var curHeight = $(this).height();            
-			if (prevHeight !== curHeight) {
-				$("#hts-svgcontainer").attr("height",curHeight + deltaHeight);
-				hts.updateSpatialData(false);
-				hts.redrawComponent('event-area');
-				hts.redrawComponent('event-fcontainer');
-				hts.redrawComponent('event-container');
-				prevHeight = curHeight;
-			}  
-		}
-	});
-});
 
 $("#article_main_form").on("submit",function(event){
 	  hts.eventManager.prepareSubmission('article_modal','article_main');	

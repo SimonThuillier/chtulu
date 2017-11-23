@@ -287,15 +287,15 @@ $.widget( "hbase.htimescroller", {
 	// The constructor
 	_create: function() {
 		console.log("create hts1");
-		if(! this.element.hasClass("htimescroller-enabled")){
+		if(! element.hasClass("htimescroller-enabled")){
 			var htsOptions = [hasMainEvent=false];
 			var endDate = new Date();
 			var beginDate = endDate.addDay(-7);
 			console.log("create hts2 : ");
-			console.log(this.element);
-			var hts = new HTimeScroller(this.element,d1,d2,null,null, htsOptions);
+			console.log(element);
+			var hts = new HTimeScroller(element,d1,d2,null,null, htsOptions);
 
-			this.element.addClass("htimescroller-enabled");
+			element.addClass("htimescroller-enabled");
 		}
 	},
 	// Events bound via _on are removed automatically
