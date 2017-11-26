@@ -1265,11 +1265,15 @@ HTimeScroller.prototype.formatBoundDates = myFormatPatternDate('d/m/Y');
 
 /** constructor for horizontal time scroller 
  * parentId must be existing id of an SVG component */
-function HTimeScroller(element,beginDate,endDate,eBeginDate,eEndDate,articleParentId,options) {
+function HTimeScroller(elementId,beginDate,endDate,eBeginDate,eEndDate,articleParentId,options) {
 	this.id=this.idGenerator();
 	this.articleParentId = articleParentId;
+	this.div = d3.select(elementId); 
+	this.parent = this.div.append("svg")
+	.attr("id","hts-" + this.id + "-svgcontainer")
+	.attr("width",1150)
+	.attr("height",150);
 	
-	this.parent = d3.select(element.attr('id')); 
 	this.scope = [null,null]; // contains begin and end Date of scope
 	this.domComponents = []; // array of DOM components (except parent) with update functions
 
@@ -1355,9 +1359,9 @@ function HTimeScroller(element,beginDate,endDate,eBeginDate,eEndDate,articlePare
 			component = component.append("xhtml:div")
 			.append("input")
 			.attr('id','hts-date-input-left')
-			.attr('class','hts-date-input hts-border-date-input')
+			.attr('class','hts-date-input hts-border-date-input hbase-hdatepicker')
+			.attr('hdatepicker-ender','hts-date-input-right')
 			.attr('placeholder','JJ/MM/AAAA')
-			.attr('regex',dateRegex())
 			.on('change',function() { hts.setBoundDates(-1);});
 			drawer = function(hts,component){};
 			component = $("#hts-date-input-left");
@@ -1381,9 +1385,8 @@ function HTimeScroller(element,beginDate,endDate,eBeginDate,eEndDate,articlePare
 			component = component.append("xhtml:div")
 			.append("input")
 			.attr('id','hts-date-input-right')
-			.attr('class','hts-date-input hts-border-date-input')
+			.attr('class','hts-date-input hts-border-date-input hbase-hdatepicker')
 			.attr('placeholder','JJ/MM/AAAA')
-			.attr('regex',dateRegex())
 			.on('change',function() { hts.setBoundDates(1);});
 
 			drawer = function(hts,component){};
@@ -1622,7 +1625,7 @@ HTimeScroller.prototype.setDates = function(beginDate,endDate){
 	this.beginDate = beginDate;
 	this.endDate = endDate;
 	var dayNumber = this.endDate.dayDiff(this.beginDate);
-	if(dayNumber <4) throw('unhandled date period for horizontal time scroller : minimum interval is four days.');
+	if(dayNumber <3) {this.endDate = this.beginDate.clone().addDay(3);};
 	// allow to compute a range slightly larger to precompute graduations before the beginDate / after the endDate 
 	this.calcBeginDate = beginDate.clone().addDay( - Math.floor((this.REL_OVER_INTERVAL-1)/2*dayNumber));
 	this.calcEndDate = endDate.clone().addDay(Math.floor((this.REL_OVER_INTERVAL-1)/2*dayNumber));

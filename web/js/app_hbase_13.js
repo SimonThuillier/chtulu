@@ -268,6 +268,43 @@ $.widget( "hbase.hdatepicker", {
 
 		$(this.element).on("focus",function(event){enableDatePicker($(this));});
 		$(this.element).on("keyup",function(event){enableDatePicker($(this));});
+		
+		$(this.element).change(function(){
+			var $element = $(this).first();
+			if($element.attr("hdate") === 'undefined' || $element.attr("hdate") === null || $element.attr("hdate") === "") return;
+			var hDate = $.hbase.HDate.parse($element.attr("hdate"));
+			var partner;
+			var partnerHDate;
+			var newPartnerHDate;
+			if(typeof $(this).attr("hdatepicker-ender") !== 'undefined'){
+				partner = $("#" + $(this).attr("hdatepicker-ender"));
+				if(! partner.hasClass("hbase-hdatepicker") ) return;
+				partnerHDate = null;
+				newPartnerHDate = null;
+				if(typeof partner.attr("hdate") !== 'undefined' && partner.attr("hdate") !== null && partner.attr("hdate") !== ""){
+					partnerHDate =  $.hbase.HDate.parse(partner.attr("hdate"));
+				}
+				if(partnerHDate === null || partnerHDate._endDate < hDate._endDate){
+					newPartnerHDate = new HDate("precise",hDate._endDate);
+					partner.attr("hdate",JSON.stringify(newPartnerHDate));
+					partner.val(newPartnerHDate.getLabel());
+				}
+			}
+			else if(typeof $(this).attr("hdatepicker-beginner") !== 'undefined'){
+				partner = $("#" + $(this).attr("hdatepicker-beginner"));
+				if(! partner.hasClass("hbase-hdatepicker") ) return;
+				partnerHDate = null;
+				newPartnerHDate = null;
+				if(typeof partner.attr("hdate") !== 'undefined' && partner.attr("hdate") !== null && partner.attr("hdate") !== ""){
+					partnerHDate =  $.hbase.HDate.parse(partner.attr("hdate"));
+				}
+				if(partnerHDate === null || partnerHDate._beginDate > hDate._beginDate){
+					newPartnerHDate = new HDate("precise",hDate._beginDate);
+					partner.attr("hdate",JSON.stringify(newPartnerHDate));
+					partner.val(newPartnerHDate.getLabel());
+				}
+			}
+		});
 		// at start an attempt is made to retrieve hdate attribute of the element an update it's value accordingly
 		if(typeof this.element.attr("hdate") !== 'undefined' && this.element.attr("hdate") !== null){
 			this.element.val( $.hbase.HDate.parse(this.element.attr("hdate")).getLabel());
@@ -287,15 +324,14 @@ $.widget( "hbase.htimescroller", {
 	// The constructor
 	_create: function() {
 		console.log("create hts1");
-		if(! element.hasClass("htimescroller-enabled")){
+		if(! this.element.hasClass("htimescroller-enabled")){
 			var htsOptions = [hasMainEvent=false];
 			var endDate = new Date();
-			var beginDate = endDate.addDay(-7);
+			var beginDate = endDate.clone().addDay(-7);
 			console.log("create hts2 : ");
-			console.log(element);
-			var hts = new HTimeScroller(element,d1,d2,null,null, htsOptions);
-
-			element.addClass("htimescroller-enabled");
+			console.log(this.element);
+			var hts = new HTimeScroller("#" + this.element.first().attr('id'),beginDate,endDate,null,null, htsOptions);
+			this.element.addClass("htimescroller-enabled");
 		}
 	},
 	// Events bound via _on are removed automatically
@@ -309,43 +345,5 @@ $(function(){
 	$.hbase.modals.hdatepicker = $.hbase.modalFactory("hdatepicker");
 	$(".hbase-hdatepicker").hdatepicker();
 	$(".hbase-htimescroller").htimescroller();
-	$(".hbase-hdatepicker").change(function(){
-		var $element = $(this).first();
-		if($element.attr("hdate") === 'undefined' || $element.attr("hdate") === null || $element.attr("hdate") === "") return;
-		var hDate = $.hbase.HDate.parse($element.attr("hdate"));
-		var partner;
-		var partnerHDate;
-		var newPartnerHDate;
-		if(typeof $(this).attr("hdatepicker-ender") !== 'undefined'){
-			partner = $("#" + $(this).attr("hdatepicker-ender"));
-			if(! partner.hasClass("hbase-hdatepicker") ) return;
-			partnerHDate = null;
-			newPartnerHDate = null;
-			if(typeof partner.attr("hdate") !== 'undefined' && partner.attr("hdate") !== null && partner.attr("hdate") !== ""){
-				partnerHDate =  $.hbase.HDate.parse(partner.attr("hdate"));
-			}
-			if(partnerHDate === null || partnerHDate._endDate < hDate._endDate){
-				newPartnerHDate = new HDate("precise",hDate._endDate);
-				partner.attr("hdate",JSON.stringify(newPartnerHDate));
-				partner.val(newPartnerHDate.getLabel());
-			}
-		}
-		else if(typeof $(this).attr("hdatepicker-beginner") !== 'undefined'){
-			partner = $("#" + $(this).attr("hdatepicker-beginner"));
-			if(! partner.hasClass("hbase-hdatepicker") ) return;
-			partnerHDate = null;
-			newPartnerHDate = null;
-			if(typeof partner.attr("hdate") !== 'undefined' && partner.attr("hdate") !== null && partner.attr("hdate") !== ""){
-				partnerHDate =  $.hbase.HDate.parse(partner.attr("hdate"));
-			}
-			if(partnerHDate === null || partnerHDate._beginDate > hDate._beginDate){
-				newPartnerHDate = new HDate("precise",hDate._beginDate);
-				partner.attr("hdate",JSON.stringify(newPartnerHDate));
-				partner.val(newPartnerHDate.getLabel());
-			}
-		}
-	});
-
-
-	$(".hbase-datepicker").datepicker();
+	$(".hbase-hdatepicker").hdatepicker();
 });
