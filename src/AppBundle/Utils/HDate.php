@@ -77,11 +77,11 @@ class HDate
                 DateHelper::rewindToMonthFirst($this->beginDate);
                 $this->endDate = DateHelper::addDay(DateHelper::switchToNextMonth(clone $this->beginDate,true),-1);
                 break;
-            /*case DateType::SEASON:
-                this._beginDate = this._beginDate.rewindToSeasonFirst();
-                this._endDate = this._beginDate.clone().switchToNextSeason(true).addDay(-1);
+            case DateType::SEASON:
+                DateHelper::rewindToSeasonFirst($this->beginDate);
+                $this->endDate = DateHelper::addDay(DateHelper::switchToNextSeason(clone $this->beginDate,true),-1);
                 break;
-            case DateType::YEAR:
+            /*case DateType::YEAR:
                 this._beginDate.rewindToYearFirst();
                 this._endDate = this._beginDate.clone().switchToNextYear(true).addDay(-1);
                 break;

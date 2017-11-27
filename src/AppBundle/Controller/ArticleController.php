@@ -88,13 +88,17 @@ class ArticleController extends Controller
     public function testAction()
     {
         /** @var \DateTime $date */
-        $date = DateHelper::createFromFormat('d/m/Y', "05/05/9000");
-        DateHelper::switchToNextMonth($date);
+        $date = DateHelper::createFromFormat('d/m/Y', "21/11/-9000");
+        DateHelper::switchToNextMonth($date,false,true);
+        $date2 = clone $date ;
+        DateHelper::switchToNextSeason($date2);
         
         
         return $this->render('::debug.html.twig', array(
             'debug' => array(
                 'date' => $date->format('d/m/Y'),
+                'mois' => DateHelper::getMonth($date),
+                'date2' => $date2->format('d/m/Y'),
                 'value' => Article::class
             )
         ));

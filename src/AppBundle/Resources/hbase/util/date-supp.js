@@ -166,8 +166,9 @@ function switchToNextSeason(date,force=false,exact=false)
 	var isChangingMonth = ((date.getMonth()+1)%3) === 0;
 	var newMonth = date.getMonth()-((date.getMonth()+1)%3) + 3;
 
-	if(force || ! (date.getDate() ==21 && isChangingMonth) ){
-		date.setMonth(newMonth,21);
+	date.setDate(21);
+	if(force || ! (date.getDate() <22 && isChangingMonth) ){
+		date.setMonth(newMonth);
 	}
 	return date;
 }
