@@ -23,6 +23,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use AppBundle\Repository\ArticleRepository;
 use AppBundle\Processor\GenericProcessor;
 use AppBundle\Listener\SearchArticleFormListener;
+use AppBundle\Helper\DateHelper;
 
 /**
  *
@@ -87,8 +88,8 @@ class ArticleController extends Controller
     public function testAction()
     {
         /** @var \DateTime $date */
-        $date = \DateTime::createFromFormat('d/m/Y', "01/05/9000");
-        $date->setDate(-$date->format('Y'), $date->format('m'), $date->format('d'));
+        $date = DateHelper::createFromFormat('d/m/Y', "05/05/9000");
+        DateHelper::switchToNextMonth($date);
         
         
         return $this->render('::debug.html.twig', array(

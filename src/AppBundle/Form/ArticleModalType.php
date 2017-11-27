@@ -39,23 +39,7 @@ class ArticleModalType extends AbstractType
             ->add('abstract', TextareaType::class, array(
             'label' => "Resumé "
         ))
-            ->add('isBeginDateApprox', CheckboxType::class, array(
-            'label' => "Date de début approximative ?",
-            'required' => false,  
-            'attr' => array(
-                'class' => 'checkbox icheck'
-            )
-        ))
         ->add('beginDate', DateType::class, StaticHelper::getDateOptions('Date de début'))
-        ->add('minBeginDate', DateType::class, StaticHelper::getDateOptions('Date de début min'))
-        ->add('maxBeginDate', DateType::class, StaticHelper::getDateOptions('Date de début Max'))
-            ->add('hasNotEndDate', CheckboxType::class, array(
-            'label' => "Pas de date de fin",
-            'required' => false,  
-            'attr' => array(
-                'class' => 'checkbox icheck'
-            )
-        ))
             ->add('isEndDateApprox', CheckboxType::class, array(
             'label' => "Date de fin approximative ?",
             'required' => false,  
@@ -63,9 +47,14 @@ class ArticleModalType extends AbstractType
                 'class' => 'checkbox icheck'
             )
         ))
+        ->add('hasNotEndDate', CheckboxType::class, array(
+            'label' => "Pas de date de fin",
+            'required' => false,
+            'attr' => array(
+                'class' => 'checkbox icheck'
+            )
+        ))
         ->add('endDate', DateType::class, StaticHelper::getDateOptions('Date de fin'))
-        ->add('minEndDate', DateType::class, StaticHelper::getDateOptions('Date de fin min'))
-        ->add('maxEndDate', DateType::class, StaticHelper::getDateOptions('Date de fin Max'))
             ->add('y', DateType::class, array(
                 'attr' => array('hidden' => true)
             ));
