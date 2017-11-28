@@ -43,6 +43,14 @@ class DateType
      * @ORM\Column(name="comment", type="string", length=255, nullable=true)
      */
     private $comment;
+    
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->label;
+    }
 
 
     /**

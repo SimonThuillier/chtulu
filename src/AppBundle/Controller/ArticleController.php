@@ -24,6 +24,10 @@ use AppBundle\Repository\ArticleRepository;
 use AppBundle\Processor\GenericProcessor;
 use AppBundle\Listener\SearchArticleFormListener;
 use AppBundle\Helper\DateHelper;
+use AppBundle\Entity\DateType;
+use AppBundle\Factory\HDateFactory;
+use AppBundle\Utils\HDate;
+use AppBundle\Mapper\HDateMapper;
 
 /**
  *
@@ -85,7 +89,7 @@ class ArticleController extends Controller
     /**
      * @Route("/test",name="article_test")
      */ 
-    public function testAction()
+    public function testAction(HDateFactory $dateFactory)
     {
         /** @var \DateTime $date */
         $date = DateHelper::createFromFormat('d/m/Y', "21/11/-9000");
@@ -93,12 +97,25 @@ class ArticleController extends Controller
         $date2 = clone $date ;
         DateHelper::switchToNextSeason($date2);
         
+        $dateType = $this->getDoctrine()->getRepository('AppBundle:DateType')
+        ->find(DateType::PRECISE);
+        $hDate = $dateFactory->newInstance($dateType, $date);
+        $hDate2 = $dateFactory->newInstance($dateType, $date2);
+        
+        HDateMapper::map($hDate, $hDate2);
+        
         
         return $this->render('::debug.html.twig', array(
             'debug' => array(
                 'date' => $date->format('d/m/Y'),
+                'test' => method_exists($hDate, 'getBeginDate'),
+                'test2' => method_exists($hDate, 'getbegindate'),
+                'test3' => property_exists($hDate, 'lol'),
+                'blop' => HDate::toJSON($hDate2),
                 'mois' => DateHelper::getMonth($date),
+                'hDate' => HDate::toJSON($hDate),
                 'date2' => $date2->format('d/m/Y'),
+                'date2bis' => strftime("%B",$date2->getTimestamp()),
                 'value' => Article::class
             )
         ));
