@@ -43,9 +43,6 @@ class ArticleHelper
         $subEventsArray = [];
         foreach ($articleDTO->subEventsArray as $item){
             $articleModalDTO = $this->articleDTOFactory->newInstance("modal");
-            // $articleModalDTO = $this->serializer->denormalize($item, ArticleModalDTO::class);
-            //$data = $serializer->normalize($articleModalDTO,null,array('groups' => array('group1')));
-            // return  $serializer->encode($data, 'json') ;
             $this->serializer->denormalize($item, ArticleModalDTO::class, 
                 'jso',array('object_to_populate' => $articleModalDTO,'allow_extra_attributes' => true));
             $subEventsArray[] = $articleModalDTO;
@@ -54,6 +51,19 @@ class ArticleHelper
         $articleDTO->subEventsArray = $subEventsArray;
         return $processedCount == $articleDTO->subEventsCount;
     }
+    
+    /**
+     * @param ArticleCollectionDTO $articleDTO
+     * @return void
+     */
+    public function serializeSubEvents($articleDTO)
+    {
+        $articleDTO->subEvents = $this->serializer->serialize([
+            'subEventsCount' => $articleDTO->subEventsCount,
+            'subEventsArray' => $articleDTO->subEventsArray], 'json');
+    }
+    
+    
     
     
     

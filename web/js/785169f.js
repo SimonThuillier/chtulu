@@ -129,34 +129,217 @@ $.fn.attrchange = function(o) {
 })(jQuery);	
 
 //prototype historical date class ( handle imprecise dates)
-function HDate(beginDate,endDate = null){
-	this.beginDate = beginDate; 
-	this.endDate = endDate; 
-	if(endDate == null){
-		this.endDate = beginDate; 
+function HDate(type,date,endDate = null)
+{
+	if (this.types.indexOf(type) === -1) return null;
+	this._beginDate = date; 
+	this._endDate = endDate;
+	this.setType(type);
+	return this;
+};
+
+HDate.prototype.clone = function()
+{
+	return new HDate(this._type,this._beginDate.clone(),this._endDate.clone());
+};
+
+HDate.prototype.parse = function(jsonStr)
+{
+	var jsonObj = JSON.parse(jsonStr);
+	jsonObj._beginDate = new Date(Date.parse(jsonObj._beginDate));
+	jsonObj._endDate = new Date(Date.parse(jsonObj._endDate));
+	return new HDate(jsonObj._type,jsonObj._beginDate,jsonObj._endDate);
+};
+
+
+HDate.prototype.types = ["precise","bounded","month","season","year","decade","century","millenia"];
+//functions of formatting
+HDate.prototype.formatters = {
+		"precise":myFormatPatternDate('j F Y'),
+		"bounded":myFormatPatternDate('j F Y'),
+		"month":myFormatPatternDate('F Y'),
+		"season":myFormatPatternDate('S Y'),
+		"year":myFormatPatternDate('Y'),
+		"decade":myFormatPatternDate('Y'),
+		"century":myFormatPatternDate('Y'),
+		"millenia":myFormatPatternDate('Y')
+};
+HDate.prototype.canonicalInputFormatters = {
+		"precise":myFormatPatternDate('d/m/Y'),
+		"bounded":myFormatPatternDate('d/m/Y'),
+		"month":myFormatPatternDate('m/Y'),
+		"season":myFormatPatternDate('s/Y'),
+		"year":myFormatPatternDate('Y'),
+		"decade":myFormatPatternDate('Y'),
+		"century":myFormatPatternDate('Y'),
+		"millenia":myFormatPatternDate('Y')
+};
+HDate.prototype._intervalFormatter = myFormatPatternDate('d/m/Y');
+
+HDate.prototype.intervalSize = function()
+{
+	return this._endDate.dayDiff(this._beginDate);
+};
+HDate.prototype.isExact = function()
+{
+	return (this._endDate.dayDiff(this._beginDate) === 0);
+};
+HDate.prototype.equals = function(hDate)
+{
+	if (this._type == hDate._type && this._beginDate == hDate._beginDate && this._endDate == hDate._endDate) return true;
+	return false;
+};
+//0 is the min Date, 1 is the max Date
+HDate.prototype.getBoundDate = function(bound)
+{
+	if (bound === 0){
+		return this._beginDate;
 	}
-	this.intervalSize = function(){
-		return endDate.dayDiff(this.beginDate);
+	else if(bound == 1){
+		return this._endDate;
 	}
-	this.isExact = function(){
-		return (this.endDate.dayDiff(this.beginDate) == 0);
+	else{
+		return null;
 	}
-	this.equals = function(hDate){
-		if (this.beginDate == hDate.beginDate && this.endDate == hDate.endDate) return true;
-		return false;
-	}
-	this.getBoundDate = function(bound){ // 0 is the min Date, 1 is the max Date
-		if (bound == 0){
-			return this.beginDate;
+};
+
+//returns user display of the HDate
+HDate.prototype.getLabel= function()
+{
+	var formatter = this.formatters[this._type];
+	var pieces=[];
+	var label = formatter(this._beginDate,pieces);
+	var BC;
+
+	// specific code for rendering
+	if(this._type == "bounded") {
+		var endPieces=[];
+		formatter(this._endDate,endPieces);
+		var totalLabel="";
+		var index = 4;
+		for (index=4;index>-1;index--){
+			if(pieces[index] == endPieces[index]){
+				totalLabel = pieces[index] + totalLabel;
+			}
+			else{index++;break;}
 		}
-		else if(bound == 1){
-			return this.endDate;
+		var preBeginLabel = "",preEndLabel = "";
+		for(var index2=0;index2<index;index2++){
+			preBeginLabel+= pieces[index2];
+			preEndLabel+= endPieces[index2];
 		}
-		else{
-			return null;
-		}
+		if(preBeginLabel !== ""){totalLabel = preBeginLabel + "~" + preEndLabel + totalLabel;}
+		label = totalLabel;
 	}
-}
+	else if(this._type == "precise" && pieces[0] == "1") {
+		pieces[0] = "1er";
+		label = pieces.join('');
+	}
+	else if(this._type == "season" && (pieces[0]).toUpperCase() == "HIVER"){
+		pieces[pieces.length-1] = pieces[pieces.length-1] + 
+		((Number(pieces[pieces.length-1])>=-1)?"-":"")  + 
+		(Number(pieces[pieces.length-1]) + 1);
+		label = pieces.join('');
+	}
+	else if(this._type == "decade"){
+		label = "Années " + label;
+	}
+	else if(this._type == "century"){
+		var century = Math.floor(Number(label)/100);
+		BC = century < 0;
+		var absoluteCentury = BC?Math.abs(century):(century + 1);
+
+		label = arabicToRomanNumber(absoluteCentury) +
+		((absoluteCentury == 1)?"er":"e") +
+		" siècle" +
+		(BC?" Av. JC":"");
+	}
+	else if(this._type == "millenia"){
+		var millenia = Math.floor(Number(label)/1000);
+		BC = millenia < 0;
+		var absoluteMillenia = BC?Math.abs(millenia):(millenia + 1);
+
+		label = arabicToRomanNumber(absoluteMillenia) +
+		((absoluteMillenia == 1)?"er":"e") +
+		" millénaire" +
+		(BC?" Av. JC":"");
+	}
+	return label;
+};
+
+//returns user display of the HDate interval for control
+HDate.prototype.getInterval= function()
+{
+	var formatter = this._intervalFormatter;
+	return "[" + formatter(this._beginDate) + " ; " + formatter(this._endDate) + "]";
+};
+
+//return the canonical input for the HDate
+HDate.prototype.getCanonicalInput = function()
+{
+	var formatter = this.canonicalInputFormatters[this._type];
+
+	if(this._type == "bounded"){
+		return (formatter(this._beginDate) + ";" + formatter(this._endDate));
+	}
+	else if(this._type == "seasoen"){
+		return formatter(this._beginDate.clone().switchToNextMonth(true));
+	}
+	else{
+		return formatter(this._beginDate);
+	}
+};
+
+//convert the object to the wanted type, adjusting its begin and endDate
+HDate.prototype.setType = function(type)
+{
+	switch(type){
+	case "precise":
+		this._endDate = this._beginDate.clone();
+		break;
+	case "bounded":
+		this._endDate = (this._endDate !== null)?this._endDate:this._beginDate.clone();
+		if(this._endDate.dayDiff(this._beginDate) === 0) this._endDate.addDay(1);
+		break;	
+	case "month":
+		this._beginDate.rewindToMonthFirst(); 
+		this._endDate = this._beginDate.clone().switchToNextMonth(true).addDay(-1);
+		break;	
+	case "season":
+		this._beginDate = this._beginDate.rewindToSeasonFirst(); 
+		this._endDate = this._beginDate.clone().switchToNextSeason(true).addDay(-1);
+		break;		
+	case "year":
+		this._beginDate.rewindToYearFirst(); 
+		this._endDate = this._beginDate.clone().switchToNextYear(true).addDay(-1);
+		break;
+	case "decade":
+		this._beginDate.rewindToDecadeFirst(); 
+		this._endDate = this._beginDate.clone().switchToNextDecade(true).addDay(-1);
+		break;	
+	case "century":
+		this._beginDate.rewindToCenturyFirst(); 
+		this._endDate = this._beginDate.clone().switchToNextCentury(true).addDay(-1);
+		break;	
+	case "millenia":
+		this._beginDate.rewindToMilleniaFirst(); 
+		this._endDate = this._beginDate.clone().switchToNextMillenia(true).addDay(-1);
+		break;			
+	default:break;
+	}
+	this._type = type;
+};
+
+
+
+
+
+
+
+
+
+
+
 /**
  * define the manager for events
  */
@@ -170,12 +353,14 @@ function HEventManager(hts){
 	this.bufferEvent = null;
 	this.maxYEvent = 100;
 	this.maxYArea = 50;
+	this.eventFactory = new HEventFactory(hts,null);
+	this.parentId = hts.articleParentId;
 }
 
 /**
  * 
  */
-HEventManager.prototype.createEvent =  function(x,y,beginX=null){
+HEventManager.prototype.createEvent = function(x,y,beginX=null){
 
 	var type = 'attached';
 	if(this.events.length === 0 ) type = 'main';
@@ -195,6 +380,7 @@ HEventManager.prototype.createEvent =  function(x,y,beginX=null){
 
 HEventManager.prototype.addEvent =  function(event){
 	event.manager = this;
+	event.articleParentId = this.parentId;
 	this.events.push(event);
 
 	var manager = this;
@@ -269,17 +455,46 @@ HEventManager.prototype.prepareSubmission = function(formId,formMainId){
 	});
 	$("#" + formMainId + "_subEvents").val(JSON.stringify(eventCollection));
 }
+
+/** this function load events in subEvents field */
+HEventManager.prototype.loadSubEvents = function(formMainId){
+	console.log($("#" + formMainId + "_subEvents").val());
+	this.loadSubEventsFromData($("#" + formMainId + "_subEvents").val());
+}
+
+/** this function load events in subEvents field */
+HEventManager.prototype.loadSubEventsFromData = function(data){
+	var array = JSON.parse(data);
+	var event = null;
+	var manager = this;
+	
+	array.subEventsArray.forEach(function(eventDTO){
+		console.log(eventDTO);
+		event = manager.eventFactory.newInstance(eventDTO);
+		console.log(event);
+		if (! event.rendered) event.render();
+		event.text.html(event.getLabelHtml());
+		event.updateRender();
+		manager.addEvent(event);
+	});
+	
+	manager.updateRender();
+}
 /**
  * 
  */
 
-HEvent.prototype.animationTime = 500;
-HEvent.prototype.animationTextTime = 650;
+HEvent.prototype.animationTime = 400;
+HEvent.prototype.animationTextTime = 500;
 HEvent.prototype.rPinPoint = 5;
 
 //prototype events
 function HEvent(hts,type,attachment=null,y=null,name=null){
 	this.id=this.idGenerator();
+	this.internId = null;
+	this.articleParentId = null;
+	this.linkId = null;
+	this.url = null;
 	this.hts = hts;
 	this.type = type; // is the event detailed (with article) of not ? : can be main, attached or unattached
 	this.hasArticle = false; // indicate if the event has a detailed article
@@ -301,13 +516,31 @@ function HEvent(hts,type,attachment=null,y=null,name=null){
 	this.endDate=null; // HDate
 	this.rendered = false;
 	this.manager = null;
-	
+
 	this.articleType = 1;
 	this.articleSubType = 1;
-	
+
+	this.redirect = false;
+
 	// to handle submission
 	this.toUpdate = true;
 }
+
+/** returns true if event exists in database ( article) or false otherwise (newly created event) */
+HEvent.prototype.isPersisted = function(){
+	return (this.internId > 0);
+}
+
+HEvent.prototype.getLabelHtml = function(){
+
+	if(this.url != null){
+		return "<span style=\"white-space:nowrap\" \"text-anchor\"=\"start\"><a href=\"" + this.url + 
+		"\" title=\"" + this.name + "\" >" + 
+		this.name + "</a></span>";
+	}
+	return "<span style=\"white-space:nowrap\" \"text-anchor\",\"start\"><i><p>" + 
+	this.name + "</p></i></span>";
+}	
 
 /** make the idGenerator for the event prototype */
 HEvent.prototype.idGenerator = idGenerator();
@@ -336,15 +569,17 @@ HEvent.prototype.render = function(){
 	.attr("opacity","1")
 	.attr("cursor","pointer")
 	.on('click',function(){
-		console.log("edition event existant");	
 		htsEvent.edit();
 		d3.event.preventDefault();
-		d3.event.stopPropagation();});	
+		d3.event.stopPropagation();
+	});
 
 	this.text = this.hts.findComponentByName('event-area')
-	.append("text")
-	.attr("id","<a href='' >" + this.textId + "</a>")
-	.text(this.name);
+	.append("foreignObject")
+	.attr("id",this.textId)
+	.attr("text-anchor","middle")
+	.html(this.getLabelHtml())
+	.on('click',function(){d3.event.stopPropagation();});
 
 	this.pinPoint = this.hts.findComponentByName('event-area')
 	.append("circle")
@@ -361,11 +596,10 @@ HEvent.prototype.render = function(){
 				htsEvent.y = d3.event.y + htsEvent.deltaY;
 				htsEvent.adjustedY = htsEvent.y;
 				htsEvent.manager.setMaxY(htsEvent.y + htsEvent.manager.yMargin);
-				htsEvent.updateRender();})
+				htsEvent.updateRender(0,0);})
 				.on("end", function(){})
 	)
 	.on('click',function(){
-		console.log("edition event existant");	
 		htsEvent.edit();
 		d3.event.preventDefault();
 		d3.event.stopPropagation();})
@@ -406,14 +640,14 @@ HEvent.prototype.displayIntersect = function(HEvent2){
 
 
 /** function to create graphic components of events */
-HEvent.prototype.updateRender = function(){
+HEvent.prototype.updateRender = function(animationTime = this.animationTime,animationTextTime = this.animationTextTime){
 	var hEvent = this;
 
 	this.pinPoint
 	.transition()
 	.attr("cy",this.adjustedY + this.hts.ABS_EVENT_HEIGHT/2 )
 	.attr("cx",this.hts.dateScale(this.beginDate.getBoundDate(0)))
-	.duration(hEvent.animationTime);
+	.duration(animationTime);
 
 	this.rect
 	.transition()
@@ -421,7 +655,7 @@ HEvent.prototype.updateRender = function(){
 	.attr("y",this.adjustedY)   
 	.attr("width",this.hts.dateScale(this.getDisplayedEndDate()) - this.hts.dateScale(this.getDisplayedBeginDate()))
 	.attr("height",this.hts.ABS_EVENT_HEIGHT)
-	.duration(hEvent.animationTime);
+	.duration(animationTime);
 
 
 
@@ -445,23 +679,17 @@ HEvent.prototype.updateRender = function(){
 
 		var virtualDate = this.hts.beginDate.clone().addDay(offset);
 
-		console.log(this.hts.dateScale(virtualDate),ratio);
-
 		this.adjustedX = this.hts.htsBaseWidth/2 + this.hts.dateScale(virtualDate)*ratio/1.5;
 		this.adjustedX = Math.max(this.adjustedX,5);
 		this.adjustedX = Math.min(this.adjustedX,this.hts.htsBaseWidth - this.text.node().getBBox().width-5);
 	}
 
-	this.text
-	.attr("text-anchor","start")  
+	this.text 
 	.attr("height",this.hts.ABS_EVENT_HEIGHT)
 	.transition()
-	.attr("y",this.adjustedY -5)
-	.attr("x",this.adjustedX)
-	.duration(hEvent.animationTextTime);
-
-
-	;	
+	.attr("y",this.adjustedY -20)
+	.attr("x",this.adjustedX - 10)
+	.duration(animationTextTime);	
 }
 
 HEvent.prototype.getDisplayedEndDate = function(){
@@ -485,17 +713,22 @@ HEvent.prototype.bindToForm = function(formId){
 	$("select#" + formId + "_subType").val(this.articleSubType).change();
 	$("input#" + formId + "_title").val(this.name);
 	$("textarea#" + formId + "_abstract").val(this.abstract);
-	
-	$("input#" + formId + "_isBeginDateApprox:checked").val((this.beginDate != null)?!this.beginDate.isExact():false);
+
+	console.log("beginDateApprox", (this.beginDate != null)?!this.beginDate.isExact():false);
+
+	$("input#" + formId + "_isBeginDateApprox").attr('checked',(this.beginDate != null)?!this.beginDate.isExact():false);
+	$("input#" + formId + "_hasNotEndDate").attr('checked',this.hasNotEndDate);
+	$("input#" + formId + "_isEndDateApprox").attr('checked',(this.endDate != null)?!this.endDate.isExact():false);
+
+
 	$("input#" + formId + "_beginDate").val((this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(0)):"");
 	$("input#" + formId + "_minBeginDate").val((this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(0)):"");
 	$("input#" + formId + "_maxBeginDate").val((this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(1)):"");
-	
-	$("input#" + formId + "_hasNotEndDate:checked").val(this.hasNotEndDate);
-	$("input#" + formId + "_isEndDateApprox:checked").val((this.endDate != null)?!this.endDate.isExact():false);
+
 	$("input#" + formId + "_endDate").val((this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"");
 	$("input#" + formId + "_minEndDate").val((this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"");
 	$("input#" + formId + "_maxEndDate").val((this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(1)):"");
+
 	$("input#" + formId + "_y").val(this.y);
 }
 
@@ -506,19 +739,23 @@ HEvent.prototype.normalize = function(formId){
 	dto.type = this.articleType;
 	dto.subType = this.articleSubType;
 	dto.abstract = this.abstract;
-	
+
 	dto.isBeginDateApprox = (this.beginDate != null)?!this.beginDate.isExact():false;
 	dto.beginDate = (this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(0)):"";
 	dto.minBeginDate = (this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(0)):"";
 	dto.maxBeginDate = (this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(1)):"";
-	
+
 	dto.hasNotEndDate = this.hasNotEndDate;
 	dto.isEndDateApprox = (this.endDate != null)?!this.endDate.isExact():false;
 	dto.endDate = (this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"";
 	dto.minEndDate = (this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"";
 	dto.maxEndDate = (this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(1)):"";
-	
+
 	dto.y = this.y;
+	dto.id = this.internId;
+	dto.parentId = this.articleParentId;
+	dto.linkId = this.linkId;
+
 	return dto;
 }
 
@@ -529,10 +766,10 @@ HEvent.prototype.updateFromForm = function(formId){
 	this.articleType = $("select#" + formId + "_type").find(":selected").val();
 	this.articleSubType = $("select#" + formId + "_subType").find(":selected").val();
 	this.abstract = $("textarea#" + formId + "_abstract").val();
-	
+
 	if ($("input#" + formId + "_isBeginDateApprox").is(":checked")){
 		this.beginDate = new HDate(myParseDate($("input#" + formId + "_minBeginDate").val()),
-		myParseDate($("input#" + formId + "_maxBeginDate").val()));
+				myParseDate($("input#" + formId + "_maxBeginDate").val()));
 	}
 	else{	
 		this.beginDate = new HDate(myParseDate($("input#" + formId + "_beginDate").val()));					
@@ -543,7 +780,7 @@ HEvent.prototype.updateFromForm = function(formId){
 	if(! this.hasNotEndDate){
 		if ($("input#" + formId + "_isEndDateApprox").is(":checked")){
 			this.endDate = new HDate(myParseDate($("input#" + formId + "_minEndDate").val()),
-			myParseDate($("input#" + formId + "_maxEndDate").val()));
+					myParseDate($("input#" + formId + "_maxEndDate").val()));
 		}
 		else{	
 			this.endDate = new HDate(myParseDate($("input#" + formId + "_endDate").val()));					
@@ -586,14 +823,6 @@ HEvent.prototype.checkFormValidity = function(formId){
 	return true;
 }
 
-
-
-
-/** define events applied to form components, once it's defined */
-HEvent.prototype.addFormEvent = function(){
-	instanciateFormEvent('modal_live');
-}
-
 /** function to handle event edition (with modal display) */
 HEvent.prototype.edit = function(){
 	var message= 'Edition de l\'évenement';
@@ -626,10 +855,7 @@ HEvent.prototype.edit = function(){
 					htsEvent.updateFromForm(formId);
 
 					if (! htsEvent.rendered) htsEvent.render();
-					htsEvent.text.text(htsEvent.name);
-					/* if(htsEvent.type === 'main'){
-						$(".hts-article-title").empty().append(htsEvent.name);
-					}*/
+					htsEvent.text.html(htsEvent.getLabelHtml());
 					htsEvent.toUpdate = true;
 					htsEvent.updateRender();
 					if(htsEvent.manager === null) htsEvent.hts.eventManager.addEvent(htsEvent);
@@ -637,11 +863,11 @@ HEvent.prototype.edit = function(){
 				}
 			}
 	});	
-	
+
 	// bind new form to Hevent
 	this.bindToForm(formId);
-	// add form event
-	this.addFormEvent();
+	// add form  and initial state
+	finalizeForm('modal_live');
 }
 
 
@@ -993,10 +1219,15 @@ HTimeScroller.prototype.formatBoundDates = myFormatPatternDate('d/m/Y');
 
 /** constructor for horizontal time scroller 
  * parentId must be existing id of an SVG component */
-function HTimeScroller(parentId,beginDate,endDate,eBeginDate,eEndDate,options) {
+function HTimeScroller(elementId,beginDate,endDate,eBeginDate,eEndDate,articleParentId,options) {
 	this.id=this.idGenerator();
-	this.parentId = parentId;
-	this.parent = d3.select(this.parentId); 
+	this.articleParentId = articleParentId;
+	this.div = d3.select(elementId); 
+	this.parent = this.div.append("svg")
+	.attr("id","hts-" + this.id + "-svgcontainer")
+	.attr("width",1150)
+	.attr("height",150);
+	
 	this.scope = [null,null]; // contains begin and end Date of scope
 	this.domComponents = []; // array of DOM components (except parent) with update functions
 
@@ -1082,9 +1313,9 @@ function HTimeScroller(parentId,beginDate,endDate,eBeginDate,eEndDate,options) {
 			component = component.append("xhtml:div")
 			.append("input")
 			.attr('id','hts-date-input-left')
-			.attr('class','hts-date-input hts-border-date-input')
+			.attr('class','hts-date-input hts-border-date-input hbase-hdatepicker')
+			.attr('hdatepicker-ender','hts-date-input-right')
 			.attr('placeholder','JJ/MM/AAAA')
-			.attr('regex',dateRegex())
 			.on('change',function() { hts.setBoundDates(-1);});
 			drawer = function(hts,component){};
 			component = $("#hts-date-input-left");
@@ -1108,9 +1339,8 @@ function HTimeScroller(parentId,beginDate,endDate,eBeginDate,eEndDate,options) {
 			component = component.append("xhtml:div")
 			.append("input")
 			.attr('id','hts-date-input-right')
-			.attr('class','hts-date-input hts-border-date-input')
+			.attr('class','hts-date-input hts-border-date-input hbase-hdatepicker')
 			.attr('placeholder','JJ/MM/AAAA')
-			.attr('regex',dateRegex())
 			.on('change',function() { hts.setBoundDates(1);});
 
 			drawer = function(hts,component){};
@@ -1257,6 +1487,24 @@ function HTimeScroller(parentId,beginDate,endDate,eBeginDate,eEndDate,options) {
 
 		}
 	}
+	
+	$(function () {
+		var prevHeight = $('div#hts-event-container').height();
+		var deltaHeight = $("#hts-svgcontainer").attr("height") - prevHeight;
+		$('div#hts-event-container').attrchange({
+			callback: function (e) {
+				var curHeight = $(this).height();            
+				if (prevHeight !== curHeight) {
+					$("#hts-svgcontainer").attr("height",curHeight + deltaHeight);
+					hts.updateSpatialData(false);
+					hts.redrawComponent('event-area');
+					hts.redrawComponent('event-fcontainer');
+					hts.redrawComponent('event-container');
+					prevHeight = curHeight;
+				}  
+			}
+		});
+	});
 }
 
 /**  callback function to redraw the wanted component */
@@ -1331,7 +1579,7 @@ HTimeScroller.prototype.setDates = function(beginDate,endDate){
 	this.beginDate = beginDate;
 	this.endDate = endDate;
 	var dayNumber = this.endDate.dayDiff(this.beginDate);
-	if(dayNumber <4) throw('unhandled date period for horizontal time scroller : minimum interval is four days.');
+	if(dayNumber <3) {this.endDate = this.beginDate.clone().addDay(3);};
 	// allow to compute a range slightly larger to precompute graduations before the beginDate / after the endDate 
 	this.calcBeginDate = beginDate.clone().addDay( - Math.floor((this.REL_OVER_INTERVAL-1)/2*dayNumber));
 	this.calcEndDate = endDate.clone().addDay(Math.floor((this.REL_OVER_INTERVAL-1)/2*dayNumber));

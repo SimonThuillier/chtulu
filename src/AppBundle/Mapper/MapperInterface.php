@@ -5,7 +5,7 @@ namespace AppBundle\Mapper;
 /**
  * Interface MapperInterface
  *
- * @package Synerail\AppBundle\Mapper
+ * @package AppBundle\Mapper
  */
 interface MapperInterface
 {

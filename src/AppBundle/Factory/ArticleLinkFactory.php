@@ -14,23 +14,17 @@ class ArticleLinkFactory  extends AbstractEntityFactory
      */
     public function newInstance($dto)
     {
-        parent::newInstance($dto);
-        /** @var ArticleLink $link  */
-        $link = $this->entity;
-        /** @var ArticleModalDTO $dto */
-        $dto = $this->dto;
-        $link->setParentArticle($dto->parentArticle);
-        $link->setChildArticle($dto->childArticle);
-        $this->setData();
-        return $this->entity;
+        $link = parent::newInstance($dto);
+        return $link;
     }
     
-    public function setData()
+    public function setData($dto,$entity)
     {
         /** @var ArticleLink $link  */
-        $link = $this->entity;
+        $link = $entity;
         /** @var ArticleModalDTO $dto */
-        $dto = $this->dto;
         $link->setY($dto->y);
+        $link->setParentArticle($dto->parentArticle);
+        $link->setChildArticle($dto->childArticle);
     }
 }

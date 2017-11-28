@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * ArticleLink
  *
- * @ORM\Table(name="article_link")
+ * @ORM\Table(name="hb_article_link")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\ArticleLinkRepository")
  */
 class ArticleLink
@@ -23,7 +23,7 @@ class ArticleLink
     
     /**
      * @var Article
-     * @ORM\ManyToOne(targetEntity="Article")
+     * @ORM\ManyToOne(targetEntity="Article",inversedBy="links")
      * @ORM\JoinColumn(name="parent_article_id", referencedColumnName="id")
      */
     private $parentArticle;

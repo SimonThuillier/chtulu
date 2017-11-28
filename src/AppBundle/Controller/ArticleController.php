@@ -21,6 +21,9 @@ use AppBundle\Mapper\ArticleCollectionDoctrineMapper;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use AppBundle\Repository\ArticleRepository;
+use AppBundle\Processor\GenericProcessor;
+use AppBundle\Listener\SearchArticleFormListener;
+use AppBundle\Helper\DateHelper;
 
 /**
  *
@@ -34,37 +37,24 @@ class ArticleController extends Controller
      * @Route("/create",name="article_create")
      * @Method({"GET","POST"})
      */
-    public function createAction(Request $request, ArticleDTOFactory $articleDTOFactory,ArticleHelper $helper,
+    public function createAction(Request $request, ArticleDTOFactory $articleDTOFactory,
         ArticleCollectionDoctrineMapper $collectionMapper)
     {
         /** @var ArticleCollectionDTO $articleDTO */
         $articleDTO = $articleDTOFactory->newInstance("main_collection");
-        $articleModalDTO = $articleDTOFactory->newInstance("modal");
+        /** @var ArticleModalDTO $articleModalDTO */
         /** @var ArticleMainType $form */
-        $form = $this->get('form.factory')
-            ->createBuilder(ArticleMainType::class)
-            ->setData($articleDTO)
-            ->getForm();
+        $form = $this->get('form.factory')->createBuilder(ArticleMainType::class)
+            ->setData($articleDTO)->getForm();
         /** @var FormInterface $modaForm */
-        $modalForm = $this->get('form.factory')
-            ->createBuilder(ArticleModalType::class)
-            ->setData($articleModalDTO)
-            ->getForm();
+        $modalForm = $this->get('form.factory')->createBuilder(ArticleModalType::class)
+            ->setData($articleDTOFactory->newInstance("modal"))->getForm();
         
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
                 $articleDTO = $form->getData();
-                if (! $helper->deserializeSubEvents($articleDTO))
-                {
-                    throw new \Exception("An error occured during subArticles recovery. No data was saved.");
-                }
-                /** @var ArticleCollectionDTO $articleCollectionDTO */
-                // $articleCollectionDTO = $serializer->deserialize($articleDTO->getSubEvents(), null, 'json');
-                /** ArticleCollectionDoctrineMapper $mapper */
                 $collectionMapper->add($articleDTO);
-                
-                
                 return $this->render('::debug.html.twig', array(
                     'debug' => array(
                         "title" => $articleDTO->title,
@@ -86,16 +76,29 @@ class ArticleController extends Controller
         return $this->render('@AppBundle/Article/create.html.twig',array(
             'typeSubtypeArray' => $this->getDoctrine()->getManager()->getRepository(ArticleType::class)->getTypeSubTypeArray(),
             'form' => $form->createView(),
-            'modalForm' => $modalForm->createView()
+            'modalForm' => $modalForm->createView(),
+            'beginDate' => (new \DateTime())->sub(new \DateInterval('P30D')),
+            'endDate' =>(new \DateTime())
         ));
     }
+    
     /**
      * @Route("/test",name="article_test")
-     */
+     */ 
     public function testAction()
     {
+        /** @var \DateTime $date */
+        $date = DateHelper::createFromFormat('d/m/Y', "21/11/-9000");
+        DateHelper::switchToNextMonth($date,false,true);
+        $date2 = clone $date ;
+        DateHelper::switchToNextSeason($date2);
+        
+        
         return $this->render('::debug.html.twig', array(
             'debug' => array(
+                'date' => $date->format('d/m/Y'),
+                'mois' => DateHelper::getMonth($date),
+                'date2' => $date2->format('d/m/Y'),
                 'value' => Article::class
             )
         ));
@@ -103,65 +106,62 @@ class ArticleController extends Controller
 
     /**
      * @Route("/edit/{article}",name="article_edit",requirements={"page": "\d+"})
+     * @ParamConverter("article", class="AppBundle:Article")
      * @Method({"GET","POST"})
      */
-    public function editAction($article,Request $request, ArticleDTOFactory $articleDTOFactory,ArticleHelper $helper,
+    public function editAction(Article $article,Request $request, ArticleDTOFactory $articleDTOFactory,ArticleHelper $helper,
         ArticleCollectionDoctrineMapper $collectionMapper)
     {
         /** @var ArticleRepository */
         $repo = $this->getDoctrine()->getRepository('AppBundle:Article');
-        
-        $dto = $repo->getDTO($article);
-        
-        return $this->render('::debug.html.twig', array(
-            'debug' => array(
-                'dto' => json_encode($dto)
-            )
-        ));
-        
-        
-        
-        
-        
         /** @var ArticleCollectionDTO $articleDTO */
         $articleDTO = $articleDTOFactory->newInstance("main_collection");
-        $articleModalDTO = $articleDTOFactory->newInstance("modal");
+        $repo->bindDTO($article->getId(),$articleDTO);
+        
+        foreach($articleDTO->subEventsArray as $subEvent){
+            $subEvent->url = $this->generateUrl('article_edit',array("article" => $subEvent->id));
+        }
+        $helper->serializeSubEvents($articleDTO);
+        /** @var ArticleModalDTO $articleModalDTO */
         /** @var ArticleMainType $form */
-        $form = $this->get('form.factory')
-        ->createBuilder(ArticleMainType::class)
-        ->setData($articleDTO)
-        ->getForm();
+        $form = $this->get('form.factory')->createBuilder(ArticleMainType::class)
+        ->setData($articleDTO)->getForm();
         /** @var FormInterface $modaForm */
-        $modalForm = $this->get('form.factory')
-        ->createBuilder(ArticleModalType::class)
-        ->setData($articleModalDTO)
-        ->getForm();
+        $modalForm = $this->get('form.factory')->createBuilder(ArticleModalType::class)
+        ->setData($articleDTOFactory->newInstance("modal"))->getForm();
+        
+        /*return $this->render('::debug.html.twig', array(
+            'debug' => array(
+                'subEvents' => $articleDTO->subEvents,
+                'date2' => $articleDTO->beginDate,
+                'date3' => $articleDTO->minBeginDate,
+                'article_title' => $article->getTitle(),
+                'dto' => json_encode($articleDTO),
+            )
+        ));*/
+        
         
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
                 $articleDTO = $form->getData();
-                if (! $helper->deserializeSubEvents($articleDTO))
-                {
-                    throw new \Exception("An error occured during subArticles recovery. No data was saved.");
-                }
                 /** @var ArticleCollectionDTO $articleCollectionDTO */
                 // $articleCollectionDTO = $serializer->deserialize($articleDTO->getSubEvents(), null, 'json');
                 /** ArticleCollectionDoctrineMapper $mapper */
-                $collectionMapper->add($articleDTO);
+                $collectionMapper->edit($article->getId(),$articleDTO);
                 
                 
                 return $this->render('::debug.html.twig', array(
                     'debug' => array(
-                        "title" => $articleDTO->title,
-                        "titlesub1" => $articleDTO->subEventsArray[0]->title,
+                        "dto" => json_encode($articleDTO),
+                        "title" => $articleDTO->title
                     )
                 ));
             } else {
                 
                 return $this->render('::debug.html.twig', array(
                     'debug' => array(
-                        'formErrors' => json_encode($form->getErrors(true, false)),
+                        'formErrors' => json_encode($form['endDate']->getErrors()),
                         'form_submitted' => json_encode($form->isSubmitted()),
                         'form_valid' => json_encode($form->isValid())
                     )
@@ -169,10 +169,28 @@ class ArticleController extends Controller
             }
         }
         
-        return $this->render('@AppBundle/Article/create.html.twig',array(
+        return $this->render('@AppBundle/Article/edit.html.twig',array(
+            'article' => $articleDTO,
             'typeSubtypeArray' => $this->getDoctrine()->getManager()->getRepository(ArticleType::class)->getTypeSubTypeArray(),
             'form' => $form->createView(),
-            'modalForm' => $modalForm->createView()
+            'modalForm' => $modalForm->createView(),
+            'beginDate' => ($articleDTO->isBeginDateApprox)?$articleDTO->minBeginDate:$articleDTO->beginDate,
+            'endDate' =>($articleDTO->hasNotEndDate)?new \DateTime():
+            (($articleDTO->isEndDateApprox)?$articleDTO->maxEndDate:$articleDTO->endDate)
         ));
     }
+    
+    /**
+     * @Route("/list",name="article_list")
+     * @Method({"GET","POST"})
+     */
+    public function listAction(Request $request,GenericProcessor $processor,SearchArticleFormListener $listener)
+    {
+        /** @var Event$result */
+        $result = $processor->addSubscriber($listener)->process($request);
+        
+        return $this->render('@AppBundle/Article/list.html.twig',$result);
+    }
+    
+    
 }

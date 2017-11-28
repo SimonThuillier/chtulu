@@ -16,6 +16,7 @@ use AppBundle\Entity\ArticleLink;
 use AppBundle\Factory\ArticleLinkFactory;
 use AppBundle\Validator\ArticleModalDTOValidator;
 use AppBundle\DTO\ArticleLinkDTO;
+use AppBundle\Repository\ArticleRepository;
 
 /**
  * Class ArticleCollectionDoctrineMapper
@@ -54,62 +55,68 @@ class ArticleModalDoctrineMapper extends AbstractDoctrineMapper
     
     /**
      * @param ArticleModalDTO $dto
-     * @return Article
      */
     public function add($dto)
     {
         if($dto instanceof ArticleModalDTO){
             $this->modalValidator->validate($dto);
         }
-        $article = $this->entityFactory->newInstance($dto);
-        $this->getManager()->persist($article);
+        $dto->article = $this->entityFactory->newInstance($dto);
+        $this->getManager()->persist($dto->article);
         $this->getManager()->flush();
         if($dto instanceof ArticleModalDTO){
-            $dto->link = $this->handleLink($article, $dto);
+                $this->addLink($dto);
         }
-        return $article;
     }
 
     /**
-     * @param string $id
+     * @param integer $id
      * @param  $dto
+     * @throws \Exception
      */
-    public function edit(string $id, $dto)
+    public function edit($id, $dto)
     {
-        /*
-        $site = $this->getRepository()->find($id);
-        if (!$site) {
-            throw new \LogicException(sprintf('impossible to find information for id %s', $id));
+        if($dto instanceof ArticleModalDTO){
+            $this->modalValidator->validate($dto);
         }
-        $site->setLabel($dto->label);
-        $site->setNumber($dto->number);
-        $site->setAccompaniment($dto->accompaniment);
-        $this->getManager()->flush();*/
+        /** @var ArticleRepository $repo */
+        $repo = $this->doctrine->getRepository($this->entityName);
+        $dto->article = $repo->find($id);
+        if($dto->article === null) throw new \LogicException(sprintf('impossible to find information for id %s', $id));
+        
+        $this->entityFactory->setData($dto,$dto->article);
+        $this->getManager()->flush();
+        
+        if($dto instanceof ArticleModalDTO){
+            if($dto->link === null){
+                $this->addLink($dto);
+            }
+            else{
+                $this->editLink($dto);
+            }
+        }
     }
     
     /**
      * @param ArticleModalDTO $dto
-     * @return ArticleLink|null
      */
-    private function handleLink(Article $article,$dto)
+    private function editLink($dto)
     {  
-        if($dto->parentArticle === null && $dto->parentId === null) return null;
-        
-        $link = $dto->link;
-        if ($link === null){
-            if($dto->parentArticle === null){
-                $dto->parentArticle = $this->doctrine->getRepository('AppBundle:Article')->find($dto->parentId);
-            }
-            $link = $this->linkFactory->newInstance(new ArticleLinkDTO($dto->parentArticle, $article, $dto->y));
-            $this->getManager()->persist($link);
-        }
-        else{
-            $this->linkFactory->setEntity($link)->setDto($dto)->setData();
-        }
+        $this->linkFactory->setData(
+            new ArticleLinkDTO($dto->parentArticle, $dto->article, $dto->y)
+            ,$dto->link);
         $this->getManager()->flush();
-        return $link;
     }
-
+    
+    /**
+     * @param ArticleModalDTO $dto
+     */
+    private function addLink($dto)
+    {
+        $dto->link = $this->linkFactory->newInstance(new ArticleLinkDTO($dto->parentArticle, $dto->article, $dto->y));
+        $this->getManager()->persist($dto->link);
+        $this->getManager()->flush();
+    }
 
     /**
      * @param $page

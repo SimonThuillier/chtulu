@@ -9,7 +9,7 @@ use AppBundle\Repository\ArticleSubTypeRepository;
 /**
  * ArticleSubType
  * @author Belze
- * @ORM\Table(name="article_sub_type")
+ * @ORM\Table(name="hb_article_sub_type")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\ArticleSubTypeRepository")
  */
 class ArticleSubType

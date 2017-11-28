@@ -13,7 +13,7 @@ Creer un article
 
 
 {% block content_header %}
-<h1 class="hts-article-title">Nouvel article</h1>
+<h1 class="hts-article-title">Nouvel Article</h1>
 {% endblock %}
 
 
@@ -28,7 +28,9 @@ Creer un article
 		{% include 'AppBundle:Article:article_main_form.html.twig' with {'form':form,'typeSubtypeArray':typeSubtypeArray} %}
 	</div>
 </div>
-<div id="{{ modalForm.vars.id }}">{% include 'AppBundle:Article:article_modal_form.html.twig' with {'form':modalForm} %}</div>
+<div id="{{ modalForm.vars.id }}">
+	{% include 'AppBundle:Article:article_modal_form.html.twig' with {'form':modalForm} %}
+</div>
 
 
 
@@ -39,53 +41,22 @@ Creer un article
 
 
 {% block javascript %}
-
-{% javascripts output="js/hts-total.js"      
-               '@AppBundle/Resources/third-party/attrchange/attrchange.js'
-			   '@AppBundle/Resources/hbase/hts/js/hdate.js'
-			   '@AppBundle/Resources/hbase/hts/js/hevent-manager.js'
-			   '@AppBundle/Resources/hbase/hts/js/hevent.js'
-			   '@AppBundle/Resources/hbase/hts/js/hgrad.js'
-			   '@AppBundle/Resources/hbase/hts/js/hrange.js'
-			   '@AppBundle/Resources/hbase/hts/js/hts.js'
-%}
-< --- les scripts hts --->
-<script type="text/javascript" src="../../js/hts-total.js"></script>
-{% endjavascripts %}
-
+{% include 'AppBundle:Article:hts-package.js.twig' %}
 <script type="text/javascript">{% include '@AppBundle/Resources/views/Article/article_form.js' %}</script>
 
 <script>
+finalizeForm('main');
 
-var htsOptions = [hasMainEvent=false];
+var d1 = new Date({{ beginDate|date("Y")}},{{ beginDate|date("m") - 1 }},{{ beginDate|date("d") }});
+var d2 = new Date({{ endDate|date("Y")}},{{ endDate|date("m") - 1 }},{{ endDate|date("d") }});
+d1 = null;
+d2 = null;
 
-var d1 = new Date(1800,0,7);
-d1.setHours(0,0,0,0);
-var d2 = new Date(1880,0,28);
-d2.setHours(0,0,0,0);
-var hts = new HTimeScroller("#hts-svgcontainer",d1,d2,null, htsOptions);
-
-$(function () {
-	var prevHeight = $('div#hts-event-container').height();
-	var deltaHeight = $("#hts-svgcontainer").attr("height") - prevHeight;
-	$('div#hts-event-container').attrchange({
-		callback: function (e) {
-			var curHeight = $(this).height();            
-			if (prevHeight !== curHeight) {
-				$("#hts-svgcontainer").attr("height",curHeight + deltaHeight);
-				hts.updateSpatialData(false);
-				hts.redrawComponent('event-area');
-				hts.redrawComponent('event-fcontainer');
-				hts.redrawComponent('event-container');
-				prevHeight = curHeight;
-			}  
-		}
-	});
-});
 
 $("#article_main_form").on("submit",function(event){
 	  hts.eventManager.prepareSubmission('article_modal','article_main');	
 });
+
 
 
 

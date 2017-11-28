@@ -5,7 +5,8 @@ namespace AppBundle\Factory;
 use AppBundle\DTO\ArticleCollectionDTO;
 
 
-class ArticleCollectionDTOFactory{
+class ArticleCollectionDTOFactory implements DTOFactoryInterface
+{
     
     /** ArticleCollectionDTO $articleCollectionDTO */
     private $articleCollectionDTO;
@@ -26,7 +27,7 @@ class ArticleCollectionDTOFactory{
     {
         $this->articleCollectionDTO = new ArticleCollectionDTO();
         $this->setData();
-        return $this->articleDTO;
+        return $this->articleCollectionDTO;
     }
     
     /**
@@ -35,7 +36,7 @@ class ArticleCollectionDTOFactory{
      */
     public function setData()
     {
-        $this->articleCollectionDTO->setCount(0);
+        $this->articleCollectionDTO->subEventsCount=0;
         return $this;
     }
      

@@ -12,6 +12,7 @@ use AppBundle\DTO\ArticleModalDTO;
 use AppBundle\Factory\ArticleLinkFactory;
 use AppBundle\Factory\ArticleFactory;
 use AppBundle\Entity\Article;
+use AppBundle\Helper\ArticleHelper;
 
 /**
  * Class ArticleCollectionDoctrineMapper
@@ -22,6 +23,8 @@ class ArticleCollectionDoctrineMapper extends ArticleMainDoctrineMapper
 {
     /** @var ArticleModalDoctrineMapper $modalMapper */
     private $modalMapper;
+    /** @var ArticleHelper */
+    private $articleHelper;
     
     /**
      * ArticleCollectionDoctrineMapper
@@ -31,6 +34,9 @@ class ArticleCollectionDoctrineMapper extends ArticleMainDoctrineMapper
      * @param EntityFactoryInterface|null $entityFactory
      * @param PaginatorFactoryInterface|null $paginatorFactory
      * @param User $user
+     * @param ArticleModalDoctrineMapper $modalMapper
+     * @param ArticleLinkFactory $linkFactory
+     * @param ArticleHelper $helper
      */
     public function __construct(
         ManagerRegistry $doctrine,
@@ -39,37 +45,39 @@ class ArticleCollectionDoctrineMapper extends ArticleMainDoctrineMapper
         PaginatorFactoryInterface $paginatorFactory = null,
         User $user = null,
         ArticleModalDoctrineMapper $modalMapper,
-        ArticleLinkFactory $linkFactory
+        ArticleLinkFactory $linkFactory,
+        ArticleHelper $helper
         )
     { 
         parent::__construct($doctrine, $entityName,$entityFactory,$paginatorFactory,$user,$linkFactory);
+        $this->articleHelper = $helper;
         $this->modalMapper = $modalMapper;
     }
     
     /**
      * @param ArticleCollectionDTO $dto
+     * @throws \Exception
      */
     public function add($dto)
     {
-        $article = parent::add($dto);
-        $this->handleChildrenArticle($article, $dto);
+        if (! $this->articleHelper->deserializeSubEvents($dto)){
+            throw new \Exception("An error occured during subArticles recovery. No data was saved.");
+        }
+        parent::add($dto);
+        $this->handleChildrenArticle($dto->article, $dto);
     }
 
     /**
-     * @param string $id
+     * @param integer $id
      * @param  $dto
      */
-    public function edit(string $id, $dto)
+    public function edit($id, $dto)
     {
-        /*
-        $site = $this->getRepository()->find($id);
-        if (!$site) {
-            throw new \LogicException(sprintf('impossible to find information for id %s', $id));
+        if (! $this->articleHelper->deserializeSubEvents($dto)){
+            throw new \Exception("An error occured during subArticles recovery. No data was saved.");
         }
-        $site->setLabel($dto->label);
-        $site->setNumber($dto->number);
-        $site->setAccompaniment($dto->accompaniment);
-        $this->getManager()->flush();*/
+        parent::edit($id,$dto);
+        $this->handleChildrenArticle($dto->article, $dto);
     }
     
     /**
@@ -81,23 +89,33 @@ class ArticleCollectionDoctrineMapper extends ArticleMainDoctrineMapper
         /** @var ArticleModalDTO $modalDTO */
         foreach($dto->subEventsArray as $modalDTO){
             $modalDTO->parentArticle = $article;
-            $this->modalMapper->add($modalDTO);
+            $modalDTO->parentId = $article->getId();
+            if($modalDTO->id === null){
+                $this->modalMapper->add($modalDTO);
+            }
+            else{
+                $this->modalMapper->edit($modalDTO->id,$modalDTO);
+            }
         }
     }
 
     /**
      * @param $page
      * @param $maxPage
-     * @param null $label
-     * @param null $number
-     * @param null $accompaniment
+     * @param string|null $title
+     * @param null $type
+     * @param null $subType
      * @return array
      */
-    public function findBySearch($page, $maxPage, $label = null, $number = null, $accompaniment = null)
+    public function findBySearch($page,
+        $maxPage,
+        $title = null,
+        $type = null, 
+        $subType = null)
     {
         $paginator = [];
-        if ($this->getRepository()->findBySearch($label, $number, $accompaniment) !== null) {
-            $query = $this->getRepository()->findBySearch($label, $number, $accompaniment);
+        if ($this->getRepository()->findBySearch($title, $type, $subType) !== null) {
+            $query = $this->getRepository()->findBySearch($title, $type, $subType);
 
             $firstResult = ($page - 1) * $maxPage;
             $query->setFirstResult($firstResult)->setMaxResults($maxPage);

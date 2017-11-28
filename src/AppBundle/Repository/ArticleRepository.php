@@ -1,8 +1,15 @@
 <?php
-
 namespace AppBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use AppBundle\Entity\Article;
+use AppBundle\Factory\ArticleDTOFactory;
+use AppBundle\Factory\ArticleCollectionDTOFactory;
+use AppBundle\DTO\ArticleModalDTO;
+use AppBundle\DTO\ArticleMainDTO;
+use AppBundle\DTO\ArticleCollectionDTO;
+use AppBundle\Helper\StaticHelper;
+use Doctrine\ORM\Query;
 
 /**
  * ArticleRepository
@@ -12,24 +19,77 @@ use Doctrine\ORM\EntityRepository;
  */
 class ArticleRepository extends EntityRepository
 {
-    public function getDTO($id)
+
+    public function bindDTO($id, $dto)
     {
         $qb = $this->createQueryBuilder('a')
-        ->join('a.type','t')
-        ->join('a.subType','s')
-        ->select('a.title')
-        ->addSelect('t.id')
-        ->addSelect('s.id')
-        ->addSelect('a.abstract')
-        ->addSelect('IF(a.maxBeginDate IS NULL,true,false) AS isBeginDateApprox')
-        ->addSelect('a.minBeginDate')
-        ->addSelect('a.maxBeginDate')
-        ->addSelect('IF(a.minEndDate IS NULL,true,false) AS isEndDateApprox')
-        ->addSelect('a.minEndDate')
-        ->addSelect('a.maxEndDate')
-        ->where('a.id = :id')
-        ->setParameter('id', $id);
+            ->select('a')
+            ->where('a.id = :id')
+            ->setParameter('id', $id);
+        /** @var Article $article */
+        /** @var ArticleCollectionDTO $dto */
+        $article = $qb->getQuery()->getOneOrNullResult();
+        if ($article === null)
+            return false;
+        $article->bindDTO($dto);
+        StaticHelper::finalizeArticleDTO($dto);
+        if ($dto instanceof ArticleMainDTO || $dto instanceof ArticleCollectionDTO) {
+            $this->hydrateSubEvents($id, $dto);
+        }
         
-        return $qb->getQuery()->getArrayResult();
+        return true;
+    }
+
+    private function hydrateSubEvents($id, $dto)
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->join('a.links', 'l')
+            ->join('l.childArticle', 'sa')
+            ->join('sa.type', 't')
+            ->join('sa.subType', 'st')
+            ->select('sa.title')
+            ->addSelect('a.id as parentId')
+            ->addSelect('t.id as type')
+            ->addSelect('st.id as subType')
+            ->addSelect('sa.id')
+            ->addSelect('sa.abstract')
+            ->addSelect('sa.minBeginDate')
+            ->addSelect('sa.maxBeginDate')
+            ->addSelect('sa.minEndDate')
+            ->addSelect('sa.maxEndDate')
+            ->addSelect('l.id as linkId')
+            ->addSelect('l.y')
+            ->where('a.id = :id')
+            ->setParameter('id', $id);
+        
+        $results = $qb->getQuery()->getArrayResult();
+        
+        foreach ($results as $result) {
+            $modalDTO = new ArticleModalDTO();
+            StaticHelper::mapArrayToObject($result, $modalDTO);
+            StaticHelper::finalizeArticleDTO($modalDTO);
+            $dto->subEventsArray[] = $modalDTO;
+            $dto->subEventsCount ++;
+        }
+    }
+
+    /**
+     * 
+     * @param string|null $title
+     * @param unknown $type
+     * @param unknown $subType
+     * @return Query
+     */
+    public function findBySearch($title = null, $type = null, $subType = null)
+    {
+        /** @var \Doctrine\DBAL\Query\QueryBuilder $qb */
+        $qb = $this->createQueryBuilder('a')->select('a');
+
+        
+        if($title !== null) $qb->andWhere($qb->expr()->like('a.title', $qb->expr()->literal('%' . $title . '%')));
+        if($type !== null) $qb->andWhere('a.type =: type')->setParameter('type', $type);
+        if($subType !== null) $qb->andWhere('a.subType =: subType')->setParameter('subType', $subType);
+        
+        return $qb->getQuery();
     }
 }

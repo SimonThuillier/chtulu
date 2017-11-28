@@ -11,12 +11,14 @@ function HEventManager(hts){
 	this.bufferEvent = null;
 	this.maxYEvent = 100;
 	this.maxYArea = 50;
+	this.eventFactory = new HEventFactory(hts,null);
+	this.parentId = hts.articleParentId;
 }
 
 /**
  * 
  */
-HEventManager.prototype.createEvent =  function(x,y,beginX=null){
+HEventManager.prototype.createEvent = function(x,y,beginX=null){
 
 	var type = 'attached';
 	if(this.events.length === 0 ) type = 'main';
@@ -36,6 +38,7 @@ HEventManager.prototype.createEvent =  function(x,y,beginX=null){
 
 HEventManager.prototype.addEvent =  function(event){
 	event.manager = this;
+	event.articleParentId = this.parentId;
 	this.events.push(event);
 
 	var manager = this;
@@ -109,4 +112,29 @@ HEventManager.prototype.prepareSubmission = function(formId,formMainId){
 		}
 	});
 	$("#" + formMainId + "_subEvents").val(JSON.stringify(eventCollection));
+}
+
+/** this function load events in subEvents field */
+HEventManager.prototype.loadSubEvents = function(formMainId){
+	console.log($("#" + formMainId + "_subEvents").val());
+	this.loadSubEventsFromData($("#" + formMainId + "_subEvents").val());
+}
+
+/** this function load events in subEvents field */
+HEventManager.prototype.loadSubEventsFromData = function(data){
+	var array = JSON.parse(data);
+	var event = null;
+	var manager = this;
+	
+	array.subEventsArray.forEach(function(eventDTO){
+		console.log(eventDTO);
+		event = manager.eventFactory.newInstance(eventDTO);
+		console.log(event);
+		if (! event.rendered) event.render();
+		event.text.html(event.getLabelHtml());
+		event.updateRender();
+		manager.addEvent(event);
+	});
+	
+	manager.updateRender();
 }

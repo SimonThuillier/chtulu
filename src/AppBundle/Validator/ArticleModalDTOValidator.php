@@ -41,9 +41,17 @@ class ArticleModalDTOValidator{
             $dto->subType = $this->doctrine->getRepository(ArticleSubType::class)
             ->find($dto->subType);
         }
+        if($dto->article === null && $dto->id !== null){
+            $dto->article = $this->doctrine->getRepository('AppBundle:Article')
+            ->find($dto->id);
+        }
         if($dto->parentArticle === null && $dto->parentId !== null){
             $dto->parentArticle = $this->doctrine->getRepository('AppBundle:Article')
             ->find($dto->parentId);
+        }
+        if($dto->link === null && $dto->linkId !== null){
+            $dto->link = $this->doctrine->getRepository('AppBundle:ArticleLink')
+            ->find($dto->linkId);
         }
         
         $dto->beginDate = \DateTime::createFromFormat('d/m/Y', $dto->beginDate);

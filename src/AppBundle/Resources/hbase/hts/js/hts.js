@@ -28,10 +28,15 @@ HTimeScroller.prototype.formatBoundDates = myFormatPatternDate('d/m/Y');
 
 /** constructor for horizontal time scroller 
  * parentId must be existing id of an SVG component */
-function HTimeScroller(parentId,beginDate,endDate,eBeginDate,eEndDate,options) {
+function HTimeScroller(elementId,beginDate,endDate,eBeginDate,eEndDate,articleParentId,options) {
 	this.id=this.idGenerator();
-	this.parentId = parentId;
-	this.parent = d3.select(this.parentId); 
+	this.articleParentId = articleParentId;
+	this.div = d3.select(elementId); 
+	this.parent = this.div.append("svg")
+	.attr("id","hts-" + this.id + "-svgcontainer")
+	.attr("width",1150)
+	.attr("height",150);
+	
 	this.scope = [null,null]; // contains begin and end Date of scope
 	this.domComponents = []; // array of DOM components (except parent) with update functions
 
@@ -117,9 +122,9 @@ function HTimeScroller(parentId,beginDate,endDate,eBeginDate,eEndDate,options) {
 			component = component.append("xhtml:div")
 			.append("input")
 			.attr('id','hts-date-input-left')
-			.attr('class','hts-date-input hts-border-date-input')
+			.attr('class','hts-date-input hts-border-date-input hbase-hdatepicker')
+			.attr('hdatepicker-ender','hts-date-input-right')
 			.attr('placeholder','JJ/MM/AAAA')
-			.attr('regex',dateRegex())
 			.on('change',function() { hts.setBoundDates(-1);});
 			drawer = function(hts,component){};
 			component = $("#hts-date-input-left");
@@ -143,9 +148,8 @@ function HTimeScroller(parentId,beginDate,endDate,eBeginDate,eEndDate,options) {
 			component = component.append("xhtml:div")
 			.append("input")
 			.attr('id','hts-date-input-right')
-			.attr('class','hts-date-input hts-border-date-input')
+			.attr('class','hts-date-input hts-border-date-input hbase-hdatepicker')
 			.attr('placeholder','JJ/MM/AAAA')
-			.attr('regex',dateRegex())
 			.on('change',function() { hts.setBoundDates(1);});
 
 			drawer = function(hts,component){};
@@ -292,6 +296,24 @@ function HTimeScroller(parentId,beginDate,endDate,eBeginDate,eEndDate,options) {
 
 		}
 	}
+	
+	$(function () {
+		var prevHeight = $('div#hts-event-container').height();
+		var deltaHeight = $("#hts-svgcontainer").attr("height") - prevHeight;
+		$('div#hts-event-container').attrchange({
+			callback: function (e) {
+				var curHeight = $(this).height();            
+				if (prevHeight !== curHeight) {
+					$("#hts-svgcontainer").attr("height",curHeight + deltaHeight);
+					hts.updateSpatialData(false);
+					hts.redrawComponent('event-area');
+					hts.redrawComponent('event-fcontainer');
+					hts.redrawComponent('event-container');
+					prevHeight = curHeight;
+				}  
+			}
+		});
+	});
 }
 
 /**  callback function to redraw the wanted component */
@@ -366,7 +388,7 @@ HTimeScroller.prototype.setDates = function(beginDate,endDate){
 	this.beginDate = beginDate;
 	this.endDate = endDate;
 	var dayNumber = this.endDate.dayDiff(this.beginDate);
-	if(dayNumber <4) throw('unhandled date period for horizontal time scroller : minimum interval is four days.');
+	if(dayNumber <3) {this.endDate = this.beginDate.clone().addDay(3);};
 	// allow to compute a range slightly larger to precompute graduations before the beginDate / after the endDate 
 	this.calcBeginDate = beginDate.clone().addDay( - Math.floor((this.REL_OVER_INTERVAL-1)/2*dayNumber));
 	this.calcEndDate = endDate.clone().addDay(Math.floor((this.REL_OVER_INTERVAL-1)/2*dayNumber));

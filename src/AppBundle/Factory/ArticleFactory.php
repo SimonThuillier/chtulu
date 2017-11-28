@@ -13,19 +13,16 @@ class ArticleFactory  extends AbstractEntityFactory
      */
     public function newInstance($dto)
     {
-        parent::newInstance($dto);
-        $this->entity->setCreationDate(new \DateTime());
-        $this->setData();
-        return $this->entity;
+        $article = parent::newInstance($dto);
+        $article->setCreationDate(new \DateTime());
+        return $article;
     }
     
-    
-    public function setData()
+    public function setData($dto,$entity)
     {
+        $article = $entity;
         /** @var Article $article  */
-        $article = $this->entity;
         /** @var ArticleModalDTO $dto */
-        $dto = $this->dto;
         $article->setEditionDate(new \DateTime());
         $article->setTitle($dto->title);
         $article->setAbstract($dto->abstract);

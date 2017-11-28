@@ -10,7 +10,7 @@ use AppBundle\Repository;
 /**
  * ArticleType
  * @author Belze
- * @ORM\Table(name="article_type")
+ * @ORM\Table(name="hb_article_type")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\ArticleTypeRepository")
  */
 class ArticleType

@@ -11,7 +11,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 /**
  * User
  * @author Belze
- * @ORM\Table(name="user")
+ * @ORM\Table(name="hb_user")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\UserRepository")
  * @UniqueEntity(fields="username", message="Username {{ value }} is already used. Please choose another.")
  * @UniqueEntity(fields="email", message="Email {{ value }} is already used. Please choose another.")
