@@ -108,13 +108,13 @@ function rewindToDecadeFirst(date)
 	return date;
 }
 
-Date.prototype.rewindToCenturyFirst= function(){return rewindToCenturyFirst(this);};	
+Date.prototype.rewindToCenturyFirst= function(){return rewindToCenturyFirst(this);};
 function rewindToCenturyFirst(date)
 {
-	date.setDate(1);
-	date.setMonth(0);
-	date.setFullYear(Math.floor(date.getFullYear()/100)*100);
-	return date;
+    date.setDate(1);
+    date.setMonth(0);
+    date.setFullYear(Math.floor(date.getFullYear()/100)*100);
+    return date;
 }
 
 Date.prototype.rewindToMilleniaFirst= function(){return rewindToMilleniaFirst(this);};	
