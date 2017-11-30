@@ -26,18 +26,13 @@ class HDate
      */
     private $type;
     
+    private $test;
+    
     /**
-     * 
-     * @param DateType $type
-     * @param \DateTime $date
-     * @param \DateTime|null $endDate
      * @return \AppBundle\Utils\HDate
      */
-    public function __construct(DateType $type,\DateTime $date,$endDate = null)
+    public function __construct()
     {
-        $this->beginDate = $date->setTime(0, 0);
-        $this->endDate = ($endDate !== null)?$endDate->setTime(0, 0):null;
-        $this->setType($type);
         return $this;
     }
     
@@ -180,40 +175,6 @@ class HDate
      */
     public function setType($type)
     {
-        switch($type->getId()){
-            case DateType::PRECISE:
-                $this->endDate = clone $this->beginDate;
-                break;
-            case DateType::BOUNDED:
-                $this->endDate = ($this->endDate !== null)?$this->endDate:(clone $this->beginDate);
-                if(DateHelper::dayDiff($this->beginDate,$this->endDate) === 0) DateHelper::addDay($this->endDate, 1);
-                break;
-            case DateType::MONTH:
-                DateHelper::rewindToMonthFirst($this->beginDate);
-                $this->endDate = DateHelper::addDay(DateHelper::switchToNextMonth(clone $this->beginDate,true),-1);
-                break;
-            case DateType::SEASON:
-                DateHelper::rewindToSeasonFirst($this->beginDate);
-                $this->endDate = DateHelper::addDay(DateHelper::switchToNextSeason(clone $this->beginDate,true),-1);
-                break;
-            case DateType::YEAR:
-                DateHelper::rewindToYearFirst($this->beginDate);
-                $this->endDate = DateHelper::addDay(DateHelper::switchToNextYear(clone $this->beginDate,true),-1);
-                break;
-            case DateType::DECADE:
-                DateHelper::rewindToDecadeFirst($this->beginDate);
-                $this->endDate = DateHelper::addDay(DateHelper::switchToNextDecade(clone $this->beginDate,true),-1);
-                break;
-            case DateType::CENTURY:
-                DateHelper::rewindToCenturyFirst($this->beginDate);
-                $this->endDate = DateHelper::addDay(DateHelper::switchToNextCentury(clone $this->beginDate,true),-1);
-                break;
-            case DateType::MILLENIA:
-                DateHelper::rewindToMilleniaFirst($this->beginDate);
-                $this->endDate = DateHelper::addDay(DateHelper::switchToNextMillenia(clone $this->beginDate,true),-1);
-                break;
-            default:break;
-        }
         $this->type = $type;
         return $this;
     }

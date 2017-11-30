@@ -105,6 +105,8 @@ class ArticleController extends Controller
         HDateMapper::map($hDate, $hDate2);
         
         
+        
+        
         return $this->render('::debug.html.twig', array(
             'debug' => array(
                 'date' => $date->format('d/m/Y'),
@@ -116,7 +118,11 @@ class ArticleController extends Controller
                 'hDate' => HDate::toJSON($hDate),
                 'date2' => $date2->format('d/m/Y'),
                 'date2bis' => strftime("%B",$date2->getTimestamp()),
-                'value' => Article::class
+                'value' => Article::class,
+                'test_vars' => json_encode(get_object_vars($hDate2)),
+                'test_func' => json_encode(get_class_methods(get_class($hDate2))),
+                'test_func2' => json_encode((array)$hDate2),
+                'test_func3' => json_encode( array_keys((array)$hDate2))
             )
         ));
     }
