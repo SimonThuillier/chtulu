@@ -1,10 +1,10 @@
 <?php
 
 use AppBundle\Utils\HDate;
-use AppBundle\Mapper\SimpleMapper;
+use AppBundle\Mapper\AutoMapper;
 
 require ('../Utils/HDate.php');
-require ('../Mapper/SimpleMapper.php');
+require ('../Mapper/AutoMapper.php');
 
 $hDate=new HDate();
 $hDate->setBeginDate(new \DateTime());
@@ -25,3 +25,12 @@ echo "TEST 6";
 var_dump(SimpleMapper::getReadableStructure($hDate));
 echo "TEST 7";
 var_dump(method_exists($hDate,'gettest'));
+echo "TEST 8";
+$fields = ["beginDate","endDate"];
+var_dump(array_flip($fields));
+echo "TEST 9";
+$fields = ["beginDate"=>0,"endDate"=>1];
+$fields2 = ["lolBeginDate"=>2,"lol"=>3,"lolEndDate"=>5,"lolType"=>6];
+var_dump(SimpleMapper::map($hDate, $fields2,'lol',['endDate']));
+var_dump($hDate);
+var_dump($fields2);
