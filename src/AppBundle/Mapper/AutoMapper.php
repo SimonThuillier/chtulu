@@ -1,6 +1,11 @@
 <?php
 namespace AppBundle\Mapper;
 
+/**
+ * 
+ * @author belze (sthuillier1988@gmail.com)
+ * Helper class with static methods allowing to automatically and easily map data between objects
+ */
 class AutoMapper
 {
     /**
