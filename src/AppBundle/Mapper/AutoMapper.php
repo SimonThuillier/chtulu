@@ -12,38 +12,48 @@ class AutoMapper
      * generic mapper between two objects or arrays
      * @param mixed $input
      * @param mixed $output
-     * @param string $mapPrefix
+     * @param string $inputPrefix
+     * @param string $outputPrefix
      * @param array|null $fields
      * @param array|null $excludedFields
      * @return array
      */
-    static function map(&$input,&$output,$mapPrefix='',$fields=null,$excludedFields=null)
+    static function autoMap(&$input,&$output,$inputPrefix='',$outputPrefix='',$fields=null,$excludedFields=null)
     {
         if($input === null || $output === null || 
             !(self::is_assoc($input) || is_object($input)) ||
             !(self::is_assoc($output) || is_object($output))){
             return [];
         }
-        // $input structure
-        $inputStruct = self::getReadableStructure($input);
-        // reduce mapping perimeter with fields and excludedFields if defined
-        if($fields !==null && is_array($fields)) $inputStruct = array_intersect_key($inputStruct,array_flip($fields));
-        if($excludedFields !==null && is_array($excludedFields)) $inputStruct = array_diff_key($inputStruct,array_flip($excludedFields));
-        if($inputStruct ===[]) return [];
-        // output structure
-        $outputStruct = self::getWritableStructure($output);
-        if($outputStruct ===[]) return [];
-        // compute mapping 
-        $mapping = [];
-        foreach($inputStruct as $key => $value){$mapping[$key] = ($mapPrefix=='')?$key:$mapPrefix . ucfirst($key);}
-        $mapping = array_flip(array_intersect_key(array_flip($mapping),$outputStruct));
-        if($mapping ===[]) return [];
+        $mappingData = self::getMappingData($input,$output,$inputPrefix,$outputPrefix,$fields,$excludedFields);
+        return self::map($input,$output,$mappingData);
+    }
+
+    /**
+     * generic mapper between two objects or arrays with provided mappingData
+     * mapping data must be an associative array of three associative arrays : inputStruct, outputStruct and mapping
+     * returns the final mapping array
+     * @param mixed $input
+     * @param mixed $output
+     * @return array
+     */
+    static function map(&$input,&$output,$mappingData)
+    {
+        if($input === null || $output === null ||
+           !(self::is_assoc($input) || is_object($input)) ||
+           !(self::is_assoc($output) || is_object($output))){
+            return [];
+        }
+        $inputStruct = $mappingData["inputStruct"];
+        $outputStruct = $mappingData["outputStruct"];
+        $mapping = $mappingData["mapping"];
+
         // else let's do the magic
         foreach($mapping as $iField => $oField){
             switch($inputStruct[$iField]){
                 case "key" : $value = $input[$iField]; break;
                 case "property" : $value = $input->$iField; break;
-                case "method" : 
+                case "method" :
                     $func = method_exists($input,'get' . $iField)?'get' . $iField:'is' . $iField;
                     $value = $input->$func(); break;
                 default: $value = null; break;
@@ -57,6 +67,52 @@ class AutoMapper
         }
         return $mapping;
     }
+
+    /**
+     * get Mapping Data between two objects with given options
+     * returns an associative array of three associative arrays : inputStruct, outputStruct and mapping
+     * @param mixed $input
+     * @param mixed $output
+     * @param string $inputPrefix
+     * @param string $outputPrefix
+     * @param array|null $fields
+     * @param array|null $excludedFields
+     * @return array
+     */
+    static function getMappingData(&$input,&$output,$inputPrefix='',$outputPrefix='',
+                                   $fields=null,$excludedFields=null)
+    {
+        $mappingData = ["inputStruct"=>[],"outputStruct"=>[],"mapping"=>[]];
+        if($input === null || $output === null ||
+           !(self::is_assoc($input) || is_object($input)) ||
+           !(self::is_assoc($output) || is_object($output))){
+            return $mappingData;
+        }
+
+        // $input structure
+        $inputStruct = self::getReadableStructure($input);
+        // reduce mapping perimeter with inputPrefix, fields and excludedFields if defined
+        if($inputPrefix !== '') $inputStruct = array_filter($inputStruct,function($key,$inputPrefix){return strpos($key,$inputPrefix) === 0;});
+        if($fields !==null && is_array($fields)) $inputStruct = array_intersect_key($inputStruct,array_flip($fields));
+        if($excludedFields !==null && is_array($excludedFields)) $inputStruct = array_diff_key($inputStruct,array_flip($excludedFields));
+        $mappingData["inputStruct"] = $inputStruct;
+
+        // output structure
+        $outputStruct = self::getWritableStructure($output);
+        $mappingData["outputStruct"] = $outputStruct;
+
+        // compute mapping
+        $mapping = [];
+        foreach($inputStruct as $key => $value){
+            $adjKey = substr($key,strlen($inputPrefix));
+            $mapping[$key] = ($outputPrefix=='')?$adjKey:$outputPrefix . ucfirst($adjKey);
+        }
+        $mapping = array_flip(array_intersect_key(array_flip($mapping),$outputStruct));
+        $mappingData["mapping"] = $mapping;
+
+        return $mappingData;
+    }
+
     
     /**
      * for associative arrays or objects returns an array of their properties indicating if they can be accessed as

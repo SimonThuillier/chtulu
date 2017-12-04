@@ -52,7 +52,18 @@ class DateType
         return $this->label;
     }
 
-
+    /**
+     * Set id (temporary)
+     *
+     * @param int $id
+     *
+     * @return DateType
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
     /**
      * Get id
      *

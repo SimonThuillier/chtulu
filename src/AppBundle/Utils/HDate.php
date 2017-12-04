@@ -4,15 +4,21 @@ use AppBundle\Entity\DateType;
 use AppBundle\Helper\DateHelper;
 
 /**
- * 
+ *
  * @author belze
- * Class for historical Dates 
+ * Class for historical Dates
  */
 class HDate
 {
-    const formatters=[];
-    
-    
+    const FORMATTERS=[1=>'j_n_Y',
+                      2=>'j_n_Y',
+                      3=>'n_Y',
+                      4=>'n_Y',
+                      5=>'Y',
+                      6=>'Y',
+                      7=>'Y',
+                      8=>'Y'];
+
     /**
      * @var \DateTime
      */
@@ -25,9 +31,7 @@ class HDate
      * @var DateType
      */
     private $type;
-    
-    private $test;
-    
+
     /**
      * @return \AppBundle\Utils\HDate
      */
@@ -35,75 +39,84 @@ class HDate
     {
         return $this;
     }
-    
+
     /**
      * @return string
      */
- /*   public function __toString(){
-        var formatter = this.formatters[this._type];
-        var pieces=[];
-        var label = formatter(this._beginDate,pieces);
-        var BC;
-        
+    public function __toString()
+    {
+        $label = $this->beginDate->format(self::FORMATTERS[$this->type->getId()]);
+        $pieces=explode('_',$label);
+        $BC = false;
+
         // specific code for rendering
-        if(this._type == "bounded") {
-            var endPieces=[];
-            formatter(this._endDate,endPieces);
-            var totalLabel="";
-            var index = 4;
-            for (index=4;index>-1;index--){
-                if(pieces[index] == endPieces[index]){
-                    totalLabel = pieces[index] + totalLabel;
+        if($this->type->getId() === DateType::PRECISE) {
+            $pieces[1] = DateHelper::MONTHS[$pieces[1]-1];
+            if($pieces[0] === "1") $pieces[0] = "1er";
+            $label = join(' ',$pieces);
+        }
+        else if($this->type->getId() === DateType::BOUNDED) {
+            $pieces[1] = DateHelper::MONTHS[$pieces[1]-1];
+            $endPieces=explode('_',$this->endDate->format(self::FORMATTERS[$this->type->getId()]));
+            $endPieces[1] = DateHelper::MONTHS[$endPieces[1]-1];
+            $totalLabel="";
+            for ($index=2;$index>-1;$index--){
+                if($pieces[$index] == $endPieces[$index]){
+                    $totalLabel = $pieces[$index] . ' ' . $totalLabel;
                 }
-                else{index++;break;}
+                else{$index++;break;}
             }
-            var preBeginLabel = "",preEndLabel = "";
-            for(var index2=0;index2<index;index2++){
-                preBeginLabel+= pieces[index2];
-                preEndLabel+= endPieces[index2];
+            $preBeginLabel = "";
+            $preEndLabel = "";
+            for($index2=0;$index2<$index;$index2++){
+                $preBeginLabel.= $pieces[$index2] . ' ';
+                $preEndLabel.= $endPieces[$index2] . ' ';
             }
-            if(preBeginLabel !== ""){totalLabel = preBeginLabel + "~" + preEndLabel + totalLabel;}
-            label = totalLabel;
+            if($preBeginLabel !== ""){$totalLabel = trim($preBeginLabel) . "~" . trim($preEndLabel) .' '. $totalLabel;}
+            $label = trim($totalLabel);
         }
-        else if(this._type == "precise" && pieces[0] == "1") {
-            pieces[0] = "1er";
-            label = pieces.join('');
+        else if($this->type->getId() === DateType::MONTH) {
+            $pieces[0] = DateHelper::MONTHS[$pieces[0]-1];
+            $label = join(' ',$pieces);
         }
-        else if(this._type == "season" && (pieces[0]).toUpperCase() == "HIVER"){
-            pieces[pieces.length-1] = pieces[pieces.length-1] +
-            ((Number(pieces[pieces.length-1])>=-1)?"-":"")  +
-            (Number(pieces[pieces.length-1]) + 1);
-            label = pieces.join('');
+        else if($this->type->getId() === DateType::SEASON){
+            $pieces[0] = DateHelper::getSeasonLabel($this->beginDate);
+            if(strtoupper($pieces[0]) === "HIVER"){
+                $pieces[count($pieces)-1] .=(
+                    ((intval(end($pieces))>=-1)?"-":"")  .
+                    (intval(end($pieces)) + 1) );
+            }
+            $label = join(' ',$pieces);
         }
-        else if(this._type == "decade"){
-            label = "Années " + label;
+        else if($this->type->getId() === DateType::DECADE){
+            $label = "Années " . $label;
         }
-        else if(this._type == "century"){
-            var century = Math.floor(Number(label)/100);
-            BC = century < 0;
-            var absoluteCentury = BC?Math.abs(century):(century + 1);
-            
-            label = arabicToRomanNumber(absoluteCentury) +
-            ((absoluteCentury == 1)?"er":"e") +
-            " siècle" +
-            (BC?" Av. JC":"");
+        else if($this->type->getId() === DateType::CENTURY){
+            $century = floor(intval($label)/100);
+            $BC = $century < 0;
+            $absoluteCentury = $BC?abs($century):($century + 1);
+
+            $label = Numbers_Roman::toRoman($absoluteCentury) .
+                     (($absoluteCentury == 1)?"er":"e") .
+                     " siècle" .
+                     ($BC?" Av. JC":"");
         }
-        else if(this._type == "millenia"){
-            var millenia = Math.floor(Number(label)/1000);
-            BC = millenia < 0;
-            var absoluteMillenia = BC?Math.abs(millenia):(millenia + 1);
-            
-            label = arabicToRomanNumber(absoluteMillenia) +
-            ((absoluteMillenia == 1)?"er":"e") +
-            " millénaire" +
-            (BC?" Av. JC":"");
+        else if($this->type->getId() === DateType::MILLENIA){
+            $millenia = floor(intval($label)/1000);
+            $BC = $millenia < 0;
+            $absoluteMillenia = $BC?abs($millenia):($millenia + 1);
+
+            $label = Numbers_Roman::toRoman($absoluteMillenia) .
+                     (($absoluteMillenia == 1)?"er":"e") .
+                     " millénaire" .
+                     ($BC?" Av. JC":"");
         }
-        return label;
-    }*/
-    
+        return $label;
+    }
+
 
     /**
-     * 
+     *
      * @param self $hdate
      * @return string[]|NULL[]
      */
@@ -114,9 +127,9 @@ class HDate
             'type' => $hdate->getType()->getId()
         ];
     }
-    
+
     /**
-     * 
+     *
      * @param self $hdate
      * @return string
      */
@@ -131,7 +144,7 @@ class HDate
     public function getBeginDate(){
         return $this->beginDate;
     }
-    
+
     /**
      * beginDate
      * @param string $beginDate
@@ -149,7 +162,7 @@ class HDate
     public function getEndDate(){
         return $this->endDate;
     }
-    
+
     /**
      * endDate
      * @param string $endDate

@@ -5,9 +5,14 @@ namespace AppBundle\Helper;
 
 class DateHelper
 {
+    const SEASONS = ["Hiver","Printemps","Ete","Automne"];
+    const MONTHS = ["Janvier","Fevrier","Mars","Avril","Mai","Juin",
+                    "Juillet","Aout","Septembre","Octobre","Novembre","Decembre"];
+
+
     static function date2Index()
     {
-
+        return;
     }
 
     /**
@@ -18,7 +23,7 @@ class DateHelper
      */
     static function dayDiff(\DateTime $date1, \DateTime $date2)
     {
-        return ($date1->diff($date2))->days;
+        return $date1->diff($date2)->d;
     }
 
     /**
@@ -81,7 +86,7 @@ class DateHelper
      */
     static function getMonth(\DateTime $date)
     {
-        return intval($date->format('m')) - 1;
+        return intval($date->format('n')) - 1;
     }
 
     /**
@@ -94,6 +99,7 @@ class DateHelper
     }
 
     /**
+     * get the season number (winter : 0 ... fall : 3) of a date
      * @param \DateTime $date
      * @return int
      */
@@ -105,6 +111,16 @@ class DateHelper
             $season++;
         }
         return $season % 4;
+    }
+
+    /**
+     * get the season label of a date
+     * @param \DateTime $date
+     * @return string
+     */
+    static function getSeasonLabel(\DateTime $date)
+    {
+        return self::SEASONS[self::getSeason($date)];
     }
 
     /**
