@@ -86,28 +86,54 @@ class Article extends AbstractBindableEntity
     protected $content;
     
     /**
-     * @var \DateTime
-     * @ORM\Column(name="min_begin_date", type="date",nullable=true)
+     * @var integer
+     * @ORM\Column(name="begin_begin_date_index", type="integer",nullable=true)
      */
-    protected $minBeginDate;
+    protected $beginBeginDateIndex;
     
     /**
-     * @var \DateTime
-     * @ORM\Column(name="max_begin_date", type="date", nullable=true)
+     * @var integer
+     * @ORM\Column(name="begin_end_date_index", type="date", nullable=true)
      */
-    protected $maxBeginDate;
+    protected $beginEndDateIndex;
     
     /**
-     * @var \DateTime
-     * @ORM\Column(name="min_end_date", type="date", nullable=true)
+     * @var DateType
+     * @ORM\ManyToOne(targetEntity="DateType")
+     * @ORM\JoinColumn(name="begin_type", referencedColumnName="id", nullable=true)
      */
-    protected $minEndDate;
+    protected $beginType;
     
     /**
-     * @var \DateTime
-     * @ORM\Column(name="max_end_date", type="date", nullable=true)
+     * @var string
+     * @ORM\Column(name="begin_label", type="string", nullable=true,length=50)
      */
-    protected $maxEndDate;
+    protected $beginLabel;
+    
+    /**
+     * @var integer
+     * @ORM\Column(name="end_begin_date_index", type="integer",nullable=true)
+     */
+    protected $endBeginDateIndex;
+    
+    /**
+     * @var integer
+     * @ORM\Column(name="end_end_date_index", type="date", nullable=true)
+     */
+    protected $endEndDateIndex;
+    
+    /**
+     * @var DateType
+     * @ORM\ManyToOne(targetEntity="DateType")
+     * @ORM\JoinColumn(name="end_type", referencedColumnName="id", nullable=true)
+     */
+    protected $endType;
+    
+    /**
+     * @var string
+     * @ORM\Column(name="end_label", type="string", nullable=true,length=50)
+     */
+    protected $endLabel;
     
     /**
      * @var array

@@ -9,12 +9,35 @@ class DateHelper
     const MONTHS = ["Janvier","Fevrier","Mars","Avril","Mai","Juin",
                     "Juillet","Aout","Septembre","Octobre","Novembre","Decembre"];
 
-
-    static function date2Index()
+    /**
+     * @param \DateTime $date
+     * @return integer
+     */
+    static function dateToIndex(\DateTime $date)
     {
-        return;
+        $index = juliantojd (intval($date->format('m')) , intval($date->format('j')) , intval($date->format('Y')));
+        if($index>0) return $index;
+        
+        $interval = (self::indexToDate(1))->diff($date);
+        return  1 - $interval->days; 
     }
 
+    /**
+     * @param integer $index
+     * @return \DateTime
+     */
+    static function indexToDate($index)
+    {
+        $offset=0;
+        if($index < 1 ){
+            $offset = 1 - $index;
+            $index = 1;
+        }
+        $date = self::createFromFormat('m/d/Y', jdtojulian ($index));
+        if($offset !== 0) $date->modify('-' . $offset . ' day');
+        return $date;
+    }
+    
     /**
      * compute number of days of difference between two dates
      * @param \DateTime $date1

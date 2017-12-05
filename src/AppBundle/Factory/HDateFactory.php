@@ -73,5 +73,6 @@ class HDateFactory
                 break;
             default:break;
         }
+        $this->object->updateIndexes();
     }
 }

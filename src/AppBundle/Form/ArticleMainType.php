@@ -57,7 +57,7 @@ class ArticleMainType extends AbstractType
                 'class' => 'checkbox icheck'
             )
         ))
-            ->add('beginDate', DateType::class, StaticHelper::getDateOptions('Date de début'))
+        ->add('beginDate', TextType::class, StaticHelper::getDateOptions('Date de début'))
             ->add('minBeginDate', DateType::class, StaticHelper::getDateOptions('Date de début min'))
             ->add('maxBeginDate', DateType::class, StaticHelper::getDateOptions('Date de début Max'))
             ->add('hasNotEndDate', CheckboxType::class, array(

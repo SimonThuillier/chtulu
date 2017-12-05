@@ -27,7 +27,7 @@ use AppBundle\Helper\DateHelper;
 use AppBundle\Entity\DateType;
 use AppBundle\Factory\HDateFactory;
 use AppBundle\Utils\HDate;
-use AppBundle\Mapper\HDateMapper;
+use AppBundle\Mapper\AutoMapper;
 
 /**
  *
@@ -92,8 +92,8 @@ class ArticleController extends Controller
     public function testAction(HDateFactory $dateFactory)
     {
         /** @var \DateTime $date */
-        $date = DateHelper::createFromFormat('d/m/Y', "21/11/-9000");
-        DateHelper::switchToNextMonth($date,false,true);
+        $date = DateHelper::createFromFormat('d/m/Y', "01/01/1");
+        // $date->modify("-1 year");
         $date2 = clone $date ;
         DateHelper::switchToNextSeason($date2);
         
@@ -102,14 +102,19 @@ class ArticleController extends Controller
         $hDate = $dateFactory->newInstance($dateType, $date);
         $hDate2 = $dateFactory->newInstance($dateType, $date2);
         
-        HDateMapper::map($hDate, $hDate2);
+        AutoMapper::autoMap($hDate, $hDate2);
         
+        $index = DateHelper::dateToIndex($date);
+        $newDate = DateHelper::indexToDate($index);
         
-        
+        $date0 = \DateTime::createFromFormat('d/m/Y', '01/05/0000');
         
         return $this->render('::debug.html.twig', array(
             'debug' => array(
                 'date' => $date->format('d/m/Y'),
+                'index' => $index,
+                'newDate' => $newDate,
+                'date0' => $date0,
                 'test' => method_exists($hDate, 'getBeginDate'),
                 'test2' => method_exists($hDate, 'getbegindate'),
                 'test3' => property_exists($hDate, 'lol'),

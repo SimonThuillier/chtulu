@@ -23,14 +23,31 @@ class HDate
      * @var \DateTime
      */
     private $beginDate;
+    
+    /**
+     * @var integer
+     */
+    private $beginDateIndex;
+    
     /**
      * @var \DateTime
      */
     private $endDate;
+    
+    /**
+     * @var integer
+     */
+    private $endDateIndex;
+    
     /**
      * @var DateType
      */
     private $type;
+    
+    /**
+     * @var string
+     */
+    private $label;
 
     /**
      * @return \AppBundle\Utils\HDate
@@ -136,6 +153,15 @@ class HDate
     static function toJSON($hdate){
         return json_encode(self::toArray($hdate));
     }
+    
+    /**
+     * label
+     * @return string
+     */
+    public function getLabel(){
+        return $this->__toString();
+    }
+    
 
     /**
      * beginDate
@@ -190,6 +216,30 @@ class HDate
     {
         $this->type = $type;
         return $this;
+    }
+
+    /**
+     * beginDateIndex
+     * @return integer
+     */
+    public function getBeginDateIndex(){
+        return $this->beginDateIndex;
+    }
+
+    /**
+     * endDateIndex
+     * @return integer
+     */
+    public function getEndDateIndex(){
+        return $this->endDateIndex;
+    }
+    
+    /**
+     * update date indexes, must always be called when dates are modified
+     */
+    public function updateIndexes(){
+        $this->beginDateIndex = DateHelper::dateToIndex($this->beginDate);
+        $this->endDateIndex = DateHelper::dateToIndex($this->endDate);
     }
 
 }
