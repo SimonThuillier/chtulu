@@ -39,14 +39,7 @@ class ArticleModalType extends AbstractType
             ->add('abstract', TextareaType::class, array(
             'label' => "Resumé "
         ))
-        ->add('beginDate', DateType::class, StaticHelper::getDateOptions('Date de début'))
-            ->add('isEndDateApprox', CheckboxType::class, array(
-            'label' => "Date de fin approximative ?",
-            'required' => false,  
-            'attr' => array(
-                'class' => 'checkbox icheck'
-            )
-        ))
+        ->add('beginLabel', DateType::class, StaticHelper::getDateOptions('Date de début'))
         ->add('hasNotEndDate', CheckboxType::class, array(
             'label' => "Pas de date de fin",
             'required' => false,
@@ -54,7 +47,7 @@ class ArticleModalType extends AbstractType
                 'class' => 'checkbox icheck'
             )
         ))
-        ->add('endDate', DateType::class, StaticHelper::getDateOptions('Date de fin'))
+        ->add('endLabel', DateType::class, StaticHelper::getDateOptions('Date de fin'))
             ->add('y', DateType::class, array(
                 'attr' => array('hidden' => true)
             ));

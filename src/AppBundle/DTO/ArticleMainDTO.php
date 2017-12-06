@@ -14,30 +14,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class ArticleMainDTO extends ArticleAbstractDTO
 {
-    /** @var \DateTime 
+    /** @var string
      * @Groups("group1") */
-    public $beginDate;
-    /** @var \DateTime 
-     * @Groups("group1") */
-    public $minBeginDate;
-    /** @var \DateTime 
-     * @Groups("group1") */
-    public $maxBeginDate;
-    /** @var boolean 
-     * @Groups("group1") */
-    public $isBeginDateApprox;
+    public $beginLabel;
     /** @var boolean 
      * @Groups("group1") */
     public $hasNotEndDate;
-    /** @var \DateTime 
+    /** @var string
      * @Groups("group1") */
-    public $endDate;
-    /** @var \DateTime 
-     * @Groups("group1") */
-    public $minEndDate;
-    /** @var \DateTime 
-     * @Groups("group1") */
-    public $maxEndDate;
+    public $endLabel;
     /** @var boolean 
      * @Groups("group1") */
     public $isEndDateApprox;

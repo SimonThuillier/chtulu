@@ -50,16 +50,7 @@ class ArticleMainType extends AbstractType
             ->add('abstract', TextareaType::class, array(
             'label' => "Resumé "
         ))
-            ->add('isBeginDateApprox', CheckboxType::class, array(
-            'label' => "Date de début approximative ?",
-            'required' => false,
-            'attr' => array(
-                'class' => 'checkbox icheck'
-            )
-        ))
-        ->add('beginDate', TextType::class, StaticHelper::getDateOptions('Date de début'))
-            ->add('minBeginDate', DateType::class, StaticHelper::getDateOptions('Date de début min'))
-            ->add('maxBeginDate', DateType::class, StaticHelper::getDateOptions('Date de début Max'))
+        ->add('beginLabel', DateType::class, StaticHelper::getDateOptions('Date de début'))
             ->add('hasNotEndDate', CheckboxType::class, array(
             'label' => "Pas de date de fin",
             'required' => false,
@@ -67,16 +58,7 @@ class ArticleMainType extends AbstractType
                 'class' => 'checkbox icheck'
             )
         ))
-            ->add('isEndDateApprox', CheckboxType::class, array(
-            'label' => "Date de fin approximative ?",
-            'required' => false,
-            'attr' => array(
-                'class' => 'checkbox icheck'
-            )
-        ))
-        ->add('endDate', DateType::class, StaticHelper::getDateOptions('Date de fin'))
-        ->add('minEndDate', DateType::class, StaticHelper::getDateOptions('Date de fin min'))
-        ->add('maxEndDate', DateType::class, StaticHelper::getDateOptions('Date de fin Max'))
+        ->add('endLabel', DateType::class, StaticHelper::getDateOptions('Date de fin'))
             ->add('subEvents', TextareaType::class, array(
             'required' => false,
             'label' => 'sous-events'

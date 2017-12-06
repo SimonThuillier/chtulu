@@ -20,30 +20,15 @@ class ArticleModalDTO extends ArticleAbstractDTO
     * @Groups("group1")
     */
     public $beginDate;
+    /** @var string 
+     * @Groups("group1") */
+    public $beginLabel;
     /** @var \DateTime 
-     * @Groups("group1") */
-    public $minBeginDate;
-    /** @var \DateTime 
-     * @Groups("group1") */
-    public $maxBeginDate;
-    /** @var boolean
-     * @Groups("group1") */
-    public $isBeginDateApprox;
-    /** @var boolean 
      * @Groups("group1") */
     public $hasNotEndDate;
-    /** @var \DateTime 
+    /** @var string
      * @Groups("group1") */
-    public $endDate;
-    /** @var \DateTime 
-     * @Groups("group1") */
-    public $minEndDate;
-    /** @var \DateTime 
-     * @Groups("group1") */
-    public $maxEndDate;
-    /** @var boolean 
-     * @Groups("group1") */
-    public $isEndDateApprox;
+    public $endLabel;
     /** @var float 
      * @Groups("group1") */
     public $y;

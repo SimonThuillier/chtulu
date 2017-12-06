@@ -52,6 +52,7 @@ HDate.prototype.intervalSize = function()
 };
 HDate.prototype.isExact = function()
 {
+	if(this._beginDate === null || this._endDate === null) return true;
 	return (this._endDate.dayDiff(this._beginDate) === 0);
 };
 HDate.prototype.equals = function(hDate)
