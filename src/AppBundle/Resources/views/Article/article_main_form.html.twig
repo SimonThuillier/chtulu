@@ -1,4 +1,4 @@
-<form id="article_main_form" method="POST">
+<form id="article_main_form" method="POST" class="hbase-article-form" action="{{ path('appbundle_article_create') }}">
 <input  id="type_subtype_array" type="hidden" name="dataset" value={{ typeSubtypeArray|json_encode }}>
 <h4>{{ form_errors(form) }}</h4>
 <table class="table-condensed">

@@ -268,7 +268,7 @@ $.widget( "hbase.hdatepicker", {
 
 		$(this.element).on("focus",function(event){enableDatePicker($(this));});
 		$(this.element).on("keyup",function(event){enableDatePicker($(this));});
-		
+
 		$(this.element).change(function(){
 			var $element = $(this).first();
 			if($element.attr("hdate") === 'undefined' || $element.attr("hdate") === null || $element.attr("hdate") === "") return;
@@ -346,4 +346,30 @@ $(function(){
 	$(".hbase-hdatepicker").hdatepicker();
 	$(".hbase-htimescroller").htimescroller();
 	$(".hbase-hdatepicker").hdatepicker();
+
+	$('.hbase-article-form').on('submit', function (event) {
+		event.preventDefault();
+		event.stopPropagation();
+		var $this = $(this);
+		var $formData = $this.serializeArray();
+		var formMap = getFormMap($formData);
+		var $data; 
+		$this.find(".hbase-hdatepicker").each(function(index){
+			if(typeof formMap[this.name] !== 'undefined'){
+				$data = $formData[formMap[this.name]];
+				$data.value = $(this).attr("hdate");
+			}
+		});
+		console.log($formData);
+
+	$.ajax({
+		url : $this.attr("action"),
+		type : 'POST',
+		dataType : 'html',
+		data : $formData
+	});	
+
+
+		return false;
+	}
 });
