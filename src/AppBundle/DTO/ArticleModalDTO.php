@@ -16,19 +16,6 @@ use AppBundle\Entity\ArticleLink;
  */
 class ArticleModalDTO extends ArticleAbstractDTO
 {
-    /** @var \DateTime
-    * @Groups("group1")
-    */
-    public $beginDate;
-    /** @var string 
-     * @Groups("group1") */
-    public $beginLabel;
-    /** @var \DateTime 
-     * @Groups("group1") */
-    public $hasNotEndDate;
-    /** @var string
-     * @Groups("group1") */
-    public $endLabel;
     /** @var float 
      * @Groups("group1") */
     public $y;

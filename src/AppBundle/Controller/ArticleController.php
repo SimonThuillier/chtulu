@@ -28,6 +28,7 @@ use AppBundle\Entity\DateType;
 use AppBundle\Factory\HDateFactory;
 use AppBundle\Utils\HDate;
 use AppBundle\Mapper\AutoMapper;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  *
@@ -58,6 +59,7 @@ class ArticleController extends Controller
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
                 $articleDTO = $form->getData();
+                return new JsonResponse(json_encode($articleDTO));
                 $collectionMapper->add($articleDTO);
                 return $this->render('::debug.html.twig', array(
                     'debug' => array(
@@ -69,6 +71,7 @@ class ArticleController extends Controller
                 
                 return $this->render('::debug.html.twig', array(
                     'debug' => array(
+                        'formData' => json_encode($form->getData()),
                         'formErrors' => json_encode($form->getErrors(true, false)),
                         'form_submitted' => json_encode($form->isSubmitted()),
                         'form_valid' => json_encode($form->isValid())

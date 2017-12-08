@@ -1,4 +1,4 @@
-<form id="article_main_form" method="POST" class="hbase-article-form" action="{{ path('appbundle_article_create') }}">
+<form id="article_main_form" method="POST" class="hbase-article-form" action="{{ path('article_create') }}">
 <input  id="type_subtype_array" type="hidden" name="dataset" value={{ typeSubtypeArray|json_encode }}>
 <h4>{{ form_errors(form) }}</h4>
 <table class="table-condensed">
@@ -19,16 +19,16 @@
 		<td/>{{ form_widget(form.abstract) }}
 	</tr>
 	<tr>
-		<td/>{{ form_label(form.beginLabel) }}   
-		<td/>{{ form_widget(form.beginLabel) }}
+		<td/>{{ form_label(form.beginDateLabel) }}   
+		<td/>{{ form_widget(form.beginDateLabel) }}
 	</tr>
 	<tr>
 		<td/>{{ form_label(form.hasNotEndDate) }}   
 		<td/>{{ form_widget(form.hasNotEndDate) }}
 	</tr>	
 	<tr>
-		<td/>{{ form_label(form.endLabel) }}   
-		<td/>{{ form_widget(form.endLabel) }}
+		<td/>{{ form_label(form.endDateLabel) }}   
+		<td/>{{ form_widget(form.endDateLabel) }}
 	</tr>		
 	<tr>
 		<td/>{{ form_label(form.subEvents) }}   

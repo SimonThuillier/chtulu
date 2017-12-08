@@ -87,53 +87,53 @@ class Article extends AbstractBindableEntity
     
     /**
      * @var integer
-     * @ORM\Column(name="begin_begin_date_index", type="integer",nullable=true)
+     * @ORM\Column(name="begin_date_min_index", type="integer",nullable=true)
      */
-    protected $beginBeginDateIndex;
+    protected $beginDateMinIndex;
     
     /**
      * @var integer
-     * @ORM\Column(name="begin_end_date_index", type="date", nullable=true)
+     * @ORM\Column(name="begin_date_max_index", type="date", nullable=true)
      */
-    protected $beginEndDateIndex;
+    protected $beginDateMaxIndex;
     
     /**
      * @var DateType
      * @ORM\ManyToOne(targetEntity="DateType")
-     * @ORM\JoinColumn(name="begin_type", referencedColumnName="id", nullable=true)
+     * @ORM\JoinColumn(name="begin_date_type", referencedColumnName="id", nullable=true)
      */
-    protected $beginType;
+    protected $beginDateType;
     
     /**
      * @var string
-     * @ORM\Column(name="begin_label", type="string", nullable=true,length=50)
+     * @ORM\Column(name="begin_date_label", type="string", nullable=true,length=50)
      */
-    protected $beginLabel;
+    protected $beginDateLabel;
     
     /**
      * @var integer
-     * @ORM\Column(name="end_begin_date_index", type="integer",nullable=true)
+     * @ORM\Column(name="end_date_min_index", type="integer",nullable=true)
      */
-    protected $endBeginDateIndex;
+    protected $endDateMinIndex;
     
     /**
      * @var integer
-     * @ORM\Column(name="end_end_date_index", type="date", nullable=true)
+     * @ORM\Column(name="end_date_max_index", type="date", nullable=true)
      */
-    protected $endEndDateIndex;
+    protected $endDateMaxIndex;
     
     /**
      * @var DateType
      * @ORM\ManyToOne(targetEntity="DateType")
-     * @ORM\JoinColumn(name="end_type", referencedColumnName="id", nullable=true)
+     * @ORM\JoinColumn(name="end_date_type", referencedColumnName="id", nullable=true)
      */
-    protected $endType;
+    protected $endDateType;
     
     /**
      * @var string
-     * @ORM\Column(name="end_label", type="string", nullable=true,length=50)
+     * @ORM\Column(name="end_date_label", type="string", nullable=true,length=50)
      */
-    protected $endLabel;
+    protected $endDateLabel;
     
     /**
      * @var array

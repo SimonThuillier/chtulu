@@ -371,5 +371,5 @@ $(function(){
 
 
 		return false;
-	}
+	});
 });

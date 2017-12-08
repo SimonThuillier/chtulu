@@ -50,7 +50,7 @@ class ArticleMainType extends AbstractType
             ->add('abstract', TextareaType::class, array(
             'label' => "Resumé "
         ))
-        ->add('beginLabel', DateType::class, StaticHelper::getDateOptions('Date de début'))
+        ->add('beginDateLabel', TextType::class, StaticHelper::getDateOptions('Date de début'))
             ->add('hasNotEndDate', CheckboxType::class, array(
             'label' => "Pas de date de fin",
             'required' => false,
@@ -58,8 +58,8 @@ class ArticleMainType extends AbstractType
                 'class' => 'checkbox icheck'
             )
         ))
-        ->add('endLabel', DateType::class, StaticHelper::getDateOptions('Date de fin'))
-            ->add('subEvents', TextareaType::class, array(
+        ->add('endDateLabel', TextType::class, StaticHelper::getDateOptions('Date de fin'))
+        ->add('subEvents', TextareaType::class, array(
             'required' => false,
             'label' => 'sous-events'
         ))

@@ -33,4 +33,47 @@ abstract class ArticleAbstractDTO
     * @Groups("group1") 
     */
     public $abstract;
+    /** @var string
+     * @Groups("group1") */
+    public $beginDateLabel;
+    /** @var boolean
+     * @Groups("group1") */
+    public $hasNotEndDate;
+    /** @var string
+     * @Groups("group1") */
+    public $endDateLabel;
+    /** @var HDate */
+    protected $beginHDate;
+    /** @var integer */
+    protected $beginDateMinIndex;
+    /** @var integer */
+    protected $beginDateMaxIndex;
+    /** @var DateType */
+    protected $beginDateType;
+    /** @var HDate */
+    protected $endHDate;
+    /** @var integer */
+    protected $endDateMinIndex;
+    /** @var integer */
+    protected $endDateMaxIndex;
+    /** @var DateType */
+    protected $endDateType; 
+    
+    
+    /**
+     * beginDateLabel
+     * @return string
+     */
+    public function getBeginDateLabel(){
+        return $this->beginDateLabel;
+    }
+
+    /**
+     * endDateLabel
+     * @return string
+     */
+    public function getEndDateLabel(){
+        return $this->endDateLabel;
+    }
+
 }

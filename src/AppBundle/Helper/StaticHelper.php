@@ -49,9 +49,9 @@ class StaticHelper
     {
         return array(
             'label' => $label,
-            'widget' => 'single_text',
-            'html5' => false,
-            'format' => 'dd/MM/r',
+            //'widget' => 'single_text',
+            //'html5' => false,
+            //'format' => 'dd/MM/r',
             'attr' => [
                 'class' => 'hts-date-input hbase-hdatepicker',
                 //'pattern' => "^(0?[1-9]|[1-2][0-9]|3[0-1])/(0?[1-9]|1[0-2])/(-?[1-9][0-9]*)$",
