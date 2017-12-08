@@ -21,13 +21,9 @@
 	<tr>
 		<td/>{{ form_label(form.beginDateLabel) }}   
 		<td/>{{ form_widget(form.beginDateLabel) }}
-	</tr>
-	<tr>
-		<td/>{{ form_label(form.hasNotEndDate) }}   
-		<td/>{{ form_widget(form.hasNotEndDate) }}
 	</tr>	
 	<tr>
-		<td/>{{ form_label(form.endDateLabel) }}   
+		<td/>{{ form_label(form.endDateLabel) }}&nbsp{{ form_widget(form.hasNotEndDate) }}   
 		<td/>{{ form_widget(form.endDateLabel) }}
 	</tr>		
 	<tr>

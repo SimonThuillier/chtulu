@@ -50,16 +50,35 @@ class ArticleMainType extends AbstractType
             ->add('abstract', TextareaType::class, array(
             'label' => "Resumé "
         ))
-        ->add('beginDateLabel', TextType::class, StaticHelper::getDateOptions('Date de début'))
+        ->add('beginDateLabel', TextType::class, array(
+            'label' => 'Date de début',
+            'required' => true,
+            'attr' => [
+                'class' => 'hts-date-input hbase-hdatepicker',
+                'placeholder' => 'Date de Début',
+                'hbase-default-required' => true
+            ]
+        ))
             ->add('hasNotEndDate', CheckboxType::class, array(
             'label' => "Pas de date de fin",
             'required' => false,
             'attr' => array(
-                'class' => 'checkbox icheck'
+                'class' => 'checkbox icheck hbase-activer',
+                'style' => 'display:inline',
+                'hbase-checked' => '#article_main_endDateLabel',
+                'hbase-default-required' => true
             )
         ))
-        ->add('endDateLabel', TextType::class, StaticHelper::getDateOptions('Date de fin'))
-        ->add('subEvents', TextareaType::class, array(
+        ->add('endDateLabel', TextType::class, array(
+            'label' => 'Date de fin',
+            'required' => true,
+            'attr' => [
+                'class' => 'hts-date-input hbase-hdatepicker',
+                'placeholder' => 'Date de fin',
+                'hbase-default-required' => true
+            ]
+        ))
+            ->add('subEvents', TextareaType::class, array(
             'required' => false,
             'label' => 'sous-events'
         ))

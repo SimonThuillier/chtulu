@@ -7,12 +7,12 @@ $.hbase.hiddenInput = $("<input/>").hide();
 $.hbase.currentRegional = "french";
 $.hbase.regional = {
 		"french":{
-			placeHolders : {"precise":"JJ/MM/AAAA","bounded":"JJ/MM/AAAA;JJ/MM/AAAA",
-				"season":"MM/AAAA","month":"MM/AAAA","year":"AAAA",
-				"decade":"AAAA","century":"AAAA","millenia":"AAAA"},
-				inputLabel : {"precise":"Entrez la date complete comme 9/11/1989 ou 15/3/-44","bounded":"Entrez la date imprecise (Ex: 11/10/732;13/10/733)",
-					"season":"Entrez la saison (Ex: 1/208 ou 4/1917)","month":"Entrez le mois (Ex: 7/622 ou 10/-539)","year":"Entrez l'année (Ex: 1968 ou -333)",
-					"decade":"Entrez une année du de la decennie (Ex: 1242 ou 1648)","century":"Entrez une année du siècle (Ex: -221 ou 1789)","Entrez une année du millénaire (Ex: -3140 ou 1945)":"AAAA"},	
+			placeHolders : {1:"JJ/MM/AAAA",2:"JJ/MM/AAAA;JJ/MM/AAAA",
+				3:"MM/AAAA",4:"MM/AAAA",5:"AAAA",
+				6:"AAAA",7:"AAAA",8:"AAAA"},
+				inputLabel : {1:"Entrez la date complete comme 9/11/1989 ou 15/3/-44",2:"Entrez la date imprecise (Ex: 11/10/732;13/10/733)",
+					3:"Entrez le mois (Ex: 7/622 ou 10/-539)",4:"Entrez la saison (Ex: 1/208 ou 4/1917)",5:"Entrez l'année (Ex: 1968 ou -333)",
+					6:"Entrez une année du de la decennie (Ex: 1242 ou 1648)",7:"Entrez une année du siècle (Ex: -221 ou 1789)",8:"Entrez une année du millénaire (Ex: -3140 ou 1945)"},	
 					closeText: "Done", // Display text for close link
 					prevText: "Prev", // Display text for previous month link
 					nextText: "Next", // Display text for next month link
@@ -62,14 +62,14 @@ $.hbase.modalFactory = function(type)
 	{
 		modal.append("<label class='mx-2'>Type de date :</label>");
 		modal.typeSelector = $("<select class='ui-corner-all'>").appendTo(modal)
-		.append($('<option>', {value: 'precise',text: 'Précise'}))
-		.append($('<option>', {value: 'bounded',text: 'Imprecise (bornée)'}))
-		.append($('<option>', {value: 'month',text: 'Mois'}))
-		.append($('<option>', {value: 'season',text: 'Saison'}))
-		.append($('<option>', {value: 'year',text: 'Année'}))
-		.append($('<option>', {value: 'decade',text: 'Decennie'}))
-		.append($('<option>', {value: 'century',text: 'Siècle'}))
-		.append($('<option>', {value: 'millenia',text: 'Millénaire'}));
+		.append($('<option>', {value: HDate.prototype.PRECISE,text: 'Précise'}))
+		.append($('<option>', {value: HDate.prototype.BOUNDED,text: 'Imprecise (bornée)'}))
+		.append($('<option>', {value: HDate.prototype.MONTH,text: 'Mois'}))
+		.append($('<option>', {value: HDate.prototype.SEASON,text: 'Saison'}))
+		.append($('<option>', {value: HDate.prototype.YEAR,text: 'Année'}))
+		.append($('<option>', {value: HDate.prototype.DECADE,text: 'Decennie'}))
+		.append($('<option>', {value: HDate.prototype.CENTURY,text: 'Siècle'}))
+		.append($('<option>', {value: HDate.prototype.MILLENIA,text: 'Millénaire'}));
 
 		modal.append("<br>");
 		var labelContainer = $("<div class='text-muted m-r visible-md-inline-block visible-lg-inline-block'>").appendTo(modal);
@@ -128,7 +128,7 @@ $.hbase.modalFactory = function(type)
 			if(modal.hDate !== null){
 				if(total){
 					modal.dateInput.val(modal.hDate.getCanonicalInput());
-					modal.typeSelector.val(modal.hDate._type);
+					modal.typeSelector.val(modal.hDate.type);
 				}
 				modal.dateLabel.text(modal.hDate.getLabel());
 				modal.dateInterval.text(modal.hDate.getInterval());
@@ -174,7 +174,7 @@ $.hbase.modalFactory = function(type)
 
 			modal.hDate = null;
 			var date = null;
-			if(type == "bounded"){
+			if(type == HDate.prototype.BOUNDED){
 				var regex = new RegExp("^([^;]+);([^;]+)$");
 				var regexArray = regex.exec(sDate);
 				if(regexArray === null) {
@@ -184,8 +184,10 @@ $.hbase.modalFactory = function(type)
 					return;
 				}
 
-				date = myParseDate(regexArray[1],"precise",modal.errors);
-				var endDate = myParseDate(regexArray[2],"precise",modal.errors);
+				date = myParseDate(regexArray[1],HDate.prototype.PRECISE,modal.errors);
+				var endDate = myParseDate(regexArray[2],HDate.prototype.PRECISE,modal.errors);
+				console.log(date);
+				console.log(endDate);
 
 				if(date !== null && endDate !== null){
 					if(endDate.dayDiff(date) < 1){
@@ -193,7 +195,7 @@ $.hbase.modalFactory = function(type)
 						modal.refresh();	
 						return;
 					}
-					modal.hDate = new HDate("bounded",date,endDate);
+					modal.hDate = new HDate(HDate.prototype.BOUNDED,date,endDate);
 				}
 				else{
 					if (date === null) modal.errors[0]=modal.errors[0].replace("La valeur entrée ", "La valeur de début ");
@@ -268,7 +270,7 @@ $.widget( "hbase.hdatepicker", {
 
 		$(this.element).on("focus",function(event){enableDatePicker($(this));});
 		$(this.element).on("keyup",function(event){enableDatePicker($(this));});
-		
+
 		$(this.element).change(function(){
 			var $element = $(this).first();
 			if($element.attr("hdate") === 'undefined' || $element.attr("hdate") === null || $element.attr("hdate") === "") return;
@@ -284,8 +286,8 @@ $.widget( "hbase.hdatepicker", {
 				if(typeof partner.attr("hdate") !== 'undefined' && partner.attr("hdate") !== null && partner.attr("hdate") !== ""){
 					partnerHDate =  $.hbase.HDate.parse(partner.attr("hdate"));
 				}
-				if(partnerHDate === null || partnerHDate._endDate < hDate._endDate){
-					newPartnerHDate = new HDate("precise",hDate._endDate);
+				if(partnerHDate === null || partnerHDate.endDate < hDate.endDate){
+					newPartnerHDate = new HDate(HDate.prototype.PRECISE,hDate.endDate);
 					partner.attr("hdate",JSON.stringify(newPartnerHDate));
 					partner.val(newPartnerHDate.getLabel());
 				}
@@ -298,8 +300,8 @@ $.widget( "hbase.hdatepicker", {
 				if(typeof partner.attr("hdate") !== 'undefined' && partner.attr("hdate") !== null && partner.attr("hdate") !== ""){
 					partnerHDate =  $.hbase.HDate.parse(partner.attr("hdate"));
 				}
-				if(partnerHDate === null || partnerHDate._beginDate > hDate._beginDate){
-					newPartnerHDate = new HDate("precise",hDate._beginDate);
+				if(partnerHDate === null || partnerHDate.beginDate > hDate.beginDate){
+					newPartnerHDate = new HDate(HDate.prototype.PRECISE,hDate.beginDate);
 					partner.attr("hdate",JSON.stringify(newPartnerHDate));
 					partner.val(newPartnerHDate.getLabel());
 				}
@@ -346,4 +348,64 @@ $(function(){
 	$(".hbase-hdatepicker").hdatepicker();
 	$(".hbase-htimescroller").htimescroller();
 	$(".hbase-hdatepicker").hdatepicker();
+	
+	function hbaseCheck(element){
+		var $checker = $(element);
+		var transition = $checker.is(":checked");
+		var inverted = $checker.hasClass("hbase-inverted");
+		if(inverted) transition = !transition;
+		console.log(inverted + ' - ' + transition);
+		$($checker.attr("hBase-checked")).each(function(){
+			var $checked = $(this);
+			console.log($checked);
+			if(transition){
+				$checked.show();
+				console.log($checked[0].hasAttribute("hbase-default-required"));
+				if($checked[0].hasAttribute("hbase-default-required")) $checked.attr("required","required");
+				}
+			else{
+				$checked.hide();
+				console.log($checked[0].hasAttribute("hbase-default-required"));
+				$checked.removeAttr("required");
+				}
+			
+		});
+	}
+	
+	
+	$(".hbase-activer").each(function(){
+		console.log(this);
+		hbaseCheck(this);
+		
+		$(this).on('change',function(){
+			hbaseCheck(this);
+		});
+		
+	});
+
+	$('.hbase-article-form').on('submit', function (event) {
+		event.preventDefault();
+		event.stopPropagation();
+		var $this = $(this);
+		var $formData = $this.serializeArray();
+		var formMap = getFormMap($formData);
+		var $data; 
+		$this.find(".hbase-hdatepicker").each(function(index){
+			if(typeof formMap[this.name] !== 'undefined'){
+				$data = $formData[formMap[this.name]];
+				$data.value = $(this).attr("hdate");
+			}
+		});
+		console.log($formData);
+
+	$.ajax({
+		url : $this.attr("action"),
+		type : 'POST',
+		dataType : 'html',
+		data : $formData
+	});	
+
+
+		return false;
+	});
 });

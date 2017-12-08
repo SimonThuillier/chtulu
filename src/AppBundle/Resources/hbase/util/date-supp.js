@@ -392,26 +392,36 @@ function myFormatPatternDate(pattern,date,pieces=[])
  */
 function myParseDate(sDate,type,errors=[],pieces=[])
 {
-	var regexType = {"precise":"(\\d{1,2})\/(\\d{1,2})\/(-?\\d{1,5})$",
-			"month": "\/?(\\d{1,2})\/(-?\\d{1,5})$",
-			"season": "\/?(\\d{1,2})\/(-?\\d{1,5})$",
-			"year": "\/?(-?\\d{1,5})$",
-			"decade": "\/?(-?\\d{1,5})$",
-			"century": "\/?(-?\\d{1,5})$",
-			"millenia": "\/?(-?\\d{1,5})$"};
+	var PRECISE=1;
+	var BOUNDED=2;
+	var MONTH=3;
+	var SEASON=4;
+	var YEAR=5;
+	var DECADE=6;
+	var CENTURY=7;
+	var MILLENIA=8;
+	
+	
+	var regexType = {PRECISE:"(\\d{1,2})\/(\\d{1,2})\/(-?\\d{1,5})$",
+			MONTH: "\/?(\\d{1,2})\/(-?\\d{1,5})$",
+			SEASON: "\/?(\\d{1,2})\/(-?\\d{1,5})$",
+			YEAR: "\/?(-?\\d{1,5})$",
+			DECADE: "\/?(-?\\d{1,5})$",
+			CENTURY: "\/?(-?\\d{1,5})$",
+			MILLENIA: "\/?(-?\\d{1,5})$"};
 
 	var regex = new RegExp(regexType[type]);
 	var regexArray = regex.exec(sDate);
 	if (regexArray === null){
-		var typeLabelArray = {"precise":"precise","month":"mois","season":"saison","year":"année",
-				"decade":"decennie","century":"siècle","millenia":"milénaire"};
-		var exampleLabelArray = {"precise":"1/8/1985, 01/09/573, 2/06/-582",
-				"month":"8/1985,09/573,06/-582",
-				"season":"1/1985 (hiver 1985),4/-582 (automne -582)",
-				"year":"1985,573,-582",
-				"decade":"1980,571,-580",
-				"century":"1980,571,-580",
-				"millenia":"1980,571,-580"};
+		var typeLabelArray = {PRECISE:PRECISE,MONTH:"mois",SEASON:"saison",YEAR:"année",
+				DECADE:"decennie",CENTURY:"siècle",MILLENIA:"milénaire"};
+		var exampleLabelArray = {PRECISE:"1/8/1985, 01/09/573, 2/06/-582",
+				MONTH:"8/1985,09/573,06/-582",
+				SEASON:"1/1985 (hiver 1985),4/-582 (automne -582)",
+				YEAR:"1985,573,-582",
+				DECADE:"1980,571,-580",
+				CENTURY:"1980,571,-580",
+				MILLENIA:"1980,571,-580"};
 
 		errors.push("La valeur entrée n'est pas convertible en date (" + 
 				typeLabelArray[type] + "). Exemples de valeurs autorisées : " +
@@ -426,30 +436,30 @@ function myParseDate(sDate,type,errors=[],pieces=[])
 	var year = 1;
 	var maxYear = (new Date()).getFullYear();
 	switch(type){
-	case "precise": 
+	case PRECISE: 
 		day = parseInt(regexArray[1]);
 		month = parseInt(regexArray[2]);
 		year = parseInt(regexArray[3]);
 		break;
-	case "month": 
+	case MONTH: 
 		month = parseInt(regexArray[1]);
 		year = parseInt(regexArray[2]);
 		break;
-	case "season": 
+	case SEASON: 
 		season = parseInt(regexArray[1]);
 		year = parseInt(regexArray[2]);
 		month = (season-1)*3 + 1;
 		break;
-	case "year": 
+	case YEAR: 
 		year = parseInt(regexArray[1]);
 		break;
-	case "decade": 
+	case DECADE: 
 		year = Math.floor(parseInt(regexArray[1])/10)*10;	
 		break;
-	case "century": 
+	case CENTURY: 
 		year = Math.floor(parseInt(regexArray[1])/100)*100;
 		break;
-	case "millenia": 
+	case MILLENIA: 
 		year = Math.floor(parseInt(regexArray[1])/1000)*1000;	
 		break;
 

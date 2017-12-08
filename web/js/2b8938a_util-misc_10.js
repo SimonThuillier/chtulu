@@ -51,3 +51,15 @@ function arabicToRomanNumber(number){
 String.prototype.capitalize = function() { 
     return this.charAt(0).toUpperCase() + this.slice(1); 
 }
+
+/**
+* functions returning an array of field name => index for a symfony serialized form
+*/
+function getFormMap(formData)
+{
+	var map = [];
+	$(Object.keys(formData)).each(function(key){
+		map[formData[key].name] = key;
+	});
+	return map;
+}
