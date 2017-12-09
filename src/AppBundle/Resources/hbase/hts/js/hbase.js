@@ -1,18 +1,20 @@
 /** the jQuery Hbase object will be the core object for various variables and methods of hbase front-end library */
 $.hbase = {};
 $.hbase.modals = {};
+$.hbase.funcs = {};
 $.hbase.HDate = HDate.prototype;
 $.hbase.hiddenInput = $("<input/>").hide();
 
 $.hbase.currentRegional = "french";
 $.hbase.regional = {
 		"french":{
-			placeHolders : {1:"JJ/MM/AAAA",2:"JJ/MM/AAAA;JJ/MM/AAAA",
-				3:"MM/AAAA",4:"MM/AAAA",5:"AAAA",
-				6:"AAAA",7:"AAAA",8:"AAAA"},
-				inputLabel : {1:"Entrez la date complete comme 9/11/1989 ou 15/3/-44",2:"Entrez la date imprecise (Ex: 11/10/732;13/10/733)",
-					3:"Entrez le mois (Ex: 7/622 ou 10/-539)",4:"Entrez la saison (Ex: 1/208 ou 4/1917)",5:"Entrez l'année (Ex: 1968 ou -333)",
-					6:"Entrez une année du de la decennie (Ex: 1242 ou 1648)",7:"Entrez une année du siècle (Ex: -221 ou 1789)",8:"Entrez une année du millénaire (Ex: -3140 ou 1945)"},	
+			placeHolders : {"1":"JJ/MM/AAAA","2":"JJ/MM/AAAA;JJ/MM/AAAA",
+				"3":"MM/AAAA","4":"MM/AAAA","5":"AAAA",
+				"6":"AAAA","7":"AAAA","8":"AAAA"},
+				inputLabel : {"1":"Entrez la date complete comme 9/11/1989 ou 15/3/-44","2":"Entrez la date imprecise (Ex: 11/10/732;13/10/733)",
+					"3":"Entrez le mois (Ex: 7/622 ou 10/-539)","4":"Entrez la saison (Ex: 1/208 ou 4/1917)",
+					"5":"Entrez l'année (Ex: 1968 ou -333)","6":"Entrez une année du de la decennie (Ex: 1242 ou 1648)",
+					"7":"Entrez une année du siècle (Ex: -221 ou 1789)","8":"Entrez une année du millénaire (Ex: -3140 ou 1945)"},	
 					closeText: "Done", // Display text for close link
 					prevText: "Prev", // Display text for previous month link
 					nextText: "Next", // Display text for next month link
@@ -40,6 +42,7 @@ $.hbase.modalFactory = function(type)
 	{
 		var modal = $("<div title='Entrez une date'>").dialog({
 			autoOpen: false,
+			dialogClass: 'hb-modal-z7',
 			show: {
 				effect: 'fade',
 				duration: 250
@@ -60,7 +63,7 @@ $.hbase.modalFactory = function(type)
 
 	factories["hdatepicker"] = function(modal)
 	{
-		modal.append("<label class='mx-2'>Type de date :</label>");
+		modal.append("<label class='mx-2'>Type de date :</label>&nbsp;");
 		modal.typeSelector = $("<select class='ui-corner-all'>").appendTo(modal)
 		.append($('<option>', {value: HDate.prototype.PRECISE,text: 'Précise'}))
 		.append($('<option>', {value: HDate.prototype.BOUNDED,text: 'Imprecise (bornée)'}))
@@ -343,21 +346,16 @@ $.widget( "hbase.htimescroller", {
 });
 
 $(function(){
-	console.log("application des widget");
 	$.hbase.modals.hdatepicker = $.hbase.modalFactory("hdatepicker");
-	$(".hbase-hdatepicker").hdatepicker();
-	$(".hbase-htimescroller").htimescroller();
-	$(".hbase-hdatepicker").hdatepicker();
 	
-	function hbaseCheck(element){
+	$.hbase.funcs.hbaseCheck = function(element)
+	{
 		var $checker = $(element);
 		var transition = $checker.is(":checked");
 		var inverted = $checker.hasClass("hbase-inverted");
 		if(inverted) transition = !transition;
-		console.log(inverted + ' - ' + transition);
 		$($checker.attr("hBase-checked")).each(function(){
 			var $checked = $(this);
-			console.log($checked);
 			if(transition){
 				$checked.show();
 				console.log($checked[0].hasAttribute("hbase-default-required"));
@@ -368,25 +366,20 @@ $(function(){
 				console.log($checked[0].hasAttribute("hbase-default-required"));
 				$checked.removeAttr("required");
 				}
-			
 		});
 	}
 	
+	$.hbase.funcs.hbaseChecker = function(element)
+	{
+		$.hbase.funcs.hbaseCheck(element);
+		$(element).on('change',function(){$.hbase.funcs.hbaseCheck(element);});
+	}
 	
-	$(".hbase-activer").each(function(){
-		console.log(this);
-		hbaseCheck(this);
-		
-		$(this).on('change',function(){
-			hbaseCheck(this);
-		});
-		
-	});
-
-	$('.hbase-article-form').on('submit', function (event) {
+	$.hbase.funcs.hbaseArticleFormSubmitter = function(event,element)
+	{
 		event.preventDefault();
 		event.stopPropagation();
-		var $this = $(this);
+		var $this = $(element);
 		var $formData = $this.serializeArray();
 		var formMap = getFormMap($formData);
 		var $data; 
@@ -397,15 +390,34 @@ $(function(){
 			}
 		});
 		console.log($formData);
-
+		var action = $this.attr("action");
+		if (typeof action == 'undefined' || action == null || action =='') return;
 	$.ajax({
 		url : $this.attr("action"),
 		type : 'POST',
 		dataType : 'html',
 		data : $formData
 	});	
-
-
-		return false;
-	});
+		return true;
+	}
+	
+	$.hbase.funcs.hbaseApply = function(rootSelector = null){
+		console.log("application des widget");
+		if(rootSelector == null){
+			$(".hbase-hdatepicker").hdatepicker();
+			$(".hbase-htimescroller").htimescroller();
+			$(".hbase-hdatepicker").hdatepicker();
+			$(".hbase-activer").each(function(){$.hbase.funcs.hbaseChecker(this)});
+			$('.hbase-article-form').on('submit',function(){$.hbase.funcs.hbaseArticleFormSubmitter(event,this);});
+		}
+		else{
+			rootSelector.find(".hbase-hdatepicker").hdatepicker();
+			rootSelector.find(".hbase-htimescroller").htimescroller();
+			rootSelector.find(".hbase-hdatepicker").hdatepicker();
+			rootSelector.find(".hbase-activer").each(function(){$.hbase.funcs.hbaseChecker(this);});
+			rootSelector.find('.hbase-article-form').on('submit',function(){$.hbase.funcs.hbaseArticleFormSubmitter(event,this);});
+		}
+	} 
+	
+	$.hbase.funcs.hbaseApply();
 });

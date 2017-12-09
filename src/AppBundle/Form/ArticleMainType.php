@@ -59,8 +59,8 @@ class ArticleMainType extends AbstractType
                 'hbase-default-required' => true
             ]
         ))
-            ->add('hasNotEndDate', CheckboxType::class, array(
-            'label' => "Pas de date de fin",
+            ->add('hasEndDate', CheckboxType::class, array(
+            'label' => "A une date de fin",
             'required' => false,
             'attr' => array(
                 'class' => 'checkbox icheck hbase-activer',

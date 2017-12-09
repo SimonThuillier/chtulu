@@ -75,5 +75,10 @@ abstract class ArticleAbstractDTO
     public function getEndDateLabel(){
         return $this->endDateLabel;
     }
+    
+    public function getHasEndDate(){
+        if ($this->title == null) return true;
+        return $this->endHDate !== null;
+    }
 
 }

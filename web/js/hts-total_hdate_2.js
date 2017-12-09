@@ -42,24 +42,24 @@ HDate.prototype.types = [
 	HDate.prototype.MILLENIA];
 //functions of formatting
 HDate.prototype.formatters = {
-		1:myFormatPatternDate('j F Y'),
-		2:myFormatPatternDate('j F Y'),
-		3:myFormatPatternDate('F Y'),
-		4:myFormatPatternDate('S Y'),
-		5:myFormatPatternDate('Y'),
-		6:myFormatPatternDate('Y'),
-		7:myFormatPatternDate('Y'),
-		8:myFormatPatternDate('Y')
+		"1":myFormatPatternDate('j F Y'),
+		"2":myFormatPatternDate('j F Y'),
+		"3":myFormatPatternDate('F Y'),
+		"4":myFormatPatternDate('S Y'),
+		"5":myFormatPatternDate('Y'),
+		"6":myFormatPatternDate('Y'),
+		"7":myFormatPatternDate('Y'),
+		"8":myFormatPatternDate('Y')
 };
 HDate.prototype.canonicalInputFormatters = {
-		1:myFormatPatternDate('d/m/Y'),
-		2:myFormatPatternDate('d/m/Y'),
-		3:myFormatPatternDate('m/Y'),
-		4:myFormatPatternDate('s/Y'),
-		5:myFormatPatternDate('Y'),
-		6:myFormatPatternDate('Y'),
-		7:myFormatPatternDate('Y'),
-		8:myFormatPatternDate('Y')
+		"1":myFormatPatternDate('d/m/Y'),
+		"2":myFormatPatternDate('d/m/Y'),
+		"3":myFormatPatternDate('m/Y'),
+		"4":myFormatPatternDate('s/Y'),
+		"5":myFormatPatternDate('Y'),
+		"6":myFormatPatternDate('Y'),
+		"7":myFormatPatternDate('Y'),
+		"8":myFormatPatternDate('Y')
 };
 HDate.prototype._intervalFormatter = myFormatPatternDate('d/m/Y');
 
@@ -69,7 +69,8 @@ HDate.prototype.intervalSize = function()
 };
 HDate.prototype.isExact = function()
 {
-	if(this.beginDate === null || this.endDate === null) return true;
+	if(this.beginDate === null || this.endDate === null ||
+			typeof this.beginDate === 'undefined' || typeof this.endDate === 'undefined') return true;
 	return (this.endDate.dayDiff(this.beginDate) === 0);
 };
 HDate.prototype.equals = function(hDate)
@@ -91,14 +92,6 @@ HDate.prototype.getBoundDate = function(bound)
 	}
 };
 
-HDate.prototype.PRECISE=1;
-HDate.prototype.BOUNDED=2;
-HDate.prototype.MONTH=3;
-HDate.prototype.SEASON=4;
-HDate.prototype.YEAR=5;
-HDate.prototype.DECADE=6;
-HDate.prototype.CENTURY=7;
-HDate.prototype.MILLENIA=8;
 //returns user display of the HDate
 HDate.prototype.getLabel= function()
 {

@@ -381,11 +381,14 @@ HEvent.prototype.edit = function(){
 				}
 			}
 	});	
-
+	console.log("appel apply");
+	$.hbase.funcs.hbaseApply($("#" + formId));
+	console.log("test");
 	// bind new form to Hevent
 	this.bindToForm(formId);
 	// add form  and initial state
 	finalizeForm('modal_live');
+
 }
 
 

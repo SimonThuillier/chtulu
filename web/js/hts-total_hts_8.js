@@ -28,7 +28,7 @@ HTimeScroller.prototype.formatBoundDates = myFormatPatternDate('d/m/Y');
 
 /** constructor for horizontal time scroller 
  * parentId must be existing id of an SVG component */
-function HTimeScroller(elementId,beginDate,endDate,eBeginDate,eEndDate,articleParentId,options) {
+function HTimeScroller(elementId,beginDate=null,endDate=null,eBeginDate,eEndDate,articleParentId,options) {
 	this.id=this.idGenerator();
 	this.articleParentId = articleParentId;
 	this.div = d3.select(elementId); 
@@ -296,23 +296,22 @@ function HTimeScroller(elementId,beginDate,endDate,eBeginDate,eEndDate,articlePa
 
 		}
 	}
-	
-	$(function () {
+	var hts = this;
 		var prevHeight = $('div#hts-event-container').height();
 		var deltaHeight = $("#hts-svgcontainer").attr("height") - prevHeight;
 		$('div#hts-event-container').attrchange({
 			callback: function (e) {
-				var curHeight = $(this).height();            
+				var curHeight = $(this).height();  
+				console.log(prevHeight + ' vs ' +  curHeight)
 				if (prevHeight !== curHeight) {
 					$("#hts-svgcontainer").attr("height",curHeight + deltaHeight);
 					hts.updateSpatialData(false);
-					hts.redrawComponent('event-area');
 					hts.redrawComponent('event-fcontainer');
 					hts.redrawComponent('event-container');
+					hts.redrawComponent('event-area');
 					prevHeight = curHeight;
 				}  
 			}
-		});
 	});
 }
 

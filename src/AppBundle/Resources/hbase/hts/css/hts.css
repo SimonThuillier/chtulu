@@ -105,10 +105,35 @@ input.hts-border-date-input{
 	background:Wheat;
 	font:14px;
 	text-align:center;
-	height:13px;;
+	height:13px;
 }
 
 input.hts-date-input{
+}
+
+div.hb-modal-z0{
+	z-index: 1;
+}
+div.hb-modal-z1{
+	z-index: 10;
+}
+div.hb-modal-z2{
+	z-index: 100;
+}
+div.hb-modal-z3{
+	z-index: 1000;
+}
+div.hb-modal-z4{
+	z-index: 10000;
+}
+div.hb-modal-z5{
+	z-index: 100000;
+}
+div.hb-modal-z6{
+	z-index: 1000000;
+}
+div.hb-modal-z7{
+	z-index: 10000000;
 }
 
 

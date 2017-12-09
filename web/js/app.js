@@ -1361,36 +1361,36 @@ function myFormatPatternDate(pattern,date,pieces=[])
  */
 function myParseDate(sDate,type,errors=[],pieces=[])
 {
-	var PRECISE=1;
-	var BOUNDED=2;
-	var MONTH=3;
-	var SEASON=4;
-	var YEAR=5;
-	var DECADE=6;
-	var CENTURY=7;
-	var MILLENIA=8;
+	var PRECISE="1";
+	var BOUNDED="2";
+	var MONTH="3";
+	var SEASON="4";
+	var YEAR="5";
+	var DECADE="6";
+	var CENTURY="7";
+	var MILLENIA="8";
 	
 	
-	var regexType = {PRECISE:"(\\d{1,2})\/(\\d{1,2})\/(-?\\d{1,5})$",
-			MONTH: "\/?(\\d{1,2})\/(-?\\d{1,5})$",
-			SEASON: "\/?(\\d{1,2})\/(-?\\d{1,5})$",
-			YEAR: "\/?(-?\\d{1,5})$",
-			DECADE: "\/?(-?\\d{1,5})$",
-			CENTURY: "\/?(-?\\d{1,5})$",
-			MILLENIA: "\/?(-?\\d{1,5})$"};
+	var regexType = {"1":"(\\d{1,2})\/(\\d{1,2})\/(-?\\d{1,5})$",
+			"3": "\/?(\\d{1,2})\/(-?\\d{1,5})$",
+			"4": "\/?(\\d{1,2})\/(-?\\d{1,5})$",
+			"5": "\/?(-?\\d{1,5})$",
+			"6": "\/?(-?\\d{1,5})$",
+			"7": "\/?(-?\\d{1,5})$",
+			"8": "\/?(-?\\d{1,5})$"};
 
 	var regex = new RegExp(regexType[type]);
 	var regexArray = regex.exec(sDate);
 	if (regexArray === null){
-		var typeLabelArray = {PRECISE:PRECISE,MONTH:"mois",SEASON:"saison",YEAR:"année",
-				DECADE:"decennie",CENTURY:"siècle",MILLENIA:"milénaire"};
-		var exampleLabelArray = {PRECISE:"1/8/1985, 01/09/573, 2/06/-582",
-				MONTH:"8/1985,09/573,06/-582",
-				SEASON:"1/1985 (hiver 1985),4/-582 (automne -582)",
-				YEAR:"1985,573,-582",
-				DECADE:"1980,571,-580",
-				CENTURY:"1980,571,-580",
-				MILLENIA:"1980,571,-580"};
+		var typeLabelArray = {"1":"Précise","3":"mois","4":"saison","5":"année",
+				"6":"decennie","7":"siècle","8":"milénaire"};
+		var exampleLabelArray = {"1":"1/8/1985, 01/09/573, 2/06/-582",
+				"3":"8/1985,09/573,06/-582",
+				"4":"1/1985 (hiver 1985),4/-582 (automne -582)",
+				"5":"1985,573,-582",
+				"6":"1980,571,-580",
+				"7":"1980,571,-580",
+				"8":"1980,571,-580"};
 
 		errors.push("La valeur entrée n'est pas convertible en date (" + 
 				typeLabelArray[type] + "). Exemples de valeurs autorisées : " +
