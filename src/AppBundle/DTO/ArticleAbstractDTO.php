@@ -5,6 +5,9 @@ namespace AppBundle\DTO;
 use AppBundle\Entity\ArticleType;
 use AppBundle\Entity\ArticleSubType;
 use Symfony\Component\Serializer\Annotation\Groups;
+use AppBundle\Helper\DateHelper;
+use AppBundle\Utils\HDate;
+use AppBundle\Entity\DateType;
 
 /**
  * 
@@ -35,50 +38,66 @@ abstract class ArticleAbstractDTO
     public $abstract;
     /** @var string
      * @Groups("group1") */
-    public $beginDateLabel;
+    
+    /** @var HDate */
+    protected $beginHDate;
     /** @var string
      * @Groups("group1") */
-    public $endDateLabel;
-    /** @var HDate */
-    public $beginHDate;
-    /** @var integer */
-    protected $beginDateMinIndex;
-    /** @var integer */
-    protected $beginDateMaxIndex;
-    /** @var DateType */
-    protected $beginDateType;
+    protected $beginDateLabel;
+    
     /** @var boolean
      * @Groups("group1") */
     protected $hasEndDate = true;
     /** @var HDate */
-    public $endHDate;
-    /** @var integer */
-    protected $endDateMinIndex;
-    /** @var integer */
-    protected $endDateMaxIndex;
-    /** @var DateType */
-    protected $endDateType; 
-    
+    protected $endHDate;
+    /** @var string
+     * @Groups("group1") */
+    protected $endDateLabel;
     
     /**
-     * beginDateLabel
+     * get beginDateLabel
      * @return string
      */
     public function getBeginDateLabel(){
         return $this->beginDateLabel;
     }
+    
+    /**
+     * beginDateLabel
+     * @param string $beginDateLabel
+     * @return ArticleAbstractDTO
+     */
+    public function setBeginDateLabel($beginDateLabel){
+        $this->beginDateLabel = $beginDateLabel;
+        return $this;
+    }
+    
 
     /**
-     * endDateLabel
+     * get endDateLabel
      * @return string
      */
     public function getEndDateLabel(){
         return $this->endDateLabel;
     }
     
+    /**
+     * endDateLabel
+     * @param string $endDateLabel
+     * @return ArticleAbstractDTO
+     */
+    public function setEndDateLabel($endDateLabel){
+        $this->endDateLabel = $endDateLabel;
+        return $this;
+    }
+    
+    /**
+     * 
+     * @return boolean
+     */
     public function getHasEndDate(){
         if ($this->title == null) return true;
-        return $this->endHDate !== null;
+        return $this->hasEndDate;
     }
     
     /**
@@ -93,4 +112,41 @@ abstract class ArticleAbstractDTO
             $this->endDateLabel = null;
         }
     }
+    
+    /**
+     * beginHDate
+     * @return HDate
+     */
+    public function getBeginHDate(){
+        return $this->beginHDate;
+    }
+
+    /**
+     * beginHDate
+     * @param HDate $beginHDate
+     * @return ArticleAbstractDTO
+     */
+    public function setBeginHDate($beginHDate){
+        $this->beginHDate = $beginHDate;
+        return $this;
+    }
+
+    /**
+     * endHDate
+     * @return HDate
+     */
+    public function getEndHDate(){
+        return $this->endHDate;
+    }
+
+    /**
+     * endHDate
+     * @param HDate $endHDate
+     * @return ArticleAbstractDTO
+     */
+    public function setEndHDate($endHDate){
+        $this->endHDate = $endHDate;
+        return $this;
+    }
+
 }

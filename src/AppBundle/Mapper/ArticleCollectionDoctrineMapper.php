@@ -60,9 +60,15 @@ class ArticleCollectionDoctrineMapper extends ArticleMainDoctrineMapper
      */
     public function add($dto)
     {
-        if (! $this->articleHelper->deserializeSubEvents($dto)){
-            throw new \Exception("An error occured during subArticles recovery. No data was saved.");
+        try{
+            $this->articleHelper->deserializeDates($dto);
         }
+        catch(\Exception $e){throw new \Exception("An error occured during dates recovery. No data was saved.");}
+        try{
+            $this->articleHelper->deserializeSubEvents($dto);
+        }
+        catch(\Exception $e){throw new \Exception("An error occured during subArticles recovery. No data was saved.");}
+
         parent::add($dto);
         $this->handleChildrenArticle($dto->article, $dto);
     }

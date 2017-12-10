@@ -5,6 +5,8 @@ use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Serializer\SerializerInterface;
 use AppBundle\Factory\HDateFactory;
 use AppBundle\Utils\HDate;
+use AppBundle\Helper\DateHelper;
+use AppBundle\Entity\DateType;
 
 class HDateSerializer extends AbstractHSerializer implements HSerializerInterface
 {
@@ -38,6 +40,14 @@ class HDateSerializer extends AbstractHSerializer implements HSerializerInterfac
      */
     public function deserialize($payload)
     {
-        parent::deserialize($payload);
+        parent::decode($payload);
+        
+        $this->array["beginDate"] = DateHelper::createFromJson($this->array["beginDate"]);
+        $this->array["endDate"] = DateHelper::createFromJson($this->array["endDate"]);
+      
+        $this->array["type"] = $this->doctrine->getRepository(DateType::class)
+        ->find(intval($this->array["type"]));
+        
+        return $this->mainFactory->newInstance($this->array["type"],$this->array["beginDate"],$this->array["endDate"]);  
     }
 }

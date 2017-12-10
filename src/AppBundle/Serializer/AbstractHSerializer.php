@@ -36,6 +36,10 @@ abstract class AbstractHSerializer implements HSerializerInterface
      */
     protected $payload;
     /**
+     * @var array
+     */
+    protected $array;
+    /**
      * @var mixed
      */
     protected $object;
@@ -54,8 +58,9 @@ abstract class AbstractHSerializer implements HSerializerInterface
         $this->serializer = $serializer;
         
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
-        $normalizer = new ObjectNormalizer(null);
-        $this->serializer = new Serializer(array($normalizer),array(new JsonEncoder()));
+        $encoders = array(new JsonEncoder());
+        $normalizers = array(new ObjectNormalizer());
+        $this->serializer = new Serializer($normalizers,$encoders);
         $this->mainFactory = $mainFactory;
     }
     
@@ -73,12 +78,9 @@ abstract class AbstractHSerializer implements HSerializerInterface
      * {@inheritDoc}
      * @see \AppBundle\Serializer\HSerializerInterface::deserialize()
      */
-    public function deserialize($payload){
+    public function decode($payload){
         $this->payload = $payload;
-        $this->object = new $this->className();
-        $this->serializer->denormalize($this->payload, $this->className,
-            'json',array('object_to_populate' => $this->object,'allow_extra_attributes' => true));
-        
-        return $this->object;
+        $this->array = $this->serializer->decode($payload, 'json');
+        return $this->array;
     }
 }

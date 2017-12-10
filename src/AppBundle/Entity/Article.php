@@ -10,6 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use AppBundle\DTO\ArticleMainDTO;
 use Doctrine\Common\Collections\ArrayCollection;
+use AppBundle\Utils\HDate;
+use AppBundle\Helper\DateHelper;
 
 /**
  * Article
@@ -86,6 +88,11 @@ class Article extends AbstractBindableEntity
     protected $content;
     
     /**
+     * @var HDate
+     */
+    protected $beginHDate;
+    
+    /**
      * @var integer
      * @ORM\Column(name="begin_date_min_index", type="integer",nullable=true)
      */
@@ -93,7 +100,7 @@ class Article extends AbstractBindableEntity
     
     /**
      * @var integer
-     * @ORM\Column(name="begin_date_max_index", type="date", nullable=true)
+     * @ORM\Column(name="begin_date_max_index", type="integer", nullable=true)
      */
     protected $beginDateMaxIndex;
     
@@ -111,6 +118,11 @@ class Article extends AbstractBindableEntity
     protected $beginDateLabel;
     
     /**
+     * @var HDate
+     */
+    protected $endHDate;
+    
+    /**
      * @var integer
      * @ORM\Column(name="end_date_min_index", type="integer",nullable=true)
      */
@@ -118,7 +130,7 @@ class Article extends AbstractBindableEntity
     
     /**
      * @var integer
-     * @ORM\Column(name="end_date_max_index", type="date", nullable=true)
+     * @ORM\Column(name="end_date_max_index", type="integer", nullable=true)
      */
     protected $endDateMaxIndex;
     
@@ -324,88 +336,79 @@ class Article extends AbstractBindableEntity
         $this->content = $content;
         return $this;
     }
-
+    
+    
     /**
-     * Get minBeginDate
-     * @return \DateTime
+     * get beginHDate
+     * @return HDate|null
      */
-    public function getMinBeginDate(){
-        return $this->minBeginDate;
+    public function getBeginHDate(){
+        if($this->beginHDate !== null) return $this->beginHDate;
+        
+        if($this->beginDateType !== null){
+            $this->beginHDate = new HDate($this->beginDateType,
+                DateHelper::indexToDate($this->beginDateMinIndex),
+                DateHelper::indexToDate($this->beginDateMaxIndex));
+        }
+        return $this->beginHDate;
     }
-
+    
     /**
-     * Set minBeginDate
-     * @param \DateTime $minBeginDate
+     * Set beginHDate
+     * @param HDate $hDate
      * @return Article
      */
-    public function setMinBeginDate($minBeginDate){
-        if($minBeginDate > new \DateTime()){
-            throw new \Exception('Entering dates after the actual date is not allowed; This is history, not science fiction !');
+    public function setBeginHDate($hDate){
+        $this->beginHDate = $hDate;
+        if($this->beginHDate === null){
+            $this->beginDateLabel = null;
+            $this->beginDateMinIndex = null;
+            $this->beginDateMaxIndex = null;
+            $this->beginDateType = null;
         }
-        $this->minBeginDate = $minBeginDate;
+        else{
+            $this->beginDateLabel = $hDate->getLabel();
+            $this->beginDateMinIndex = DateHelper::dateToIndex($hDate->getBeginDate());
+            $this->beginDateMaxIndex = DateHelper::dateToIndex($hDate->getEndDate());
+            $this->beginDateType = $hDate->getType();
+        }
         return $this;
     }
-
+    
     /**
-     * Get maxBeginDate
-     * @return \DateTime
+     * get endHDate
+     * @return HDate|null
      */
-    public function getMaxBeginDate(){
-        return $this->maxBeginDate;
+    public function getEndHDate(){
+        if($this->endHDate !== null) return $this->endHDate;
+        
+        if($this->endDateType !== null){
+            $this->endHDate = new HDate($this->endDateType,
+                DateHelper::indexToDate($this->endDateMinIndex),
+                DateHelper::indexToDate($this->endDateMaxIndex));
+        }
+        return $this->endHDate;
     }
-
+    
     /**
-     * Set maxBeginDate
-     * @param \DateTime $maxBeginDate
+     * Set endHDate
+     * @param HDate $hDate
      * @return Article
      */
-    public function setMaxBeginDate($maxBeginDate){
-        if($maxBeginDate > new \DateTime()){
-            throw new \Exception('Entering dates after the actual date is not allowed; This is history, not science fiction !');
+    public function setEndHDate($hDate){
+        $this->endHDate = $hDate;
+        if($this->endHDate === null){
+            $this->endDateLabel = null;
+            $this->endDateMinIndex = null;
+            $this->endDateMaxIndex = null;
+            $this->endDateType = null;
         }
-        $this->maxBeginDate = $maxBeginDate;
-        return $this;
-    }
-
-    /**
-     * Get minEndDate
-     * @return \DateTime
-     */
-    public function getMinEndDate(){
-        return $this->minEndDate;
-    }
-
-    /**
-     * Set minEndDate
-     * @param \DateTime $minEndDate
-     * @return Article
-     */
-    public function setMinEndDate($minEndDate){
-        if($minEndDate > new \DateTime()){
-            throw new \Exception('Entering dates after the actual date is not allowed; This is history, not science fiction !');
+        else{
+            $this->endDateLabel = $hDate->getLabel();
+            $this->endDateMinIndex = DateHelper::dateToIndex($hDate->getBeginDate());
+            $this->endDateMaxIndex = DateHelper::dateToIndex($hDate->getEndDate());
+            $this->endDateType = $hDate->getType();
         }
-        $this->minEndDate = $minEndDate;
-        return $this;
-    }
-
-    /**
-     * Get maxEndDate
-     * @return \DateTime
-     */
-    public function getMaxEndDate(){
-        return $this->maxEndDate;
-    }
-
-    /**
-     * Set maxEndDate
-     * @param \DateTime $maxEndDate
-     * @return Article
-     */
-    public function setMaxEndDate($maxEndDate){
-        if($maxEndDate > new \DateTime()){
-            throw new \Exception('Entering dates after the actual date is not allowed; This is history, not science fiction !');
-        }
-        $this->maxEndDate = $maxEndDate;
         return $this;
     }
 
@@ -416,9 +419,6 @@ class Article extends AbstractBindableEntity
     public function getDomain(){
         return $this->domain;
     }
-    
-    
-
 
     /**
      * domain

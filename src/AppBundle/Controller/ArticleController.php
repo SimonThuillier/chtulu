@@ -29,6 +29,7 @@ use AppBundle\Factory\HDateFactory;
 use AppBundle\Utils\HDate;
 use AppBundle\Mapper\AutoMapper;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use AppBundle\Serializer\HDateSerializer;
 
 /**
  *
@@ -43,7 +44,8 @@ class ArticleController extends Controller
      * @Method({"GET","POST"})
      */
     public function createAction(Request $request, ArticleDTOFactory $articleDTOFactory,
-        ArticleCollectionDoctrineMapper $collectionMapper,ArticleHelper $articleHelper)
+        ArticleCollectionDoctrineMapper $collectionMapper,ArticleHelper $articleHelper,
+        HDateSerializer $hDateSerializer)
     {
         /** @var ArticleCollectionDTO $articleDTO */
         $articleDTO = $articleDTOFactory->newInstance("main_collection");
@@ -59,13 +61,11 @@ class ArticleController extends Controller
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
                 $articleDTO = $form->getData();
-                $articleHelper->handleDTODates($articleDTO);
-                return new JsonResponse(json_encode($articleDTO->beginHDate->getBeginDate()));
+
                 $collectionMapper->add($articleDTO);
                 return $this->render('::debug.html.twig', array(
                     'debug' => array(
-                        "title" => $articleDTO->title,
-                        "titlesub1" => $articleDTO->subEventsArray[0]->title,
+                        "dto" => json_encode($articleDTO),
                     )
                 ));
             } else {

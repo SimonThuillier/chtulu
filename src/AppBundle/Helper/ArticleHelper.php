@@ -3,6 +3,7 @@
 namespace AppBundle\Helper;
 
 use Symfony\Component\Serializer\SerializerInterface;
+use AppBundle\DTO\ArticleAbstractDTO;
 use AppBundle\DTO\ArticleCollectionDTO;
 use AppBundle\DTO\ArticleModalDTO;
 use AppBundle\Factory\ArticleDTOFactory;
@@ -13,6 +14,7 @@ use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
 use Doctrine\Common\Annotations\AnnotationReader;
 use AppBundle\Serializer\HDateSerializer;
+use AppBundle\Mapper\AutoMapper;
 
 class ArticleHelper
 {
@@ -39,6 +41,8 @@ class ArticleHelper
      */
     public function deserializeSubEvents($articleDTO)
     {
+        if($articleDTO->subEvents == null) return 0;
+        
         $this->serializer->deserialize($articleDTO->subEvents, ArticleCollectionDTO::class, 'json',
             array('object_to_populate' => $articleDTO,'allow_extra_attributes' => true));
         $articleDTO->subEvents = null;
@@ -72,9 +76,13 @@ class ArticleHelper
      * 
      * @param ArticleAbstractDTO $articleDTO
      */
-    public function handleDTODates($articleDTO)
+    public function deserializeDates($articleDTO)
     {
         $this->handleDTODate($articleDTO, "begin");
+        if($articleDTO->getHasEndDate()){
+            $this->handleDTODate($articleDTO, "end");
+        }
+        return true;
     }
     
     /**
@@ -84,15 +92,13 @@ class ArticleHelper
      */
     private function handleDTODate($articleDTO,$prefix)
     {
-        $hDateAttr = $prefix . 'HDate';
-        $hDate = $articleDTO->$hDateAttr;
-        $labelAttr = $prefix . 'DateLabel';
-        $label = $articleDTO->$labelAttr;
+        $data = [$prefix . 'HDate' => null,$prefix . 'DateLabel' => null];
+        AutoMapper::autoMap($articleDTO, $data);
         
-        
-        if($hDate === null && $label !== null){
-            $hDate = $this->hDateSerializer->deserialize($label);
-            $articleDTO->$hDateAttr = $hDate;
+        if($data[$prefix . 'HDate'] === null && $data[$prefix . 'DateLabel'] !== null){
+            $dataIn = [];
+            $dataIn[$prefix . 'HDate'] = $this->hDateSerializer->deserialize($data[$prefix . 'DateLabel']);
+            AutoMapper::autoMap($dataIn, $articleDTO);
         }
     }
     

@@ -66,7 +66,7 @@ class DateHelper
 
     /**
      * wrapper for \DateTime static method createFromFormat handling negative year for / separated format
-     * this function is dangerous to use ! TODO : think about an improvement
+     * to use with caution ! TODO : think about an improvement to make it more general 
      * @param String $format
      * @param String $dateStr
      * @return \DateTime
@@ -79,10 +79,30 @@ class DateHelper
             $bC      = true;
         }
         $date = \DateTime::createFromFormat($format, $dateStr);
+        var_dump($date);
         if ($bC) {
             self::setYear($date, -$date->format('Y'));
         }
         return $date;
+    }
+    
+    /**
+     * parse a JSON formatted date and returns the corresponding php date, handling negative years
+     * this function is dangerous to use ! TODO : think about an improvement
+     * @param String $dateStr
+     * @return \DateTime | null
+     */
+    static function createFromJson($jsonStr)
+    {
+        $matches = [];
+        $valid = preg_match("#^(?<year>-?\d+)-(?<month>\d{1,2})-(?<day>\d{1,2})T(?<time>.*)Z$#",$jsonStr,$matches);
+        if ($valid!=1) return null;
+        
+        $reformat = $matches['day'] . '/' . 
+        $matches['month'] . '/' .
+        strval(intval($matches['year']));
+        var_dump($reformat);
+        return self::createFromFormat('d/m/Y', $reformat);
     }
 
     /**
@@ -352,4 +372,6 @@ class DateHelper
         }
         return $date;
     }
+    
+    
 }
