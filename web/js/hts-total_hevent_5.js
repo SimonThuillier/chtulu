@@ -30,7 +30,7 @@ function HEvent(hts,type,attachment=null,y=null,name=null){
 	this.pinPointId = null;
 
 	this.beginDate=null; // HDate
-	this.hasNotEndDate=false; // boolean
+	this.hasEndDate=true; // boolean
 	this.endDate=null; // HDate
 	this.rendered = false;
 	this.manager = null;
@@ -232,20 +232,11 @@ HEvent.prototype.bindToForm = function(formId){
 	$("input#" + formId + "_title").val(this.name);
 	$("textarea#" + formId + "_abstract").val(this.abstract);
 
-	console.log("beginDateApprox", (this.beginDate != null)?!this.beginDate.isExact():false);
-
-	$("input#" + formId + "_isBeginDateApprox").attr('checked',(this.beginDate != null)?!this.beginDate.isExact():false);
-	$("input#" + formId + "_hasNotEndDate").attr('checked',this.hasNotEndDate);
-	$("input#" + formId + "_isEndDateApprox").attr('checked',(this.endDate != null)?!this.endDate.isExact():false);
-
-
-	$("input#" + formId + "_beginDate").val((this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(0)):"");
-	$("input#" + formId + "_minBeginDate").val((this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(0)):"");
-	$("input#" + formId + "_maxBeginDate").val((this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(1)):"");
-
-	$("input#" + formId + "_endDate").val((this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"");
-	$("input#" + formId + "_minEndDate").val((this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"");
-	$("input#" + formId + "_maxEndDate").val((this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(1)):"");
+	$("input#" + formId + "_beginDateLabel").attr("hdate",(this.beginDate != null)?JSON.stringify(this.beginDate):"");
+	$("input#" + formId + "_beginDateLabel").val((this.beginDate != null)?this.beginDate.getLabel():"");
+	$("input#" + formId + "_hasEndDate").attr('checked',this.hasEndDate);
+	$("input#" + formId + "_endDateLabel").attr("hdate",(this.endDate != null)?JSON.stringify(this.endDate):"");
+	$("input#" + formId + "_endDateLabel").val((this.endDate != null)?this.endDate.getLabel():"");
 
 	$("input#" + formId + "_y").val(this.y);
 }
@@ -258,16 +249,9 @@ HEvent.prototype.normalize = function(formId){
 	dto.subType = this.articleSubType;
 	dto.abstract = this.abstract;
 
-	dto.isBeginDateApprox = (this.beginDate != null)?!this.beginDate.isExact():false;
-	dto.beginDate = (this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(0)):"";
-	dto.minBeginDate = (this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(0)):"";
-	dto.maxBeginDate = (this.beginDate != null)?this.dateFormatter(this.beginDate.getBoundDate(1)):"";
-
-	dto.hasNotEndDate = this.hasNotEndDate;
-	dto.isEndDateApprox = (this.endDate != null)?!this.endDate.isExact():false;
-	dto.endDate = (this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"";
-	dto.minEndDate = (this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(0)):"";
-	dto.maxEndDate = (this.endDate != null)?this.dateFormatter(this.endDate.getBoundDate(1)):"";
+	dto.beginDateLabel = (this.beginDate != null)?JSON.Stringify(this.beginDate):"";
+	dto.hasEndDate = this.hasEndDate;
+	dto.endDateLabel = (this.endDate != null)?JSON.Stringify(this.endDate):"";
 
 	dto.y = this.y;
 	dto.id = this.internId;
@@ -284,56 +268,22 @@ HEvent.prototype.updateFromForm = function(formId){
 	this.articleType = $("select#" + formId + "_type").find(":selected").val();
 	this.articleSubType = $("select#" + formId + "_subType").find(":selected").val();
 	this.abstract = $("textarea#" + formId + "_abstract").val();
-
-	if ($("input#" + formId + "_isBeginDateApprox").is(":checked")){
-		this.beginDate = new HDate(myParseDate($("input#" + formId + "_minBeginDate").val()),
-				myParseDate($("input#" + formId + "_maxBeginDate").val()));
+	
+	var strHDate = $("input#" + formId + "_beginDateLabel").attr("hdate");
+	this.beginDate = null;
+	if(typeof strHDate !== 'undefined' && strHDate !== null && strHDate !== ''){
+		this.beginDate = HDate.prototype.parse(strHDate);
 	}
-	else{	
-		this.beginDate = new HDate(myParseDate($("input#" + formId + "_beginDate").val()));					
-	}
-
-	this.hasNotEndDate = ($("input#" + formId + "_hasNotEndDate").is(":checked"));
+	this.hasEndDate = ($("input#" + formId + "_hasEndDate").is(":checked"));
 	this.endDate = null;
-	if(! this.hasNotEndDate){
-		if ($("input#" + formId + "_isEndDateApprox").is(":checked")){
-			this.endDate = new HDate(myParseDate($("input#" + formId + "_minEndDate").val()),
-					myParseDate($("input#" + formId + "_maxEndDate").val()));
-		}
-		else{	
-			this.endDate = new HDate(myParseDate($("input#" + formId + "_endDate").val()));					
-		}
+	strHDate = $("input#" + formId + "_endDateLabel").attr("hdate");
+	if(this.hasEndDate && typeof strHDate !== 'undefined' && strHDate !== null && strHDate !== ''){
+		this.endDate = HDate.prototype.parse(strHDate);
 	}
 }
 
 /** check if event form is valid : returns true or false */
 HEvent.prototype.checkFormValidity = function(formId){
-	// control begin Date
-	var selector;
-	if ($("input#" + formId + "_isBeginDateApprox").is(":checked")){
-		selector = "input#" + formId + "_minBeginDate";
-		if (myParseDate($(selector).val()) === null) $(selector).val(null);
-		selector = "input#" + formId + "_maxBeginDate";
-		if (myParseDate($(selector).val()) === null) $(selector).val(null);
-	}
-	else{	
-		selector = "input#" + formId + "_beginDate";
-		if (myParseDate($(selector).val()) === null) $(selector).val(null);				
-	}
-	// control end date if present
-	if (! $("input#" + formId + "_hasNotEndDate").is(":checked")){
-		if ($("input#" + formId + "_isEndDateApprox").is(":checked")){
-			selector = "input#" + formId + "_minEndDate";
-			if (myParseDate($(selector).val()) === null) $(selector).val(null);
-			selector = "input#" + formId + "_maxEndDate";
-			if (myParseDate($(selector).val()) === null) $(selector).val(null);
-		}
-		else{				
-			selector = "input#" + formId + "_endDate";
-			if (myParseDate($(selector).val()) === null) $(selector).val(null);						
-		}
-	}
-
 	if(! document.getElementById(formId).checkValidity()){
 		$("#" + formId + "_fake_submitter").click();
 		return false;
@@ -381,11 +331,10 @@ HEvent.prototype.edit = function(){
 				}
 			}
 	});	
+	this.bindToForm(formId);
 	console.log("appel apply");
 	$.hbase.funcs.hbaseApply($("#" + formId));
 	console.log("test");
-	// bind new form to Hevent
-	this.bindToForm(formId);
 	// add form  and initial state
 	finalizeForm('modal_live');
 

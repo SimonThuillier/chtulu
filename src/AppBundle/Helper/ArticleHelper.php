@@ -12,6 +12,7 @@ use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
 use Doctrine\Common\Annotations\AnnotationReader;
+use AppBundle\Serializer\HDateSerializer;
 
 class ArticleHelper
 {
@@ -20,13 +21,16 @@ class ArticleHelper
     private $serializer;
     /** @var ArticleDTOFactory $articleDTOFactory */
     private $articleDTOFactory;
+    /**@var HDateSerializer*/
+    private $hDateSerializer;
     
-    public function __construct(ArticleDTOFactory $articleDTOFactory)
+    public function __construct(ArticleDTOFactory $articleDTOFactory,HDateSerializer $hDateSerializer)
     {
         $this->articleDTOFactory = $articleDTOFactory;
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizer = new ObjectNormalizer($classMetadataFactory);
         $this->serializer = new Serializer(array($normalizer),array(new JsonEncoder()));
+        $this->hDateSerializer = $hDateSerializer;
     }
     
     /**
@@ -44,7 +48,7 @@ class ArticleHelper
         foreach ($articleDTO->subEventsArray as $item){
             $articleModalDTO = $this->articleDTOFactory->newInstance("modal");
             $this->serializer->denormalize($item, ArticleModalDTO::class, 
-                'jso',array('object_to_populate' => $articleModalDTO,'allow_extra_attributes' => true));
+                'json',array('object_to_populate' => $articleModalDTO,'allow_extra_attributes' => true));
             $subEventsArray[] = $articleModalDTO;
             $processedCount++;
         }
@@ -61,6 +65,35 @@ class ArticleHelper
         $articleDTO->subEvents = $this->serializer->serialize([
             'subEventsCount' => $articleDTO->subEventsCount,
             'subEventsArray' => $articleDTO->subEventsArray], 'json');
+    }
+    
+    
+    /**
+     * 
+     * @param ArticleAbstractDTO $articleDTO
+     */
+    public function handleDTODates($articleDTO)
+    {
+        $this->handleDTODate($articleDTO, "begin");
+    }
+    
+    /**
+     *
+     * @param ArticleAbstractDTO $articleDTO
+     * @param string $prefix
+     */
+    private function handleDTODate($articleDTO,$prefix)
+    {
+        $hDateAttr = $prefix . 'HDate';
+        $hDate = $articleDTO->$hDateAttr;
+        $labelAttr = $prefix . 'DateLabel';
+        $label = $articleDTO->$labelAttr;
+        
+        
+        if($hDate === null && $label !== null){
+            $hDate = $this->hDateSerializer->deserialize($label);
+            $articleDTO->$hDateAttr = $hDate;
+        }
     }
     
     

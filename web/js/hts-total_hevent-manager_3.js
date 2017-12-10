@@ -29,8 +29,11 @@ HEventManager.prototype.createEvent = function(x,y,beginX=null){
 
 	var selectedEndDate = this.hts.dateScale.invert(x);
 
-	this.bufferEvent.beginDate = new HDate(selectedBeginDate);
-	this.bufferEvent.endDate = new HDate(selectedEndDate);
+	this.bufferEvent.beginDate = new HDate(HDate.prototype.PRECISE,selectedBeginDate);
+	this.bufferEvent.endDate = new HDate(HDate.prototype.PRECISE,selectedEndDate);
+	
+	console.log(this.bufferEvent.beginDate);
+	console.log(this.bufferEvent.endDate);
 
 	this.bufferEvent.edit();
 	console.log('event edité');

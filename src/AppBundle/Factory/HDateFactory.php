@@ -9,8 +9,6 @@ class HDateFactory
 {
     private $object;
     
-    
-    
     /**
      * 
      * @param DateType $type

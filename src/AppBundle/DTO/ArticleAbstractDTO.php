@@ -36,22 +36,22 @@ abstract class ArticleAbstractDTO
     /** @var string
      * @Groups("group1") */
     public $beginDateLabel;
-    /** @var boolean
-     * @Groups("group1") */
-    public $hasNotEndDate;
     /** @var string
      * @Groups("group1") */
     public $endDateLabel;
     /** @var HDate */
-    protected $beginHDate;
+    public $beginHDate;
     /** @var integer */
     protected $beginDateMinIndex;
     /** @var integer */
     protected $beginDateMaxIndex;
     /** @var DateType */
     protected $beginDateType;
+    /** @var boolean
+     * @Groups("group1") */
+    protected $hasEndDate = true;
     /** @var HDate */
-    protected $endHDate;
+    public $endHDate;
     /** @var integer */
     protected $endDateMinIndex;
     /** @var integer */
@@ -80,5 +80,17 @@ abstract class ArticleAbstractDTO
         if ($this->title == null) return true;
         return $this->endHDate !== null;
     }
-
+    
+    /**
+     * 
+     * @param boolean $hasEndDate
+     * @return self
+     */
+    public function setHasEndDate($hasEndDate){
+        $this->hasEndDate = $hasEndDate;
+        if(!$this->hasEndDate){
+            $this->endHDate = null;
+            $this->endDateLabel = null;
+        }
+    }
 }

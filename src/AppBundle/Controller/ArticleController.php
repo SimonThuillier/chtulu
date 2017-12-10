@@ -43,7 +43,7 @@ class ArticleController extends Controller
      * @Method({"GET","POST"})
      */
     public function createAction(Request $request, ArticleDTOFactory $articleDTOFactory,
-        ArticleCollectionDoctrineMapper $collectionMapper)
+        ArticleCollectionDoctrineMapper $collectionMapper,ArticleHelper $articleHelper)
     {
         /** @var ArticleCollectionDTO $articleDTO */
         $articleDTO = $articleDTOFactory->newInstance("main_collection");
@@ -59,7 +59,8 @@ class ArticleController extends Controller
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
                 $articleDTO = $form->getData();
-                return new JsonResponse(json_encode($articleDTO));
+                $articleHelper->handleDTODates($articleDTO);
+                return new JsonResponse(json_encode($articleDTO->beginHDate->getBeginDate()));
                 $collectionMapper->add($articleDTO);
                 return $this->render('::debug.html.twig', array(
                     'debug' => array(
