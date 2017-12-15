@@ -781,6 +781,7 @@ HEvent.prototype.bindToForm = function(formId){
 	$("select#" + formId + "_subType").val(this.articleSubType).change();
 	$("input#" + formId + "_title").val(this.name);
 	$("textarea#" + formId + "_abstract").val(this.abstract);
+	$("textarea#" + formId + "_abstract").removeClass('hmaxlength-enabled');
 
 	$("input#" + formId + "_beginDateLabel").attr("hdate",(this.beginDate != null)?JSON.stringify(this.beginDate):"");
 	$("input#" + formId + "_beginDateLabel").val((this.beginDate != null)?this.beginDate.getLabel():"");
@@ -883,7 +884,7 @@ HEvent.prototype.edit = function(){
 	});	
 	this.bindToForm(formId);
 	console.log("appel apply");
-	$.hbase.funcs.hbaseApply($("#" + formId));
+	$.hbase.func.hbaseApply($("#" + formId));
 	console.log("test");
 	// add form  and initial state
 	finalizeForm('modal_live');

@@ -159,6 +159,17 @@ class Article extends AbstractBindableEntity
      */
     protected $links;
     
+    public function __construct(){
+        $this->beginHDate = new HDate();
+        $this->beginHDate
+        ->setType($this->beginDateType)
+        ->setBeginDate(DateHelper::indexToDate($this->beginDateMinIndex))
+        ->setEndDate(DateHelper::indexToDate($this->beginDateMaxIndex))
+        ->updateIndexes();
+        
+        
+    }
+    
     
     /**
      * Get id
@@ -343,13 +354,6 @@ class Article extends AbstractBindableEntity
      * @return HDate|null
      */
     public function getBeginHDate(){
-        if($this->beginHDate !== null) return $this->beginHDate;
-        
-        if($this->beginDateType !== null){
-            $this->beginHDate = new HDate($this->beginDateType,
-                DateHelper::indexToDate($this->beginDateMinIndex),
-                DateHelper::indexToDate($this->beginDateMaxIndex));
-        }
         return $this->beginHDate;
     }
     

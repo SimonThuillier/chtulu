@@ -41,9 +41,10 @@
 		<thead>
 			<tr class="active">
 				<th width="20%">Titre</th>
-				<th>Derniere edition</th>
+				<th width="20%">Type</th>
 				<th>Date Début</th>
 				<th>Date Fin</th>
+				<th>Derniere edition</th>
 				<th class="text-center">Action</th>
 			</tr>
 		</thead>
@@ -51,9 +52,10 @@
 			{% for key, article in articles %}
 			<tr>
 				<td width="20%">{{ article.title }}</td>
+				<td width="20%">{{ article.type }}</td>
+				<td>{% if article.beginHDate != null %}{{ article.beginHDate }}{% endif %}</td>
+				<td>{% if article.endHDate != null %}{{ article.endHDate.label }}{% endif %}</td>
 				<td>{{ article.editionDate|date("m/d/Y") }}</td>
-				<td>{{ article.minBeginDate|date("m/d/Y") }}</td>
-				<td>{{ article.maxEndDate|date("m/d/Y") }}</td>
 			</tr>
 			{% else %}
 			<tr>

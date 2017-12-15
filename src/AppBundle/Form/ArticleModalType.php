@@ -37,7 +37,10 @@ class ArticleModalType extends AbstractType
             'empty_data' => 'Selectionnez un sous-type'
         ))
             ->add('abstract', TextareaType::class, array(
-            'label' => "Resumé "
+            'label' => "Resumé ",
+            'attr' => array(
+               'class' => 'hbase-hmaxlength'
+            )    
         ))
         ->add('beginDateLabel', TextType::class, array(
             'label' => 'Date de début',

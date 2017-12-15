@@ -243,12 +243,19 @@
 								class="fa fa-angle-left pull-right"></i>
 						</span>
 					</a>
-					<li class="treeview"><a href={{ path('article_create') }}>
-							<i class="fa fa-dashboard"></i> <span>Creer Article</span> <span
+					<li class="treeview"><a href="#"> <i
+							class="fa fa-dashboard"></i> <span>Ecrire</span> <span
 							class="pull-right-container"> <i
 								class="fa fa-angle-left pull-right"></i>
 						</span>
 					</a>
+						<ul class="treeview-menu">
+							<li><a href="{{ path('article_create') }}"><i
+									class="fa fa-circle-o"></i>Creer article</a></li>
+							<li><a href="{{ path('article_list') }}"><i
+									class="fa fa-circle-o"></i>Rechercher article</a></li>
+						</ul>
+					</li>
 					<li class="treeview"><a href="#"> <i
 							class="fa fa-dashboard"></i> <span>Tableau de bord</span> <span
 							class="pull-right-container"> <i
@@ -421,7 +428,7 @@
 		</aside>
 
 		<!-- Content Wrapper. Contains page content -->
-		<div class="content-wrapper">
+		<div class="content-wrapper hbase-container">
 			<!-- Content Header (Page header) -->
 			<section class="content-header">
 				{% for label, messages in app.flashes() %}

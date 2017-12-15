@@ -62,6 +62,9 @@ class HDate
      */
     public function __toString()
     {
+        $test = DateHelper::indexToDate($this->beginDateIndex);
+        return $test->format('Y');
+        
         $label = $this->beginDate->format(self::FORMATTERS[$this->type->getId()]);
         $pieces=explode('_',$label);
         $BC = false;
@@ -173,7 +176,7 @@ class HDate
 
     /**
      * beginDate
-     * @param string $beginDate
+     * @param \DateTime $beginDate
      * @return HDate
      */
     public function setBeginDate($beginDate){
@@ -191,7 +194,7 @@ class HDate
 
     /**
      * endDate
-     * @param string $endDate
+     * @param \DateTime $endDate
      * @return HDate
      */
     public function setEndDate($endDate){

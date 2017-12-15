@@ -90,6 +90,8 @@ class ArticleRepository extends EntityRepository
         if($type !== null) $qb->andWhere('a.type =: type')->setParameter('type', $type);
         if($subType !== null) $qb->andWhere('a.subType =: subType')->setParameter('subType', $subType);
         
+        $qb->orderBy('a.id','DESC');
+        
         return $qb->getQuery();
     }
 }
