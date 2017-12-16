@@ -2,6 +2,7 @@
 
 namespace AppBundle\Mapper;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\Exception\LogicException;
 use AppBundle\DTO\ArticleCollectionDTO;
 use AppBundle\DTO\ArticleAbstractDTO;
@@ -37,10 +38,11 @@ class ArticleMainDoctrineMapper extends ArticleModalDoctrineMapper
         ArticleFactory $entityFactory,
         PaginatorFactoryInterface $paginatorFactory = null,
         User $user = null,
-        ArticleLinkFactory $linkFactory
+        ArticleLinkFactory $linkFactory,
+        LoggerInterface $logger
         )
     {
-        parent::__construct($doctrine, $entityName,$entityFactory,$paginatorFactory,$user,$linkFactory);
+        parent::__construct($doctrine, $entityName,$entityFactory,$paginatorFactory,$user,$linkFactory,$logger);
     }
     
     
@@ -84,6 +86,7 @@ class ArticleMainDoctrineMapper extends ArticleModalDoctrineMapper
             $query->setFirstResult($firstResult)->setMaxResults($maxPage);
             $paginator = $this->paginatorFactory->newInstance($query);
         }
+        $this->logger->info("j'ai recherché des articles (main) !");
         return $paginator;
     }
 

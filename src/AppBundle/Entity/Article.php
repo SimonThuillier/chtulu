@@ -158,19 +158,13 @@ class Article extends AbstractBindableEntity
      * @ORM\OneToMany(targetEntity="ArticleLink", mappedBy="parentArticle")
      */
     protected $links;
-    
-    public function __construct(){
-        $this->beginHDate = new HDate();
-        $this->beginHDate
-        ->setType($this->beginDateType)
-        ->setBeginDate(DateHelper::indexToDate($this->beginDateMinIndex))
-        ->setEndDate(DateHelper::indexToDate($this->beginDateMaxIndex))
-        ->updateIndexes();
-        
-        
+
+    public function __toString()
+    {
+        return $this->title;
     }
-    
-    
+
+
     /**
      * Get id
      * @return int
@@ -354,6 +348,14 @@ class Article extends AbstractBindableEntity
      * @return HDate|null
      */
     public function getBeginHDate(){
+        if($this->beginHDate === null && $this->beginDateType !== null){
+            $this->beginHDate = new HDate();
+            $this->beginHDate
+                ->setType($this->beginDateType)
+                ->setBeginDate(DateHelper::indexToDate($this->beginDateMinIndex))
+                ->setEndDate(DateHelper::indexToDate($this->beginDateMaxIndex))
+                ->updateIndexes();
+        }
         return $this->beginHDate;
     }
     
@@ -384,13 +386,15 @@ class Article extends AbstractBindableEntity
      * @return HDate|null
      */
     public function getEndHDate(){
-        if($this->endHDate !== null) return $this->endHDate;
-        
-        if($this->endDateType !== null){
-            $this->endHDate = new HDate($this->endDateType,
-                DateHelper::indexToDate($this->endDateMinIndex),
-                DateHelper::indexToDate($this->endDateMaxIndex));
+        if($this->endHDate === null && $this->endDateType !== null){
+            $this->endHDate = new HDate();
+            $this->endHDate
+                ->setType($this->endDateType)
+                ->setBeginDate(DateHelper::indexToDate($this->endDateMinIndex))
+                ->setEndDate(DateHelper::indexToDate($this->endDateMaxIndex))
+                ->updateIndexes();
         }
+
         return $this->endHDate;
     }
     

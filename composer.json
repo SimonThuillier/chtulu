@@ -3,6 +3,7 @@
 	"license" : "MIT",
 	"type" : "project",
 	"description" : "The \"Symfony Standard Edition\" distribution",
+	"minimum-stability": "beta",
 	"autoload" : {
 		"psr-4" : {
 			"" : "src/"
@@ -18,7 +19,7 @@
 		}
 	},
 	"require" : {
-		"php" : ">=5.5.9",
+		"php" : ">=7.0.0",
 		"symfony/symfony" : "3.3.6",
 		"doctrine/orm" : "^2.5",
 		"doctrine/doctrine-bundle" : "^1.6",
@@ -32,7 +33,8 @@
 		"symfony/assetic-bundle": "^2.8",
 		"twig/twig": "v2.4.3",
 		"symfony/serializer": "^3.3",
-		"patchwork/jsqueeze": "^2.0"
+		"patchwork/jsqueeze": "^2.0",
+		"monolog/monolog": "^1.23"
 	},
 	"require-dev" : {
 		"sensio/generator-bundle" : "^3.0",

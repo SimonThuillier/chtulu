@@ -22,7 +22,7 @@ class DateType
     Const MILLENIA=8;
     
     /**
-     * @var int
+     * @var integer
      *
      * @ORM\Column(name="id", type="bigint")
      * @ORM\Id
@@ -67,7 +67,7 @@ class DateType
     /**
      * Get id
      *
-     * @return int
+     * @return integer
      */
     public function getId()
     {

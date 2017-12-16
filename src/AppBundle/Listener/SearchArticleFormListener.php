@@ -2,6 +2,8 @@
 
 namespace AppBundle\Listener;
 
+use AppBundle\Helper\ArticleHelper;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use AppBundle\Form\SearchArticleType;
 use AppBundle\Factory\DTOFactoryInterface;
@@ -19,17 +21,27 @@ class SearchArticleFormListener extends AbstractFormListener
         ];
 
     const MAX_PAGE = 15;
-    
+
+    /**
+     * @var ArticleHelper
+     */
+    private $articleHelper;
+    private $logger;
+
     public function __construct(
         DTOFactoryInterface $dtoFactory,
         FormFactoryInterface $formFactory,
         ArticleCollectionDoctrineMapper $mapper,
         FormErrorHelper $formError,
-        TableActionHelperInterface $tableHelper = null
+        TableActionHelperInterface $tableHelper = null,
+        ArticleHelper $articleHelper,
+        LoggerInterface $logger
         ) {
             parent::__construct($dtoFactory, $formFactory, $mapper, $formError,$tableHelper);
+            $this->articleHelper = $articleHelper;
+        $this->logger = $logger;
     }
-    
+
 
     /**
      * @param GenericEvent $event
@@ -38,7 +50,7 @@ class SearchArticleFormListener extends AbstractFormListener
     {
         /** @var Request $request */
         $request = $event->getArgument('request');
-        
+
         $page = $request->get('page')>0 ? $request->get('page'):1;
 
         $articles = $this->mapper->findBySearch($page, self::MAX_PAGE);
@@ -47,14 +59,20 @@ class SearchArticleFormListener extends AbstractFormListener
 
         $form->handleRequest($request);
 
+        $this->logger->info("soumise : " . $form->isSubmitted() . " - valide : " . $form->isValid());
         if ($form->isSubmitted() && $form->isValid()) {
+
             $data = $form->getData();
+
+            $this->logger->info(json_encode((array)$data));
+            $this->articleHelper->deserializeDates($data);
+            $this->logger->info($data->getBeginHDate());
             $articles = $this->mapper->findBySearch(
                 $page,
                 self::MAX_PAGE,
                 $data->title,
                 $data->type,
-                $data->subType
+                $data->getBeginHDate()
             );
         }
         else{

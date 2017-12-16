@@ -79,7 +79,6 @@ class DateHelper
             $bC      = true;
         }
         $date = \DateTime::createFromFormat($format, $dateStr);
-        var_dump($date);
         if ($bC) {
             self::setYear($date, -$date->format('Y'));
         }
@@ -101,7 +100,6 @@ class DateHelper
         $reformat = $matches['day'] . '/' . 
         $matches['month'] . '/' .
         strval(intval($matches['year']));
-        var_dump($reformat);
         return self::createFromFormat('d/m/Y', $reformat);
     }
 

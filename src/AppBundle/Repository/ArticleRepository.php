@@ -1,6 +1,9 @@
 <?php
 namespace AppBundle\Repository;
 
+use AppBundle\Entity\ArticleType;
+use AppBundle\Helper\DateHelper;
+use AppBundle\Utils\HDate;
 use Doctrine\ORM\EntityRepository;
 use AppBundle\Entity\Article;
 use AppBundle\Factory\ArticleDTOFactory;
@@ -36,7 +39,7 @@ class ArticleRepository extends EntityRepository
         if ($dto instanceof ArticleMainDTO || $dto instanceof ArticleCollectionDTO) {
             $this->hydrateSubEvents($id, $dto);
         }
-        
+
         return true;
     }
 
@@ -61,9 +64,9 @@ class ArticleRepository extends EntityRepository
             ->addSelect('l.y')
             ->where('a.id = :id')
             ->setParameter('id', $id);
-        
+
         $results = $qb->getQuery()->getArrayResult();
-        
+
         foreach ($results as $result) {
             $modalDTO = new ArticleModalDTO();
             StaticHelper::mapArrayToObject($result, $modalDTO);
@@ -74,24 +77,27 @@ class ArticleRepository extends EntityRepository
     }
 
     /**
-     * 
+     *
      * @param string|null $title
-     * @param unknown $type
-     * @param unknown $subType
+     * @param ArticleType | null $type
+     * @param HDate|null $beginHDate
+     * @param HDate|null $endHDate
      * @return Query
      */
-    public function findBySearch($title = null, $type = null, $subType = null)
+    public function findBySearch($title = null, $type = null, $beginHDate = null, $endHDate = null)
     {
         /** @var \Doctrine\DBAL\Query\QueryBuilder $qb */
         $qb = $this->createQueryBuilder('a')->select('a');
 
-        
+
         if($title !== null) $qb->andWhere($qb->expr()->like('a.title', $qb->expr()->literal('%' . $title . '%')));
         if($type !== null) $qb->andWhere('a.type =: type')->setParameter('type', $type);
-        if($subType !== null) $qb->andWhere('a.subType =: subType')->setParameter('subType', $subType);
-        
+        if($beginHDate !== null){
+            $qb->andWhere('a.beginDateMinIndex >= :beginDateMinIndex')->setParameter('beginDateMinIndex', $beginHDate->getBeginDateIndex());
+        }
+
         $qb->orderBy('a.id','DESC');
-        
+
         return $qb->getQuery();
     }
 }

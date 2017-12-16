@@ -62,20 +62,19 @@ class HDate
      */
     public function __toString()
     {
-        $test = DateHelper::indexToDate($this->beginDateIndex);
-        return $test->format('Y');
-        
+        if($this->beginDate === null) return '';
+
         $label = $this->beginDate->format(self::FORMATTERS[$this->type->getId()]);
         $pieces=explode('_',$label);
         $BC = false;
 
         // specific code for rendering
-        if($this->type->getId() === DateType::PRECISE) {
+        if($this->type->getId() == DateType::PRECISE) {
             $pieces[1] = DateHelper::MONTHS[$pieces[1]-1];
             if($pieces[0] === "1") $pieces[0] = "1er";
             $label = join(' ',$pieces);
         }
-        else if($this->type->getId() === DateType::BOUNDED) {
+        else if($this->type->getId() == DateType::BOUNDED) {
             $pieces[1] = DateHelper::MONTHS[$pieces[1]-1];
             $endPieces=explode('_',$this->endDate->format(self::FORMATTERS[$this->type->getId()]));
             $endPieces[1] = DateHelper::MONTHS[$endPieces[1]-1];
@@ -95,7 +94,7 @@ class HDate
             if($preBeginLabel !== ""){$totalLabel = trim($preBeginLabel) . "~" . trim($preEndLabel) .' '. $totalLabel;}
             $label = trim($totalLabel);
         }
-        else if($this->type->getId() === DateType::MONTH) {
+        else if($this->type->getId() == DateType::MONTH) {
             $pieces[0] = DateHelper::MONTHS[$pieces[0]-1];
             $label = join(' ',$pieces);
         }
@@ -108,10 +107,10 @@ class HDate
             }
             $label = join(' ',$pieces);
         }
-        else if($this->type->getId() === DateType::DECADE){
+        else if($this->type->getId() == DateType::DECADE){
             $label = "Années " . $label;
         }
-        else if($this->type->getId() === DateType::CENTURY){
+        else if($this->type->getId() == DateType::CENTURY){
             $century = floor(intval($label)/100);
             $BC = $century < 0;
             $absoluteCentury = $BC?abs($century):($century + 1);
@@ -121,7 +120,7 @@ class HDate
                      " siècle" .
                      ($BC?" Av. JC":"");
         }
-        else if($this->type->getId() === DateType::MILLENIA){
+        else if($this->type->getId() == DateType::MILLENIA){
             $millenia = floor(intval($label)/1000);
             $BC = $millenia < 0;
             $absoluteMillenia = $BC?abs($millenia):($millenia + 1);

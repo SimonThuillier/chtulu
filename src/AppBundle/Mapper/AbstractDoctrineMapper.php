@@ -4,6 +4,7 @@ namespace AppBundle\Mapper;
 
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\Common\Persistence\ObjectManager;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\Exception\LogicException;
 use AppBundle\Entity\User;
 use AppBundle\Factory\EntityFactoryInterface;
@@ -36,6 +37,10 @@ abstract class AbstractDoctrineMapper implements MapperInterface
      * @var string
      */
     protected $currentUser;
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
 
     /**
      * @return ObjectManager
@@ -59,7 +64,8 @@ abstract class AbstractDoctrineMapper implements MapperInterface
         string $entityName,
         EntityFactoryInterface $entityFactory = null,
         PaginatorFactoryInterface $paginatorFactory = null,
-        User $user = null
+        User $user = null,
+        LoggerInterface $logger
     )
     {
         $this->doctrine         = $doctrine;
@@ -67,6 +73,7 @@ abstract class AbstractDoctrineMapper implements MapperInterface
         $this->entityFactory    = $entityFactory;
         $this->paginatorFactory = $paginatorFactory;
         $this->currentUser      = $user;
+        $this->logger = $logger;
     }
 
     /**

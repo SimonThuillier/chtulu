@@ -5,6 +5,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use AppBundle\Entity\Article;
 use AppBundle\Form\ArticleMainType;
+use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -14,6 +15,7 @@ use AppBundle\DTO\ArticleCollectionDTO;
 use AppBundle\Factory\ArticleDTOFactory;
 use AppBundle\Form\ArticleModalType;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Serializer\SerializerInterface;
 use AppBundle\Helper\ArticleHelper;
 use AppBundle\Entity\ArticleType;
@@ -44,8 +46,8 @@ class ArticleController extends Controller
      * @Method({"GET","POST"})
      */
     public function createAction(Request $request, ArticleDTOFactory $articleDTOFactory,
-        ArticleCollectionDoctrineMapper $collectionMapper,ArticleHelper $articleHelper,
-        HDateSerializer $hDateSerializer)
+                                 ArticleCollectionDoctrineMapper $collectionMapper,ArticleHelper $articleHelper,
+                                 HDateSerializer $hDateSerializer)
     {
         /** @var ArticleCollectionDTO $articleDTO */
         $articleDTO = $articleDTOFactory->newInstance("main_collection");
@@ -56,7 +58,7 @@ class ArticleController extends Controller
         /** @var FormInterface $modaForm */
         $modalForm = $this->get('form.factory')->createBuilder(ArticleModalType::class)
             ->setData($articleDTOFactory->newInstance("modal"))->getForm();
-        
+
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
@@ -69,7 +71,7 @@ class ArticleController extends Controller
                     )
                 ));
             } else {
-                
+
                 return $this->render('::debug.html.twig', array(
                     'debug' => array(
                         'formData' => json_encode($form->getData()),
@@ -80,7 +82,7 @@ class ArticleController extends Controller
                 ));
             }
         }
-        
+
         return $this->render('@AppBundle/Article/create.html.twig',array(
             'typeSubtypeArray' => $this->getDoctrine()->getManager()->getRepository(ArticleType::class)->getTypeSubTypeArray(),
             'form' => $form->createView(),
@@ -89,10 +91,10 @@ class ArticleController extends Controller
             'endDate' =>(new \DateTime())
         ));
     }
-    
+
     /**
      * @Route("/test",name="article_test")
-     */ 
+     */
     public function testAction(HDateFactory $dateFactory)
     {
         /** @var \DateTime $date */
@@ -100,19 +102,19 @@ class ArticleController extends Controller
         // $date->modify("-1 year");
         $date2 = clone $date ;
         DateHelper::switchToNextSeason($date2);
-        
+
         $dateType = $this->getDoctrine()->getRepository('AppBundle:DateType')
-        ->find(DateType::PRECISE);
+            ->find(DateType::PRECISE);
         $hDate = $dateFactory->newInstance($dateType, $date);
         $hDate2 = $dateFactory->newInstance($dateType, $date2);
-        
+
         AutoMapper::autoMap($hDate, $hDate2);
-        
+
         $index = DateHelper::dateToIndex($date);
         $newDate = DateHelper::indexToDate($index);
-        
+
         $date0 = \DateTime::createFromFormat('d/m/Y', '01/05/0000');
-        
+
         return $this->render('::debug.html.twig', array(
             'debug' => array(
                 'date' => $date->format('d/m/Y'),
@@ -142,14 +144,14 @@ class ArticleController extends Controller
      * @Method({"GET","POST"})
      */
     public function editAction(Article $article,Request $request, ArticleDTOFactory $articleDTOFactory,ArticleHelper $helper,
-        ArticleCollectionDoctrineMapper $collectionMapper)
+                               ArticleCollectionDoctrineMapper $collectionMapper)
     {
         /** @var ArticleRepository */
         $repo = $this->getDoctrine()->getRepository('AppBundle:Article');
         /** @var ArticleCollectionDTO $articleDTO */
         $articleDTO = $articleDTOFactory->newInstance("main_collection");
         $repo->bindDTO($article->getId(),$articleDTO);
-        
+
         foreach($articleDTO->subEventsArray as $subEvent){
             $subEvent->url = $this->generateUrl('article_edit',array("article" => $subEvent->id));
         }
@@ -157,11 +159,11 @@ class ArticleController extends Controller
         /** @var ArticleModalDTO $articleModalDTO */
         /** @var ArticleMainType $form */
         $form = $this->get('form.factory')->createBuilder(ArticleMainType::class)
-        ->setData($articleDTO)->getForm();
+            ->setData($articleDTO)->getForm();
         /** @var FormInterface $modaForm */
         $modalForm = $this->get('form.factory')->createBuilder(ArticleModalType::class)
-        ->setData($articleDTOFactory->newInstance("modal"))->getForm();
-        
+            ->setData($articleDTOFactory->newInstance("modal"))->getForm();
+
         /*return $this->render('::debug.html.twig', array(
             'debug' => array(
                 'subEvents' => $articleDTO->subEvents,
@@ -171,8 +173,8 @@ class ArticleController extends Controller
                 'dto' => json_encode($articleDTO),
             )
         ));*/
-        
-        
+
+
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
@@ -181,8 +183,8 @@ class ArticleController extends Controller
                 // $articleCollectionDTO = $serializer->deserialize($articleDTO->getSubEvents(), null, 'json');
                 /** ArticleCollectionDoctrineMapper $mapper */
                 $collectionMapper->edit($article->getId(),$articleDTO);
-                
-                
+
+
                 return $this->render('::debug.html.twig', array(
                     'debug' => array(
                         "dto" => json_encode($articleDTO),
@@ -190,7 +192,7 @@ class ArticleController extends Controller
                     )
                 ));
             } else {
-                
+
                 return $this->render('::debug.html.twig', array(
                     'debug' => array(
                         'formErrors' => json_encode($form['endDate']->getErrors()),
@@ -200,7 +202,7 @@ class ArticleController extends Controller
                 ));
             }
         }
-        
+
         return $this->render('@AppBundle/Article/edit.html.twig',array(
             'article' => $articleDTO,
             'typeSubtypeArray' => $this->getDoctrine()->getManager()->getRepository(ArticleType::class)->getTypeSubTypeArray(),
@@ -208,21 +210,34 @@ class ArticleController extends Controller
             'modalForm' => $modalForm->createView(),
             'beginDate' => ($articleDTO->isBeginDateApprox)?$articleDTO->minBeginDate:$articleDTO->beginDate,
             'endDate' =>($articleDTO->hasNotEndDate)?new \DateTime():
-            (($articleDTO->isEndDateApprox)?$articleDTO->maxEndDate:$articleDTO->endDate)
+                (($articleDTO->isEndDateApprox)?$articleDTO->maxEndDate:$articleDTO->endDate)
         ));
     }
-    
+
     /**
      * @Route("/list",name="article_list")
      * @Method({"GET","POST"})
      */
     public function listAction(Request $request,GenericProcessor $processor,SearchArticleFormListener $listener)
     {
-        /** @var Event$result */
-        $result = $processor->addSubscriber($listener)->process($request);
-        
+        /** @var Session $session */
+        $session = $this->get('session');
+
+        if($request->getMethod() === 'GET' && $session->has('articleListResponse')){
+            $result = $session->get('articleListResponse');
+            $session->remove('articleListResponse');
+        }
+        else if($request->getMethod() === 'POST'){
+            $result = $processor->addSubscriber($listener)->process($request);
+            $session->set('articleListResponse',$result);
+            return new JsonResponse(['success'=>true]);
+        }
+        else{
+            /** @var Event $result */
+            $result = $processor->addSubscriber($listener)->process($request);
+        }
         return $this->render('@AppBundle/Article/list.html.twig',$result);
     }
-    
-    
+
+
 }
