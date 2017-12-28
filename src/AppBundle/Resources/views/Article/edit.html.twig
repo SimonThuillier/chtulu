@@ -25,7 +25,7 @@ Edition d'un article
 	<div id="header"></div>
 
 	<div id="page">
-		{% include 'AppBundle:Article:article_main_form.html.twig' with {'form':form,'typeSubtypeArray':typeSubtypeArray} %}
+		{% include 'AppBundle:Article:article_main_form.html.twig' with {'form':form} %}
 	</div>
 </div>
 <div id="{{ modalForm.vars.id }}">{% include 'AppBundle:Article:article_modal_form.html.twig' with {'form':modalForm} %}</div>
@@ -57,14 +57,14 @@ if({{endDate|date("Y")}} < 1000 && {{endDate|date("Y")}} >=0){
 	d2.setFullYear({{endDate|date("Y")}});
 }
 d2.setHours(0,0,0,0);
-var hts = new HTimeScroller("#hts-svgcontainer",d1,d2,null,{{article.id }}, htsOptions);
+
 
 $(function () {
 	var prevHeight = $('div#hts-event-container').height();
 	var deltaHeight = $("#hts-svgcontainer").attr("height") - prevHeight;
 	$('div#hts-event-container').attrchange({
 		callback: function (e) {
-			var curHeight = $(this).height();            
+			var curHeight = $(this).height();
 			if (prevHeight !== curHeight) {
 				$("#hts-svgcontainer").attr("height",curHeight + deltaHeight);
 				hts.updateSpatialData(false);
@@ -72,7 +72,7 @@ $(function () {
 				hts.redrawComponent('event-fcontainer');
 				hts.redrawComponent('event-container');
 				prevHeight = curHeight;
-			}  
+			}
 		}
 	});
 });
@@ -85,7 +85,7 @@ hts.eventManager.loadSubEvents('article_main');
 console.log(hts.eventManager.maxYArea);
 initializeContainerHeight();
 $("#article_main_form").on("submit",function(event){
-	  hts.eventManager.prepareSubmission('article_modal','article_main');	
+	  hts.eventManager.prepareSubmission('article_modal','article_main');
 });
 
 

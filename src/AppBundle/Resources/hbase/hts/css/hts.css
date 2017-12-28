@@ -75,7 +75,7 @@ text.hts-grad {
 text.hts-grad:hover {
 	fill:DimGray;
 	font-size:16px;
-	font-weight:Bold;	
+	font-weight:Bold;
 }
 line.hts-grad {
 	stroke-width:2;
@@ -135,6 +135,10 @@ div.hb-modal-z6{
 div.hb-modal-z7{
 	z-index: 10000000;
 }
-
-
+div.hb-modal-z8{
+	z-index: 100000000;
+}
+div.hb-modal-z9{
+	z-index: 1000000000;
+}
 

@@ -18,14 +18,18 @@
 				 '@AppBundle/Resources/third-party/jQueryUI/jquery-ui.theme.min.css'
 				 '@AppBundle/Resources/third-party/jQueryUI/jquery-ui.css'
                  '@AppBundle/Resources/third-party/AdminLTE/css/AdminLTE.min.css'
-                 '@AppBundle/Resources/third-party/AdminLTE/css/skins/_all-skins.min.css' 
-                 '@AppBundle/Resources/third-party/ionicons/css/ionicons.min.css'
+                 '@AppBundle/Resources/third-party/AdminLTE/css/skins/_all-skins.min.css'
+                 '@AppBundle/Resources/third-party/font-awesome/css/font-awesome.css'
                  '@AppBundle/Resources/third-party/iCheck/css/square/blue.css'
                  '@AppBundle/Resources/third-party/vex/css/vex.css'
                  '@AppBundle/Resources/third-party/vex/css/vex-theme-os.css'
   filter='cssrewrite' %}
 {% endstylesheets %}
 <link rel="stylesheet" href="{{ path('homepage') }}css/app.css" />
+
+
+
+
 {% block stylesheets %}
 {% endblock %}
 
@@ -244,16 +248,16 @@
 						</span>
 					</a>
 					<li class="treeview"><a href="#"> <i
-							class="fa fa-dashboard"></i> <span>Ecrire</span> <span
+							class="fa fa-pencil"></i> <span>Ecrire</span> <span
 							class="pull-right-container"> <i
 								class="fa fa-angle-left pull-right"></i>
 						</span>
 					</a>
 						<ul class="treeview-menu">
 							<li><a href="{{ path('article_create') }}"><i
-									class="fa fa-circle-o"></i>Creer article</a></li>
+									class="fa fa-plus"></i>Creer article</a></li>
 							<li><a href="{{ path('article_list') }}"><i
-									class="fa fa-circle-o"></i>Rechercher article</a></li>
+									class="fa fa-search"></i>Rechercher article</a></li>
 						</ul>
 					</li>
 					<li class="treeview"><a href="#"> <i

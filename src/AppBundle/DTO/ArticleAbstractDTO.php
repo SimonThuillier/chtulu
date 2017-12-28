@@ -10,7 +10,7 @@ use AppBundle\Utils\HDate;
 use AppBundle\Entity\DateType;
 
 /**
- * 
+ *
  * @author belze
  * DTO for handling article form and mapping with entities (Article,...)
  */
@@ -18,33 +18,29 @@ abstract class ArticleAbstractDTO
 {
     public function __construct()
     {
-    }  
-    
-    /** @var string 
+    }
+
+    /** @var string
      * @Groups("group1")
      */
     public $title;
-    /** @var ArticleType 
-     * @Groups("group1") 
+    /** @var ArticleType
+     * @Groups("group1")
      */
     public $type;
-    /** @var ArticleSubType 
-     @Groups("group1") 
-     */
-    public $subType;
     /** @var string
-    * @Groups("group1") 
+    * @Groups("group1")
     */
     public $abstract;
     /** @var string
      * @Groups("group1") */
-    
+
     /** @var HDate */
     protected $beginHDate;
     /** @var string
      * @Groups("group1") */
     protected $beginDateLabel;
-    
+
     /** @var boolean
      * @Groups("group1") */
     protected $hasEndDate = true;
@@ -53,7 +49,7 @@ abstract class ArticleAbstractDTO
     /** @var string
      * @Groups("group1") */
     protected $endDateLabel;
-    
+
     /**
      * get beginDateLabel
      * @return string
@@ -61,7 +57,7 @@ abstract class ArticleAbstractDTO
     public function getBeginDateLabel(){
         return $this->beginDateLabel;
     }
-    
+
     /**
      * beginDateLabel
      * @param string $beginDateLabel
@@ -71,7 +67,7 @@ abstract class ArticleAbstractDTO
         $this->beginDateLabel = $beginDateLabel;
         return $this;
     }
-    
+
 
     /**
      * get endDateLabel
@@ -80,7 +76,7 @@ abstract class ArticleAbstractDTO
     public function getEndDateLabel(){
         return $this->endDateLabel;
     }
-    
+
     /**
      * endDateLabel
      * @param string $endDateLabel
@@ -90,18 +86,18 @@ abstract class ArticleAbstractDTO
         $this->endDateLabel = $endDateLabel;
         return $this;
     }
-    
+
     /**
-     * 
+     *
      * @return boolean
      */
     public function getHasEndDate(){
         if ($this->title == null) return true;
         return $this->hasEndDate;
     }
-    
+
     /**
-     * 
+     *
      * @param boolean $hasEndDate
      * @return self
      */
@@ -112,7 +108,7 @@ abstract class ArticleAbstractDTO
             $this->endDateLabel = null;
         }
     }
-    
+
     /**
      * beginHDate
      * @return HDate

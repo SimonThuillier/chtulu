@@ -40,7 +40,7 @@ twig:
     strict_variables: "%kernel.debug%"
     paths:
         "%kernel.root_dir%/../src/AppBundle/Resources/views": AppBundle
-    
+
 assetic:
     debug:          '%kernel.debug%'
     use_controller: '%kernel.debug%'
@@ -51,64 +51,64 @@ assetic:
        font-awesome-css:
           inputs: '@AppBundle/Resources/third-party/font-awesome/css/font-awesome.css'
           output: '/Resources/third-party/font-awesome/css/font-awesome.css'
-       font-awesome-eot: 
+       font-awesome-eot:
           inputs: '@AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.eot'
           output: 'Resources/third-party/font-awesome/fonts/fontawesome-webfont.eot'
-       font-awesome-otf: 
+       font-awesome-otf:
           inputs: '@AppBundle/Resources/third-party/font-awesome/fonts/FontAwesome.otf'
-          output: '/Resources/third-party/font-awesome/fonts/fontawesome-webfont.otf'    
-       font-awesome-svg: 
+          output: '/Resources/third-party/font-awesome/fonts/fontawesome-webfont.otf'
+       font-awesome-svg:
           inputs: '@AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.svg'
           output: '/Resources/third-party/font-awesome/fonts/fontawesome-webfont.svg'
-       font-awesome-ttf: 
+       font-awesome-ttf:
           inputs: '@AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.ttf'
-          output: '/Resources/third-party/font-awesome/fonts/fontawesome-webfont.ttf' 
-       font-awesome-woff: 
+          output: '/Resources/third-party/font-awesome/fonts/fontawesome-webfont.ttf'
+       font-awesome-woff:
           inputs: '@AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.woff'
-          output: '/Resources/third-party/font-awesome/fonts/fontawesome-webfont.woff' 
-       font-awesome-woff2: 
+          output: '/Resources/third-party/font-awesome/fonts/fontawesome-webfont.woff'
+       font-awesome-woff2:
           inputs: '@AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.woff2'
-          output: '/Resources/third-party/font-awesome/fonts/fontawesome-webfont.woff2'  
+          output: '/Resources/third-party/font-awesome/fonts/fontawesome-webfont.woff2'
        glyphicons-halflings-regular-ttf:
           inputs: '@AppBundle/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.ttf'
           output: '/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.ttf'
        glyphicons-halflings-regular-woff:
           inputs: '@AppBundle/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.woff'
-          output: '/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.woff'   
+          output: '/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.woff'
        glyphicons-halflings-regular-woff2:
           inputs: '@AppBundle/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.woff2'
           output: '/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.woff2'
        icheck-square-blue:
-          inputs: '@AppBundle/resources/third-party/iCheck/css/square/blue.png'
-          output: '/resources/third-party/iCheck/css/square/blue.png'    
+          inputs: '@AppBundle/Resources/third-party/iCheck/css/square/blue.png'
+          output: '/resources/third-party/iCheck/css/square/blue.png'
        icheck-square-blue2:
-          inputs: '@AppBundle/resources/third-party/iCheck/css/square/blue@2x.png'
-          output: '/resources/third-party/iCheck/css/square/blue@2x.png'              
+          inputs: '@AppBundle/Resources/third-party/iCheck/css/square/blue@2x.png'
+          output: '/resources/third-party/iCheck/css/square/blue@2x.png'
        ionicons-ttf:
           inputs: '@AppBundle/Resources/third-party/ionicons/fonts/ionicons.ttf'
-          output: '/Resources/third-party/ionicons/fonts/ionicons.ttf'  
+          output: '/Resources/third-party/ionicons/fonts/ionicons.ttf'
        ionicons-woff:
           inputs: '@AppBundle/Resources/third-party/ionicons/fonts/ionicons.woff'
-          output: '/Resources/third-party/ionicons/fonts/ionicons.woff'                                                                                                           
-       tinymce-css: 
+          output: '/Resources/third-party/ionicons/fonts/ionicons.woff'
+       tinymce-css:
           inputs: '@AppBundle/Resources/third-party/tinymce/tests/manual/css/development.css'
-          output: '/Resources/third-party/tinymce/css/development.css'   
-       tinymce-skin-css: 
+          output: '/Resources/third-party/tinymce/css/development.css'
+       tinymce-skin-css:
           inputs: '@AppBundle/Resources/third-party/tinymce/js/tinymce/skins/lightgray/skin.min.css'
           output: '/js/skins/lightgray/skin.min.css'
-       tinymce-ttf: 
+       tinymce-ttf:
           inputs: '@AppBundle/Resources/third-party/tinymce/js/tinymce/skins/lightgray/fonts/tinymce.ttf'
-          output: '/js/skins/lightgray/fonts/tinymce.ttf' 
-       tinymce-woff: 
+          output: '/js/skins/lightgray/fonts/tinymce.ttf'
+       tinymce-woff:
           inputs: '@AppBundle/Resources/third-party/tinymce/js/tinymce/skins/lightgray/fonts/tinymce.woff'
-          output: '/js/skins/lightgray/fonts/tinymce.woff'    
-       tinymce-autolink: 
+          output: '/js/skins/lightgray/fonts/tinymce.woff'
+       tinymce-autolink:
           inputs: '@AppBundle/Resources/third-party/tinymce/js/tinymce/plugins/autolink/plugin.js'
-          output: '/js/plugins/autolink/plugin.js'               
-                  
+          output: '/js/plugins/autolink/plugin.js'
+
     filters:
-        cssrewrite: ~ 
-        jsqueeze: ~   
+        cssrewrite: ~
+        jsqueeze: ~
 
 # Doctrine Configuration
 doctrine:
@@ -138,7 +138,7 @@ doctrine:
                 FLOOR: AppBundle\DQL\Floor
                 IF: AppBundle\DQL\IfElse
                 IFNULL: AppBundle\DQL\IfNull
-            datetime_functions: 
+            datetime_functions:
                 DATE_FORMAT: AppBundle\DQL\DateFormat
 
 # Swiftmailer Configuration

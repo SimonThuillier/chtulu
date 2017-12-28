@@ -7,7 +7,7 @@ class StaticHelper
 
     /**
      * genrically map at runtime an array to corresponding object properties
-     * 
+     *
      * @param array $array
      * @param mixed $object
      */
@@ -17,10 +17,8 @@ class StaticHelper
                 $object->$key = $value;
         }
     }
-    
-    /**
-     * Once the articleDTO is completed, performs various tasks to make it available for future use
-     * Notably updates dates precision and presence */
+
+/** Deprecated
     static function finalizeArticleDTO($dto){
         $dto->isBeginDateApprox = true;
         $dto->beginDate = null;
@@ -43,8 +41,8 @@ class StaticHelper
             $dto->hasNotEndDate = false;
             $dto->isEndDateApprox = true;
         }
-    }
-    
+    }*/
+
     static function getDateOptions($label)
     {
         return array(

@@ -21,10 +21,10 @@ class SecurityController extends Controller
     {
         // get the login error if there is one
         $error = $authUtils->getLastAuthenticationError();
-        
+
         // last username entered by the user
         $lastUsername = $authUtils->getLastUsername();
-        
+
         /** @var Session $session */
         $session = $this->get('session');
         if ($request->getMethod() === "POST" && $error === null) {
@@ -32,8 +32,8 @@ class SecurityController extends Controller
                 ->getToken()
                 ->getUser());
         }
-        
-        return $this->render('AppBundle:security:login.html.twig', array(
+
+        return $this->render('AppBundle:Security:login.html.twig', array(
             'last_username' => $lastUsername,
             'error' => $error
         ));
@@ -41,7 +41,7 @@ class SecurityController extends Controller
 
     /**
      * @Route("/logout",name="logout")
-     * 
+     *
      * @param Request $request
      */
     public function logoutAction(Request $request)

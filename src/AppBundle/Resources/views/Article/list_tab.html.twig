@@ -1,14 +1,11 @@
 <div class="highlight row">
 	<div class="col-12 mb-2">
-		<form class="form-inline hbase-article-form" method="post" action="{{ path('article_list') }}" id="search-site">
-			{{ form_label(form_search.title, 'Titre', {'label_attr': {'class': 'mr-sm-2'}}) }}
+		<form class="form-inline hbase-article-form" method="post" action="{{ path('article_list') }}" id="search-article">
+			{{ form_label(form_search.title, 'Recherche', {'label_attr': {'class': 'mr-sm-2'}}) }}
 			{{ form_widget(form_search.title,  {'attr': {'class': 'form-control form-control-sm mb-2 mr-sm-2 mb-sm-0'}}) }}
 
 			{{ form_label(form_search.type, 'Type', {'label_attr': {'class': 'mr-sm-2'}}) }}
 			{{ form_widget(form_search.type,  {'attr': {'class': 'form-control form-control-sm mb-2 mr-sm-2 mb-sm-0'}}) }}
-
-			{{ form_label(form_search.subType, 'Sous-type', {'label_attr': {'class': 'mr-sm-2'}}) }}
-			{{ form_widget(form_search.subType,  {'attr': {'class': 'form-control form-control-sm mb-2 mr-sm-2 mb-sm-0'}}) }}
 
             {{ form_label(form_search.beginDateLabel, 'Début', {'label_attr': {'class': 'mr-sm-2'}}) }}
             {{ form_widget(form_search.beginDateLabel,  {'attr': {'class': 'form-control form-control-sm mb-2 mr-sm-2 mb-sm-0 hts-date-input hbase-hdatepicker'}}) }}
@@ -21,11 +18,11 @@
 	</div>
 	<div class="col-3">
 		<button class="btn btn-primary btn-sm" form="search-site">
-			<i class="fa fa-search" aria-hidden="true"></i> Filter
+			<i class="fa fa-search" aria-hidden="true"></i>Rechercher
 		</button>
 		<button type="button" class="btn btn-default btn-sm btn-reset"
 			data-form="search-site">
-			<i class="fa fa-undo" aria-hidden="true"></i> Vider
+			<i class="fa fa-undo" aria-hidden="true"></i>Effacer filtres
 		</button>
 	</div>
 	<div class="ml-auto col-3 pull-right">
@@ -51,7 +48,7 @@
 				<th>Date Début</th>
 				<th>Date Fin</th>
 				<th>Derniere edition</th>
-				<th class="text-center">Action</th>
+				<th>Action</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -62,6 +59,8 @@
 				<td>{% if article.beginHDate is not null %}{{ article.beginHDate.label }}{% endif %}</td>
 				<td>{% if article.endHDate is not null %}{{ article.endHDate.label }}{% endif %}</td>
 				<td>{{ article.editionDate|date("m/d/Y") }}</td>
+				<td><a class="hbase-article"><i class="fa fa-eye" aria-hidden="true"></i></a>&nbsp;
+					<a href="{{ path('article_edit',{'article':article.id}) }}"><i class="fa fa-pencil" aria-hidden="true"></i></a></td>
 			</tr>
 			{% else %}
 			<tr>

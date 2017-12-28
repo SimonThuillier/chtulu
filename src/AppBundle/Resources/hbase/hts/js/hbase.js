@@ -43,7 +43,7 @@ $.hbase.func.factory = function(type)
     {
         var $modal = $("<div>").dialog({
             autoOpen: false,
-            dialogClass: "hb-$modal-z" + z,
+            dialogClass: "hb-modal-z" + z,
             show: {
                 effect: "fade",
                 duration: fadeTime
@@ -286,9 +286,8 @@ $.widget( "hbase.hmaxlength", {
     _create: function() {
         console.log("create hmaxlength widget");
         var $element = $(this.element);
-        if($element.hasClass("hmaxlength-enabled")){
-            return;
-        }
+        $element.removeClass("hmaxlength-active");
+        if($element.hasClass("hmaxlength-enabled")){return;}
         console.log($element);
         var $paragraph = $.hbase.func.factory("hmaxlength");
         $paragraph.setLength($element.text().length);

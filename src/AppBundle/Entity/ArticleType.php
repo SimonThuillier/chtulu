@@ -18,7 +18,7 @@ class ArticleType
     const EVENT=1;
     const CHARACTER=2;
     const THEME=3;
-    
+
     /**
      * @var int
      * @ORM\Column(name="id", type="bigint")
@@ -34,13 +34,6 @@ class ArticleType
      * @Groups("group1")
      */
     private $label;
-    
-    /**
-     * @var ArrayCollection
-     * @ORM\OneToMany(targetEntity="ArticleSubType", mappedBy="type")
-     * @Groups("group2")
-     */
-    private $subTypes;
 
     public function __toString()
     {
@@ -76,14 +69,6 @@ class ArticleType
     public function getLabel()
     {
         return $this->label;
-    }
-    
-    /**
-     * Get subTypes
-     * @return ArrayCollection
-     */
-    public function getSubTypes(){
-        return $this->subTypes;
     }
 }
 
