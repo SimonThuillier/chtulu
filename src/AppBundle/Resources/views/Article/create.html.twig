@@ -52,6 +52,9 @@ Creer un article
 		{% include 'AppBundle:Article:article_main_form.html.twig' with {'form':form} %}
 	</div>
 </div>
+
+<button id="modal-test" type="button" class="btn btn-info btn-lg" data-toggle="modal">Open Modal</button>
+
 <div id="{{ modalForm.vars.id }}">
 	{% include 'AppBundle:Article:article_modal_form.html.twig' with {'form':modalForm} %}
 </div>
@@ -67,8 +70,13 @@ Creer un article
 {% block javascript %}
 {% include 'AppBundle:Article:hts-package.js.twig' %}
 <script type="text/javascript">{% include '@AppBundle/Resources/views/Article/article_form.js' %}</script>
-
 <script>
+    $("#modal-test").click(function(){
+        $.hbase.modal.article.form.sfAttr('title').val("hello !");
+        $.hbase.modal.article.modal();
+	});
+
+
 finalizeForm('main');
 
 var d1 = new Date({{ beginDate|date("Y")}},{{ beginDate|date("m") - 1 }},{{ beginDate|date("d") }});

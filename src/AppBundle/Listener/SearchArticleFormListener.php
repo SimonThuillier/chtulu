@@ -64,15 +64,18 @@ class SearchArticleFormListener extends AbstractFormListener
 
             $data = $form->getData();
 
-            $this->logger->info(json_encode((array)$data));
+
             $this->articleHelper->deserializeDates($data);
+            $this->logger->info(json_encode((array)$data));
             $this->logger->info($data->getBeginHDate());
+            $this->logger->info($data->getEndHDate());
             $articles = $this->mapper->findBySearch(
                 $page,
                 self::MAX_PAGE,
                 $data->title,
                 $data->type,
-                $data->getBeginHDate()
+                $data->getBeginHDate(),
+                $data->getEndHDate()
             );
             // to return form with good label
             $data->setBeginDateLabel($data->getBeginHDate()!==null?$data->getBeginHDate()->getLabel():null);

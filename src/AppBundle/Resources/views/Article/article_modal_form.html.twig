@@ -2,42 +2,29 @@
 	{{ form_errors(form) }}
 	<table class="table-condensed">
 		<tr>
-			<td />
-			{{ form_label(form.title) }}
-			<td />
-			{{ form_widget(form.title) }}
+			<td />{{ form_label(form.title) }}
+			<td />{{ form_widget(form.title) }}
 		</tr>
 		<tr>
-			<td />
-			{{ form_label(form.type) }}
-			<td />
-			{{ form_widget(form.type) }}
+			<td />{{ form_label(form.type) }}
+			<td />{{ form_widget(form.type) }}
 		</tr>
 		<tr>
-			<td />
-			{{ form_label(form.abstract) }}
-			<td />
-			{{ form_widget(form.abstract) }}
+			<td />{{ form_label(form.abstract) }}
+			<td class="hbase-text"/>{{ form_widget(form.abstract) }}
 		</tr>
 		<tr>
-			<td />
-			{{ form_label(form.beginDateLabel) }}
-			<td />
-			{{ form_widget(form.beginDateLabel) }}
+			<td />{{ form_label(form.beginDateLabel) }}
+			<td />{{ form_widget(form.beginDateLabel) }}
 		</tr>
 		<tr>
-			<td />
-			{{ form_label(form.endDateLabel) }}
-			&nbsp
-			{{ form_widget(form.hasEndDate) }}
-			<td />
-			{{ form_widget(form.endDateLabel) }}
+			<td class="hbase-label"/>{{ form_label(form.endDateLabel) }}
+			&nbsp{{ form_widget(form.hasEndDate) }}
+			<td />{{ form_widget(form.endDateLabel) }}
 		</tr>
 		<tr id="article_modal_y_row" hidden=true>
-			<td />
-			{{ form_label(form.y) }}
-			<td />
-			{{ form_widget(form.y) }}
+			<td />{{ form_label(form.y) }}
+			<td />{{ form_widget(form.y) }}
 		</tr>
 	</table>
 	<div hidden=true>

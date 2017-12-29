@@ -2,6 +2,7 @@
 
 namespace AppBundle\Helper;
 
+use AppBundle\Entity\Article;
 use Symfony\Component\Serializer\SerializerInterface;
 use AppBundle\DTO\ArticleAbstractDTO;
 use AppBundle\DTO\ArticleCollectionDTO;
@@ -70,7 +71,15 @@ class ArticleHelper
             'subEventsCount' => $articleDTO->subEventsCount,
             'subEventsArray' => $articleDTO->subEventsArray], 'json');
     }
-    
+
+    /**
+     * @param $article
+     * @return string
+     */
+    public function serializeArticle(Article $article)
+    {
+        return $this->serializer->serialize($article, 'json');
+    }
     
     /**
      * 

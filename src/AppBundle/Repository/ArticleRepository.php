@@ -79,7 +79,6 @@ class ArticleRepository extends EntityRepository
     }
 
     /**
-     *
      * @param string|null $title
      * @param ArticleType | null $type
      * @param HDate|null $beginHDate

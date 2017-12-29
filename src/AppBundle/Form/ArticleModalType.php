@@ -1,6 +1,8 @@
 <?php
 namespace AppBundle\Form;
 
+use AppBundle\Entity\ArticleType;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -19,52 +21,59 @@ class ArticleModalType extends AbstractType
     {
         $builder->add('title', TextType::class, array(
             'label' => 'Titre',
-            'required' => true,
+            'attr' => array(
+                'class' => 'hbase-hmaxlength',
+                'maxlength' => 60,
+                'size'=>60
+            ),
             'label_attr' => array(
                 'placeholder' => 'Titre'
             )
         ))
             ->add('type', EntityType::class, array(
-            'label' => "Type ",
-            'class' => 'AppBundle:ArticleType',
-            'required' => true,
-            'empty_data' => 'Selectionnez un type d\'article'
-        ))
+                'label' => "Type ",
+                'class' => ArticleType::class,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->getFindAllQB();
+                },
+                'required' => true,
+                'empty_data' => 'Selectionnez un type d\'article'
+            ))
             ->add('abstract', TextareaType::class, array(
-            'label' => "Resumé ",
-            'attr' => array(
-               'class' => 'hbase-hmaxlength hbase-text',
-                'maxlength' => 2000
-            )
-        ))
-        ->add('beginDateLabel', TextType::class, array(
-            'label' => 'Date de début',
-            'required' => true,
-            'attr' => [
-                'class' => 'hts-date-input hbase-hdatepicker',
-                'placeholder' => 'Date de Début',
-                'hbase-default-required' => true
-            ]
-        ))
-        ->add('hasEndDate', CheckboxType::class, array(
-            'label' => "A une date de fin",
-            'required' => false,
-            'attr' => array(
-                'class' => 'checkbox icheck hbase-activer',
-                'style' => 'display:inline',
-                'hbase-checked' => '#article_modal_live_endDateLabel',
-                'hbase-default-required' => true
-            )
-        ))
-        ->add('endDateLabel', TextType::class, array(
-            'label' => 'Date de fin',
-            'required' => true,
-            'attr' => [
-                'class' => 'hts-date-input hbase-hdatepicker',
-                'placeholder' => 'Date de fin',
-                'hbase-default-required' => true
-            ]
-        ))
+                'label' => "Resumé ",
+                'attr' => array(
+                    'class' => 'hbase-hmaxlength hbase-text',
+                    'maxlength' => 2000
+                )
+            ))
+            ->add('beginDateLabel', TextType::class, array(
+                'label' => 'Date de début',
+                'required' => true,
+                'attr' => [
+                    'class' => 'hts-date-input hbase-hdatepicker',
+                    'placeholder' => 'Date de Début',
+                    'hbase-default-required' => true
+                ]
+            ))
+            ->add('hasEndDate', CheckboxType::class, array(
+                'label' => "A une date de fin",
+                'required' => false,
+                'attr' => array(
+                    'class' => 'checkbox icheck hbase-activer',
+                    'style' => 'display:inline',
+                    'hbase-checked' => '#article_modal_live_endDateLabel',
+                    'hbase-default-required' => true
+                )
+            ))
+            ->add('endDateLabel', TextType::class, array(
+                'label' => 'Date de fin',
+                'required' => true,
+                'attr' => [
+                    'class' => 'hts-date-input hbase-hdatepicker',
+                    'placeholder' => 'Date de fin',
+                    'hbase-default-required' => true
+                ]
+            ))
             ->add('y', DateType::class, array(
                 'attr' => array('hidden' => true)
             ));

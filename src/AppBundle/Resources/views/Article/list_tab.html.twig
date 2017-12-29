@@ -14,28 +14,15 @@
             {{ form_widget(form_search.endDateLabel,  {'attr': {'class': 'form-control form-control-sm mb-2 mr-sm-2 mb-sm-0 hts-date-input hbase-hdatepicker'}}) }}
 
 			{{ form_rest(form_search) }}
+			<div class="col-3">
+				<button class="btn btn-primary btn-sm">
+					<i class="fa fa-search" aria-hidden="true"></i>Rechercher
+				</button>
+				<button type="button" class="btn btn-default btn-sm btn-reset">
+					<i class="fa fa-undo" aria-hidden="true"></i>Effacer filtres
+				</button>
+			</div>
 		</form>
-	</div>
-	<div class="col-3">
-		<button class="btn btn-primary btn-sm" form="search-site">
-			<i class="fa fa-search" aria-hidden="true"></i>Rechercher
-		</button>
-		<button type="button" class="btn btn-default btn-sm btn-reset"
-			data-form="search-site">
-			<i class="fa fa-undo" aria-hidden="true"></i>Effacer filtres
-		</button>
-	</div>
-	<div class="ml-auto col-3 pull-right">
-		<button type="button" class="btn btn-primary btn-sm" id="add-site">
-			<i class="fa fa-plus" aria-hidden="true"></i> Ajout
-		</button>
-		<button type="button" class="btn btn-primary btn-sm" id="import-site">
-			<i class="fa fa-upload" aria-hidden="true"></i> Import
-		</button>
-		<button class="btn btn-warning btn-sm" form="search-site"
-			formaction="{{ path('homepage') }}">
-			<i class="fa fa-download" aria-hidden="true"></i> Export
-		</button>
 	</div>
 </div>
 
@@ -53,7 +40,7 @@
 		</thead>
 		<tbody>
 			{% for key, article in articles %}
-			<tr>
+			<tr hevent="{{ article|article_encode() }}">
 				<td width="20%">{{ article.title }}</td>
 				<td width="20%">{{ article.type }}</td>
 				<td>{% if article.beginHDate is not null %}{{ article.beginHDate.label }}{% endif %}</td>
@@ -73,4 +60,29 @@
 
 
 {% include'AppBundle::pagination.html.twig' %}
+
+
+<!-- Trigger the modal with a button -->
+<button type="button" class="btn btn-info btn-lg" data-toggle="modal" onClick="$('#myModal').modal()">Open Modal</button>
+
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Modal Header</h4>
+            </div>
+            <div class="modal-body">
+                <p>Some text in the modal.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
 

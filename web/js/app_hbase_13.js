@@ -35,6 +35,17 @@ $.hbase.regional = {
     }
 };
 
+/** helper function to find the input element of given attrName (= symfony) in the form (Jquery object of it)
+ * @param {jQuery} $object
+ * @param {string} name
+ * @return {jQuery} |null
+ */
+$.hbase.func.sfAttr = function($object,name)
+{
+    var id = $object.attr("id");
+    return $object.find("#" + id + "_" + name).first();
+}
+
 $.hbase.func.factory = function(type)
 {
     var factories = [];
@@ -271,7 +282,30 @@ $.hbase.func.factory = function(type)
         }
         return $paragraph;
     };
+    factories.harticlemodal = function()
+    {
+        var $modal = $("<div id='article_modal_live' class='modal fade' role='dialog'><div/>");
+        $modal.container = $("<div class=\"modal-dialog modal-lg\">").appendTo($modal);
+        $modal.content = $("<div class=\"modal-content\">").appendTo($modal.container);
 
+        $modal.header = $("<div class=\"modal-header\">").appendTo($modal.content);
+        $modal.body = $("<div class=\"modal-body\">").appendTo($modal.content);
+        $modal.footer = $("<div class=\"modal-footer\">").appendTo($modal.content);
+
+        // header
+        $modal.dismissButtonHeader = $("<button type=\"button\" class=\"close\" data-dismiss=\"modal\">&times;</button>").appendTo($modal.header);
+        $modal.title=$("<h4 class=\"modal-title\">Article</h4>");
+
+        // content
+        $modal.form = $($("#article_modal").html()).appendTo($modal.body);
+        $modal.form.sfAttr = function(name){
+            return $.hbase.func.sfAttr($modal.form,name);
+        };
+
+        // footer
+        $modal.dismissButtonFooter = $("<button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>").appendTo($modal.footer);
+        return $modal;
+    };
 
 
 
@@ -334,8 +368,6 @@ $.widget( "hbase.hmaxlength", {
     _destroy: function() {
     }
 });
-
-
 $.widget( "hbase.hdatepicker", {
     // default options
     options: {
@@ -399,7 +431,6 @@ $.widget( "hbase.hdatepicker", {
     _destroy: function() {
     }
 });
-
 $.widget( "hbase.htimescroller", {
     // default options
     options: {
@@ -425,7 +456,19 @@ $.widget( "hbase.htimescroller", {
 });
 
 $(function(){
+    console.log("--- persistent resources creation ---");
+    console.log("hdatepicker creation ... ");
     $.hbase.modal.hdatepicker = $.hbase.func.factory("hdatepicker");
+    console.log("OK");
+
+    console.log("harticlemodalcreation ...");
+    if($("#article_modal").length === 0){
+        console.log("undone, required bridge element #article_modal is missing.");
+    }
+    else{
+        $.hbase.modal.article = $.hbase.func.factory("harticlemodal");
+        console.log("OK");
+    }
 
     $.hbase.func.hbaseCheck = function(element)
     {

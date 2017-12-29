@@ -2,6 +2,7 @@
 
 namespace AppBundle\Mapper;
 
+use AppBundle\Utils\HDate;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\Exception\LogicException;
 use AppBundle\DTO\ArticleCollectionDTO;
@@ -112,18 +113,20 @@ class ArticleCollectionDoctrineMapper extends ArticleMainDoctrineMapper
      * @param $maxPage
      * @param string|null $title
      * @param null $type
-     * @param null $subType
+     * @param HDate|null $beginHDate
+     * @param HDate|null $endHDate
      * @return array
      */
     public function findBySearch($page,
         $maxPage,
         $title = null,
         $type = null, 
-        $subType = null)
+        $beginHDate = null,
+        $endHDate = null)
     {
         $paginator = [];
-        if ($this->getRepository()->findBySearch($title, $type, $subType) !== null) {
-            $query = $this->getRepository()->findBySearch($title, $type, $subType);
+        if ($this->getRepository()->findBySearch($title, $type, $beginHDate,$endHDate) !== null) {
+            $query = $this->getRepository()->findBySearch($title, $type, $beginHDate,$endHDate);
 
             $firstResult = ($page - 1) * $maxPage;
             $query->setFirstResult($firstResult)->setMaxResults($maxPage);
