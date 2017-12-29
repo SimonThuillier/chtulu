@@ -8,6 +8,30 @@ Creer un article
 {% stylesheets '@AppBundle/Resources/hbase/hts/css/hts.css'
   filter='cssrewrite' %}
 <link rel="stylesheet" href="{{ asset_url }}" />
+
+	<style>
+		.hbase-text{
+			width: 100%;
+			height: 120px;
+		}
+		.hbase-article-form.main{
+			width: 1160px;
+		}
+		.hbase-article-form.main > table{
+			width: 1160px;
+		}
+
+		.hbase-label{
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow:ellipsis;
+		}
+
+
+
+
+		</style>
+
 {% endstylesheets %}
 {% endblock %}
 
@@ -25,7 +49,7 @@ Creer un article
 	<div id="header"></div>
 
 	<div id="page">
-		{% include 'AppBundle:Article:article_main_form.html.twig' with {'form':form,'typeSubtypeArray':typeSubtypeArray} %}
+		{% include 'AppBundle:Article:article_main_form.html.twig' with {'form':form} %}
 	</div>
 </div>
 <div id="{{ modalForm.vars.id }}">
@@ -54,7 +78,7 @@ d2 = null;
 
 
 $("#article_main_form").on("submit",function(event){
-	  // hts.eventManager.prepareSubmission('article_modal','article_main');	
+	  // hts.eventManager.prepareSubmission('article_modal','article_main');
 });
 
 

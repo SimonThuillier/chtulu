@@ -16,7 +16,7 @@ class ArticleModalType extends AbstractType
 {
 
     public function buildForm(FormBuilderInterface $builder, array $options)
-    {  
+    {
         $builder->add('title', TextType::class, array(
             'label' => 'Titre',
             'required' => true,
@@ -30,17 +30,12 @@ class ArticleModalType extends AbstractType
             'required' => true,
             'empty_data' => 'Selectionnez un type d\'article'
         ))
-            ->add('subType', EntityType::class, array(
-            'label' => "Sous-type ",
-            'class' => 'AppBundle:ArticleSubType',
-            'required' => true,
-            'empty_data' => 'Selectionnez un sous-type'
-        ))
             ->add('abstract', TextareaType::class, array(
             'label' => "Resumé ",
             'attr' => array(
-               'class' => 'hbase-hmaxlength'
-            )    
+               'class' => 'hbase-hmaxlength hbase-text',
+                'maxlength' => 2000
+            )
         ))
         ->add('beginDateLabel', TextType::class, array(
             'label' => 'Date de début',

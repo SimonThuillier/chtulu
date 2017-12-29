@@ -1,12 +1,14 @@
 <?php
 namespace AppBundle\Controller;
 
+use AppBundle\DTO\ArticleModalDTO;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use AppBundle\Entity\Article;
 use AppBundle\Form\ArticleMainType;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use AppBundle\DTO\ArticleMainDTO;
@@ -84,7 +86,6 @@ class ArticleController extends Controller
         }
 
         return $this->render('@AppBundle/Article/create.html.twig',array(
-            'typeSubtypeArray' => $this->getDoctrine()->getManager()->getRepository(ArticleType::class)->getTypeSubTypeArray(),
             'form' => $form->createView(),
             'modalForm' => $modalForm->createView(),
             'beginDate' => (new \DateTime())->sub(new \DateInterval('P30D')),
@@ -204,13 +205,12 @@ class ArticleController extends Controller
         }
 
         return $this->render('@AppBundle/Article/edit.html.twig',array(
+            'articleId' => $article->getId(),
             'article' => $articleDTO,
-            'typeSubtypeArray' => $this->getDoctrine()->getManager()->getRepository(ArticleType::class)->getTypeSubTypeArray(),
             'form' => $form->createView(),
             'modalForm' => $modalForm->createView(),
-            'beginDate' => ($articleDTO->isBeginDateApprox)?$articleDTO->minBeginDate:$articleDTO->beginDate,
-            'endDate' =>($articleDTO->hasNotEndDate)?new \DateTime():
-                (($articleDTO->isEndDateApprox)?$articleDTO->maxEndDate:$articleDTO->endDate)
+            'beginDate' => ($articleDTO->getBeginHDate()!==null)?$articleDTO->getBeginHDate()->getBeginDate():((new \DateTime())->modify('-7 day')),
+            'endDate' =>($articleDTO->getendHDate()!==null)?$articleDTO->getEndHDate()->getEndDate():(new \DateTime())
         ));
     }
 
@@ -224,18 +224,18 @@ class ArticleController extends Controller
         $session = $this->get('session');
 
         if($request->getMethod() === 'GET' && $session->has('articleListResponse')){
-            $result = $session->get('articleListResponse');
+            $page = $session->get('articleListResponse');
             $session->remove('articleListResponse');
+            return new Response($page);
         }
         else if($request->getMethod() === 'POST'){
             $result = $processor->addSubscriber($listener)->process($request);
-            $session->set('articleListResponse',$result);
+            $session->set('articleListResponse',$this->get('templating')->render('@AppBundle/Article/list.html.twig',$result));
             return new JsonResponse(['success'=>true]);
         }
-        else{
-            /** @var Event $result */
-            $result = $processor->addSubscriber($listener)->process($request);
-        }
+        // default GET behaviour
+        /** @var Event $result */
+        $result = $processor->addSubscriber($listener)->process($request);
         return $this->render('@AppBundle/Article/list.html.twig',$result);
     }
 

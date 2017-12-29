@@ -38,15 +38,6 @@ class SearchArticleType extends AbstractType
                 'required' => false,
                 'empty_data' => ''
             ))
-            ->add('subType', EntityType::class, array(
-                'label' => "Sous-type ",
-                'class' => ArticleSubType::class,
-                'query_builder' => function (EntityRepository $er) {
-                    return $er->getFindAllQB();
-                },
-                'required' => true,
-                'empty_data' => 'Selectionnez un sous-type'
-            ))
             ->add('beginDateLabel', TextType::class, array(
                 'label' => 'Date de début',
                 'required' => false,

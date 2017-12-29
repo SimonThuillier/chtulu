@@ -21,7 +21,7 @@ class ArticleTypeRepository extends \Doctrine\ORM\EntityRepository
         ->orderBy('t.label','ASC');
         return $qb;
     }
-    
+
     /**
      * @return array
      */
@@ -29,35 +29,8 @@ class ArticleTypeRepository extends \Doctrine\ORM\EntityRepository
     {
         return $this->getFindAllQB()->getQuery()->getResult();
     }
-    
-    /**
-     * returns an array of subtypes available for different types
-     * @return array
-     */
-    public function getTypeSubTypeArray()
-    {
-        $qb = $this->createQueryBuilder('t')
-        ->select('t.id as type_id')
-        ->join('t.subTypes','s')
-        ->addSelect('s.id as subtype_id')
-        ->orderBy('s.id','ASC')
-        ->addOrderBy('t.id','ASC');
-        
-        $array =  $qb->getQuery()->getArrayResult();
-        
-        $arrayColumn = array_unique(array_column($array,'type_id'));
-        
-        $arrayFinal = [];
-        foreach($arrayColumn as $type){
-            $arrayFinal[$type] = [];
-            foreach($array as $pair){
-                if($type == $pair['type_id']) $arrayFinal[$type][] = $pair['subtype_id'];
-            }
-        }
-        return $arrayFinal;
-    }
-    
-    
-    
-    
+
+
+
+
 }

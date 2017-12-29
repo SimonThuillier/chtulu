@@ -3,6 +3,7 @@ namespace AppBundle\Repository;
 
 use AppBundle\Entity\ArticleType;
 use AppBundle\Helper\DateHelper;
+use AppBundle\Mapper\AutoMapper;
 use AppBundle\Utils\HDate;
 use Doctrine\ORM\EntityRepository;
 use AppBundle\Entity\Article;
@@ -34,8 +35,8 @@ class ArticleRepository extends EntityRepository
         $article = $qb->getQuery()->getOneOrNullResult();
         if ($article === null)
             return false;
-        $article->bindDTO($dto);
-        StaticHelper::finalizeArticleDTO($dto);
+        AutoMapper::autoMap($article,$dto);
+        // StaticHelper::finalizeArticleDTO($dto);
         if ($dto instanceof ArticleMainDTO || $dto instanceof ArticleCollectionDTO) {
             $this->hydrateSubEvents($id, $dto);
         }
@@ -49,17 +50,19 @@ class ArticleRepository extends EntityRepository
             ->join('a.links', 'l')
             ->join('l.childArticle', 'sa')
             ->join('sa.type', 't')
-            ->join('sa.subType', 'st')
+            ->leftJoin('sa.beginDateType', 'bdt')
+            ->leftJoin('sa.endDateType', 'edt')
             ->select('sa.title')
             ->addSelect('a.id as parentId')
             ->addSelect('t.id as type')
-            ->addSelect('st.id as subType')
             ->addSelect('sa.id')
             ->addSelect('sa.abstract')
-            ->addSelect('sa.minBeginDate')
-            ->addSelect('sa.maxBeginDate')
-            ->addSelect('sa.minEndDate')
-            ->addSelect('sa.maxEndDate')
+            ->addSelect('sa.beginDateMinIndex')
+            ->addSelect('sa.beginDateMaxIndex')
+            ->addSelect('bdt.id as beginDateType')
+            ->addSelect('sa.endDateMinIndex')
+            ->addSelect('sa.endDateMaxIndex')
+            ->addSelect('edt.id as endDateType')
             ->addSelect('l.id as linkId')
             ->addSelect('l.y')
             ->where('a.id = :id')
@@ -69,8 +72,7 @@ class ArticleRepository extends EntityRepository
 
         foreach ($results as $result) {
             $modalDTO = new ArticleModalDTO();
-            StaticHelper::mapArrayToObject($result, $modalDTO);
-            StaticHelper::finalizeArticleDTO($modalDTO);
+            AutoMapper::autoMap($result,$modalDTO);
             $dto->subEventsArray[] = $modalDTO;
             $dto->subEventsCount ++;
         }
@@ -93,7 +95,12 @@ class ArticleRepository extends EntityRepository
         if($title !== null) $qb->andWhere($qb->expr()->like('a.title', $qb->expr()->literal('%' . $title . '%')));
         if($type !== null) $qb->andWhere('a.type =: type')->setParameter('type', $type);
         if($beginHDate !== null){
-            $qb->andWhere('a.beginDateMinIndex >= :beginDateMinIndex')->setParameter('beginDateMinIndex', $beginHDate->getBeginDateIndex());
+            $qb->andWhere('(a.endDateType IS NULL OR a.endDateMaxIndex >= :beginDateMinIndex)')
+                ->setParameter('beginDateMinIndex', $beginHDate->getBeginDateIndex());
+        }
+        if($endHDate !== null){
+            $qb->andWhere('(a.beginDateType IS NULL OR a.beginDateMinIndex <= :endDateMaxIndex)')
+                ->setParameter('endDateMaxIndex', $endHDate->getEndDateIndex());
         }
 
         $qb->orderBy('a.id','DESC');

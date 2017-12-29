@@ -13,16 +13,14 @@ use AppBundle\DTO\ArticleAbstractDTO;
 
 class ArticleDTOFactory
 {
-    
+
     /** ManagerRegistry $doctrine */
     private $doctrine;
     /** ArticleDTOInterface $articleDTO */
     private $articleDTO;
     /** EntityRepository $typeRepo */
     private $typeRepo;
-    /** EntityRepository $subTypeRepo */
-    private $subTypeRepo;
-    
+
     /**
      * @param ManagerRegistry $doctrine
      */
@@ -30,9 +28,8 @@ class ArticleDTOFactory
     {
         $this->doctrine = $doctrine;
         $this->typeRepo = $this->doctrine->getManager()->getRepository(ArticleType::class);
-        $this->subTypeRepo = $this->doctrine->getManager()->getRepository(ArticleSubType::class);
     }
-    
+
     /**
      * create a new ArticleDTO object : flag can be main or modal (the modal type has special values for js replacement)
      * @param string $flag
@@ -46,7 +43,7 @@ class ArticleDTOFactory
         $this->setData($flag);
         return $this->articleDTO;
     }
-    
+
     /**
      * @param string $flag
      * @return self
@@ -58,7 +55,7 @@ class ArticleDTOFactory
         elseif($flag === "main_collection"){$this->setDataMainCollection();}
         return $this;
     }
-    
+
     /**
      * @return self
      */
@@ -66,16 +63,13 @@ class ArticleDTOFactory
     {
         /** ArticleType $type */
         $type = $this->typeRepo->find(ArticleType::EVENT);
-        /** ArticleSubType $subType */
-        $subType = $this->typeRepo->find(ArticleSubType::EVENT_LONG);
-        
+
         /**
          * ArticleMainDTO $this->articleDTO
          */
         $this->articleDTO->type = $type;
-        $this->articleDTO->subType = $subType;
     }
-    
+
     /**
      * @return self
      */
@@ -83,18 +77,14 @@ class ArticleDTOFactory
     {
         /** ArticleType $type */
         $type = $this->typeRepo->find(ArticleType::EVENT);
-        /** ArticleSubType $subType */
-        $subType = $this->typeRepo->find(ArticleSubType::EVENT_SHORT);
-        
         /**
          * ArticleModalDTO $this->articleDTO
          */
         $this->articleDTO->type = $type;
-        $this->articleDTO->subType=$subType;
         $this->articleDTO->title = "<_TITLE_>";
         $this->articleDTO->abstract="<_ABSTRACT_>";
     }
-    
+
     /**
      * @return self
      */
@@ -102,14 +92,11 @@ class ArticleDTOFactory
     {
         /** ArticleType $type */
         $type = $this->typeRepo->find(ArticleType::EVENT);
-        /** ArticleSubType $subType */
-        $subType = $this->typeRepo->find(ArticleSubType::EVENT_LONG);
-        
+
         /**
          * ArticleMainDTO $this->articleDTO
          */
         $this->articleDTO->type = $type;
-        $this->articleDTO->subType = $subType;
     }
-     
+
 }

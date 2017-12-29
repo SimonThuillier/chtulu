@@ -6,15 +6,12 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use AppBundle\DTO\ArticleMainDTO;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use AppBundle\Entity\ArticleType;
-use AppBundle\Entity\ArticleSubType;
 use Doctrine\ORM\EntityRepository;
-use AppBundle\Helper\StaticHelper;
 
 class ArticleMainType extends AbstractType
 {
@@ -25,6 +22,11 @@ class ArticleMainType extends AbstractType
             ->add('title', TextType::class, array(
             'label' => 'Titre',
             'required' => true,
+            'attr' => array(
+                'class' => 'hbase-hmaxlength',
+                'maxlength' => 60,
+                'size'=>60
+            ),
             'label_attr' => array(
                 'placeholder' => 'Titre'
             )
@@ -38,20 +40,12 @@ class ArticleMainType extends AbstractType
             'required' => true,
             'empty_data' => 'Selectionnez un type d\'article'
         ))
-            ->add('subType', EntityType::class, array(
-            'label' => "Sous-type ",
-            'class' => ArticleSubType::class,
-            'query_builder' => function (EntityRepository $er) {
-                return $er->getFindAllQB();
-            },
-            'required' => true,
-            'empty_data' => 'Selectionnez un sous-type'
-        ))
             ->add('abstract', TextareaType::class, array(
             'label' => "Resumé ",
             'attr' => array(
-                'class' => 'hbase-hmaxlength'
-            )    
+                'class' => 'hbase-hmaxlength hbase-text',
+                'maxlength' => 2000
+            )
         ))
         ->add('beginDateLabel', TextType::class, array(
             'label' => 'Date de début',

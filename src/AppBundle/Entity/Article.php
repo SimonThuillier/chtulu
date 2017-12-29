@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  */
 
 namespace AppBundle\Entity;
@@ -20,7 +20,7 @@ use AppBundle\Helper\DateHelper;
  * @ORM\Entity(repositoryClass="AppBundle\Repository\ArticleRepository")
  * @UniqueEntity(fields="title", message="Another article named {{ value }} exists. Consider editing it instead or rename your article.")
  */
-class Article extends AbstractBindableEntity
+class Article
 {
     /**
      * @var int
@@ -61,98 +61,92 @@ class Article extends AbstractBindableEntity
      * @ORM\Column(name="edition_date", type="datetime")
      */
     protected $editionDate;
-    
+
     /**
      * @var string
      * @ORM\Column(name="abstract", type="string", length=2000)
      */
     protected $abstract;
-    
+
     /**
      * @var ArticleType
      * @ORM\ManyToOne(targetEntity="ArticleType")
      * @ORM\JoinColumn(name="type_id", referencedColumnName="id")
      */
     protected $type;
-    
-    /**
-     * @ORM\ManyToOne(targetEntity="ArticleSubType")
-     * @ORM\JoinColumn(name="subtype_id", referencedColumnName="id")
-     */
-    protected $subType;
-    
+
     /**
      * @var string
      * @ORM\Column(name="content", type="text", nullable=true)
      */
     protected $content;
-    
+
     /**
      * @var HDate
      */
     protected $beginHDate;
-    
+
     /**
      * @var integer
      * @ORM\Column(name="begin_date_min_index", type="integer",nullable=true)
      */
     protected $beginDateMinIndex;
-    
+
     /**
      * @var integer
      * @ORM\Column(name="begin_date_max_index", type="integer", nullable=true)
      */
     protected $beginDateMaxIndex;
-    
+
     /**
      * @var DateType
      * @ORM\ManyToOne(targetEntity="DateType")
      * @ORM\JoinColumn(name="begin_date_type", referencedColumnName="id", nullable=true)
      */
     protected $beginDateType;
-    
+
     /**
      * @var string
      * @ORM\Column(name="begin_date_label", type="string", nullable=true,length=50)
      */
     protected $beginDateLabel;
-    
+
     /**
      * @var HDate
      */
     protected $endHDate;
-    
+
     /**
      * @var integer
      * @ORM\Column(name="end_date_min_index", type="integer",nullable=true)
      */
     protected $endDateMinIndex;
-    
+
     /**
      * @var integer
      * @ORM\Column(name="end_date_max_index", type="integer", nullable=true)
      */
     protected $endDateMaxIndex;
-    
+
     /**
      * @var DateType
      * @ORM\ManyToOne(targetEntity="DateType")
      * @ORM\JoinColumn(name="end_date_type", referencedColumnName="id", nullable=true)
      */
     protected $endDateType;
-    
+
     /**
      * @var string
      * @ORM\Column(name="end_date_label", type="string", nullable=true,length=50)
      */
     protected $endDateLabel;
-    
+
     /**
      * @var array
      * @ORM\Column(name="domain", type="simple_array",nullable=true)
      */
     protected $domain=array(0,0,0,0,0,0,0,0); // all 0 by default
-    
+
     /**
      * @var ArrayCollection
      * @ORM\OneToMany(targetEntity="ArticleLink", mappedBy="parentArticle")
@@ -307,24 +301,6 @@ class Article extends AbstractBindableEntity
     }
 
     /**
-     * Get subType
-     * @return ArticleSubType
-     */
-    public function getSubType(){
-        return $this->subType;
-    }
-
-    /**
-     * Set subType
-     * @param ArticleSubType $subType
-     * @return Article
-     */
-    public function setSubType($subType){
-        $this->subType = $subType;
-        return $this;
-    }
-
-    /**
      * Get content
      * @return string
      */
@@ -341,8 +317,8 @@ class Article extends AbstractBindableEntity
         $this->content = $content;
         return $this;
     }
-    
-    
+
+
     /**
      * get beginHDate
      * @return HDate|null
@@ -358,7 +334,7 @@ class Article extends AbstractBindableEntity
         }
         return $this->beginHDate;
     }
-    
+
     /**
      * Set beginHDate
      * @param HDate $hDate
@@ -380,7 +356,7 @@ class Article extends AbstractBindableEntity
         }
         return $this;
     }
-    
+
     /**
      * get endHDate
      * @return HDate|null
@@ -397,7 +373,7 @@ class Article extends AbstractBindableEntity
 
         return $this->endHDate;
     }
-    
+
     /**
      * Set endHDate
      * @param HDate $hDate
