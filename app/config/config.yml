@@ -79,10 +79,10 @@ assetic:
           inputs: '@AppBundle/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.woff2'
           output: '/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.woff2'
        icheck-square-blue:
-          inputs: '@AppBundle/resources/third-party/iCheck/css/square/blue.png'
+          inputs: '@AppBundle/Resources/third-party/iCheck/css/square/blue.png'
           output: '/resources/third-party/iCheck/css/square/blue.png'    
        icheck-square-blue2:
-          inputs: '@AppBundle/resources/third-party/iCheck/css/square/blue@2x.png'
+          inputs: '@AppBundle/Resources/third-party/iCheck/css/square/blue@2x.png'
           output: '/resources/third-party/iCheck/css/square/blue@2x.png'              
        ionicons-ttf:
           inputs: '@AppBundle/Resources/third-party/ionicons/fonts/ionicons.ttf'
