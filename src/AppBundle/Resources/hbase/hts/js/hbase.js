@@ -474,6 +474,28 @@ $.widget( "hbase.htimescroller", {
     _destroy: function() {
     }
 });
+$.widget( "hbase.harticledisplayer", {
+    // default options
+    options: {
+    },
+
+    // The constructor
+    _create: function() {
+        console.log("create harticledisplayer widget");
+        function enableArticleDisplayer(element){
+            if(! element.hasClass("harticledisplayer-enabled")){
+                $.hbase.modal.article.bind($(element));
+            }
+        }
+
+        $(this.element).on("click",function(event){enableArticleDisplayer($(this));});
+
+    },
+    // Events bound via _on are removed automatically
+    // revert other modifications here
+    _destroy: function() {
+    }
+});
 
 $(function(){
     console.log("--- persistent resources creation ---");
@@ -557,6 +579,7 @@ $(function(){
             $(".hbase-hdatepicker").hdatepicker();
             $(".hbase-activer").each(function(){$.hbase.func.hbaseChecker(this)});
             $(".hbase-article-form").on("submit",function(){$.hbase.func.hbaseArticleFormSubmitter(event,this);});
+
         }
         else{
             rootSelector.find(".hbase-hmaxlength").hmaxlength();

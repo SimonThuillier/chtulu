@@ -2,28 +2,23 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d2f5be50-d1f7-4cbc-b25b-a84026610306" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/symfony2.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/AppBundle/Twig/AppExtension.php" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/src/AppBundle/Resources/hbase/hts/js/harticle.js" />
+      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" />
+      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/03388600-8671-4a6b-8ef4-9d47adf0f0ef.xml" afterPath="$PROJECT_DIR$/.idea/dataSources/03388600-8671-4a6b-8ef4-9d47adf0f0ef.xml" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" afterPath="$PROJECT_DIR$/.idea/php.xml" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" />
+      <change beforePath="$PROJECT_DIR$/.idea/symfony2.xml" afterPath="$PROJECT_DIR$/.idea/symfony2.xml" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/src/AppBundle/Form/ArticleModalType.php" afterPath="$PROJECT_DIR$/src/AppBundle/Form/ArticleModalType.php" />
-      <change beforePath="$PROJECT_DIR$/src/AppBundle/Helper/ArticleHelper.php" afterPath="$PROJECT_DIR$/src/AppBundle/Helper/ArticleHelper.php" />
-      <change beforePath="$PROJECT_DIR$/src/AppBundle/Listener/SearchArticleFormListener.php" afterPath="$PROJECT_DIR$/src/AppBundle/Listener/SearchArticleFormListener.php" />
-      <change beforePath="$PROJECT_DIR$/src/AppBundle/Mapper/ArticleCollectionDoctrineMapper.php" afterPath="$PROJECT_DIR$/src/AppBundle/Mapper/ArticleCollectionDoctrineMapper.php" />
-      <change beforePath="$PROJECT_DIR$/src/AppBundle/Repository/ArticleRepository.php" afterPath="$PROJECT_DIR$/src/AppBundle/Repository/ArticleRepository.php" />
+      <change beforePath="$PROJECT_DIR$/sql/canonical_data/hbase_hb_article_type.sql" afterPath="$PROJECT_DIR$/sql/canonical_data/hbase_hb_article_type.sql" />
+      <change beforePath="$PROJECT_DIR$/sql/canonical_data/hbase_hb_date_type.sql" afterPath="$PROJECT_DIR$/sql/canonical_data/hbase_hb_date_type.sql" />
       <change beforePath="$PROJECT_DIR$/src/AppBundle/Resources/hbase/hts/js/hbase.js" afterPath="$PROJECT_DIR$/src/AppBundle/Resources/hbase/hts/js/hbase.js" />
-      <change beforePath="$PROJECT_DIR$/src/AppBundle/Resources/views/Article/article_modal_form.html.twig" afterPath="$PROJECT_DIR$/src/AppBundle/Resources/views/Article/article_modal_form.html.twig" />
-      <change beforePath="$PROJECT_DIR$/src/AppBundle/Resources/views/Article/create.html.twig" afterPath="$PROJECT_DIR$/src/AppBundle/Resources/views/Article/create.html.twig" />
+      <change beforePath="$PROJECT_DIR$/src/AppBundle/Resources/hbase/hts/js/hevent.js" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/src/AppBundle/Resources/views/Article/hts-package.js.twig" afterPath="$PROJECT_DIR$/src/AppBundle/Resources/views/Article/hts-package.js.twig" />
       <change beforePath="$PROJECT_DIR$/src/AppBundle/Resources/views/Article/list_tab.html.twig" afterPath="$PROJECT_DIR$/src/AppBundle/Resources/views/Article/list_tab.html.twig" />
-      <change beforePath="$PROJECT_DIR$/src/AppBundle/Resources/views/security/login.html.twig" afterPath="$PROJECT_DIR$/src/AppBundle/Resources/views/Security/login.html.twig" />
-      <change beforePath="$PROJECT_DIR$/src/AppBundle/Resources/views/security/register.html.twig" afterPath="$PROJECT_DIR$/src/AppBundle/Resources/views/Security/register.html.twig" />
-      <change beforePath="$PROJECT_DIR$/web/css/app.css" afterPath="$PROJECT_DIR$/web/css/app.css" />
-      <change beforePath="$PROJECT_DIR$/web/js/app.js" afterPath="$PROJECT_DIR$/web/js/app.js" />
-      <change beforePath="$PROJECT_DIR$/web/js/app_hbase_13.js" afterPath="$PROJECT_DIR$/web/js/app_hbase_13.js" />
+      <change beforePath="$PROJECT_DIR$/src/AppBundle/Resources/views/Security/login.html.twig" afterPath="$PROJECT_DIR$/src/AppBundle/Resources/views/Security/login.html.twig" />
+      <change beforePath="$PROJECT_DIR$/src/AppBundle/Resources/views/Security/register.html.twig" afterPath="$PROJECT_DIR$/src/AppBundle/Resources/views/Security/register.html.twig" />
+      <change beforePath="$PROJECT_DIR$/src/AppBundle/Twig/AppExtension.php" afterPath="$PROJECT_DIR$/src/AppBundle/Twig/AppExtension.php" />
+      <change beforePath="$PROJECT_DIR$/web/css/app_font-awesome_6.css" afterPath="$PROJECT_DIR$/web/css/app_font-awesome_6.css" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -61,7 +56,7 @@
       <file leaf-file-name="ArticleController.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/AppBundle/Controller/ArticleController.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="269">
+            <state relative-caret-position="0">
               <caret line="221" column="5" lean-forward="false" selection-start-line="221" selection-start-column="5" selection-end-line="221" selection-end-column="5" />
               <folding />
             </state>
@@ -71,50 +66,49 @@
       <file leaf-file-name="SearchArticleFormListener.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/AppBundle/Listener/SearchArticleFormListener.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="584">
-              <caret line="95" column="10" lean-forward="false" selection-start-line="95" selection-start-column="10" selection-end-line="95" selection-end-column="10" />
+            <state relative-caret-position="1458">
+              <caret line="90" column="23" lean-forward="false" selection-start-line="90" selection-start-column="23" selection-end-line="90" selection-end-column="23" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="hbase.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="hbase.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/AppBundle/Resources/hbase/hts/js/hbase.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="566">
-              <caret line="322" column="9" lean-forward="false" selection-start-line="322" selection-start-column="9" selection-end-line="322" selection-end-column="9" />
+            <state relative-caret-position="-2872">
+              <caret line="53" column="1" lean-forward="true" selection-start-line="53" selection-start-column="1" selection-end-line="53" selection-end-column="1" />
               <folding>
                 <element signature="e#3511#12333#0" expanded="false" />
                 <element signature="e#12411#13109#0" expanded="false" />
                 <element signature="e#14684#16829#0" expanded="false" />
                 <element signature="e#16863#19935#0" expanded="false" />
                 <element signature="e#19971#20717#0" expanded="false" />
-                <marker date="1514589613683" expanded="true" signature="13801:13808" ph="×" />
+                <marker date="1515173721405" expanded="true" signature="13801:13808" ph="×" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ArticleModalType.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/AppBundle/Form/ArticleModalType.php">
+      <file leaf-file-name="harticle.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/AppBundle/Resources/hbase/hts/js/harticle.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="400">
-              <caret line="75" column="14" lean-forward="false" selection-start-line="75" selection-start-column="14" selection-end-line="75" selection-end-column="14" />
+            <state relative-caret-position="3942">
+              <caret line="264" column="0" lean-forward="true" selection-start-line="264" selection-start-column="0" selection-end-line="264" selection-end-column="0" />
               <folding>
-                <element signature="e#33#66#0#PHP" expanded="true" />
+                <marker date="1515174555122" expanded="true" signature="1534:1552" ph="..." />
+                <marker date="1515174555122" expanded="true" signature="1726:1744" ph="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="list_tab.html.twig" pinned="false" current-in-tab="true">
+      <file leaf-file-name="list_tab.html.twig" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/AppBundle/Resources/views/Article/list_tab.html.twig">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="756">
-              <caret line="42" column="56" lean-forward="true" selection-start-line="42" selection-start-column="56" selection-end-line="42" selection-end-column="56" />
-              <folding>
-                <element signature="e#3038#3045#1#HTML" expanded="true" />
-              </folding>
+            <state relative-caret-position="458">
+              <caret line="48" column="30" lean-forward="false" selection-start-line="48" selection-start-column="30" selection-end-line="48" selection-end-column="53" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -122,7 +116,7 @@
       <file leaf-file-name="AppExtension.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/AppBundle/Twig/AppExtension.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="526">
+            <state relative-caret-position="558">
               <caret line="37" column="64" lean-forward="false" selection-start-line="37" selection-start-column="64" selection-end-line="37" selection-end-column="64" />
               <folding>
                 <element signature="e#6#91#0#PHP" expanded="true" />
@@ -135,11 +129,31 @@
       <file leaf-file-name="ArticleHelper.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/AppBundle/Helper/ArticleHelper.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="414">
-              <caret line="75" column="22" lean-forward="false" selection-start-line="75" selection-start-column="22" selection-end-line="75" selection-end-column="22" />
+            <state relative-caret-position="1880">
+              <caret line="109" column="54" lean-forward="true" selection-start-line="109" selection-start-column="54" selection-end-line="109" selection-end-column="54" />
               <folding>
                 <element signature="e#36#65#0#PHP" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="HDateSerializer.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/AppBundle/Serializer/HDateSerializer.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AbstractHSerializer.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/AppBundle/Serializer/AbstractHSerializer.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -149,26 +163,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="612">
               <caret line="38" column="16" lean-forward="false" selection-start-line="38" selection-start-column="16" selection-end-line="38" selection-end-column="16" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="create.html.twig" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/AppBundle/Resources/views/Article/create.html.twig">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="558">
-              <caret line="76" column="7" lean-forward="false" selection-start-line="76" selection-start-column="7" selection-end-line="76" selection-end-column="7" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ArticleRepository.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/AppBundle/Repository/ArticleRepository.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="130">
-              <caret line="80" column="7" lean-forward="false" selection-start-line="80" selection-start-column="7" selection-end-line="80" selection-end-column="7" />
               <folding />
             </state>
           </provider>
@@ -184,9 +178,11 @@
       <find>getFormMap</find>
       <find>type</find>
       <find>bindD</find>
+      <find>HEvent</find>
     </findStrings>
     <replaceStrings>
       <replace>&quot;</replace>
+      <replace>HArticle</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -234,10 +230,11 @@
         <option value="$PROJECT_DIR$/src/AppBundle/Resources/views/Article/article_main_form.html.twig" />
         <option value="$PROJECT_DIR$/src/AppBundle/Resources/views/Article/article_modal_form.html.twig" />
         <option value="$PROJECT_DIR$/src/AppBundle/Resources/views/Article/create.html.twig" />
-        <option value="$PROJECT_DIR$/src/AppBundle/Resources/hbase/hts/js/hbase.js" />
         <option value="$PROJECT_DIR$/src/AppBundle/Helper/ArticleHelper.php" />
         <option value="$PROJECT_DIR$/src/AppBundle/Twig/AppExtension.php" />
         <option value="$PROJECT_DIR$/src/AppBundle/Resources/views/Article/list_tab.html.twig" />
+        <option value="$PROJECT_DIR$/src/AppBundle/Resources/hbase/hts/js/hbase.js" />
+        <option value="$PROJECT_DIR$/src/AppBundle/Resources/hbase/hts/js/hevent.js" />
       </list>
     </option>
   </component>
@@ -323,6 +320,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -409,6 +408,47 @@
             <path>
               <item name="hbase" type="b2602c69:ProjectViewProjectNode" />
               <item name="hbase" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="src" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="AppBundle" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="Resources" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="hbase" type="b2602c69:ProjectViewProjectNode" />
+              <item name="hbase" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="src" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="AppBundle" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="Resources" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="hbase" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="hbase" type="b2602c69:ProjectViewProjectNode" />
+              <item name="hbase" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="src" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="AppBundle" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="Resources" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="hbase" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="hts" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="hbase" type="b2602c69:ProjectViewProjectNode" />
+              <item name="hbase" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="src" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="AppBundle" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="Resources" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="hbase" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="hts" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="js" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="hbase" type="b2602c69:ProjectViewProjectNode" />
+              <item name="hbase" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="src" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="AppBundle" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="Serializer" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="hbase" type="b2602c69:ProjectViewProjectNode" />
+              <item name="hbase" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="tests" type="2a2b976b:PhpTreeStructureProvider$1" />
             </path>
             <path>
@@ -465,8 +505,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -602,34 +640,35 @@
       <workItem from="1513450416360" duration="7975000" />
       <workItem from="1513515767784" duration="5585000" />
       <workItem from="1514495177705" duration="2041000" />
-      <workItem from="1514578190395" duration="11589000" />
+      <workItem from="1514578190395" duration="12113000" />
+      <workItem from="1515172151577" duration="2491000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="62961000" />
+    <option name="totallyTimeSpent" value="65976000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1964" y="126" width="1707" height="959" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
+      <window_info id="Documentation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" x="2064" y="226" width="1507" height="759" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Database Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32965687" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23930079" sideWeight="0.6764706" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Docker" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24231465" sideWeight="0.67034316" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Docker" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13261001" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32979852" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23930079" sideWeight="0.32352942" order="0" side_tool="true" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32979852" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24231465" sideWeight="0.32965687" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23614073" sideWeight="0.503792" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Database Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32965687" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
@@ -657,28 +696,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/AppBundle/Entity/ArticleLink.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/composer.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" column="30" lean-forward="false" selection-start-line="5" selection-start-column="30" selection-end-line="5" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/config/parameters.yml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="23" lean-forward="false" selection-start-line="6" selection-start-column="23" selection-end-line="6" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/Resources/config/services.yml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
@@ -843,7 +860,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="540">
           <caret line="30" column="5" lean-forward="false" selection-start-line="30" selection-start-column="5" selection-end-line="30" selection-end-column="5" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -851,7 +867,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="27" column="84" lean-forward="false" selection-start-line="27" selection-start-column="84" selection-end-line="27" selection-end-column="84" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -859,7 +874,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1512">
           <caret line="84" column="31" lean-forward="false" selection-start-line="84" selection-start-column="31" selection-end-line="84" selection-end-column="31" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -867,34 +881,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="427">
           <caret line="38" column="0" lean-forward="false" selection-start-line="38" selection-start-column="0" selection-end-line="38" selection-end-column="93" />
-          <folding>
-            <marker date="1514578105109" expanded="true" signature="181:245" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="247:313" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="315:379" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="381:407" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="409:451" ph="/*!40103 SET... " />
-            <marker date="1514578105109" expanded="true" signature="453:487" ph="/*!40103 SET... " />
-            <marker date="1514578105109" expanded="true" signature="489:556" ph="/*!40014 SET... " />
-            <marker date="1514578105109" expanded="true" signature="558:640" ph="/*!40014 SET... " />
-            <marker date="1514578105109" expanded="true" signature="642:716" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="718:773" ph="/*!40111 SET... " />
-            <marker date="1514578105109" expanded="true" signature="830:868" ph="DROP TABLE I... " />
-            <marker date="1514578105109" expanded="true" signature="870:931" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="933:976" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="978:1255" ph="CREATE TABLE... hb_article_type" />
-            <marker date="1514578105109" expanded="true" signature="1257:1312" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="1403:1457" ph="/*!40000 ALT... " />
-            <marker date="1514578105109" expanded="true" signature="1459:1551" ph="INSERT INTO `hb_article_type`... " />
-            <marker date="1514578105109" expanded="true" signature="1553:1606" ph="/*!40000 ALT... " />
-            <marker date="1514578105109" expanded="true" signature="1623:1663" ph="/*!40103 SET... " />
-            <marker date="1514578105109" expanded="true" signature="1666:1704" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="1706:1764" ph="/*!40014 SET... " />
-            <marker date="1514578105109" expanded="true" signature="1766:1814" ph="/*!40014 SET... " />
-            <marker date="1514578105109" expanded="true" signature="1816:1878" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="1880:1944" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="1946:2008" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="2010:2050" ph="/*!40111 SET... " />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -902,34 +888,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="216">
           <caret line="39" column="194" lean-forward="false" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="194" />
-          <folding>
-            <marker date="1514578105109" expanded="true" signature="181:245" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="247:313" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="315:379" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="381:407" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="409:451" ph="/*!40103 SET... " />
-            <marker date="1514578105109" expanded="true" signature="453:487" ph="/*!40103 SET... " />
-            <marker date="1514578105109" expanded="true" signature="489:556" ph="/*!40014 SET... " />
-            <marker date="1514578105109" expanded="true" signature="558:640" ph="/*!40014 SET... " />
-            <marker date="1514578105109" expanded="true" signature="642:716" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="718:773" ph="/*!40111 SET... " />
-            <marker date="1514578105109" expanded="true" signature="827:862" ph="DROP TABLE I... " />
-            <marker date="1514578105109" expanded="true" signature="864:925" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="927:970" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="972:1309" ph="CREATE TABLE... hb_date_type" />
-            <marker date="1514578105109" expanded="true" signature="1311:1366" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="1451:1502" ph="/*!40000 ALT... " />
-            <marker date="1514578105109" expanded="true" signature="1504:1697" ph="INSERT INTO `hb_date_type`... " />
-            <marker date="1514578105109" expanded="true" signature="1699:1749" ph="/*!40000 ALT... " />
-            <marker date="1514578105109" expanded="true" signature="1766:1806" ph="/*!40103 SET... " />
-            <marker date="1514578105109" expanded="true" signature="1809:1847" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="1849:1907" ph="/*!40014 SET... " />
-            <marker date="1514578105109" expanded="true" signature="1909:1957" ph="/*!40014 SET... " />
-            <marker date="1514578105109" expanded="true" signature="1959:2021" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="2023:2087" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="2089:2151" ph="/*!40101 SET... " />
-            <marker date="1514578105109" expanded="true" signature="2153:2193" ph="/*!40111 SET... " />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -937,7 +895,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="194" lean-forward="false" selection-start-line="0" selection-start-column="194" selection-end-line="0" selection-end-column="194" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -945,9 +902,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="296">
           <caret line="32" column="29" lean-forward="false" selection-start-line="32" selection-start-column="29" selection-end-line="32" selection-end-column="29" />
-          <folding>
-            <element signature="e#1160#1196#0#PHP" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -955,9 +909,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#12#26#0#Twig" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -973,9 +924,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="475">
           <caret line="130" column="50" lean-forward="false" selection-start-line="130" selection-start-column="50" selection-end-line="130" selection-end-column="50" />
-          <folding>
-            <element signature="e#36#62#0#PHP" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -983,7 +931,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="360">
           <caret line="20" column="31" lean-forward="false" selection-start-line="20" selection-start-column="12" selection-end-line="20" selection-end-column="31" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -991,7 +938,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="594">
           <caret line="33" column="7" lean-forward="false" selection-start-line="33" selection-start-column="7" selection-end-line="33" selection-end-column="7" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -999,7 +945,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="216">
           <caret line="39" column="14" lean-forward="false" selection-start-line="39" selection-start-column="14" selection-end-line="39" selection-end-column="14" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1007,13 +952,12 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-198">
           <caret line="35" column="0" lean-forward="false" selection-start-line="35" selection-start-column="0" selection-end-line="41" selection-end-column="9" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/AppBundle/Form/ArticleModalType.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="400">
+        <state relative-caret-position="1152">
           <caret line="75" column="14" lean-forward="false" selection-start-line="75" selection-start-column="14" selection-end-line="75" selection-end-column="14" />
           <folding>
             <element signature="e#33#66#0#PHP" expanded="true" />
@@ -1023,46 +967,23 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/AppBundle/Resources/views/Article/create.html.twig">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="558">
+        <state relative-caret-position="1368">
           <caret line="76" column="7" lean-forward="false" selection-start-line="76" selection-start-column="7" selection-end-line="76" selection-end-column="7" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/AppBundle/Resources/hbase/hts/js/hbase.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="566">
-          <caret line="322" column="9" lean-forward="false" selection-start-line="322" selection-start-column="9" selection-end-line="322" selection-end-column="9" />
-          <folding>
-            <element signature="e#3511#12333#0" expanded="false" />
-            <element signature="e#12411#13109#0" expanded="false" />
-            <element signature="e#14684#16829#0" expanded="false" />
-            <element signature="e#16863#19935#0" expanded="false" />
-            <element signature="e#19971#20717#0" expanded="false" />
-            <marker date="1514589613683" expanded="true" signature="13801:13808" ph="×" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/AppBundle/Repository/ArticleRepository.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="130">
+        <state relative-caret-position="1440">
           <caret line="80" column="7" lean-forward="false" selection-start-line="80" selection-start-column="7" selection-end-line="80" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/AppBundle/Listener/SearchArticleFormListener.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="584">
-          <caret line="95" column="10" lean-forward="false" selection-start-line="95" selection-start-column="10" selection-end-line="95" selection-end-column="10" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/AppBundle/Controller/ArticleController.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="269">
+        <state relative-caret-position="0">
           <caret line="221" column="5" lean-forward="false" selection-start-line="221" selection-start-column="5" selection-end-line="221" selection-end-column="5" />
           <folding />
         </state>
@@ -1076,19 +997,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/AppBundle/Helper/ArticleHelper.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="414">
-          <caret line="75" column="22" lean-forward="false" selection-start-line="75" selection-start-column="22" selection-end-line="75" selection-end-column="22" />
-          <folding>
-            <element signature="e#36#65#0#PHP" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/AppBundle/Twig/AppExtension.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="526">
+        <state relative-caret-position="558">
           <caret line="37" column="64" lean-forward="false" selection-start-line="37" selection-start-column="64" selection-end-line="37" selection-end-column="64" />
           <folding>
             <element signature="e#6#91#0#PHP" expanded="true" />
@@ -1097,12 +1008,70 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/AppBundle/Listener/SearchArticleFormListener.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1458">
+          <caret line="90" column="23" lean-forward="false" selection-start-line="90" selection-start-column="23" selection-end-line="90" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/AppBundle/Resources/views/Article/list_tab.html.twig">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="756">
-          <caret line="42" column="56" lean-forward="true" selection-start-line="42" selection-start-column="56" selection-end-line="42" selection-end-column="56" />
+        <state relative-caret-position="458">
+          <caret line="48" column="30" lean-forward="false" selection-start-line="48" selection-start-column="30" selection-end-line="48" selection-end-column="53" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/AppBundle/Helper/ArticleHelper.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1880">
+          <caret line="109" column="54" lean-forward="true" selection-start-line="109" selection-start-column="54" selection-end-line="109" selection-end-column="54" />
           <folding>
-            <element signature="e#3038#3045#1#HTML" expanded="true" />
+            <element signature="e#36#65#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/AppBundle/Serializer/AbstractHSerializer.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/AppBundle/Serializer/HDateSerializer.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/AppBundle/Resources/hbase/hts/js/harticle.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3942">
+          <caret line="264" column="0" lean-forward="true" selection-start-line="264" selection-start-column="0" selection-end-line="264" selection-end-column="0" />
+          <folding>
+            <marker date="1515174555122" expanded="true" signature="1534:1552" ph="..." />
+            <marker date="1515174555122" expanded="true" signature="1726:1744" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/AppBundle/Resources/hbase/hts/js/hbase.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2872">
+          <caret line="53" column="1" lean-forward="true" selection-start-line="53" selection-start-column="1" selection-end-line="53" selection-end-column="1" />
+          <folding>
+            <element signature="e#3511#12333#0" expanded="false" />
+            <element signature="e#12411#13109#0" expanded="false" />
+            <element signature="e#14684#16829#0" expanded="false" />
+            <element signature="e#16863#19935#0" expanded="false" />
+            <element signature="e#19971#20717#0" expanded="false" />
+            <marker date="1515173721405" expanded="true" signature="13801:13808" ph="×" />
           </folding>
         </state>
       </provider>

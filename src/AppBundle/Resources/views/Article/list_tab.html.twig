@@ -40,13 +40,13 @@
 		</thead>
 		<tbody>
 			{% for key, article in articles %}
-			<tr hevent="{{ article|article_encode() }}">
+			<tr id="harticle-{{ article.id }}" data-harticle="{{ article|article_encode() }}">
 				<td width="20%">{{ article.title }}</td>
 				<td width="20%">{{ article.type }}</td>
 				<td>{% if article.beginHDate is not null %}{{ article.beginHDate.label }}{% endif %}</td>
 				<td>{% if article.endHDate is not null %}{{ article.endHDate.label }}{% endif %}</td>
 				<td>{{ article.editionDate|date("m/d/Y") }}</td>
-				<td><a class="hbase-article"><i class="fa fa-eye" aria-hidden="true"></i></a>&nbsp;
+				<td><a class="hbase-article-displayer" target="harticle-{{ article.id }}"><i class="fa fa-eye" aria-hidden="true"></i></a>&nbsp;
 					<a href="{{ path('article_edit',{'article':article.id}) }}"><i class="fa fa-pencil" aria-hidden="true"></i></a></td>
 			</tr>
 			{% else %}
