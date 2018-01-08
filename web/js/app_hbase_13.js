@@ -1,5 +1,21 @@
+// "use strict";
+var hb = (function (hb) {
+    hb.test = "test";
+
+    hb.util = (function (util) {
+    }(hb.util || {}));
+
+
+
+
+
+    return hb;
+}(hb || {}));
+
+console.log(hb.test);
+
 /** the jQuery Hbase object will be the core object for various variables and methods of hbase front-end library */
-"use strict";
+
 $.hbase = {};
 $.hbase.modal = {};
 $.hbase.func = {};
@@ -35,17 +51,22 @@ $.hbase.regional = {
     }
 };
 
-/** helper function to find the input element of given attrName (= symfony) in the form (Jquery object of it)
+/**
+ * @doc helper function to find the input element of given attrName (= symfony) in the form (Jquery object of it)
  * @param {jQuery} $object
  * @param {string} name
- * @return {jQuery} |null
+ * @return {jQuery|null}
  */
 $.hbase.func.sfAttr = function($object,name)
 {
-    var id = $object.attr("id");
-    return $object.find("#" + id + "_" + name).first();
+    return $object.find("#" + $object.attr("id") + "_" + name).first();
 }
 
+/**
+ * @doc generic hbase project factory for various objects
+ * @param {string} type : available values {hdatepicket|hmaxlength|harticlemodal}
+ * @returns {jQuery}
+ */
 $.hbase.func.factory = function(type)
 {
     var factories = [];
@@ -143,7 +164,7 @@ $.hbase.func.factory = function(type)
                     $modal.typeSelector.val($modal.hDate.type);
                 }
                 $modal.dateLabel.text($modal.hDate.getLabel());
-                $modal.dateInterval.text($modal.hDate.getInterval());
+                $modal.dateInterval.text($modal.hDate.getIntervalLabel());
             }
             $modal.validateButton.button("enable").removeClass("ui-state-error");
             $modal.validateButton.children().first().removeClass("ui-icon-circle-close").addClass("ui-icon-check");
@@ -298,13 +319,29 @@ $.hbase.func.factory = function(type)
 
         // content
         $modal.form = $($("#article_modal").html()).appendTo($modal.body);
+
+        // footer
+        $modal.dismissButtonFooter = $("<button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>").appendTo($modal.footer);
+
+        // functions
+        /** @param {string} name
+         * @returns {jQuery|null}
+         */
         $modal.form.sfAttr = function(name){
             return $.hbase.func.sfAttr($modal.form,name);
         };
 
-        // footer
-        $modal.dismissButtonFooter = $("<button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>").appendTo($modal.footer);
+        /**
+         * function binder to an element with attr hevent or hevent string directly
+         * @param $element
+         */
+        $modal.bind = function($element){
+
+        }
+
+
         return $modal;
+
     };
 
 
@@ -454,6 +491,28 @@ $.widget( "hbase.htimescroller", {
     _destroy: function() {
     }
 });
+$.widget( "hbase.harticledisplayer", {
+    // default options
+    options: {
+    },
+
+    // The constructor
+    _create: function() {
+        console.log("create harticledisplayer widget");
+        function enableArticleDisplayer(element){
+            if(! element.hasClass("harticledisplayer-enabled")){
+                $.hbase.modal.article.bind($(element));
+            }
+        }
+
+        $(this.element).on("click",function(){enableArticleDisplayer($(this));});
+
+    },
+    // Events bound via _on are removed automatically
+    // revert other modifications here
+    _destroy: function() {
+    }
+});
 
 $(function(){
     console.log("--- persistent resources creation ---");
@@ -537,6 +596,7 @@ $(function(){
             $(".hbase-hdatepicker").hdatepicker();
             $(".hbase-activer").each(function(){$.hbase.func.hbaseChecker(this)});
             $(".hbase-article-form").on("submit",function(){$.hbase.func.hbaseArticleFormSubmitter(event,this);});
+
         }
         else{
             rootSelector.find(".hbase-hmaxlength").hmaxlength();

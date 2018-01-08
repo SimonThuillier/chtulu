@@ -2,14 +2,43 @@
  * this file contains some useful general purpose functions
  */
 
-/** function to be used as id generator (pseudo static variable) */
-function idGenerator() {
-	var id = -1;
-	return function() {
-		id++;
-		return id;
-	};
-};
+
+hb = (function (hb) {
+    hb.util = (function (util) {
+        "use strict";
+        var _moduleName = "util:cmn/common.js";
+        if(typeof _loaded !== "undefined"){
+            console.log(_moduleName + " already loaded, skipping");
+        }
+
+
+        util.cmn = {
+            idGenerator:function(){
+                var id = -1;
+                return function() {
+                    id++;
+                    return id;
+                };
+            },
+            test:"lol"
+        };
+
+        var _loaded = true;
+        if(typeof hb.loadedModules=== "undefined"){hb.loadedModules = "";}
+        hb.loadedModules += (_moduleName + ";");
+        return util;
+    }(hb.util || {}));
+
+
+    var _privateTest = "test";
+    return hb;
+
+}(hb || {}));
+
+console.log(hb.util.cmn.test);
+console.log(hb.loadedModules);
+
+
 function dateRegex(){
 	return "^(0?[1-9]|[1-2][1-9]|3[0-1])/(0?[1-9]|1[0-2])/(-?[1-9][0-9]*)$";
 };

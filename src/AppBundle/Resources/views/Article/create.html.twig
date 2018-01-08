@@ -69,7 +69,6 @@ Creer un article
 
 {% block javascript %}
 {% include 'AppBundle:Article:hts-package.js.twig' %}
-<script type="text/javascript">{% include '@AppBundle/Resources/views/Article/article_form.js' %}</script>
 <script>
     $("#modal-test").click(function(){
         $.hbase.modal.article.form.sfAttr('title').val("hello !");

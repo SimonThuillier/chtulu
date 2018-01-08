@@ -2,6 +2,8 @@
  * Horizontal Time Scroller manager 
  */
 /** graphic constants for time scrollers */
+
+console.log(hb.test);
 HTimeScroller.prototype.REL_W_MARGIN = 0.11;
 HTimeScroller.prototype.REL_H_MARGIN = 0.01;	
 HTimeScroller.prototype.ABS_H_MARGIN = 2.5;	

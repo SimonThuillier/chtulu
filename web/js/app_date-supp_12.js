@@ -414,7 +414,7 @@ function myParseDate(sDate,type,errors=[],pieces=[])
 	var regexArray = regex.exec(sDate);
 	if (regexArray === null){
 		var typeLabelArray = {"1":"Précise","3":"mois","4":"saison","5":"année",
-				"6":"decennie","7":"siècle","8":"millénaire"};
+				"6":"decennie","7":"siècle","8":"milénaire"};
 		var exampleLabelArray = {"1":"1/8/1985, 01/09/573, 2/06/-582",
 				"3":"8/1985,09/573,06/-582",
 				"4":"1/1985 (hiver 1985),4/-582 (automne -582)",

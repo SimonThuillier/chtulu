@@ -193,7 +193,7 @@ HDate.prototype.canonicalInputFormatters = {
 };
 HDate.prototype._intervalFormatter = myFormatPatternDate('d/m/Y');
 
-HDate.prototype.intervalSize = function()
+HDate.prototype.getIntervalSize = function()
 {
 	return this.endDate.dayDiff(this.beginDate);
 };
@@ -287,7 +287,7 @@ HDate.prototype.getLabel= function()
 };
 
 //returns user display of the HDate interval for control
-HDate.prototype.getInterval= function()
+HDate.prototype.getIntervalLabel= function()
 {
 	var formatter = this._intervalFormatter;
 	return "[" + formatter(this.beginDate) + " ; " + formatter(this.endDate) + "]";
