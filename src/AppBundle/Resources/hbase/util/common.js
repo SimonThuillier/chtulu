@@ -16,6 +16,7 @@ var hb = (function (hb) {
          * @class hb.util.cmn
          */
         util.cmn = {
+            varTest:"lol",
             /**
              * @doc capitalize a string
              * @param {string} str
@@ -64,7 +65,7 @@ var hb = (function (hb) {
              * @doc returns and idGenerator function which returns at each call an id increased of 1 from 0
              * @returns {Function}
              */
-            getIdGenerator: function () {
+            getIdGenerator : function () {
                 let id = -1;
                 return function () {
                     id++;
@@ -75,15 +76,14 @@ var hb = (function (hb) {
              * @doc returns the name of the module
              * @return {string}
              */
-            getModuleName()
-            {
+            getModuleName : function() {
                 return _moduleName;
             },
             /**
              * @doc returns list of required modules and libraries for this module
              * @return {Array}
              */
-            getRequiredModules: function () {
+            getRequiredModules : function () {
                 return _requiredModules;
             }
         };

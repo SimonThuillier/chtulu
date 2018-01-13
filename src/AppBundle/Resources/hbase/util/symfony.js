@@ -54,7 +54,7 @@ var hb = (function (hb,$) {
              * @doc returns the name of the module
              * @return {string}
              */
-            getModuleName() {
+            getModuleName : function() {
                 return _moduleName;
             },
             /**

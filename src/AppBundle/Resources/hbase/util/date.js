@@ -1,7 +1,7 @@
 /**
  * @package hbase.js
  * @doc date.js : utilitary functions for date handling, parsing and formatting/rendering
- * @requires
+ * @requires hb.util.trans
  */
 var hb = (function (hb) {
     "use strict";
@@ -10,8 +10,10 @@ var hb = (function (hb) {
         console.log(_moduleName + " already loaded, skipping");
         return hb;
     }
+
+
     hb.util = (function (util) {
-        var _requiredModules = [];
+        var _requiredModules = ["util:trans/translation.js"];
 
         /**
          *
@@ -44,9 +46,9 @@ var hb = (function (hb) {
              * @param {Date} date
              * @returns {string}
              */
-            "l": function(date){return DAY_NAMES[date.getDay()];},
+            "l": function(date){return [date.getDay()];},
             /**
-             * @doc returns abridged textual day
+             * @doc returns short textual day
              * @param {Date} date
              * @returns {string}
              */
@@ -70,7 +72,7 @@ var hb = (function (hb) {
              */
             "F": function(date){return MONTH_NAMES[date.getMonth()];},
             /**
-             * @doc returns abridged textual month
+             * @doc returns short textual month
              * @param {Date} date
              * @returns {string}
              */
@@ -173,6 +175,7 @@ var hb = (function (hb) {
         /**
          * @module hb/util/date
          * @class hb.util.date
+         * @requires hb.util.trans
          */
         util.date = {
             /**
@@ -598,8 +601,7 @@ var hb = (function (hb) {
              * @doc returns the name of the module
              * @return {string}
              */
-            getModuleName()
-            {
+            getModuleName : function() {
                 return _moduleName;
             },
             /**
