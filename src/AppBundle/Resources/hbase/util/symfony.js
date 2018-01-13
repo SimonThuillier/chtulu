@@ -21,7 +21,7 @@ var hb = (function (hb,$) {
             /**
              * @doc returns an array of field name => index for a symfony serialized form
              * @param {string} formData
-             * @return {array}
+             * @return {Array}
              */
             getFormMap: function(formData) {
                 let map = [];
@@ -31,7 +31,7 @@ var hb = (function (hb,$) {
                 return map;
             },
             /**
-             * @doc returns the found input element(s) of given attrName (= symfony) in the form (Jquery object of it)
+             * @doc returns the first input element of given attrName (= symfony) in the form (Jquery object of it)
              * @param {jQuery} $object
              * @param {string} name
              * @return {jQuery|null}
@@ -46,7 +46,9 @@ var hb = (function (hb,$) {
              * @returns {jQuery|null}
              */
             getFormValue:function($object,name) {
-                return this.getFormInput($object,name);
+                let $input = this.getFormInput($object,name);
+                if($input !== null){return $input.val();}
+                return null;
             },
             /**
              * @doc returns the name of the module
@@ -57,7 +59,7 @@ var hb = (function (hb,$) {
             },
             /**
              * @doc returns list of required modules and libraries for this module
-             * @return {array}
+             * @return {Array}
              */
             getRequiredModules() {
                 return _requiredModules;

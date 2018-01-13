@@ -81,7 +81,7 @@ var hb = (function (hb) {
             },
             /**
              * @doc returns list of required modules and libraries for this module
-             * @return {array}
+             * @return {Array}
              */
             getRequiredModules: function () {
                 return _requiredModules;

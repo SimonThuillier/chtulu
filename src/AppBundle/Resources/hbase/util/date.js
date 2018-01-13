@@ -17,16 +17,16 @@ var hb = (function (hb) {
          *
          * @doc declaration of private consts for formatting
          */
-        const _formatCharacters = "([d|j|l|D|m|n|F|M|Y|c|y|z|S|s])";
-        const _formatSeparators = "([/|_|:| ])";
-        const _formatPatterns= ["^",
-            _formatCharacters, _formatSeparators,"{0,1}",
-            _formatCharacters, "*",_formatSeparators,"{0,1}",
-            _formatCharacters, "*",_formatSeparators,"{0,1}",
-            _formatCharacters, "*","$"].join('');
-        const _formatRegex = new RegExp(_formatPatterns);
-        const _formatYearRegex = new RegExp("(-*)(\\d+)");
-        const _formatters = {
+        const _FORMAT_CHARACTERS = "([d|j|l|D|m|n|F|M|Y|c|y|z|S|s])";
+        const _FORMAT_SEPARATORS = "([/|_|:| ])";
+        const _FORMAT_PATTERN = ["^",
+            _FORMAT_CHARACTERS, _FORMAT_SEPARATORS,"{0,1}",
+            _FORMAT_CHARACTERS, "*",_FORMAT_SEPARATORS,"{0,1}",
+            _FORMAT_CHARACTERS, "*",_FORMAT_SEPARATORS,"{0,1}",
+            _FORMAT_CHARACTERS, "*","$"].join('');
+        const _FORMAT_REGEX = new RegExp(_FORMAT_PATTERN);
+        const _FORMAT_YEAR_REGEX = new RegExp("(-*)(\\d+)");
+        const _FORMATTERS = {
             /**
              * @doc returns day number with initial zero
              * @param {Date} date
@@ -99,7 +99,7 @@ var hb = (function (hb) {
              * @returns {string}
              */
             "y": function(date){
-                let arrayDate = _formatYearRegex.exec(date.getFullYear() +"");
+                let arrayDate = _FORMAT_YEAR_REGEX.exec(date.getFullYear() +"");
                 if (arrayDate[2].length > 2){
                     return arrayDate[2].substring(arrayDate[2].length-2);
                 }
@@ -111,7 +111,7 @@ var hb = (function (hb) {
              * @returns {string}
              */
             "z": function(date){
-                let arrayDate = _formatYearRegex.exec(date.getFullYear()+"");
+                let arrayDate = _FORMAT_YEAR_REGEX.exec(date.getFullYear()+"");
                 if (arrayDate[2].length > 1){
                     return arrayDate[2].substring(arrayDate[2].length-1);
                 }
@@ -124,7 +124,7 @@ var hb = (function (hb) {
              * @returns {string}
              */
             "c": function(date){
-                let arrayDate = _formatYearRegex.exec(date.getFullYear()+"");
+                let arrayDate = _FORMAT_YEAR_REGEX.exec(date.getFullYear()+"");
                 if (arrayDate[2].length > 3){
                     return arrayDate[2].substring(arrayDate[2].length-3);
                 }
@@ -132,6 +132,43 @@ var hb = (function (hb) {
             }
         };
 
+        const  _PARSE_REGEXS = {
+            "1": new RegExp("(\\d{1,2})\/(\\d{1,2})\/(-?\\d{1,5})$"), // DAY
+            "3": new RegExp("\/?(\\d{1,2})\/(-?\\d{1,5})$"), // MONTH
+            "4": new RegExp("\/?(\\d{1,2})\/(-?\\d{1,5})$"), // SEASON
+            "5": new RegExp("\/?(-?\\d{1,5})$"), // YEAR
+            "6": new RegExp("\/?(-?\\d{1,5})$"), // DECADE
+            "7": new RegExp("\/?(-?\\d{1,5})$"), // CENTURY
+            "8": new RegExp("\/?(-?\\d{1,5})$") // MILLENNIUM
+        };
+        const _PARSERS = {
+            "1":{ // DAY
+                "DAY" : function(array){return parseInt(array[1]);},
+                "MONTH" : function(array){return parseInt(array[2]);},
+                "YEAR" : function(array){return parseInt(array[3]);}
+            },
+            "3":{ // MONTH
+                "MONTH" : function(array){return parseInt(array[1]);},
+                "YEAR" : function(array){return parseInt(array[2]);}
+            },
+            "4":{ // SEASON
+                "MONTH" : function(array){return (3*(parseInt(array[1])-1)+1);},
+                "SEASON" : function(array){return parseInt(array[1]);},
+                "YEAR" : function(array){return parseInt(array[2]);}
+            },
+            "5":{ // YEAR
+                "YEAR" : function(array){return parseInt(array[1]);}
+            },
+            "6":{ // DECADE
+                "YEAR" : function(array){return Math.floor(parseInt(array[1])/10)*10;}
+            },
+            "7":{ // CENTURY
+                "YEAR" : function(array){return Math.floor(parseInt(array[1])/100)*100;}
+            },
+            "8":{ // MILLENNIUM
+                "YEAR" : function(array){return Math.floor(parseInt(array[1])/1000)*1000;}
+            }
+        };
 
         /**
          * @module hb/util/date
@@ -160,7 +197,7 @@ var hb = (function (hb) {
                 return copy;
             },
             /**
-             * @doc corrects a date year to prevent incorrect interpretation with two figures dates (ex 63 ap JC)
+             * @doc corrects a date year to prevent incorrect interpretation with two figures dates (ex 63 ap JC) and returns it
              * @param {Date} date
              * @param {int} year
              * @returns {Date}
@@ -321,9 +358,10 @@ var hb = (function (hb) {
              * @doc advances the date to next day (if force is true), then returns it
              * @param {Date} date
              * @param {boolean} force - if true increments of one day, else do nothing
+             * @param {boolean} exact - unused here, but kept for compatibility with other switch functions
              * @returns {Date}
              */
-            switchToNextDay: function(date,force=false) {
+            switchToNextDay: function(date,force=false,exact=false) {
                 if (force===true) return this.addDay(date,1);
                 return date;
             },
@@ -471,33 +509,27 @@ var hb = (function (hb) {
              * ## SEPARATORS ##
              * separators can be [/][_][:][a space] or nothing
              * @param {string} pattern - the string pattern with which format the date (ex : dd/MM/YY ). "-" can't be used as separator
-             * @returns {function}
+             * @returns {Function}
              */
             getFormatterFromPattern: function(pattern) {
-                let regexArray = _formatRegex.exec(pattern);
+                let regexArray = _FORMAT_REGEX.exec(pattern);
                 if (regexArray === null){throw ["The given pattern : ",pattern," isn't a valid date pattern."].join("");}
                 // determine the required data and max index to loop on for the format function
-                var maxIndex=7;
+                let maxIndex=7;
                 if (typeof regexArray[maxIndex] ==='undefined'){maxIndex=5;}
                 if (typeof regexArray[maxIndex] ==='undefined'){maxIndex=3;}
                 if (typeof regexArray[maxIndex] ==='undefined'){maxIndex=1;}
 
-                var DAY_NAMES = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-                var ABG_DAY_NAMES = ['D','L','M','M','J','V','S'];
-                var MONTH_NAMES = ['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'];
-                var ABG_MONTH_NAMES = ['Janv.','Fev.','Mars','Avr.','Mai','Juin','Juil.','Aout','Sept.','Oct.','Nov.','Dec.'];
-                var SEASON_NAMES = ['Hiver','Printemps','Eté','Automne'];
-
                 /**
                  * @doc returns date formatted with the previously given pattern
                  * @param {Date} date
-                 * @param {array} pieces - if given the function fills it with each piece of the rendered date
+                 * @param {Array} pieces - if given the function fills it with each piece of the rendered date
                  * @returns {string}
                  */
                 function formatter (date,pieces=[]) {
-                    for(var index=1;index<=maxIndex;index++){
-                        if(typeof formatters[regexArray[index]] === 'function'){
-                            pieces[index-1] = (formatters[regexArray[index]])(date);
+                    for(let index=1;index<=maxIndex;index++){
+                        if(typeof _FORMATTERS[regexArray[index]] === 'function'){
+                            pieces[index-1] = (_FORMATTERS[regexArray[index]])(date);
                         }
                         else{
                             pieces[index-1] =regexArray[index];
@@ -509,96 +541,58 @@ var hb = (function (hb) {
             },
             /**
              * @doc returns the parser for the given parsing style
-             * @param {string} sDate
-             * @param {string} type - parsing style to apply from "1" (PRECISE) to "8" (MILLENNIUM)
-             * @param {array} errors - if provided, the function fills it with encountered errors
-             * @returns {Date}
+             * @param {string} type - parsing style to apply from "1" (PRECISE) to "8" (MILLENNIUM), at the exception of "2" (BOUNDED type, see HDate)
+             * @returns {Function}
+             * @throws Exception - if unknown type
              */
             getParserFromStyle: function (type) {
-
-            },
-
-
-            /**
-             * @doc parses a string to date according to one of the defined parsing styles
-             * @param {string} sDate
-             * @param {string} type - parsing style to apply from "1" (PRECISE) to "8" (MILLENNIUM)
-             * @param {array} errors - if provided, the function fills it with encountered errors
-             * @returns {Date}
-             */
-            parse: function(sDate,type,errors=[]) {
-                let regexType = {"1":"(\\d{1,2})\/(\\d{1,2})\/(-?\\d{1,5})$",
-                    "3": "\/?(\\d{1,2})\/(-?\\d{1,5})$",
-                    "4": "\/?(\\d{1,2})\/(-?\\d{1,5})$",
-                    "5": "\/?(-?\\d{1,5})$",
-                    "6": "\/?(-?\\d{1,5})$",
-                    "7": "\/?(-?\\d{1,5})$",
-                    "8": "\/?(-?\\d{1,5})$"};
-
-                let regex = new RegExp(regexType[type]);
-                if (typeof regex === "undefined" || regex === null){
-                    throw ["The given type : ",type," isn't a valid parsing style ('1' to '8' accepted)."].join("");
-                }
-                let regexArray = regex.exec(sDate);
-                if (regexArray === null){
-                    var typeLabelArray = {"1":"Précise","3":"mois","4":"saison","5":"année",
-                        "6":"decennie","7":"siècle","8":"millénaire"};
-                    var exampleLabelArray = {"1":"1/8/1985, 01/09/573, 2/06/-582",
-                        "3":"8/1985,09/573,06/-582",
-                        "4":"1/1985 (hiver 1985),4/-582 (automne -582)",
-                        "5":"1985,573,-582",
-                        "6":"1980,571,-580",
-                        "7":"1980,571,-580",
-                        "8":"1980,571,-580"};
-
-                    errors.push("'"+ + " n'est pas convertible en date (" +
-                        typeLabelArray[type] + "). Exemples de valeurs autorisées : " +
-                        exampleLabelArray[type]);
-                    return null;
+                let module = this;
+                let parseRegex = _PARSE_REGEXS[type];
+                if (typeof parseRegex === "undefined" || parseRegex === null){
+                    throw ["The given type : '",type,"' isn't a valid parsing style ('1,3-8' accepted)."].join("");
                 }
 
-                let date = null;
-                let day  = 1;
-                let season = 1;
-                let month = 1;
-                let year = 1;
-                switch(type){
-                    case PRECISE:
-                        day = parseInt(regexArray[1]);
-                        month = parseInt(regexArray[2]);
-                        year = parseInt(regexArray[3]);
-                        break;
-                    case MONTH:
-                        month = parseInt(regexArray[1]);
-                        year = parseInt(regexArray[2]);
-                        break;
-                    case SEASON:
-                        season = parseInt(regexArray[1]);
-                        year = parseInt(regexArray[2]);
-                        month = (season-1)*3 + 1;
-                        break;
-                    case YEAR:
-                        year = parseInt(regexArray[1]);
-                        break;
-                    case DECADE:
-                        year = Math.floor(parseInt(regexArray[1])/10)*10;
-                        break;
-                    case CENTURY:
-                        year = Math.floor(parseInt(regexArray[1])/100)*100;
-                        break;
-                    case MILLENIA:
-                        year = Math.floor(parseInt(regexArray[1])/1000)*1000;
-                        break;
+                /**
+                 * @doc in accordance to the wanted parsing style, returns either the date corresponding to the given string or null
+                 * @param {String} sDate
+                 * @param {Array} errors - if given the function fills it with errors encountered during parsing
+                 * @returns {Date|null}
+                 */
+                function parser(sDate,errors=[]) {
 
-                    default: break;
+                    let regexArray = parseRegex.exec(sDate);
+                    if (regexArray === null){
+                        let typeLabelArray = {"1":"Précise","3":"mois","4":"saison","5":"année",
+                            "6":"decennie","7":"siècle","8":"millénaire"};
+                        let exampleLabelArray = {"1":"1/8/1985, 01/09/573, 2/06/-582",
+                            "3":"8/1985,09/573,06/-582",
+                            "4":"1/1985 (hiver 1985),4/-582 (automne -582)",
+                            "5":"1985,573,-582",
+                            "6":"1980,571,-580",
+                            "7":"1980,571,-580",
+                            "8":"1980,571,-580"};
+
+                        errors.push("'"+ sDate + " n'est pas convertible en date (" +
+                            typeLabelArray[type] + "). Exemples de valeurs autorisées : " +
+                            exampleLabelArray[type]);
+                        return null;
+                    }
+                    let date = null,day  = 1, month = 1,season = 1,year = 1;
+                    let parsers = _PARSERS[type];
+                    if(typeof parsers["DAY"] === "function"){day = parsers["DAY"](regexArray);}
+                    if(typeof parsers["MONTH"] === "function"){month = parsers["MONTH"](regexArray);}
+                    if(typeof parsers["SEASON"] === "function"){season = parsers["SEASON"](regexArray);}
+                    if(typeof parsers["YEAR"] === "function"){day = parsers["YEAR"](regexArray);}
+
+                    if(day<1 || day>31){errors.push("Le jour '" + day + "' est invalide");}
+                    if(season<1 || season>4){errors.push("La saison '" + season + "' est invalide");}
+                    if(month<1 || month>12){errors.push("Le mois '" + month + "' est invalide");}
+                    if(year<-10000 || year>module.getMaxYear()){errors.push("L'année '" + year + "' est invalide" +
+                        " : les années autorisées vont de -10000 à " + module.getMaxYear());}
+                    if(errors.length===0){ date = module.correctYear(new Date(year,month-1,day),year);}
+                    return date;
                 }
-
-                if(day<1 || day>31){errors.push("Le jour '" + day + "' est invalide");}
-                if(season<1 || season>4){errors.push("La saison '" + season + "' est invalide");}
-                if(month<1 || month>12){errors.push("Le mois '" + month + "' est invalide");}
-                if(year<-10000 || year>maxYear){errors.push("L'année '" + year + "' est invalide : les années autorisées vont de -10000 à " + maxYear);}
-                if(errors.length===0){ date = new Date(year,month-1,day).correctYear(year);}
-                return date;
+                return parser;
             },
             /**
              * @doc returns the name of the module
@@ -610,7 +604,7 @@ var hb = (function (hb) {
             },
             /**
              * @doc returns list of required modules and libraries for this module
-             * @return {array}
+             * @return {Array}
              */
             getRequiredModules: function () {
                 return _requiredModules;
