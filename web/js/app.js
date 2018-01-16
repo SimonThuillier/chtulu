@@ -1512,12 +1512,13 @@ var hb = (function (hb) {
         return hb;
     }
     hb.util = (function (util) {
-        var _requiredModules = "";
+        var _requiredModules = [];
         /**
          * @module hb/util/cmn
          * @class hb.util.cmn
          */
         util.cmn = {
+            varTest:"lol",
             /**
              * @doc capitalize a string
              * @param {string} str
@@ -1563,30 +1564,29 @@ var hb = (function (hb) {
                 return romanNo;
             },
             /**
-             * @doc returns the name of the module
-             * @return {string}
-             */
-            getModuleName()
-            {
-                return _moduleName;
-            },
-            /**
-             * @doc returns list of required modules and libraries for this module
-             * @return {string}
-             */
-            getRequiredModules: function () {
-                return _requiredModules;
-            },
-            /**
              * @doc returns and idGenerator function which returns at each call an id increased of 1 from 0
              * @returns {Function}
              */
-            idGenerator: function () {
+            getIdGenerator : function () {
                 let id = -1;
                 return function () {
                     id++;
                     return id;
                 };
+            },
+            /**
+             * @doc returns the name of the module
+             * @return {string}
+             */
+            getModuleName : function() {
+                return _moduleName;
+            },
+            /**
+             * @doc returns list of required modules and libraries for this module
+             * @return {Array}
+             */
+            getRequiredModules : function () {
+                return _requiredModules;
             }
         };
         console.log(_moduleName + " loaded");
@@ -1604,6 +1604,7 @@ var hb = (function (hb) {
 /**
  * @package hbase.js
  * @doc symfony.js : Contains utilitary functions for handling DOM symfony formatted elements (forms,...)
+ * @requires jQuery
  */
 var hb = (function (hb,$) {
     "use strict";
@@ -1614,7 +1615,7 @@ var hb = (function (hb,$) {
         return hb;
     }
     hb.util = (function (util,$) {
-        var _requiredModules = "jQuery";
+        var _requiredModules = [];
         /**
          * @module hb/util/sf
          * @class hb.util.sf
@@ -1623,10 +1624,9 @@ var hb = (function (hb,$) {
             /**
              * @doc returns an array of field name => index for a symfony serialized form
              * @param {string} formData
-             * @return {array}
+             * @return {Array}
              */
-            getFormMap(formData)
-            {
+            getFormMap: function(formData) {
                 let map = [];
                 $(Object.keys(formData)).each(function(key){
                     map[formData[key].name] = key;
@@ -1634,13 +1634,12 @@ var hb = (function (hb,$) {
                 return map;
             },
             /**
-             * @doc returns the found input element(s) of given attrName (= symfony) in the form (Jquery object of it)
+             * @doc returns the first input element of given attrName (= symfony) in the form (Jquery object of it)
              * @param {jQuery} $object
              * @param {string} name
              * @return {jQuery|null}
              */
-            getFormInput:function($object,name)
-            {
+            getFormInput:function($object,name) {
                 return $object.find("#" + $object.attr("id") + "_" + name).first();
             },
             /**
@@ -1649,24 +1648,23 @@ var hb = (function (hb,$) {
              * @param {string} name
              * @returns {jQuery|null}
              */
-            getFormValue:function($object,name)
-            {
-                return this.getFormInput($object,name);
+            getFormValue:function($object,name) {
+                let $input = this.getFormInput($object,name);
+                if($input !== null){return $input.val();}
+                return null;
             },
             /**
              * @doc returns the name of the module
              * @return {string}
              */
-            getModuleName()
-            {
+            getModuleName : function() {
                 return _moduleName;
             },
             /**
              * @doc returns list of required modules and libraries for this module
-             * @return {string}
+             * @return {Array}
              */
-            getRequiredModules()
-            {
+            getRequiredModules() {
                 return _requiredModules;
             }
         };
@@ -1686,480 +1684,784 @@ var hb = (function (hb,$) {
 
 
 /**
- * helper functions added to javascript date prototype
+ * @package hbase.js
+ * @doc translation.js : Contains textual message and translations for hbase project
+ * @param hb - hb module
+ * @param currentLocale - {ENGLISH,FRENCH}
  */
+var hb = (function (hb,currentLocale="FRENCH") {
+    "use strict";
+    var _moduleName = "util:trans/translation.js";
+    if(((typeof hb.getLoadedModules==="function"?hb.getLoadedModules():[])).includes(_moduleName)) {
+        console.log(_moduleName + " already loaded, skipping");
+        return hb;
+    }
+    hb.util = (function (util) {
+        var _requiredModules = [];
 
-Date.prototype.correctYear = function(year)
-{
-	this.setFullYear(year);
-	return this;
-};
+        const _LOCALES= {
+            "ENGLISH": {
+                DAY_NAMES : ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+                DAY_NAMES_SHORT : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+                DAY_NAMES_MIN : ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"], // Column headings for days starting at Sunday
+                FIRST_DAY : 0, // The first day of the week, Sun = 0, Mon = 1, ...
+                MONTH_NAMES : ["January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"], // Names of months
+                MONTH_NAMES_SHORT : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], // For formatting
+                SEASON_NAMES : ['Winter','Spring','Summer','Fall'],
+                CURRENT_TEXT : "Today",
+                CLOSE_TEXT : "Done",
+                PREV_TEXT : "Prev",
+                NEXT_TEXT : "Next",
+                WEEK_HEADER : "Wk",
+                PARSING_TYPE_LABELS : {
+                    "1":"Precise","3":"Month","4":"Season","5":"Year",
+                    "6":"Decade","7":"Century","8":"Millennium"
+                },
+                PARSING_TYPE_EXAMPLES : {
+                    "1":"8/1/1985, 09/25/573, 06/2/-582", "3":"8/1985,09/573,06/-582", "4":"1/1985 (<WINTER> 1985),4/-582 (<FALL> -582)",
+                    "5":"1985,573,-582", "6":"1980,571,-580", "7":"1980,571,-580", "8":"1980,571,-580"
+                },
+                PARSING_PLACEHOLDERS : {
+                    "1": "MM/DD/YYYY", "2": "MM/DD/YYYY;MM/DD/YYYY",
+                    "3": "MM/YYYY", "4": "SS/YYYY", "5": "YYYY",
+                    "6": "YYYY", "7": "YYYY", "8": "YYYY"
+                },
+                PARSING_PLACEMENT : {
+                    "1": {"DAY":2,"MONTH":1,"YEAR":3}, "3": {"MONTH":1,"YEAR":2}, "4" : {"SEASON":1,"YEAR":2},
+                    "5": {"YEAR":1},"6": {"YEAR":1},"7": {"YEAR":1},"8": {"YEAR":1}
+                },
+                PARSING_HELP : {
+                    "1": "Enter complete date (Ex: 11/9/1989 or 3/15/-44)", "2": "Enter imprecise date (Ex: 10/11/732;10/13/733)",
+                    "3": "Enter month (Ex: 7/622 or 10/-539)", "4": "Enter season (Ex: 1/208 ou 4/1917)",
+                    "5": "Enter year (Ex: 1968 or -333)", "6": "Enter a year of the decade (Ex: 1242 or 1648)",
+                    "7": "Enter a year of the century (Ex: -221 or 1789)", "8": "Enter a year of the millennium (Ex: -3140 or 1945)"
+                },
+                PARSING_ERRORS : [
+                    "'<SDATE>' isn't parsable to <PARSING_TYPE> date. Authored values examples : <PARSING_EXAMPLE>",
+                    "Day '<DAY>' isn't valid",
+                    "Season '<SEASON>' isn't valid",
+                    "Month '<MONTH>' isn't valid",
+                    "Year '<YEAR>' isn't valid : Authored years go from -10000 to <MAX_YEAR>",
+                ],
 
-/** return a new date object, clone of the given one */
-Date.prototype.clone = function(){return clone(this);};
-function clone(date)
-{
-	var copy = new Date();
-	copy.setTime(date.getTime());
-	copy.setHours(0,0,0,0);
-	return copy;
-}
-/** add to a date a certain given number of day (accept negative number of day) */
-Date.prototype.addDay = function(nbDay){return addDay(this,nbDay);};
-function addDay(date,nbDay)
-{
-	date.setDate(date.getDate() + nbDay);
-	return date;
-}
-/** returns the entire number of days between two dates */
-Date.prototype.dayDiff = function(beginDate){return dayDiff(this,beginDate);};	
-function dayDiff(endDate,beginDate)
-{
-	return Math.round((endDate-beginDate)/(1000*60*60*24));
-}
-/** returns the float number of days between two dates */
-Date.prototype.floatDayDiff = function(beginDate) {return floatDayDiff(this,beginDate);};	
-function floatDayDiff(endDate,beginDate)
-{
-	return ((endDate-beginDate)/(1000*60*60*24));
-}
-/** return true if same day, false otherwise */
-Date.prototype.dateEquals= function(date){return dateEquals(this,date);};
-function dateEquals(date1,date2)
-{
-	return (date1.dayDiff(date2) ===0);
-}
-/** alias to set time of a date to 0 */
-Date.prototype.stripHours = function(){return stripHours(this);};	
-function stripHours(date) 
-{
-	date.setHours(0,0,0,0);
-	return date;
-}
-/** return day numerotation in week switched from sunday/0-saturday/6 to monday/0-sunday/6 */
-Date.prototype.getFrenchDay = function(){return getFrenchDay(this);};	
-function getFrenchDay(date)
-{
-	return (date.getDay() + 6) % 7;
-}
-/** return season number of date : 0 winter,1 spring, 2 summer, 3 fall */
-Date.prototype.getSeason = function(){return getSeason(this);};
-function getSeason(date)
-{
-	var season = Math.floor(date.getMonth()/3);
-	var isChangingMonth = ((date.getMonth()+1)%3) === 0;
-	if (isChangingMonth && date.getDate() > 20 )  season++;
-	return season%4;
-}
+                dateFormat: "mm/dd/yy", // See format options on parseDate
 
-/** rewind a date first day of its current season */
-
-Date.prototype.rewindToMonthFirst= function(){return rewindToMonthFirst(this);};	
-function rewindToMonthFirst(date)
-{
-	date.setDate(1);
-	return date;
-}
-
-Date.prototype.rewindToSeasonFirst= function(){return rewindToSeasonFirst(this);};	
-function rewindToSeasonFirst(date)
-{
-	var month;
-	var isChangingYear = date.getMonth() == 11 && date.getDate() > 20;
-	if (isChangingYear){
-		month = 11;
-	}
-	else{
-		var season = date.getSeason();
-		month = season*3 - 1;
-	}
-	date.setMonth(month);
-	date.setDate(21);
-	return date;
-}
-
-Date.prototype.rewindToYearFirst= function(){return rewindToYearFirst(this);};	
-function rewindToYearFirst(date)
-{
-	date.setDate(1);
-	date.setMonth(0);
-	return date;
-}
-
-Date.prototype.rewindToDecadeFirst= function(){return rewindToDecadeFirst(this);};	
-function rewindToDecadeFirst(date)
-{
-	date.setDate(1);
-	date.setMonth(0);
-	date.setFullYear(Math.floor(date.getFullYear()/10)*10);
-	return date;
-}
-
-Date.prototype.rewindToCenturyFirst= function(){return rewindToCenturyFirst(this);};
-function rewindToCenturyFirst(date)
-{
-    date.setDate(1);
-    date.setMonth(0);
-    date.setFullYear(Math.floor(date.getFullYear()/100)*100);
-    return date;
-}
-
-Date.prototype.rewindToMilleniaFirst= function(){return rewindToMilleniaFirst(this);};	
-function rewindToMilleniaFirst(date)
-{
-	date.setDate(1);
-	date.setMonth(0);
-	date.setFullYear(Math.floor(date.getFullYear()/1000)*1000);
-	return date;
-}
+            },
+            "FRENCH": {
+                DAY_NAMES : ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],
+                DAY_NAMES_SHORT : ['Dim','Lu','Mar','Mer','Je','Ven','Sa'],
+                DAY_NAMES_MIN : ['D','L','M','M','J','V','S'],
+                FIRST_DAY : 1, // The first day of the week, Sun = 0, Mon = 1, ...
+                MONTH_NAMES : ['Janvier','Fevrier','Mars','Avril','Mai','Juin',
+                    'Juillet','Aout','Septembre','Octobre','Novembre','Decembre'],
+                MONTH_NAMES_SHORT : ['Janv','Fev','Mar','Avr','Mai','Juin','Juil.','Aout','Sept','Oct','Nov','Dec'],
+                SEASON_NAMES : ['Hiver','Printemps','Eté','Automne'],
+                CURRENT_TEXT : "Maintenand",
+                CLOSE_TEXT : "Fait",
+                PREV_TEXT : "Prec.",
+                NEXT_TEXT : "Suiv.",
+                WEEK_HEADER : "Sem.",
+                PARSING_TYPE_LABELS : {
+                    "1":"Précise","3":"Mois","4":"Saison","5":"Année",
+                    "6":"Décennie","7":"Siècle","8":"Millénaire"
+                },
+                PARSING_TYPE_EXAMPLES : {
+                    "1":"1/8/1985, 25/09/573, 2/06/-582", "3":"8/1985,09/573,06/-582", "4":"1/1985 (<WINTER> 1985),4/-582 (<FALL> -582)",
+                    "5":"1985,573,-582", "6":"1980,571,-580", "7":"1980,571,-580", "8":"1980,571,-580"
+                },
+                PARSING_PLACEHOLDERS : {
+                    "1": "JJ/MM/AAAA", "2": "JJ/MM/AAAA;JJ/MM/AAAA",
+                    "3": "MM/AAAA", "4": "SS/AAAA", "5": "AAAA",
+                    "6": "AAAA", "7": "AAAA", "8": "AAAA"
+                },
+                PARSING_PLACEMENT : {
+                    "1": {"DAY":2,"MONTH":1,"YEAR":3}, "3": {"MONTH":1,"YEAR":2}, "4" : {"SEASON":1,"YEAR":2},
+                    "5": {"YEAR":1},"6": {"YEAR":1},"7": {"YEAR":1},"8": {"YEAR":1}
+                },
+                PARSING_HELP : {
+                    "1": "Entrez la date complete (Ex: 9/11/1989 ou 15/3/-44)", "2": "Entrez la date imprecise (Ex: 11/10/732;13/10/733)",
+                    "3": "Entrez le mois (Ex: 7/622 ou 10/-539)", "4": "Entrez la saison (Ex: 1/208 ou 4/1917)",
+                    "5": "Entrez l'année (Ex: 1968 ou -333)", "6": "Entrez une année de la decennie (Ex: 1242 ou 1648)",
+                    "7": "Entrez une année du siècle (Ex: -221 ou 1789)", "8": "Entrez une année du millénaire (Ex: -3140 ou 1945)"
+                },
+                PARSING_ERRORS : [
+                    "'<SDATE>' n'est pas convertible en date <PARSING_TYPE>. Exemples de valeurs autorisées : <PARSING_EXAMPLE>",
+                    "Le jour '<DAY>' est invalide",
+                    "La saison '<SEASON>' est invalide",
+                    "Le mois '<MONTH>' est invalide",
+                    "L'année '<YEAR>' est invalide : Les années autorisées vont de -10000 à <MAX_YEAR>",
+                ],
+                dateFormat: "mm/dd/yy", // See format options on parseDate
+            }
+        };
 
 
-/** advance the date to next day if force is true, else do nothing */
-Date.prototype.switchToNextDay = function(force=false,exact=false){return switchToNextDay(this,force,exact);};	
-function switchToNextDay(date,force=false,exact=false)
-{
-	if (force===true) return date.addDay(1);
-	return date;
-}
-/** advance the date to next Monday (default mode) ; if exact mode increment of exactly one week 
- *  if not force and date is already a monday nothing is done, exact to advance exactly of one week */
-Date.prototype.switchToNextWeek = function(force=false,exact=false) {return switchToNextWeek(this,force,exact);};	
-function switchToNextWeek(date,force=false,exact=false)
-{
-	if (exact) return date.addDay(7); 
-	var originDay = date.getFrenchDay();
-	if(force || originDay  !== 0){
-		date.addDay(7 - originDay);
-	}
-	return date;
-}
-/** advance the date to first day of next month (default) ; if exact mode increment of exactly one month
- * if not force and date is already first day of month nothing is done */
-Date.prototype.switchToNextMonth = function(force=false,exact=false) {return switchToNextMonth(this,force,exact);};	
-function switchToNextMonth(date,force=false,exact=false)
-{
-	if (exact) return date.setMonth(date.getMonth()+1);
-	if(force || (date.getDate() !==1) ){
-		date.setMonth(date.getMonth()+1,1);
-	}
-	return date;
-}
-/** advance the date to first day of next season (default) ; if exact mode increment of exactly one season (3 months)
- * if not force and date is already first day of season nothing is done */
-Date.prototype.switchToNextSeason = function(force=false,exact=false) {return switchToNextSeason(this,force,exact);};	
-function switchToNextSeason(date,force=false,exact=false)
-{
-	if (exact) return date.setMonth(date.getMonth()+3);
-	var isChangingMonth = ((date.getMonth()+1)%3) === 0;
-	var newMonth = date.getMonth()-((date.getMonth()+1)%3) + 3;
 
-	date.setDate(21);
-	if(force || ! (date.getDate() <22 && isChangingMonth) ){
-		date.setMonth(newMonth);
-	}
-	return date;
-}
 
-/** advance the date to first day of next year ; if exact mode increment of exactly one year
- * if not force and date is already first day of year nothing is done */
-Date.prototype.switchToNextYear = function(force=false,exact=false) {return switchToNextYear(this,force,exact);};
-function switchToNextYear(date,force=false,exact=false)
-{
-	if (exact) return date.setFullYear(date.getFullYear()+1);
-	if(force || (! (date.getMonth() === 0 && date.getDate() === 1)) ){
-		date.setFullYear(date.getFullYear()+1,0,1);
-	}
-	return date;
-}
-/** advance the date to first day of next decade, if exact mode increment of exactly one decade
- * if not force and date is already first day of decade nothing is done */
-Date.prototype.switchToNextDecade = function(force=false,exact=false) {return switchToNextDecade(this,force,exact);};
-function switchToNextDecade(date,force=false,exact=false)
-{
-	if (exact) return date.setFullYear(date.getFullYear()+10);
-	var year = date.getFullYear();
-	var decade = (Math.floor(year/10))*10;
-	if(force || (! ( (year-decade)===0 && date.getMonth() === 0 && date.getDate() ===1)) ){
-		date.setFullYear(decade+10,0,1);
-	}
-	return date;
-}
-/** advance the date to first day of next century, if exact mode increment of exactly one century
- *  if not force and date is already first day of century nothing is done */
-Date.prototype.switchToNextCentury = function(force=false,exact=false) {return switchToNextCentury(this,force,exact);};
-function switchToNextCentury(date,force=false,exact=false)
-{
-	if (exact) return date.setFullYear(date.getFullYear()+100);
-	var year = date.getFullYear();
-	var century = (Math.floor(year/100))*100;
 
-	if(force ||  (! ( (year-century)===0 && date.getMonth() === 0 && date.getDate() ===1)) ){
-		date.setFullYear(century+100,0,1);
-	}
-	return date;
-}
-/** advance the date to first day of next millenia, if exact mode increment of exactly one millenia
- *  if not force and date is already first day of millenia nothing is done */
-Date.prototype.switchToNextMillenia = function(force=false,exact=false) {return switchToNextMillenia(this,force,exact);};
-function switchToNextMillenia(date,force=false,exact=false)
-{
-	if (exact) return date.setFullYear(date.getFullYear()+1000);
-	var year = date.getFullYear();
-	var millenia = (Math.floor(year/1000))*1000;
 
-	if(force || (! ( (year-millenia)=== 0 && date.getMonth() === 0 && date.getDate() ===1)) ){
-		date.setFullYear(millenia+1000,0,1);
-	}
-	return date;
-}
+
+
+        /**
+         * @module hb/util/trans
+         * @class hb.util.trans
+         */
+        util.trans = {
+            loc : _LOCALES[currentLocale],
+            /**
+             * @doc returns the name of the module
+             * @return {string}
+             */
+            getModuleName : function(){
+                return _moduleName;
+            },
+            /**
+             * @doc returns list of required modules and libraries for this module
+             * @return {Array}
+             */
+            getRequiredModules : function () {
+                return _requiredModules;
+            }
+        };
+        console.log(_moduleName + " loaded");
+        return util;
+    }(hb.util || {}));
+
+    let _loadedModules = ((typeof hb.getLoadedModules==="function")?hb.getLoadedModules():[]);
+    _loadedModules.push(_moduleName);
+    hb.getLoadedModules = function() {
+        return _loadedModules;
+    }
+    return hb;
+}(hb || {}));
 
 /**
- * format given date using a simplified personal pattern expression (php inspired) 
- * ## DAYS ##
- * [d] : day month n° with initial zero, [j] : day month n° without initial zero, [l] : textual day, [D] : abridged textual day
- * ## MONTHS ##
- * [m] : month number with initial zero, [n] : month number without initial zero, [F] : textual month, [M] : abridged textual month, 
- * [S] : textual season, [s] : season index (1-4)
- * ## YEARS ##
- * [Y] : complete year, [y] year on two numbers, [z] : last digit of year, [c] century of the year (3 digit or 0 if first Gregorian year), 
- * for negative years the - is displayed if the year is originally on the requested size
- * ## SEPARATORS ##
- * separators can be [/][_][:][a space] or nothing
+ * @package hbase.js
+ * @doc date.js : utilitary functions for date handling, parsing and formatting/rendering
+ * @requires hb.util.trans
  */
-function myFormatPatternDate(pattern,date,pieces=[])
-{
-	var regexCharacterAvailable = "([d|j|l|D|m|n|F|M|Y|c|y|z|S|s])";
-	var regexSeparatorAvailable = "([/|_|:| ])";
-	var regexPattern = ["^",
-		regexCharacterAvailable, regexSeparatorAvailable,"{0,1}",
-		regexCharacterAvailable, "*",regexSeparatorAvailable,"{0,1}",
-		regexCharacterAvailable, "*",regexSeparatorAvailable,"{0,1}",
-		regexCharacterAvailable, "*","$"].join('');
-	var regexObject = new RegExp(regexPattern);
+var hb = (function (hb) {
+    "use strict";
+    var _moduleName = "util:date/date.js";
+    if(((typeof hb.getLoadedModules==="function"?hb.getLoadedModules():[])).includes(_moduleName)) {
+        console.log(_moduleName + " already loaded, skipping");
+        return hb;
+    }
 
-	var regexArray = regexObject.exec(pattern);
-	var formatArray = [null,null,null,null,null,null,null,null]; // contains final format functions
-	if (regexArray === null){
-		throw ['The given pattern : \"',pattern,'\" isn\'t a valid date pattern.'].join('');
-	}
-	// determine the required data and max index to loop on for the format function
-	var maxIndex=7;
-	if (typeof regexArray[maxIndex] ==='undefined') maxIndex=5;
-	if (typeof regexArray[maxIndex] ==='undefined') maxIndex=3;
-	if (typeof regexArray[maxIndex] ==='undefined') maxIndex=1;
 
-	for(var index = 1;index<=maxIndex;index++){
-		// 0 is always the total regex match
-		// stuff the separator : undefined is rendered as ""
-		if(typeof regexArray[index] === 'undefined') regexArray[index]='';
+    hb.util = (function (util) {
+        var _requiredModules = ["util:trans/translation.js"];
 
-		if(regexArray[index] === 'd' || regexArray[index] === 'j' ||
-				regexArray[index] === 'l' || regexArray[index] === 'D'){
-			myFormatDay = function(pattern,date){
-				var DAY_NAMES = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-				var ABG_DAY_NAMES = ['D','L','M','M','J','V','S'];
+        /**
+         *
+         * @doc declaration of private consts for formatting
+         */
+        const _FORMAT_CHARACTERS = "([d|j|l|D|m|n|F|M|Y|c|y|z|S|s])";
+        const _FORMAT_SEPARATORS = "([/|_|:| ])";
+        const _FORMAT_PATTERN = ["^",
+            _FORMAT_CHARACTERS, _FORMAT_SEPARATORS,"{0,1}",
+            _FORMAT_CHARACTERS, "*",_FORMAT_SEPARATORS,"{0,1}",
+            _FORMAT_CHARACTERS, "*",_FORMAT_SEPARATORS,"{0,1}",
+            _FORMAT_CHARACTERS, "*","$"].join('');
+        const _FORMAT_REGEX = new RegExp(_FORMAT_PATTERN);
+        const _FORMAT_YEAR_REGEX = new RegExp("(-*)(\\d+)");
+        const _FORMATTERS = {
+            /**
+             * @doc returns day number with initial zero
+             * @param {Date} date
+             * @returns {string}
+             */
+            "d": function(date){return (date.getDate() < 10)?('0' + date.getDate()):date.getDate();},
+            /**
+             * @doc returns day number without initial zero
+             * @param {Date} date
+             * @returns {string}
+             */
+            "j": function(date){return (date.getDate()+"");},
+            /**
+             * @doc returns textual day
+             * @param {Date} date
+             * @returns {string}
+             */
+            "l": function(date){return [date.getDay()];},
+            /**
+             * @doc returns short textual day
+             * @param {Date} date
+             * @returns {string}
+             */
+            "D": function(date){return ABG_DAY_NAMES[date.getDay()];},
+            /**
+             * @doc returns month number with initial zero
+             * @param {Date} date
+             * @returns {string}
+             */
+            "m": function(date){return ((date.getMonth()+1) < 10)?('0' + (date.getMonth()+1)):(date.getMonth()+1);},
+            /**
+             * @doc returns month number without initial zero
+             * @param {Date} date
+             * @returns {string}
+             */
+            "n": function(date){return (date.getMonth()+1);},
+            /**
+             * @doc returns textual month
+             * @param {Date} date
+             * @returns {string}
+             */
+            "F": function(date){return MONTH_NAMES[date.getMonth()];},
+            /**
+             * @doc returns short textual month
+             * @param {Date} date
+             * @returns {string}
+             */
+            "M": function(date){return ABG_MONTH_NAMES[date.getMonth()];},
+            /**
+             * @doc returns textual season
+             * @param {Date} date
+             * @returns {string}
+             */
+            "S": function(date){return SEASON_NAMES[date.getSeason()];},
+            /**
+             * @doc returns season number (1 winter to 4 fall)
+             * @param {Date} date
+             * @returns {string}
+             */
+            "s": function(date){return (date.getSeason() +1 );},
+            /**
+             * @doc returns complete year number
+             * @param {Date} date
+             * @returns {string}
+             */
+            "Y": function(date){return (date.getFullYear()+"");},
+            /**
+             * @doc returns year number last two figures
+             * @param {Date} date
+             * @returns {string}
+             */
+            "y": function(date){
+                let arrayDate = _FORMAT_YEAR_REGEX.exec(date.getFullYear() +"");
+                if (arrayDate[2].length > 2){
+                    return arrayDate[2].substring(arrayDate[2].length-2);
+                }
+                return arrayDate[1] + arrayDate[2];
+            },
+            /**
+             * @doc returns last digit of year number
+             * @param {Date} date
+             * @returns {string}
+             */
+            "z": function(date){
+                let arrayDate = _FORMAT_YEAR_REGEX.exec(date.getFullYear()+"");
+                if (arrayDate[2].length > 1){
+                    return arrayDate[2].substring(arrayDate[2].length-1);
+                }
+                return arrayDate[1] + arrayDate[2];
+            },
+            /**
+             * @doc returns century of the year (3 digit or 0 if first gregorian year)
+             * for negative years the "-" is displayed if the year is originally on the requested size
+             * @param {Date} date
+             * @returns {string}
+             */
+            "c": function(date){
+                let arrayDate = _FORMAT_YEAR_REGEX.exec(date.getFullYear()+"");
+                if (arrayDate[2].length > 3){
+                    return arrayDate[2].substring(arrayDate[2].length-3);
+                }
+                return arrayDate[1] + arrayDate[2];
+            }
+        };
 
-				// d : day month with initial zero, j : day month without initial zero, l : textual day, D : abridged textual day
-				// * Y : year on 4 number include - for negative years, y year on two numbers, z : last digit of year
-				switch (pattern){
-				case 'd':
-					return function(date){return (date.getDate() < 10)?('0' + date.getDate()):date.getDate();};
-				case 'j':
-					return function(date){return date.getDate();};
-				case 'l':
-					return function(date){return DAY_NAMES[date.getDay()];};
-				case 'D':
-					return function(date){return ABG_DAY_NAMES[date.getDay()];};
-				default:
-					break;
-				}
-				return function(date){return '';};
-			};
-			formatArray[index] = myFormatDay(regexArray[index]);
-		}
-		else if(regexArray[index] === 'm' || regexArray[index] === 'n' ||
-				regexArray[index] === 'F' || regexArray[index] === 'M' || 
-				regexArray[index] === 'S' || regexArray[index] === 's'){
-			myFormatMonth = function(pattern,date){
-				var MONTH_NAMES = ['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'];
-				var ABG_MONTH_NAMES = ['Janv.','Fev.','Mars','Avr.','Mai','Juin','Juil.','Aout','Sept.','Oct.','Nov.','Dec.'];
-				var SEASON_NAMES = ['Hiver','Printemps','Eté','Automne'];
-				// m : month number with initial zero, n : month number without initial zero, F : textual month, M : abridged textual month
-				// S : textual season, s : season index (1 winter ; 4 fall)
-				switch (pattern){
-				case 'm':
-					return function(date){return ((date.getMonth()+1) < 10)?('0' + (date.getMonth()+1)):(date.getMonth()+1);};
-				case 'n':
-					return function(date){return (date.getMonth()+1);};
-				case 'F':
-					return function(date){return MONTH_NAMES[date.getMonth()];};
-				case 'M':
-					return function(date){return ABG_MONTH_NAMES[date.getMonth()];}; 
-				case 'S':
-					return function(date){return SEASON_NAMES[date.getSeason()];}; 
-				case 's':
-					return function(date){return (date.getSeason() +1 );}; 	
-				default:
-					break;
-				}
-				return function(date){return '';};
-			};
-			formatArray[index] = myFormatMonth(regexArray[index]);
-		}
-		else if(regexArray[index] === 'Y' || regexArray[index] === 'y' ||
-				regexArray[index] === 'z' || regexArray[index] === 'c'){
-			myFormatYear = function(pattern,date){
-				var regexYear = new RegExp("(-*)(\\d+)");
-				// Y : complete year, y year on two numbers, z : last digit of year,c century of the year (3 digit or 0 if first gregorian year), for negative years the - is displayed if the year is originally on the requested size
-				switch (pattern){
-				case 'Y':
-					return function(date){
-					return date.getFullYear();};
-				case 'c':
-					return function(date){
-					var arrayDate = regexYear.exec(date.getFullYear());
-					if (arrayDate[2].length > 3){
-						return arrayDate[2].substring(arrayDate[2].length-3);
-					}
-					return arrayDate[1] + arrayDate[2];
-				};  
-				case 'y':
-					return function(date){
-					var arrayDate = regexYear.exec(date.getFullYear());
-					if (arrayDate[2].length > 2){
-						return arrayDate[2].substring(arrayDate[2].length-2);
-					}
-					return arrayDate[1] + arrayDate[2];
-				};
-				case 'z':
-					return function(date){
-					var arrayDate = regexYear.exec(date.getFullYear());
-					if (arrayDate[2].length > 1){
-						return arrayDate[2].substring(arrayDate[2].length-1);
-					}
-					return arrayDate[1] + arrayDate[2];
-				};
-				default:
-					break;
-				}
-				return function(date){return '';};
-			};
-			formatArray[index] = myFormatYear(regexArray[index]);
-		}
-		else if(regexArray[index] === '' || regexArray[index] === '/' ||
-				regexArray[index] === ':' || regexArray[index] === '_' || regexArray[index] === ' ') formatArray[index] = regexArray[index];
-	} 
+        const  _PARSE_REGEXS = {
+            "1": new RegExp("(\\d{1,2})\/(\\d{1,2})\/(-?\\d{1,5})$"), // DAY
+            "3": new RegExp("\/?(\\d{1,2})\/(-?\\d{1,5})$"), // MONTH
+            "4": new RegExp("\/?(\\d{1,2})\/(-?\\d{1,5})$"), // SEASON
+            "5": new RegExp("\/?(-?\\d{1,5})$"), // YEAR
+            "6": new RegExp("\/?(-?\\d{1,5})$"), // DECADE
+            "7": new RegExp("\/?(-?\\d{1,5})$"), // CENTURY
+            "8": new RegExp("\/?(-?\\d{1,5})$") // MILLENNIUM
+        };
+        const _PARSERS = {
+            "1":{ // DAY
+                "DAY" : function(array){return parseInt(array[1]);},
+                "MONTH" : function(array){return parseInt(array[2]);},
+                "YEAR" : function(array){return parseInt(array[3]);}
+            },
+            "3":{ // MONTH
+                "MONTH" : function(array){return parseInt(array[1]);},
+                "YEAR" : function(array){return parseInt(array[2]);}
+            },
+            "4":{ // SEASON
+                "MONTH" : function(array){return (3*(parseInt(array[1])-1)+1);},
+                "SEASON" : function(array){return parseInt(array[1]);},
+                "YEAR" : function(array){return parseInt(array[2]);}
+            },
+            "5":{ // YEAR
+                "YEAR" : function(array){return parseInt(array[1]);}
+            },
+            "6":{ // DECADE
+                "YEAR" : function(array){return Math.floor(parseInt(array[1])/10)*10;}
+            },
+            "7":{ // CENTURY
+                "YEAR" : function(array){return Math.floor(parseInt(array[1])/100)*100;}
+            },
+            "8":{ // MILLENNIUM
+                "YEAR" : function(array){return Math.floor(parseInt(array[1])/1000)*1000;}
+            }
+        };
 
-	/**
-	 * format given date using a simplified personal pattern expression (php inspired)
-	 * d : day month with initial zero, j : day month without initial zero, l : textual day, D : abridged textual day
-	 * m : month number with initial zero, n : month number without initial zero, F : textual month, M : abridged textual month, S season
-	 * Y : complete year, y year on two numbers, z : last digit of year,c century of the year (3 digit or 0 if first gregorian year), for negative years the - is displayed if the year is originally on the requested size
-	 * separators can be /,-,:,a space or nothing
-	 */
-	function myFormatDate(date,pieces=[]){
-		for(var index=1;index<=maxIndex;index++){
-			if(typeof formatArray[index] === 'function'){
-				pieces[index-1] = formatArray[index](date);
-			}
-			else{
-				pieces[index-1] = formatArray[index];
-			}
-		}
+        /**
+         * @module hb/util/date
+         * @class hb.util.date
+         * @requires hb.util.trans
+         */
+        util.date = {
+            /**
+             * @doc add to a date a certain given number of day (accept negative number of day)
+             * @param {Date} date
+             * @param {int} nbDay
+             * @returns {Date}
+             */
+            addDay: function(date,nbDay) {
+                date.setDate(date.getDate() + nbDay);
+                return date;
+            },
+            /**
+             * @doc clone a date object and returns the clone
+             * @param {Date} date
+             * @returns {Date}
+             */
+            clone: function(date) {
+                let copy = new Date();
+                copy.setTime(date.getTime());
+                copy.setHours(0,0,0,0);
+                return copy;
+            },
+            /**
+             * @doc corrects a date year to prevent incorrect interpretation with two figures dates (ex 63 ap JC) and returns it
+             * @param {Date} date
+             * @param {int} year
+             * @returns {Date}
+             */
+            correctYear: function(date,year) {
+                date.setFullYear(year);
+                return date;
+            },
+            /**
+             * @doc returns the entire number of days between two dates
+             * @param {Date} endDate
+             * @param {Date} beginDate
+             * @returns {int}
+             */
+            dayDiff: function(endDate,beginDate) {
+                return Math.round((endDate-beginDate)/(1000*60*60*24));
+            },
+            /**
+             * @doc returns true if same day, false otherwise
+             * @param {Date} date1
+             * @param {Date} date2
+             * @returns {boolean}
+             */
+            equals: function(date1,date2) {
+                return (date1.dayDiff(date2) ===0);
+            },
+            /**
+             * @doc returns the float number of days between two dates
+             * @param {Date} endDate
+             * @param {Date} beginDate
+             * @returns {number}
+             */
+            floatDayDiff: function(endDate,beginDate) {
+                return ((endDate-beginDate)/(1000*60*60*24));
+            },
+            /**
+             * @doc returns french day numbering in week switched from sunday/0-saturday/6 to monday/0-sunday/6
+             * @param {Date} date
+             * @returns {int}
+             */
+            getFrenchDay: function(date) {
+                return (date.getDay() + 6) % 7;
+            },
+            /**
+             * @doc returns the simple html regex for dd/MM/yyyy dates
+             * @returns {string}
+             * @deprecated
+             */
+            getHtmlDateRegex: function() {
+                return "^(0?[1-9]|[1-2][1-9]|3[0-1])/(0?[1-9]|1[0-2])/(-?[1-9][0-9]*)$";
+            },
+            /**
+             * @doc returns season number of a date : 0 winter,1 spring, 2 summer, 3 fall
+             * @param {Date} date
+             * @returns {int}
+             */
+            getSeason: function(date) {
+                let season = Math.floor(date.getMonth()/3);
+                let isChangingMonth = ((date.getMonth()+1)%3) === 0;
+                if (isChangingMonth && date.getDate() > 20 ) {season++;}
+                return season%4;
+            },
+            /**
+             * @doc returns the maximum date allowed, eg. now
+             * @returns {Date}
+             */
+            getMaxDate: function() {
+                return new Date();
+            },
+            /**
+             * @doc returns the maximum year allowed, eg. current year
+             * @returns {int}
+             */
+            getMaxYear: function() {
+                return (new Date()).getFullYear();
+            },
+            /**
+             * @doc sets the time of a date to 0 and returns it
+             * @param {Date} date
+             * @returns {Date}
+             */
+            stripHours: function(date) {
+                date.setHours(0,0,0,0);
+                return date;
+            },
+            /**
+             * @doc rewind a date to the first day of its current month and returns it
+             * @param {Date} date
+             * @returns {Date}
+             */
+            rewindToMonthFirst: function(date) {
+                date.setDate(1);
+                return date;
+            },
+            /**
+             * @doc rewinds a date to the first day of its current season and returns it
+             * @param {Date} date
+             * @returns {Date}
+             */
+            rewindToSeasonFirst: function(date) {
+                let month;
+                let isChangingYear = date.getMonth() === 11 && date.getDate() > 20;
+                if (isChangingYear){
+                    month = 11;
+                }
+                else{
+                    let season = date.getSeason();
+                    month = season*3 - 1;
+                }
+                date.setMonth(month);
+                date.setDate(21);
+                return date;
+            },
+            /**
+             * @doc rewinds a date to the first day of its current year and returns it
+             * @param {Date} date
+             * @returns {Date}
+             */
+            rewindToYearFirst: function(date) {
+                date.setDate(1);
+                date.setMonth(0);
+                return date;
+            },
+            /**
+             * @doc rewinds a date to the first day of its current decade and returns it
+             * @param {Date} date
+             * @returns {Date}
+             */
+            rewindToDecadeFirst: function(date) {
+                date.setDate(1);
+                date.setMonth(0);
+                date.setFullYear(Math.floor(date.getFullYear()/10)*10);
+                return date;
+            },
+            /**
+             * @doc rewinds a date to the first day of its current century and returns it
+             * @param {Date} date
+             * @returns {Date}
+             */
+            rewindToCenturyFirst: function(date) {
+                date.setDate(1);
+                date.setMonth(0);
+                date.setFullYear(Math.floor(date.getFullYear()/100)*100);
+                return date;
+            },
+            /**
+             * @doc rewinds a date to the first day of its current millennium and returns it
+             * @param {Date} date
+             * @returns {Date}
+             */
+            rewindToMillenniumFirst: function(date) {
+                date.setDate(1);
+                date.setMonth(0);
+                date.setFullYear(Math.floor(date.getFullYear()/1000)*1000);
+                return date;
+            },
+            /**
+             * @doc advances the date to next day (if force is true), then returns it
+             * @param {Date} date
+             * @param {boolean} force - if true increments of one day, else do nothing
+             * @param {boolean} exact - unused here, but kept for compatibility with other switch functions
+             * @returns {Date}
+             */
+            switchToNextDay: function(date,force=false,exact=false) {
+                if (force===true) return this.addDay(date,1);
+                return date;
+            },
+            /**
+             * @doc advances the date to next Monday (default mode) ; if exact mode increment of exactly one week
+             * if not force and date is already a monday nothing is done, exact to advance exactly of one week, then returns it
+             * @param {Date} date
+             * @param {boolean} force - if true increments even if the date is first day of week (monday), not if false
+             * @param {boolean} exact - if true always increments the date of exactly one week
+             * @returns {Date}
+             */
+            switchToNextWeek: function(date,force=false,exact=false) {
+                if (exact) return date.addDay(7);
+                let originDay = date.getFrenchDay();
+                if(force || originDay  !== 0){
+                    this.addDay(date,7 - originDay);
+                }
+                return date;
+            },
+            /**
+             * @doc advances the date to first day of next month, then returns it
+             * @param {Date} date
+             * @param {boolean} force - if true increments even if the date is first day of month, not if false
+             * @param {boolean} exact - if true always increments the date of exactly one month
+             * @returns {Date}
+             */
+            switchToNextMonth: function(date,force=false,exact=false) {
+                if (exact){
+                    date.setMonth(date.getMonth()+1);
+                    return date;
+                }
+                if(force || (date.getDate() !==1) ){
+                    date.setMonth(date.getMonth()+1,1);
+                }
+                return date;
+            },
+            /**
+             * @doc advances the date to first day of next season, then returns it
+             * @param {Date} date
+             * @param {boolean} force - if true increments even if the date is first day of season, not if false
+             * @param {boolean} exact - if true always increments the date of exactly one season (3 months)
+             * @returns {Date}
+             */
+            switchToNextSeason: function(date,force=false,exact=false) {
+                if (exact){
+                    date.setMonth(date.getMonth()+3);
+                    return date;
+                }
+                let isChangingMonth = ((date.getMonth()+1)%3) === 0;
+                let newMonth = date.getMonth()-((date.getMonth()+1)%3) + 3;
 
-		return pieces.join('');
-	};
-	return myFormatDate;
-};
+                date.setDate(21);
+                if(force || ! (date.getDate() <22 && isChangingMonth) ){
+                    date.setMonth(newMonth);
+                }
+                return date;
+            },
+            /**
+             * @doc advances the date to first day of next year, then returns it
+             * @param {Date} date
+             * @param {boolean} force - if true increments even if the date is first day of year, not if false
+             * @param {boolean} exact - if true always increments the date of exactly one year
+             * @returns {Date}
+             */
+            switchToNextYear: function(date,force=false,exact=false) {
+                if (exact){
+                    date.setFullYear(date.getFullYear()+1);
+                    return date;
+                }
+                if(force || (! (date.getMonth() === 0 && date.getDate() === 1)) ){
+                    date.setFullYear(date.getFullYear()+1,0,1);
+                }
+                return date;
+            },
+            /**
+             * @doc advances the date to first day of next decade, then returns it
+             * @param {Date} date
+             * @param {boolean} force - if true increments even if the date is first day of decade, not if false
+             * @param {boolean} exact - if true always increments the date of exactly one decade
+             * @returns {Date}
+             */
+            switchToNextDecade: function(date,force=false,exact=false) {
+                if (exact){
+                    date.setFullYear(date.getFullYear()+10);
+                    return date;
+                }
+                let year = date.getFullYear();
+                let decade = (Math.floor(year/10))*10;
+                if(force || (! ( (year-decade)===0 && date.getMonth() === 0 && date.getDate() ===1)) ){
+                    date.setFullYear(decade+10,0,1);
+                }
+                return date;
+            },
+            /**
+             * @doc advances the date to first day of next century, then returns it
+             * @param {Date} date
+             * @param {boolean} force - if true increments even if the date is first day of century, not if false
+             * @param {boolean} exact - if true always increments the date of exactly one century
+             * @returns {Date}
+             */
+            switchToNextCentury: function(date,force=false,exact=false) {
+                if (exact){
+                    date.setFullYear(date.getFullYear()+100);
+                    return date;
+                }
+                let year = date.getFullYear();
+                let century = (Math.floor(year/100))*100;
 
-/**
- * parse string to date
- * type is one of the following : {precise,month,year,decade,century,millenia}
- * if string could not be parsed to date returns null and fills errors array
- */
-function myParseDate(sDate,type,errors=[],pieces=[])
-{
-	var PRECISE="1";
-	var BOUNDED="2";
-	var MONTH="3";
-	var SEASON="4";
-	var YEAR="5";
-	var DECADE="6";
-	var CENTURY="7";
-	var MILLENIA="8";
-	
-	
-	var regexType = {"1":"(\\d{1,2})\/(\\d{1,2})\/(-?\\d{1,5})$",
-			"3": "\/?(\\d{1,2})\/(-?\\d{1,5})$",
-			"4": "\/?(\\d{1,2})\/(-?\\d{1,5})$",
-			"5": "\/?(-?\\d{1,5})$",
-			"6": "\/?(-?\\d{1,5})$",
-			"7": "\/?(-?\\d{1,5})$",
-			"8": "\/?(-?\\d{1,5})$"};
+                if(force ||  (! ( (year-century)===0 && date.getMonth() === 0 && date.getDate() ===1)) ){
+                    date.setFullYear(century+100,0,1);
+                }
+                return date;
+            },
+            /**
+             * @doc advances the date to first day of next millennium, then returns it
+             * @param {Date} date
+             * @param {boolean} force - if true increments even if the date is first day of millennium, not if false
+             * @param {boolean} exact - if true always increments the date of exactly one millennium
+             * @returns {Date}
+             */
+            switchToNextMillennium: function(date,force=false,exact=false) {
+                if (exact){
+                    date.setFullYear(date.getFullYear()+1000);
+                    return date;
+                }
+                let year = date.getFullYear();
+                let millennium = (Math.floor(year/1000))*1000;
 
-	var regex = new RegExp(regexType[type]);
-	var regexArray = regex.exec(sDate);
-	if (regexArray === null){
-		var typeLabelArray = {"1":"Précise","3":"mois","4":"saison","5":"année",
-				"6":"decennie","7":"siècle","8":"milénaire"};
-		var exampleLabelArray = {"1":"1/8/1985, 01/09/573, 2/06/-582",
-				"3":"8/1985,09/573,06/-582",
-				"4":"1/1985 (hiver 1985),4/-582 (automne -582)",
-				"5":"1985,573,-582",
-				"6":"1980,571,-580",
-				"7":"1980,571,-580",
-				"8":"1980,571,-580"};
+                if(force || (! ( (year-millennium)=== 0 && date.getMonth() === 0 && date.getDate() ===1)) ){
+                    date.setFullYear(millennium+1000,0,1);
+                }
+                return date;
+            },
+            /**
+             * @doc returns the date formatter function corresponding to the wanted pattern
+             * format given date using a simplified personal pattern expression (php inspired)
+             * ## DAYS ##
+             * [d] : day month n° with initial zero, [j] : day month n° without initial zero, [l] : textual day, [D] : abridged textual day
+             * ## MONTHS ##
+             * [m] : month number with initial zero, [n] : month number without initial zero, [F] : textual month, [M] : abridged textual month,
+             * [S] : textual season, [s] : season index (1-4)
+             * ## YEARS ##
+             * [Y] : complete year, [y] year on two numbers, [z] : last digit of year, [c] century of the year (3 digit or 0 if first Gregorian year),
+             * for negative years the - is displayed if the year is originally on the requested size
+             * ## SEPARATORS ##
+             * separators can be [/][_][:][a space] or nothing
+             * @param {string} pattern - the string pattern with which format the date (ex : dd/MM/YY ). "-" can't be used as separator
+             * @returns {Function}
+             */
+            getFormatterFromPattern: function(pattern) {
+                let regexArray = _FORMAT_REGEX.exec(pattern);
+                if (regexArray === null){throw ["The given pattern : ",pattern," isn't a valid date pattern."].join("");}
+                // determine the required data and max index to loop on for the format function
+                let maxIndex=7;
+                if (typeof regexArray[maxIndex] ==='undefined'){maxIndex=5;}
+                if (typeof regexArray[maxIndex] ==='undefined'){maxIndex=3;}
+                if (typeof regexArray[maxIndex] ==='undefined'){maxIndex=1;}
 
-		errors.push("La valeur entrée n'est pas convertible en date (" + 
-				typeLabelArray[type] + "). Exemples de valeurs autorisées : " +
-				exampleLabelArray[type]);
-		return null;
-	}
+                /**
+                 * @doc returns date formatted with the previously given pattern
+                 * @param {Date} date
+                 * @param {Array} pieces - if given the function fills it with each piece of the rendered date
+                 * @returns {string}
+                 */
+                function formatter (date,pieces=[]) {
+                    for(let index=1;index<=maxIndex;index++){
+                        if(typeof _FORMATTERS[regexArray[index]] === 'function'){
+                            pieces[index-1] = (_FORMATTERS[regexArray[index]])(date);
+                        }
+                        else{
+                            pieces[index-1] =regexArray[index];
+                        }
+                    }
+                    return pieces.join('');
+                }
+                return formatter;
+            },
+            /**
+             * @doc returns the parser for the given parsing style
+             * @param {string} type - parsing style to apply from "1" (PRECISE) to "8" (MILLENNIUM), at the exception of "2" (BOUNDED type, see HDate)
+             * @returns {Function}
+             * @throws Exception - if unknown type
+             */
+            getParserFromStyle: function (type) {
+                let module = this;
+                let parseRegex = _PARSE_REGEXS[type];
+                if (typeof parseRegex === "undefined" || parseRegex === null){
+                    throw ["The given type : '",type,"' isn't a valid parsing style ('1,3-8' accepted)."].join("");
+                }
 
-	var date = null;
-	var day  = 1;
-	var season = 1;
-	var month = 1;
-	var year = 1;
-	var maxYear = (new Date()).getFullYear();
-	switch(type){
-	case PRECISE: 
-		day = parseInt(regexArray[1]);
-		month = parseInt(regexArray[2]);
-		year = parseInt(regexArray[3]);
-		break;
-	case MONTH: 
-		month = parseInt(regexArray[1]);
-		year = parseInt(regexArray[2]);
-		break;
-	case SEASON: 
-		season = parseInt(regexArray[1]);
-		year = parseInt(regexArray[2]);
-		month = (season-1)*3 + 1;
-		break;
-	case YEAR: 
-		year = parseInt(regexArray[1]);
-		break;
-	case DECADE: 
-		year = Math.floor(parseInt(regexArray[1])/10)*10;	
-		break;
-	case CENTURY: 
-		year = Math.floor(parseInt(regexArray[1])/100)*100;
-		break;
-	case MILLENIA: 
-		year = Math.floor(parseInt(regexArray[1])/1000)*1000;	
-		break;
+                /**
+                 * @doc in accordance to the wanted parsing style, returns either the date corresponding to the given string or null
+                 * @param {String} sDate
+                 * @param {Array} errors - if given the function fills it with errors encountered during parsing
+                 * @returns {Date|null}
+                 */
+                function parser(sDate,errors=[]) {
 
-	default: break;
-	}
+                    let regexArray = parseRegex.exec(sDate);
+                    if (regexArray === null){
+                        let typeLabelArray = {"1":"Précise","3":"mois","4":"saison","5":"année",
+                            "6":"decennie","7":"siècle","8":"millénaire"};
+                        let exampleLabelArray = {"1":"1/8/1985, 01/09/573, 2/06/-582",
+                            "3":"8/1985,09/573,06/-582",
+                            "4":"1/1985 (hiver 1985),4/-582 (automne -582)",
+                            "5":"1985,573,-582",
+                            "6":"1980,571,-580",
+                            "7":"1980,571,-580",
+                            "8":"1980,571,-580"};
 
-	if(day<1 || day>31){errors.push("Le jour '" + day + "' est invalide");}
-	if(season<1 || season>4){errors.push("La saison '" + season + "' est invalide");}
-	if(month<1 || month>12){errors.push("Le mois '" + month + "' est invalide");}
-	if(year<-10000 || year>maxYear){errors.push("L'année '" + year + "' est invalide : les années autorisées vont de -10000 à " + maxYear);}
-	if(errors.length==0){ date = new Date(year,month-1,day).correctYear(year);}	
-	return date;
-}
+                        errors.push("'"+ sDate + " n'est pas convertible en date (" +
+                            typeLabelArray[type] + "). Exemples de valeurs autorisées : " +
+                            exampleLabelArray[type]);
+                        return null;
+                    }
+                    let date = null,day  = 1, month = 1,season = 1,year = 1;
+                    let parsers = _PARSERS[type];
+                    if(typeof parsers["DAY"] === "function"){day = parsers["DAY"](regexArray);}
+                    if(typeof parsers["MONTH"] === "function"){month = parsers["MONTH"](regexArray);}
+                    if(typeof parsers["SEASON"] === "function"){season = parsers["SEASON"](regexArray);}
+                    if(typeof parsers["YEAR"] === "function"){day = parsers["YEAR"](regexArray);}
+
+                    if(day<1 || day>31){errors.push("Le jour '" + day + "' est invalide");}
+                    if(season<1 || season>4){errors.push("La saison '" + season + "' est invalide");}
+                    if(month<1 || month>12){errors.push("Le mois '" + month + "' est invalide");}
+                    if(year<-10000 || year>module.getMaxYear()){errors.push("L'année '" + year + "' est invalide" +
+                        " : les années autorisées vont de -10000 à " + module.getMaxYear());}
+                    if(errors.length===0){ date = module.correctYear(new Date(year,month-1,day),year);}
+                    return date;
+                }
+                return parser;
+            },
+            /**
+             * @doc returns the name of the module
+             * @return {string}
+             */
+            getModuleName : function() {
+                return _moduleName;
+            },
+            /**
+             * @doc returns list of required modules and libraries for this module
+             * @return {Array}
+             */
+            getRequiredModules: function () {
+                return _requiredModules;
+            },
+        };
+        console.log(_moduleName + " loaded");
+        return util;
+    }(hb.util || {}));
+
+    let _loadedModules = ((typeof hb.getLoadedModules==="function")?hb.getLoadedModules():[]);
+    _loadedModules.push(_moduleName);
+    hb.getLoadedModules = function() {
+        return _loadedModules;
+    }
+    return hb;
+}(hb || {}));
+
 "use strict";
 
 

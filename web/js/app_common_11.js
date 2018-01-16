@@ -10,12 +10,13 @@ var hb = (function (hb) {
         return hb;
     }
     hb.util = (function (util) {
-        var _requiredModules = "";
+        var _requiredModules = [];
         /**
          * @module hb/util/cmn
          * @class hb.util.cmn
          */
         util.cmn = {
+            varTest:"lol",
             /**
              * @doc capitalize a string
              * @param {string} str
@@ -61,30 +62,29 @@ var hb = (function (hb) {
                 return romanNo;
             },
             /**
-             * @doc returns the name of the module
-             * @return {string}
-             */
-            getModuleName()
-            {
-                return _moduleName;
-            },
-            /**
-             * @doc returns list of required modules and libraries for this module
-             * @return {string}
-             */
-            getRequiredModules: function () {
-                return _requiredModules;
-            },
-            /**
              * @doc returns and idGenerator function which returns at each call an id increased of 1 from 0
              * @returns {Function}
              */
-            idGenerator: function () {
+            getIdGenerator : function () {
                 let id = -1;
                 return function () {
                     id++;
                     return id;
                 };
+            },
+            /**
+             * @doc returns the name of the module
+             * @return {string}
+             */
+            getModuleName : function() {
+                return _moduleName;
+            },
+            /**
+             * @doc returns list of required modules and libraries for this module
+             * @return {Array}
+             */
+            getRequiredModules : function () {
+                return _requiredModules;
             }
         };
         console.log(_moduleName + " loaded");

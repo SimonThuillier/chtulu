@@ -2,8 +2,8 @@ parameters:
     database_host: 127.0.0.1
     database_port: 3306
     database_name: hbase
-    database_user: root
-    database_password: Propusk45
+    database_user: hbase
+    database_password: locbddHbase123
 
     mailer_transport: smtp
     mailer_host: 127.0.0.1

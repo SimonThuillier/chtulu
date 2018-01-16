@@ -1,6 +1,7 @@
 /**
  * @package hbase.js
  * @doc symfony.js : Contains utilitary functions for handling DOM symfony formatted elements (forms,...)
+ * @requires jQuery
  */
 var hb = (function (hb,$) {
     "use strict";
@@ -11,7 +12,7 @@ var hb = (function (hb,$) {
         return hb;
     }
     hb.util = (function (util,$) {
-        var _requiredModules = "jQuery";
+        var _requiredModules = [];
         /**
          * @module hb/util/sf
          * @class hb.util.sf
@@ -20,10 +21,9 @@ var hb = (function (hb,$) {
             /**
              * @doc returns an array of field name => index for a symfony serialized form
              * @param {string} formData
-             * @return {array}
+             * @return {Array}
              */
-            getFormMap(formData)
-            {
+            getFormMap: function(formData) {
                 let map = [];
                 $(Object.keys(formData)).each(function(key){
                     map[formData[key].name] = key;
@@ -31,13 +31,12 @@ var hb = (function (hb,$) {
                 return map;
             },
             /**
-             * @doc returns the found input element(s) of given attrName (= symfony) in the form (Jquery object of it)
+             * @doc returns the first input element of given attrName (= symfony) in the form (Jquery object of it)
              * @param {jQuery} $object
              * @param {string} name
              * @return {jQuery|null}
              */
-            getFormInput:function($object,name)
-            {
+            getFormInput:function($object,name) {
                 return $object.find("#" + $object.attr("id") + "_" + name).first();
             },
             /**
@@ -46,24 +45,23 @@ var hb = (function (hb,$) {
              * @param {string} name
              * @returns {jQuery|null}
              */
-            getFormValue:function($object,name)
-            {
-                return this.getFormInput($object,name);
+            getFormValue:function($object,name) {
+                let $input = this.getFormInput($object,name);
+                if($input !== null){return $input.val();}
+                return null;
             },
             /**
              * @doc returns the name of the module
              * @return {string}
              */
-            getModuleName()
-            {
+            getModuleName : function() {
                 return _moduleName;
             },
             /**
              * @doc returns list of required modules and libraries for this module
-             * @return {string}
+             * @return {Array}
              */
-            getRequiredModules()
-            {
+            getRequiredModules() {
                 return _requiredModules;
             }
         };

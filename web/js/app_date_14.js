@@ -1,7 +1,7 @@
 /**
  * @package hbase.js
  * @doc date.js : utilitary functions for date handling, parsing and formatting/rendering
- * @requires hb.util.cmn,hb.util.trans
+ * @requires hb.util.trans
  */
 var hb = (function (hb) {
     "use strict";
@@ -11,10 +11,9 @@ var hb = (function (hb) {
         return hb;
     }
 
+
     hb.util = (function (util) {
-        var _requiredModules = ["util:cmn/common.js","util:trans/translation.js"];
-        let trans = hb.util.trans;
-        let cmn = hb.util.cmn;
+        var _requiredModules = ["util:trans/translation.js"];
 
         /**
          *
@@ -47,13 +46,13 @@ var hb = (function (hb) {
              * @param {Date} date
              * @returns {string}
              */
-            "l": function(date){return trans.DAY_NAMES[date.getDay()];},
+            "l": function(date){return [date.getDay()];},
             /**
              * @doc returns short textual day
              * @param {Date} date
              * @returns {string}
              */
-            "D": function(date){return trans.DAY_NAMES_SHORT[date.getDay()];},
+            "D": function(date){return ABG_DAY_NAMES[date.getDay()];},
             /**
              * @doc returns month number with initial zero
              * @param {Date} date
@@ -71,19 +70,19 @@ var hb = (function (hb) {
              * @param {Date} date
              * @returns {string}
              */
-            "F": function(date){return trans.MONTH_NAMES[date.getMonth()];},
+            "F": function(date){return MONTH_NAMES[date.getMonth()];},
             /**
              * @doc returns short textual month
              * @param {Date} date
              * @returns {string}
              */
-            "M": function(date){return trans.MONTH_NAMES_SHORT[date.getMonth()];},
+            "M": function(date){return ABG_MONTH_NAMES[date.getMonth()];},
             /**
              * @doc returns textual season
              * @param {Date} date
              * @returns {string}
              */
-            "S": function(date){return trans.SEASON_NAMES[date.getSeason()];},
+            "S": function(date){return SEASON_NAMES[date.getSeason()];},
             /**
              * @doc returns season number (1 winter to 4 fall)
              * @param {Date} date
@@ -136,40 +135,40 @@ var hb = (function (hb) {
         };
 
         const  _PARSE_REGEXS = {
-            "1": new RegExp(trans.PARSING_REGEX_STRS["1"]), // DAY
-            "3": new RegExp(trans.PARSING_REGEX_STRS["3"]), // MONTH
-            "4": new RegExp(trans.PARSING_REGEX_STRS["4"]), // SEASON
-            "5": new RegExp(trans.PARSING_REGEX_STRS["5"]), // YEAR
-            "6": new RegExp(trans.PARSING_REGEX_STRS["6"]), // DECADE
-            "7": new RegExp(trans.PARSING_REGEX_STRS["7"]), // CENTURY
-            "8": new RegExp(trans.PARSING_REGEX_STRS["8"]) // MILLENNIUM
+            "1": new RegExp("(\\d{1,2})\/(\\d{1,2})\/(-?\\d{1,5})$"), // DAY
+            "3": new RegExp("\/?(\\d{1,2})\/(-?\\d{1,5})$"), // MONTH
+            "4": new RegExp("\/?(\\d{1,2})\/(-?\\d{1,5})$"), // SEASON
+            "5": new RegExp("\/?(-?\\d{1,5})$"), // YEAR
+            "6": new RegExp("\/?(-?\\d{1,5})$"), // DECADE
+            "7": new RegExp("\/?(-?\\d{1,5})$"), // CENTURY
+            "8": new RegExp("\/?(-?\\d{1,5})$") // MILLENNIUM
         };
         const _PARSERS = {
             "1":{ // DAY
-                "DAY" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["1"].DAY]);},
-                "MONTH" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["2"].MONTH]);},
-                "YEAR" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["3"].YEAR]);}
+                "DAY" : function(array){return parseInt(array[1]);},
+                "MONTH" : function(array){return parseInt(array[2]);},
+                "YEAR" : function(array){return parseInt(array[3]);}
             },
             "3":{ // MONTH
-                "MONTH" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["3"].MONTH]);},
-                "YEAR" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["3"].YEAR]);}
+                "MONTH" : function(array){return parseInt(array[1]);},
+                "YEAR" : function(array){return parseInt(array[2]);}
             },
             "4":{ // SEASON
-                "MONTH" : function(array){return (3*(parseInt(array[trans.PARSING_PLACEMENT["4"].MONTH])-1)+1);},
-                "SEASON" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["4"].SEASON]);},
-                "YEAR" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["4"].YEAR]);}
+                "MONTH" : function(array){return (3*(parseInt(array[1])-1)+1);},
+                "SEASON" : function(array){return parseInt(array[1]);},
+                "YEAR" : function(array){return parseInt(array[2]);}
             },
             "5":{ // YEAR
-                "YEAR" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["5"].YEAR]);}
+                "YEAR" : function(array){return parseInt(array[1]);}
             },
             "6":{ // DECADE
-                "YEAR" : function(array){return Math.floor(parseInt(array[trans.PARSING_PLACEMENT["6"].YEAR])/10)*10;}
+                "YEAR" : function(array){return Math.floor(parseInt(array[1])/10)*10;}
             },
             "7":{ // CENTURY
-                "YEAR" : function(array){return Math.floor(parseInt(array[trans.PARSING_PLACEMENT["7"].YEAR])/100)*100;}
+                "YEAR" : function(array){return Math.floor(parseInt(array[1])/100)*100;}
             },
             "8":{ // MILLENNIUM
-                "YEAR" : function(array){return Math.floor(parseInt(array[trans.PARSING_PLACEMENT["8"].YEAR])/1000)*1000;}
+                "YEAR" : function(array){return Math.floor(parseInt(array[1])/1000)*1000;}
             }
         };
 
@@ -563,27 +562,36 @@ var hb = (function (hb) {
                  * @returns {Date|null}
                  */
                 function parser(sDate,errors=[]) {
+
                     let regexArray = parseRegex.exec(sDate);
                     if (regexArray === null){
-                        errors.push(cmn.multiReplace(
-                            trans.PARSING_ERRORS[0],
-                            {"<SDATE>":sDate,
-                                "<PARSING_TYPE>":trans.PARSING_TYPE_LABELS[type],
-                                "<PARSING_EXAMPLE>":trans.PARSING_TYPE_EXAMPLES[type]}
-                        ));
+                        let typeLabelArray = {"1":"Précise","3":"mois","4":"saison","5":"année",
+                            "6":"decennie","7":"siècle","8":"millénaire"};
+                        let exampleLabelArray = {"1":"1/8/1985, 01/09/573, 2/06/-582",
+                            "3":"8/1985,09/573,06/-582",
+                            "4":"1/1985 (hiver 1985),4/-582 (automne -582)",
+                            "5":"1985,573,-582",
+                            "6":"1980,571,-580",
+                            "7":"1980,571,-580",
+                            "8":"1980,571,-580"};
+
+                        errors.push("'"+ sDate + " n'est pas convertible en date (" +
+                            typeLabelArray[type] + "). Exemples de valeurs autorisées : " +
+                            exampleLabelArray[type]);
                         return null;
                     }
                     let date = null,day  = 1, month = 1,season = 1,year = 1;
                     let parsers = _PARSERS[type];
-                    if(typeof parsers.DAY === "function"){day = parsers.DAY(regexArray);}
-                    if(typeof parsers.MONTH === "function"){month = parsers.MONTH(regexArray);}
-                    if(typeof parsers.SEASON === "function"){season = parsers.SEASON(regexArray);}
-                    if(typeof parsers.YEAR === "function"){day = parsers.YEAR(regexArray);}
+                    if(typeof parsers["DAY"] === "function"){day = parsers["DAY"](regexArray);}
+                    if(typeof parsers["MONTH"] === "function"){month = parsers["MONTH"](regexArray);}
+                    if(typeof parsers["SEASON"] === "function"){season = parsers["SEASON"](regexArray);}
+                    if(typeof parsers["YEAR"] === "function"){day = parsers["YEAR"](regexArray);}
 
-                    if(day<1 || day>31){errors.push(cmn.multiReplace(trans.PARSING_ERRORS[1], {"<DAY>":day}));}
-                    if(season<1 || season>4){errors.push(cmn.multiReplace(trans.PARSING_ERRORS[2], {"<SEASON>":season}));}
-                    if(month<1 || month>12){errors.push(cmn.multiReplace(trans.PARSING_ERRORS[3], {"<MONTH>":month}));}
-                    if(year<-10000 || year>module.getMaxYear()){errors.push(cmn.multiReplace(trans.PARSING_ERRORS[4], {"<YEAR>":year}));}
+                    if(day<1 || day>31){errors.push("Le jour '" + day + "' est invalide");}
+                    if(season<1 || season>4){errors.push("La saison '" + season + "' est invalide");}
+                    if(month<1 || month>12){errors.push("Le mois '" + month + "' est invalide");}
+                    if(year<-10000 || year>module.getMaxYear()){errors.push("L'année '" + year + "' est invalide" +
+                        " : les années autorisées vont de -10000 à " + module.getMaxYear());}
                     if(errors.length===0){ date = module.correctYear(new Date(year,month-1,day),year);}
                     return date;
                 }
