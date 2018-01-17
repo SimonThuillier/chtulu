@@ -3,6 +3,7 @@
  * @doc translation.js : Contains textual message and translations for hbase project
  * @param hb - hb module
  * @param currentLocale - {ENGLISH,FRENCH}
+ * @requires util:cmn/common.js
  */
 var hb = (function (hb,currentLocale="FRENCH") {
     "use strict";
@@ -12,7 +13,7 @@ var hb = (function (hb,currentLocale="FRENCH") {
         return hb;
     }
     hb.util = (function (util) {
-        var _requiredModules = [];
+        var _requiredModules = ["util:cmn/common.js"];
 
         const _LOCALES= {
             "ENGLISH": {
@@ -29,10 +30,14 @@ var hb = (function (hb,currentLocale="FRENCH") {
                 PREV_TEXT : "Prev",
                 NEXT_TEXT : "Next",
                 WEEK_HEADER : "Wk",
-                DAY_INDEX : 1,
                 FORMAT_STRS : {
                     "1": "F j Y", "2": "F j Y",
                     "3": "F Y", "4": "S Y", "5": "Y",
+                    "6": "Y", "7": "Y", "8": "Y"
+                },
+                FORMAT_CANONICAL_STRS : {
+                    "1": "d/m/Y", "2": "d/m/Y",
+                    "3": "m/Y", "4": "s/Y", "5": "Y",
                     "6": "Y", "7": "Y", "8": "Y"
                 },
                 FORMAT_DAY_NUMBER_SUFFIX : function(dayNumber){
@@ -99,9 +104,7 @@ var hb = (function (hb,currentLocale="FRENCH") {
                     "Month '<MONTH>' isn't valid",
                     "Year '<YEAR>' isn't valid : Authored years go from -10000 to <MAX_YEAR>",
                 ],
-
-                dateFormat: "mm/dd/yy", // See format options on parseDate
-
+                HDATEPICKER_DEFAULT_TITLE : "Enter a date"
             },
             "FRENCH": {
                 DAY_NAMES : ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],
@@ -117,10 +120,14 @@ var hb = (function (hb,currentLocale="FRENCH") {
                 PREV_TEXT : "Prec.",
                 NEXT_TEXT : "Suiv.",
                 WEEK_HEADER : "Sem.",
-                DAY_INDEX : 0,
                 FORMAT_STRS : {
                     "1": "j F Y", "2": "j F Y",
                     "3": "F Y", "4": "S Y", "5": "Y",
+                    "6": "Y", "7": "Y", "8": "Y"
+                },
+                FORMAT_CANONICAL_STRS : {
+                    "1": "d/m/Y", "2": "d/m/Y",
+                    "3": "m/Y", "4": "s/Y", "5": "Y",
                     "6": "Y", "7": "Y", "8": "Y"
                 },
                 FORMAT_DAY_NUMBER_SUFFIX : function(dayNumber){return ((dayNumber==="1")?"er":"");},
@@ -165,7 +172,15 @@ var hb = (function (hb,currentLocale="FRENCH") {
                     "Le mois '<MONTH>' est invalide",
                     "L'année '<YEAR>' est invalide : Les années autorisées vont de -10000 à <MAX_YEAR>",
                 ],
-                dateFormat: "mm/dd/yy", // See format options on parseDate
+                HDATEPICKER_DEFAULT_TITLE : "Entrez une date",
+                HDATEPICKER_TRANSLATOR : function(html){
+                    return hb.util.multiReplace({
+                        "<DATE_TYPE>" : "Type de date :",
+                        "<DATE_RENDERING>" : "Rendu de la date"
+                    });
+
+
+                }
             }
         };
 

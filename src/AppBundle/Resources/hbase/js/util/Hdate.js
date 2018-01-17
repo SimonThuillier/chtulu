@@ -1,6 +1,7 @@
 /**
  * @package HDate.js
  * @doc common.js : HDate class definition
+ * @requires hb.util.cmn,hb.util.date,hb.util.trans
  */
 var hb = (function (hb) {
     "use strict";
@@ -10,27 +11,11 @@ var hb = (function (hb) {
         return hb;
     }
     hb.util = (function (util) {
-        var _requiredModules = ["util:date/date.js","util:trans/translation.js"];
+        var _requiredModules = ["util:cmn/cmn.js","util:date/date.js","util:trans/translation.js"];
         let hd = hb.util.date;
         let trans = hb.util.trans;
 
-        /**
-         * @doc HDate object constructor
-         * @class hb.util.HDate
-         * @param {string|number} type : "1" - "8"
-         * @param {Date} date
-         * @param {Date|null} endDate
-         * @return {hb.util.HDate}
-         */
-        util.HDate = function(type,date,endDate = null)
-        {
-            if(Number.isInteger(type)){type=type.toString();}
-            if (this.types.indexOf(type) === -1){throw "invalid type for HDate";}
-            this.beginDate = date;
-            this.endDate = endDate;
-            this.type = type;
-            return this;
-        };
+        let _availableTypes = ["1","2","3","4","5","6","7","8"];
 
         let _formatters = {
             "1":hd.getFormatterFromPattern(trans.FORMAT_STRS["1"]),
@@ -43,6 +28,35 @@ var hb = (function (hb) {
             "8":hd.getFormatterFromPattern(trans.FORMAT_STRS["8"])
         };
         let _intervalFormatter = hd.getFormatterFromPattern(trans.FORMAT_INTERVAL_STR["1"]);
+
+        let _canonicalFormatters = {
+            "1":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["1"]),
+            "2":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["2"]),
+            "3":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["3"]),
+            "4":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["4"]),
+            "5":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["5"]),
+            "6":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["6"]),
+            "7":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["7"]),
+            "8":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["8"])
+        };
+
+        /**
+         * @doc HDate object constructor
+         * @class hb.util.HDate
+         * @param {string|number} type : "1" - "8"
+         * @param {Date} date
+         * @param {Date|null} endDate
+         * @return {hb.util.HDate}
+         */
+        util.HDate = function(type,date,endDate = null)
+        {
+            if(Number.isInteger(type)){type=type.toString();}
+            if (_availableTypes.indexOf(type) === -1){throw "invalid type for HDate";}
+            this.beginDate = date;
+            this.endDate = endDate;
+            this.type = type;
+            return this;
+        };
 
         let _prototype = {
             /**
@@ -67,14 +81,26 @@ var hb = (function (hb) {
              * @returns {Date}
              */
             getBoundDate : function(bound) {
-                if (bound === 0){
-                    return this.beginDate;
+                if (bound === 0){return this.beginDate;}
+                else if(bound === 1){return this.endDate;}
+                else{return null;}
+            },
+            /**
+             * @doc : returns the canonical input for this HDate, eg the input to enter to reparse it
+             * @returns {string}
+             */
+            getCanonicalInput : function()
+            {
+                let formatter = _canonicalFormatters[this.type];
+
+                if(this.type === "2"){
+                    return (formatter(this.beginDate) + ";" + formatter(this.endDate));
                 }
-                else if(bound === 1){
-                    return this.endDate;
+                else if(this.type === "4"){
+                    return formatter(hd.switchToNextMonth(hd.clone(this.beginDate)));
                 }
                 else{
-                    return null;
+                    return formatter(this.beginDate);
                 }
             },
             /**
@@ -99,6 +125,18 @@ var hb = (function (hb) {
                 if(this.beginDate === null || this.endDate === null ||
                     typeof this.beginDate === "undefined" || typeof this.endDate === "undefined"){return true;}
                 return (hd.dayDiff(this.endDate,this.beginDate) === 0);
+            },
+            /**
+             * @doc HDate json parser/creator function : returns the HDate generated from its JSON representation
+             * @param {string} jsonStr
+             * @returns {HDate}
+             */
+            parseFromJson : function(jsonStr)
+            {
+                let jsonObj = JSON.parse(jsonStr);
+                jsonObj.beginDate = new Date(Date.parse(jsonObj.beginDate));
+                jsonObj.endDate = new Date(Date.parse(jsonObj.endDate));
+                return new HDate(jsonObj.type,jsonObj.beginDate,jsonObj.endDate);
             },
             /**
              * @doc type setter for HDate
@@ -175,7 +213,7 @@ var hb = (function (hb) {
                     label = totalLabel;
                 }
                 else if(this.type === "1") {
-                    pieces[trans.DAY_INDEX] = pieces[trans.DAY_INDEX] + trans.FORMAT_DAY_NUMBER_SUFFIX(pieces[trans.DAY_INDEX]);
+                    pieces[trans.PARSING_PLACEMENT["1"].DAY-1] +=trans.FORMAT_DAY_NUMBER_SUFFIX(trans.PARSING_PLACEMENT["1"].DAY-1);
                     label = pieces.join("");
                 }
                 else if(this.type === "4" && (pieces[0]).toUpperCase() === trans.SEASON_NAMES[0]){
@@ -210,7 +248,7 @@ var hb = (function (hb) {
 
 
 
-    }
+        }
 
         Object.extend(util.HDate.prototype,_prototype);
 
