@@ -70,7 +70,7 @@ var hb = (function (hb,currentLocale="FRENCH") {
                 FORMAT_MILLENNIUM_LABEL : "Millennium",
                 FORMAT_INTERVAL_STR : "d/m/Y",
                 PARSING_TYPE_LABELS : {
-                    "1":"Precise","3":"Month","4":"Season","5":"Year",
+                    "1":"Precise","2":"Bounded","3":"Month","4":"Season","5":"Year",
                     "6":"Decade","7":"Century","8":"Millennium"
                 },
                 PARSING_TYPE_EXAMPLES : {
@@ -103,6 +103,8 @@ var hb = (function (hb,currentLocale="FRENCH") {
                     "Season '<SEASON>' isn't valid",
                     "Month '<MONTH>' isn't valid",
                     "Year '<YEAR>' isn't valid : Authored years go from -10000 to <MAX_YEAR>",
+                    "Entered value isn't parsable to bounded date. "  +
+                    "Examples of authored values : 5/15/1985;6/9/1985,04/3/-8;04/3/-7"
                 ],
                 HDATEPICKER_DEFAULT_TITLE : "Enter a date"
             },
@@ -138,7 +140,7 @@ var hb = (function (hb,currentLocale="FRENCH") {
                 FORMAT_MILLENNIUM_LABEL : "Millénaire",
                 FORMAT_INTERVAL_STR : "d/m/Y",
                 PARSING_TYPE_LABELS : {
-                    "1":"Précise","3":"Mois","4":"Saison","5":"Année",
+                    "1":"Précise","2":"Imprécise","3":"Mois","4":"Saison","5":"Année",
                     "6":"Décennie","7":"Siècle","8":"Millénaire"
                 },
                 PARSING_TYPE_EXAMPLES : {
@@ -170,7 +172,9 @@ var hb = (function (hb,currentLocale="FRENCH") {
                     "Le jour '<DAY>' est invalide",
                     "La saison '<SEASON>' est invalide",
                     "Le mois '<MONTH>' est invalide",
-                    "L'année '<YEAR>' est invalide : Les années autorisées vont de -10000 à <MAX_YEAR>",
+                    "L'année '<YEAR>' est invalide : Les années autorisées vont de -10000 à <MAX_YEAR>", // 4
+                    "La valeur entrée n'est pas convertible en date imprecise. "  +
+                    "Exemples de valeurs autorisées : 2/5/1985;9/6/1985,3/04/-8;2/04/-7"
                 ],
                 HDATEPICKER_DEFAULT_TITLE : "Entrez une date",
                 HDATEPICKER_TRANSLATOR : function(html){

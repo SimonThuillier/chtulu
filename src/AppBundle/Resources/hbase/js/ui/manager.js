@@ -1,21 +1,21 @@
 /**
- * @package hbase.js
- * @doc common.js : Contains various common utilitary function for hbase
+ * @package manager.js
+ * @doc manager.js : Handles DOM resources creation and delivery to clients
  */
 var hb = (function (hb) {
     "use strict";
-    var _moduleName = "util:cmn/common.js";
+    var _moduleName = "ui:manager/manager.js";
     if(((typeof hb.getLoadedModules==="function"?hb.getLoadedModules():[])).includes(_moduleName)) {
         console.log(_moduleName + " already loaded, skipping");
         return hb;
     }
-    hb.util = (function (util) {
+    hb.ui = (function (hb,$) {
         var _requiredModules = [];
         /**
-         * @module hb/util/cmn
-         * @class hb.util.cmn
+         * @module hb/ui/manager
+         * @class hb.ui.manager
          */
-        util.cmn = {
+        hb.ui.manager = {
             /**
              * @doc capitalizes a string
              * @param {string} str
@@ -98,7 +98,7 @@ var hb = (function (hb) {
             }
         };
         console.log(_moduleName + " loaded");
-        return util;
+        return hb.ui;
     }(hb.util || {}));
 
     let _loadedModules = ((typeof hb.getLoadedModules==="function")?hb.getLoadedModules():[]);
