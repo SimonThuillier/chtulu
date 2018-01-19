@@ -915,591 +915,6 @@ d?z:v](x)});d.on("click mousedown mouseup mouseover mouseout touchbegin.i touche
 
 /*! vex.combined.js: vex 3.1.0, vex-dialog 1.0.6 */
 !function(a){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=a();else if("function"==typeof define&&define.amd)define([],a);else{var b;b="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,b.vex=a()}}(function(){var a;return function b(a,c,d){function e(g,h){if(!c[g]){if(!a[g]){var i="function"==typeof require&&require;if(!h&&i)return i(g,!0);if(f)return f(g,!0);var j=new Error("Cannot find module '"+g+"'");throw j.code="MODULE_NOT_FOUND",j}var k=c[g]={exports:{}};a[g][0].call(k.exports,function(b){var c=a[g][1][b];return e(c?c:b)},k,k.exports,b,a,c,d)}return c[g].exports}for(var f="function"==typeof require&&require,g=0;g<d.length;g++)e(d[g]);return e}({1:[function(a,b,c){"document"in window.self&&("classList"in document.createElement("_")&&(!document.createElementNS||"classList"in document.createElementNS("http://www.w3.org/2000/svg","g"))?!function(){"use strict";var a=document.createElement("_");if(a.classList.add("c1","c2"),!a.classList.contains("c2")){var b=function(a){var b=DOMTokenList.prototype[a];DOMTokenList.prototype[a]=function(a){var c,d=arguments.length;for(c=0;c<d;c++)a=arguments[c],b.call(this,a)}};b("add"),b("remove")}if(a.classList.toggle("c3",!1),a.classList.contains("c3")){var c=DOMTokenList.prototype.toggle;DOMTokenList.prototype.toggle=function(a,b){return 1 in arguments&&!this.contains(a)==!b?b:c.call(this,a)}}a=null}():!function(a){"use strict";if("Element"in a){var b="classList",c="prototype",d=a.Element[c],e=Object,f=String[c].trim||function(){return this.replace(/^\s+|\s+$/g,"")},g=Array[c].indexOf||function(a){for(var b=0,c=this.length;b<c;b++)if(b in this&&this[b]===a)return b;return-1},h=function(a,b){this.name=a,this.code=DOMException[a],this.message=b},i=function(a,b){if(""===b)throw new h("SYNTAX_ERR","An invalid or illegal string was specified");if(/\s/.test(b))throw new h("INVALID_CHARACTER_ERR","String contains an invalid character");return g.call(a,b)},j=function(a){for(var b=f.call(a.getAttribute("class")||""),c=b?b.split(/\s+/):[],d=0,e=c.length;d<e;d++)this.push(c[d]);this._updateClassName=function(){a.setAttribute("class",this.toString())}},k=j[c]=[],l=function(){return new j(this)};if(h[c]=Error[c],k.item=function(a){return this[a]||null},k.contains=function(a){return a+="",i(this,a)!==-1},k.add=function(){var a,b=arguments,c=0,d=b.length,e=!1;do a=b[c]+"",i(this,a)===-1&&(this.push(a),e=!0);while(++c<d);e&&this._updateClassName()},k.remove=function(){var a,b,c=arguments,d=0,e=c.length,f=!1;do for(a=c[d]+"",b=i(this,a);b!==-1;)this.splice(b,1),f=!0,b=i(this,a);while(++d<e);f&&this._updateClassName()},k.toggle=function(a,b){a+="";var c=this.contains(a),d=c?b!==!0&&"remove":b!==!1&&"add";return d&&this[d](a),b===!0||b===!1?b:!c},k.toString=function(){return this.join(" ")},e.defineProperty){var m={get:l,enumerable:!0,configurable:!0};try{e.defineProperty(d,b,m)}catch(n){n.number===-2146823252&&(m.enumerable=!1,e.defineProperty(d,b,m))}}else e[c].__defineGetter__&&d.__defineGetter__(b,l)}}(window.self))},{}],2:[function(a,b,c){function d(a,b){if("string"!=typeof a)throw new TypeError("String expected");b||(b=document);var c=/<([\w:]+)/.exec(a);if(!c)return b.createTextNode(a);a=a.replace(/^\s+|\s+$/g,"");var d=c[1];if("body"==d){var e=b.createElement("html");return e.innerHTML=a,e.removeChild(e.lastChild)}var f=g[d]||g._default,h=f[0],i=f[1],j=f[2],e=b.createElement("div");for(e.innerHTML=i+a+j;h--;)e=e.lastChild;if(e.firstChild==e.lastChild)return e.removeChild(e.firstChild);for(var k=b.createDocumentFragment();e.firstChild;)k.appendChild(e.removeChild(e.firstChild));return k}b.exports=d;var e,f=!1;"undefined"!=typeof document&&(e=document.createElement("div"),e.innerHTML='  <link/><table></table><a href="/a">a</a><input type="checkbox"/>',f=!e.getElementsByTagName("link").length,e=void 0);var g={legend:[1,"<fieldset>","</fieldset>"],tr:[2,"<table><tbody>","</tbody></table>"],col:[2,"<table><tbody></tbody><colgroup>","</colgroup></table>"],_default:f?[1,"X<div>","</div>"]:[0,"",""]};g.td=g.th=[3,"<table><tbody><tr>","</tr></tbody></table>"],g.option=g.optgroup=[1,'<select multiple="multiple">',"</select>"],g.thead=g.tbody=g.colgroup=g.caption=g.tfoot=[1,"<table>","</table>"],g.polyline=g.ellipse=g.polygon=g.circle=g.text=g.line=g.path=g.rect=g.g=[1,'<svg xmlns="http://www.w3.org/2000/svg" version="1.1">',"</svg>"]},{}],3:[function(a,b,c){"use strict";function d(a,b){if(void 0===a||null===a)throw new TypeError("Cannot convert first argument to object");for(var c=Object(a),d=1;d<arguments.length;d++){var e=arguments[d];if(void 0!==e&&null!==e)for(var f=Object.keys(Object(e)),g=0,h=f.length;g<h;g++){var i=f[g],j=Object.getOwnPropertyDescriptor(e,i);void 0!==j&&j.enumerable&&(c[i]=e[i])}}return c}function e(){Object.assign||Object.defineProperty(Object,"assign",{enumerable:!1,configurable:!0,writable:!0,value:d})}b.exports={assign:d,polyfill:e}},{}],4:[function(a,b,c){function d(a,b){"object"!=typeof b?b={hash:!!b}:void 0===b.hash&&(b.hash=!0);for(var c=b.hash?{}:"",d=b.serializer||(b.hash?g:h),e=a&&a.elements?a.elements:[],f=Object.create(null),k=0;k<e.length;++k){var l=e[k];if((b.disabled||!l.disabled)&&l.name&&j.test(l.nodeName)&&!i.test(l.type)){var m=l.name,n=l.value;if("checkbox"!==l.type&&"radio"!==l.type||l.checked||(n=void 0),b.empty){if("checkbox"!==l.type||l.checked||(n=""),"radio"===l.type&&(f[l.name]||l.checked?l.checked&&(f[l.name]=!0):f[l.name]=!1),!n&&"radio"==l.type)continue}else if(!n)continue;if("select-multiple"!==l.type)c=d(c,m,n);else{n=[];for(var o=l.options,p=!1,q=0;q<o.length;++q){var r=o[q],s=b.empty&&!r.value,t=r.value||s;r.selected&&t&&(p=!0,c=b.hash&&"[]"!==m.slice(m.length-2)?d(c,m+"[]",r.value):d(c,m,r.value))}!p&&b.empty&&(c=d(c,m,""))}}}if(b.empty)for(var m in f)f[m]||(c=d(c,m,""));return c}function e(a){var b=[],c=/^([^\[\]]*)/,d=new RegExp(k),e=c.exec(a);for(e[1]&&b.push(e[1]);null!==(e=d.exec(a));)b.push(e[1]);return b}function f(a,b,c){if(0===b.length)return a=c;var d=b.shift(),e=d.match(/^\[(.+?)\]$/);if("[]"===d)return a=a||[],Array.isArray(a)?a.push(f(null,b,c)):(a._values=a._values||[],a._values.push(f(null,b,c))),a;if(e){var g=e[1],h=+g;isNaN(h)?(a=a||{},a[g]=f(a[g],b,c)):(a=a||[],a[h]=f(a[h],b,c))}else a[d]=f(a[d],b,c);return a}function g(a,b,c){var d=b.match(k);if(d){var g=e(b);f(a,g,c)}else{var h=a[b];h?(Array.isArray(h)||(a[b]=[h]),a[b].push(c)):a[b]=c}return a}function h(a,b,c){return c=c.replace(/(\r)?\n/g,"\r\n"),c=encodeURIComponent(c),c=c.replace(/%20/g,"+"),a+(a?"&":"")+encodeURIComponent(b)+"="+c}var i=/^(?:submit|button|image|reset|file)$/i,j=/^(?:input|select|textarea|keygen)/i,k=/(\[[^\[\]]*\])/g;b.exports=d},{}],5:[function(b,c,d){(function(e){!function(b){if("object"==typeof d&&"undefined"!=typeof c)c.exports=b();else if("function"==typeof a&&a.amd)a([],b);else{var f;f="undefined"!=typeof window?window:"undefined"!=typeof e?e:"undefined"!=typeof self?self:this,f.vexDialog=b()}}(function(){return function a(c,d,e){function f(h,i){if(!d[h]){if(!c[h]){var j="function"==typeof b&&b;if(!i&&j)return j(h,!0);if(g)return g(h,!0);var k=new Error("Cannot find module '"+h+"'");throw k.code="MODULE_NOT_FOUND",k}var l=d[h]={exports:{}};c[h][0].call(l.exports,function(a){var b=c[h][1][a];return f(b?b:a)},l,l.exports,a,c,d,e)}return d[h].exports}for(var g="function"==typeof b&&b,h=0;h<e.length;h++)f(e[h]);return f}({1:[function(a,b,c){function d(a,b){if("string"!=typeof a)throw new TypeError("String expected");b||(b=document);var c=/<([\w:]+)/.exec(a);if(!c)return b.createTextNode(a);a=a.replace(/^\s+|\s+$/g,"");var d=c[1];if("body"==d){var e=b.createElement("html");return e.innerHTML=a,e.removeChild(e.lastChild)}var f=g[d]||g._default,h=f[0],i=f[1],j=f[2],e=b.createElement("div");for(e.innerHTML=i+a+j;h--;)e=e.lastChild;if(e.firstChild==e.lastChild)return e.removeChild(e.firstChild);for(var k=b.createDocumentFragment();e.firstChild;)k.appendChild(e.removeChild(e.firstChild));return k}b.exports=d;var e,f=!1;"undefined"!=typeof document&&(e=document.createElement("div"),e.innerHTML='  <link/><table></table><a href="/a">a</a><input type="checkbox"/>',f=!e.getElementsByTagName("link").length,e=void 0);var g={legend:[1,"<fieldset>","</fieldset>"],tr:[2,"<table><tbody>","</tbody></table>"],col:[2,"<table><tbody></tbody><colgroup>","</colgroup></table>"],_default:f?[1,"X<div>","</div>"]:[0,"",""]};g.td=g.th=[3,"<table><tbody><tr>","</tr></tbody></table>"],g.option=g.optgroup=[1,'<select multiple="multiple">',"</select>"],g.thead=g.tbody=g.colgroup=g.caption=g.tfoot=[1,"<table>","</table>"],g.polyline=g.ellipse=g.polygon=g.circle=g.text=g.line=g.path=g.rect=g.g=[1,'<svg xmlns="http://www.w3.org/2000/svg" version="1.1">',"</svg>"]},{}],2:[function(a,b,c){function d(a,b){"object"!=typeof b?b={hash:!!b}:void 0===b.hash&&(b.hash=!0);for(var c=b.hash?{}:"",d=b.serializer||(b.hash?g:h),e=a&&a.elements?a.elements:[],f=Object.create(null),k=0;k<e.length;++k){var l=e[k];if((b.disabled||!l.disabled)&&l.name&&j.test(l.nodeName)&&!i.test(l.type)){var m=l.name,n=l.value;if("checkbox"!==l.type&&"radio"!==l.type||l.checked||(n=void 0),b.empty){if("checkbox"!==l.type||l.checked||(n=""),"radio"===l.type&&(f[l.name]||l.checked?l.checked&&(f[l.name]=!0):f[l.name]=!1),!n&&"radio"==l.type)continue}else if(!n)continue;if("select-multiple"!==l.type)c=d(c,m,n);else{n=[];for(var o=l.options,p=!1,q=0;q<o.length;++q){var r=o[q],s=b.empty&&!r.value,t=r.value||s;r.selected&&t&&(p=!0,c=b.hash&&"[]"!==m.slice(m.length-2)?d(c,m+"[]",r.value):d(c,m,r.value))}!p&&b.empty&&(c=d(c,m,""))}}}if(b.empty)for(var m in f)f[m]||(c=d(c,m,""));return c}function e(a){var b=[],c=/^([^\[\]]*)/,d=new RegExp(k),e=c.exec(a);for(e[1]&&b.push(e[1]);null!==(e=d.exec(a));)b.push(e[1]);return b}function f(a,b,c){if(0===b.length)return a=c;var d=b.shift(),e=d.match(/^\[(.+?)\]$/);if("[]"===d)return a=a||[],Array.isArray(a)?a.push(f(null,b,c)):(a._values=a._values||[],a._values.push(f(null,b,c))),a;if(e){var g=e[1],h=+g;isNaN(h)?(a=a||{},a[g]=f(a[g],b,c)):(a=a||[],a[h]=f(a[h],b,c))}else a[d]=f(a[d],b,c);return a}function g(a,b,c){var d=b.match(k);if(d){var g=e(b);f(a,g,c)}else{var h=a[b];h?(Array.isArray(h)||(a[b]=[h]),a[b].push(c)):a[b]=c}return a}function h(a,b,c){return c=c.replace(/(\r)?\n/g,"\r\n"),c=encodeURIComponent(c),c=c.replace(/%20/g,"+"),a+(a?"&":"")+encodeURIComponent(b)+"="+c}var i=/^(?:submit|button|image|reset|file)$/i,j=/^(?:input|select|textarea|keygen)/i,k=/(\[[^\[\]]*\])/g;b.exports=d},{}],3:[function(a,b,c){var d=a("domify"),e=a("form-serialize"),f=function(a){var b=document.createElement("form");b.classList.add("vex-dialog-form");var c=document.createElement("div");c.classList.add("vex-dialog-message"),c.appendChild(a.message instanceof window.Node?a.message:d(a.message));var e=document.createElement("div");return e.classList.add("vex-dialog-input"),e.appendChild(a.input instanceof window.Node?a.input:d(a.input)),b.appendChild(c),b.appendChild(e),b},g=function(a){var b=document.createElement("div");b.classList.add("vex-dialog-buttons");for(var c=0;c<a.length;c++){var d=a[c],e=document.createElement("button");e.type=d.type,e.textContent=d.text,e.classList.add(d.className),e.classList.add("vex-dialog-button"),0===c?e.classList.add("vex-first"):c===a.length-1&&e.classList.add("vex-last"),function(a){e.addEventListener("click",function(b){a.click&&a.click.call(this,b)}.bind(this))}.bind(this)(d),b.appendChild(e)}return b},h=function(a){var b={name:"dialog",open:function(b){var c=Object.assign({},this.defaultOptions,b);c.unsafeMessage&&!c.message?c.message=c.unsafeMessage:c.message&&(c.message=a._escapeHtml(c.message));var d=c.unsafeContent=f(c),e=a.open(c),h=c.beforeClose&&c.beforeClose.bind(e);if(e.options.beforeClose=function(){var a=!h||h();return a&&c.callback(this.value||!1),a}.bind(e),d.appendChild(g.call(e,c.buttons)),e.form=d,d.addEventListener("submit",c.onSubmit.bind(e)),c.focusFirstInput){var i=e.contentEl.querySelector("button, input, textarea");i&&i.focus()}return e},alert:function(a){return"string"==typeof a&&(a={message:a}),a=Object.assign({},this.defaultOptions,this.defaultAlertOptions,a),this.open(a)},confirm:function(a){if("object"!=typeof a||"function"!=typeof a.callback)throw new Error("dialog.confirm(options) requires options.callback.");return a=Object.assign({},this.defaultOptions,this.defaultConfirmOptions,a),this.open(a)},prompt:function(b){if("object"!=typeof b||"function"!=typeof b.callback)throw new Error("dialog.prompt(options) requires options.callback.");var c=Object.assign({},this.defaultOptions,this.defaultPromptOptions),d={unsafeMessage:'<label for="vex">'+a._escapeHtml(b.label||c.label)+"</label>",input:'<input name="vex" type="text" class="vex-dialog-prompt-input" placeholder="'+a._escapeHtml(b.placeholder||c.placeholder)+'" value="'+a._escapeHtml(b.value||c.value)+'" />'};b=Object.assign(c,d,b);var e=b.callback;return b.callback=function(a){a=a[Object.keys(a)[0]],e(a)},this.open(b)}};return b.buttons={YES:{text:"OK",type:"submit",className:"vex-dialog-button-primary",click:function(){this.value=!0}},NO:{text:"Cancel",type:"button",className:"vex-dialog-button-secondary",click:function(){this.value=!1,this.close()}}},b.defaultOptions={callback:function(){},afterOpen:function(){},message:"",input:"",buttons:[b.buttons.YES,b.buttons.NO],showCloseButton:!1,onSubmit:function(a){return a.preventDefault(),this.options.input&&(this.value=e(this.form,{hash:!0})),this.close()},focusFirstInput:!0},b.defaultAlertOptions={buttons:[b.buttons.YES]},b.defaultPromptOptions={label:"Prompt:",placeholder:"",value:""},b.defaultConfirmOptions={},b};b.exports=h},{domify:1,"form-serialize":2}]},{},[3])(3)})}).call(this,"undefined"!=typeof global?global:"undefined"!=typeof self?self:"undefined"!=typeof window?window:{})},{domify:2,"form-serialize":4}],6:[function(a,b,c){var d=a("./vex");d.registerPlugin(a("vex-dialog")),b.exports=d},{"./vex":7,"vex-dialog":5}],7:[function(a,b,c){a("classlist-polyfill"),a("es6-object-assign").polyfill();var d=a("domify"),e=function(a){if("undefined"!=typeof a){var b=document.createElement("div");return b.appendChild(document.createTextNode(a)),b.innerHTML}return""},f=function(a,b){if("string"==typeof b&&0!==b.length)for(var c=b.split(" "),d=0;d<c.length;d++){var e=c[d];e.length&&a.classList.add(e)}},g=function(){var a=document.createElement("div"),b={WebkitAnimation:"webkitAnimationEnd",MozAnimation:"animationend",OAnimation:"oanimationend",msAnimation:"MSAnimationEnd",animation:"animationend"};for(var c in b)if(void 0!==a.style[c])return b[c];return!1}(),h={vex:"vex",content:"vex-content",overlay:"vex-overlay",close:"vex-close",closing:"vex-closing",open:"vex-open"},i={},j=1,k=!1,l={open:function(a){var b=function(a){console.warn('The "'+a+'" property is deprecated in vex 3. Use CSS classes and the appropriate "ClassName" options, instead.'),console.warn("See http://github.hubspot.com/vex/api/advanced/#options")};a.css&&b("css"),a.overlayCSS&&b("overlayCSS"),a.contentCSS&&b("contentCSS"),a.closeCSS&&b("closeCSS");var c={};c.id=j++,i[c.id]=c,c.isOpen=!0,c.close=function(){function a(a){return"none"!==d.getPropertyValue(a+"animation-name")&&"0s"!==d.getPropertyValue(a+"animation-duration")}if(!this.isOpen)return!0;var b=this.options;if(k&&!b.escapeButtonCloses)return!1;var c=function(){return!b.beforeClose||b.beforeClose.call(this)}.bind(this)();if(c===!1)return!1;this.isOpen=!1;var d=window.getComputedStyle(this.contentEl),e=a("")||a("-webkit-")||a("-moz-")||a("-o-"),f=function j(){this.rootEl.parentNode&&(this.rootEl.removeEventListener(g,j),delete i[this.id],this.rootEl.parentNode.removeChild(this.rootEl),b.afterClose&&b.afterClose.call(this),0===Object.keys(i).length&&document.body.classList.remove(h.open))}.bind(this);return g&&e?(this.rootEl.addEventListener(g,f),this.rootEl.classList.add(h.closing)):f(),!0},"string"==typeof a&&(a={content:a}),a.unsafeContent&&!a.content?a.content=a.unsafeContent:a.content&&(a.content=e(a.content));var m=c.options=Object.assign({},l.defaultOptions,a),n=c.rootEl=document.createElement("div");n.classList.add(h.vex),f(n,m.className);var o=c.overlayEl=document.createElement("div");o.classList.add(h.overlay),f(o,m.overlayClassName),m.overlayClosesOnClick&&o.addEventListener("click",function(a){a.target===o&&c.close()}),n.appendChild(o);var p=c.contentEl=document.createElement("div");if(p.classList.add(h.content),f(p,m.contentClassName),p.appendChild(m.content instanceof window.Node?m.content:d(m.content)),n.appendChild(p),m.showCloseButton){var q=c.closeEl=document.createElement("div");q.classList.add(h.close),f(q,m.closeClassName),q.addEventListener("click",c.close.bind(c)),p.appendChild(q)}return document.querySelector(m.appendLocation).appendChild(n),m.afterOpen&&m.afterOpen.call(c),document.body.classList.add(h.open),c},close:function(a){var b;if(a.id)b=a.id;else{if("string"!=typeof a)throw new TypeError("close requires a vex object or id string");b=a}return!!i[b]&&i[b].close()},closeTop:function(){var a=Object.keys(i);return!!a.length&&i[a[a.length-1]].close()},closeAll:function(){for(var a in i)this.close(a);return!0},getAll:function(){return i},getById:function(a){return i[a]}};window.addEventListener("keyup",function(a){27===a.keyCode&&(k=!0,l.closeTop(),k=!1)}),window.addEventListener("popstate",function(){l.defaultOptions.closeAllOnPopState&&l.closeAll()}),l.defaultOptions={content:"",showCloseButton:!0,escapeButtonCloses:!0,overlayClosesOnClick:!0,appendLocation:"body",className:"",overlayClassName:"",contentClassName:"",closeClassName:"",closeAllOnPopState:!0},Object.defineProperty(l,"_escapeHtml",{configurable:!1,enumerable:!1,writable:!1,value:e}),l.registerPlugin=function(a,b){var c=a(l),d=b||c.name;if(l[d])throw new Error("Plugin "+b+" is already registered.");l[d]=c},b.exports=l},{"classlist-polyfill":1,domify:2,"es6-object-assign":3}]},{},[6])(6)});
-
-
-
-/** the jQuery Hbase object will be the core object for various variables and methods of hbase front-end library */
-
-$.hbase = {};
-$.hbase.modal = {};
-$.hbase.func = {};
-$.hbase.HDate = HDate.prototype;
-$.hbase.hiddenInput = $("<input/>").hide();
-
-$.hbase.currentRegional = "french";
-$.hbase.regional = {
-    "french":{
-        placeHolders : {"1":"JJ/MM/AAAA","2":"JJ/MM/AAAA;JJ/MM/AAAA",
-            "3":"MM/AAAA","4":"MM/AAAA","5":"AAAA",
-            "6":"AAAA","7":"AAAA","8":"AAAA"},
-        inputLabel : {"1":"Entrez la date complete comme 9/11/1989 ou 15/3/-44","2":"Entrez la date imprecise (Ex: 11/10/732;13/10/733)",
-            "3":"Entrez le mois (Ex: 7/622 ou 10/-539)","4":"Entrez la saison (Ex: 1/208 ou 4/1917)",
-            "5":"Entrez l'année (Ex: 1968 ou -333)","6":"Entrez une année du de la decennie (Ex: 1242 ou 1648)",
-            "7":"Entrez une année du siècle (Ex: -221 ou 1789)","8":"Entrez une année du millénaire (Ex: -3140 ou 1945)"},
-        closeText: "Done", // Display text for close link
-        prevText: "Prev", // Display text for previous month link
-        nextText: "Next", // Display text for next month link
-        currentText: "Today", // Display text for current month link
-        monthNames: [ "Janvier","Fevrier","Mars","Avril","Mai","Juin",
-            "Juillet","Aout","Septembre","Octobre","Novembre","Decembre" ], // Names of months for drop-down and formatting
-        monthNamesShort: [ "Jan", "Fev", "Mar", "Avr", "Mai", "Juin", "Juil", "Aout", "Sep", "Oct", "Nov", "Dec" ], // For formatting
-        dayNames: [ "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ], // For formatting
-        dayNamesShort: [ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ], // For formatting
-        dayNamesMin: [ "Su","Mo","Tu","We","Th","Fr","Sa" ], // Column headings for days starting at Sunday
-        weekHeader: "Wk", // Column header for week of the year
-        dateFormat: "mm/dd/yy", // See format options on parseDate
-        firstDay: 0, // The first day of the week, Sun = 0, Mon = 1, ...
-        isRTL: false, // True if right-to-left language, false if left-to-right
-        showMonthAfterYear: false, // True if the year select precedes month, false for month then year
-        yearSuffix: "" // Additional text to append to the year in the month headers
-    }
-};
-
-
-
-/**
- * @doc generic hbase project factory for various objects
- * @param {string} type : available values {hdatepicket|hmaxlength|harticlemodal}
- * @returns {jQuery}
- */
-$.hbase.func.factory = function(type)
-{
-    var factories = [];
-
-    var newModal = function(z = 7,fadeTime = 250)
-    {
-        var $modal = $("<div>").dialog({
-            autoOpen: false,
-            dialogClass: "hb-modal-z" + z,
-            show: {
-                effect: "fade",
-                duration: fadeTime
-            }
-        });
-        $modal.errors=[];
-        $modal.element=null;
-        $modal.hDate=null;
-        $modal.regional = $.hbase.regional[$.hbase.currentRegional];
-        $(".ui-dialog-titlebar-close").hide();
-        $modal.mouseOn = false;
-        $modal.mouseenter(function(){$modal.mouseOn = true;});
-        $modal.mouseleave(function(){$modal.mouseOn = false;});
-        return $modal;
-    };
-
-    factories.hdatepicker = function()
-    {
-        var $modal = new newModal();
-        $modal.dialog( "option", "title", "Entrez une date" );
-        $modal.append("<label class='mx-2'>Type de date :</label>&nbsp;");
-        $modal.typeSelector = $("<select class='ui-corner-all'>").appendTo($modal)
-            .append($("<option>", {value: HDate.prototype.PRECISE,text: "Précise"}))
-            .append($("<option>", {value: HDate.prototype.BOUNDED,text: "Imprecise (bornée)"}))
-            .append($("<option>", {value: HDate.prototype.MONTH,text: "Mois"}))
-            .append($("<option>", {value: HDate.prototype.SEASON,text: "Saison"}))
-            .append($("<option>", {value: HDate.prototype.YEAR,text: "Année"}))
-            .append($("<option>", {value: HDate.prototype.DECADE,text: "Decennie"}))
-            .append($("<option>", {value: HDate.prototype.CENTURY,text: "Siècle"}))
-            .append($("<option>", {value: HDate.prototype.MILLENIA,text: "Millénaire"}));
-
-        $modal.append("<br>");
-        var labelContainer = $("<div class='text-muted m-r visible-md-inline-block visible-lg-inline-block'>").appendTo($modal);
-        $modal.inputLabel = $("<p/>").appendTo(labelContainer);
-        $modal.inputContainer = $("<div>").appendTo($modal);
-        $modal.dateInput = $("<input type='text' class='ui-corner-all' style='min-height:23px' required='required' placeholder='JJ/MM/AAAA' maxlength='30' size='20'>").appendTo($modal.inputContainer);
-        $modal.validateButton = $("<button class='btn btn-primary'></button>").button({icon: "ui-icon-circle-close"}).appendTo($modal.inputContainer);
-        //$modal.append("<br>");
-        $modal.errorSpan = $("<div disabled='disabled' class='ui-state-error alert alert-danger'></div>").appendTo($modal);
-        $modal.append("<label>Rendu de la date</label> : ");
-        $modal.dateLabel = $("<label>").appendTo($modal);
-        $modal.append("<br>").append("<label>[min;max]</label> : ");
-        $modal.dateInterval = $("<label>").appendTo($modal);
-        $modal.append("<br>");
-
-        $modal.bind = function(element)
-        {
-            if ($modal.element !== null){$modal.unbind();}
-            $modal.element=element;
-            element.addClass( "hdatepicker-enabled" );
-            this.attr("title","Entrez une date");
-            if(typeof (this.element.first().attr("hdatepicker-label")) !== "undefined"){this.dialog("option","title",this.element.first().attr("hdatepicker-label"));}
-            if(element !== null && typeof (element.first().attr("hdate")) !== "undefined"){
-                $modal.hDate = $.hbase.HDate.parse(element.first().attr("hdate"));
-            }
-            else if ($modal.hDate !== null){
-                $modal.hDate = $modal.hDate.clone();
-            }
-            this.refresh(true);
-            this.dialog({
-                position: { my: "left top", at: "left bottom", of: element }
-            });
-            this.dialog("open");
-        };
-
-        $modal.unbind = function()
-        {
-            if($modal.element === null){return;}
-            //$modal.errors=[];
-            var element = $modal.element;
-            this.dialog("close");
-            $modal.element=null;
-            setTimeout(function(){$(element).removeClass( "hdatepicker-enabled" );}, 40);
-        };
-
-        $modal.refresh = function(total = false)
-        {
-            var type = $(this).find(":selected").val();
-            $modal.inputLabel.text($modal.regional.inputLabel[type]);
-            $modal.dateLabel.empty();
-            $modal.dateInterval.empty();
-            if(total){$modal.dateInput.empty();}
-            if($modal.hDate !== null){
-                if(total){
-                    $modal.dateInput.val($modal.hDate.getCanonicalInput());
-                    $modal.typeSelector.val($modal.hDate.type);
-                }
-                $modal.dateLabel.text($modal.hDate.getLabel());
-                $modal.dateInterval.text($modal.hDate.getIntervalLabel());
-            }
-            $modal.validateButton.button("enable").removeClass("ui-state-error");
-            $modal.validateButton.children().first().removeClass("ui-icon-circle-close").addClass("ui-icon-check");
-            $modal.errorSpan.hide();
-            $modal.validateButton.show();
-
-            // if date value is empty validation icon isn"t displayed
-            if($modal.dateInput.val() === "" ){
-                $modal.validateButton.hide();
-            }
-            else if($modal.errors.length > 0 ){
-                $modal.validateButton.button("disable").addClass("ui-state-error");
-                $modal.validateButton.children().first().removeClass("ui-icon-check").addClass("ui-icon-circle-close");
-                $modal.errorSpan.show();
-                $modal.errorSpan.text($modal.errors[0]);
-            }
-        };
-
-        // method called when date type is changed
-        $modal.selectorChanged =  function()
-        {
-            var type = $(this).find(":selected").val();
-            $modal.dateInput.attr("placeholder",$modal.regional.placeHolders[type]);
-
-            if ($modal.hDate !== null && $modal.errors.length < 1){
-                $modal.hDate.setType(type);
-                $modal.dateInput.val($modal.hDate.getCanonicalInput());
-                $modal.refresh();
-            }
-            else{
-                $modal.inputChanged();
-            }
-        };
-
-        $modal.inputChanged = function()
-        {
-            var type = $modal.typeSelector.find(":selected").val();
-            var sDate = $modal.dateInput.val();
-            $modal.errors=[];
-
-            $modal.hDate = null;
-            var date = null;
-            if(type == HDate.prototype.BOUNDED){
-                var regex = new RegExp("^([^;]+);([^;]+)$");
-                var regexArray = regex.exec(sDate);
-                if(regexArray === null) {
-                    $modal.errors.push("La valeur entrée n'est pas convertible en date (imprecise). " +
-                        "Exemples de valeurs autorisées : 2/5/1985;9/6/1985,3/04/-8;2/04/-7");
-                    $modal.refresh();
-                    return;
-                }
-
-                date = myParseDate(regexArray[1],HDate.prototype.PRECISE,$modal.errors);
-                var endDate = myParseDate(regexArray[2],HDate.prototype.PRECISE,$modal.errors);
-                console.log(date);
-                console.log(endDate);
-
-                if(date !== null && endDate !== null){
-                    if(endDate.dayDiff(date) < 1){
-                        $modal.errors.push("La date de fin doit être strictement posterieure à la date de début");
-                        $modal.refresh();
-                        return;
-                    }
-                    $modal.hDate = new HDate(HDate.prototype.BOUNDED,date,endDate);
-                }
-                else{
-                    if (date === null){$modal.errors[0]=$modal.errors[0].replace("La valeur entrée ", "La valeur de début ");}
-                    else{ $modal.errors[0]=$modal.errors[0].replace("La valeur entrée ", "La valeur de fin ");}
-                }
-            }
-            else{
-                date = myParseDate(sDate,type,$modal.errors);
-                if(date !== null) {$modal.hDate = new HDate(type,date);}
-            }
-            $modal.refresh();
-            return;
-        };
-
-        $modal.updateElement = function()
-        {
-            if($modal.errors.length > 0 || $modal.hDate === null ) {return;}
-            $modal.element.first().val($modal.hDate.getLabel());
-            $modal.element.first().attr("hdate",JSON.stringify($modal.hDate));
-            $modal.element.first().change();
-        };
-        $modal.validate = function()
-        {
-            $modal.updateElement();
-            $modal.mouseOn = false;
-            $modal.focusout();
-        };
-
-        $modal.typeSelector.on("change",function(){$modal.selectorChanged();});
-        $modal.dateInput.on("change",function(){$modal.inputChanged();});
-        $modal.dateInput.on("keyup", function(event) {
-            if(event.keyCode === 13){$modal.validate();}
-            else{$modal.inputChanged();}
-        });
-        $modal.validateButton.on("click", function() {$modal.validate();});
-        $modal.on("focusout", function(event)
-        {
-            if($modal.mouseOn){
-                event.stopPropagation();
-                event.preventDefault();
-                return;
-            }
-            $modal.mouseOn = false;
-            if($modal.element === null) {return;}
-            var element = $modal.element;
-            element.attr("disabled","disabled");
-            $modal.unbind();
-            setTimeout(function() {element.removeAttr("disabled");element.blur();}, 30);
-            element.prev().click();
-            element.blur();
-        });
-        $modal.dialog("close");
-        return $modal;
-    };
-    factories.hmaxlength = function(maxLength=255,warningThreshold=0.9)
-    {
-        var $paragraph = $("<p style='color:grey display:inline'>");
-        $paragraph.maxLength=maxLength;
-        $paragraph.warningThreshold=warningThreshold;
-        $paragraph.setLength = function(length){
-            $paragraph.text(length + "/" + $paragraph.maxLength + " caractères autorisés" );
-            var ratio = length/$paragraph.maxLength;
-            if(ratio >= 1 ){
-                $paragraph.css("color","red");
-            }
-            else if(ratio > $paragraph.warningThreshold){
-                $paragraph.css("color","DarkOrange");
-            }
-            else{
-                $paragraph.css("color","grey");
-            }
-        }
-        return $paragraph;
-    };
-    factories.harticlemodal = function()
-    {
-        var $modal = $("<div id='article_modal_live' class='modal fade' role='dialog'><div/>");
-        $modal.container = $("<div class=\"modal-dialog modal-lg\">").appendTo($modal);
-        $modal.content = $("<div class=\"modal-content\">").appendTo($modal.container);
-
-        $modal.header = $("<div class=\"modal-header\">").appendTo($modal.content);
-        $modal.body = $("<div class=\"modal-body\">").appendTo($modal.content);
-        $modal.footer = $("<div class=\"modal-footer\">").appendTo($modal.content);
-
-        // header
-        $modal.dismissButtonHeader = $("<button type=\"button\" class=\"close\" data-dismiss=\"modal\">&times;</button>").appendTo($modal.header);
-        $modal.title=$("<h4 class=\"modal-title\">Article</h4>");
-
-        // content
-        $modal.form = $($("#article_modal").html()).appendTo($modal.body);
-
-        // footer
-        $modal.dismissButtonFooter = $("<button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>").appendTo($modal.footer);
-
-        // functions
-
-
-        /**
-         * function binder to an element with attr hevent or hevent string directly
-         * @param $element
-         */
-        $modal.bind = function($element){
-
-        }
-
-
-        return $modal;
-
-    };
-
-
-
-    return factories[type]();
-};
-
-$.widget( "hbase.hmaxlength", {
-    // default options
-    options: {
-    },
-    // The constructor
-    _create: function() {
-        console.log("create hmaxlength widget");
-        var $element = $(this.element);
-        $element.removeClass("hmaxlength-active");
-        if($element.hasClass("hmaxlength-enabled")){return;}
-        console.log($element);
-        var $paragraph = $.hbase.func.factory("hmaxlength");
-        $paragraph.setLength($element.text().length);
-        if($element[0].hasAttribute("maxlength")){ $paragraph.maxLength=$element.attr("maxlength");}
-        if($element[0].hasAttribute("warningthreshold")) {$paragraph.warningThreshold=$element.attr("warningthreshold");}
-
-
-        $paragraph.insertAfter($element);
-        $element.addClass("hmaxlength-enabled");
-        $paragraph.hide();
-
-        function showParagraph(){
-            $paragraph.setLength($element.val().length);
-            $paragraph.fadeIn(150);
-            $element.addClass("hmaxlength-active");
-        }
-        function hideParagraph(){
-            $paragraph.fadeOut(150);
-            $element.removeClass("hmaxlength-active");
-        }
-
-        $element.on("focus",function(event){
-            console.log("focus");
-            if($element.hasClass("hmaxlength-active")) return;
-            showParagraph();
-        });
-
-        $element.on("keypress",function(event){
-            console.log("keypress" + $element.val().length);
-            if(! $element.hasClass("hmaxlength-active")) return;
-            if($element.val().length > $paragraph.maxLength) $element.val($element.val().substring(0,$paragraph.maxLength));
-            $paragraph.setLength($element.val().length);
-        });
-        $element.on("keydown",function(event){$element.trigger("keypress");});
-        $element.on("keyup",function(event){$element.trigger("keypress");});
-        $element.on("focusout",function(event){
-            console.log("focusout")
-            if(! $element.hasClass("hmaxlength-active")) return;
-            hideParagraph();
-        });
-    },
-    // Events bound via _on are removed automatically
-    // revert other modifications here
-    _destroy: function() {
-    }
-});
-$.widget( "hbase.hdatepicker", {
-    // default options
-    options: {
-    },
-
-    // The constructor
-    _create: function() {
-        console.log("create hdatepicker widget");
-        function enableDatePicker(element){
-            if(! element.hasClass("hdatepicker-enabled")){
-                $.hbase.modal.hdatepicker.bind($(element));
-            }
-        }
-
-        $(this.element).on("focus",function(event){enableDatePicker($(this));});
-        $(this.element).on("keyup",function(event){enableDatePicker($(this));});
-
-        $(this.element).change(function(){
-            var $element = $(this).first();
-            if($element.attr("hdate") === "undefined" || $element.attr("hdate") === null || $element.attr("hdate") === "") return;
-            var hDate = $.hbase.HDate.parse($element.attr("hdate"));
-            var partner;
-            var partnerHDate;
-            var newPartnerHDate;
-            if(typeof $(this).attr("hdatepicker-ender") !== "undefined"){
-                partner = $("#" + $(this).attr("hdatepicker-ender"));
-                if(! partner.hasClass("hbase-hdatepicker") ) return;
-                partnerHDate = null;
-                newPartnerHDate = null;
-                if(typeof partner.attr("hdate") !== "undefined" && partner.attr("hdate") !== null && partner.attr("hdate") !== ""){
-                    partnerHDate =  $.hbase.HDate.parse(partner.attr("hdate"));
-                }
-                if(partnerHDate === null || partnerHDate.endDate < hDate.endDate){
-                    newPartnerHDate = new HDate(HDate.prototype.PRECISE,hDate.endDate);
-                    partner.attr("hdate",JSON.stringify(newPartnerHDate));
-                    partner.val(newPartnerHDate.getLabel());
-                }
-            }
-            else if(typeof $(this).attr("hdatepicker-beginner") !== "undefined"){
-                partner = $("#" + $(this).attr("hdatepicker-beginner"));
-                if(! partner.hasClass("hbase-hdatepicker") ) return;
-                partnerHDate = null;
-                newPartnerHDate = null;
-                if(typeof partner.attr("hdate") !== "undefined" && partner.attr("hdate") !== null && partner.attr("hdate") !== ""){
-                    partnerHDate =  $.hbase.HDate.parse(partner.attr("hdate"));
-                }
-                if(partnerHDate === null || partnerHDate.beginDate > hDate.beginDate){
-                    newPartnerHDate = new HDate(HDate.prototype.PRECISE,hDate.beginDate);
-                    partner.attr("hdate",JSON.stringify(newPartnerHDate));
-                    partner.val(newPartnerHDate.getLabel());
-                }
-            }
-        });
-        // at start an attempt is made to retrieve hdate attribute of the element an update it"s value accordingly
-        if(typeof this.element.attr("hdate") !== "undefined" && this.element.attr("hdate") !== null){
-            this.element.val( $.hbase.HDate.parse(this.element.attr("hdate")).getLabel());
-        }
-    },
-    // Events bound via _on are removed automatically
-    // revert other modifications here
-    _destroy: function() {
-    }
-});
-$.widget( "hbase.htimescroller", {
-    // default options
-    options: {
-    },
-
-    // The constructor
-    _create: function() {
-        console.log("create hts1");
-        if(! this.element.hasClass("htimescroller-enabled")){
-            var htsOptions = {hasMainEvent:false};
-            var endDate = new Date();
-            var beginDate = endDate.clone().addDay(-7);
-            console.log("create hts2 : ");
-            console.log(this.element);
-            var hts = new HTimeScroller("#" + this.element.first().attr("id"),beginDate,endDate,null,null, htsOptions);
-            this.element.addClass("htimescroller-enabled");
-        }
-    },
-    // Events bound via _on are removed automatically
-    // revert other modifications here
-    _destroy: function() {
-    }
-});
-$.widget( "hbase.harticledisplayer", {
-    // default options
-    options: {
-    },
-
-    // The constructor
-    _create: function() {
-        console.log("create harticledisplayer widget");
-        function enableArticleDisplayer(element){
-            if(! element.hasClass("harticledisplayer-enabled")){
-                $.hbase.modal.article.bind($(element));
-            }
-        }
-
-        $(this.element).on("click",function(){enableArticleDisplayer($(this));});
-
-    },
-    // Events bound via _on are removed automatically
-    // revert other modifications here
-    _destroy: function() {
-    }
-});
-
-$(function(){
-    console.log("--- persistent resources creation ---");
-    console.log("hdatepicker creation ... ");
-    $.hbase.modal.hdatepicker = $.hbase.func.factory("hdatepicker");
-    console.log("OK");
-
-    console.log("harticlemodalcreation ...");
-    if($("#article_modal").length === 0){
-        console.log("undone, required bridge element #article_modal is missing.");
-    }
-    else{
-        $.hbase.modal.article = $.hbase.func.factory("harticlemodal");
-        console.log("OK");
-    }
-
-    $.hbase.func.hbaseCheck = function(element)
-    {
-        var $checker = $(element);
-        var transition = $checker.is(":checked");
-        var inverted = $checker.hasClass("hbase-inverted");
-        if(inverted) transition = !transition;
-        $($checker.attr("hBase-checked")).each(function(){
-            var $checked = $(this);
-            if(transition){
-                $checked.show();
-                console.log($checked[0].hasAttribute("hbase-default-required"));
-                if($checked[0].hasAttribute("hbase-default-required")) $checked.attr("required","required");
-            }
-            else{
-                $checked.hide();
-                console.log($checked[0].hasAttribute("hbase-default-required"));
-                $checked.removeAttr("required");
-            }
-        });
-    }
-
-    $.hbase.func.hbaseChecker = function(element)
-    {
-        $.hbase.func.hbaseCheck(element);
-        $(element).on("change",function(){$.hbase.func.hbaseCheck(element);});
-    }
-
-    $.hbase.func.hbaseArticleFormSubmitter = function(event,element)
-    {
-        event.preventDefault();
-        event.stopPropagation();
-        var $this = $(element);
-        var $formData = $this.serializeArray();
-        var formMap = getFormMap($formData);
-        var $data;
-        $this.find(".hbase-hdatepicker").each(function(index){
-            if(typeof formMap[this.name] !== "undefined"){
-                $data = $formData[formMap[this.name]];
-                $data.value = $(this).attr("hdate");
-            }
-        });
-        console.log($formData);
-        var action = $this.attr("action");
-        if (typeof action === "undefined" || action === null || action ==="") return;
-        $.ajax({
-            url : $this.attr("action"),
-            type : "POST",
-            dataType : "html",
-            data : $formData,
-            success:function(data) {
-                console.log("success ! " + data.success );
-                location.reload();
-            }
-        });
-
-        return true;
-    }
-
-    $.hbase.func.hbaseApply = function(rootSelector = null){
-        console.log("application des widget");
-        if(rootSelector === null){
-            $(".hbase-hmaxlength").hmaxlength();
-            $(".hbase-hdatepicker").hdatepicker();
-            $(".hbase-htimescroller").htimescroller();
-            $(".hbase-hdatepicker").hdatepicker();
-            $(".hbase-activer").each(function(){$.hbase.func.hbaseChecker(this)});
-            $(".hbase-article-form").on("submit",function(){$.hbase.func.hbaseArticleFormSubmitter(event,this);});
-
-        }
-        else{
-            rootSelector.find(".hbase-hmaxlength").hmaxlength();
-            rootSelector.find(".hbase-hdatepicker").hdatepicker();
-            rootSelector.find(".hbase-htimescroller").htimescroller();
-            rootSelector.find(".hbase-hdatepicker").hdatepicker();
-            rootSelector.find(".hbase-activer").each(function(){$.hbase.func.hbaseChecker(this);});
-            rootSelector.find(".hbase-article-form").on("submit",function(){$.hbase.func.hbaseArticleFormSubmitter(event,this);});
-        }
-    }
-
-    $.hbase.func.hbaseApply();
-});
 /**
  * @package hbase.js
  * @doc common.js : Contains various common utilitary function for hbase
@@ -1507,7 +922,7 @@ $(function(){
 var hb = (function (hb) {
     "use strict";
     var _moduleName = "util:cmn/common.js";
-    if(((typeof hb.getLoadedModules==="function"?hb.getLoadedModules():[])).includes(_moduleName)) {
+    if(((typeof hb.getLoadedModules==="function")?hb.getLoadedModules():[]).includes(_moduleName)) {
         console.log(_moduleName + " already loaded, skipping");
         return hb;
     }
@@ -1518,9 +933,8 @@ var hb = (function (hb) {
          * @class hb.util.cmn
          */
         util.cmn = {
-            varTest:"lol",
             /**
-             * @doc capitalize a string
+             * @doc capitalizes a string
              * @param {string} str
              * @return {string}
              */
@@ -1528,7 +942,7 @@ var hb = (function (hb) {
                 return str.charAt(0).toUpperCase() + this.slice(1);
             },
             /**
-             * @doc convert an integer (arabic 10 base) to the corresponding roman number
+             * @doc converts an integer (arabic 10 base) to the corresponding roman number
              * @param number
              * @returns {string}
              */
@@ -1568,11 +982,22 @@ var hb = (function (hb) {
              * @returns {Function}
              */
             getIdGenerator : function () {
-                let id = -1;
+                let id = 0;
                 return function () {
-                    id++;
-                    return id;
+                    return ++id;
                 };
+            },
+            /**
+             * @doc replace a set of different old text in a String with replacement values and return its
+             * @param {string} oldText
+             * @param {*} replacements : an object with pairs "<VALUE TO REPLACE>" => REPLACEMENT
+             * @returns {String}
+             */
+            multiReplace : function (oldText,replacements) {
+                Object.keys(replacements).forEach(function(key,index) {
+                    oldText = oldText.replace(key,replacements[key]);
+                });
+                return oldText;
             },
             /**
              * @doc returns the name of the module
@@ -1674,7 +1099,7 @@ var hb = (function (hb,$) {
     var _loadedModules = ((typeof hb.getLoadedModules==="function")?hb.getLoadedModules():[]);
     _loadedModules.push(_moduleName);
     hb.getLoadedModules = function() {
-        return _loadedModules.push(_moduleName) ;
+        return _loadedModules;
     }
     return hb;
 }(hb || {},$));
@@ -1683,21 +1108,25 @@ var hb = (function (hb,$) {
 
 
 
+"use strict";
+
 /**
  * @package hbase.js
  * @doc translation.js : Contains textual message and translations for hbase project
  * @param hb - hb module
  * @param currentLocale - {ENGLISH,FRENCH}
+ * @requires util:cmn/common.js
  */
 var hb = (function (hb,currentLocale="FRENCH") {
-    "use strict";
     var _moduleName = "util:trans/translation.js";
-    if(((typeof hb.getLoadedModules==="function"?hb.getLoadedModules():[])).includes(_moduleName)) {
+    console.log(((typeof hb.getLoadedModules==="function")?hb.getLoadedModules():[]));
+    if(((typeof hb.getLoadedModules==="function")?hb.getLoadedModules():[]).includes(_moduleName)) {
         console.log(_moduleName + " already loaded, skipping");
         return hb;
     }
     hb.util = (function (util) {
-        var _requiredModules = [];
+
+        var _requiredModules = ["util:cmn/common.js"];
 
         const _LOCALES= {
             "ENGLISH": {
@@ -1714,13 +1143,57 @@ var hb = (function (hb,currentLocale="FRENCH") {
                 PREV_TEXT : "Prev",
                 NEXT_TEXT : "Next",
                 WEEK_HEADER : "Wk",
+                FORMAT_STRS : {
+                    "1": "F j Y", "2": "F j Y",
+                    "3": "F Y", "4": "S Y", "5": "Y",
+                    "6": "Y", "7": "Y", "8": "Y"
+                },
+                FORMAT_CANONICAL_STRS : {
+                    "1": "d/m/Y", "2": "d/m/Y",
+                    "3": "m/Y", "4": "s/Y", "5": "Y",
+                    "6": "Y", "7": "Y", "8": "Y"
+                },
+                FORMAT_DAY_NUMBER_SUFFIX : function(dayNumber){
+                    switch(dayNumber){
+                        case "1":
+                            return "st";
+                        case "2":
+                            return "nd";
+                        case "3":
+                            return "rd";
+                        default :
+                            return "th";
+                    }
+                },
+                FORMAT_CENTURY_NUMBER_SUFFIX : function(dayNumber){
+                    switch(dayNumber){
+                        case "1":
+                            return "st";
+                        case "2":
+                            return "nd";
+                        case "3":
+                            return "rd";
+                        default :
+                            return "th";
+                    }
+                },
+                FORMAT_BC_LABEL : "BC.",
+                FORMAT_DECADE_LABEL : "Years",
+                FORMAT_CENTURY_LABEL : "Century",
+                FORMAT_MILLENNIUM_LABEL : "Millennium",
+                FORMAT_INTERVAL_STR : "d/m/Y",
                 PARSING_TYPE_LABELS : {
-                    "1":"Precise","3":"Month","4":"Season","5":"Year",
+                    "1":"Precise","2":"Bounded","3":"Month","4":"Season","5":"Year",
                     "6":"Decade","7":"Century","8":"Millennium"
                 },
                 PARSING_TYPE_EXAMPLES : {
                     "1":"8/1/1985, 09/25/573, 06/2/-582", "3":"8/1985,09/573,06/-582", "4":"1/1985 (<WINTER> 1985),4/-582 (<FALL> -582)",
                     "5":"1985,573,-582", "6":"1980,571,-580", "7":"1980,571,-580", "8":"1980,571,-580"
+                },
+                PARSING_REGEX_STRS : {
+                    "1": "(\\d{1,2})/(\\d{1,2})/(-?\\d{1,5})$", "3": "/?(\\d{1,2})/(-?\\d{1,5})$",
+                    "4": "/?(\\d{1,2})/(-?\\d{1,5})$", "5": "/?(-?\\d{1,5})$",
+                    "6": "/?(-?\\d{1,5})$", "7": "/?(-?\\d{1,5})$", "8": "/?(-?\\d{1,5})$"
                 },
                 PARSING_PLACEHOLDERS : {
                     "1": "MM/DD/YYYY", "2": "MM/DD/YYYY;MM/DD/YYYY",
@@ -1743,10 +1216,10 @@ var hb = (function (hb,currentLocale="FRENCH") {
                     "Season '<SEASON>' isn't valid",
                     "Month '<MONTH>' isn't valid",
                     "Year '<YEAR>' isn't valid : Authored years go from -10000 to <MAX_YEAR>",
+                    "Entered value isn't parsable to bounded date. "  +
+                    "Examples of authored values : 5/15/1985;6/9/1985,04/3/-8;04/3/-7"
                 ],
-
-                dateFormat: "mm/dd/yy", // See format options on parseDate
-
+                HDATEPICKER_DEFAULT_TITLE : "Enter a date"
             },
             "FRENCH": {
                 DAY_NAMES : ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],
@@ -1762,13 +1235,35 @@ var hb = (function (hb,currentLocale="FRENCH") {
                 PREV_TEXT : "Prec.",
                 NEXT_TEXT : "Suiv.",
                 WEEK_HEADER : "Sem.",
+                FORMAT_STRS : {
+                    "1": "j F Y", "2": "j F Y",
+                    "3": "F Y", "4": "S Y", "5": "Y",
+                    "6": "Y", "7": "Y", "8": "Y"
+                },
+                FORMAT_CANONICAL_STRS : {
+                    "1": "d/m/Y", "2": "d/m/Y",
+                    "3": "m/Y", "4": "s/Y", "5": "Y",
+                    "6": "Y", "7": "Y", "8": "Y"
+                },
+                FORMAT_DAY_NUMBER_SUFFIX : function(dayNumber){return ((dayNumber==="1")?"er":"");},
+                FORMAT_CENTURY_NUMBER_SUFFIX : function(dayNumber){return ((dayNumber==="1")?"er":"e");},
+                FORMAT_BC_LABEL : "Av. JC",
+                FORMAT_DECADE_LABEL : "Années",
+                FORMAT_CENTURY_LABEL : "Siècle",
+                FORMAT_MILLENNIUM_LABEL : "Millénaire",
+                FORMAT_INTERVAL_STR : "d/m/Y",
                 PARSING_TYPE_LABELS : {
-                    "1":"Précise","3":"Mois","4":"Saison","5":"Année",
+                    "1":"Précise","2":"Imprécise","3":"Mois","4":"Saison","5":"Année",
                     "6":"Décennie","7":"Siècle","8":"Millénaire"
                 },
                 PARSING_TYPE_EXAMPLES : {
                     "1":"1/8/1985, 25/09/573, 2/06/-582", "3":"8/1985,09/573,06/-582", "4":"1/1985 (<WINTER> 1985),4/-582 (<FALL> -582)",
                     "5":"1985,573,-582", "6":"1980,571,-580", "7":"1980,571,-580", "8":"1980,571,-580"
+                },
+                PARSING_REGEX_STRS : {
+                    "1": "(\\d{1,2})/(\\d{1,2})/(-?\\d{1,5})$", "3": "/?(\\d{1,2})/(-?\\d{1,5})$",
+                    "4": "/?(\\d{1,2})/(-?\\d{1,5})$", "5": "/?(-?\\d{1,5})$",
+                    "6": "/?(-?\\d{1,5})$", "7": "/?(-?\\d{1,5})$", "8": "/?(-?\\d{1,5})$"
                 },
                 PARSING_PLACEHOLDERS : {
                     "1": "JJ/MM/AAAA", "2": "JJ/MM/AAAA;JJ/MM/AAAA",
@@ -1790,9 +1285,19 @@ var hb = (function (hb,currentLocale="FRENCH") {
                     "Le jour '<DAY>' est invalide",
                     "La saison '<SEASON>' est invalide",
                     "Le mois '<MONTH>' est invalide",
-                    "L'année '<YEAR>' est invalide : Les années autorisées vont de -10000 à <MAX_YEAR>",
+                    "L'année '<YEAR>' est invalide : Les années autorisées vont de -10000 à <MAX_YEAR>", // 4
+                    "La valeur entrée n'est pas convertible en date imprecise. "  +
+                    "Exemples de valeurs autorisées : 2/5/1985;9/6/1985,3/04/-8;2/04/-7"
                 ],
-                dateFormat: "mm/dd/yy", // See format options on parseDate
+                HDATEPICKER_DEFAULT_TITLE : "Entrez une date",
+                HDATEPICKER_TRANSLATOR : function(html){
+                    return hb.util.cmn.multiReplace(html,{
+                        "<DATE_TYPE>" : "Type de date :",
+                        "<DATE_RENDERING>" : "Rendu de la date"
+                    });
+
+
+                }
             }
         };
 
@@ -1807,23 +1312,31 @@ var hb = (function (hb,currentLocale="FRENCH") {
          * @module hb/util/trans
          * @class hb.util.trans
          */
-        util.trans = {
-            loc : _LOCALES[currentLocale],
-            /**
-             * @doc returns the name of the module
-             * @return {string}
-             */
-            getModuleName : function(){
-                return _moduleName;
+        util.trans = Object.assign({
+                /**
+                 * @doc returns current locale
+                 * @return {string}
+                 */
+                getCurrentLocale : function(){
+                    return currentLocale;
+                },
+                /**
+                 * @doc returns the name of the module
+                 * @return {string}
+                 */
+                getModuleName : function(){
+                    return _moduleName;
+                },
+                /**
+                 * @doc returns list of required modules and libraries for this module
+                 * @return {Array}
+                 */
+                getRequiredModules : function () {
+                    return _requiredModules;
+                }
             },
-            /**
-             * @doc returns list of required modules and libraries for this module
-             * @return {Array}
-             */
-            getRequiredModules : function () {
-                return _requiredModules;
-            }
-        };
+            _LOCALES[currentLocale]
+        );
         console.log(_moduleName + " loaded");
         return util;
     }(hb.util || {}));
@@ -1832,14 +1345,14 @@ var hb = (function (hb,currentLocale="FRENCH") {
     _loadedModules.push(_moduleName);
     hb.getLoadedModules = function() {
         return _loadedModules;
-    }
+    };
     return hb;
 }(hb || {}));
 
 /**
  * @package hbase.js
  * @doc date.js : utilitary functions for date handling, parsing and formatting/rendering
- * @requires hb.util.trans
+ * @requires hb.util.cmn,hb.util.trans
  */
 var hb = (function (hb) {
     "use strict";
@@ -1849,9 +1362,10 @@ var hb = (function (hb) {
         return hb;
     }
 
-
     hb.util = (function (util) {
-        var _requiredModules = ["util:trans/translation.js"];
+        var _requiredModules = ["util:cmn/common.js","util:trans/translation.js"];
+        let trans = hb.util.trans;
+        let cmn = hb.util.cmn;
 
         /**
          *
@@ -1884,13 +1398,13 @@ var hb = (function (hb) {
              * @param {Date} date
              * @returns {string}
              */
-            "l": function(date){return [date.getDay()];},
+            "l": function(date){return trans.DAY_NAMES[date.getDay()];},
             /**
              * @doc returns short textual day
              * @param {Date} date
              * @returns {string}
              */
-            "D": function(date){return ABG_DAY_NAMES[date.getDay()];},
+            "D": function(date){return trans.DAY_NAMES_SHORT[date.getDay()];},
             /**
              * @doc returns month number with initial zero
              * @param {Date} date
@@ -1908,19 +1422,19 @@ var hb = (function (hb) {
              * @param {Date} date
              * @returns {string}
              */
-            "F": function(date){return MONTH_NAMES[date.getMonth()];},
+            "F": function(date){return trans.MONTH_NAMES[date.getMonth()];},
             /**
              * @doc returns short textual month
              * @param {Date} date
              * @returns {string}
              */
-            "M": function(date){return ABG_MONTH_NAMES[date.getMonth()];},
+            "M": function(date){return trans.MONTH_NAMES_SHORT[date.getMonth()];},
             /**
              * @doc returns textual season
              * @param {Date} date
              * @returns {string}
              */
-            "S": function(date){return SEASON_NAMES[date.getSeason()];},
+            "S": function(date){return trans.SEASON_NAMES[date.getSeason()];},
             /**
              * @doc returns season number (1 winter to 4 fall)
              * @param {Date} date
@@ -1973,40 +1487,40 @@ var hb = (function (hb) {
         };
 
         const  _PARSE_REGEXS = {
-            "1": new RegExp("(\\d{1,2})\/(\\d{1,2})\/(-?\\d{1,5})$"), // DAY
-            "3": new RegExp("\/?(\\d{1,2})\/(-?\\d{1,5})$"), // MONTH
-            "4": new RegExp("\/?(\\d{1,2})\/(-?\\d{1,5})$"), // SEASON
-            "5": new RegExp("\/?(-?\\d{1,5})$"), // YEAR
-            "6": new RegExp("\/?(-?\\d{1,5})$"), // DECADE
-            "7": new RegExp("\/?(-?\\d{1,5})$"), // CENTURY
-            "8": new RegExp("\/?(-?\\d{1,5})$") // MILLENNIUM
+            "1": new RegExp(trans.PARSING_REGEX_STRS["1"]), // DAY
+            "3": new RegExp(trans.PARSING_REGEX_STRS["3"]), // MONTH
+            "4": new RegExp(trans.PARSING_REGEX_STRS["4"]), // SEASON
+            "5": new RegExp(trans.PARSING_REGEX_STRS["5"]), // YEAR
+            "6": new RegExp(trans.PARSING_REGEX_STRS["6"]), // DECADE
+            "7": new RegExp(trans.PARSING_REGEX_STRS["7"]), // CENTURY
+            "8": new RegExp(trans.PARSING_REGEX_STRS["8"]) // MILLENNIUM
         };
         const _PARSERS = {
             "1":{ // DAY
-                "DAY" : function(array){return parseInt(array[1]);},
-                "MONTH" : function(array){return parseInt(array[2]);},
-                "YEAR" : function(array){return parseInt(array[3]);}
+                "DAY" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["1"].DAY]);},
+                "MONTH" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["2"].MONTH]);},
+                "YEAR" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["3"].YEAR]);}
             },
             "3":{ // MONTH
-                "MONTH" : function(array){return parseInt(array[1]);},
-                "YEAR" : function(array){return parseInt(array[2]);}
+                "MONTH" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["3"].MONTH]);},
+                "YEAR" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["3"].YEAR]);}
             },
             "4":{ // SEASON
-                "MONTH" : function(array){return (3*(parseInt(array[1])-1)+1);},
-                "SEASON" : function(array){return parseInt(array[1]);},
-                "YEAR" : function(array){return parseInt(array[2]);}
+                "MONTH" : function(array){return (3*(parseInt(array[trans.PARSING_PLACEMENT["4"].MONTH])-1)+1);},
+                "SEASON" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["4"].SEASON]);},
+                "YEAR" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["4"].YEAR]);}
             },
             "5":{ // YEAR
-                "YEAR" : function(array){return parseInt(array[1]);}
+                "YEAR" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["5"].YEAR]);}
             },
             "6":{ // DECADE
-                "YEAR" : function(array){return Math.floor(parseInt(array[1])/10)*10;}
+                "YEAR" : function(array){return Math.floor(parseInt(array[trans.PARSING_PLACEMENT["6"].YEAR])/10)*10;}
             },
             "7":{ // CENTURY
-                "YEAR" : function(array){return Math.floor(parseInt(array[1])/100)*100;}
+                "YEAR" : function(array){return Math.floor(parseInt(array[trans.PARSING_PLACEMENT["7"].YEAR])/100)*100;}
             },
             "8":{ // MILLENNIUM
-                "YEAR" : function(array){return Math.floor(parseInt(array[1])/1000)*1000;}
+                "YEAR" : function(array){return Math.floor(parseInt(array[trans.PARSING_PLACEMENT["8"].YEAR])/1000)*1000;}
             }
         };
 
@@ -2400,36 +1914,27 @@ var hb = (function (hb) {
                  * @returns {Date|null}
                  */
                 function parser(sDate,errors=[]) {
-
                     let regexArray = parseRegex.exec(sDate);
                     if (regexArray === null){
-                        let typeLabelArray = {"1":"Précise","3":"mois","4":"saison","5":"année",
-                            "6":"decennie","7":"siècle","8":"millénaire"};
-                        let exampleLabelArray = {"1":"1/8/1985, 01/09/573, 2/06/-582",
-                            "3":"8/1985,09/573,06/-582",
-                            "4":"1/1985 (hiver 1985),4/-582 (automne -582)",
-                            "5":"1985,573,-582",
-                            "6":"1980,571,-580",
-                            "7":"1980,571,-580",
-                            "8":"1980,571,-580"};
-
-                        errors.push("'"+ sDate + " n'est pas convertible en date (" +
-                            typeLabelArray[type] + "). Exemples de valeurs autorisées : " +
-                            exampleLabelArray[type]);
+                        errors.push(cmn.multiReplace(
+                            trans.PARSING_ERRORS[0],
+                            {"<SDATE>":sDate,
+                                "<PARSING_TYPE>":trans.PARSING_TYPE_LABELS[type],
+                                "<PARSING_EXAMPLE>":trans.PARSING_TYPE_EXAMPLES[type]}
+                        ));
                         return null;
                     }
                     let date = null,day  = 1, month = 1,season = 1,year = 1;
                     let parsers = _PARSERS[type];
-                    if(typeof parsers["DAY"] === "function"){day = parsers["DAY"](regexArray);}
-                    if(typeof parsers["MONTH"] === "function"){month = parsers["MONTH"](regexArray);}
-                    if(typeof parsers["SEASON"] === "function"){season = parsers["SEASON"](regexArray);}
-                    if(typeof parsers["YEAR"] === "function"){day = parsers["YEAR"](regexArray);}
+                    if(typeof parsers.DAY === "function"){day = parsers.DAY(regexArray);}
+                    if(typeof parsers.MONTH === "function"){month = parsers.MONTH(regexArray);}
+                    if(typeof parsers.SEASON === "function"){season = parsers.SEASON(regexArray);}
+                    if(typeof parsers.YEAR === "function"){day = parsers.YEAR(regexArray);}
 
-                    if(day<1 || day>31){errors.push("Le jour '" + day + "' est invalide");}
-                    if(season<1 || season>4){errors.push("La saison '" + season + "' est invalide");}
-                    if(month<1 || month>12){errors.push("Le mois '" + month + "' est invalide");}
-                    if(year<-10000 || year>module.getMaxYear()){errors.push("L'année '" + year + "' est invalide" +
-                        " : les années autorisées vont de -10000 à " + module.getMaxYear());}
+                    if(day<1 || day>31){errors.push(cmn.multiReplace(trans.PARSING_ERRORS[1], {"<DAY>":day}));}
+                    if(season<1 || season>4){errors.push(cmn.multiReplace(trans.PARSING_ERRORS[2], {"<SEASON>":season}));}
+                    if(month<1 || month>12){errors.push(cmn.multiReplace(trans.PARSING_ERRORS[3], {"<MONTH>":month}));}
+                    if(year<-10000 || year>module.getMaxYear()){errors.push(cmn.multiReplace(trans.PARSING_ERRORS[4], {"<YEAR>":year}));}
                     if(errors.length===0){ date = module.correctYear(new Date(year,month-1,day),year);}
                     return date;
                 }
@@ -2462,344 +1967,845 @@ var hb = (function (hb) {
     return hb;
 }(hb || {}));
 
-"use strict";
-
-
-
-
-
-//functions of formatting
-HDate.prototype.formatters = {
-    "1":myFormatPatternDate('j F Y'),
-    "2":myFormatPatternDate('j F Y'),
-    "3":myFormatPatternDate('F Y'),
-    "4":myFormatPatternDate('S Y'),
-    "5":myFormatPatternDate('Y'),
-    "6":myFormatPatternDate('Y'),
-    "7":myFormatPatternDate('Y'),
-    "8":myFormatPatternDate('Y')
-};
-HDate.prototype.canonicalInputFormatters = {
-    "1":myFormatPatternDate('d/m/Y'),
-    "2":myFormatPatternDate('d/m/Y'),
-    "3":myFormatPatternDate('m/Y'),
-    "4":myFormatPatternDate('s/Y'),
-    "5":myFormatPatternDate('Y'),
-    "6":myFormatPatternDate('Y'),
-    "7":myFormatPatternDate('Y'),
-    "8":myFormatPatternDate('Y')
-};
-HDate.prototype.intervalFormatter = myFormatPatternDate('d/m/Y');
-
 /**
- * @doc HDate object constructor
- * @param {string|number} type : "1" - "8"
- * @param {Date} date
- * @param {Date|null} endDate
- * @return {HDate}
+ * @package HDate.js
+ * @doc common.js : HDate class definition
+ * @requires hb.util.cmn,hb.util.date,hb.util.trans
  */
-function HDate(type,date,endDate = null)
-{
-    if(Number.isInteger(type)){type=Number.toString(type);}
-    if (this.types.indexOf(type) === -1){throw "invalid type for HDate";}
-    this.beginDate = date;
-    this.endDate = endDate;
-    this.setType(type);
-    return this;
-}
-
-HDate.prototype = {
-    PRECISE:"1",
-    BOUNDED:"2",
-    MONTH:"3",
-    SEASON:"4",
-    YEAR:"5",
-    DECADE:"6",
-    CENTURY:"7",
-    MILLENIA:"8",
-    availableTypes:["1","2","3","4","5","6","7","8"],
-
-
-}
-
-
-
-/**
- * @doc HDate prototype clone function
- * @returns {HDate}
- */
-HDate.prototype.clone = function()
-{
-    return new HDate(this.type,this.beginDate.clone(),this.endDate.clone());
-};
-
-/**
- * @doc : determines if two HDates are equals (same types and dates)
- * @param {HDate} hDate
- * @returns {boolean}
- */
-HDate.prototype.equals = function(hDate)
-{
-    if (this.type === hDate.type && this.beginDate === hDate.beginDate &&
-        this.endDate === hDate.endDate){return true;}
-    return false;
-};
-
-
-
-
-/**
- * @doc : return the requested bound date : beginDate if 0 and endDate if 1
- * @param {int} bound : 0 or 1
- * @returns {Date}
- */
-HDate.prototype.getBoundDate = function(bound)
-{
-    if (bound === 0){
-        return this.beginDate;
+var hb = (function (hb) {
+    "use strict";
+    var _moduleName = "util:HDate/HDate.js";
+    if(((typeof hb.getLoadedModules==="function"?hb.getLoadedModules():[])).includes(_moduleName)) {
+        console.log(_moduleName + " already loaded, skipping");
+        return hb;
     }
-    else if(bound === 1){
-        return this.endDate;
-    }
-    else{
-        return null;
-    }
-};
-//return the canonical input for the HDate
-HDate.prototype.getCanonicalInput = function()
-{
-    var formatter = this.canonicalInputFormatters[this.type];
+    hb.util = (function (util) {
+        var _requiredModules = ["util:cmn/cmn.js","util:date/date.js","util:trans/translation.js"];
+        let hd = hb.util.date;
+        let trans = hb.util.trans;
 
-    if(this.type === this.BOUNDED){
-        return (formatter(this.beginDate) + ";" + formatter(this.endDate));
-    }
-    else if(this.type === this.SEASON){
-        return formatter(this.beginDate.clone().switchToNextMonth(true));
-    }
-    else{
-        return formatter(this.beginDate);
-    }
-};
-/**
- * @doc returns display of the interval for control during user entry
- * @returns {string}
- */
-HDate.prototype.getIntervalLabel= function()
-{
-    var formatter = this.intervalFormatter;
-    return "[" + formatter(this.beginDate) + " ; " + formatter(this.endDate) + "]";
-};
+        let _availableTypes = ["1","2","3","4","5","6","7","8"];
+        console.log(1);
+        let _formatters = {
+            "1":hd.getFormatterFromPattern(trans.FORMAT_STRS["1"]),
+            "2":hd.getFormatterFromPattern(trans.FORMAT_STRS["2"]),
+            "3":hd.getFormatterFromPattern(trans.FORMAT_STRS["3"]),
+            "4":hd.getFormatterFromPattern(trans.FORMAT_STRS["4"]),
+            "5":hd.getFormatterFromPattern(trans.FORMAT_STRS["5"]),
+            "6":hd.getFormatterFromPattern(trans.FORMAT_STRS["6"]),
+            "7":hd.getFormatterFromPattern(trans.FORMAT_STRS["7"]),
+            "8":hd.getFormatterFromPattern(trans.FORMAT_STRS["8"])
+        };
+        console.log(2);
+        let _intervalFormatter = hd.getFormatterFromPattern(trans.FORMAT_INTERVAL_STR);
+        console.log(3);
+        let _canonicalFormatters = {
+            "1":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["1"]),
+            "2":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["2"]),
+            "3":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["3"]),
+            "4":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["4"]),
+            "5":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["5"]),
+            "6":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["6"]),
+            "7":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["7"]),
+            "8":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["8"])
+        };
+        console.log(4);
+        /**
+         * @doc HDate object constructor
+         * @class hb.util.HDate
+         * @param {string|number} type : "1" - "8"
+         * @param {Date} date
+         * @param {Date|null} endDate
+         * @return {hb.util.HDate}
+         */
+        util.HDate = function(type,date,endDate = null)
+        {
+            if(Number.isInteger(type)){type=type.toString();}
+            if (_availableTypes.indexOf(type) === -1){throw "invalid type for HDate";}
+            this.beginDate = date;
+            this.endDate = endDate;
+            this.setType(type);
+            return this;
+        };
 
+        let _prototype = {
+            /**
+             * @doc HDate prototype clone function
+             * @returns {HDate}
+             */
+            clone : function() {
+                return new HDate(this.type,hd.clone(this.beginDate),hd.clone(this.endDate));
+            },
+            /**
+             * @doc : determines if two HDates are equals (same types and dates)
+             * @param {HDate} hDate
+             * @returns {boolean}
+             */
+            equals : function(hDate) {
+                return (this.type === hDate.type && this.beginDate === hDate.beginDate &&
+                    this.endDate === hDate.endDate);
+            },
+            /**
+             * @doc : returns the requested bound date : beginDate if 0 and endDate if 1
+             * @param {int} bound : 0 or 1
+             * @returns {Date}
+             */
+            getBoundDate : function(bound) {
+                if (bound === 0){return this.beginDate;}
+                else if(bound === 1){return this.endDate;}
+                else{return null;}
+            },
+            /**
+             * @doc : returns the canonical input for this HDate, eg the input to enter to reparse it
+             * @returns {string}
+             */
+            getCanonicalInput : function()
+            {
+                let formatter = _canonicalFormatters[this.type];
 
-/**
- * @doc HDate parser function : returns the HDate generated from its JSON representation
- * @param {string} jsonStr
- * @returns {HDate}
- */
-HDate.prototype.parse = function(jsonStr)
-{
-    var jsonObj = JSON.parse(jsonStr);
-    jsonObj.beginDate = new Date(Date.parse(jsonObj.beginDate));
-    jsonObj.endDate = new Date(Date.parse(jsonObj.endDate));
-    return new HDate(jsonObj.type,jsonObj.beginDate,jsonObj.endDate);
-};
+                if(this.type === "2"){
+                    return (formatter(this.beginDate) + ";" + formatter(this.endDate));
+                }
+                else if(this.type === "4"){
+                    return formatter(hd.switchToNextMonth(hd.clone(this.beginDate)));
+                }
+                else{
+                    return formatter(this.beginDate);
+                }
+            },
+            /**
+             * @doc : gets the number of days between HDate begin date and end date
+             * @returns {int}
+             */
+            getIntervalSize : function () {
+                return hd.dayDiff(this.endDate,this.beginDate);
+            },
+            /**
+             * @doc returns display of the interval for control during user entry
+             * @returns {string}
+             */
+            getIntervalLabel:function() {
+                return "[" + _intervalFormatter(this.beginDate) + " ; " + _intervalFormatter(this.endDate) + "]";
+            },
+            /**
+             * @doc : determine if the HDate is exact ie its begin and endDate are the same (same day)
+             * @returns {boolean}
+             */
+            isExact : function() {
+                if(this.beginDate === null || this.endDate === null ||
+                    typeof this.beginDate === "undefined" || typeof this.endDate === "undefined"){return true;}
+                return (hd.dayDiff(this.endDate,this.beginDate) === 0);
+            },
+            /**
+             * @doc HDate json parser/creator function : returns the HDate generated from its JSON representation
+             * @param {string} jsonStr
+             * @returns {HDate}
+             */
+            parseFromJson : function(jsonStr)
+            {
+                let jsonObj = JSON.parse(jsonStr);
+                jsonObj.beginDate = new Date(Date.parse(jsonObj.beginDate));
+                jsonObj.endDate = new Date(Date.parse(jsonObj.endDate));
+                return new HDate(jsonObj.type,jsonObj.beginDate,jsonObj.endDate);
+            },
+            /**
+             * @doc type setter for HDate
+             * @param {string|number} type : "1" - "8"
+             */
+            setType(type) {
+                if(Number.isInteger(type)){type=type.toString();}
+                switch(type){
+                    case "1":
+                        this.endDate = hb.util.date.clone(this.beginDate);
+                        break;
+                    case "2":
+                        this.endDate = (this.endDate !== null)?this.endDate:hd.clone(this.beginDate);
+                        if(hd.dayDiff(this.endDate,this.beginDate) === 0) hd.addDay(this.endDate,1);
+                        break;
+                    case "3":
+                        hd.rewindToMonthFirst(this.beginDate);
+                        this.endDate = hd.addDay(hd.switchToNextMonth(hd.clone(this.beginDate),true),-1);
+                        break;
+                    case "4":
+                        hd.rewindToSeasonFirst(this.beginDate);
+                        this.endDate = hd.addDay(hd.switchToNextSeason(hd.clone(this.beginDate),true),-1);
+                        break;
+                    case "5":
+                        hd.rewindToYearFirst(this.beginDate);
+                        this.endDate = hd.addDay(hd.switchToNextYear(hd.clone(this.beginDate),true),-1);
+                        break;
+                    case "6":
+                        hd.rewindToDecadeFirst(this.beginDate);
+                        this.endDate = hd.addDay(hd.switchToNextDecade(hd.clone(this.beginDate),true),-1);
+                        break;
+                    case "7":
+                        hd.rewindToCenturyFirst(this.beginDate);
+                        this.endDate = hd.addDay(hd.switchToNextCentury(hd.clone(this.beginDate),true),-1);
+                        break;
+                    case "8":
+                        hd.rewindToMillenniumFirst(this.beginDate);
+                        this.endDate = hd.addDay(hd.switchToNextMillennium(hd.clone(this.beginDate),true),-1);
+                        break;
+                    default:break;
+                }
+                this.type = type;
+            },
+            /**
+             * @doc : return display label for this HDate
+             * @returns {string}
+             */
+            getLabel() {
+                let formatter = _formatters[this.type];
+                let pieces=[];
+                let label = formatter(this.beginDate,pieces);
+                let BC;
 
-/**
- * @doc type setter for HDates : to use for every type setting
- * @param {string|number} type : "1" - "8"
- * @return {HDate}
- */
-HDate.prototype.setType = function(type)
-{
-    if(Number.isInteger(type)){type=Number.toString(type);}
-    switch(type){
-        case this.PRECISE:
-            this.endDate = this.beginDate.clone();
-            break;
-        case this.BOUNDED:
-            this.endDate = (this.endDate !== null)?this.endDate:this.beginDate.clone();
-            if(this.endDate.dayDiff(this.beginDate) === 0) this.endDate.addDay(1);
-            break;
-        case this.MONTH:
-            this.beginDate.rewindToMonthFirst();
-            this.endDate = this.beginDate.clone().switchToNextMonth(true).addDay(-1);
-            break;
-        case this.SEASON:
-            this.beginDate = this.beginDate.rewindToSeasonFirst();
-            this.endDate = this.beginDate.clone().switchToNextSeason(true).addDay(-1);
-            break;
-        case this.YEAR:
-            this.beginDate.rewindToYearFirst();
-            this.endDate = this.beginDate.clone().switchToNextYear(true).addDay(-1);
-            break;
-        case this.DECADE:
-            this.beginDate.rewindToDecadeFirst();
-            this.endDate = this.beginDate.clone().switchToNextDecade(true).addDay(-1);
-            break;
-        case this.CENTURY:
-            this.beginDate.rewindToCenturyFirst();
-            this.endDate = this.beginDate.clone().switchToNextCentury(true).addDay(-1);
-            break;
-        case this.MILLENIA:
-            this.beginDate.rewindToMilleniaFirst();
-            this.endDate = this.beginDate.clone().switchToNextMillenia(true).addDay(-1);
-            break;
-        default:break;
-    }
-    this.type = type;
-    return this;
-};
-
-
-/**
- * @doc : get the number of days between HDate begin date and end date
- * @returns {int}
- */
-HDate.prototype.getIntervalSize = function ()
-{
-    return this.endDate.dayDiff(this.beginDate);
-};
-/**
- * @doc : return display label for this HDate
- * @returns {string}
- */
-HDate.prototype.getLabel= function()
-{
-    var formatter = this.formatters[this.type];
-    var pieces=[];
-    var label = formatter(this.beginDate,pieces);
-    var BC;
-
-    // specific code for rendering
-    if(this.type === this.BOUNDED) {
-        var endPieces=[];
-        formatter(this.endDate,endPieces);
-        var totalLabel="";
-        for (var index=4;index>-1;index--){
-            if(pieces[index] === endPieces[index]){
-                totalLabel = pieces[index] + totalLabel;
+                // specific code for rendering
+                if(this.type === "2") {
+                    let endPieces=[];
+                    formatter(this.endDate,endPieces);
+                    let totalLabel="";
+                    for (var index=4;index>-1;index--){
+                        if(pieces[index] === endPieces[index]){
+                            totalLabel = pieces[index] + totalLabel;
+                        }
+                        else{index++;break;}
+                    }
+                    let preBeginLabel = "",preEndLabel = "";
+                    for(let index2=0;index2<index;index2++){
+                        preBeginLabel+= pieces[index2];
+                        preEndLabel+= endPieces[index2];
+                    }
+                    if(preBeginLabel !== ""){totalLabel = preBeginLabel + "~" + preEndLabel + totalLabel;}
+                    label = totalLabel;
+                }
+                else if(this.type === "1") {
+                    pieces[trans.PARSING_PLACEMENT["1"].DAY-1] +=trans.FORMAT_DAY_NUMBER_SUFFIX(trans.PARSING_PLACEMENT["1"].DAY-1);
+                    label = pieces.join("");
+                }
+                else if(this.type === "4" && (pieces[0]).toUpperCase() === trans.SEASON_NAMES[0]){
+                    pieces[pieces.length-1] = pieces[pieces.length-1] +
+                        ((Number(pieces[pieces.length-1])>=-1)?"-":"")  +
+                        (Number(pieces[pieces.length-1]) + 1);
+                    label = pieces.join("");
+                }
+                else if(this.type === "6"){
+                    label = trans.FORMAT_DECADE_LABEL + " " + label;
+                }
+                else if(this.type === "7"){
+                    let century = Math.floor(Number(label)/100);
+                    BC = century < 0;
+                    let absoluteCentury = BC?Math.abs(century):(century + 1);
+                    label = util.cmn.convertArabicToRoman(absoluteCentury) +
+                        trans.FORMAT_CENTURY_NUMBER_SUFFIX(absoluteCentury +"") + " " +
+                        trans.FORMAT_CENTURY_LABEL +
+                        (BC?(" " + trans.FORMAT_BC_LABEL):"");
+                }
+                else if(this.type === this.MILLENIA){
+                    let millennium = Math.floor(Number(label)/1000);
+                    BC = millennium < 0;
+                    let absoluteMillennium = BC?Math.abs(millennium):(millennium + 1);
+                    label = util.cmn.convertArabicToRoman(absoluteMillennium) +
+                        trans.FORMAT_CENTURY_NUMBER_SUFFIX(absoluteMillennium +"") + " " +
+                        trans.FORMAT_MILLENNIUM_LABEL +
+                        (BC?(" " + trans.FORMAT_BC_LABEL):"");
+                }
+                return label;
             }
-            else{index++;break;}
-        }
-        var preBeginLabel = "",preEndLabel = "";
-        for(var index2=0;index2<index;index2++){
-            preBeginLabel+= pieces[index2];
-            preEndLabel+= endPieces[index2];
-        }
-        if(preBeginLabel !== ""){totalLabel = preBeginLabel + "~" + preEndLabel + totalLabel;}
-        label = totalLabel;
+        };
+        Object.assign(util.HDate.prototype,_prototype);
+
+        console.log(_moduleName + " loaded");
+        return util;
+    }(hb.util || {}));
+
+    let _loadedModules = ((typeof hb.getLoadedModules==="function")?hb.getLoadedModules():[]);
+    _loadedModules.push(_moduleName);
+    hb.getLoadedModules = function() {
+        return _loadedModules;
     }
-    else if(this.type === this.PRECISE && pieces[0] === "1") {
-        pieces[0] = "1er";
-        label = pieces.join("");
-    }
-    else if(this.type === this.SEASON && (pieces[0]).toUpperCase() === "HIVER"){
-        pieces[pieces.length-1] = pieces[pieces.length-1] +
-            ((Number(pieces[pieces.length-1])>=-1)?"-":"")  +
-            (Number(pieces[pieces.length-1]) + 1);
-        label = pieces.join("");
-    }
-    else if(this.type === this.DECADE){
-        label = "Années " + label;
-    }
-    else if(this.type === this.CENTURY){
-        var century = Math.floor(Number(label)/100);
-        BC = century < 0;
-        var absoluteCentury = BC?Math.abs(century):(century + 1);
-
-        label = arabicToRomanNumber(absoluteCentury) +
-            ((absoluteCentury === 1)?"er":"e") +
-            " siècle" +
-            (BC?" Av. JC":"");
-    }
-    else if(this.type === this.MILLENIA){
-        var millenia = Math.floor(Number(label)/1000);
-        BC = millenia < 0;
-        var absoluteMillenia = BC?Math.abs(millenia):(millenia + 1);
-
-        label = arabicToRomanNumber(absoluteMillenia) +
-            ((absoluteMillenia === 1)?"er":"e") +
-            " millénaire" +
-            (BC?" Av. JC":"");
-    }
-    return label;
-};
-/**
- * @doc : determine if the HDate is exact ie its begin and endDate are the same (same day)
- * @returns {boolean}
- */
-HDate.prototype.isExact = function()
-{
-    if(this.beginDate === null || this.endDate === null ||
-        typeof this.beginDate === "undefined" || typeof this.endDate === "undefined"){return true;}
-    return (this.endDate.dayDiff(this.beginDate) === 0);
-};
-
-
-
-
-
-
-
-
-
-
-
-
+    return hb;
+}(hb || {}));
 
 /**
- * this file contains usefull function to draw some simple geometrical forms with D3
+ * @package geometry.js
+ * @doc geometry.js : Contains various geometry functions for hbase
  */
+var hb = (function (hb) {
+    "use strict";
+    var _moduleName = "util:geom/geometry.js";
+    if(((typeof hb.getLoadedModules==="function"?hb.getLoadedModules():[])).includes(_moduleName)) {
+        console.log(_moduleName + " already loaded, skipping");
+        return hb;
+    }
+    hb.util = (function (util) {
+        var _requiredModules = [];
+        /**
+         * @module hb/util/geom
+         * @class hb.util.geom
+         */
+        util.geom = {
+            /** @doc returns D3 points for htsChevron : takes for argument the upper point and the peak point
+             * @param {Number} x1
+             * @param {Number} y1
+             * @param {Number} x2
+             * @param {Number} y2
+             * @returns {String}
+             * */
+            getChevronDefPoints : function(x1,y1,x2,y2){
+                return ['M',x1,y1,
+                    'L',x2,y2,
+                    'L',x1,(y1 + 2*(y2-y1)),
+                    'L',x1+((x2-x1)/2),y2,
+                    'Z'].join(' ');
+            },
 
-/** return D3 points for htsChevron
- * take in argument the upper point and the peak point*/
-function htsChevron(x1,y1,x2,y2){
-	return ['M',x1,y1,
-		'L',x2,y2,
-		'L',x1,(y1 + 2*(y2-y1)),
-		'L',x1+((x2-x1)/2),y2,
-		'Z'].join(' ');
-}
+            /** @doc returns D3 points for isocel triangle : takes for argument the upper point and the peak point
+             * @param {Number} x1
+             * @param {Number} y1
+             * @param {Number} x2
+             * @param {Number} y2
+             * @returns {String}
+             * */
+            getTriangleDefPoints : function(x1,y1,x2,y2){
+                return ['M',x1,y1,
+                    'L',x2,y2,
+                    'L',x1,(y1 + 2*(y2-y1)),
+                    'Z'].join(' ');
+            },
+            /** @doc returns D3 points for diamond : takes for argument the upper point and lower point coordinates and the ratio horizontal vs vertical
+             * @param {Number} x1
+             * @param {Number} y1
+             * @param {Number} x2
+             * @param {Number} y2
+             * @param {Number} ratio
+             * @returns {String}
+             */
+            getDiamondDefPoints : function(x1,y1,x2,y2,ratio){
+                var horizontalArrow = ratio*Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2));
+                var angle = Math.atan((x1-x2)/(y2-y1));
 
-/** return D3 points for htsTriangle (isocel)
- * take in argument the upper point and the peak point*/
-function htsTriangle(x1,y1,x2,y2){
-	return ['M',x1,y1,
-		'L',x2,y2,
-		'L',x1,(y1 + 2*(y2-y1)),
-		'Z'].join(' ');
-}
+                var xc = x1 + (x2-x1)/2;
+                var yc = y1 + (y2-y1)/2;
 
-/** return D3 points for htsDiamond
- * take in argument the upper point and lower point coordinates and the ratio horizontal vs vertical */
-function htsDiamond(x1,y1,x2,y2,ratio){
-	var horizontalArrow = ratio*Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2));
-	var angle = Math.atan((x1-x2)/(y2-y1));
+                var x3 = xc + 0.5*horizontalArrow * Math.cos(angle);
+                var y3 = yc + 0.5*horizontalArrow * Math.sin(angle);
+                var x4 = xc - 0.5*horizontalArrow * Math.cos(angle);
+                var y4 = yc - 0.5*horizontalArrow * Math.sin(angle);
 
-	var xc = x1 + (x2-x1)/2;
-	var yc = y1 + (y2-y1)/2;
+                return ['M',x1,y1,
+                    'L',x3,y3,
+                    'L',x2,y2,
+                    'L',x4,y4,
+                    'Z'].join(' ');
+            },
+            /** @doc returns D3 points for ArrowPeak : takes for argument the left upper point,the left upper peak point and the peak right point
+             * @param {Number} x1
+             * @param {Number} y1
+             * @param {Number} x2
+             * @param {Number} y2
+             * @param {Number} x3
+             * @param {Number} y3
+             * @returns {String} */
+            getArrowDefPoints : function(x1,y1,x2,y2,x3,y3){
+            return ['M',x1,y1,
+                'L',x2,y1,
+                'L',x2,y2,
+                'L',x3,y3,
+                'L',x2,y2+2*(y3-y2),
+                'L',x2,y1+2*(y3-y1),
+                'L',x1,y1+2*(y3-y1),
+                'Z'].join(' ');
+        },
+        /**
+         * @doc returns the name of the module
+         * @return {string}
+         */
+        getModuleName : function() {
+            return _moduleName;
+        },
+        /**
+         * @doc returns list of required modules and libraries for this module
+         * @return {Array}
+         */
+        getRequiredModules : function () {
+            return _requiredModules;
+        }
+    };
+        console.log(_moduleName + " loaded");
+        return util;
+    }(hb.util || {}));
 
-	var x3 = xc + 0.5*horizontalArrow * Math.cos(angle);
-	var y3 = yc + 0.5*horizontalArrow * Math.sin(angle);
-	var x4 = xc - 0.5*horizontalArrow * Math.cos(angle);
-	var y4 = yc - 0.5*horizontalArrow * Math.sin(angle);
+    let _loadedModules = ((typeof hb.getLoadedModules==="function")?hb.getLoadedModules():[]);
+    _loadedModules.push(_moduleName);
+    hb.getLoadedModules = function() {
+        return _loadedModules;
+    }
+    return hb;
+}(hb || {}));
 
-	return ['M',x1,y1,
-		'L',x3,y3,
-		'L',x2,y2,
-		'L',x4,y4,
-		'Z'].join(' ');
-}
+/**
+ * @package hbase.js
+ * @doc HDatePicker.js : HDatePicker modal definition
+ * @requires jQuery,jQueryUI
+ */
+var hb = (function (hb,$) {
+    "use strict";
+    var _moduleName = "ui:HDatePicker/HDatePicker.js";
+    if(((typeof hb.getLoadedModules==="function"?hb.getLoadedModules():[])).includes(_moduleName)) {
+        console.log(_moduleName + " already loaded, skipping");
+        return hb;
+    }
+    hb.ui = (function (ui,hb,$) {
+        var _requiredModules = ["util:cmn/cmn.js","util:date/date.js",
+            "util:trans/translation.js","util:HDate/HDate.js"];
 
-/** return D3 points for htsArrowPeak
- * take in argument the left upper point,the left upper peak point and the peak right point */
-function htsArrow(x1,y1,x2,y2,x3,y3){
-	return ['M',x1,y1,
-		'L',x2,y1,
-		'L',x2,y2,
-		'L',x3,y3,
-		'L',x2,y2+2*(y3-y2),
-		'L',x2,y1+2*(y3-y1),
-		'L',x1,y1+2*(y3-y1),
-		'Z'].join(' ');
-}
+        const _PARSERS = {
+            "1":hb.util.date.getParserFromStyle("1"),
+            "3":hb.util.date.getParserFromStyle("3"),
+            "4":hb.util.date.getParserFromStyle("4"),
+            "5":hb.util.date.getParserFromStyle("5"),
+            "6":hb.util.date.getParserFromStyle("6"),
+            "7":hb.util.date.getParserFromStyle("7"),
+            "8":hb.util.date.getParserFromStyle("8"),
+        };
+        /**
+         * @doc setDefaultOption for HDatePicker
+         * @param option
+         * @returns {object}
+         * @private
+         */
+        let _setDefaultOption = function(option) {
+            option.z = option.z || 7;
+            option.fadeTime = option.fadeTime || 250;
+            option.title = option.title || hb.util.trans.HDATEPICKER_DEFAULT_TITLE;
+            option.position = option.position|| { my: "left top", at: "left bottom", of: null };
+            return option;
+        };
+        /**
+         * @doc apply options to HDatePicker
+         * @param {hb.ui.HDatePicker} picker
+         * @private
+         */
+        let _applyOption = function(picker){
+            let $modal = picker.$modal;
+            $modal.dialog( "option", "title", picker.option.title );
+            $modal.dialog( picker.option.position );
+        };
+        /**
+         * @doc builds modal for HDatePicker
+         * @param {hb.ui.HDatePicker} picker
+         * @private
+         */
+        let _build = function(picker) {
+            let $modal = picker.$modal;
+            $modal.find(".ui-dialog-titlebar-close").hide();
+            $modal.append("<label class='mx-2'><DATE_TYPE></label>&nbsp;");
+            $modal.typeSelector = $("<select class='ui-corner-all'>").appendTo($modal);
+            $(Object.keys(hb.util.trans.PARSING_TYPE_LABELS)).each(function(key){
+                $modal.typeSelector.append($("<option>", {value: key,text: hb.util.trans.PARSING_TYPE_LABELS[key]}));
+            });
+            $modal.append("<br>");
+
+            let $labelContainer = $("<div class='text-muted m-r visible-md-inline-block visible-lg-inline-block'>").appendTo($modal);
+            $modal.inputLabel = $("<p/>").appendTo($labelContainer);
+            $modal.inputContainer = $("<div>").appendTo($modal);
+            $modal.dateInput = $("<input type='text' class='ui-corner-all' style='min-height:23px' required='required' maxlength='30' size='20'>").
+            appendTo($modal.inputContainer);
+            $modal.validateButton = $("<button class='btn btn-primary'></button>").button({icon: "ui-icon-circle-close"}).appendTo($modal.inputContainer);
+
+            $modal.errorSpan = $("<div disabled='disabled' class='ui-state-error alert alert-danger'></div>").appendTo($modal);
+            $modal.append("<label><DATE_RENDERING></label> : ");
+            $modal.dateLabel = $("<label>").appendTo($modal);
+            $modal.append("<br>").append("<label>[min;max]</label> : ");
+            $modal.dateInterval = $("<label>").appendTo($modal);
+            $modal.append("<br>");
+
+            $modal.html(hb.util.trans.HDATEPICKER_TRANSLATOR($modal.html()));
+        };
+        /**
+         * @doc refresh HDatePicker
+         * @param {hb.ui.HDatePicker} picker
+         * @param {boolean} total - if true type and input values are updated from the current hdate value
+         * @private
+         */
+        let _refresh = function(picker,total = false)
+        {
+            let $modal = picker.$modal;
+            let type = $modal.typeSelector.find(":selected").val();
+            $modal.inputLabel.text(hb.util.trans.PARSING_HELP[type]);
+            $modal.dateLabel.empty();
+            $modal.dateInterval.empty();
+            if(total){$modal.dateInput.empty();}
+            if(picker.hDate !== null){
+                if(total){
+                    $modal.dateInput.val(picker.hDate.getCanonicalInput());
+                    $modal.typeSelector.val(picker.hDate.type);
+                }
+                $modal.dateInput.attr("placeholder",hb.util.trans.PARSING_PLACEHOLDERS[type]);
+                $modal.dateLabel.text($modal.hDate.getLabel());
+                $modal.dateInterval.text($modal.hDate.getIntervalLabel());
+            }
+            $modal.validateButton.button("enable").removeClass("ui-state-error");
+            $modal.validateButton.children().first().removeClass("ui-icon-circle-close").addClass("ui-icon-check");
+            $modal.errorSpan.hide();
+            $modal.validateButton.show();
+
+            // if date value is empty validation icon isn"t displayed
+            if($modal.dateInput.val() === "" ){$modal.validateButton.hide();}
+            else if(picker.errors.length > 0 ){
+                $modal.validateButton.button("disable").addClass("ui-state-error");
+                $modal.validateButton.children().first().removeClass("ui-icon-check").addClass("ui-icon-circle-close");
+                $modal.errorSpan.show();
+                $modal.errorSpan.text(picker.errors[0]);
+            }
+        };
+        /**
+         * function to call when input is changed
+         * @param {hb.ui.HDatePicker} picker
+         * @private
+         */
+        let _onInputChange = function(picker) {
+            let $modal = picker.$modal;
+            let type = $modal.typeSelector.find(":selected").val();
+            let sDate = $modal.dateInput.val();
+            picker.errors=[];
+
+            picker.hDate = null;
+            let date = null;
+            if(type === "2"){
+                let regex = new RegExp("^([^;]+);([^;]+)$");
+                let regexArray = regex.exec(sDate);
+                if(regexArray === null) {
+                    picker.errors.push(hb.util.trans.PARSING_ERRORS[5]);
+                    _refresh(picker,false);
+                    return;
+                }
+
+                date = _PARSERS["1"](regexArray[1],picker.errors);
+                let endDate = _PARSERS["1"](regexArray[2],picker.errors);
+
+                if(date !== null && endDate !== null){
+                    if(hb.util.date.dayDiff(endDate,date) < 1){
+                        picker.errors.push("La date de fin doit être strictement posterieure à la date de début");
+                        _refresh(picker,false);
+                        return;
+                    }
+                    picker.hDate = new HDate("2",date,endDate);
+                }
+            }
+            else{
+                date = _PARSERS[type](sDate,picker.errors);
+                if(date !== null) {picker.hDate = new HDate(type,date);}
+            }
+            _refresh(picker,false);
+        };
+        /**
+         * @doc function to call when hdate type is changed
+         * @param {hb.ui.HDatePicker} picker
+         * @private
+         */
+        let _onTypeChange = function(picker) {
+            let $modal = picker.$modal;
+            let type = $modal.typeSelector.find(":selected").val();
+
+            if (picker.hDate !== null && picker.errors.length < 1){
+                picker.hDate.setType(type);
+                $modal.dateInput.val(picker.hDate.getCanonicalInput());
+                _refresh(picker);
+            }
+            else{
+                _onInputChange(picker);
+            }
+        };
+        /**
+         * @doc updates data-hdate attribute and value of the current picker element
+         * @param {hb.ui.HDatePicker} picker
+         * @private
+         */
+        let _updateElement = function(picker) {
+            if(picker.errors.length > 0 || picker.hDate === null ) {return;}
+            picker.$element.first().val(picker.hDate.label);
+            picker.$element.first().attr("data-hdate",JSON.stringify(picker.hDate));
+            picker.$element.first().change();
+        };
+        /**
+         * @doc function to call when user validates the picker input
+         * @param {hb.ui.HDatePicker} picker
+         * @private
+         */
+        let _onValidate = function(picker) {
+            let $modal = picker.$modal;
+            _updateElement(picker);
+            $modal.mouseOn = false;
+            $modal.focusout();
+        };
+        /**
+         * @doc apply events and dynamic to HDatePicker
+         * @param {hb.ui.HDatePicker} picker
+         * @private
+         */
+        let _applyEvents= function(picker) {
+            let $modal = picker.$modal;
+
+            $modal.mouseenter(function(){picker.mouseOn = true;});
+            $modal.mouseleave(function(){picker.mouseOn = false;});
+            $modal.typeSelector.on("change",function(){_onTypeChange(picker);});
+            $modal.dateInput.on("change",function(){_onInputChange(picker);});
+            $modal.dateInput.on("keyup", function(event) {
+                if(event.keyCode === 13){_onValidate(picker);}
+                else{_onInputChange(picker);}
+            });
+            $modal.validateButton.on("click", function() {_onValidate(picker);});
+            $modal.on("focusout", function(event)
+            {
+                if(picker.mouseOn){
+                    event.stopPropagation();
+                    event.preventDefault();
+                    return;
+                }
+                if(picker.$element === null) {return;}
+                let $element = picker.$element;
+                $element.attr("disabled","disabled");
+                picker.unbind();
+                setTimeout(function() {$element.removeAttr("disabled");$element.blur();}, 30);
+                $element.prev().click();
+                $element.blur();
+            });
+        };
+
+
+        /**
+         * @doc HDatePicker modal constructor
+         * @class hb.ui.HDatePicker
+         * @param {object} option
+         */
+        ui.HDatePicker = function(option = {}) {
+            this.option = _setDefaultOption(option);
+            this.errors=[];
+            this.$element=null;
+            this.hDate=null;
+            this.mouseOn = false;
+            this.$modal =  $("<div>").dialog({
+                autoOpen: false,
+                dialogClass: "hb-modal-z" + this.option.z,
+                show: {
+                    effect: "fade",
+                    duration: this.option.fadeTime
+                }
+            });
+            _build(this);
+            _applyOption(this);
+            _applyEvents(this);
+
+            this.$modal.dialog("close");
+            return this;
+        };
+
+        let _prototype = {
+            bind : function($element) {
+                console.log($element);
+                if($element === null){return;}
+                let $modal = this.$modal;
+                this.unbind();
+                this.$element=$element;
+                $element.addClass( "hb-enabled");
+                this.option.position = { my: "left top", at: "left bottom", of: $element };
+                if(typeof ($element.first().attr("data-label")) !== "undefined"){
+                    this.option.title = this.$element.first().attr("data-label");}
+
+                if(typeof ($element.first().attr("data-hdate")) !== "undefined"){
+                    this.hDate = hb.util.HDate.parseJSON($element.first().attr("data-hdate"));
+                }
+                else if (this.hDate !== null){this.hDate = this.hDate.clone();}
+                _refresh(this,true);
+                _applyOption(this);
+                this.$modal.dialog("open");
+            },
+            unbind : function() {
+                if(this.$element === null){return;}
+                let $element = this.$element;
+                this.$modal.dialog("close");
+                this.$element=null;
+                setTimeout(function(){$($element).removeClass("hb-enabled");}, 40);
+            }
+        };
+        Object.assign(ui.HDatePicker.prototype,_prototype);
+
+        $.widget( "hb.hdatepicker", {
+            // default options
+            options: {
+            },
+
+            // The constructor
+            _create: function() {
+                let $element = $(this.element);
+                console.log($element);
+                console.log(this);
+
+                console.log("create hdatepicker widget");
+                function enableDatePicker(){
+                    if(! $element.hasClass("hb-enabled")){
+                        hb.ui.manager.get("hdatepicker").bind($element);
+                    }
+                }
+                $element.on("focus",function(){enableDatePicker();});
+                $element.on("keyup",function(){enableDatePicker();});
+
+                $element.change(function(){
+                    let $element = $(this).first();
+                    if($element.attr("data-hdate") === "undefined" || $element.attr("data-hdate") === null ||
+                        $element.attr("data-hdate") === "") return;
+                    let hDate = hb.util.HDate.parseFromJson($element.attr("data-hdate"));
+                    let $partner;
+                    let partnerHDate = null;
+                    let newPartnerHDate = null;
+                    if(typeof $element.attr("data-date-ender") !== "undefined"){
+                        $partner = $("#" + $element.attr("data-date-ender"));
+                        if(! $partner.hasClass("hb-hdatepicker") ) return;
+
+                        if(typeof $partner.attr("data-hdate") !== "undefined" && $partner.attr("data-hdate") !== null &&
+                            $partner.attr("data-hdate") !== ""){
+                            partnerHDate =  hb.util.HDate.parseFromJson($partner.attr("data-hdate"));
+                        }
+                        if(partnerHDate === null || partnerHDate.endDate < hDate.endDate){
+                            newPartnerHDate = new hb.util.HDate("1",hDate.endDate);
+                            $partner.attr("data-hdate",JSON.stringify(newPartnerHDate));
+                            $partner.val(newPartnerHDate.label);
+                        }
+                    }
+                    else if(typeof $element.attr("data-date-beginner") !== "undefined"){
+                        $partner = $("#" + $element.attr("data-date-beginner"));
+                        if(! $partner.hasClass("hb-hdatepicker") ) return;
+                        if(typeof $partner.attr("data-hdate") !== "undefined" && $partner.attr("data-hdate") !== null &&
+                            $partner.attr("data-hdate") !== ""){
+                            partnerHDate =  hb.util.HDate.parseFromJson($partner.attr("data-hdate"));
+                        }
+                        if(partnerHDate === null || partnerHDate.beginDate > hDate.beginDate){
+                            newPartnerHDate = new hb.util.HDate("1",hDate.beginDate);
+                            $partner.attr("data-hdate",JSON.stringify(newPartnerHDate));
+                            $partner.val(newPartnerHDate.label);
+                        }
+                    }
+                });
+                // at start an attempt is made to retrieve hdate attribute of the $element an update it"s value accordingly
+                if(typeof $element.attr("data-hdate") !== "undefined" && $element.attr("data-hdate") !== null){
+                    $element.val( $.hbase.HDate.parse(this.$element.attr("data-hdate")).label);
+                }
+            },
+            // Events bound via _on are removed automatically
+            // revert other modifications here
+            _destroy: function() {
+            }
+        });
+
+
+
+
+
+        console.log(_moduleName + " loaded");
+        return ui;
+    }(hb.ui || {},hb,$));
+
+    let _loadedModules = ((typeof hb.getLoadedModules==="function")?hb.getLoadedModules():[]);
+    _loadedModules.push(_moduleName);
+    hb.getLoadedModules = function() {
+        return _loadedModules;
+    }
+    return hb;
+}(hb || {},$));
+
+/**
+ * @package manager.js
+ * @doc manager.js : Handles DOM resources creation and delivery to clients
+ */
+var hb = (function (hb) {
+    "use strict";
+    var _moduleName = "ui:manager/manager.js";
+    if(((typeof hb.getLoadedModules==="function"?hb.getLoadedModules():[])).includes(_moduleName)) {
+        console.log(_moduleName + " already loaded, skipping");
+        return hb;
+    }
+    hb.ui = (function (ui,hb,$) {
+        var _requiredModules = [];
+
+        let _resources = {
+            "hdatepicker":null
+        };
+
+
+
+        /**
+         * @doc instanciate available unique resources
+         * @returns {object}
+         * @private
+         */
+        let _instanciateUniques = function() {
+            let loadedModules = ((typeof hb.getLoadedModules==="function")?hb.getLoadedModules():[]);
+
+            if(loadedModules.includes("ui:HDatePicker/HDatePicker.js")){
+                _resources.hdatepicker = new hb.ui.HDatePicker();
+            }
+        };
+
+        _instanciateUniques();
+
+        /**
+         * @module hb/ui/manager
+         * @class hb.ui.manager
+         */
+        ui.manager = {
+            /**
+             * @doc get requested HBase resource : either a new object or the instanciated one if it's unique
+             * @param {string} str
+             * @return {object|null}
+             */
+            get : function (str) {
+                if(!(str in _resources)){return null;}
+                if(typeof _resources[str] === 'function') {
+                    return new _resources[str]();
+                }
+                return _resources[str];
+            },
+            /**
+             * @doc  apply classes
+             * @param {Object|null} $element
+             * @return {object|null}
+             */
+            applyClasses : function ($element) {
+                $('.hb-hdatepicker').hdatepicker();
+            },
+            /**
+             * @doc returns the name of the module
+             * @return {string}
+             */
+            getModuleName : function() {
+                return _moduleName;
+            },
+            /**
+             * @doc returns list of required modules and libraries for this module
+             * @return {Array}
+             */
+            getRequiredModules : function () {
+                return _requiredModules;
+            }
+        };
+
+        $(function() {
+            console.log("apply classes");
+            ui.manager.applyClasses();
+        });
+
+
+
+        console.log(_moduleName + " loaded");
+        return ui;
+    }(hb.ui || {},hb,$));
+
+    let _loadedModules = ((typeof hb.getLoadedModules==="function")?hb.getLoadedModules():[]);
+    _loadedModules.push(_moduleName);
+    hb.getLoadedModules = function() {
+        return _loadedModules;
+    }
+    return hb;
+}(hb || {}));

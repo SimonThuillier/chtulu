@@ -16,9 +16,8 @@ var hb = (function (hb) {
          * @class hb.util.cmn
          */
         util.cmn = {
-            varTest:"lol",
             /**
-             * @doc capitalize a string
+             * @doc capitalizes a string
              * @param {string} str
              * @return {string}
              */
@@ -26,7 +25,7 @@ var hb = (function (hb) {
                 return str.charAt(0).toUpperCase() + this.slice(1);
             },
             /**
-             * @doc convert an integer (arabic 10 base) to the corresponding roman number
+             * @doc converts an integer (arabic 10 base) to the corresponding roman number
              * @param number
              * @returns {string}
              */
@@ -66,11 +65,22 @@ var hb = (function (hb) {
              * @returns {Function}
              */
             getIdGenerator : function () {
-                let id = -1;
+                let id = 0;
                 return function () {
-                    id++;
-                    return id;
+                    return ++id;
                 };
+            },
+            /**
+             * @doc replace a set of different old text in a String with replacement values and return its
+             * @param {string} oldText
+             * @param {*} replacements : an object with pairs "<VALUE TO REPLACE>" => REPLACEMENT
+             * @returns {String}
+             */
+            multiReplace : function (oldText,replacements) {
+                Object.keys(replacements).forEach(function(key,index) {
+                    oldText = oldText.replace(key,replacements[key]);
+                });
+                return oldText;
             },
             /**
              * @doc returns the name of the module

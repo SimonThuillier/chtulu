@@ -1,18 +1,21 @@
+"use strict";
+
 /**
  * @package hbase.js
  * @doc translation.js : Contains textual message and translations for hbase project
  * @param hb - hb module
  * @param currentLocale - {ENGLISH,FRENCH}
+ * @requires util:cmn/common.js
  */
 var hb = (function (hb,currentLocale="FRENCH") {
-    "use strict";
     var _moduleName = "util:trans/translation.js";
     if(((typeof hb.getLoadedModules==="function"?hb.getLoadedModules():[])).includes(_moduleName)) {
         console.log(_moduleName + " already loaded, skipping");
         return hb;
     }
     hb.util = (function (util) {
-        var _requiredModules = [];
+
+        var _requiredModules = ["util:cmn/common.js"];
 
         const _LOCALES= {
             "ENGLISH": {
@@ -29,13 +32,57 @@ var hb = (function (hb,currentLocale="FRENCH") {
                 PREV_TEXT : "Prev",
                 NEXT_TEXT : "Next",
                 WEEK_HEADER : "Wk",
+                FORMAT_STRS : {
+                    "1": "F j Y", "2": "F j Y",
+                    "3": "F Y", "4": "S Y", "5": "Y",
+                    "6": "Y", "7": "Y", "8": "Y"
+                },
+                FORMAT_CANONICAL_STRS : {
+                    "1": "d/m/Y", "2": "d/m/Y",
+                    "3": "m/Y", "4": "s/Y", "5": "Y",
+                    "6": "Y", "7": "Y", "8": "Y"
+                },
+                FORMAT_DAY_NUMBER_SUFFIX : function(dayNumber){
+                    switch(dayNumber){
+                        case "1":
+                            return "st";
+                        case "2":
+                            return "nd";
+                        case "3":
+                            return "rd";
+                        default :
+                            return "th";
+                    }
+                },
+                FORMAT_CENTURY_NUMBER_SUFFIX : function(dayNumber){
+                    switch(dayNumber){
+                        case "1":
+                            return "st";
+                        case "2":
+                            return "nd";
+                        case "3":
+                            return "rd";
+                        default :
+                            return "th";
+                    }
+                },
+                FORMAT_BC_LABEL : "BC.",
+                FORMAT_DECADE_LABEL : "Years",
+                FORMAT_CENTURY_LABEL : "Century",
+                FORMAT_MILLENNIUM_LABEL : "Millennium",
+                FORMAT_INTERVAL_STR : "d/m/Y",
                 PARSING_TYPE_LABELS : {
-                    "1":"Precise","3":"Month","4":"Season","5":"Year",
+                    "1":"Precise","2":"Bounded","3":"Month","4":"Season","5":"Year",
                     "6":"Decade","7":"Century","8":"Millennium"
                 },
                 PARSING_TYPE_EXAMPLES : {
                     "1":"8/1/1985, 09/25/573, 06/2/-582", "3":"8/1985,09/573,06/-582", "4":"1/1985 (<WINTER> 1985),4/-582 (<FALL> -582)",
                     "5":"1985,573,-582", "6":"1980,571,-580", "7":"1980,571,-580", "8":"1980,571,-580"
+                },
+                PARSING_REGEX_STRS : {
+                    "1": "(\\d{1,2})/(\\d{1,2})/(-?\\d{1,5})$", "3": "/?(\\d{1,2})/(-?\\d{1,5})$",
+                    "4": "/?(\\d{1,2})/(-?\\d{1,5})$", "5": "/?(-?\\d{1,5})$",
+                    "6": "/?(-?\\d{1,5})$", "7": "/?(-?\\d{1,5})$", "8": "/?(-?\\d{1,5})$"
                 },
                 PARSING_PLACEHOLDERS : {
                     "1": "MM/DD/YYYY", "2": "MM/DD/YYYY;MM/DD/YYYY",
@@ -58,10 +105,10 @@ var hb = (function (hb,currentLocale="FRENCH") {
                     "Season '<SEASON>' isn't valid",
                     "Month '<MONTH>' isn't valid",
                     "Year '<YEAR>' isn't valid : Authored years go from -10000 to <MAX_YEAR>",
+                    "Entered value isn't parsable to bounded date. "  +
+                    "Examples of authored values : 5/15/1985;6/9/1985,04/3/-8;04/3/-7"
                 ],
-
-                dateFormat: "mm/dd/yy", // See format options on parseDate
-
+                HDATEPICKER_DEFAULT_TITLE : "Enter a date"
             },
             "FRENCH": {
                 DAY_NAMES : ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],
@@ -77,13 +124,35 @@ var hb = (function (hb,currentLocale="FRENCH") {
                 PREV_TEXT : "Prec.",
                 NEXT_TEXT : "Suiv.",
                 WEEK_HEADER : "Sem.",
+                FORMAT_STRS : {
+                    "1": "j F Y", "2": "j F Y",
+                    "3": "F Y", "4": "S Y", "5": "Y",
+                    "6": "Y", "7": "Y", "8": "Y"
+                },
+                FORMAT_CANONICAL_STRS : {
+                    "1": "d/m/Y", "2": "d/m/Y",
+                    "3": "m/Y", "4": "s/Y", "5": "Y",
+                    "6": "Y", "7": "Y", "8": "Y"
+                },
+                FORMAT_DAY_NUMBER_SUFFIX : function(dayNumber){return ((dayNumber==="1")?"er":"");},
+                FORMAT_CENTURY_NUMBER_SUFFIX : function(dayNumber){return ((dayNumber==="1")?"er":"e");},
+                FORMAT_BC_LABEL : "Av. JC",
+                FORMAT_DECADE_LABEL : "Années",
+                FORMAT_CENTURY_LABEL : "Siècle",
+                FORMAT_MILLENNIUM_LABEL : "Millénaire",
+                FORMAT_INTERVAL_STR : "d/m/Y",
                 PARSING_TYPE_LABELS : {
-                    "1":"Précise","3":"Mois","4":"Saison","5":"Année",
+                    "1":"Précise","2":"Imprécise","3":"Mois","4":"Saison","5":"Année",
                     "6":"Décennie","7":"Siècle","8":"Millénaire"
                 },
                 PARSING_TYPE_EXAMPLES : {
                     "1":"1/8/1985, 25/09/573, 2/06/-582", "3":"8/1985,09/573,06/-582", "4":"1/1985 (<WINTER> 1985),4/-582 (<FALL> -582)",
                     "5":"1985,573,-582", "6":"1980,571,-580", "7":"1980,571,-580", "8":"1980,571,-580"
+                },
+                PARSING_REGEX_STRS : {
+                    "1": "(\\d{1,2})/(\\d{1,2})/(-?\\d{1,5})$", "3": "/?(\\d{1,2})/(-?\\d{1,5})$",
+                    "4": "/?(\\d{1,2})/(-?\\d{1,5})$", "5": "/?(-?\\d{1,5})$",
+                    "6": "/?(-?\\d{1,5})$", "7": "/?(-?\\d{1,5})$", "8": "/?(-?\\d{1,5})$"
                 },
                 PARSING_PLACEHOLDERS : {
                     "1": "JJ/MM/AAAA", "2": "JJ/MM/AAAA;JJ/MM/AAAA",
@@ -105,9 +174,19 @@ var hb = (function (hb,currentLocale="FRENCH") {
                     "Le jour '<DAY>' est invalide",
                     "La saison '<SEASON>' est invalide",
                     "Le mois '<MONTH>' est invalide",
-                    "L'année '<YEAR>' est invalide : Les années autorisées vont de -10000 à <MAX_YEAR>",
+                    "L'année '<YEAR>' est invalide : Les années autorisées vont de -10000 à <MAX_YEAR>", // 4
+                    "La valeur entrée n'est pas convertible en date imprecise. "  +
+                    "Exemples de valeurs autorisées : 2/5/1985;9/6/1985,3/04/-8;2/04/-7"
                 ],
-                dateFormat: "mm/dd/yy", // See format options on parseDate
+                HDATEPICKER_DEFAULT_TITLE : "Entrez une date",
+                HDATEPICKER_TRANSLATOR : function(html){
+                    return hb.util.multiReplace({
+                        "<DATE_TYPE>" : "Type de date :",
+                        "<DATE_RENDERING>" : "Rendu de la date"
+                    });
+
+
+                }
             }
         };
 
@@ -122,23 +201,31 @@ var hb = (function (hb,currentLocale="FRENCH") {
          * @module hb/util/trans
          * @class hb.util.trans
          */
-        util.trans = {
-            loc : _LOCALES[currentLocale],
-            /**
-             * @doc returns the name of the module
-             * @return {string}
-             */
-            getModuleName : function(){
-                return _moduleName;
+        util.trans = Object.assign({
+                /**
+                 * @doc returns current locale
+                 * @return {string}
+                 */
+                getCurrentLocale : function(){
+                    return currentLocale;
+                },
+                /**
+                 * @doc returns the name of the module
+                 * @return {string}
+                 */
+                getModuleName : function(){
+                    return _moduleName;
+                },
+                /**
+                 * @doc returns list of required modules and libraries for this module
+                 * @return {Array}
+                 */
+                getRequiredModules : function () {
+                    return _requiredModules;
+                }
             },
-            /**
-             * @doc returns list of required modules and libraries for this module
-             * @return {Array}
-             */
-            getRequiredModules : function () {
-                return _requiredModules;
-            }
-        };
+            _LOCALES[currentLocale]
+        );
         console.log(_moduleName + " loaded");
         return util;
     }(hb.util || {}));
@@ -147,6 +234,6 @@ var hb = (function (hb,currentLocale="FRENCH") {
     _loadedModules.push(_moduleName);
     hb.getLoadedModules = function() {
         return _loadedModules;
-    }
+    };
     return hb;
 }(hb || {}));

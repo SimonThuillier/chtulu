@@ -10,18 +10,18 @@ var hb = (function (hb,$) {
         console.log(_moduleName + " already loaded, skipping");
         return hb;
     }
-    hb.ui = (function (ui,hb,$) {
+    hb.ui = (function (hb,$) {
         var _requiredModules = ["util:cmn/cmn.js","util:date/date.js",
             "util:trans/translation.js","util:HDate/HDate.js"];
 
         const _PARSERS = {
-            "1":hb.util.date.getParserFromStyle("1"),
-            "3":hb.util.date.getParserFromStyle("3"),
-            "4":hb.util.date.getParserFromStyle("4"),
-            "5":hb.util.date.getParserFromStyle("5"),
-            "6":hb.util.date.getParserFromStyle("6"),
-            "7":hb.util.date.getParserFromStyle("7"),
-            "8":hb.util.date.getParserFromStyle("8"),
+            "1":hb.util.date.getParserFromStyle(hb.util.trans.FORMAT_CANONICAL_STRS["1"]),
+            "3":hb.util.date.getParserFromStyle(hb.util.trans.FORMAT_CANONICAL_STRS["3"]),
+            "4":hb.util.date.getParserFromStyle(hb.util.trans.FORMAT_CANONICAL_STRS["4"]),
+            "5":hb.util.date.getParserFromStyle(hb.util.trans.FORMAT_CANONICAL_STRS["5"]),
+            "6":hb.util.date.getParserFromStyle(hb.util.trans.FORMAT_CANONICAL_STRS["6"]),
+            "7":hb.util.date.getParserFromStyle(hb.util.trans.FORMAT_CANONICAL_STRS["7"]),
+            "8":hb.util.date.getParserFromStyle(hb.util.trans.FORMAT_CANONICAL_STRS["8"]),
         };
         /**
          * @doc setDefaultOption for HDatePicker
@@ -164,7 +164,7 @@ var hb = (function (hb,$) {
             let type = $modal.typeSelector.find(":selected").val();
 
             if (picker.hDate !== null && picker.errors.length < 1){
-                picker.hDate.setType(type);
+                picker.hDate.type = type;
                 $modal.dateInput.val(picker.hDate.getCanonicalInput());
                 _refresh(picker);
             }
@@ -179,7 +179,7 @@ var hb = (function (hb,$) {
          */
         let _updateElement = function(picker) {
             if(picker.errors.length > 0 || picker.hDate === null ) {return;}
-            picker.$element.first().val(picker.hDate.getLabel());
+            picker.$element.first().val(picker.hDate.label);
             picker.$element.first().attr("data-hdate",JSON.stringify(picker.hDate));
             picker.$element.first().change();
         };
@@ -218,13 +218,13 @@ var hb = (function (hb,$) {
                     event.preventDefault();
                     return;
                 }
+                $modal.mouseOn = false;
                 if(picker.$element === null) {return;}
-                let $element = picker.$element;
-                $element.attr("disabled","disabled");
+                picker.$element.attr("disabled","disabled");
                 picker.unbind();
-                setTimeout(function() {$element.removeAttr("disabled");$element.blur();}, 30);
-                $element.prev().click();
-                $element.blur();
+                setTimeout(function() {picker.$element.removeAttr("disabled");picker.$element.blur();}, 30);
+                picker.$element.prev().click();
+                picker.$element.blur();
             });
         };
 
@@ -234,7 +234,7 @@ var hb = (function (hb,$) {
          * @class hb.ui.HDatePicker
          * @param {object} option
          */
-        ui.HDatePicker = function(option = {}) {
+        hb.ui.HDatePicker = function(option = {}) {
             this.option = _setDefaultOption(option);
             this.errors=[];
             this.$element=null;
@@ -258,33 +258,33 @@ var hb = (function (hb,$) {
 
         let _prototype = {
             bind : function($element) {
-                console.log($element);
                 if($element === null){return;}
                 let $modal = this.$modal;
                 this.unbind();
-                this.$element=$element;
+                $modal.$element=$element;
                 $element.addClass( "hb-enabled");
-                this.option.position = { my: "left top", at: "left bottom", of: $element };
-                if(typeof ($element.first().attr("data-label")) !== "undefined"){
+                this.option.title = { my: "left top", at: "left bottom", of: $element };
+                if(typeof (this.$element.first().attr("data-label")) !== "undefined"){
                     this.option.title = this.$element.first().attr("data-label");}
 
                 if(typeof ($element.first().attr("data-hdate")) !== "undefined"){
                     this.hDate = hb.util.HDate.parseJSON($element.first().attr("data-hdate"));
                 }
                 else if (this.hDate !== null){this.hDate = this.hDate.clone();}
+
                 _refresh(this,true);
-                _applyOption(this);
-                this.$modal.dialog("open");
+                this.dialog("open");
             },
             unbind : function() {
-                if(this.$element === null){return;}
-                let $element = this.$element;
-                this.$modal.dialog("close");
-                this.$element=null;
-                setTimeout(function(){$($element).removeClass("hb-enabled");}, 40);
+                let $modal = this.$modal;
+                if($modal.$element === null){return;}
+                let $element = $modal.$element;
+                this.dialog("close");
+                $modal.$element=null;
+                setTimeout(function(){$($element).removeClass("hdatepicker-enabled");}, 40);
             }
         };
-        Object.assign(ui.HDatePicker.prototype,_prototype);
+        Object.extend(hb.ui.HDatePicker.prototype,_prototype);
 
         $.widget( "hb.hdatepicker", {
             // default options
@@ -293,20 +293,18 @@ var hb = (function (hb,$) {
 
             // The constructor
             _create: function() {
-                let $element = $(this.element);
-                console.log($element);
-                console.log(this);
+                let $element = $(this.element).first();
 
                 console.log("create hdatepicker widget");
-                function enableDatePicker(){
+                function enableDatePicker($element){
                     if(! $element.hasClass("hb-enabled")){
                         hb.ui.manager.get("hdatepicker").bind($element);
                     }
                 }
-                $element.on("focus",function(){enableDatePicker();});
-                $element.on("keyup",function(){enableDatePicker();});
+                $($element).on("focus",function(){enableDatePicker(this);});
+                $($element).on("keyup",function(){enableDatePicker(this);});
 
-                $element.change(function(){
+                $(this.element).change(function(){
                     let $element = $(this).first();
                     if($element.attr("data-hdate") === "undefined" || $element.attr("data-hdate") === null ||
                         $element.attr("data-hdate") === "") return;
@@ -358,8 +356,8 @@ var hb = (function (hb,$) {
 
 
         console.log(_moduleName + " loaded");
-        return ui;
-    }(hb.ui || {},hb,$));
+        return hb.ui;
+    }(hb || {},$));
 
     let _loadedModules = ((typeof hb.getLoadedModules==="function")?hb.getLoadedModules():[]);
     _loadedModules.push(_moduleName);

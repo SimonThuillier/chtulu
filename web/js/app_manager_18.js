@@ -9,7 +9,7 @@ var hb = (function (hb) {
         console.log(_moduleName + " already loaded, skipping");
         return hb;
     }
-    hb.ui = (function (ui,hb,$) {
+    hb.ui = (function (hb,$) {
         var _requiredModules = [];
 
         let _resources = {
@@ -37,7 +37,7 @@ var hb = (function (hb) {
          * @module hb/ui/manager
          * @class hb.ui.manager
          */
-        ui.manager = {
+        hb.ui.manager = {
             /**
              * @doc get requested HBase resource : either a new object or the instanciated one if it's unique
              * @param {string} str
@@ -49,14 +49,6 @@ var hb = (function (hb) {
                     return new _resources[str]();
                 }
                 return _resources[str];
-            },
-            /**
-             * @doc  apply classes
-             * @param {Object|null} $element
-             * @return {object|null}
-             */
-            applyClasses : function ($element) {
-                $('.hb-hdatepicker').hdatepicker();
             },
             /**
              * @doc returns the name of the module
@@ -73,17 +65,9 @@ var hb = (function (hb) {
                 return _requiredModules;
             }
         };
-
-        $(function() {
-            console.log("apply classes");
-            ui.manager.applyClasses();
-        });
-
-
-
         console.log(_moduleName + " loaded");
-        return ui;
-    }(hb.ui || {},hb,$));
+        return hb.ui;
+    }(hb.util || {}));
 
     let _loadedModules = ((typeof hb.getLoadedModules==="function")?hb.getLoadedModules():[]);
     _loadedModules.push(_moduleName);

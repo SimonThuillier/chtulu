@@ -179,7 +179,7 @@ var hb = (function (hb,$) {
          */
         let _updateElement = function(picker) {
             if(picker.errors.length > 0 || picker.hDate === null ) {return;}
-            picker.$element.first().val(picker.hDate.getLabel());
+            picker.$element.first().val(picker.hDate.label);
             picker.$element.first().attr("data-hdate",JSON.stringify(picker.hDate));
             picker.$element.first().change();
         };
