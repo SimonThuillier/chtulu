@@ -89,7 +89,8 @@ $.hbase.func.factory = function(type)
         var labelContainer = $("<div class='text-muted m-r visible-md-inline-block visible-lg-inline-block'>").appendTo($modal);
         $modal.inputLabel = $("<p/>").appendTo(labelContainer);
         $modal.inputContainer = $("<div>").appendTo($modal);
-        $modal.dateInput = $("<input type='text' class='ui-corner-all' style='min-height:23px' required='required' placeholder='JJ/MM/AAAA' maxlength='30' size='20'>").appendTo($modal.inputContainer);
+        $modal.dateInput = $("<input type='text' class='ui-corner-all' style='min-height:23px' " +
+            "required='required' placeholder='JJ/MM/AAAA' maxlength='30' size='20'>").appendTo($modal.inputContainer);
         $modal.validateButton = $("<button class='btn btn-primary'></button>").button({icon: "ui-icon-circle-close"}).appendTo($modal.inputContainer);
         //$modal.append("<br>");
         $modal.errorSpan = $("<div disabled='disabled' class='ui-state-error alert alert-danger'></div>").appendTo($modal);
@@ -426,7 +427,7 @@ $.widget( "hbase.harticledisplayer", {
 });
 
 $(function(){
-    console.log("--- persistent resources creation ---");
+    /*console.log("--- persistent resources creation ---");
     console.log("hdatepicker creation ... ");
     $.hbase.modal.hdatepicker = $.hbase.func.factory("hdatepicker");
     console.log("OK");
@@ -438,7 +439,7 @@ $(function(){
     else{
         $.hbase.modal.article = $.hbase.func.factory("harticlemodal");
         console.log("OK");
-    }
+    }*/
 
     $.hbase.func.hbaseCheck = function(element)
     {

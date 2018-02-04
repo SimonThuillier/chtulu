@@ -46,7 +46,7 @@ var hb = (function (hb) {
             get : function (str) {
                 if(!(str in _resources)){return null;}
                 if(typeof _resources[str] === 'function') {
-                    return new _resources[str]();
+                    return _resources[str]();
                 }
                 return _resources[str];
             },

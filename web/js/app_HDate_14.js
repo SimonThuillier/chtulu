@@ -65,7 +65,7 @@ var hb = (function (hb) {
              * @returns {HDate}
              */
             clone : function() {
-                return new HDate(this.type,hd.clone(this.beginDate),hd.clone(this.endDate));
+                return new util.HDate(this.type,hd.clone(this.beginDate),hd.clone(this.endDate));
             },
             /**
              * @doc : determines if two HDates are equals (same types and dates)
@@ -137,7 +137,7 @@ var hb = (function (hb) {
                 let jsonObj = JSON.parse(jsonStr);
                 jsonObj.beginDate = new Date(Date.parse(jsonObj.beginDate));
                 jsonObj.endDate = new Date(Date.parse(jsonObj.endDate));
-                return new HDate(jsonObj.type,jsonObj.beginDate,jsonObj.endDate);
+                return new util.HDate(jsonObj.type,jsonObj.beginDate,jsonObj.endDate);
             },
             /**
              * @doc type setter for HDate
@@ -232,7 +232,7 @@ var hb = (function (hb) {
                         trans.FORMAT_CENTURY_LABEL +
                         (BC?(" " + trans.FORMAT_BC_LABEL):"");
                 }
-                else if(this.type === this.MILLENIA){
+                else if(this.type === "8"){
                     let millennium = Math.floor(Number(label)/1000);
                     BC = millennium < 0;
                     let absoluteMillennium = BC?Math.abs(millennium):(millennium + 1);

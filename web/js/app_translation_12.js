@@ -109,7 +109,13 @@ var hb = (function (hb,currentLocale="FRENCH") {
                     "Entered value isn't parsable to bounded date. "  +
                     "Examples of authored values : 5/15/1985;6/9/1985,04/3/-8;04/3/-7"
                 ],
-                HDATEPICKER_DEFAULT_TITLE : "Enter a date"
+                HDATEPICKER_DEFAULT_TITLE : "Enter a date",
+                HDATEPICKER_TRANSLATOR : function(html){
+                    return hb.util.cmn.multiReplace(html,{
+                        "[DATE_TYPE]" : "Date type :",
+                        "[DATE_RENDERING]" : "Date rendering : "
+                    });
+                }
             },
             "FRENCH": {
                 DAY_NAMES : ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],
@@ -161,7 +167,7 @@ var hb = (function (hb,currentLocale="FRENCH") {
                     "6": "AAAA", "7": "AAAA", "8": "AAAA"
                 },
                 PARSING_PLACEMENT : {
-                    "1": {"DAY":2,"MONTH":1,"YEAR":3}, "3": {"MONTH":1,"YEAR":2}, "4" : {"SEASON":1,"YEAR":2},
+                    "1": {"DAY":1,"MONTH":2,"YEAR":3}, "3": {"MONTH":1,"YEAR":2}, "4" : {"SEASON":1,"YEAR":2},
                     "5": {"YEAR":1},"6": {"YEAR":1},"7": {"YEAR":1},"8": {"YEAR":1}
                 },
                 PARSING_HELP : {
@@ -182,11 +188,9 @@ var hb = (function (hb,currentLocale="FRENCH") {
                 HDATEPICKER_DEFAULT_TITLE : "Entrez une date",
                 HDATEPICKER_TRANSLATOR : function(html){
                     return hb.util.cmn.multiReplace(html,{
-                        "<DATE_TYPE>" : "Type de date :",
-                        "<DATE_RENDERING>" : "Rendu de la date"
+                        "[DATE_TYPE]" : "Type de date :",
+                        "[DATE_RENDERING]" : "Rendu de la date"
                     });
-
-
                 }
             }
         };
