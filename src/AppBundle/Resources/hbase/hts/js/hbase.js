@@ -468,36 +468,6 @@ $(function(){
         $(element).on("change",function(){$.hbase.func.hbaseCheck(element);});
     }
 
-    $.hbase.func.hbaseArticleFormSubmitter = function(event,element)
-    {
-        event.preventDefault();
-        event.stopPropagation();
-        var $this = $(element);
-        var $formData = $this.serializeArray();
-        var formMap = getFormMap($formData);
-        var $data;
-        $this.find(".hbase-hdatepicker").each(function(index){
-            if(typeof formMap[this.name] !== "undefined"){
-                $data = $formData[formMap[this.name]];
-                $data.value = $(this).attr("hdate");
-            }
-        });
-        console.log($formData);
-        var action = $this.attr("action");
-        if (typeof action === "undefined" || action === null || action ==="") return;
-        $.ajax({
-            url : $this.attr("action"),
-            type : "POST",
-            dataType : "html",
-            data : $formData,
-            success:function(data) {
-                console.log("success ! " + data.success );
-                location.reload();
-            }
-        });
-
-        return true;
-    }
 
     $.hbase.func.hbaseApply = function(rootSelector = null){
         console.log("application des widget");

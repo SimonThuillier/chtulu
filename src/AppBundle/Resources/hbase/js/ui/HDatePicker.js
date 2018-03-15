@@ -105,8 +105,8 @@ var hb = (function (hb,$) {
             $modal.validateButton.show();
 
             // if date value is empty validation icon isn"t displayed
-            if($modal.dateInput.val() === "" ){$modal.validateButton.hide();}
-            else if(picker.errors.length > 0 ){
+            // if($modal.dateInput.val() === "" ){$modal.validateButton.hide();}
+            if(picker.errors.length > 0 ){
                 $modal.validateButton.button("disable").addClass("ui-state-error");
                 $modal.validateButton.children().first().removeClass("fa-check").addClass("fa-exclamation-triangle");
                 $modal.errorSpan.show();
@@ -123,8 +123,13 @@ var hb = (function (hb,$) {
             let type = $modal.typeSelector.find(":selected").val();
             let sDate = $modal.dateInput.val();
             picker.errors=[];
-
             picker.hDate = null;
+
+            if(sDate === null || sDate === ''){
+                _refresh(picker,false);
+                return;
+            }
+
             let date = null;
             if(type === "2"){
                 let regex = new RegExp("^([^;]+);([^;]+)$");
@@ -178,7 +183,13 @@ var hb = (function (hb,$) {
          * @private
          */
         let _updateElement = function(picker) {
-            if(picker.errors.length > 0 || picker.hDate === null ) {return;}
+            if(picker.errors.length > 0) {return;}
+            if(! picker.hDate){
+                picker.$element.first().val("");
+                picker.$element.first().attr("data-hdate","");
+                picker.$element.first().change();
+                return;
+            }
             picker.$element.first().val(picker.hDate.getLabel());
             picker.$element.first().attr("data-hdate",JSON.stringify(picker.hDate));
             picker.$element.first().change();
@@ -268,7 +279,6 @@ var hb = (function (hb,$) {
                     this.hDate = hb.util.HDate.prototype.parseFromJson($element.first().attr("data-hdate"));
                 }
                 else if (this.hDate !== null){this.hDate = this.hDate.clone();}
-                else{this.hDate=new hb.util.HDate("1",new Date());}
                 _refresh(this,true);
                 _applyOption(this);
                 this.$modal.dialog("open");
@@ -299,18 +309,26 @@ var hb = (function (hb,$) {
                         hb.ui.manager.get("hdatepicker").bind($element);
                     }
                 }
-                $element.on("focus",function(){enableDatePicker();});
-                $element.on("keyup",function(){enableDatePicker();});
-
-                $element.change(function(){
+                $element.ready(function(){
+                    console.log($element);
+;                   if($element.val() && ! $element.attr("data-hdate")){
+                        $element.attr("data-hdate",$element.val());
+                        let hDate = hb.util.HDate.prototype.parseFromJson($element.attr("data-hdate"));
+                        $element.val(hDate.getLabel());
+                    }
+                    $element.addClass("hb-initialized");
+                })
+                .on("focus",function(){enableDatePicker();})
+                .on("keyup",function(){enableDatePicker();})
+                .change(function(){
                     let $element = $(this).first();
                     if($element.attr("data-hdate") === "undefined" || $element.attr("data-hdate") === null ||
                         $element.attr("data-hdate") === "") return;
                     let hDate = hb.util.HDate.prototype.parseFromJson($element.attr("data-hdate"));
-                    if(hDate === null){
-                        hDate = new hb.util.HDate("1",new Date());
+                    //if(hDate === null){
+                        //hDate = new hb.util.HDate("1",new Date());
                         $element.hDate = hDate;
-                    }
+                    //}
                     let $partner;
                     let partnerHDate = null;
                     let newPartnerHDate = null;
@@ -342,10 +360,6 @@ var hb = (function (hb,$) {
                         }
                     }
                 });
-                // at start an attempt is made to retrieve hdate attribute of the $element an update it"s value accordingly
-                if(typeof $element.attr("data-hdate") !== "undefined" && $element.attr("data-hdate") !== null){
-                    $element.val( $.hbase.HDate.parse(this.$element.attr("data-hdate")).label);
-                }
             },
             // Events bound via _on are removed automatically
             // revert other modifications here

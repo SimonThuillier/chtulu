@@ -1510,7 +1510,7 @@ var hb = (function (hb) {
                 "YEAR" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["3"].YEAR]);}
             },
             "4":{ // SEASON
-                "MONTH" : function(array){return (3*(parseInt(array[trans.PARSING_PLACEMENT["4"].MONTH])-1)+1);},
+                // "MONTH" : function(array){return (3*(parseInt(array[trans.PARSING_PLACEMENT["4"].MONTH])-1)+1);},
                 "SEASON" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["4"].SEASON]);},
                 "YEAR" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["4"].YEAR]);}
             },
@@ -1942,7 +1942,15 @@ var hb = (function (hb) {
                     if(month<1 || month>12){errors.push(cmn.multiReplace(trans.PARSING_ERRORS[3], {"<MONTH>":month}));}
                     if(year<-10000 || year>module.getMaxYear()){errors.push(cmn.multiReplace(trans.PARSING_ERRORS[4], {"<YEAR>":year,
                         "<MAX_YEAR>":module.getMaxYear()}));}
-                    if(errors.length===0){ date = module.correctYear(new Date(year,month-1,day),year);}
+
+
+                    if(errors.length===0){
+                        if(type === "4"){
+                            day=1;
+                            month = (season -1)*3 + 1 ;
+                        }
+                        date = module.correctYear(new Date(year,month-1,day),year);
+                    }
                     return date;
                 }
                 return parser;
@@ -2458,8 +2466,8 @@ var hb = (function (hb,$) {
             $modal.validateButton.show();
 
             // if date value is empty validation icon isn"t displayed
-            if($modal.dateInput.val() === "" ){$modal.validateButton.hide();}
-            else if(picker.errors.length > 0 ){
+            // if($modal.dateInput.val() === "" ){$modal.validateButton.hide();}
+            if(picker.errors.length > 0 ){
                 $modal.validateButton.button("disable").addClass("ui-state-error");
                 $modal.validateButton.children().first().removeClass("fa-check").addClass("fa-exclamation-triangle");
                 $modal.errorSpan.show();
@@ -2476,8 +2484,13 @@ var hb = (function (hb,$) {
             let type = $modal.typeSelector.find(":selected").val();
             let sDate = $modal.dateInput.val();
             picker.errors=[];
-
             picker.hDate = null;
+
+            if(sDate === null || sDate === ''){
+                _refresh(picker,false);
+                return;
+            }
+
             let date = null;
             if(type === "2"){
                 let regex = new RegExp("^([^;]+);([^;]+)$");
@@ -2531,7 +2544,13 @@ var hb = (function (hb,$) {
          * @private
          */
         let _updateElement = function(picker) {
-            if(picker.errors.length > 0 || picker.hDate === null ) {return;}
+            if(picker.errors.length > 0) {return;}
+            if(! picker.hDate){
+                picker.$element.first().val("");
+                picker.$element.first().attr("data-hdate","");
+                picker.$element.first().change();
+                return;
+            }
             picker.$element.first().val(picker.hDate.getLabel());
             picker.$element.first().attr("data-hdate",JSON.stringify(picker.hDate));
             picker.$element.first().change();
@@ -2621,7 +2640,6 @@ var hb = (function (hb,$) {
                     this.hDate = hb.util.HDate.prototype.parseFromJson($element.first().attr("data-hdate"));
                 }
                 else if (this.hDate !== null){this.hDate = this.hDate.clone();}
-                else{this.hDate=new hb.util.HDate("1",new Date());}
                 _refresh(this,true);
                 _applyOption(this);
                 this.$modal.dialog("open");
@@ -2652,18 +2670,26 @@ var hb = (function (hb,$) {
                         hb.ui.manager.get("hdatepicker").bind($element);
                     }
                 }
-                $element.on("focus",function(){enableDatePicker();});
-                $element.on("keyup",function(){enableDatePicker();});
-
-                $element.change(function(){
+                $element.ready(function(){
+                    console.log($element);
+;                   if($element.val() && ! $element.attr("data-hdate")){
+                        $element.attr("data-hdate",$element.val());
+                        let hDate = hb.util.HDate.prototype.parseFromJson($element.attr("data-hdate"));
+                        $element.val(hDate.getLabel());
+                    }
+                    $element.addClass("hb-initialized");
+                })
+                .on("focus",function(){enableDatePicker();})
+                .on("keyup",function(){enableDatePicker();})
+                .change(function(){
                     let $element = $(this).first();
                     if($element.attr("data-hdate") === "undefined" || $element.attr("data-hdate") === null ||
                         $element.attr("data-hdate") === "") return;
                     let hDate = hb.util.HDate.prototype.parseFromJson($element.attr("data-hdate"));
-                    if(hDate === null){
-                        hDate = new hb.util.HDate("1",new Date());
+                    //if(hDate === null){
+                        //hDate = new hb.util.HDate("1",new Date());
                         $element.hDate = hDate;
-                    }
+                    //}
                     let $partner;
                     let partnerHDate = null;
                     let newPartnerHDate = null;
@@ -2695,10 +2721,6 @@ var hb = (function (hb,$) {
                         }
                     }
                 });
-                // at start an attempt is made to retrieve hdate attribute of the $element an update it"s value accordingly
-                if(typeof $element.attr("data-hdate") !== "undefined" && $element.attr("data-hdate") !== null){
-                    $element.val( $.hbase.HDate.parse(this.$element.attr("data-hdate")).label);
-                }
             },
             // Events bound via _on are removed automatically
             // revert other modifications here
@@ -2723,6 +2745,106 @@ var hb = (function (hb,$) {
 }(hb || {},$));
 
 /**
+ * @package form.js
+ * @doc form.js : Handles special form actions
+ */
+var hb = (function (hb) {
+    "use strict";
+    var _moduleName = "ui:form/form.js";
+    if(((typeof hb.getLoadedModules==="function"?hb.getLoadedModules():[])).includes(_moduleName)) {
+        console.log(_moduleName + " already loaded, skipping");
+        return hb;
+    }
+    hb.ui = (function (ui,hb,$) {
+        var _requiredModules = ["util:cmn/common.js"];
+
+        /**
+         * @module hb/ui/form
+         * @class hb.ui.form
+         */
+        ui.form = {
+            submitArticleSearch : function(event,element)
+        {
+            event.preventDefault();
+            event.stopPropagation();
+            let $this = $(element);
+            let $formData = $this.serializeArray().slice();
+            let formMap = hb.util.sf.getFormMap($formData);
+            let $data;
+            let tempValue;
+            $this.find(".hb-hdatepicker").each(function(index){
+                if(typeof formMap[this.name] !== "undefined"){
+                    //$formData[formMap[this.name]].value = null;
+                    $formData[formMap[this.name]].value = $(this).attr("data-hdate");
+                    // $this = $(this);
+                    //$data.value = $(this).attr("data-hdate");
+                    //$data.attr("data-hdate",$data.value);
+                    //$data.val(tempValue);
+                }
+            });
+            console.log($formData);
+            let action = $this.attr("action");
+            if (typeof action === "undefined" || action === null || action ==="") return;
+            $.ajax({
+                url : $this.attr("action"),
+                type : "POST",
+                dataType : "html",
+                data : $formData,
+                success:function(data) {
+                    console.log("success ! " + data);
+                    location.reload();
+                }
+            });
+
+            /*$this.find(".hb-hdatepicker").each(function(index){
+                if(typeof formMap[this.name] !== "undefined"){
+                    $data = $formData[formMap[this.name]];
+                    tempValue = $data.value;
+                    console.log(tempValue);
+                    $(this).val($(this).attr("data-hdate"));
+                    console.log($data.value);
+                    $(this).attr("data-hdate",tempValue);
+                }
+            });*/
+
+            return true;
+        },
+            /**
+             * @doc returns the name of the module
+             * @return {string}
+             */
+            getModuleName : function() {
+                return _moduleName;
+            },
+            /**
+             * @doc returns list of required modules and libraries for this module
+             * @return {Array}
+             */
+            getRequiredModules : function () {
+                return _requiredModules;
+            }
+        };
+
+        $(function() {
+            console.log("apply classes");
+            ui.manager.applyClasses();
+        });
+
+
+
+        console.log(_moduleName + " loaded");
+        return ui;
+    }(hb.ui || {},hb,$));
+
+    let _loadedModules = ((typeof hb.getLoadedModules==="function")?hb.getLoadedModules():[]);
+    _loadedModules.push(_moduleName);
+    hb.getLoadedModules = function() {
+        return _loadedModules;
+    }
+    return hb;
+}(hb || {}));
+
+/**
  * @package manager.js
  * @doc manager.js : Handles DOM resources creation and delivery to clients
  */
@@ -2734,7 +2856,7 @@ var hb = (function (hb) {
         return hb;
     }
     hb.ui = (function (ui,hb,$) {
-        var _requiredModules = [];
+        var _requiredModules = ["ui:HDatePicker/HDatePicker.js","util:HDate/HDate.js"];
 
         let _resources = {
             "hdatepicker":null
@@ -2780,7 +2902,40 @@ var hb = (function (hb) {
              * @return {object|null}
              */
             applyClasses : function ($element) {
-                $('.hb-hdatepicker').hdatepicker();
+                if(typeof $element === 'undefined' || $element === null){
+                    //(".hbase-hmaxlength").hmaxlength();
+                    $(".hb-hdatepicker").hdatepicker();
+                    //$(".hbase-htimescroller").htimescroller();
+                    $(".hb-hdatepicker").hdatepicker();
+                    //$(".hbase-activer").each(function(){$.hbase.func.hbaseChecker(this)});
+                    $(".hb-article-search").
+                    off("submit").
+                    on("submit",function(event){
+                        console.log(event);
+                        //event.preventDefault();
+                        //event.stopPropagation();
+                        // throw('lol');
+
+                        hb.ui.form.submitArticleSearch(event,this);
+                        //event.preventDefault();
+                        //event.stopPropagation();
+                        console.log('event killé');
+                        return true;
+                        })
+                    ;
+                }
+                else{
+                    //$element.find(".hbase-hmaxlength").hmaxlength();
+                    $element.find(".hb-hdatepicker").hdatepicker();
+                    //$element.find(".hbase-htimescroller").htimescroller();
+                    $element.find(".hb-hdatepicker").hdatepicker();
+                    //$element.find(".hbase-activer").each(function(){$.hbase.func.hbaseChecker(this);});
+                    $element.find(".hb-article-search").on("submit",function(event){
+                        event.preventDefault();
+                        event.stopPropagation();
+                        console.log('event killé');
+                        return true;});
+                }
             },
             /**
              * @doc returns the name of the module

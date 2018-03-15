@@ -155,7 +155,7 @@ var hb = (function (hb) {
                 "YEAR" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["3"].YEAR]);}
             },
             "4":{ // SEASON
-                "MONTH" : function(array){return (3*(parseInt(array[trans.PARSING_PLACEMENT["4"].MONTH])-1)+1);},
+                // "MONTH" : function(array){return (3*(parseInt(array[trans.PARSING_PLACEMENT["4"].MONTH])-1)+1);},
                 "SEASON" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["4"].SEASON]);},
                 "YEAR" : function(array){return parseInt(array[trans.PARSING_PLACEMENT["4"].YEAR]);}
             },
@@ -587,7 +587,15 @@ var hb = (function (hb) {
                     if(month<1 || month>12){errors.push(cmn.multiReplace(trans.PARSING_ERRORS[3], {"<MONTH>":month}));}
                     if(year<-10000 || year>module.getMaxYear()){errors.push(cmn.multiReplace(trans.PARSING_ERRORS[4], {"<YEAR>":year,
                         "<MAX_YEAR>":module.getMaxYear()}));}
-                    if(errors.length===0){ date = module.correctYear(new Date(year,month-1,day),year);}
+
+
+                    if(errors.length===0){
+                        if(type === "4"){
+                            day=1;
+                            month = (season -1)*3 + 1 ;
+                        }
+                        date = module.correctYear(new Date(year,month-1,day),year);
+                    }
                     return date;
                 }
                 return parser;

@@ -56,7 +56,28 @@ var hb = (function (hb) {
              * @return {object|null}
              */
             applyClasses : function ($element) {
-                $('.hb-hdatepicker').hdatepicker();
+                if(typeof $element === 'undefined' || $element === null){
+                    //(".hbase-hmaxlength").hmaxlength();
+                    $(".hb-hdatepicker").hdatepicker();
+                    //$(".hbase-htimescroller").htimescroller();
+                    $(".hb-hdatepicker").hdatepicker();
+                    //$(".hbase-activer").each(function(){$.hbase.func.hbaseChecker(this)});
+                    console.log($(".hb-article-search"));
+                    $(".hb-article-search").on("submit",function(){hb.ui.form.submitArticleSearch(event,this);});
+                }
+                else{
+                    //$element.find(".hbase-hmaxlength").hmaxlength();
+                    $element.find(".hb-hdatepicker").hdatepicker();
+                    //$element.find(".hbase-htimescroller").htimescroller();
+                    $element.find(".hb-hdatepicker").hdatepicker();
+                    //$element.find(".hbase-activer").each(function(){$.hbase.func.hbaseChecker(this);});
+                    $element.find(".hb-article-search").on("submit",function(event){
+                        event.preventDefault();
+                        event.stopPropagation();
+                        console.log('event killé');
+                        return true;
+                        hb.ui.form.submitArticleSearch(event,this);});
+                }
             },
             /**
              * @doc returns the name of the module

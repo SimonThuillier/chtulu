@@ -78,8 +78,8 @@ class SearchArticleFormListener extends AbstractFormListener
                 $data->getEndHDate()
             );
             // to return form with good label
-            $data->setBeginDateLabel($data->getBeginHDate()!==null?$data->getBeginHDate()->getLabel():null);
-            $data->setEndDateLabel($data->getEndHDate()!==null?$data->getEndHDate()->getLabel():null);
+            //$data->setBeginDateLabel($data->getBeginHDate()!==null?$data->getBeginHDate()->getLabel():null);
+            //$data->setEndDateLabel($data->getEndHDate()!==null?$data->getEndHDate()->getLabel():null);
             $form = $this->formFactory->create(SearchArticleType::class)->setData($data);
         }
         else{

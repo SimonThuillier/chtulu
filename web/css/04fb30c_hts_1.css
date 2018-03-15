@@ -108,7 +108,8 @@ input.hts-border-date-input{
 	height:13px;
 }
 
-input.hts-date-input{
+input.hb-hdatepicker:not(.hb-initialized){
+	color:rgba(255,255,255,0);
 }
 
 div.hb-modal-z0{

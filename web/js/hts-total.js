@@ -128,7 +128,7 @@ $.fn.attrchange = function(o) {
 };
 })(jQuery);	
 
-function HEventFactory(hts,parentId=null){
+ function HEventFactory(hts,parentId=null){
 	this.hts = hts;
 	this.parentId = parentId;
 }
