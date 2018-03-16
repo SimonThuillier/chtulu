@@ -12,6 +12,7 @@ use AppBundle\DTO\ArticleMainDTO;
 use Doctrine\Common\Collections\ArrayCollection;
 use AppBundle\Utils\HDate;
 use AppBundle\Helper\DateHelper;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * Article
@@ -27,12 +28,14 @@ class Article
      * @ORM\Column(name="id", type="bigint")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Groups({"main"})
      */
     protected $id;
 
     /**
      * @var string
      * @ORM\Column(name="title", type="string", length=50)
+     * @Groups({"main"})
      */
     protected $title;
 
@@ -65,6 +68,7 @@ class Article
     /**
      * @var string
      * @ORM\Column(name="abstract", type="string", length=2000)
+     * @Groups({"main"})
      */
     protected $abstract;
 
@@ -72,6 +76,7 @@ class Article
      * @var ArticleType
      * @ORM\ManyToOne(targetEntity="ArticleType")
      * @ORM\JoinColumn(name="type_id", referencedColumnName="id")
+     * @Groups({"main"})
      */
     protected $type;
 
@@ -157,6 +162,14 @@ class Article
     {
         return $this->title;
     }
+
+    public function __invoke()
+    {
+        var_dump("article_construit");
+        $this->beginHDate = new HDate();
+        $this->endHDate = new HDate();
+    }
+
 
 
     /**
@@ -257,9 +270,6 @@ class Article
      * @return Article
      */
     public function setEditionDate($editionDate){
-        if($editionDate > new \DateTime()){
-            throw new \Exception('Entering dates after the actual date is not allowed; This is history, not science fiction !');
-        }
         $this->editionDate = $editionDate;
         return $this;
     }
@@ -324,8 +334,8 @@ class Article
      * @return HDate|null
      */
     public function getBeginHDate(){
+
         if($this->beginHDate === null && $this->beginDateType !== null){
-            $this->beginHDate = new HDate();
             $this->beginHDate
                 ->setType($this->beginDateType)
                 ->setBeginDate(DateHelper::indexToDate($this->beginDateMinIndex))
@@ -363,7 +373,6 @@ class Article
      */
     public function getEndHDate(){
         if($this->endHDate === null && $this->endDateType !== null){
-            $this->endHDate = new HDate();
             $this->endHDate
                 ->setType($this->endDateType)
                 ->setBeginDate(DateHelper::indexToDate($this->endDateMinIndex))

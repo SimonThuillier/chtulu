@@ -3,6 +3,7 @@
 namespace AppBundle\Helper;
 
 use AppBundle\Entity\Article;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 use AppBundle\DTO\ArticleAbstractDTO;
 use AppBundle\DTO\ArticleCollectionDTO;
@@ -31,8 +32,11 @@ class ArticleHelper
     {
         $this->articleDTOFactory = $articleDTOFactory;
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
-        $normalizer = new ObjectNormalizer($classMetadataFactory);
-        $this->serializer = new Serializer(array($normalizer),array(new JsonEncoder()));
+        $normalizers = [new ObjectNormalizer($classMetadataFactory),
+            new DateTimeNormalizer(\DateTime::ISO8601)];
+
+        $encoders = [new JsonEncoder()];
+        $this->serializer = new Serializer($normalizers,$encoders);
         $this->hDateSerializer = $hDateSerializer;
     }
     
@@ -78,7 +82,8 @@ class ArticleHelper
      */
     public function serializeArticle(Article $article)
     {
-        return $this->serializer->serialize($article, 'json');
+        // var_dump($article->getBeginHDate());
+        return $this->serializer->serialize($article, 'json',['groups'=>['main']]);
     }
     
     /**

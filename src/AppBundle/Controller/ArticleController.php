@@ -215,6 +215,17 @@ class ArticleController extends Controller
     }
 
     /**
+     * @Route("/get-json/{article}",name="article_get_json",requirements={"page": "\d+"})
+     * @ParamConverter("article", class="AppBundle:Article")
+     * @Method({"GET"})
+     */
+    public function getJsonAction(Article $article,ArticleHelper $helper)
+    {
+        var_dump($helper->serializeArticle($article));
+        return new JsonResponse($article);
+    }
+
+    /**
      * @Route("/list",name="article_list")
      * @Method({"GET","POST"})
      */
