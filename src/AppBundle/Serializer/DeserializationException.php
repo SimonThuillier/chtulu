@@ -9,7 +9,6 @@
 namespace AppBundle\Serializer;
 
 
-class DeserializationException
+class DeserializationException extends \Exception
 {
-
 }

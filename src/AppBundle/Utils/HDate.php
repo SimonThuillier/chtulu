@@ -43,11 +43,6 @@ class HDate
      * @var DateType
      */
     private $type;
-    
-    /**
-     * @var string
-     */
-    private $label;
 
     /**
      * @return \AppBundle\Utils\HDate
@@ -62,6 +57,38 @@ class HDate
      */
     public function __toString()
     {
+        if ($this === null) return null;
+        return self::toJSON($this);
+    }
+
+
+    /**
+     *
+     * @param self $hdate
+     * @return string[]|NULL[]
+     */
+    static function normalize(HDate $hdate){
+        return [
+            'beginDate' => ($hdate->getBeginDate()->format('Y-m-d') . 'T00:00:00.000Z' ),
+            'endDate' => ($hdate->getEndDate()->format('Y-m-d') . 'T00:00:00.000Z' ),
+            'type' => $hdate->getType()->getId()
+        ];
+    }
+
+    /**
+     *
+     * @param self $hdate
+     * @return string
+     */
+    static function toJSON($hdate){
+        return json_encode(self::normalize($hdate));
+    }
+    
+    /**
+     * label
+     * @return string
+     */
+    public function getLabel(){
         if($this->beginDate === null) return '';
 
         $label = $this->beginDate->format(self::FORMATTERS[$this->type->getId()]);
@@ -116,9 +143,9 @@ class HDate
             $absoluteCentury = $BC?abs($century):($century + 1);
 
             $label = Numbers_Roman::toRoman($absoluteCentury) .
-                     (($absoluteCentury == 1)?"er":"e") .
-                     " siècle" .
-                     ($BC?" Av. JC":"");
+                (($absoluteCentury == 1)?"er":"e") .
+                " siècle" .
+                ($BC?" Av. JC":"");
         }
         else if($this->type->getId() == DateType::MILLENIA){
             $millenia = floor(intval($label)/1000);
@@ -126,42 +153,11 @@ class HDate
             $absoluteMillenia = $BC?abs($millenia):($millenia + 1);
 
             $label = Numbers_Roman::toRoman($absoluteMillenia) .
-                     (($absoluteMillenia == 1)?"er":"e") .
-                     " millénaire" .
-                     ($BC?" Av. JC":"");
+                (($absoluteMillenia == 1)?"er":"e") .
+                " millénaire" .
+                ($BC?" Av. JC":"");
         }
         return $label;
-    }
-
-
-    /**
-     *
-     * @param self $hdate
-     * @return string[]|NULL[]
-     */
-    static function toArray(HDate $hdate){
-        return [
-            'beginDate' => ($hdate->getBeginDate()->format('Y-m-d') . 'T00:00:00.000Z' ),
-            'endDate' => ($hdate->getEndDate()->format('Y-m-d') . 'T00:00:00.000Z' ),
-            'type' => $hdate->getType()->getId()
-        ];
-    }
-
-    /**
-     *
-     * @param self $hdate
-     * @return string
-     */
-    static function toJSON($hdate){
-        return json_encode(self::toArray($hdate));
-    }
-    
-    /**
-     * label
-     * @return string
-     */
-    public function getLabel(){
-        return $this->__toString();
     }
     
 

@@ -2856,7 +2856,7 @@ var hb = (function (hb) {
         return hb;
     }
     hb.ui = (function (ui,hb,$) {
-        var _requiredModules = ["ui:HDatePicker/HDatePicker.js","util:HDate/HDate.js"];
+        var _requiredModules = ["ui:HDatePicker/HDatePicker.js"];
 
         let _resources = {
             "hdatepicker":null

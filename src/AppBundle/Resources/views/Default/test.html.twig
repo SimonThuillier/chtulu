@@ -6,7 +6,16 @@ Bienvenue
 {% endblock %}
 
 {%  block content %}
-<p>Page par défaut du site</p>
+<p>Page de test du site</p>
+    {{ form_start(form,{ 'attr': {'class': 'hb-article-search','action' : path('testpage') }}) }}
+    {{ form_widget(form,{ 'attr': {'class': 'hb-article-search','action' : path('testpage') }}) }}
+    {{ form_end(form) }}
+
+    <br>
+    <p>message de test : </p><br>
+    {{ msg }}
+
+
 {% endblock %}
 
 {% block javascript %}

@@ -27,9 +27,9 @@ abstract class AbstractHSerializer implements HSerializerInterface
     protected $mainFactory;
     /**
      * 
-     * @var string
+     * @var array
      */
-    protected $className;
+    protected $classNames;
     
     /**
      * @var string
@@ -38,11 +38,17 @@ abstract class AbstractHSerializer implements HSerializerInterface
     /**
      * @var array
      */
-    protected $array;
+    protected $normalization;
     /**
      * @var mixed
      */
     protected $object;
+    /**
+     * @var array
+     */
+    protected $mandatoryKeys;
+
+
 
     
     /**
@@ -69,18 +75,75 @@ abstract class AbstractHSerializer implements HSerializerInterface
      * {@inheritDoc}
      * @see \AppBundle\Serializer\HSerializerInterface::getClass()
      */
-    public function getClassName(){
-       return $this->className;
+    public function getClassNames(){
+       return $this->classNames;
     }
-    
+
     /**
-     * 
-     * {@inheritDoc}
+     * {@inheritdoc}
+     * @see \AppBundle\Serializer\HSerializerInterface::serialize()
+     * @param mixed $object
+     * @throws SerializationException
+     */
+    public function serialize($object)
+    {
+        return $this->encode($this->normalize($object));
+    }
+
+    /**
+     * @param mixed $object
+     * @return void
+     * @throws SerializationException
+     */
+    protected function preCheckNormalize($object)
+    {
+        if(!in_array(get_class($object),$this->classNames)){
+            throw new SerializationException("Unable to serialize : " .
+                get_class($object) . " given and " . join('|',$this->classNames) . " required");
+        }
+    }
+
+    /**
+     * @param array $normalizedObject
+     * @return string
+     */
+    public function encode($normalizedObject){
+        return json_encode($normalizedObject);
+    }
+
+    /**
+     * {@inheritdoc}
      * @see \AppBundle\Serializer\HSerializerInterface::deserialize()
+     * @param string $object
+     * @throws DeserializationException
+     */
+    public function deserialize($payload)
+    {
+        return $this->denormalize($this->decode($payload));
+    }
+
+    /**
+     * @param mixed $normalizedPayload
+     * @return void
+     * @throws DeserializationException
+     */
+    protected function preCheckDenormalize($normalizedPayload)
+    {
+        foreach($this->mandatoryKeys as $key){
+            if(! array_key_exists($key,$normalizedPayload)){
+                throw new DeserializationException("Unable to deserialize : key '" . $key . "' is missing in data payload");
+            }
+        }
+    }
+
+    /**
+     * @param string $payload
+     * @return array|mixed
      */
     public function decode($payload){
-        $this->payload = $payload;
-        $this->array = $this->serializer->decode($payload, 'json');
-        return $this->array;
+        return $this->serializer->decode($payload, 'json');
     }
+
+
+
 }

@@ -20,7 +20,7 @@
 	},
 	"require" : {
 		"php" : ">=7.0.0",
-		"symfony/symfony" : "3.3.6",
+		"symfony/symfony" : "3.4.*",
 		"doctrine/orm" : "^2.5",
 		"doctrine/doctrine-bundle" : "^1.6",
 		"doctrine/doctrine-cache-bundle" : "^1.2",
@@ -31,7 +31,7 @@
 		"sensio/framework-extra-bundle" : "^3.0.2",
 		"incenteev/composer-parameter-handler" : "^2.0",
 		"symfony/assetic-bundle": "^2.8",
-		"twig/twig": "v2.4.3",
+		"twig/twig": "^v2.4.3",
 		"symfony/serializer": "^3.3",
 		"patchwork/jsqueeze": "^2.0",
 		"monolog/monolog": "^1.23"
