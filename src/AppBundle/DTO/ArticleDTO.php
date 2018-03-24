@@ -12,7 +12,7 @@ namespace AppBundle\DTO;
 use AppBundle\Entity\ArticleType;
 use AppBundle\Utils\HDate;
 
-class ArticleDTO implements MinimalArticleDTO,DateArticleDTO
+class ArticleDTO implements DTO,MinimalArticleDTO,DateArticleDTO
 {
     /** @var string */
     protected $title;
@@ -26,13 +26,15 @@ class ArticleDTO implements MinimalArticleDTO,DateArticleDTO
     protected $endHDate;
     /** @var boolean */
     protected $hasEndDate;
-
+    /** @var array */
+    protected $parts;
 
     /**
      * ArticleDTO constructor.
      */
     public function __construct()
     {
+        $this->parts = ['minimal'=>false,'date'=>false];
     }
 
     /**
@@ -40,16 +42,17 @@ class ArticleDTO implements MinimalArticleDTO,DateArticleDTO
      */
     public function getBeginHDate()
     {
-        // TODO: Implement getBeginHDate() method.
+        return $this->beginHDate;
     }
 
     /**
      * @param HDate $hDate
-     * @return mixed
+     * @return self
      */
     public function setBeginHDate($hDate)
     {
-        // TODO: Implement setBeginHDate() method.
+        $this->beginHDate=$hDate;
+        return $this;
     }
 
     /**
@@ -57,16 +60,17 @@ class ArticleDTO implements MinimalArticleDTO,DateArticleDTO
      */
     public function getEndHDate()
     {
-        // TODO: Implement getEndHDate() method.
+        return $this->endHDate;
     }
 
     /**
      * @param HDate $hDate
-     * @return mixed
+     * @return self
      */
     public function setEndHDate($hDate)
     {
-        // TODO: Implement setEndHDate() method.
+        $this->endHDate = $hDate;
+        return $this;
     }
 
     /**
@@ -74,16 +78,17 @@ class ArticleDTO implements MinimalArticleDTO,DateArticleDTO
      */
     public function getHasEndDate()
     {
-        // TODO: Implement getHasEndDate() method.
+        return $this->hasEndDate;
     }
 
     /**
      * @param bool $hasEndDate
-     * @return mixed
+     * @return self
      */
     public function setHasEndDate($hasEndDate)
     {
-        // TODO: Implement setHasEndDate() method.
+        $this->hasEndDate = $hasEndDate;
+        return $this;
     }
 
     /**
@@ -91,16 +96,17 @@ class ArticleDTO implements MinimalArticleDTO,DateArticleDTO
      */
     public function getTitle()
     {
-        // TODO: Implement getTitle() method.
+        return $this->title;
     }
 
     /**
      * @param string $title
-     * @return mixed
+     * @return self
      */
     public function setTitle($title)
     {
-        // TODO: Implement setTitle() method.
+        $this->title = $title;
+        return $this;
     }
 
     /**
@@ -108,16 +114,17 @@ class ArticleDTO implements MinimalArticleDTO,DateArticleDTO
      */
     public function getAbstract()
     {
-        // TODO: Implement getAbstract() method.
+        return $this->abstract;
     }
 
     /**
      * @param string $abstract
-     * @return mixed
+     * @return self
      */
     public function setAbstract($abstract)
     {
-        // TODO: Implement setAbstract() method.
+        $this->abstract= $abstract;
+        return $this;
     }
 
     /**
@@ -125,17 +132,27 @@ class ArticleDTO implements MinimalArticleDTO,DateArticleDTO
      */
     public function getType()
     {
-        // TODO: Implement getType() method.
+        return $this->type;
     }
 
     /**
      * @param ArticleType $type
-     * @return mixed
+     * @return self
      */
     public function setType($type)
     {
-        // TODO: Implement setType() method.
+        $this->type = $type;
+        return $this;
     }
 
+    public function getParts()
+    {
+        return $this->parts;
+    }
 
+    public function declareActivePart($part)
+    {
+        if(in_array($part,$this->parts)) $this->parts = true;
+        return $this;
+    }
 }

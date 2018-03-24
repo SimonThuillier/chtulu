@@ -11,5 +11,10 @@ namespace AppBundle\DTO;
 
 interface DTO
 {
-
+/** @return array */
+public function getParts();
+/** @param string $part
+ * @return self
+ */
+function declareActivePart($part);
 }

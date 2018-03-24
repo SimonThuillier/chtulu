@@ -9,7 +9,7 @@
 namespace AppBundle\Builder;
 
 
-class NotAvailablePartException
+class NotAvailablePartException extends \Exception
 {
 
 }
