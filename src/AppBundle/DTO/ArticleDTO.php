@@ -12,7 +12,7 @@ namespace AppBundle\DTO;
 use AppBundle\Entity\ArticleType;
 use AppBundle\Utils\HDate;
 
-class ArticleDTO implements DTO,MinimalArticleDTO,DateArticleDTO
+class ArticleDTO implements DTO,ArticleMinimalDTO,ArticleDateDTO
 {
     /** @var string */
     protected $title;
@@ -38,7 +38,7 @@ class ArticleDTO implements DTO,MinimalArticleDTO,DateArticleDTO
     }
 
     /**
-     * @return mixed
+     * @return HDate
      */
     public function getBeginHDate()
     {
@@ -56,7 +56,7 @@ class ArticleDTO implements DTO,MinimalArticleDTO,DateArticleDTO
     }
 
     /**
-     * @return mixed
+     * @return HDate
      */
     public function getEndHDate()
     {
@@ -74,7 +74,7 @@ class ArticleDTO implements DTO,MinimalArticleDTO,DateArticleDTO
     }
 
     /**
-     * @return mixed
+     * @return boolean
      */
     public function getHasEndDate()
     {
@@ -92,7 +92,7 @@ class ArticleDTO implements DTO,MinimalArticleDTO,DateArticleDTO
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getTitle()
     {

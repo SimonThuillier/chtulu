@@ -23,21 +23,11 @@ class HDate
      * @var \DateTime
      */
     private $beginDate;
-    
-    /**
-     * @var integer
-     */
-    private $beginDateIndex;
-    
+
     /**
      * @var \DateTime
      */
     private $endDate;
-    
-    /**
-     * @var integer
-     */
-    private $endDateIndex;
     
     /**
      * @var DateType
@@ -93,7 +83,7 @@ class HDate
 
         $label = $this->beginDate->format(self::FORMATTERS[$this->type->getId()]);
         $pieces=explode('_',$label);
-        $BC = false;
+        //$BC = false;
 
         // specific code for rendering
         if($this->type->getId() == DateType::PRECISE) {
@@ -215,29 +205,4 @@ class HDate
         $this->type = $type;
         return $this;
     }
-
-    /**
-     * beginDateIndex
-     * @return integer
-     */
-    public function getBeginDateIndex(){
-        return $this->beginDateIndex;
-    }
-
-    /**
-     * endDateIndex
-     * @return integer
-     */
-    public function getEndDateIndex(){
-        return $this->endDateIndex;
-    }
-    
-    /**
-     * update date indexes, must always be called when dates are modified
-     */
-    public function updateIndexes(){
-        $this->beginDateIndex = DateHelper::dateToIndex($this->beginDate);
-        $this->endDateIndex = DateHelper::dateToIndex($this->endDate);
-    }
-
 }

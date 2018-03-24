@@ -1,0 +1,23 @@
+{% extends "base.html.twig" %}
+
+
+{% block title %}
+Page de test Article
+{% endblock %}
+
+{%  block content %}
+<p>Page de test article</p>
+    {{ form_start(form,{ 'attr': {'class': 'hb-article-search','action' : path('testarticle') }}) }}
+    {{ form_widget(form,{ 'attr': {'class': 'hb-article-search','action' : path('testarticle') }}) }}
+    {{ form_end(form) }}
+
+    <br>
+
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        console.log(hb);
+console.log(typeof hb);
+    </script>
+{% endblock %}

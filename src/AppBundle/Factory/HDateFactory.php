@@ -7,6 +7,9 @@ use AppBundle\Helper\DateHelper;
 
 class HDateFactory
 {
+    /**
+     * @var HDate
+     */
     private $object;
     
     /**
@@ -71,6 +74,5 @@ class HDateFactory
                 break;
             default:break;
         }
-        $this->object->updateIndexes();
     }
 }

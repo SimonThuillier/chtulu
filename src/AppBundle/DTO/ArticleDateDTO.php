@@ -11,7 +11,7 @@ namespace AppBundle\DTO;
 
 use AppBundle\Utils\HDate;
 
-interface DateArticleDTO
+interface ArticleDateDTO
 {
     /** @return HDate */
     public function getBeginHDate();

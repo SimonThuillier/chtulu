@@ -87,11 +87,6 @@ class Article
     protected $content;
 
     /**
-     * @var HDate
-     */
-    protected $beginHDate;
-
-    /**
      * @var integer
      * @ORM\Column(name="begin_date_min_index", type="integer",nullable=true)
      */
@@ -115,11 +110,6 @@ class Article
      * @ORM\Column(name="begin_date_label", type="string", nullable=true,length=50)
      */
     protected $beginDateLabel;
-
-    /**
-     * @var HDate
-     */
-    protected $endHDate;
 
     /**
      * @var integer
@@ -162,15 +152,6 @@ class Article
     {
         return $this->title;
     }
-
-    public function __invoke()
-    {
-        var_dump("article_construit");
-        $this->beginHDate = new HDate();
-        $this->endHDate = new HDate();
-    }
-
-
 
     /**
      * Get id
@@ -231,9 +212,6 @@ class Article
      * @return Article
      */
     public function setCreationDate($creationDate){
-        if($creationDate > new \DateTime()){
-            throw new \Exception('Entering dates after the actual date is not allowed; This is history, not science fiction !');
-        }
         $this->creationDate = $creationDate;
         return $this;
     }
@@ -328,80 +306,147 @@ class Article
         return $this;
     }
 
-
     /**
-     * get beginHDate
-     * @return HDate|null
+     * @return int
      */
-    public function getBeginHDate(){
-
-        if($this->beginHDate === null && $this->beginDateType !== null){
-            $this->beginHDate
-                ->setType($this->beginDateType)
-                ->setBeginDate(DateHelper::indexToDate($this->beginDateMinIndex))
-                ->setEndDate(DateHelper::indexToDate($this->beginDateMaxIndex))
-                ->updateIndexes();
-        }
-        return $this->beginHDate;
+    public function getBeginDateMinIndex(): int
+    {
+        return $this->beginDateMinIndex;
     }
 
     /**
-     * Set beginHDate
-     * @param HDate $hDate
+     * @param int $beginDateMinIndex
      * @return Article
      */
-    public function setBeginHDate($hDate){
-        $this->beginHDate = $hDate;
-        if($this->beginHDate === null){
-            $this->beginDateLabel = null;
-            $this->beginDateMinIndex = null;
-            $this->beginDateMaxIndex = null;
-            $this->beginDateType = null;
-        }
-        else{
-            $this->beginDateLabel = $hDate->getLabel();
-            $this->beginDateMinIndex = DateHelper::dateToIndex($hDate->getBeginDate());
-            $this->beginDateMaxIndex = DateHelper::dateToIndex($hDate->getEndDate());
-            $this->beginDateType = $hDate->getType();
-        }
+    public function setBeginDateMinIndex(int $beginDateMinIndex): Article
+    {
+        $this->beginDateMinIndex = $beginDateMinIndex;
         return $this;
     }
 
     /**
-     * get endHDate
-     * @return HDate|null
+     * @return int
      */
-    public function getEndHDate(){
-        if($this->endHDate === null && $this->endDateType !== null){
-            $this->endHDate
-                ->setType($this->endDateType)
-                ->setBeginDate(DateHelper::indexToDate($this->endDateMinIndex))
-                ->setEndDate(DateHelper::indexToDate($this->endDateMaxIndex))
-                ->updateIndexes();
-        }
-
-        return $this->endHDate;
+    public function getBeginDateMaxIndex(): int
+    {
+        return $this->beginDateMaxIndex;
     }
 
     /**
-     * Set endHDate
-     * @param HDate $hDate
+     * @param int $beginDateMaxIndex
      * @return Article
      */
-    public function setEndHDate($hDate){
-        $this->endHDate = $hDate;
-        if($this->endHDate === null){
-            $this->endDateLabel = null;
-            $this->endDateMinIndex = null;
-            $this->endDateMaxIndex = null;
-            $this->endDateType = null;
-        }
-        else{
-            $this->endDateLabel = $hDate->getLabel();
-            $this->endDateMinIndex = DateHelper::dateToIndex($hDate->getBeginDate());
-            $this->endDateMaxIndex = DateHelper::dateToIndex($hDate->getEndDate());
-            $this->endDateType = $hDate->getType();
-        }
+    public function setBeginDateMaxIndex(int $beginDateMaxIndex): Article
+    {
+        $this->beginDateMaxIndex = $beginDateMaxIndex;
+        return $this;
+    }
+
+    /**
+     * @return DateType
+     */
+    public function getBeginDateType(): DateType
+    {
+        return $this->beginDateType;
+    }
+
+    /**
+     * @param DateType $beginDateType
+     * @return Article
+     */
+    public function setBeginDateType(DateType $beginDateType): Article
+    {
+        $this->beginDateType = $beginDateType;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBeginDateLabel(): string
+    {
+        return $this->beginDateLabel;
+    }
+
+    /**
+     * @param string $beginDateLabel
+     * @return Article
+     */
+    public function setBeginDateLabel(string $beginDateLabel): Article
+    {
+        $this->beginDateLabel = $beginDateLabel;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getEndDateMinIndex(): int
+    {
+        return $this->endDateMinIndex;
+    }
+
+    /**
+     * @param int $endDateMinIndex
+     * @return Article
+     */
+    public function setEndDateMinIndex(int $endDateMinIndex): Article
+    {
+        $this->endDateMinIndex = $endDateMinIndex;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getEndDateMaxIndex(): int
+    {
+        return $this->endDateMaxIndex;
+    }
+
+    /**
+     * @param int $endDateMaxIndex
+     * @return Article
+     */
+    public function setEndDateMaxIndex(int $endDateMaxIndex): Article
+    {
+        $this->endDateMaxIndex = $endDateMaxIndex;
+        return $this;
+    }
+
+    /**
+     * @return DateType
+     */
+    public function getEndDateType(): DateType
+    {
+        return $this->endDateType;
+    }
+
+    /**
+     * @param DateType $endDateType
+     * @return Article
+     */
+    public function setEndDateType($endDateType): Article
+    {
+        $this->endDateType = $endDateType;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEndDateLabel(): string
+    {
+        return $this->endDateLabel;
+    }
+
+    /**
+     * @param string $endDateLabel
+     * @return Article
+     */
+    public function setEndDateLabel(string $endDateLabel): Article
+    {
+        $this->endDateLabel = $endDateLabel;
         return $this;
     }
 

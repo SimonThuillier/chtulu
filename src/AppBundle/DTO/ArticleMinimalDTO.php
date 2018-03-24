@@ -11,7 +11,7 @@ namespace AppBundle\DTO;
 
 use AppBundle\Entity\ArticleType;
 
-interface MinimalArticleDTO
+interface ArticleMinimalDTO
 {
     /** @return string */
     public function getTitle();

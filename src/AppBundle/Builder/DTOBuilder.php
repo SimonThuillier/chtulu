@@ -46,16 +46,35 @@ abstract class DTOBuilder
 
     /**
      * @param string $part
-     * @param mixed $object
+     * @param mixed $fromObject
      * @throws NotAvailablePartException
      * @throws NullDTOException
+     * @return self
      */
-    public function buildPart(String $part,$object){
+    public function buildPart(String $part,$fromObject){
         if($this->DTO === null){
             throw new NullDTOException("DTO is not instanciated : it must be instanciated to build parts");
         }
         if(! in_array($part,$this->availableParts)){
             throw new NotAvailablePartException("Part " . $part . " is not available for DTO " . get_class($this->DTO));
         }
+        return $this;
+    }
+
+    /**
+     * @param string $part
+     * @param mixed $toObject
+     * @throws NotAvailablePartException
+     * @throws NullDTOException
+     * @return self
+     */
+    public function returnPart(String $part,$toObject){
+        if($this->DTO === null){
+            throw new NullDTOException("DTO is not instanciated : it must be instanciated to return parts");
+        }
+        if(! in_array($part,$this->availableParts)){
+            throw new NotAvailablePartException("Part " . $part . " is not available for DTO " . get_class($this->DTO));
+        }
+        return $this;
     }
 }

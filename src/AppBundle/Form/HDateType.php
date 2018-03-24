@@ -6,10 +6,9 @@
  * Time: 23:02
  */
 
-namespace AppBundle\Form\Type;
+namespace AppBundle\Form;
 
 use AppBundle\Form\DataTransformer\HDateToStringTransformer;
-use AppBundle\Utils\HDate;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -29,8 +28,6 @@ class HDateType extends AbstractType
         $builder
             ->addModelTransformer($this->transformer);
     }
-
-
 
     public function configureOptions(OptionsResolver $resolver)
     {
