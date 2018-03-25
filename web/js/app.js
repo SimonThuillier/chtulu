@@ -1999,6 +1999,9 @@ var hb = (function (hb) {
         let hd = hb.util.date;
         let trans = hb.util.trans;
 
+        let timeZoneOffset = new Date().getTimezoneOffset();
+        console.log("timeZoneOffset : " + timeZoneOffset);
+
         let _availableTypes = ["1","2","3","4","5","6","7","8"];
         console.log(1);
         let _formatters = {
@@ -2037,8 +2040,8 @@ var hb = (function (hb) {
         {
             if(Number.isInteger(type)){type=type.toString();}
             if (_availableTypes.indexOf(type) === -1){throw "invalid type for HDate";}
-            this.beginDate = date;
-            this.endDate = endDate;
+            this.beginDate = new Date(date.getTime() - timeZoneOffset * 60 * 1000);
+            this.endDate = (endDate !== null)?new Date(endDate.getTime() - timeZoneOffset * 60 * 1000):null;
             this.setType(type);
             return this;
         };
@@ -2119,8 +2122,25 @@ var hb = (function (hb) {
             parseFromJson : function(jsonStr)
             {
                 let jsonObj = JSON.parse(jsonStr);
-                jsonObj.beginDate = new Date(Date.parse(jsonObj.beginDate));
-                jsonObj.endDate = new Date(Date.parse(jsonObj.endDate));
+                console.log("date avant parsage : " + jsonObj.beginDate);
+                if(jsonObj.beginDate !== null && jsonObj.beginDate.substring(0,1) === "-"){
+                    jsonObj.beginDate = jsonObj.beginDate.substring(3);
+                    jsonObj.beginDate = new Date(Date.parse(jsonObj.beginDate));
+                    jsonObj.beginDate.setFullYear(-jsonObj.beginDate.getFullYear());
+                }
+                else{
+                    jsonObj.beginDate = new Date(Date.parse(jsonObj.beginDate));
+                }
+                if(jsonObj.endDate !== null && jsonObj.endDate.substring(0,1) === "-"){
+                    jsonObj.endDate = jsonObj.endDate.substring(3);
+                    jsonObj.endDate = new Date(Date.parse(jsonObj.endDate));
+                    jsonObj.endDate.setFullYear(-jsonObj.endDate.getFullYear());
+                }
+                else{
+                    jsonObj.endDate = new Date(Date.parse(jsonObj.endDate));
+                }
+
+                console.log("date parsée : " + jsonObj.beginDate);
                 return new util.HDate(jsonObj.type,jsonObj.beginDate,jsonObj.endDate);
             },
             /**
@@ -2636,7 +2656,7 @@ var hb = (function (hb,$) {
                 if(typeof ($element.first().attr("data-label")) !== "undefined"){
                     this.option.title = this.$element.first().attr("data-label");}
 
-                if(typeof ($element.first().attr("data-hdate")) !== "undefined"){
+                if(typeof ($element.first().attr("data-hdate")) !== "undefined" && $element.first().attr("data-hdate") !== ""){
                     this.hDate = hb.util.HDate.prototype.parseFromJson($element.first().attr("data-hdate"));
                 }
                 else if (this.hDate !== null){this.hDate = this.hDate.clone();}

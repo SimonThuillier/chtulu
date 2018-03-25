@@ -6,10 +6,10 @@
  * Time: 01:15
  */
 
-namespace AppBundle\Builder;
+namespace AppBundle\Mediator;
 
 
-class NotAvailablePartException extends \Exception
+class NullColleagueException extends \Exception
 {
 
 }

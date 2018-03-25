@@ -2,14 +2,13 @@
 
 namespace AppBundle\Controller;
 
-use AppBundle\Builder\ArticleDTOBuilder;
-use AppBundle\Builder\NotAvailablePartException;
-use AppBundle\Builder\NullDTOException;
+use AppBundle\Mediator\ArticleDTOMediator;
+use AppBundle\Mediator\NotAvailableGroupException;
+use AppBundle\Mediator\NullColleagueException;
 use AppBundle\DTO\ArticleDTO;
 use AppBundle\Entity\Article;
 use AppBundle\Entity\DateType;
-use AppBundle\Form\ArticleDateType;
-use AppBundle\Form\ArticleMinimalType;
+use AppBundle\Form\ArticleDTOType;
 use AppBundle\Form\TestType;
 use AppBundle\Test;
 use AppBundle\Utils\HDate;
@@ -67,45 +66,51 @@ class TestController extends Controller
     /**
      * @Route("/test-article", name="testarticle")
      * @Template()
-     * @throws NotAvailablePartException
-     * @throws NullDTOException
+     * @throws NotAvailableGroupException
+     * @throws NullColleagueException
      */
-    public function testArticleAction(Request $request,ArticleDTOBuilder $builder)
+    public function testArticleAction(Request $request, ArticleDTOMediator $mediator)
     {
         /** @var Session $session */
         $session = $this->get('session');
 
         $doctrine = $this->getDoctrine();
 
-
         $article = $doctrine->getRepository(Article::class)
             ->find(1);
 
-        $articleDTO = $builder->setDTO(new ArticleDTO())
-            ->buildPart('minimal',$article)
-            ->buildPart('date',$article)
+        $groups = ['minimal','abstract','date'];
+
+        $DTO = new ArticleDTO();
+
+        $articleDTO = $mediator
+            ->setDTO($DTO)
+            ->setEntity($article)
+            ->setDTOGroups($groups)
         ->getDTO();
 
         $formFactory = $this->get('form.factory');
 
         $form = $formFactory
-            ->createBuilder(ArticleDateType::class)
-            ->add('save',SubmitType::class)
-            ->setData($articleDTO)->getForm();
+            ->createBuilder(ArticleDTOType::class,$articleDTO,['validation_groups'=>$groups])
+            ->add('save',SubmitType::class,["attr"=>["method"=>"POST"]])
+            ->getForm();
 
         //var_dump($request->getMethod());
         //$session->set("msg",$test->getHDate());
 
         $form->handleRequest($request);
-
+        var_dump($request->getMethod());
         if ($form->isSubmitted()) {
+            var_dump("je suis soumise");
             if ($form->isValid()) {
-
-
-
-
+                var_dump($mediator->getChangedProperties());
+                // var_dump($DTO->getEndHDate());
+                $mediator->returnDataToEntity();
+                //throw new \Exception("lol");
+                $doctrine->getManager()->flush();
             }
-            return $this->redirectToRoute("testarticle");
+            return array("form"=>$form->createView(),"msg"=>"");
         }
 
         // replace this example code with whatever you need

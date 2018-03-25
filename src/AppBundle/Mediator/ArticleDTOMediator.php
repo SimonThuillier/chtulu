@@ -6,7 +6,7 @@
  * Time: 00:46
  */
 
-namespace AppBundle\Builder;
+namespace AppBundle\Mediator;
 
 
 use AppBundle\DTO\ArticleDTO;
@@ -14,70 +14,62 @@ use AppBundle\Entity\Article;
 use AppBundle\Helper\DateHelper;
 use AppBundle\Utils\HDate;
 
-class ArticleDTOBuilder extends DTOBuilder
+class ArticleDTOMediator extends DTOMediator
 {
     /**
-     * @param string $part
-     * @param mixed $fromObject
-     * @throws NotAvailablePartException
-     * @throws NullDTOException
-     * @return self
+     * ArticleDTOMediator constructor.
      */
-    public function buildPart(String $part, $fromObject)
+    public function __construct()
     {
-        parent::buildPart($part, $fromObject);
-        $function = 'build' . ucfirst(strtolower($part)) . 'Part';
-        $this->$function($fromObject);
-        return $this;
+        parent::__construct();
+        $this->groups = ['minimal'=>false,'abstract'=>false,'date'=>false];
     }
 
     /**
-     * @param string $part
-     * @param mixed $toObject
-     * @throws NotAvailablePartException
-     * @throws NullDTOException
+     * @param string $group
+     * @throws NotAvailableGroupException
+     * @throws NullColleagueException
      * @return self
      */
-    public function returnPart(String $part, $toObject)
+    public function setDTOGroup(String $group)
     {
-        parent::returnPart($part, $toObject);
-        $function = 'return' . ucfirst(strtolower($part)) . 'Part';
-        $this->$function($toObject);
+        parent::setDTOGroup($group);
+        $function = 'setDTO' . ucfirst($group) . 'Group';
+        $this->$function();
+
         return $this;
     }
 
-    /**
-     * @param Article $article
-     */
-    private function buildMinimalPart($article)
+    private function setDTOMinimalGroup()
     {
+        /** @var Article $article */
+        $article = $this->entity;
         /** @var ArticleDTO $DTO */
         $DTO = $this->DTO;
         $DTO
             ->setTitle($article->getTitle())
             ->setType($article->getType())
-            ->setAbstract($article->getAbstract())
-            ->declareActivePart('minimal');
+            ->setAbstract($article->getAbstract());
+        $this->pendingSetting = false;
+        $this->groups['minimal'] = true;
     }
 
-    /**
-     * @param Article $article
-     */
-    private function returnMinimalPart($article)
+    private function setDTOAbstractGroup()
     {
+        /** @var Article $article */
+        $article = $this->entity;
         /** @var ArticleDTO $DTO */
         $DTO = $this->DTO;
-        $article
-            ->setTitle($DTO->getTitle())
-            ->setType($DTO->getType())
-            ->setAbstract($DTO->getAbstract());
+        $DTO
+            ->setAbstract($article->getAbstract());
+        $this->pendingSetting = false;
+        $this->groups['abstract'] = true;
     }
 
-    /**
-     * @param Article $article
-     */
-    private function buildDatePart($article)
+    private function setDTODateGroup()
     {
+        /** @var Article $article */
+        $article = $this->entity;
         $beginHDate = ($article->getBeginDateType() !== null)?new HDate():null;
         $endHDate = ($article->getEndDateType() !== null)?new HDate():null;
         $hasEndDate = false;
@@ -101,35 +93,54 @@ class ArticleDTOBuilder extends DTOBuilder
         $DTO
             ->setBeginHDate($beginHDate)
             ->setEndHDate($endHDate)
-            ->setHasEndDate($hasEndDate)
-            ->declareActivePart('date');
+            ->setHasEndDate($hasEndDate);
+        $this->pendingSetting = false;
+        $this->groups['date'] = true;
     }
 
-    /**
-     * @param Article $article
-     */
-    private function returnDatePart($article)
-    {
+    protected function mediateBeginHDate(){
         /** @var ArticleDTO $DTO */
         $DTO = $this->DTO;
-
+        /** @var Article $article */
+        $article = $this->entity;
         $beginHDate = $DTO->getBeginHDate();
-        $endHDate = $DTO->getEndHDate();
 
-        if($DTO->getBeginHDate() !== null){
+        if($beginHDate !== null){
             $article
                 ->setBeginDateType($beginHDate->getType())
                 ->setBeginDateMinIndex(DateHelper::dateToIndex($beginHDate->getBeginDate()))
                 ->setBeginDateMaxIndex(DateHelper::dateToIndex($beginHDate->getEndDate()))
                 ->setBeginDateLabel($beginHDate->getLabel());
         }
-        if($DTO->getHasEndDate()){
+        else{
+            $article
+                ->setBeginDateType(null)
+                ->setBeginDateMinIndex(null)
+                ->setBeginDateMaxIndex(null)
+                ->setBeginDateLabel(null);
+        }
+    }
+
+    protected function mediateEndHDate(){
+        /** @var ArticleDTO $DTO */
+        $DTO = $this->DTO;
+        /** @var Article $article */
+        $article = $this->entity;
+        $endHDate = $DTO->getEndHDate();
+
+        if($DTO->getHasEndDate() && $endHDate !== null){
             $article
                 ->setEndDateType($endHDate->getType())
                 ->setEndDateMinIndex(DateHelper::dateToIndex($endHDate->getBeginDate()))
                 ->setEndDateMaxIndex(DateHelper::dateToIndex($endHDate->getEndDate()))
                 ->setEndDateLabel($endHDate->getLabel());
         }
+        else{
+            $article
+                ->setBeginDateType(null)
+                ->setBeginDateMinIndex(null)
+                ->setBeginDateMaxIndex(null)
+                ->setBeginDateLabel(null);
+        }
     }
-
 }

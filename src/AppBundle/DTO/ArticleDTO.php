@@ -10,9 +10,10 @@ namespace AppBundle\DTO;
 
 
 use AppBundle\Entity\ArticleType;
+use AppBundle\Mediator\DTOMediator;
 use AppBundle\Utils\HDate;
 
-class ArticleDTO implements DTO,ArticleMinimalDTO,ArticleDateDTO
+class ArticleDTO extends EntityMutableDTO implements ArticleMinimalDTO,ArticleDateDTO
 {
     /** @var string */
     protected $title;
@@ -26,15 +27,14 @@ class ArticleDTO implements DTO,ArticleMinimalDTO,ArticleDateDTO
     protected $endHDate;
     /** @var boolean */
     protected $hasEndDate;
-    /** @var array */
-    protected $parts;
+    /** @var DTOMediator */
+    protected $mediator;
 
     /**
      * ArticleDTO constructor.
      */
     public function __construct()
     {
-        $this->parts = ['minimal'=>false,'date'=>false];
     }
 
     /**
@@ -49,9 +49,10 @@ class ArticleDTO implements DTO,ArticleMinimalDTO,ArticleDateDTO
      * @param HDate $hDate
      * @return self
      */
-    public function setBeginHDate($hDate)
+   public function setBeginHDate($hDate)
     {
         $this->beginHDate=$hDate;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('beginHDate');
         return $this;
     }
 
@@ -70,6 +71,7 @@ class ArticleDTO implements DTO,ArticleMinimalDTO,ArticleDateDTO
     public function setEndHDate($hDate)
     {
         $this->endHDate = $hDate;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('endHDate');
         return $this;
     }
 
@@ -88,6 +90,7 @@ class ArticleDTO implements DTO,ArticleMinimalDTO,ArticleDateDTO
     public function setHasEndDate($hasEndDate)
     {
         $this->hasEndDate = $hasEndDate;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('hasEndDate');
         return $this;
     }
 
@@ -106,6 +109,7 @@ class ArticleDTO implements DTO,ArticleMinimalDTO,ArticleDateDTO
     public function setTitle($title)
     {
         $this->title = $title;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('title');
         return $this;
     }
 
@@ -124,6 +128,7 @@ class ArticleDTO implements DTO,ArticleMinimalDTO,ArticleDateDTO
     public function setAbstract($abstract)
     {
         $this->abstract= $abstract;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('abstract');
         return $this;
     }
 
@@ -142,17 +147,7 @@ class ArticleDTO implements DTO,ArticleMinimalDTO,ArticleDateDTO
     public function setType($type)
     {
         $this->type = $type;
-        return $this;
-    }
-
-    public function getParts()
-    {
-        return $this->parts;
-    }
-
-    public function declareActivePart($part)
-    {
-        if(in_array($part,$this->parts)) $this->parts = true;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('type');
         return $this;
     }
 }

@@ -42,6 +42,8 @@ class HDateSerializer extends AbstractHSerializer implements HSerializerInterfac
             throw new SerializationException("Error while serializing object of class " .
                 get_class($object) . " :  " . $e->getMessage());
         }
+        var_dump($normalization["beginDate"]);
+        //throw new \Exception("test");
         return $normalization;
     }
 
@@ -52,6 +54,7 @@ class HDateSerializer extends AbstractHSerializer implements HSerializerInterfac
      */
     public function denormalize($normalizedPayload)
     {
+
         $this->preCheckDenormalize($normalizedPayload);
         try{
             $normalizedPayload["beginDate"] = DateHelper::createFromJson($normalizedPayload["beginDate"]);

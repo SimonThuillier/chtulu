@@ -6,10 +6,10 @@
  * Time: 01:15
  */
 
-namespace AppBundle\Builder;
+namespace AppBundle\Mediator;
 
 
-class NullDTOException extends \Exception
+class NotAvailableGroupException extends \Exception
 {
 
 }

@@ -21,7 +21,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Entity(repositoryClass="AppBundle\Repository\ArticleRepository")
  * @UniqueEntity(fields="title", message="Another article named {{ value }} exists. Consider editing it instead or rename your article.")
  */
-class Article
+class Article extends DTOMutableEntity
 {
     /**
      * @var int

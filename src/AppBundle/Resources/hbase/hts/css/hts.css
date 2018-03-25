@@ -112,6 +112,10 @@ input.hb-hdatepicker:not(.hb-initialized){
 	color:rgba(255,255,255,0);
 }
 
+textarea {
+    resize: vertical;
+}
+
 div.hb-modal-z0{
 	z-index: 1;
 }

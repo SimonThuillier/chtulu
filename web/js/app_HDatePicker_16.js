@@ -275,7 +275,7 @@ var hb = (function (hb,$) {
                 if(typeof ($element.first().attr("data-label")) !== "undefined"){
                     this.option.title = this.$element.first().attr("data-label");}
 
-                if(typeof ($element.first().attr("data-hdate")) !== "undefined"){
+                if(typeof ($element.first().attr("data-hdate")) !== "undefined" && $element.first().attr("data-hdate") !== ""){
                     this.hDate = hb.util.HDate.prototype.parseFromJson($element.first().attr("data-hdate"));
                 }
                 else if (this.hDate !== null){this.hDate = this.hDate.clone();}
