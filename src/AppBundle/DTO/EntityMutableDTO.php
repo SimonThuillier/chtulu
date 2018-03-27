@@ -17,7 +17,7 @@ abstract class EntityMutableDTO {
     }
 
     /**
-     * @param $mediator
+     * @param DTOMediator|null $mediator
      */
     public function setMediator($mediator){
         if($mediator === $this->mediator) return;

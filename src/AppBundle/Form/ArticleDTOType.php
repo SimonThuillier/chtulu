@@ -84,6 +84,23 @@ class ArticleDTOType extends AbstractType
             ));
     }
 
+    private function buildSubArticlesGroup(FormBuilderInterface $builder, array $options){
+
+        $builder
+            ->add('subArticles', TextareaType::class, array(
+                'required' => false,
+                'label' => 'sous-events'
+            ));
+    }
+
+    private function buildLinkGroup(FormBuilderInterface $builder, array $options){
+
+        $builder
+            ->add('y', TextType::class, array(
+                'attr' => array('hidden' => true)
+            ));
+    }
+
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(

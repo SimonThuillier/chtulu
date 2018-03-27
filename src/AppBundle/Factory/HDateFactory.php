@@ -19,7 +19,7 @@ class HDateFactory
      * @param \DateTime|null $endDate
      * @return HDate
      */
-    public function newInstance(DateType $type,\DateTime $date,$endDate = null)
+    public function create(DateType $type,\DateTime $date,$endDate = null)
     {
         $this->object = new HDate();
         $this->setData($type, $date,$endDate);

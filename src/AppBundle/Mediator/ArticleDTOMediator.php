@@ -44,9 +44,9 @@ class ArticleDTOMediator extends DTOMediator
     {
         /** @var Article $article */
         $article = $this->entity;
-        /** @var ArticleDTO $DTO */
-        $DTO = $this->DTO;
-        $DTO
+        /** @var ArticleDTO $dto */
+        $dto = $this->dto;
+        $dto
             ->setTitle($article->getTitle())
             ->setType($article->getType())
             ->setAbstract($article->getAbstract());
@@ -58,9 +58,9 @@ class ArticleDTOMediator extends DTOMediator
     {
         /** @var Article $article */
         $article = $this->entity;
-        /** @var ArticleDTO $DTO */
-        $DTO = $this->DTO;
-        $DTO
+        /** @var ArticleDTO $dto */
+        $dto = $this->dto;
+        $dto
             ->setAbstract($article->getAbstract());
         $this->pendingSetting = false;
         $this->groups['abstract'] = true;
@@ -88,9 +88,9 @@ class ArticleDTOMediator extends DTOMediator
             $hasEndDate = true;
         }
 
-        /** @var ArticleDTO $DTO */
-        $DTO = $this->DTO;
-        $DTO
+        /** @var ArticleDTO $dto */
+        $dto = $this->dto;
+        $dto
             ->setBeginHDate($beginHDate)
             ->setEndHDate($endHDate)
             ->setHasEndDate($hasEndDate);
@@ -99,11 +99,11 @@ class ArticleDTOMediator extends DTOMediator
     }
 
     protected function mediateBeginHDate(){
-        /** @var ArticleDTO $DTO */
-        $DTO = $this->DTO;
+        /** @var ArticleDTO $dto */
+        $dto = $this->dto;
         /** @var Article $article */
         $article = $this->entity;
-        $beginHDate = $DTO->getBeginHDate();
+        $beginHDate = $dto->getBeginHDate();
 
         if($beginHDate !== null){
             $article
@@ -122,13 +122,13 @@ class ArticleDTOMediator extends DTOMediator
     }
 
     protected function mediateEndHDate(){
-        /** @var ArticleDTO $DTO */
-        $DTO = $this->DTO;
+        /** @var ArticleDTO $dto */
+        $dto = $this->dto;
         /** @var Article $article */
         $article = $this->entity;
-        $endHDate = $DTO->getEndHDate();
+        $endHDate = $dto->getEndHDate();
 
-        if($DTO->getHasEndDate() && $endHDate !== null){
+        if($dto->getHasEndDate() && $endHDate !== null){
             $article
                 ->setEndDateType($endHDate->getType())
                 ->setEndDateMinIndex(DateHelper::dateToIndex($endHDate->getBeginDate()))

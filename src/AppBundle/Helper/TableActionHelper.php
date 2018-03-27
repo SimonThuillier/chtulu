@@ -8,7 +8,7 @@ use Symfony\Component\Routing\Router;
  * Class TableActionHelper
  * @package AppBundle\Helper
  */
-class TableActionHelper implements TableActionHelperInterface
+class TableActionHelper
 {
     /**
      * @var Router

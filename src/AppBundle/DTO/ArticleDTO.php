@@ -13,7 +13,7 @@ use AppBundle\Entity\ArticleType;
 use AppBundle\Mediator\DTOMediator;
 use AppBundle\Utils\HDate;
 
-class ArticleDTO extends EntityMutableDTO implements ArticleMinimalDTO,ArticleDateDTO
+class ArticleDTO extends EntityMutableDTO
 {
     /** @var string */
     protected $title;

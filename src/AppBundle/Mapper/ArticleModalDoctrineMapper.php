@@ -24,7 +24,7 @@ use AppBundle\Repository\ArticleRepository;
  *
  * @package AppBundle\Mapper
  */
-class ArticleModalDoctrineMapper extends AbstractDoctrineMapper
+class ArticleModalDoctrineMapper extends EntityMapper
 {
     /** @var ArticleLinkFactory */
     private $linkFactory;

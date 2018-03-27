@@ -11,21 +11,26 @@ namespace AppBundle\Mediator;
 
 use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\Entity\DTOMutableEntity;
+use AppBundle\Mapper\EntityMapper;
 
 abstract class DTOMediator
 {
     /** @var EntityMutableDTO */
-    protected $DTO;
+    protected $dto;
     /** @var DTOMutableEntity */
     protected $entity;
+    /** @var EntityMapper */
+    protected $mapper;
     /** @var array */
     protected $groups;
     /** @var array */
     protected $changedProperties;
     /** @var boolean */
+    private $pendingSetDTO;
+    /** @var boolean */
     private $pendingSetEntity;
     /** @var boolean */
-    private $pendingSetDTO;
+    protected $pendingSetMapper;
     /** @var boolean */
     protected $pendingSetting;
 
@@ -36,30 +41,31 @@ abstract class DTOMediator
     {
         $this->groups = [];
         $this->changedProperties = [];
-        $this->pendingSetEntity = false;
         $this->pendingSetDTO = false;
+        $this->pendingSetEntity = false;
+        $this->pendingSetMapper = false;
         $this->pendingSetting = false;
     }
 
     /**
-     * @param EntityMutableDTO|null $DTO
+     * @param EntityMutableDTO|null $dto
      * @return $this
      */
-    public function setDTO($DTO){
-        if($this->DTO === $DTO || $this->pendingSetDTO) return $this;
+    public function setDTO($dto){
+        if($this->dto === $dto || $this->pendingSetDTO) return $this;
         $this->pendingSetDTO = true;
-        if($this->DTO !== null) $this->DTO->setMediator(null);
-        $this->DTO = $DTO;
-        if($this->DTO !== null) $this->DTO->setMediator($this);
+        if($this->dto !== null) $this->dto->setMediator(null);
+        $this->dto = $dto;
+        if($this->dto !== null) $this->dto->setMediator($this);
         $this->pendingSetDTO = false;
         return $this;
     }
 
     /**
-     * @return mixed
+     * @return mixed|null
      */
     public function getDTO(){
-        return $this->DTO;
+        return $this->dto;
     }
 
     /**
@@ -77,10 +83,31 @@ abstract class DTOMediator
     }
 
     /**
-     * @return mixed
+     * @return mixed|null
      */
     public function getEntity(){
         return $this->entity;
+    }
+
+    /**
+     * @param EntityMapper|null $mapper
+     * @return $this
+     */
+    public function setMapper($mapper){
+        if($this->mapper === $mapper || $this->pendingSetMapper) return $this;
+        $this->pendingSetMapper = true;
+        if($this->mapper !== null) $this->mapper->setMediator(null);
+        $this->mapper = $mapper;
+        if($this->mapper !== null) $this->mapper->setMediator($this);
+        $this->pendingSetMapper = false;
+        return $this;
+    }
+
+    /**
+     * @return EntityMapper|null
+     */
+    public function getMapper(){
+        return $this->mapper;
     }
 
     /**
@@ -90,7 +117,7 @@ abstract class DTOMediator
      * @return self
      */
     public function setDTOGroup(String $group){
-        if($this->DTO === null) throw new NullColleagueException("DTO must be instanciated to build its groups");
+        if($this->dto === null) throw new NullColleagueException("DTO must be instanciated to build its groups");
         if($this->entity === null) throw new NullColleagueException("Entity must be specified to receive data");
         if(! in_array($group,array_keys($this->groups))){
             throw new NotAvailableGroupException("Group " . $group . " is not available for DTOMediator " . self::class);
@@ -142,11 +169,14 @@ abstract class DTOMediator
     }
 
     /**
+     * @var EntityMapper $mapper
      * @return array
      * @throws NullColleagueException
+     * @throws InvalidCallerException
      */
-    public function returnDataToEntity(){
-        if($this->DTO === null) throw new NullColleagueException("DTO must be specified to return data");
+    public function returnDataToEntity(EntityMapper $mapper){
+        if($mapper !== $this->mapper) throw new NullColleagueException("DTO must be specified to return data");
+        if($this->dto === null) throw new NullColleagueException("DTO must be specified to return data");
         if($this->entity === null) throw new NullColleagueException("Entity must be specified to receive data");
         $propertiesToReturn = array_unique($this->changedProperties);
         $returnedProperties = [];
@@ -160,8 +190,8 @@ abstract class DTOMediator
                 $this->$mediatorFunction();
                 $returnedProperties[] = $property;
             }
-            else if(method_exists($this->DTO,$dtoFunction) && method_exists($this->entity,$entityFunction)){
-                $this->entity->$entityFunction($this->DTO->$dtoFunction());
+            else if(method_exists($this->dto,$dtoFunction) && method_exists($this->entity,$entityFunction)){
+                $this->entity->$entityFunction($this->dto->$dtoFunction());
                 $returnedProperties[] = $property;
             }
         }

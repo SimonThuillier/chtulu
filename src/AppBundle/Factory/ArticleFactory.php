@@ -1,32 +1,30 @@
 <?php
 namespace AppBundle\Factory;
 
-use AppBundle\DTO\ArticleModalDTO;
 use AppBundle\Entity\Article;
-use AppBundle\DTO\ArticleMainDTO;
-use AppBundle\Mapper\AutoMapper;
+use AppBundle\Entity\ArticleType;
+use Symfony\Bridge\Doctrine\ManagerRegistry;
 
-class ArticleFactory  extends AbstractEntityFactory
+class ArticleFactory extends EntityFactory
 {
     /**
-     * Help to set data in the method newInstance in AbstractEntityFactory
-     * @param $dto
-     * @return Article
+     * ArticleFactory constructor.
+     * @param ManagerRegistry $doctrine
      */
-    public function newInstance($dto)
+    public function __construct(ManagerRegistry $doctrine)
     {
-        $article = parent::newInstance($dto);
-        $article->setCreationDate(new \DateTime());
-        return $article;
+        $this->productClassName = Article::class;
+        parent::__construct($doctrine);
     }
 
-    public function setData($dto,$entity)
+    protected function setDefaultData()
     {
-        AutoMapper::autoMap($dto, $entity);
-
-        $article = $entity;
-        /** @var Article $article  */
-        /** @var ArticleModalDTO $dto */
-        $article->setEditionDate(new \DateTime());
+        /** @var Article $article */
+        $article = $this->product;
+        $article->setCreationDate(new \DateTime());
+        $article->setCreationUser($this->user);
+        $article->setType(
+            $this->doctrine->getRepository(ArticleType::class)->find(ArticleType::EVENT)
+        );
     }
 }

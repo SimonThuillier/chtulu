@@ -5,7 +5,7 @@ namespace AppBundle\Serializer;
 interface HSerializerInterface
 {
     /**
-     * returns admittible class names of objects operated by the serializer
+     * returns admissible class names of objects operated by the serializer
      * first className is the class of object created during deserialization
      * @return array
      */

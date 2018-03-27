@@ -4,9 +4,9 @@ namespace AppBundle\Factory;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-class JsonResponseFactory implements JsonResponseFactoryInterface
+class JsonResponseFactory
 {
-    public function newInstance(array $message, $status):JsonResponse
+    public function create(array $message, $status):JsonResponse
     {
         return new JsonResponse($message, $status);
     }

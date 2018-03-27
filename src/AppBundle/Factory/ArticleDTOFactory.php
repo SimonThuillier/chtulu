@@ -1,102 +1,24 @@
 <?php
-
 namespace AppBundle\Factory;
 
+use AppBundle\DTO\ArticleDTO;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
-use AppBundle\DTO\ArticleMainDTO;
-use AppBundle\DTO\ArticleModalDTO;
-use AppBundle\DTO\ArticleCollectionDTO;
-use AppBundle\Entity\ArticleType;
-use AppBundle\Entity\ArticleSubType;
-use AppBundle\DTO\ArticleAbstractDTO;
 
-
-class ArticleDTOFactory
+class ArticleDTOFactory extends DTOFactory
 {
-
-    /** ManagerRegistry $doctrine */
-    private $doctrine;
-    /** ArticleDTOInterface $articleDTO */
-    private $articleDTO;
-    /** EntityRepository $typeRepo */
-    private $typeRepo;
-
     /**
+     * ArticleDTOFactory constructor.
      * @param ManagerRegistry $doctrine
      */
     public function __construct(ManagerRegistry $doctrine)
     {
-        $this->doctrine = $doctrine;
-        $this->typeRepo = $this->doctrine->getManager()->getRepository(ArticleType::class);
+        $this->productClassName = ArticleDTO::class;
+        parent::__construct($doctrine);
     }
 
-    /**
-     * create a new ArticleDTO object : flag can be main or modal (the modal type has special values for js replacement)
-     * @param string $flag
-     * @return ArticleAbstractDTO
-     */
-    public function newInstance($flag = "main")
+    protected function setDefaultData()
     {
-        if($flag === "main"){$this->articleDTO = new ArticleMainDTO();}
-        elseif($flag === "modal"){$this->articleDTO = new ArticleModalDTO();}
-        elseif($flag === "main_collection"){$this->articleDTO = new ArticleCollectionDTO();}
-        $this->setData($flag);
-        return $this->articleDTO;
+        /** @var ArticleDTO $articleDTO */
+        $articleDTO = $this->product;
     }
-
-    /**
-     * @param string $flag
-     * @return self
-     */
-    public function setData($flag = "main")
-    {
-        if($flag === "main"){$this->setDataMain();}
-        elseif($flag === "modal"){$this->setDataModal();}
-        elseif($flag === "main_collection"){$this->setDataMainCollection();}
-        return $this;
-    }
-
-    /**
-     * @return self
-     */
-    private function setDataMain()
-    {
-        /** ArticleType $type */
-        $type = $this->typeRepo->find(ArticleType::EVENT);
-
-        /**
-         * ArticleMainDTO $this->articleDTO
-         */
-        $this->articleDTO->type = $type;
-    }
-
-    /**
-     * @return self
-     */
-    private function setDataModal()
-    {
-        /** ArticleType $type */
-        $type = $this->typeRepo->find(ArticleType::EVENT);
-        /**
-         * ArticleModalDTO $this->articleDTO
-         */
-        $this->articleDTO->type = $type;
-        $this->articleDTO->title = "<_TITLE_>";
-        $this->articleDTO->abstract="<_ABSTRACT_>";
-    }
-
-    /**
-     * @return self
-     */
-    private function setDataMainCollection()
-    {
-        /** ArticleType $type */
-        $type = $this->typeRepo->find(ArticleType::EVENT);
-
-        /**
-         * ArticleMainDTO $this->articleDTO
-         */
-        $this->articleDTO->type = $type;
-    }
-
 }

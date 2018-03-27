@@ -48,9 +48,6 @@ abstract class AbstractHSerializer implements HSerializerInterface
      */
     protected $mandatoryKeys;
 
-
-
-    
     /**
      * 
      * @param ManagerRegistry $doctrine

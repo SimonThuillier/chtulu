@@ -45,9 +45,9 @@ class FormErrorHelper
      *
      * @return JsonResponse
      */
-    public function jsonResponse(FormErrorIterator $formErrorIterator):JsonResponse
+    public function getJsonResponse(FormErrorIterator $formErrorIterator):JsonResponse
     {
-        return $this->jsonResponseFactory->newInstance(
+        return $this->jsonResponseFactory->create(
             ['errorMessage' => $this->getError($formErrorIterator)],
             Response::HTTP_BAD_REQUEST
         );

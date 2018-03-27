@@ -1,5 +1,5 @@
 <?php
-namespace AppBundle\Exception;
+namespace AppBundle\Factory;
 
 use Throwable;
 
@@ -11,8 +11,7 @@ use Throwable;
 class FactoryException extends \Exception
 {
     /**
-     * FactoryException constructor.
-     *
+     * FactoryException constructor
      * @param string         $message
      * @param int            $code
      * @param Throwable|null $previous

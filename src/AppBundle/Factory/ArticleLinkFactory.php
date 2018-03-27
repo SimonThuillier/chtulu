@@ -1,30 +1,25 @@
 <?php
 namespace AppBundle\Factory;
 
-use AppBundle\Entity\Article;
-use AppBundle\DTO\ArticleModalDTO;
 use AppBundle\Entity\ArticleLink;
+use Symfony\Bridge\Doctrine\ManagerRegistry;
 
-class ArticleLinkFactory  extends AbstractEntityFactory
+class ArticleLinkFactory extends EntityFactory
 {
     /**
-     * Help to set data in the method newInstance in AbstractEntityFactory
-     * @param $dto
-     * @return ArticleLink
+     * ArticleLinkFactory constructor.
+     * @param ManagerRegistry $doctrine
      */
-    public function newInstance($dto)
+    public function __construct(ManagerRegistry $doctrine)
     {
-        $link = parent::newInstance($dto);
-        return $link;
+        $this->productClassName = ArticleLink::class;
+        parent::__construct($doctrine);
     }
-    
-    public function setData($dto,$entity)
+
+    protected function setDefaultData()
     {
-        /** @var ArticleLink $link  */
-        $link = $entity;
-        /** @var ArticleModalDTO $dto */
-        $link->setY($dto->y);
-        $link->setParentArticle($dto->parentArticle);
-        $link->setChildArticle($dto->childArticle);
+        /** @var ArticleLink $articleLink */
+        $articleLink = $this->product;
+        // TODO : implements some actions if needed
     }
 }

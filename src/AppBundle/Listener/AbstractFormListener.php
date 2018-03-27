@@ -6,7 +6,7 @@ use AppBundle\Factory\DTOFactoryInterface;
 use AppBundle\Entity\User;
 use AppBundle\Helper\FormErrorHelper;
 use AppBundle\Helper\TableActionHelperInterface;
-use AppBundle\Mapper\AbstractDoctrineMapper;
+use AppBundle\Mapper\EntityMapper;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -27,7 +27,7 @@ abstract class AbstractFormListener implements EventSubscriberInterface, Listene
      */
     protected $formFactory;
     /**
-     * @var AbstractDoctrineMapper
+     * @var EntityMapper
      */
     protected $mapper;
 
