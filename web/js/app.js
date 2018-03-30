@@ -2787,6 +2787,8 @@ var hb = (function (hb) {
         {
             event.preventDefault();
             event.stopPropagation();
+            console.log(event);
+            console.log(event.target.href);
             let $this = $(element);
             let $formData = $this.serializeArray().slice();
             let formMap = hb.util.sf.getFormMap($formData);
@@ -2812,7 +2814,7 @@ var hb = (function (hb) {
                 data : $formData,
                 success:function(data) {
                     console.log("success ! " + data);
-                    location.reload();
+                    //location.reload();
                 }
             });
 

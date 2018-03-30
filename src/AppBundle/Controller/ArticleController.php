@@ -1,7 +1,11 @@
 <?php
 namespace AppBundle\Controller;
 
-use AppBundle\DTO\ArticleModalDTO;
+use AppBundle\DTO\ArticleDTO;
+use AppBundle\Entity\User;
+use AppBundle\Factory\ArticleFactory;
+use AppBundle\Mapper\ArticleMapper;
+use AppBundle\Mediator\ArticleDTOMediator;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use AppBundle\Entity\Article;
@@ -11,9 +15,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use AppBundle\DTO\ArticleMainDTO;
 use Symfony\Component\Form\FormBuilderInterface;
-use AppBundle\DTO\ArticleCollectionDTO;
 use AppBundle\Factory\ArticleDTOFactory;
 use AppBundle\Form\ArticleModalType;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,7 +23,6 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Serializer\SerializerInterface;
 use AppBundle\Helper\ArticleHelper;
 use AppBundle\Entity\ArticleType;
-use AppBundle\Mapper\ArticleCollectionDoctrineMapper;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use AppBundle\Repository\ArticleRepository;
@@ -42,177 +43,141 @@ use AppBundle\Serializer\HDateSerializer;
  */
 class ArticleController extends Controller
 {
-
     /**
      * @Route("/create",name="article_create")
-     * @Method({"GET","POST"})
+     * @Method({"GET"})
      */
-    public function createAction(Request $request, ArticleDTOFactory $articleDTOFactory,
-                                 ArticleCollectionDoctrineMapper $collectionMapper,ArticleHelper $articleHelper,
-                                 HDateSerializer $hDateSerializer)
+    public function createAction(Request $request,
+                                 ArticleDTOFactory $dtoFactory,
+                                 ArticleFactory $entityFactory,
+                                 ArticleDTOMediator $mediator)
     {
-        /** @var ArticleCollectionDTO $articleDTO */
-        $articleDTO = $articleDTOFactory->newInstance("main_collection");
-        /** @var ArticleModalDTO $articleModalDTO */
-        /** @var ArticleMainType $form */
-        $form = $this->get('form.factory')->createBuilder(ArticleMainType::class)
-            ->setData($articleDTO)->getForm();
-        /** @var FormInterface $modaForm */
-        $modalForm = $this->get('form.factory')->createBuilder(ArticleModalType::class)
-            ->setData($articleDTOFactory->newInstance("modal"))->getForm();
-
-        $form->handleRequest($request);
-        if ($form->isSubmitted()) {
-            if ($form->isValid()) {
-                $articleDTO = $form->getData();
-
-                $collectionMapper->add($articleDTO);
-                return $this->render('::debug.html.twig', array(
-                    'debug' => array(
-                        "dto" => json_encode($articleDTO),
-                    )
-                ));
-            } else {
-
-                return $this->render('::debug.html.twig', array(
-                    'debug' => array(
-                        'formData' => json_encode($form->getData()),
-                        'formErrors' => json_encode($form->getErrors(true, false)),
-                        'form_submitted' => json_encode($form->isSubmitted()),
-                        'form_valid' => json_encode($form->isValid())
-                    )
-                ));
-            }
-        }
+        $groups = ['minimal','abstract','date'];
+        $mediator
+            ->setEntity($entityFactory->create($this->getUser()))
+            ->setDTO($dtoFactory->create($this->getUser()))
+            ->setDTOGroups($groups);
+        $form = $this
+            ->get('form.factory')
+            ->createBuilder($mediator->getFormTypeClassName(),$mediator->getDTO(),[
+                'validation_groups'=>$groups])
+            ->add('save',SubmitType::class)
+            ->setAction($this->generateUrl("post_article_create"))
+            ->getForm();
 
         return $this->render('@AppBundle/Article/create.html.twig',array(
             'form' => $form->createView(),
-            'modalForm' => $modalForm->createView(),
+            'modalForm' => $form->createView(),
             'beginDate' => (new \DateTime())->sub(new \DateInterval('P30D')),
             'endDate' =>(new \DateTime())
         ));
     }
 
     /**
-     * @Route("/test",name="article_test")
+     * @Route("/post-create",name="post_article_create")
+     * @Method({"POST"})
      */
-    public function testAction(HDateFactory $dateFactory)
+    public function postCreateAction(Request $request,
+                                 ArticleDTOFactory $dtoFactory,
+                                 ArticleFactory $entityFactory,
+                                 ArticleDTOMediator $mediator,
+                                 ArticleMapper $mapper)
     {
-        /** @var \DateTime $date */
-        $date = DateHelper::createFromFormat('d/m/Y', "01/01/1");
-        // $date->modify("-1 year");
-        $date2 = clone $date ;
-        DateHelper::switchToNextSeason($date2);
+        $groups = ['minimal','abstract','date'];
+        $mediator
+            ->setEntity($entityFactory->create($this->getUser()))
+            ->setDTO($dtoFactory->create($this->getUser()))
+            ->setDTOGroups($groups);
+        $form = $this
+            ->get('form.factory')
+            ->createBuilder($mediator->getFormTypeClassName(),$mediator->getDTO(),[
+                'validation_groups'=>$groups])
+            ->add('save',SubmitType::class)
+            ->getForm();
 
-        $dateType = $this->getDoctrine()->getRepository('AppBundle:DateType')
-            ->find(DateType::PRECISE);
-        $hDate = $dateFactory->newInstance($dateType, $date);
-        $hDate2 = $dateFactory->newInstance($dateType, $date2);
+        $mediator
+            ->resetChangedProperties()
+            ->setMapper($mapper);
+        $form->handleRequest($request);
+        if (! $form->isValid()) {
+            return new JsonResponse("Echec Ajout article, formulaire invalide");
+        }
 
-        AutoMapper::autoMap($hDate, $hDate2);
+        $mapper->add();
+        return new JsonResponse("Ajout article OK");
+    }
 
-        $index = DateHelper::dateToIndex($date);
-        $newDate = DateHelper::indexToDate($index);
+    /**
+     * @Route("/edit/{article}",name="article_edit")
+     * @ParamConverter("article", class="AppBundle:Article")
+     * @Method({"GET"})
+     */
+    public function editAction(Request $request,
+                               Article $article,
+                                 ArticleDTOFactory $dtoFactory,
+                                 ArticleDTOMediator $mediator)
+    {
+        $groups = ['minimal','abstract','date'];
+        $mediator
+            ->setEntity($article)
+            ->setDTO($dtoFactory->create($this->getUser()))
+            ->setDTOGroups($groups);
+        $form = $this
+            ->get('form.factory')
+            ->createBuilder($mediator->getFormTypeClassName(),$mediator->getDTO(),[
+                'validation_groups'=>$groups])
+            ->add('save',SubmitType::class)
+            ->setAction($this->generateUrl("post_article_edit",["article"=>$article->getId()]))
+            ->getForm();
+        /** @var ArticleDTO $articleDto */
+        $articleDto = $mediator->getDTO();
 
-        $date0 = \DateTime::createFromFormat('d/m/Y', '01/05/0000');
-
-        return $this->render('::debug.html.twig', array(
-            'debug' => array(
-                'date' => $date->format('d/m/Y'),
-                'index' => $index,
-                'newDate' => $newDate,
-                'date0' => $date0,
-                'test' => method_exists($hDate, 'getBeginDate'),
-                'test2' => method_exists($hDate, 'getbegindate'),
-                'test3' => property_exists($hDate, 'lol'),
-                'blop' => HDate::toJSON($hDate2),
-                'mois' => DateHelper::getMonth($date),
-                'hDate' => HDate::toJSON($hDate),
-                'date2' => $date2->format('d/m/Y'),
-                'date2bis' => strftime("%B",$date2->getTimestamp()),
-                'value' => Article::class,
-                'test_vars' => json_encode(get_object_vars($hDate2)),
-                'test_func' => json_encode(get_class_methods(get_class($hDate2))),
-                'test_func2' => json_encode((array)$hDate2),
-                'test_func3' => json_encode( array_keys((array)$hDate2))
-            )
+        return $this->render('@AppBundle/Article/create.html.twig',array(
+            'form' => $form->createView(),
+            'articleDto' => $articleDto,
+            'modalForm' => $form->createView(),
+            'beginDate' => (new \DateTime())->sub(new \DateInterval('P30D')),
+            'endDate' =>(new \DateTime())
         ));
     }
 
     /**
-     * @Route("/edit/{article}",name="article_edit",requirements={"page": "\d+"})
+     * @Route("/post-edit/{article}",name="post_article_edit")
      * @ParamConverter("article", class="AppBundle:Article")
-     * @Method({"GET","POST"})
+     * @Method({"POST"})
      */
-    public function editAction(Article $article,Request $request, ArticleDTOFactory $articleDTOFactory,ArticleHelper $helper,
-                               ArticleCollectionDoctrineMapper $collectionMapper)
+    public function postEditAction(Request $request,
+                                   Article $article,
+                                     ArticleDTOFactory $dtoFactory,
+                                     ArticleDTOMediator $mediator,
+                                     ArticleMapper $mapper)
     {
-        /** @var ArticleRepository */
-        $repo = $this->getDoctrine()->getRepository('AppBundle:Article');
-        /** @var ArticleCollectionDTO $articleDTO */
-        $articleDTO = $articleDTOFactory->newInstance("main_collection");
-        $repo->bindDTO($article->getId(),$articleDTO);
+        $groups = ['minimal','abstract','date'];
+        $mediator
+            ->setEntity($article)
+            ->setDTO($dtoFactory->create($this->getUser()))
+            ->setDTOGroups($groups);
+        $form = $this
+            ->get('form.factory')
+            ->createBuilder($mediator->getFormTypeClassName(),$mediator->getDTO(),[
+                'validation_groups'=>$groups])
+            ->add('save',SubmitType::class)
+            ->getForm();
 
-        foreach($articleDTO->subEventsArray as $subEvent){
-            $subEvent->url = $this->generateUrl('article_edit',array("article" => $subEvent->id));
-        }
-        $helper->serializeSubEvents($articleDTO);
-        /** @var ArticleModalDTO $articleModalDTO */
-        /** @var ArticleMainType $form */
-        $form = $this->get('form.factory')->createBuilder(ArticleMainType::class)
-            ->setData($articleDTO)->getForm();
-        /** @var FormInterface $modaForm */
-        $modalForm = $this->get('form.factory')->createBuilder(ArticleModalType::class)
-            ->setData($articleDTOFactory->newInstance("modal"))->getForm();
-
-        /*return $this->render('::debug.html.twig', array(
-            'debug' => array(
-                'subEvents' => $articleDTO->subEvents,
-                'date2' => $articleDTO->beginDate,
-                'date3' => $articleDTO->minBeginDate,
-                'article_title' => $article->getTitle(),
-                'dto' => json_encode($articleDTO),
-            )
-        ));*/
-
-
+        $mediator
+            ->resetChangedProperties()
+            ->setMapper($mapper);
         $form->handleRequest($request);
-        if ($form->isSubmitted()) {
-            if ($form->isValid()) {
-                $articleDTO = $form->getData();
-                /** @var ArticleCollectionDTO $articleCollectionDTO */
-                // $articleCollectionDTO = $serializer->deserialize($articleDTO->getSubEvents(), null, 'json');
-                /** ArticleCollectionDoctrineMapper $mapper */
-                $collectionMapper->edit($article->getId(),$articleDTO);
+        if (! $form->isValid()) {
+            return new JsonResponse("Echec Edition article, formulaire invalide");
 
-
-                return $this->render('::debug.html.twig', array(
-                    'debug' => array(
-                        "dto" => json_encode($articleDTO),
-                        "title" => $articleDTO->title
-                    )
-                ));
-            } else {
-
-                return $this->render('::debug.html.twig', array(
-                    'debug' => array(
-                        'formErrors' => json_encode($form['endDate']->getErrors()),
-                        'form_submitted' => json_encode($form->isSubmitted()),
-                        'form_valid' => json_encode($form->isValid())
-                    )
-                ));
-            }
+            //return $this->redirectToRoute("article_create");
         }
 
-        return $this->render('@AppBundle/Article/edit.html.twig',array(
-            'articleId' => $article->getId(),
-            'article' => $articleDTO,
-            'form' => $form->createView(),
-            'modalForm' => $modalForm->createView(),
-            'beginDate' => ($articleDTO->getBeginHDate()!==null)?$articleDTO->getBeginHDate()->getBeginDate():((new \DateTime())->modify('-7 day')),
-            'endDate' =>($articleDTO->getendHDate()!==null)?$articleDTO->getEndHDate()->getEndDate():(new \DateTime())
-        ));
+        $mapper->edit();
+        return new JsonResponse("Edition article OK");
     }
+
 
     /**
      * @Route("/get-json/{article}",name="article_get_json",requirements={"page": "\d+"})

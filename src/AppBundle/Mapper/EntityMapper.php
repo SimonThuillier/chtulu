@@ -2,208 +2,68 @@
 
 namespace AppBundle\Mapper;
 
-use AppBundle\DTO\ArticleDTO;
-use AppBundle\DTO\EntityMutableDTO;
-use AppBundle\Factory\EntityFactory;
 use AppBundle\Factory\FactoryException;
-use AppBundle\Factory\PaginatorFactory;
 use AppBundle\Mediator\DTOMediator;
-use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\Common\Persistence\ObjectManager;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Mapping\MappingException;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\Form\Exception\LogicException;
-use AppBundle\Entity\User;
+use AppBundle\Mediator\InvalidCallerException;
+use AppBundle\Mediator\NullColleagueException;
 use Doctrine\ORM\Mapping\Entity;
 
-abstract class EntityMapper implements MapperInterface
+/**
+ * Interface MapperInterface
+ *
+ * @package AppBundle\Mapper
+ */
+interface EntityMapper
 {
-    /** @var ManagerRegistry */
-    protected $doctrine;
+    /** @return DTOMediator */
+    public function getMediator();
 
-    /** @var string  */
-    protected $entityClassName;
-
-    /** @var EntityFactory */
-    protected $entityFactory;
-
-    /** @var PaginatorFactory */
-    protected $paginatorFactory;
-
-    /** @var User */
-    protected $currentUser;
-
-    /** @var LoggerInterface */
-    protected $logger;
-
-    /** @var EntityRepository */
-    protected $repository;
-
-    /** @var DTOMediator */
-    protected $mediator;
-
-    /**
-     * @return ObjectManager
+    /** @param DTOMediator $mediator
+     *  @return self
      */
-    protected function getManager()
-    {
-        return $this->doctrine->getManager($this->doctrine->getDefaultManagerName());
-    }
+    public function setMediator($mediator);
 
-    /**
-     * AbstractDoctrineMapper constructor.
-     *
-     * @param ManagerRegistry $doctrine
-     * @param EntityFactory|null $entityFactory
-     * @param PaginatorFactory|null $paginatorFactory
-     * @param User $user
+    /** @param string $mediatorPassword
+     *  @return self
      */
-    public function __construct(
-        ManagerRegistry $doctrine,
-        EntityFactory $entityFactory = null,
-        PaginatorFactory $paginatorFactory = null,
-        User $user = null,
-        LoggerInterface $logger
-    )
-    {
-        $this->doctrine         = $doctrine;
-        $this->entityFactory    = $entityFactory;
-        $this->paginatorFactory = $paginatorFactory;
-        $this->currentUser      = $user;
-        $this->logger = $logger;
-        $this->repository = $this->doctrine->getRepository($this->entityClassName);
-    }
+    public function setMediatorPassword($mediatorPassword);
 
     /**
-     * @return DTOMediator|null
-     */
-    public function getMediator(){
-        return $this->mediator;
-    }
-
-    /**
-     * @param DTOMediator|null $mediator
-     */
-    public function setMediator($mediator){
-        if($mediator === $this->mediator) return;
-        if($this->mediator !== null) $this->mediator->setMapper(null);
-        $this->mediator = $mediator;
-        if($this->mediator !== null) $this->mediator->setMapper($this);
-    }
-
-
-    /**
-     * @return mixed
-     * @throws EntityMapperException
-     */
-    protected function checkAdd()
-    {
-        if($this->mediator === null){
-            throw new EntityMapperException("Mapper's mediator must be set to add an entity");
-        }
-        /** @var EntityMutableDTO $dto */
-        $dto = $this->mediator->getDTO();
-        if($dto === null){
-            throw new EntityMapperException("Mediator's DTO must be set to add an entity");
-        }
-        if($this->mediator->getEntity() !== null && $this->mediator->getEntity()->getId()>0){
-            throw new EntityMapperException("Mediator's entity already exists; please consider editing it instead");
-        }
-    }
-
-    /**
-     * @return mixed
+     * @return Entity
      * @throws FactoryException
+     * @throws NullColleagueException
+     * @throws InvalidCallerException
      */
-    protected function add()
-    {
-        $entity = $this->mediator->getEntity();
-        if($entity === null){
-            $entity = $this->entityFactory->create($this->currentUser);
-        }
-
-
-        $this->getManager()->persist($entity);
-        $this->getManager()->flush();
-        return $entity;
-    }
-
-    /**
-     * @param integer
-     * @throws EntityMapperException
-     */
-    protected function checkEdit($id=null)
-    {
-        if($this->mediator === null){
-            throw new EntityMapperException("Mapper's mediator must be set to edit an entity");
-        }
-        /** @var EntityMutableDTO $dto */
-        $dto = $this->mediator->getDTO();
-        if($dto === null){
-            throw new EntityMapperException("Mediator's DTO must be set to edit an entity");
-        }
-        if($id !==null){
-            $this->find($id);
-        }
-    }
-
-    /**
-     * @return mixed
-     */
-    protected function edit()
-    {
-        $entity = $this->mediator->getEntity();
-        if($entity === null){
-            $entity = $this->entityFactory->create($this->currentUser);
-        }
-        $this->getManager()->persist($entity);
-        $this->getManager()->flush();
-        return $entity;
-    }
+    public function add();
 
     /**
      * @param integer $id
+     * @return Entity
      * @throws EntityMapperException
      */
-    protected function checkDelete(integer $id)
-    {
-        $object = $this->repository->find($id);
-        if (!$object) {
-            throw new EntityMapperException('impossible to find ' . $this->entityClassName . ' with id ' . $id);
-        }
-        $this->getManager()->remove($object);
-        $this->getManager()->flush();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function findLast()
-    {
-        return $this->repository->findBy([], ['id' => 'DESC']);
-    }
-
+    public function find(integer $id);
     /**
      * @param array $searchAttributes
+     * @return mixed
+     */
+    public function findBy($searchAttributes);
+    /**
      * @return Entity
      */
-    public function findBy($searchAttributes)
-    {
-        return $this->repository->findBy($searchAttributes);
-    }
+    public function findLast();
+
+    /**
+     * @param integer|null $id
+     * @return Entity
+     * @throws EntityMapperException
+     * @throws NullColleagueException
+     * @throws InvalidCallerException
+     */
+    public function edit($id=null);
 
     /**
      * @param integer $id
-     * @return mixed
      * @throws EntityMapperException
      */
-    public function find(integer $id)
-    {
-        $object = $this->repository->find($id);
-        if (!$object) {
-            throw new EntityMapperException('impossible to find ' . $this->entityClassName . ' with id ' . $id);
-        }
-        return $object;
-    }
+    public function delete(integer $id);
 }

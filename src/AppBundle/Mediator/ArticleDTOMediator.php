@@ -11,6 +11,7 @@ namespace AppBundle\Mediator;
 
 use AppBundle\DTO\ArticleDTO;
 use AppBundle\Entity\Article;
+use AppBundle\Form\ArticleDTOType;
 use AppBundle\Helper\DateHelper;
 use AppBundle\Utils\HDate;
 
@@ -23,6 +24,7 @@ class ArticleDTOMediator extends DTOMediator
     {
         parent::__construct();
         $this->groups = ['minimal'=>false,'abstract'=>false,'date'=>false];
+        $this->formTypeClassName = ArticleDTOType::class;
     }
 
     /**
@@ -137,10 +139,10 @@ class ArticleDTOMediator extends DTOMediator
         }
         else{
             $article
-                ->setBeginDateType(null)
-                ->setBeginDateMinIndex(null)
-                ->setBeginDateMaxIndex(null)
-                ->setBeginDateLabel(null);
+                ->setEndDateType(null)
+                ->setEndDateMinIndex(null)
+                ->setEndDateMaxIndex(null)
+                ->setEndDateLabel(null);
         }
     }
 }

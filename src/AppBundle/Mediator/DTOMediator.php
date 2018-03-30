@@ -33,6 +33,10 @@ abstract class DTOMediator
     protected $pendingSetMapper;
     /** @var boolean */
     protected $pendingSetting;
+    /** @var string */
+    protected $password;
+    /** @var string */
+    protected $formTypeClassName;
 
     /**
      * DTOBuilder constructor.
@@ -45,7 +49,18 @@ abstract class DTOMediator
         $this->pendingSetEntity = false;
         $this->pendingSetMapper = false;
         $this->pendingSetting = false;
+        $this->password = static::generateSalt();
     }
+
+    /**
+     * @return string
+     */
+    public function getFormTypeClassName(): string
+    {
+        return $this->formTypeClassName;
+    }
+
+
 
     /**
      * @param EntityMutableDTO|null $dto
@@ -96,9 +111,15 @@ abstract class DTOMediator
     public function setMapper($mapper){
         if($this->mapper === $mapper || $this->pendingSetMapper) return $this;
         $this->pendingSetMapper = true;
-        if($this->mapper !== null) $this->mapper->setMediator(null);
+        if($this->mapper !== null){
+            $this->mapper->setMediator(null);
+            $this->mapper->setMediatorPassword(null);
+        }
         $this->mapper = $mapper;
-        if($this->mapper !== null) $this->mapper->setMediator($this);
+        if($this->mapper !== null){
+            $this->mapper->setMediator($this);
+            $this->mapper->setMediatorPassword($this->password);
+        }
         $this->pendingSetMapper = false;
         return $this;
     }
@@ -169,13 +190,17 @@ abstract class DTOMediator
     }
 
     /**
-     * @var EntityMapper $mapper
+     * @doc this function returns data of mediator DTO to it's entity
+     * @doc it's protected so that only the colleague mapper of the mediator can call it
+     * @var string $password
      * @return array
      * @throws NullColleagueException
      * @throws InvalidCallerException
      */
-    public function returnDataToEntity(EntityMapper $mapper){
-        if($mapper !== $this->mapper) throw new NullColleagueException("DTO must be specified to return data");
+    public function returnDataToEntity(string $password){
+        if($this->mapper === null) throw new NullColleagueException("Mapper must be specified to return data");
+        if($password !== $this->password) throw new InvalidCallerException("
+        password isn't the one attributed by the mediator : only mediator's mapper can request entity creation/modification");
         if($this->dto === null) throw new NullColleagueException("DTO must be specified to return data");
         if($this->entity === null) throw new NullColleagueException("Entity must be specified to receive data");
         $propertiesToReturn = array_unique($this->changedProperties);
@@ -197,5 +222,19 @@ abstract class DTOMediator
         }
         $this->resetChangedProperties();
         return $returnedProperties;
+    }
+
+    /**
+     * generate custom password to give to colleague
+     * @param integer $length
+     * @return string
+     */
+    static private function generateSalt($length=10){
+        $chars = str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789" . (new \DateTime())->format('His'));
+        $salt="";
+        for($i=0;$i<$length;$i++){
+            $salt.=substr($chars,mt_rand(0,strlen($chars)),1);
+        }
+        return substr(md5($salt),0,255);
     }
 }

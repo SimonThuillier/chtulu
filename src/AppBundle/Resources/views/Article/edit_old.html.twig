@@ -1,0 +1,95 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+Edition d'un article
+{% endblock %}
+
+{% block stylesheets %}
+{% stylesheets '@AppBundle/Resources/hbase/hts/css/hts.css'
+  filter='cssrewrite' %}
+<link rel="stylesheet" href="{{ asset_url }}" />
+{% endstylesheets %}
+{% endblock %}
+
+
+{% block content_header %}
+<h1 class="hts-article-title">{{ article.title }}</h1>
+{% endblock %}
+
+
+
+
+
+{% block content %}
+<div id="wrapper">
+	<div id="header"></div>
+
+	<div id="page">
+		{% include 'AppBundle:Article:article_main_form.html.twig' with {'form':form} %}
+	</div>
+</div>
+<div id="{{ modalForm.vars.id }}">{% include 'AppBundle:Article:article_modal_form.html.twig' with {'form':modalForm} %}</div>
+
+
+
+{% endblock %}
+
+
+
+
+
+{% block javascript %}
+    {% include 'AppBundle:Article:hts-package.js.twig' %}
+<script type="text/javascript">{% include '@AppBundle/Resources/views/Article/article_form.js' %}</script>
+
+<script>
+finalizeForm('main');
+
+var htsOptions = [hasMainEvent=false];
+var d1 = new Date({{ beginDate|date("Y")}},{{ beginDate|date("m") - 1 }},{{ beginDate|date("d") }});
+if({{beginDate|date("Y")}} < 1000 && {{beginDate|date("Y")}} >=0){
+	d1.setFullYear({{beginDate|date("Y")}});
+}
+d1.setHours(0,0,0,0);
+console.log(d1)
+var d2 = new Date({{ endDate|date("Y")}},{{ endDate|date("m") - 1 }},{{ endDate|date("d") }});
+if({{endDate|date("Y")}} < 1000 && {{endDate|date("Y")}} >=0){
+	d2.setFullYear({{endDate|date("Y")}});
+}
+d2.setHours(0,0,0,0);
+
+
+$(function () {
+	var prevHeight = $('div#hts-event-container').height();
+	var deltaHeight = $("#hts-svgcontainer").attr("height") - prevHeight;
+	$('div#hts-event-container').attrchange({
+		callback: function (e) {
+			var curHeight = $(this).height();
+			if (prevHeight !== curHeight) {
+				$("#hts-svgcontainer").attr("height",curHeight + deltaHeight);
+				hts.updateSpatialData(false);
+				hts.redrawComponent('event-area');
+				hts.redrawComponent('event-fcontainer');
+				hts.redrawComponent('event-container');
+				prevHeight = curHeight;
+			}
+		}
+	});
+});
+
+function initializeContainerHeight(){
+	var height = $("#hts-svgcontainer").attr("height");
+	$("#hts-svgcontainer").attr("height",height*1 + (hts.eventManager.maxYArea)*1 - 50);
+}
+hts.eventManager.loadSubEvents('article_main');
+console.log(hts.eventManager.maxYArea);
+initializeContainerHeight();
+$("#article_main_form").on("submit",function(event){
+	  hts.eventManager.prepareSubmission('article_modal','article_main');
+});
+
+
+
+
+</script>
+{% endblock%}

@@ -2,15 +2,15 @@
 
 namespace AppBundle\Listener;
 
-use AppBundle\Factory\DTOFactoryInterface;
 use AppBundle\Entity\User;
+use AppBundle\Factory\DTOFactory;
 use AppBundle\Helper\FormErrorHelper;
-use AppBundle\Helper\TableActionHelperInterface;
-use AppBundle\Mapper\EntityMapper;
+use AppBundle\Helper\TableActionHelper;
+use AppBundle\Mapper\AbstractEntityMapper;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\Form\FormFactoryInterface;
-use AppBundle\Mapper\MapperInterface;
+use AppBundle\Mapper\EntityMapper;
 
 /**
  * Class AbstractFormListener
@@ -19,7 +19,7 @@ use AppBundle\Mapper\MapperInterface;
 abstract class AbstractFormListener implements EventSubscriberInterface, ListenerInterface
 {
     /**
-     * @var DTOFactoryInterface
+     * @var DTOFactory
      */
     protected $dtoFactory;
     /**
@@ -27,7 +27,7 @@ abstract class AbstractFormListener implements EventSubscriberInterface, Listene
      */
     protected $formFactory;
     /**
-     * @var EntityMapper
+     * @var AbstractEntityMapper
      */
     protected $mapper;
 
@@ -37,7 +37,7 @@ abstract class AbstractFormListener implements EventSubscriberInterface, Listene
     protected $formError;
 
     /**
-     * @var TableActionHelperInterface
+     * @var TableActionHelper
      */
     protected $tableHelper;
 
@@ -51,18 +51,18 @@ abstract class AbstractFormListener implements EventSubscriberInterface, Listene
     /**
      * SearchUserFormListener constructor.
      *
-     * @param DTOFactoryInterface $dtoFactory
+     * @param DTOFactory $dtoFactory
      * @param FormFactoryInterface $formFactory
-     * @param MapperInterface $mapper
+     * @param EntityMapper $mapper
      * @param FormErrorHelper $formError
-     * @param TableActionHelperInterface $tableHelper
+     * @param TableActionHelper $tableHelper
      */
     public function __construct(
-        DTOFactoryInterface $dtoFactory,
+        DTOFactory $dtoFactory,
         FormFactoryInterface $formFactory,
-        MapperInterface $mapper,
+        EntityMapper $mapper,
         FormErrorHelper $formError,
-        TableActionHelperInterface $tableHelper = null
+        TableActionHelper $tableHelper = null
     ) {
         $this->dtoFactory  = $dtoFactory;
         $this->formFactory = $formFactory;

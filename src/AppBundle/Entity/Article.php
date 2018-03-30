@@ -345,7 +345,7 @@ class Article extends DTOMutableEntity
     /**
      * @return DateType
      */
-    public function getBeginDateType(): DateType
+    public function getBeginDateType()
     {
         return $this->beginDateType;
     }
@@ -381,7 +381,7 @@ class Article extends DTOMutableEntity
     /**
      * @return int
      */
-    public function getEndDateMinIndex(): int
+    public function getEndDateMinIndex()
     {
         return $this->endDateMinIndex;
     }
@@ -390,7 +390,7 @@ class Article extends DTOMutableEntity
      * @param int $endDateMinIndex
      * @return Article
      */
-    public function setEndDateMinIndex(int $endDateMinIndex): Article
+    public function setEndDateMinIndex($endDateMinIndex): Article
     {
         $this->endDateMinIndex = $endDateMinIndex;
         return $this;
@@ -399,7 +399,7 @@ class Article extends DTOMutableEntity
     /**
      * @return int
      */
-    public function getEndDateMaxIndex(): int
+    public function getEndDateMaxIndex()
     {
         return $this->endDateMaxIndex;
     }
@@ -408,7 +408,7 @@ class Article extends DTOMutableEntity
      * @param int $endDateMaxIndex
      * @return Article
      */
-    public function setEndDateMaxIndex(int $endDateMaxIndex): Article
+    public function setEndDateMaxIndex($endDateMaxIndex): Article
     {
         $this->endDateMaxIndex = $endDateMaxIndex;
         return $this;
@@ -417,7 +417,7 @@ class Article extends DTOMutableEntity
     /**
      * @return DateType
      */
-    public function getEndDateType(): DateType
+    public function getEndDateType()
     {
         return $this->endDateType;
     }
@@ -435,7 +435,7 @@ class Article extends DTOMutableEntity
     /**
      * @return string
      */
-    public function getEndDateLabel(): string
+    public function getEndDateLabel()
     {
         return $this->endDateLabel;
     }
@@ -444,7 +444,7 @@ class Article extends DTOMutableEntity
      * @param string $endDateLabel
      * @return Article
      */
-    public function setEndDateLabel(string $endDateLabel): Article
+    public function setEndDateLabel($endDateLabel): Article
     {
         $this->endDateLabel = $endDateLabel;
         return $this;

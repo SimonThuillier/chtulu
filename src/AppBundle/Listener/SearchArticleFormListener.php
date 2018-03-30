@@ -2,15 +2,15 @@
 
 namespace AppBundle\Listener;
 
+use AppBundle\Factory\DTOFactory;
 use AppBundle\Helper\ArticleHelper;
+use AppBundle\Helper\TableActionHelper;
+use AppBundle\Mapper\ArticleMapper;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use AppBundle\Form\SearchArticleType;
-use AppBundle\Factory\DTOFactoryInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use AppBundle\Helper\FormErrorHelper;
-use AppBundle\Helper\TableActionHelperInterface;
-use AppBundle\Mapper\ArticleCollectionDoctrineMapper;
 use Symfony\Component\HttpFoundation\Request;
 
 class SearchArticleFormListener extends AbstractFormListener
@@ -29,11 +29,11 @@ class SearchArticleFormListener extends AbstractFormListener
     private $logger;
 
     public function __construct(
-        DTOFactoryInterface $dtoFactory,
+        DTOFactory $dtoFactory,
         FormFactoryInterface $formFactory,
-        ArticleCollectionDoctrineMapper $mapper,
+        ArticleMapper $mapper,
         FormErrorHelper $formError,
-        TableActionHelperInterface $tableHelper = null,
+        TableActionHelper $tableHelper = null,
         ArticleHelper $articleHelper,
         LoggerInterface $logger
         ) {

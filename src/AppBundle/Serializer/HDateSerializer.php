@@ -42,8 +42,6 @@ class HDateSerializer extends AbstractHSerializer implements HSerializerInterfac
             throw new SerializationException("Error while serializing object of class " .
                 get_class($object) . " :  " . $e->getMessage());
         }
-        var_dump($normalization["beginDate"]);
-        //throw new \Exception("test");
         return $normalization;
     }
 
@@ -68,14 +66,13 @@ class HDateSerializer extends AbstractHSerializer implements HSerializerInterfac
         }
 
         try{
-            $object = $this->mainFactory->newInstance($normalizedPayload["type"],$normalizedPayload["beginDate"],
+            $object = $this->mainFactory->create($normalizedPayload["type"],$normalizedPayload["beginDate"],
                 $normalizedPayload["endDate"]);
         }
         catch(\Exception $e){
             throw new DeserializationException("Error while creating new '" .
                 reset($classNames) . "' object :  " . $e->getMessage());
         }
-
         return $object;
     }
 }
