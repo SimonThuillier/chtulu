@@ -49,6 +49,7 @@ class ArticleDTOMediator extends DTOMediator
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
         $dto
+            ->setEntityId($article->getId())
             ->setTitle($article->getTitle())
             ->setType($article->getType())
             ->setAbstract($article->getAbstract());

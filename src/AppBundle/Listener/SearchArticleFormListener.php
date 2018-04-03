@@ -2,13 +2,14 @@
 
 namespace AppBundle\Listener;
 
-use AppBundle\Factory\DTOFactory;
+use AppBundle\Factory\ArticleDTOFactory;
 use AppBundle\Helper\ArticleHelper;
 use AppBundle\Helper\TableActionHelper;
 use AppBundle\Mapper\ArticleMapper;
+use AppBundle\Mediator\ArticleDTOMediator;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
-use AppBundle\Form\SearchArticleType;
+use AppBundle\Form\ArticleSearchType;
 use Symfony\Component\Form\FormFactoryInterface;
 use AppBundle\Helper\FormErrorHelper;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,15 +30,16 @@ class SearchArticleFormListener extends AbstractFormListener
     private $logger;
 
     public function __construct(
-        DTOFactory $dtoFactory,
+        ArticleDTOFactory $dtoFactory,
         FormFactoryInterface $formFactory,
         ArticleMapper $mapper,
         FormErrorHelper $formError,
         TableActionHelper $tableHelper = null,
+        ArticleDTOMediator $mediator,
         ArticleHelper $articleHelper,
         LoggerInterface $logger
         ) {
-            parent::__construct($dtoFactory, $formFactory, $mapper, $formError,$tableHelper);
+            parent::__construct($dtoFactory, $formFactory, $mapper, $formError,$mediator,$tableHelper);
             $this->articleHelper = $articleHelper;
         $this->logger = $logger;
     }
@@ -53,9 +55,9 @@ class SearchArticleFormListener extends AbstractFormListener
 
         $page = $request->get('page')>0 ? $request->get('page'):1;
 
-        $articles = $this->mapper->findBySearch($page, self::MAX_PAGE);
+        $articles = $this->mapper->findAll();
 
-        $form = $this->formFactory->create(SearchArticleType::class, $this->dtoFactory->newInstance());
+        $form = $this->formFactory->create(ArticleSearchType::class, $this->dtoFactory->create(null));
 
         $form->handleRequest($request);
 
@@ -69,21 +71,23 @@ class SearchArticleFormListener extends AbstractFormListener
             $this->logger->info(json_encode((array)$data));
             $this->logger->info($data->getBeginHDate());
             $this->logger->info($data->getEndHDate());
-            $articles = $this->mapper->findBySearch(
+            /* = $this->mapper->findBySearch(
                 $page,
                 self::MAX_PAGE,
                 $data->title,
                 $data->type,
                 $data->getBeginHDate(),
                 $data->getEndHDate()
-            );
+            );*/
+            $articles = $this->mapper->findAll();
             // to return form with good label
             //$data->setBeginDateLabel($data->getBeginHDate()!==null?$data->getBeginHDate()->getLabel():null);
             //$data->setEndDateLabel($data->getEndHDate()!==null?$data->getEndHDate()->getLabel():null);
-            $form = $this->formFactory->create(SearchArticleType::class)->setData($data);
+            $form = $this->formFactory->create(ArticleSearchType::class)->setData($data);
         }
         else{
-            $articles = $this->mapper->findBySearch($page, self::MAX_PAGE);
+            $articles = $this->mapper->findAll();
+            //$articles = $this->mapper->findBySearch($page, self::MAX_PAGE);
         }
 
         $tableAction = $this->tableHelper->addTableAction($articles,'article', self::TABLE_ACTION);
@@ -95,7 +99,17 @@ class SearchArticleFormListener extends AbstractFormListener
             'paramsRoute' => [],
         ];
 
-        $event->setArgument('articles', $articles);
+        $dtos = [];
+        foreach ($articles as $article){
+            $dtos[] = $dto = $this->dtoFactory->create(null);
+            $this->mediator
+                ->setEntity($article)
+                ->setDTO($dto)
+                ->setDTOGroups(['minimal','date']);
+        }
+
+
+        $event->setArgument('articles', $dtos);
         $event->setArgument('table_action', $tableAction);
         $event->setArgument('form_search', $form->createView());
         $event->setArgument('pagination', $pagination);

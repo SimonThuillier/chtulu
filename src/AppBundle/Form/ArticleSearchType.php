@@ -1,23 +1,21 @@
 <?php
 namespace AppBundle\Form;
 
+use AppBundle\DTO\ArticleDTO;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use AppBundle\Entity\Article;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use AppBundle\Entity\ArticleType;
 use Doctrine\ORM\EntityRepository;
-use AppBundle\Entity\ArticleSubType;
 use Symfony\Component\Form\FormBuilderInterface;
-use AppBundle\DTO\ArticleCollectionDTO;
 
 /**
  *
  * @author belze
  *
  */
-class SearchArticleType extends AbstractType
+class ArticleSearchType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -25,6 +23,7 @@ class SearchArticleType extends AbstractType
             ->add('title', TextType::class, array(
                 'label' => 'Titre',
                 'required' => false,
+                'attr' => ['class' => 'form-control form-control-sm mb-2 mr-sm-2 mb-sm-0'],
                 'label_attr' => array(
                     'placeholder' => 'Titre'
                 )
@@ -36,25 +35,14 @@ class SearchArticleType extends AbstractType
                     return $er->getFindAllQB();
                 },
                 'required' => false,
+                'attr' => ['class' => 'form-control form-control-sm mb-2 mr-sm-2 mb-sm-0'],
                 'empty_data' => ''
             ))
-            ->add('beginDateLabel', TextType::class, array(
-                'label' => 'Date de début',
-                'required' => false,
-                'attr' => [
-                    'class' => 'hts-date-input hbase-hdatepicker',
-                    'placeholder' => 'Date de Début',
-                    'hbase-default-required' => true
-                ]
+            ->add('beginHDate', HDateType::class, array(
+                'label' => 'Date de début'
             ))
-            ->add('endDateLabel', TextType::class, array(
-                'label' => 'Date de fin',
-                'required' => false,
-                'attr' => [
-                    'class' => 'hts-date-input hbase-hdatepicker',
-                    'placeholder' => 'Date de fin',
-                    'hbase-default-required' => true
-                ]
+            ->add('endHDate', HDateType::class, array(
+                'label' => 'Date de fin'
             ));
     }
 
@@ -62,7 +50,7 @@ class SearchArticleType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => ArticleCollectionDTO::class,
+            'data_class' => ArticleDTO::class,
             'allow_extra_fields' => true
         ));
     }

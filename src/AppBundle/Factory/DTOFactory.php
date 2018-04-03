@@ -27,7 +27,7 @@ abstract class DTOFactory
     }
 
     /**
-     * @param User $user
+     * @param User|null $user
      * @return EntityMutableDTO
      * @throws FactoryException
      */

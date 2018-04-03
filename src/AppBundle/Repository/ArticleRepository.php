@@ -23,27 +23,6 @@ use Doctrine\ORM\Query;
  */
 class ArticleRepository extends EntityRepository
 {
-
-    public function bindDTO($id, $dto)
-    {
-        $qb = $this->createQueryBuilder('a')
-            ->select('a')
-            ->where('a.id = :id')
-            ->setParameter('id', $id);
-        /** @var Article $article */
-        /** @var ArticleCollectionDTO $dto */
-        $article = $qb->getQuery()->getOneOrNullResult();
-        if ($article === null)
-            return false;
-        AutoMapper::autoMap($article,$dto);
-        // StaticHelper::finalizeArticleDTO($dto);
-        if ($dto instanceof ArticleMainDTO || $dto instanceof ArticleCollectionDTO) {
-            $this->hydrateSubEvents($id, $dto);
-        }
-
-        return true;
-    }
-
     private function hydrateSubEvents($id, $dto)
     {
         $qb = $this->createQueryBuilder('a')
@@ -105,5 +84,9 @@ class ArticleRepository extends EntityRepository
         $qb->orderBy('a.id','DESC');
 
         return $qb->getQuery();
+    }
+
+    private function findAllBySearch(){
+
     }
 }

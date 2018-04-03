@@ -2122,9 +2122,12 @@ var hb = (function (hb) {
             parseFromJson : function(jsonStr)
             {
                 let jsonObj = JSON.parse(jsonStr);
-                console.log("date avant parsage : " + jsonObj.beginDate);
+                /*console.log("date avant parsage : " + jsonObj.beginDate);
+                console.log(jsonObj.beginDate.substring(0,1));
+                console.log(jsonObj.beginDate.substring(0,1) === "-");
+                console.log(jsonObj.beginDate.substring(1));*/
                 if(jsonObj.beginDate !== null && jsonObj.beginDate.substring(0,1) === "-"){
-                    jsonObj.beginDate = jsonObj.beginDate.substring(3);
+                    jsonObj.beginDate = jsonObj.beginDate.substring(1);
                     jsonObj.beginDate = new Date(Date.parse(jsonObj.beginDate));
                     jsonObj.beginDate.setFullYear(-jsonObj.beginDate.getFullYear());
                 }
@@ -2132,7 +2135,7 @@ var hb = (function (hb) {
                     jsonObj.beginDate = new Date(Date.parse(jsonObj.beginDate));
                 }
                 if(jsonObj.endDate !== null && jsonObj.endDate.substring(0,1) === "-"){
-                    jsonObj.endDate = jsonObj.endDate.substring(3);
+                    jsonObj.endDate = jsonObj.endDate.substring(1);
                     jsonObj.endDate = new Date(Date.parse(jsonObj.endDate));
                     jsonObj.endDate.setFullYear(-jsonObj.endDate.getFullYear());
                 }
@@ -2140,7 +2143,7 @@ var hb = (function (hb) {
                     jsonObj.endDate = new Date(Date.parse(jsonObj.endDate));
                 }
 
-                console.log("date parsée : " + jsonObj.beginDate);
+                //console.log("date parsée : " + jsonObj.beginDate);
                 return new util.HDate(jsonObj.type,jsonObj.beginDate,jsonObj.endDate);
             },
             /**

@@ -7,6 +7,7 @@ use AppBundle\Factory\DTOFactory;
 use AppBundle\Helper\FormErrorHelper;
 use AppBundle\Helper\TableActionHelper;
 use AppBundle\Mapper\AbstractEntityMapper;
+use AppBundle\Mediator\DTOMediator;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -32,6 +33,11 @@ abstract class AbstractFormListener implements EventSubscriberInterface, Listene
     protected $mapper;
 
     /**
+     * @var DTOMediator
+     */
+    protected $mediator;
+
+    /**
      * @var FormErrorHelper
      */
     protected $formError;
@@ -55,6 +61,7 @@ abstract class AbstractFormListener implements EventSubscriberInterface, Listene
      * @param FormFactoryInterface $formFactory
      * @param EntityMapper $mapper
      * @param FormErrorHelper $formError
+     * @param DTOMediator $mediator
      * @param TableActionHelper $tableHelper
      */
     public function __construct(
@@ -62,6 +69,7 @@ abstract class AbstractFormListener implements EventSubscriberInterface, Listene
         FormFactoryInterface $formFactory,
         EntityMapper $mapper,
         FormErrorHelper $formError,
+        DTOMediator $mediator,
         TableActionHelper $tableHelper = null
     ) {
         $this->dtoFactory  = $dtoFactory;
@@ -69,6 +77,7 @@ abstract class AbstractFormListener implements EventSubscriberInterface, Listene
         $this->mapper      = $mapper;
         $this->formError   = $formError;
         $this->tableHelper = $tableHelper;
+        $this->mediator = $mediator;
     }
 
     /**

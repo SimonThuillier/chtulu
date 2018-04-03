@@ -15,6 +15,8 @@ use AppBundle\Utils\HDate;
 
 class ArticleDTO extends EntityMutableDTO
 {
+    /** @var integer */
+    protected $entityId;
     /** @var string */
     protected $title;
     /** @var string */
@@ -35,6 +37,24 @@ class ArticleDTO extends EntityMutableDTO
      */
     public function __construct()
     {
+    }
+
+    /**
+     * @return int
+     */
+    public function getEntityId()
+    {
+        return $this->entityId;
+    }
+
+    /**
+     * @param int
+     * @return self
+     */
+    public function setEntityId($entityId)
+    {
+        $this->entityId = $entityId;
+        return $this;
     }
 
     /**

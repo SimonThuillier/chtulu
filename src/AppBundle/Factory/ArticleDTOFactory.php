@@ -20,5 +20,6 @@ class ArticleDTOFactory extends DTOFactory
     {
         /** @var ArticleDTO $articleDTO */
         $articleDTO = $this->product;
+        $articleDTO->setHasEndDate(true);
     }
 }

@@ -220,6 +220,14 @@ abstract class AbstractEntityMapper
     }
 
     /**
+     * @return mixed
+     */
+    public function findAll()
+    {
+        return $this->repository->findAll();
+    }
+
+    /**
      * @return Entity
      */
     public function findLast()
