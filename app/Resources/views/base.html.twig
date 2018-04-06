@@ -15,6 +15,7 @@
                folder instead of downloading all of them to reduce the load. -->
         {% stylesheets output='css/app.css'
             '@AppBundle/Resources/third-party/bootstrap/css/bootstrap.min.css'
+            '@AppBundle/Resources/third-party/bootstrap-table/css/bootstrap-table.min.css'
             '@AppBundle/Resources/third-party/jQueryUI/jquery-ui.theme.min.css'
             '@AppBundle/Resources/third-party/jQueryUI/jquery-ui.css'
             '@AppBundle/Resources/third-party/AdminLTE/css/AdminLTE.min.css'
@@ -648,15 +649,15 @@
 <!-- javascript : Bootstrap 3.3.6, jQuery 2.2.3, SlimScroll,FastClick,AdminLTE App (2.3.11), AdminLTE for demo purposes TODO : remove this one later   -->
 
 {% javascripts output="js/app.js"
-    '@AppBundle/Resources/third-party/jQuery/jquery-2.2.3.min.js'
+    '@AppBundle/Resources/third-party/jQuery/jquery-3.3.1.min.js'
     '@AppBundle/Resources/third-party/jQueryUI/jquery-ui.min.js'
     '@AppBundle/Resources/third-party/AdminLTE/js/app.min.js'
     '@AppBundle/Resources/third-party/bootstrap/js/bootstrap.min.js'
+    '@AppBundle/Resources/third-party/bootstrap-table/js/bootstrap-table.min.js'
     '@AppBundle/Resources/third-party/slimScroll/jquery.slimscroll.min.js'
     '@AppBundle/Resources/third-party/fastclick/fastclick.js'
     '@AppBundle/Resources/third-party/d3/js/d3.min.js'
     '@AppBundle/Resources/third-party/iCheck/js/icheck.min.js'
-    '@AppBundle/Resources/third-party/vex/js/vex.combined.min.js'
     '@AppBundle/Resources/hbase/js/util/common.js'
     '@AppBundle/Resources/hbase/js/util/symfony.js'
     '@AppBundle/Resources/hbase/js/util/translation.js'

@@ -75,7 +75,7 @@ class ArticleDTOMediator extends DTOMediator
         $article = $this->entity;
         $beginHDate = ($article->getBeginDateType() !== null)?new HDate():null;
         $endHDate = ($article->getEndDateType() !== null)?new HDate():null;
-        $hasEndDate = false;
+        $hasEndDate = $article->getId()>0?false:true;
 
         if($beginHDate !== null){
             $beginHDate
