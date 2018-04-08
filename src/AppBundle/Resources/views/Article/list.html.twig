@@ -41,15 +41,143 @@
 
 {% block javascript %}
     <script type="application/javascript">
+        /**
+         * @package HArticle.js
+         * @doc common.js : HDate class definition
+         * @requires hb.util.cmn,hb.util.date,hb.util.trans
+         */
+        var hb = (function (hb) {
+            "use strict";
+            var _moduleName = "util:HArticle/HArticle.js";
+            if(((typeof hb.getLoadedModules==="function"?hb.getLoadedModules():[])).includes(_moduleName)) {
+                console.log(_moduleName + " already loaded, skipping");
+                return hb;
+            }
+            hb.util = (function (util) {
+                var _requiredModules = ["util:cmn/cmn.js","util:trans/translation.js,util:HDate/HDate.js"];
+                let hd = hb.util.HDate;
+                let trans = hb.util.trans;
+
+                let _idGenerator = new hb.util.cmn.getIdGenerator();
+
+
+
+                /**
+                 * @doc HArticle object constructor
+                 * @class hb.util.HArticle
+                 * @return {hb.util.HArticle}
+                 */
+                util.HArticle = function()
+                {
+                    this.id = "t" + _idGenerator(); // at creation articles receive a temporary id
+                };
+
+                let _prototype = {
+                    id:null,
+                    title:null,
+                    type:null,
+                    abstract:null,
+                    beginHDate:null,
+                    hasEndDate:null,
+                    endHDate:null,
+                    groups:[],
+                    /**
+                     * @doc HDate prototype clone function
+                     * @returns {HDate}
+                     */
+                    clone : function() {
+                        //return new util.HDate(this.type,hd.clone(this.beginDate),hd.clone(this.endDate));
+                    },
+                    /**
+                     * @doc : determines if two HArticle are equals (same id)
+                     * @param {HArticle} hArticle
+                     * @returns {boolean}
+                     */
+                    equals : function(hArticle) {
+                        return this.id === hArticle.id;
+                    },
+                    /**
+                     * @doc : function aimed to finalize constitution of new HArticle created by parsing JSon
+                     */
+                    finalize : function(){
+                        if(this.beginHDate !== null){
+                            this.beginHDate = hd.prototype.parseFromJson(JSON.stringify(this.beginHDate ));
+                        }
+
+                    },
+                    /**
+                     * @doc HArticle json parser/creator function : returns the HArticle generated from its JSON representation
+                     * @param {string} jsonStr
+                     * @returns {HArticle}
+                     */
+                    parseFromJson : function(jsonStr)
+                    {
+                        let jsonObj = JSON.parse(jsonStr);
+                        let hArticle = new hb.util.HArticle();
+                        for(var key in hArticle) {
+                            if(jsonObj.hasOwnProperty(key)){
+                                hArticle[key] = jsonObj[key];
+                            }
+                        }
+                        return hArticle;
+                    },
+                    /**
+                     * @doc HArticle json parser/creator function : returns the HArticle generated from its JSON representation
+                     * @param {string} jsonStr
+                     * @returns {HArticle}
+                     */
+                    mapFromObject : function(jsonStr)
+                    {
+                        let jsonObj = JSON.parse(jsonStr);
+                        let hArticle = new hb.util.HArticle();
+                        for(var key in hArticle) {
+                            if(jsonObj.hasOwnProperty(key)){
+                                hArticle[key] = jsonObj[key];
+                            }
+                        }
+                        return hArticle;
+                    }
+                };
+                Object.assign(util.HArticle.prototype,_prototype);
+
+                console.log(_moduleName + " loaded");
+                return util;
+            }(hb.util || {}));
+
+            let _loadedModules = ((typeof hb.getLoadedModules==="function")?hb.getLoadedModules():[]);
+            _loadedModules.push(_moduleName);
+            hb.getLoadedModules = function() {
+                return _loadedModules;
+            }
+            return hb;
+        }(hb || {}));
+
+
+
+
+
+
+
+
         const $table = $('#table');
         const $remove = $('#remove');
         let selections = [];
 
         function initTable() {
             $table.bootstrapTable({
+                idField:'id',
+                responseHandler:function(res) {
+                    console.log(res.rows);
+                    for(let i=0;i<res.rows.length;i++){
+                        Object.setPrototypeOf(res.rows[i], hb.util.HArticle.prototype);
+                        res.rows[i].finalize();
+                    }
+                    console.log(res);
+                return res;
+                },
                 rowAttributes:function(row, index) {
-
-                    return {"data-value":JSON.stringify(row)};
+                    return {};
+                    //return {"data-value":JSON.stringify(row)};
                 },
                 height: getHeight(),
                 columns: [
@@ -76,9 +204,8 @@
                             align: 'center',
                             formatter:function(value, row, index, field) {
                                 if(value === null) return '-';
-                                let hDate = hb.util.HDate.prototype.parseFromJson(JSON.stringify(value));
-                                console.log(hDate);
-                                return hDate.getLabel();
+                                //let hDate = hb.util.HDate.prototype.parseFromJson(JSON.stringify(value));
+                                return value.getLabel();
                             }
                         },
                         {
@@ -90,8 +217,35 @@
                             formatter:function(value, row, index, field) {
                                 if(value === null) return '-';
                                 let hDate = hb.util.HDate.prototype.parseFromJson(JSON.stringify(value));
-                                console.log(hDate);
                                 return hDate.getLabel();
+                            }
+                        },
+                        {
+                            field: 'actions',
+                            title: 'Actions',
+                            align: 'center',
+                            events: {
+                                'click .like': function (e, value, row, index) {
+                                    console.log(value);
+                                    console.log(row);
+                                    alert(`You click lol action, row: ${JSON.stringify(row)}`);
+                                },
+                                'click .remove': function(e, value, {id}, index) {
+                                    $table.bootstrapTable('remove', {
+                                        field: 'id',
+                                        values: [id]
+                                    });
+                                }
+                            },
+                            formatter: function(value, row, index) {
+                                return [
+                                    '<a class="like" href="javascript:void(0)" title="Like">',
+                                    '<i class="fa fa-heart"></i>',
+                                    '</a>  ',
+                                    '<a class="remove" href="javascript:void(0)" title="Remove">',
+                                    '<i class="fa fa-remove"></i>',
+                                    '</a>'
+                                ].join('');
                             }
                         }
                     ]
@@ -118,7 +272,7 @@
                 }
             });
             $table.on('all.bs.table', (e, name, args) => {
-                console.log(name, args);
+                //console.log(name, args);
             });
             $remove.click(() => {
                 const ids = getIdSelections();
@@ -139,52 +293,6 @@
 
         function getIdSelections() {
             return $.map($table.bootstrapTable('getSelections'), ({id}) => id);
-        }
-
-        function responseHandler(res) {
-            $.each(res.rows, (i, row) => {
-                row.state = $.inArray(row.id, selections) !== -1;
-            });
-            return res;
-        }
-
-        function detailFormatter(index, row) {
-            const html = [];
-            $.each(row, (key, value) => {
-                html.push(`<p><b>${key}:</b> ${value}</p>`);
-            });
-            return html.join('');
-        }
-
-        function operateFormatter(value, row, index) {
-            return [
-                '<a class="like" href="javascript:void(0)" title="Like">',
-                '<i class="glyphicon glyphicon-heart"></i>',
-                '</a>  ',
-                '<a class="remove" href="javascript:void(0)" title="Remove">',
-                '<i class="glyphicon glyphicon-remove"></i>',
-                '</a>'
-            ].join('');
-        }
-
-        window.operateEvents = {
-            'click .like': function (e, value, row, index) {
-                alert(`You click like action, row: ${JSON.stringify(row)}`);
-            },
-            'click .remove': function(e, value, {id}, index) {
-                $table.bootstrapTable('remove', {
-                    field: 'id',
-                    values: [id]
-                });
-            }
-        };
-
-        function totalPriceFormatter(data) {
-            let total = 0;
-            $.each(data, (i, {price}) => {
-                total += +(price.substring(1));
-            });
-            return `$${total}`;
         }
 
         function getHeight() {
