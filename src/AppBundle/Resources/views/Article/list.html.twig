@@ -47,6 +47,10 @@
 
         function initTable() {
             $table.bootstrapTable({
+                rowAttributes:function(row, index) {
+
+                    return {"data-value":JSON.stringify(row)};
+                },
                 height: getHeight(),
                 columns: [
                     [
@@ -56,6 +60,39 @@
                             sortable: true,
                             editable: false,
                             align: 'center'
+                        },
+                        {
+                            field: 'type.label',
+                            title: 'Type',
+                            sortable: true,
+                            editable: false,
+                            align: 'center'
+                        },
+                        {
+                            field: 'beginHDate',
+                            title: 'Date de début',
+                            sortable: true,
+                            editable: false,
+                            align: 'center',
+                            formatter:function(value, row, index, field) {
+                                if(value === null) return '-';
+                                let hDate = hb.util.HDate.prototype.parseFromJson(JSON.stringify(value));
+                                console.log(hDate);
+                                return hDate.getLabel();
+                            }
+                        },
+                        {
+                            field: 'endHDate',
+                            title: 'Date de fin',
+                            sortable: true,
+                            editable: false,
+                            align: 'center',
+                            formatter:function(value, row, index, field) {
+                                if(value === null) return '-';
+                                let hDate = hb.util.HDate.prototype.parseFromJson(JSON.stringify(value));
+                                console.log(hDate);
+                                return hDate.getLabel();
+                            }
                         }
                     ]
                 ]

@@ -52,11 +52,6 @@ abstract class AbstractHSerializer implements HSerializer
     public function __construct(ManagerRegistry $doctrine)
     {
         $this->doctrine = $doctrine;
-
-        $encoders = array(new JsonEncoder());
-        $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
-        $normalizers = array(new PropertyNormalizer($classMetadataFactory),new ObjectNormalizer());
-        $this->serializer = new Serializer($normalizers,$encoders);
     }
     
     /**

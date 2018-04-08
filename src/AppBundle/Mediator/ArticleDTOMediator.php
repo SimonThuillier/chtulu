@@ -23,7 +23,7 @@ class ArticleDTOMediator extends DTOMediator
     public function __construct()
     {
         parent::__construct();
-        $this->groups = ['minimal'=>false,'abstract'=>false,'date'=>false];
+        $this->groups = ['minimal','abstract','date','type'];
         $this->formTypeClassName = ArticleDTOType::class;
     }
 
@@ -51,8 +51,10 @@ class ArticleDTOMediator extends DTOMediator
         $dto
             ->setId($article->getId())
             ->setTitle($article->getTitle())
-            ->setType($article->getType());
-        $this->groups['minimal'] = true;
+            ->setType($article->getType())
+            ->addMappedGroup('minimal');
+        // ensure mapped children are loaded
+        $article->getType()->getLabel();
     }
 
     private function mapDTOAbstractGroup()
@@ -62,8 +64,8 @@ class ArticleDTOMediator extends DTOMediator
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
         $dto
-            ->setAbstract($article->getAbstract());
-        $this->groups['abstract'] = true;
+            ->setAbstract($article->getAbstract())
+            ->addMappedGroup('abstract');
     }
 
     private function mapDTODateGroup()
@@ -93,8 +95,8 @@ class ArticleDTOMediator extends DTOMediator
         $dto
             ->setBeginHDate($beginHDate)
             ->setEndHDate($endHDate)
-            ->setHasEndDate($hasEndDate);
-        $this->groups['date'] = true;
+            ->setHasEndDate($hasEndDate)
+            ->addMappedGroup('date');
     }
 
     protected function mediateBeginHDate(){

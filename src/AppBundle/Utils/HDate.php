@@ -43,38 +43,6 @@ class HDate
     }
 
     /**
-     * @return string
-     */
-    public function __toString()
-    {
-        if ($this === null) return null;
-        return self::toJSON($this);
-    }
-
-
-    /**
-     *
-     * @param self $hdate
-     * @return string[]|NULL[]
-     */
-    static function normalize(HDate $hdate){
-        return [
-            'beginDate' => ($hdate->getBeginDate()->format('Y-m-d') . 'T00:00:00.000Z' ),
-            'endDate' => ($hdate->getEndDate()->format('Y-m-d') . 'T00:00:00.000Z' ),
-            'type' => $hdate->getType()->getId()
-        ];
-    }
-
-    /**
-     *
-     * @param self $hdate
-     * @return string
-     */
-    static function toJSON($hdate){
-        return json_encode(self::normalize($hdate));
-    }
-    
-    /**
      * label
      * @return string
      */

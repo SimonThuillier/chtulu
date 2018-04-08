@@ -2,13 +2,16 @@
 namespace AppBundle\Serializer;
 
 use Symfony\Bridge\Doctrine\ManagerRegistry;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 use AppBundle\Factory\HDateFactory;
 use AppBundle\Utils\HDate;
 use AppBundle\Helper\DateHelper;
 use AppBundle\Entity\DateType;
 
-class HDateSerializer extends AbstractHSerializer implements HSerializer
+class HDateSerializer extends AbstractHSerializer implements HSerializer,NormalizerInterface
 {
     /**
      * @var HDateFactory
@@ -23,17 +26,35 @@ class HDateSerializer extends AbstractHSerializer implements HSerializer
     {
         parent::__construct($doctrine);
         $this->mainFactory = $mainFactory;
+
+        $encoders = array(new JsonEncoder());
+        $normalizers = array(new ObjectNormalizer());
+        $this->serializer = new Serializer($normalizers,$encoders);
+
         $this->classNames = [HDate::class];
         $this->mandatoryKeys = ["beginDate","endDate","type"];
     }
 
+    public function supportsNormalization($data, $format = null)
+    {
+        return is_object($data) && get_class($data) === HDate::class;
+    }
+
+    public function supportsDenormalization($data, $type, $format = null)
+    {
+        return isset($data['__jsonclass__']) && 'json' === $format;
+    }
+
+
+
     /**
      * @param HDate $object
      * @param array|null $groups
+     * @param array $context
      * @return array
      * @throws SerializationException
      */
-    public function normalize($object,$groups=null)
+    public function normalize($object,$groups=null,array $context=[])
     {
         $this->preCheckNormalize($object);
         try{

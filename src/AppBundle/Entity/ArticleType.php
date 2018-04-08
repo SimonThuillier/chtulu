@@ -65,7 +65,6 @@ class ArticleType
      */
     public function getLabel()
     {
-        var_dump("label appelé");
         return $this->label;
     }
 }

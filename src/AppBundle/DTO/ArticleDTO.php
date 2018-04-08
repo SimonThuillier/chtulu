@@ -37,6 +37,7 @@ class ArticleDTO extends EntityMutableDTO
      */
     public function __construct()
     {
+        parent::__construct();
     }
 
     /**

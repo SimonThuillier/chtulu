@@ -4,6 +4,7 @@ namespace AppBundle\Controller;
 use AppBundle\DTO\ArticleDTO;
 use AppBundle\Entity\User;
 use AppBundle\Factory\ArticleFactory;
+use AppBundle\Helper\BootstrapListHelper;
 use AppBundle\Mapper\ArticleMapper;
 use AppBundle\Mediator\ArticleDTOMediator;
 use AppBundle\Serializer\ArticleDTOSerializer;
@@ -233,29 +234,20 @@ class ArticleController extends Controller
                                       ArticleDTOMediator $mediator,
                                       ArticleDTOSerializer $serializer)
     {
-        $groups = ['minimal'];
-        $dto = $mediator
-            ->setEntity($doctrine->getRepository(Article::class)->find(6))
-            ->setDTO($dtoFactory->create($this->getUser()))
-            ->mapDTOGroups($groups)
-            ->getDTO();
+        $groups = ['minimal','date'];
+        $articles = $doctrine->getRepository(Article::class)->findAll();
+        $articleDtos = [];
 
-        //$mediator->setDTO(null);
-        //var_dump($dto);
-        $test = $dto->getType()->getLabel();
-        $groups = ["minimal","type"];
-        $response = ["total" =>1,"rows"=>[$serializer->normalize($dto,$groups)]];
+        foreach($articles as $article){
+            $articleDtos[] =  $mediator
+                ->setEntity($article)
+                ->setDTO($dtoFactory->create($this->getUser()))
+                ->mapDTOGroups($groups)
+                ->getDTO();
+        }
 
-
-
-        /* =
-            ["total" =>2,
-            "rows"=>[
-                ["title"=>"test"],
-                ["title"=>"test2"]
-            ]
-        ];*/
-        return new JsonResponse($response);
+        $groups = array_merge($groups,['groups','type']);
+        return new JsonResponse(BootstrapListHelper::getNormalizedListData($articleDtos,$serializer,$groups));
     }
 
 

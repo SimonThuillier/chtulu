@@ -70,9 +70,7 @@ abstract class DTOMediator
         $this->dto = $dto;
         if($this->dto !== null) $this->dto->setMediator($this);
         $this->pendingSetDTO = false;
-        foreach ($this->groups as $key=>$value){$this->groups[$key] = false;}
-        $this->changedProperties = [];
-        return $this;
+        return $this->resetChangedProperties();
     }
 
     /**
@@ -93,7 +91,7 @@ abstract class DTOMediator
         $this->entity = $entity;
         if($this->entity !== null) $this->entity->setMediator($this);
         $this->pendingSetEntity = false;
-        return $this;
+        return $this->resetChangedProperties();
     }
 
     /**
@@ -139,7 +137,7 @@ abstract class DTOMediator
     public function mapDTOGroup(String $group){
         if($this->dto === null) throw new NullColleagueException("DTO must be instanciated to build its groups");
         if($this->entity === null) throw new NullColleagueException("Entity must be specified to receive data");
-        if(! in_array($group,array_keys($this->groups))){
+        if(! in_array($group,$this->groups)){
             throw new NotAvailableGroupException("Group " . $group . " is not available for DTOMediator " . self::class);
         }
         return $this;

@@ -10,17 +10,32 @@ namespace AppBundle\Serializer;
 
 
 use AppBundle\DTO\ArticleDTO;
+use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
+use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Normalizer\PropertyNormalizer;
+use Symfony\Component\Serializer\Serializer;
+
 
 class ArticleDTOSerializer extends AbstractHSerializer
 {
     /**
-     *
      * @param ManagerRegistry $doctrine
+     * @param HDateSerializer $hDateSerializer
      */
-    public function __construct(ManagerRegistry $doctrine)
+    public function __construct(ManagerRegistry $doctrine,HDateSerializer $hDateSerializer)
     {
         parent::__construct($doctrine);
+        $encoders = array(new JsonEncoder());
+        $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
+        $normalizers = array(
+            $hDateSerializer,
+            new PropertyNormalizer($classMetadataFactory),
+            new ObjectNormalizer());
+        $this->serializer = new Serializer($normalizers,$encoders);
         $this->classNames = [ArticleDTO::class];
         $this->mandatoryKeys = ["title"];
     }
