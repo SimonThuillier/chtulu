@@ -8,7 +8,7 @@
 
 namespace AppBundle\DTO;
 
-
+use Symfony\Component\Serializer\Annotation\Groups;
 use AppBundle\Entity\ArticleType;
 use AppBundle\Mediator\DTOMediator;
 use AppBundle\Utils\HDate;
@@ -16,13 +16,13 @@ use AppBundle\Utils\HDate;
 class ArticleDTO extends EntityMutableDTO
 {
     /** @var integer */
-    protected $entityId;
+    protected $id;
     /** @var string */
     protected $title;
-    /** @var string */
-    protected $abstract;
     /** @var ArticleType */
     protected $type;
+    /** @var string */
+    protected $abstract;
     /** @var HDate */
     protected $beginHDate;
     /** @var HDate */
@@ -41,24 +41,86 @@ class ArticleDTO extends EntityMutableDTO
 
     /**
      * @return int
+     * @Groups({"minimal"})
      */
-    public function getEntityId()
+    public function getId()
     {
-        return $this->entityId;
+        return $this->id;
     }
 
     /**
      * @param int
      * @return self
      */
-    public function setEntityId($entityId)
+    public function setId($id)
     {
-        $this->entityId = $entityId;
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return string
+     * @groups({"minimal"})
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    /**
+     * @param string $title
+     * @return self
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('title');
+        return $this;
+    }
+
+    /**
+     * @return ArticleType|null
+     * @groups({"minimal"})
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param ArticleType $type
+     * @return self
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('type');
+        return $this;
+    }
+
+    /**
+     * @return string
+     * @Groups({"abstract"})
+     */
+    public function getAbstract()
+    {
+        return $this->abstract;
+    }
+
+    /**
+     * @param string $abstract
+     * @return self
+     */
+    public function setAbstract($abstract)
+    {
+        $this->abstract= $abstract;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('abstract');
         return $this;
     }
 
     /**
      * @return HDate
+     * @Groups({"date"})
      */
     public function getBeginHDate()
     {
@@ -78,6 +140,7 @@ class ArticleDTO extends EntityMutableDTO
 
     /**
      * @return HDate
+     * @Groups({"date"})
      */
     public function getEndHDate()
     {
@@ -97,6 +160,7 @@ class ArticleDTO extends EntityMutableDTO
 
     /**
      * @return boolean
+     * @Groups({"date"})
      */
     public function getHasEndDate()
     {
@@ -111,63 +175,6 @@ class ArticleDTO extends EntityMutableDTO
     {
         $this->hasEndDate = $hasEndDate;
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('hasEndDate');
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-    /**
-     * @param string $title
-     * @return self
-     */
-    public function setTitle($title)
-    {
-        $this->title = $title;
-        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('title');
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getAbstract()
-    {
-        return $this->abstract;
-    }
-
-    /**
-     * @param string $abstract
-     * @return self
-     */
-    public function setAbstract($abstract)
-    {
-        $this->abstract= $abstract;
-        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('abstract');
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    /**
-     * @param ArticleType $type
-     * @return self
-     */
-    public function setType($type)
-    {
-        $this->type = $type;
-        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('type');
         return $this;
     }
 }

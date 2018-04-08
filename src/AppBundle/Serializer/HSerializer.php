@@ -2,7 +2,7 @@
 
 namespace AppBundle\Serializer;
 
-interface HSerializerInterface
+interface HSerializer
 {
     /**
      * returns admissible class names of objects operated by the serializer
@@ -20,10 +20,11 @@ interface HSerializerInterface
 
     /**
      * @param mixed $object
+     * @param array|null $groups
      * @return array
      * @throws SerializationException
      */
-    public function normalize($object);
+    public function normalize($object,$groups=null);
 
     /**
      * @param array $normalizedObject
@@ -48,10 +49,11 @@ interface HSerializerInterface
 
     /**
      * @param array $normalizedPayload
+     * @param mixed $object
      * @return mixed
      * @throws DeserializationException
      */
-    public function denormalize($normalizedPayload);
+    public function denormalize($normalizedPayload,$object=null);
 
 
 

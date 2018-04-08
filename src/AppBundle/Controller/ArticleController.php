@@ -6,6 +6,8 @@ use AppBundle\Entity\User;
 use AppBundle\Factory\ArticleFactory;
 use AppBundle\Mapper\ArticleMapper;
 use AppBundle\Mediator\ArticleDTOMediator;
+use AppBundle\Serializer\ArticleDTOSerializer;
+use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use AppBundle\Entity\Article;
@@ -56,7 +58,7 @@ class ArticleController extends Controller
         $mediator
             ->setEntity($entityFactory->create($this->getUser()))
             ->setDTO($dtoFactory->create($this->getUser()))
-            ->setDTOGroups($groups);
+            ->mapDTOGroups($groups);
         $form = $this
             ->get('form.factory')
             ->createBuilder($mediator->getFormTypeClassName(),$mediator->getDTO(),[
@@ -87,7 +89,7 @@ class ArticleController extends Controller
         $mediator
             ->setEntity($entityFactory->create($this->getUser()))
             ->setDTO($dtoFactory->create($this->getUser()))
-            ->setDTOGroups($groups);
+            ->mapDTOGroups($groups);
         $form = $this
             ->get('form.factory')
             ->createBuilder($mediator->getFormTypeClassName(),$mediator->getDTO(),[
@@ -121,7 +123,7 @@ class ArticleController extends Controller
         $mediator
             ->setEntity($article)
             ->setDTO($dtoFactory->create($this->getUser()))
-            ->setDTOGroups($groups);
+            ->mapDTOGroups($groups);
         $form = $this
             ->get('form.factory')
             ->createBuilder($mediator->getFormTypeClassName(),$mediator->getDTO(),[
@@ -156,7 +158,7 @@ class ArticleController extends Controller
         $mediator
             ->setEntity($article)
             ->setDTO($dtoFactory->create($this->getUser()))
-            ->setDTOGroups($groups);
+            ->mapDTOGroups($groups);
         $form = $this
             ->get('form.factory')
             ->createBuilder($mediator->getFormTypeClassName(),$mediator->getDTO(),[
@@ -196,23 +198,64 @@ class ArticleController extends Controller
      */
     public function listAction(Request $request,GenericProcessor $processor,SearchArticleFormListener $listener)
     {
-        /** @var Session $session */
-        $session = $this->get('session');
+        return $this->render('@AppBundle/Article/list.html.twig');
 
-        if($request->getMethod() === 'GET' && $session->has('articleListResponse')){
-            $page = $session->get('articleListResponse');
-            $session->remove('articleListResponse');
-            return new Response($page);
-        }
-        else if($request->getMethod() === 'POST'){
-            $result = $processor->addSubscriber($listener)->process($request);
-            $session->set('articleListResponse',$this->get('templating')->render('@AppBundle/Article/list.html.twig',$result));
-            return new JsonResponse(['success'=>true]);
-        }
-        // default GET behaviour
-        /** @var Event $result */
-        $result = $processor->addSubscriber($listener)->process($request);
-        return $this->render('@AppBundle/Article/list.html.twig',$result);
+
+
+
+
+//        /** @var Session $session */
+//        $session = $this->get('session');
+//
+//        if($request->getMethod() === 'GET' && $session->has('articleListResponse')){
+//            $page = $session->get('articleListResponse');
+//            $session->remove('articleListResponse');
+//            return new Response($page);
+//        }
+//        else if($request->getMethod() === 'POST'){
+//            $result = $processor->addSubscriber($listener)->process($request);
+//            $session->set('articleListResponse',$this->get('templating')->render('@AppBundle/Article/list.html.twig',$result));
+//            return new JsonResponse(['success'=>true]);
+//        }
+//        // default GET behaviour
+//        /** @var Event $result */
+//        $result = $processor->addSubscriber($listener)->process($request);
+//        return $this->render('@AppBundle/Article/list.html.twig',$result);
+    }
+
+    /**
+     * @Route("/get-list-data",name="article_getlistdata")
+     * @Method({"GET","POST"})
+     */
+    public function getListDataAction(Request $request,
+                                      ManagerRegistry $doctrine,
+                                      ArticleDTOFactory $dtoFactory,
+                                      ArticleDTOMediator $mediator,
+                                      ArticleDTOSerializer $serializer)
+    {
+        $groups = ['minimal'];
+        $dto = $mediator
+            ->setEntity($doctrine->getRepository(Article::class)->find(6))
+            ->setDTO($dtoFactory->create($this->getUser()))
+            ->mapDTOGroups($groups)
+            ->getDTO();
+
+        //$mediator->setDTO(null);
+        //var_dump($dto);
+        $test = $dto->getType()->getLabel();
+        $groups = ["minimal","type"];
+        $response = ["total" =>1,"rows"=>[$serializer->normalize($dto,$groups)]];
+
+
+
+        /* =
+            ["total" =>2,
+            "rows"=>[
+                ["title"=>"test"],
+                ["title"=>"test2"]
+            ]
+        ];*/
+        return new JsonResponse($response);
     }
 
 

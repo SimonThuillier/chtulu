@@ -86,7 +86,7 @@ class TestController extends Controller
         $articleDTO = $mediator
             ->setDTO($DTO)
             ->setEntity($article)
-            ->setDTOGroups($groups)
+            ->mapDTOGroups($groups)
         ->getDTO();
 
         $formFactory = $this->get('form.factory');
