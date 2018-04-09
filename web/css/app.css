@@ -3880,3 +3880,10 @@ div.hb-modal-z9{
 	z-index: 1000000000;
 }
 
+.fa.disabled,
+.fa[disabled],
+.disabled > .fa,
+[disabled] > .fa {
+	color: lightgrey;
+	cursor: not-allowed;
+}

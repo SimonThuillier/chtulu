@@ -5286,10 +5286,10 @@ var hb = (function (hb) {
         let trans = hb.util.trans;
 
         let timeZoneOffset = new Date().getTimezoneOffset();
-        console.log("timeZoneOffset : " + timeZoneOffset);
+        //console.log("timeZoneOffset : " + timeZoneOffset);
 
         let _availableTypes = ["1","2","3","4","5","6","7","8"];
-        console.log(1);
+
         let _formatters = {
             "1":hd.getFormatterFromPattern(trans.FORMAT_STRS["1"]),
             "2":hd.getFormatterFromPattern(trans.FORMAT_STRS["2"]),
@@ -5300,9 +5300,8 @@ var hb = (function (hb) {
             "7":hd.getFormatterFromPattern(trans.FORMAT_STRS["7"]),
             "8":hd.getFormatterFromPattern(trans.FORMAT_STRS["8"])
         };
-        console.log(2);
+
         let _intervalFormatter = hd.getFormatterFromPattern(trans.FORMAT_INTERVAL_STR);
-        console.log(3);
         let _canonicalFormatters = {
             "1":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["1"]),
             "2":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["2"]),
@@ -5313,7 +5312,6 @@ var hb = (function (hb) {
             "7":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["7"]),
             "8":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["8"])
         };
-        console.log(4);
         /**
          * @doc HDate object constructor
          * @class hb.util.HDate

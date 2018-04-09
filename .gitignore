@@ -18,3 +18,5 @@ app/config/parameters.yml
 /web/bundles/
 web/js/*
 web/css/*
+/web/js/*
+/web/css/*
