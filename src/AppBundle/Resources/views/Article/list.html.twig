@@ -200,10 +200,11 @@
                 };
                 /**
                  * @doc builds modal for HArticleModal
-                 * @param {Object} $modal
+                 * @param hb.ui.HArticleModal hArticleModal
                  * @private
                  */
-                let _build = function($modal) {
+                let _build = function(hArticleModal) {
+                    let $modal = hArticleModal.$modal;
                     $modal.container = $("<div class=\"modal-dialog modal-lg\" role=\"document\">").appendTo($modal);
                     $modal.content = $("<div class=\"modal-content\">").appendTo($modal.container);
 
@@ -211,17 +212,49 @@
                     $modal.header.append("<button type=\"button\" class=\"close\" data-dismiss=\"modal\">&times;</button>");
                     $modal.title = $("<h4 class=\"modal-title\">Modal Header</h4>").appendTo($modal.header);
 
-                    $modal.body = $("<div class=\"modal-body\">").appendTo($modal.content);;
-                    $modal.body.append("<p>Un article sera vraiment ici ! </p>");
-
-                    $modal.test = $("<p>").appendTo($modal.body);
+                    $modal.body = $("<div class=\"modal-body\">").appendTo($modal.content);
 
                     $modal.footer = $("<div class=\"modal-footer\">").appendTo($modal.content);;
                     $modal.footer.append("<button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>");
 
-                    $modal.testButton = $("<button type=\"button\" class=\"btn btn-default\">lol</button>").appendTo($modal.footer);
-                    $modal.testButton.on('click',function(e){console.log("lolilol")});
+                    hArticleModal["minimal"] = _groupBuilder["buildMinimal"]();
+
+                    $modal.body.append(hArticleModal["minimal"]);
                 };
+
+                let _groupBuilder = {
+                    /**
+                     * @doc builds minimal part of article for HArticleModal
+                     * @private
+                     */
+                    buildMinimal : function() {
+                        let $group = $("<div hidden=true class=\"row\">");
+                        let $col = $("<div class=\"col-md-6\">").appendTo($group);
+                        let $area = $("<div class=\"container-fluid\">").appendTo($col);
+                        let $sRow = $("<div class=\"row\">").appendTo($area);
+                        let $type = $("<h5 data-label='Type : '>").appendTo($sRow);
+                        let $beginHDate = $("<h5 data-label='Date de début : '>").appendTo($sRow);
+                        let $endHDate = $("<h5 data-label='Date de fin : '>").appendTo($sRow);
+
+                        $type.data("bar","lol");
+                        $type.data("bar2",{id:1,valeur:'coucou !'});
+
+                        $type.text($type.data('label') + "Event");
+                        $beginHDate.text($beginHDate.data('label') + "une date");
+                        $endHDate.text($endHDate.data('label') + "une autre date");
+
+                        $col = $("<div hidden=true class=\"col-md-5 ml-auto\">").appendTo($group);
+                        let $thumbnail = $("<a href=\"#\" class=\"thumbnail\">").appendTo($col);
+                        let $img = $("<img src=\"/images/420a08a_user2-160x160_1.jpg\" alt=\"...\">").appendTo($thumbnail);
+
+                        let $row = $("<div class=\"row\">").insertAfter($group);
+                        $col = $("<div class=\"col-md-12\">").appendTo($row);
+                        let $abstract = $("<div class=\"well well-lg\">").appendTo($col);
+                        return $group;
+
+                    }
+                };
+
                 /**
                  * @doc refresh HDatePicker
                  * @param {hb.ui.HDatePicker} picker
@@ -272,7 +305,7 @@
                     this.hArticle=null;
                     this.$modal =  $("<div id=\"modal-article2\" class=\"modal fade\" tabindex=\"-1\" " +
                         "role=\"dialog\" aria-labelledby=\"Article\">").appendTo('body');
-                    _build(this.$modal);
+                    _build(this);
                     _applyOption(this);
                     return this;
                 };
@@ -398,7 +431,6 @@
                                     //$("#modal-article").modal();
 
                                     $articleModal.$modal.modal();
-                                    $articleModal.$modal.test.text("je teste un truc");
                                     $articleModal.$modal.title.text("Et oui !");
 
 
