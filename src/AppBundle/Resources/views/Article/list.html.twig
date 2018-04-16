@@ -118,7 +118,9 @@
                         if(this.beginHDate !== null){
                             this.beginHDate = hd.prototype.parseFromJson(JSON.stringify(this.beginHDate ));
                         }
-
+                        if(this.endHDate !== null){
+                            this.endHDate = hd.prototype.parseFromJson(JSON.stringify(this.endHDate ));
+                        }
                     },
                     /**
                      * @doc HArticle json parser/creator function : returns the HArticle generated from its JSON representation
@@ -188,6 +190,7 @@
                     option.z = option.z || 7;
                     option.fadeTime = option.fadeTime || 250;
                     option.title = option.title || "Nouvel article";
+                    option.groups = option.groups || ["minimal"];
                     return option;
                 };
                 /**
@@ -199,12 +202,14 @@
                     let $modal = modal.$modal;
                 };
                 /**
-                 * @doc builds modal for HArticleModal
-                 * @param hb.ui.HArticleModal hArticleModal
+                 * @doc builds modal container
                  * @private
                  */
-                let _build = function(hArticleModal) {
-                    let $modal = hArticleModal.$modal;
+                let _build = function() {
+                    //id="modal-article2"
+                    //aria-labelledby="Article"
+                    let $modal = $("<div class=\"modal fade\" tabindex=\"-1\" " +
+                        "role=\"dialog\">").appendTo('body');
                     $modal.container = $("<div class=\"modal-dialog modal-lg\" role=\"document\">").appendTo($modal);
                     $modal.content = $("<div class=\"modal-content\">").appendTo($modal.container);
 
@@ -213,46 +218,12 @@
                     $modal.title = $("<h4 class=\"modal-title\">Modal Header</h4>").appendTo($modal.header);
 
                     $modal.body = $("<div class=\"modal-body\">").appendTo($modal.content);
+                    $modal.detail = $("<div class= \"hb-detail\">").appendTo($modal.body);
+                    $modal.form = $("<div class= \"hb-form\">").appendTo($modal.body);
 
-                    $modal.footer = $("<div class=\"modal-footer\">").appendTo($modal.content);;
+                    $modal.footer = $("<div class=\"modal-footer\">").appendTo($modal.content);
                     $modal.footer.append("<button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>");
-
-                    hArticleModal["minimal"] = _groupBuilder["buildMinimal"]();
-
-                    $modal.body.append(hArticleModal["minimal"]);
-                };
-
-                let _groupBuilder = {
-                    /**
-                     * @doc builds minimal part of article for HArticleModal
-                     * @private
-                     */
-                    buildMinimal : function() {
-                        let $group = $("<div hidden=true class=\"row\">");
-                        let $col = $("<div class=\"col-md-6\">").appendTo($group);
-                        let $area = $("<div class=\"container-fluid\">").appendTo($col);
-                        let $sRow = $("<div class=\"row\">").appendTo($area);
-                        let $type = $("<h5 data-label='Type : '>").appendTo($sRow);
-                        let $beginHDate = $("<h5 data-label='Date de début : '>").appendTo($sRow);
-                        let $endHDate = $("<h5 data-label='Date de fin : '>").appendTo($sRow);
-
-                        $type.data("bar","lol");
-                        $type.data("bar2",{id:1,valeur:'coucou !'});
-
-                        $type.text($type.data('label') + "Event");
-                        $beginHDate.text($beginHDate.data('label') + "une date");
-                        $endHDate.text($endHDate.data('label') + "une autre date");
-
-                        $col = $("<div hidden=true class=\"col-md-5 ml-auto\">").appendTo($group);
-                        let $thumbnail = $("<a href=\"#\" class=\"thumbnail\">").appendTo($col);
-                        let $img = $("<img src=\"/images/420a08a_user2-160x160_1.jpg\" alt=\"...\">").appendTo($thumbnail);
-
-                        let $row = $("<div class=\"row\">").insertAfter($group);
-                        $col = $("<div class=\"col-md-12\">").appendTo($row);
-                        let $abstract = $("<div class=\"well well-lg\">").appendTo($col);
-                        return $group;
-
-                    }
+                    return $modal;
                 };
 
                 /**
@@ -293,6 +264,172 @@
                     }
                 };
 
+
+
+                let _detailGroupBuilder = {
+                    /**
+                     * @doc builds minimal part of article for HArticleModal
+                     * @param {jQuery} $target
+                     * @private
+                     */
+                    buildMinimal : function($target) {
+                        let groupLabel = 'minimal';
+                        let attrs = $target.hAttributes;
+                        let parentGroup = null;
+                        let $group = $("<div class=\"row\">").appendTo($target);
+                        $target.hGroups[groupLabel] = $group;
+                        $group.childrenContainers = [];
+
+                        let $col = $("<div class=\"col-md-6\">").appendTo($group);
+                        let $area = $("<div class=\"container-fluid\">").appendTo($col);
+                        let $sRow = $("<div class=\"row\">").appendTo($area);
+                        attrs["type"] = $("<h5 data-label='Type : '>").appendTo($sRow);
+                        $group.childrenContainers["date"] = $sRow;
+                        $group.childrenContainers["detailImage"] = $("<div class=\"col-md-5 ml-auto\">").appendTo($group);
+                        return $group;
+                    },
+                    buildDate : function($target) {
+                        let groupLabel = 'date';
+                        let attrs = $target.hAttributes;
+                        let parentGroup = 'minimal';
+                        let $group = $target.hGroups[parentGroup].childrenContainers[groupLabel];
+                        $target.hGroups[groupLabel] = $group;
+                        $group.childrenContainers = [];
+
+                        attrs["beginHDate"] = $("<h5 data-label='Date de début : '>").appendTo($group);
+                        attrs["endHDate"] = $("<h5 data-label='Date de fin : '>").appendTo($group);
+
+                        return $group;
+                    },
+                    buildDetailImage : function($target) {
+                        let groupLabel = 'detailImage';
+                        let attrs = $target.hAttributes;
+                        let parentGroup = 'minimal';
+                        let $group = $target.hGroups[parentGroup].childrenContainers[groupLabel];
+                        $target.hGroups[groupLabel] = $group;
+                        $group.childrenContainers = [];
+
+                        let $thumbnail = $("<a href=\"#\" class=\"thumbnail\">").appendTo($group);
+                        let $img = $("<img src=\"/images/420a08a_user2-160x160_1.jpg\" alt=\"...\">").appendTo($thumbnail);
+
+                        return $group;
+                    },
+                    buildAbstract : function($target) {
+                        let groupLabel = 'abstract';
+                        let attrs = $target.hAttributes;
+                        let parentGroup = null;
+                        let $group = $("<div class=\"row\">").appendTo($target);
+                        $target.hGroups[groupLabel] = $group;
+                        $group.childrenContainers = [];
+
+                        let $row = $("<div class=\"row\">").insertAfter($group);
+                        let $col = $("<div class=\"col-md-12\">").appendTo($row);
+                        attrs["abstract"] = $("<div class=\"well well-lg\">").appendTo($col);
+                        return $group;
+                    }
+                };
+
+                /**
+                 * @doc HArticleDetailBuilder constructor
+                 * @class hb.ui.HArticleDetailBuilder
+                 */
+                ui.HArticleDetailBuilder = function() {return this;};
+                Object.assign(ui.HArticleDetailBuilder.prototype,{
+                    /**
+                     * @param {jQuery} $target
+                     * @param groups
+                     * @return array
+                     */
+                    build:function($target,groups=['minimal']){
+                        if(typeof $target.hAttributes === 'undefined'){$target.hAttributes=[];}
+                        if(typeof $target.hGroups === 'undefined'){$target.hGroups=[];}
+                        console.log(groups);
+                        $.each(groups,function(key,value){
+                            console.log(value);
+                            if(typeof (_detailGroupBuilder["build" + hb.util.cmn.capitalize(value)]) !== 'function'){
+                                throw "Group " + value + " doesn't exist for HArticleDetail";
+                            }
+                            _detailGroupBuilder["build" + hb.util.cmn.capitalize(value)]($target);
+                        });
+                        return groups;
+                    }
+                });
+                let _detailBuilder = new ui.HArticleDetailBuilder();
+
+                let _detailGroupMediator = {
+                    /** @type {jQuery} */
+                    $target:null,
+                    /** @type {hb.util.HArticle} */
+                    object:null,
+                    /**
+                     * @doc mediates minimal part of hArticle to HArticleDetail
+                     * @private
+                     */
+                    mapMinimal : function() {
+                        let groupLabel = 'minimal';
+                        let attrs = this.$target.detail.hAttributes;
+                        this.$target.title.text(this.object.title);
+                        attrs.type.text(attrs.type.data('label') + this.object.type.label);
+                    },
+                    mapDate : function() {
+                        let groupLabel = 'date';
+                        let attrs = this.$target.detail.hAttributes;
+                        attrs.beginHDate.text(attrs.beginHDate.data('label') +
+                            ((this.object.beginHDate != null)?this.object.beginHDate.getLabel():"-"));
+                        attrs.endHDate.text(attrs.endHDate.data('label') +
+                            ((this.object.endHDate != null)?this.object.endHDate.getLabel():"-"));
+                    },
+                    mapDetailImage : function() {
+                    },
+                    mapAbstract : function() {
+                        let groupLabel = 'abstract';
+                        let attrs = this.$target.detail.hAttributes;
+
+                        if(! $.inArray('abstract',this.object.groups)){
+                           console.log(groupLabel + " ins't loaded");
+                        }
+
+
+                        attrs.abstract.text(this.object.abstract);
+                    }
+                };
+
+
+                /**
+                 * @doc HArticleDetailMediator constructor
+                 * @class hb.ui.HArticleDetailMediator
+                 */
+                ui.HArticleDetailMediator = function() {
+                    /** @type {jQuery} */
+                    this.$target=null;
+                    /** @type {hb.util.HArticle} */
+                    this.object=null;
+                    return this;
+                };
+                Object.assign(ui.HArticleDetailMediator.prototype,{
+                    /**
+                     * @param groups
+                     * @return array
+                     */
+                    map:function(groups=['minimal']){
+                        console.log(this.$target.detail.hGroups);
+                        _detailGroupMediator.$target = this.$target;
+                        _detailGroupMediator.object = this.object;
+                        console.log(this);
+
+
+                        $.each(groups,function(key,value){
+                            console.log(value);
+                            if(typeof (_detailGroupMediator["map" + hb.util.cmn.capitalize(value)]) !== 'function'){
+                                throw "Group " + value + " doesn't exist for HArticleMediator";
+                            }
+                            _detailGroupMediator["map" + hb.util.cmn.capitalize(value)]();
+                        });
+                        return groups;
+                    }
+                });
+                let _detailMediator = new ui.HArticleDetailMediator();
+
                 /**
                  * @doc HArticleModal modal constructor
                  * @class hb.ui.HArticleModal
@@ -301,34 +438,22 @@
                 ui.HArticleModal = function(option = {}) {
                     this.option = _setDefaultOption(option);
                     this.errors=[];
-                    this.$element=null;
-                    this.hArticle=null;
-                    this.$modal =  $("<div id=\"modal-article2\" class=\"modal fade\" tabindex=\"-1\" " +
-                        "role=\"dialog\" aria-labelledby=\"Article\">").appendTo('body');
-                    _build(this);
+                    this.object=null;
+                    this.$modal = _build();
+                    this.builtGroups=_detailBuilder.build(this.$modal.detail,this.option.groups);
+                    this.mediator.$target = this.$modal;
                     _applyOption(this);
                     return this;
                 };
 
                 let _prototype = {
-                    bind : function($element) {
-                        console.log($element);
-                        if($element === null){return;}
-                        this.unbind();
-                        this.$element=$element;
-                        $element.addClass( "hb-enabled");
-                        console.log($element);
-                        this.option.position = { my: "left top", at: "left bottom", of: $element };
-                        if(typeof ($element.first().attr("data-label")) !== "undefined"){
-                            this.option.title = this.$element.first().attr("data-label");}
-
-                        if(typeof ($element.first().attr("data-hdate")) !== "undefined" && $element.first().attr("data-hdate") !== ""){
-                            this.hDate = hb.util.HDate.prototype.parseFromJson($element.first().attr("data-hdate"));
-                        }
-                        else if (this.hDate !== null){this.hDate = this.hDate.clone();}
-                        _refresh(this,true);
-                        _applyOption(this);
-                        this.$modal.dialog("open");
+                    mediator:_detailMediator,
+                    bind : function(object) {
+                        this.object = object;
+                        this.mediator.object = object;
+                        console.log(this.mediator.object);
+                        console.log(this.mediator);
+                        this.mediator.map(this.builtGroups);
                     },
                     unbind : function() {
                         if(this.$element === null){return;}
@@ -354,7 +479,7 @@
         }(hb || {},$));
 
 
-        $articleModal = new hb.ui.HArticleModal();
+        articleModal = new hb.ui.HArticleModal({groups:["minimal","date","abstract"]});
 
         const $table = $('#table');
         const $remove = $('#remove');
@@ -413,8 +538,7 @@
                             align: 'center',
                             formatter:function(value, row, index, field) {
                                 if(value === null) return '-';
-                                let hDate = hb.util.HDate.prototype.parseFromJson(JSON.stringify(value));
-                                return hDate.getLabel();
+                                return value.getLabel();
                             }
                         },
                         {
@@ -425,13 +549,13 @@
                                 'click .like': function (e, value, row, index) {
                                     console.log(value);
                                     console.log(row);
-                                    console.log($articleModal.$modal);
+                                    console.log(articleModal.$modal);
                                     console.log($("#modal-article"));
                                     //$("#modal-article").modal();
                                     //$("#modal-article").modal();
 
-                                    $articleModal.$modal.modal();
-                                    $articleModal.$modal.title.text("Et oui !");
+                                    articleModal.bind(row);
+                                    articleModal.$modal.modal();
 
 
                                     //alert(`You click lol action, row: ${JSON.stringify(row)}`);

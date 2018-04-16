@@ -22,7 +22,7 @@ var hb = (function (hb) {
              * @return {string}
              */
             capitalize: function (str) {
-                return str.charAt(0).toUpperCase() + this.slice(1);
+                return str.charAt(0).toUpperCase() + str.slice(1);
             },
             /**
              * @doc converts an integer (arabic 10 base) to the corresponding roman number
