@@ -14,6 +14,8 @@ use AppBundle\Entity\Article;
 use AppBundle\Form\ArticleDTOType;
 use AppBundle\Helper\DateHelper;
 use AppBundle\Utils\HDate;
+use AppBundle\Utils\UrlBag;
+use Symfony\Component\Routing\Generator\UrlGenerator;
 
 class ArticleDTOMediator extends DTOMediator
 {
@@ -23,7 +25,7 @@ class ArticleDTOMediator extends DTOMediator
     public function __construct()
     {
         parent::__construct();
-        $this->groups = ['minimal','abstract','date','type'];
+        $this->groups = ['minimal','abstract','date','type','url'];
         $this->formTypeClassName = ArticleDTOType::class;
     }
 
@@ -97,6 +99,22 @@ class ArticleDTOMediator extends DTOMediator
             ->setEndHDate($endHDate)
             ->setHasEndDate($hasEndDate)
             ->addMappedGroup('date');
+    }
+
+    private function mapDTOUrlGroup()
+    {
+        /** @var Article $article */
+        $article = $this->entity;
+        /** @var ArticleDTO $dto */
+        $dto = $this->dto;
+
+        if ($dto->getUrlBag() === null){$dto->setUrlBag(new UrlBag());}
+        $dto->getUrlBag()
+            ->setView($this->router->generate("article_view",["article"=>$article]))
+            ->setEdit($this->router->generate("article_edit",["article"=>$article]))
+            ->setInfo($this->router->generate("article_getdata",["article"=>$article]));
+
+        $dto->addMappedGroup('url');
     }
 
     protected function mediateBeginHDate(){

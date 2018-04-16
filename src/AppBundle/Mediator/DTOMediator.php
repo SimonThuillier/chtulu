@@ -12,6 +12,8 @@ namespace AppBundle\Mediator;
 use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\Entity\DTOMutableEntity;
 use AppBundle\Mapper\EntityMapper;
+use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\Routing\Router;
 
 abstract class DTOMediator
 {
@@ -35,6 +37,8 @@ abstract class DTOMediator
     protected $password;
     /** @var string */
     protected $formTypeClassName;
+    /** @var Router */
+    protected $router;
 
     /**
      * DTOBuilder constructor.
@@ -231,4 +235,27 @@ abstract class DTOMediator
         }
         return substr(md5($salt),0,255);
     }
+
+    /**
+     * @return Router
+     */
+    public function getRouter()
+    {
+        return $this->router;
+    }
+
+    /**
+     * @param Router $router
+     * @return DTOMediator
+     */
+    public function setRouter(Router $router): DTOMediator
+    {
+        $this->router = $router;
+        return $this;
+    }
+
+
+
+
+
 }

@@ -8,6 +8,7 @@
 
 namespace AppBundle\DTO;
 
+use AppBundle\Utils\UrlBag;
 use Symfony\Component\Serializer\Annotation\Groups;
 use AppBundle\Entity\ArticleType;
 use AppBundle\Mediator\DTOMediator;
@@ -31,6 +32,8 @@ class ArticleDTO extends EntityMutableDTO
     protected $hasEndDate;
     /** @var DTOMediator */
     protected $mediator;
+    /** @var UrlBag */
+    protected $urlBag;
 
     /**
      * ArticleDTO constructor.
@@ -178,4 +181,26 @@ class ArticleDTO extends EntityMutableDTO
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('hasEndDate');
         return $this;
     }
+
+    /**
+     * @return UrlBag
+     * @Groups({"readUrl","editUrl","adminUrl","url"})
+     */
+    public function getUrlBag()
+    {
+        return $this->urlBag;
+    }
+
+    /**
+     * @param UrlBag $urlBag
+     * @return ArticleDTO
+     */
+    public function setUrlBag($urlBag): ArticleDTO
+    {
+        $this->urlBag = $urlBag;
+        return $this;
+    }
+
+
+
 }

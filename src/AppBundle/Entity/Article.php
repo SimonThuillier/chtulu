@@ -142,7 +142,7 @@ class Article extends DTOMutableEntity
 
     public function __toString()
     {
-        return $this->title;
+        return strval($this->id);
     }
 
     /**

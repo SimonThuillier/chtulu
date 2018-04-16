@@ -23,6 +23,7 @@ use AppBundle\Factory\ArticleDTOFactory;
 use AppBundle\Form\ArticleModalType;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Routing\Router;
 use Symfony\Component\Serializer\SerializerInterface;
 use AppBundle\Helper\ArticleHelper;
 use AppBundle\Entity\ArticleType;
@@ -118,7 +119,8 @@ class ArticleController extends Controller
     public function editAction(Request $request,
                                Article $article,
                                  ArticleDTOFactory $dtoFactory,
-                                 ArticleDTOMediator $mediator)
+                                 ArticleDTOMediator $mediator,
+                                Router $router)
     {
         $groups = ['minimal','abstract','date'];
         $mediator
@@ -134,6 +136,7 @@ class ArticleController extends Controller
             ->getForm();
         /** @var ArticleDTO $articleDto */
         $articleDto = $mediator->getDTO();
+
 
         return $this->render('@AppBundle/Article/create.html.twig',array(
             'form' => $form->createView(),
@@ -232,9 +235,10 @@ class ArticleController extends Controller
                                       ManagerRegistry $doctrine,
                                       ArticleDTOFactory $dtoFactory,
                                       ArticleDTOMediator $mediator,
-                                      ArticleDTOSerializer $serializer)
+                                      ArticleDTOSerializer $serializer,
+                                      Router $router)
     {
-        $groups = ['minimal','date'];
+        $groups = ['minimal','date','url'];
         $articles = $doctrine->getRepository(Article::class)->findAll();
         $articleDtos = [];
 
@@ -242,12 +246,42 @@ class ArticleController extends Controller
             $articleDtos[] =  $mediator
                 ->setEntity($article)
                 ->setDTO($dtoFactory->create($this->getUser()))
+                ->setRouter($router)
                 ->mapDTOGroups($groups)
                 ->getDTO();
         }
 
         $groups = array_merge($groups,['groups','type']);
         return new JsonResponse(BootstrapListHelper::getNormalizedListData($articleDtos,$serializer,$groups));
+    }
+
+    /**
+     * @Route("/view/{article}",name="article_view")
+     * @Method({"GET"})
+     *
+     */
+    public function viewAction(Article $article){
+        return new JsonResponse(["test" => "lol"]);
+    }
+
+
+
+    /**
+     * @Route("/get-data/{article}",name="article_getdata")
+     * @Method({"GET"})
+     *
+     */
+    public function getDataAction(Request $request,Article $article,  ArticleDTOFactory $dtoFactory,
+                                  ArticleDTOMediator $mediator,ArticleDTOSerializer $serializer){
+        $groups = $request->get("groups",['minimal']);
+        $articleDto = $mediator
+            ->setEntity($article)
+            ->setDTO($dtoFactory->create($this->getUser()))
+            ->mapDTOGroups($groups)
+            ->getDTO();
+        sleep(1);
+
+        return new JsonResponse($serializer->normalize($articleDto,$groups));
     }
 
 
