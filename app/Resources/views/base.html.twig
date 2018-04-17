@@ -13,19 +13,9 @@
         <!-- css assets : bootstrap (3.3.6), AdminLTE (2.3.11), font awesome(4.7.0) and ionicons(2.0.1) -->
         <!-- AdminLTE Skins. Choose a skin from the css/skins
                folder instead of downloading all of them to reduce the load. -->
-        {% stylesheets output='css/app.css'
-            '@AppBundle/Resources/third-party/bootstrap/css/bootstrap.min.css'
-            '@AppBundle/Resources/third-party/bootstrap-table/css/bootstrap-table.min.css'
-            '@AppBundle/Resources/third-party/jQueryUI/jquery-ui.theme.min.css'
-            '@AppBundle/Resources/third-party/jQueryUI/jquery-ui.css'
-            '@AppBundle/Resources/third-party/AdminLTE/css/AdminLTE.min.css'
-            '@AppBundle/Resources/third-party/AdminLTE/css/skins/_all-skins.min.css'
-            '@AppBundle/Resources/third-party/font-awesome/css/font-awesome.css'
-            '@AppBundle/Resources/third-party/iCheck/css/square/blue.css'
-            '@AppBundle/Resources/hbase/css/hbase.css'
-            filter='cssrewrite' %}
+        {% stylesheets 'css/app-css.css'%}
         {% endstylesheets %}
-        <link rel="stylesheet" href="{{ path('homepage') }}css/app.css" />
+        <link rel="stylesheet" href="{{ path('homepage') }}css/app-css.css" />
 
 
 
@@ -432,7 +422,7 @@
         </aside>
 
         <!-- Content Wrapper. Contains page content -->
-        <div class="content-wrapper hbase-container">
+        <div class="content-wrapper hb-container">
             <!-- Content Header (Page header) -->
             <section class="content-header">
                 {% for label, messages in app.flashes() %}
@@ -664,6 +654,7 @@
     '@AppBundle/Resources/hbase/js/util/date.js'
     '@AppBundle/Resources/hbase/js/util/HDate.js'
     '@AppBundle/Resources/hbase/js/util/geometry.js'
+    '@AppBundle/Resources/hbase/js/ui/misc.js'
     '@AppBundle/Resources/hbase/js/ui/HDatePicker.js'
     '@AppBundle/Resources/hbase/js/ui/form.js'
     '@AppBundle/Resources/hbase/js/ui/manager.js'

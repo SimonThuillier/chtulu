@@ -47,68 +47,77 @@ assetic:
     assets:
        jquery-ui-icons:
           inputs:
-          - '@AppBundle/Resources/third-party/jQueryUI/images/ui-icons_444444_256x240.png'
-          - '@AppBundle/Resources/third-party/jQueryUI/images/ui-icons_555555_256x240.png'
-          - '@AppBundle/Resources/third-party/jQueryUI/images/ui-icons_777620_256x240.png'
-          - '@AppBundle/Resources/third-party/jQueryUI/images/ui-icons_777777_256x240.png'
-          output: '/Resources/third-party/jQueryUI/images/ui-icons_256x240.png'
-       font-awesome-css:
-          inputs: '@AppBundle/Resources/third-party/font-awesome/css/font-awesome.css'
-          output: '/Resources/third-party/font-awesome/css/font-awesome.css'
+          - '../src/AppBundle/Resources/third-party/jQueryUI/images/ui-icons_444444_256x240.png'
+          - '../src/AppBundle/Resources/third-party/jQueryUI/images/ui-icons_555555_256x240.png'
+          - '../src/AppBundle/Resources/third-party/jQueryUI/images/ui-icons_777620_256x240.png'
+          - '../src/AppBundle/Resources/third-party/jQueryUI/images/ui-icons_777777_256x240.png'
+          output: 'css/images/ui-icons_444444_256x240.png'
+       app-css:
+          inputs:
+          - '../src/AppBundle/Resources/third-party/bootstrap/css/bootstrap.min.css'
+          - '../src/AppBundle/Resources/third-party/bootstrap-table/css/bootstrap-table.min.css'
+          - '../src/AppBundle/Resources/third-party/jQueryUI/jquery-ui.theme.min.css'
+          - '../src/AppBundle/Resources/third-party/jQueryUI/jquery-ui.css'
+          - '../src/AppBundle/Resources/third-party/AdminLTE/css/AdminLTE.min.css'
+          - '../src/AppBundle/Resources/third-party/AdminLTE/css/skins/_all-skins.min.css'
+          - '../src/AppBundle/Resources/third-party/font-awesome/css/font-awesome.css'
+          - '../src/AppBundle/Resources/third-party/iCheck/css/square/blue.css'
+          - '../src/AppBundle/Resources/hbase/css/hbase.css'
+          output: 'css/app-css.css'
        font-awesome-eot:
-          inputs: '@AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.eot'
-          output: 'Resources/third-party/font-awesome/fonts/fontawesome-webfont.eot'
+          inputs: '../src/AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.eot'
+          output: 'fonts/fontawesome-webfont.eot'
        font-awesome-otf:
-          inputs: '@AppBundle/Resources/third-party/font-awesome/fonts/FontAwesome.otf'
-          output: '/Resources/third-party/font-awesome/fonts/fontawesome-webfont.otf'
+          inputs: '../src/AppBundle/Resources/third-party/font-awesome/fonts/FontAwesome.otf'
+          output: 'fonts/fontawesome-webfont.otf'
        font-awesome-svg:
-          inputs: '@AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.svg'
-          output: '/Resources/third-party/font-awesome/fonts/fontawesome-webfont.svg'
+          inputs: '../src/AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.svg'
+          output: 'fonts/fontawesome-webfont.svg'
        font-awesome-ttf:
-          inputs: '@AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.ttf'
-          output: '/Resources/third-party/font-awesome/fonts/fontawesome-webfont.ttf'
+          inputs: '../src/AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.ttf'
+          output: 'fonts/fontawesome-webfont.ttf'
        font-awesome-woff:
-          inputs: '@AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.woff'
-          output: '/Resources/third-party/font-awesome/fonts/fontawesome-webfont.woff'
+          inputs: '../src/AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.woff'
+          output: 'fonts/fontawesome-webfont.woff'
        font-awesome-woff2:
-          inputs: '@AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.woff2'
-          output: '/Resources/third-party/font-awesome/fonts/fontawesome-webfont.woff2'
+          inputs: '../src/AppBundle/Resources/third-party/font-awesome/fonts/fontawesome-webfont.woff2'
+          output: 'fonts/fontawesome-webfont.woff2'
        glyphicons-halflings-regular-ttf:
-          inputs: '@AppBundle/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.ttf'
-          output: '/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.ttf'
+          inputs: '../src/AppBundle/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.ttf'
+          output: 'fonts/glyphicons-halflings-regular.ttf'
        glyphicons-halflings-regular-woff:
-          inputs: '@AppBundle/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.woff'
-          output: '/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.woff'
+          inputs: '../src/AppBundle/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.woff'
+          output: 'fonts/glyphicons-halflings-regular.woff'
        glyphicons-halflings-regular-woff2:
-          inputs: '@AppBundle/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.woff2'
-          output: '/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.woff2'
+          inputs: '../src/AppBundle/Resources/third-party/bootstrap/fonts/glyphicons-halflings-regular.woff2'
+          output: 'fonts/glyphicons-halflings-regular.woff2'
        icheck-square-blue:
-          inputs: '@AppBundle/Resources/third-party/iCheck/css/square/blue.png'
-          output: '/resources/third-party/iCheck/css/square/blue.png'
+          inputs: '../src/AppBundle/Resources/third-party/iCheck/css/square/blue.png'
+          output: 'css/square/blue.png'
        icheck-square-blue2:
-          inputs: '@AppBundle/Resources/third-party/iCheck/css/square/blue@2x.png'
-          output: '/resources/third-party/iCheck/css/square/blue@2x.png'
+          inputs: '../src/AppBundle/Resources/third-party/iCheck/css/square/blue@2x.png'
+          output: 'css/square/blue@2x.png'
        ionicons-ttf:
-          inputs: '@AppBundle/Resources/third-party/ionicons/fonts/ionicons.ttf'
-          output: '/Resources/third-party/ionicons/fonts/ionicons.ttf'
+          inputs: '../src/AppBundle/Resources/third-party/ionicons/fonts/ionicons.ttf'
+          output: 'fonts/ionicons.ttf'
        ionicons-woff:
-          inputs: '@AppBundle/Resources/third-party/ionicons/fonts/ionicons.woff'
-          output: '/Resources/third-party/ionicons/fonts/ionicons.woff'
+          inputs: '../src/AppBundle/Resources/third-party/ionicons/fonts/ionicons.woff'
+          output: 'fonts/ionicons.woff'
        tinymce-css:
-          inputs: '@AppBundle/Resources/third-party/tinymce/tests/manual/css/development.css'
-          output: '/Resources/third-party/tinymce/css/development.css'
+          inputs: '../src/AppBundle/Resources/third-party/tinymce/tests/manual/css/development.css'
+          output: 'css/development.css'
        tinymce-skin-css:
-          inputs: '@AppBundle/Resources/third-party/tinymce/js/tinymce/skins/lightgray/skin.min.css'
-          output: '/js/skins/lightgray/skin.min.css'
+          inputs: '../src/AppBundle/Resources/third-party/tinymce/js/tinymce/skins/lightgray/skin.min.css'
+          output: 'js/skins/lightgray/skin.min.css'
        tinymce-ttf:
-          inputs: '@AppBundle/Resources/third-party/tinymce/js/tinymce/skins/lightgray/fonts/tinymce.ttf'
-          output: '/js/skins/lightgray/fonts/tinymce.ttf'
+          inputs: '../src/AppBundle/Resources/third-party/tinymce/js/tinymce/skins/lightgray/fonts/tinymce.ttf'
+          output: 'js/skins/lightgray/fonts/tinymce.ttf'
        tinymce-woff:
-          inputs: '@AppBundle/Resources/third-party/tinymce/js/tinymce/skins/lightgray/fonts/tinymce.woff'
-          output: '/js/skins/lightgray/fonts/tinymce.woff'
+          inputs: '../src/AppBundle/Resources/third-party/tinymce/js/tinymce/skins/lightgray/fonts/tinymce.woff'
+          output: 'js/skins/lightgray/fonts/tinymce.woff'
        tinymce-autolink:
-          inputs: '@AppBundle/Resources/third-party/tinymce/js/tinymce/plugins/autolink/plugin.js'
-          output: '/js/plugins/autolink/plugin.js'
+          inputs: '../src/AppBundle/Resources/third-party/tinymce/js/tinymce/plugins/autolink/plugin.js'
+          output: 'js/plugins/autolink/plugin.js'
 
     filters:
         cssrewrite: ~

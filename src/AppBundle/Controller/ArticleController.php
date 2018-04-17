@@ -8,6 +8,7 @@ use AppBundle\Helper\BootstrapListHelper;
 use AppBundle\Mapper\ArticleMapper;
 use AppBundle\Mediator\ArticleDTOMediator;
 use AppBundle\Serializer\ArticleDTOSerializer;
+use AppBundle\Utils\HJsonResponse;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -273,15 +274,21 @@ class ArticleController extends Controller
      */
     public function getDataAction(Request $request,Article $article,  ArticleDTOFactory $dtoFactory,
                                   ArticleDTOMediator $mediator,ArticleDTOSerializer $serializer){
-        $groups = $request->get("groups",['minimal']);
-        $articleDto = $mediator
-            ->setEntity($article)
-            ->setDTO($dtoFactory->create($this->getUser()))
-            ->mapDTOGroups($groups)
-            ->getDTO();
-        sleep(1);
 
-        return new JsonResponse($serializer->normalize($articleDto,$groups));
+        $hResponse = new HJsonResponse();
+        $groups = $request->get("groups",['minimal']);
+        try{
+            $articleDto = $mediator
+                ->setEntity($article)
+                ->setDTO($dtoFactory->create($this->getUser()))
+                ->mapDTOGroups($groups)
+                ->getDTO();
+            $hResponse->setData($serializer->normalize($articleDto,$groups));
+        }
+        catch(\Exception $e){
+            $hResponse->setStatus(HJsonResponse::ERROR)->setMessage($e->getMessage());
+        }
+        return new JsonResponse(HJsonResponse::normalize($hResponse));
     }
 
 

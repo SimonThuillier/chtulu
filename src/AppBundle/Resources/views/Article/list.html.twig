@@ -5,10 +5,6 @@
 {% endblock %}
 
 {% block stylesheets %}
-    {% stylesheets '@AppBundle/Resources/hbase/css/hbase.css'
-        filter='cssrewrite' %}
-        <link rel="stylesheet" href="{{ asset_url }}" />
-    {% endstylesheets %}
 {% endblock %}
 
 
@@ -211,6 +207,7 @@
                     //aria-labelledby="Article"
                     let $modal = $("<div class=\"modal fade\" tabindex=\"-1\" " +
                         "role=\"dialog\">").appendTo('body');
+                    $modal.alerts=[];
                     $modal.container = $("<div class=\"modal-dialog modal-lg\" role=\"document\">").appendTo($modal);
                     $modal.content = $("<div class=\"modal-content\">").appendTo($modal.container);
 
@@ -440,14 +437,31 @@
                         $.ajax({
                             url: object.urlBag.info,
                             data: {groups:groups},
-                        }).done(function(response) {
-                            console.log(response);
-                            $.extend(object,response);
-                            $.merge(object.groups,groups);
-                            $.each(groups,function(key,value){
-                                _detailGroupMediator["map" + hb.util.cmn.capitalize(value)]();
-                            });
-                            $loadingSpinner.remove();
+                            dataType:'json',
+                            error: function(jqXHR,textStatus,errorThrown){
+                                let status = "error";
+                                let msg = textStatus + " - " + errorThrown;
+                                if(textStatus === "timeout"){
+                                    status = "warning";
+                                    msg = "Le serveur prend trop de temps à répondre. Reessayez dans quelques instants.";
+                                }
+                                hb.ui.misc.alert(status,msg,$target.body);
+                            },
+                            complete: function(){
+                                $loadingSpinner.toggle(300,function() { $(this).remove(); });
+                            },
+                            timeout:1000,
+                            success: function(response) {
+                                    if(response.status !== "success"){$target.alerts.push(hb.ui.misc.alert(response.status,response.message,$target.body));}
+                                    if(response.status === "error"){return;}
+                                    console.log(response);
+                                    $.extend(object,response.data);
+                                    $.merge(object.groups,groups);
+                                    $.each(groups,function(key,value){
+                                        _detailGroupMediator["map" + hb.util.cmn.capitalize(value)]();
+                                    });
+
+                            }
                         });
 
                     }
