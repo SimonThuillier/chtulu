@@ -2,8 +2,8 @@
 namespace AppBundle\Controller;
 
 use AppBundle\DTO\ArticleDTO;
-use AppBundle\Entity\User;
 use AppBundle\Factory\ArticleFactory;
+use AppBundle\Form\ArticleDTOType;
 use AppBundle\Helper\BootstrapListHelper;
 use AppBundle\Mapper\ArticleMapper;
 use AppBundle\Mediator\ArticleDTOMediator;
@@ -13,33 +13,16 @@ use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use AppBundle\Entity\Article;
-use AppBundle\Form\ArticleMainType;
-use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Symfony\Component\Form\FormBuilderInterface;
 use AppBundle\Factory\ArticleDTOFactory;
-use AppBundle\Form\ArticleModalType;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Router;
-use Symfony\Component\Serializer\SerializerInterface;
 use AppBundle\Helper\ArticleHelper;
-use AppBundle\Entity\ArticleType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use AppBundle\Repository\ArticleRepository;
 use AppBundle\Processor\GenericProcessor;
 use AppBundle\Listener\SearchArticleFormListener;
-use AppBundle\Helper\DateHelper;
-use AppBundle\Entity\DateType;
-use AppBundle\Factory\HDateFactory;
-use AppBundle\Utils\HDate;
-use AppBundle\Mapper\AutoMapper;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use AppBundle\Serializer\HDateSerializer;
 
 /**
  *
@@ -203,7 +186,17 @@ class ArticleController extends Controller
      */
     public function listAction(Request $request,GenericProcessor $processor,SearchArticleFormListener $listener)
     {
-        return $this->render('@AppBundle/Article/list.html.twig');
+        $form = $this
+            ->get('form.factory')
+            ->createBuilder(ArticleDTOType::class,null,[
+                'validation_groups'=>['minimal','date']
+            ])
+            ->add('save',SubmitType::class)
+            ->getForm();
+
+
+
+        return $this->render('@AppBundle/Article/list.html.twig',["form"=>$form->createView()]);
 
 
 

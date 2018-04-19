@@ -205,8 +205,10 @@
                 let _build = function() {
                     //id="modal-article2"
                     //aria-labelledby="Article"
-                    let $modal = $("<div class=\"modal fade\" tabindex=\"-1\" " +
+                    let $modal = $("<div class=\"modal fade\" " +
                         "role=\"dialog\">").appendTo('body');
+                    $modal.removeAttr('tabindex');
+                    $modal.on('focus',function(){this.blur();});
                     $modal.alerts=[];
                     $modal.container = $("<div class=\"modal-dialog modal-lg\" role=\"document\">").appendTo($modal);
                     $modal.content = $("<div class=\"modal-content\">").appendTo($modal.container);
@@ -217,7 +219,7 @@
 
                     $modal.body = $("<div class=\"modal-body\">").appendTo($modal.content);
                     $modal.detail = $("<div class= \"hb-detail\">").appendTo($modal.body);
-                    $modal.form = $("<div class= \"hb-form\">").appendTo($modal.body);
+                    $modal.formContainer = $("<div class= \"hb-form\">").appendTo($modal.body);
 
                     $modal.footer = $("<div class=\"modal-footer\">").appendTo($modal.content);
                     $modal.footer.append("<button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>");
@@ -389,8 +391,6 @@
                         attrs.abstract.html(hb.util.cmn.convertPlainTextToParagraphed(this.object.abstract));
                     }
                 };
-
-
                 /**
                  * @doc HArticleDetailMediator constructor
                  * @class hb.ui.HArticleDetailMediator
@@ -402,6 +402,47 @@
                     this.object=null;
                     return this;
                 };
+
+                /**
+                 * @doc HArticleFormBuilder constructor
+                 * @class hb.ui.HArticleFormBuilder
+                 */
+                ui.HArticleFormBuilder = function() {return this;};
+                Object.assign(ui.HArticleFormBuilder.prototype,{
+                    /**
+                     * @param {jQuery} $target
+                     * @param groups
+                     * @return array
+                     */
+                    build:function($target,groups=['minimal']){
+                        console.log("building form");
+
+                        let $form = $("div#hb-data form[name='article_dto']");
+                        console.log($form);
+                        console.log($form.length>0);
+                        if($form.length!==1){return [];}
+
+                        $form.detach().appendTo($target);
+
+                        return groups;
+
+
+                        if(typeof $target.hAttributes === 'undefined'){$target.hAttributes=[];}
+                        if(typeof $target.hGroups === 'undefined'){$target.hGroups=[];}
+                        console.log(groups);
+                        $.each(groups,function(key,value){
+                            console.log(value);
+                            if(typeof (_detailGroupBuilder["build" + hb.util.cmn.capitalize(value)]) !== 'function'){
+                                throw "Group " + value + " doesn't exist for HArticleDetail";
+                            }
+                            _detailGroupBuilder["build" + hb.util.cmn.capitalize(value)]($target);
+                        });
+                        return groups;
+                    }
+                });
+                let _formBuilder = new ui.HArticleFormBuilder();
+
+
                 Object.assign(ui.HArticleDetailMediator.prototype,{
                     /**
                      * @param groups
@@ -479,6 +520,7 @@
                     this.object=null;
                     this.$modal = _build();
                     this.builtGroups=_detailBuilder.build(this.$modal.detail,this.option.groups);
+                    this.formBuiltGroups=_formBuilder.build(this.$modal.formContainer,this.option.groups);
                     this.mediator.$target = this.$modal;
                     _applyOption(this);
                     return this;
@@ -518,6 +560,11 @@
 
 
         articleModal = new hb.ui.HArticleModal({groups:["minimal","date","abstract"]});
+
+        articleModal.$modal.on('show.bs.modal', function () {
+            console.log("modal shown !");
+            //hb.ui.manager.get("hdatepicker").$modal.appendTo(articleModal.$modal);
+        });
 
         const $table = $('#table');
         const $remove = $('#remove');
@@ -684,3 +731,9 @@
 
     </script>
 {% endblock%}
+
+{% block data %}
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    {{ form_end(form) }}
+{% endblock %}

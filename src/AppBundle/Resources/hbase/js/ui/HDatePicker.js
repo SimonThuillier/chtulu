@@ -33,7 +33,7 @@ var hb = (function (hb,$) {
             option.z = option.z || 7;
             option.fadeTime = option.fadeTime || 250;
             option.title = option.title || hb.util.trans.HDATEPICKER_DEFAULT_TITLE;
-            option.position = option.position || { my: "left top", at: "left bottom", of: null };
+            option.position = option.position || { my: "left top", at: "left top", of: null };
             return option;
         };
         /**
@@ -51,7 +51,7 @@ var hb = (function (hb,$) {
          * @param {jQuery} $modal
          * @private
          */
-        let _build = function($modal) {
+        let _build = function($modal){
             $modal.append("<label class='mx-2'><DATE_TYPE></label>&nbsp;");
             $('.ui-dialog-titlebar-close').append("<i class=\"fa fa-times-circle\"></i>");
             $modal.typeSelector = $("<select class='ui-corner-all'>").appendTo($modal);
@@ -223,7 +223,7 @@ var hb = (function (hb,$) {
             $modal.validateButton.on("click", function() {_onValidate(picker);});
             $modal.on("focusout", function(event)
             {
-                if(picker.mouseOn){
+                if(picker.mouseOn || picker.preventedFocusout===true){
                     event.stopPropagation();
                     event.preventDefault();
                     return;
@@ -249,13 +249,16 @@ var hb = (function (hb,$) {
             this.$element=null;
             this.hDate=null;
             this.mouseOn = false;
+            this.preventedFocusout=false;
+            let picker = this;
             this.$modal =  $("<div>").dialog({
                 autoOpen: false,
-                dialogClass: "hb-modal-z" + this.option.z,
+                dialogClass: "hb-hdate-widget hb-modal-z" + this.option.z,
                 show: {
                     effect: "fade",
                     duration: this.option.fadeTime
-                }
+                },
+                close:function(){picker.unbind();}
             });
             _build(this.$modal);
             _applyOption(this);
@@ -266,12 +269,11 @@ var hb = (function (hb,$) {
         let _prototype = {
             bind : function($element) {
                 console.log($element);
-                if($element === null){return;}
                 this.unbind();
+                if($element === null){return;}
                 this.$element=$element;
                 $element.addClass( "hb-enabled");
-                console.log($element);
-                this.option.position = { my: "left top", at: "left bottom", of: $element };
+                this.option.position = { my: "left top", at: "left top", of: $element };
                 if(typeof ($element.first().attr("data-label")) !== "undefined"){
                     this.option.title = this.$element.first().attr("data-label");}
 
@@ -281,15 +283,18 @@ var hb = (function (hb,$) {
                 else if (this.hDate !== null){this.hDate = this.hDate.clone();}
                 _refresh(this,true);
                 _applyOption(this);
+                this.preventedFocusout=true;
+                let picker = this;
+                setTimeout(function() {picker.preventedFocusout=false;}, 500);
+
                 this.$modal.dialog("open");
             },
             unbind : function() {
                 if(this.$element === null){return;}
                 let $element = this.$element;
-                console.log("unbind");
+                $(function(){$($element).removeClass("hb-enabled");}).delay(30);
                 this.$modal.dialog("close");
                 this.$element=null;
-                setTimeout(function(){$($element).removeClass("hb-enabled");}, 40);
             }
         };
         Object.assign(ui.HDatePicker.prototype,_prototype);
@@ -311,7 +316,7 @@ var hb = (function (hb,$) {
                 }
                 $element.ready(function(){
                     console.log($element);
-;                   if($element.val() && ! $element.attr("data-hdate")){
+                    if($element.val() && ! $element.attr("data-hdate")){
                         $element.attr("data-hdate",$element.val());
                         let hDate = hb.util.HDate.prototype.parseFromJson($element.attr("data-hdate"));
                         $element.val(hDate.getLabel());

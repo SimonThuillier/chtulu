@@ -18,7 +18,7 @@ class ArticleDTOType extends AbstractType
     {
         $builder->setMethod('POST');
 
-        var_dump($options['validation_groups']);
+        //var_dump($options['validation_groups']);
          $groups = $options['validation_groups'];
         if($groups === null || $groups ===[]) {
             $groups = ['minimal','abstract','date'];

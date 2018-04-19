@@ -93,7 +93,7 @@ assetic:
           output: 'fonts/glyphicons-halflings-regular.woff2'
        icheck-square-blue:
           inputs: '../src/AppBundle/Resources/third-party/iCheck/css/square/blue.png'
-          output: 'css/square/blue.png'
+          output: 'css/blue.png'
        icheck-square-blue2:
           inputs: '../src/AppBundle/Resources/third-party/iCheck/css/square/blue@2x.png'
           output: 'css/square/blue@2x.png'

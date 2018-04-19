@@ -3853,31 +3853,31 @@ div.hb-modal-z0{
 	z-index: 1;
 }
 div.hb-modal-z1{
-	z-index: 10;
+	z-index: 1001;
 }
 div.hb-modal-z2{
-	z-index: 100;
+	z-index: 2001;
 }
 div.hb-modal-z3{
-	z-index: 1000;
+	z-index: 3001;
 }
 div.hb-modal-z4{
-	z-index: 10000;
+	z-index: 4001;
 }
 div.hb-modal-z5{
-	z-index: 100000;
+	z-index: 5001;
 }
 div.hb-modal-z6{
-	z-index: 1000000;
+	z-index: 6001;
 }
 div.hb-modal-z7{
-	z-index: 10000000;
+	z-index: 7001;
 }
 div.hb-modal-z8{
-	z-index: 100000000;
+	z-index: 8001;
 }
 div.hb-modal-z9{
-	z-index: 1000000000;
+	z-index: 9001;
 }
 
 .fa.disabled,
