@@ -6337,6 +6337,8 @@ var hb = (function (hb) {
              */
             applyClasses : function ($element) {
                 if(typeof $element === 'undefined' || $element === null){
+
+
                     //(".hbase-hmaxlength").hmaxlength();
                     $(".hb-hdatepicker").hdatepicker();
                     //$(".hbase-htimescroller").htimescroller();

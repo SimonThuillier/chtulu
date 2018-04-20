@@ -52,6 +52,24 @@
 
 {% block javascript %}
     <script type="application/javascript">
+        $(".hb-form").each(function(){
+            let $labels = $(this).find("[class*='hb-group-']");
+            let regex = new RegExp("^.*(hb-group-\\S+).*");
+            let groups = [];
+            $labels.each(function(){
+                let groupClass = regex.exec($(this).attr('class'));
+                if(groupClass.length<2){return;}
+                groupClass=groupClass[1];
+                let $formGroup = $(this).parent(".form-group");
+                console.log(groupClass);
+                console.log($formGroup);
+                $(this).removeClass(groupClass);
+                $($formGroup).attr("data-hb-group",groupClass);
+                groups.push(groupClass.replace('hb-group-',''));
+            });
+            groups = $.unique(groups);
+            $(this).attr("data-hb-groups",JSON.stringify(groups));
+        });
         /**
          * @package HArticleModal.js
          * @doc
@@ -207,8 +225,6 @@
                     //aria-labelledby="Article"
                     let $modal = $("<div class=\"modal fade\" " +
                         "role=\"dialog\">").appendTo('body');
-                    $modal.removeAttr('tabindex');
-                    $modal.on('focus',function(){this.blur();});
                     $modal.alerts=[];
                     $modal.container = $("<div class=\"modal-dialog modal-lg\" role=\"document\">").appendTo($modal);
                     $modal.content = $("<div class=\"modal-content\">").appendTo($modal.container);
@@ -219,11 +235,17 @@
 
                     $modal.body = $("<div class=\"modal-body\">").appendTo($modal.content);
                     $modal.detail = $("<div class= \"hb-detail\">").appendTo($modal.body);
-                    $modal.formContainer = $("<div class= \"hb-form\">").appendTo($modal.body);
+                    $modal.form = $("<div class= \"hb-form\">").appendTo($modal.body);
 
                     $modal.footer = $("<div class=\"modal-footer\">").appendTo($modal.content);
                     $modal.footer.append("<button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>");
                     return $modal;
+                };
+
+                let _addEditButton = function($modal){
+                    $modal.editButton = $('<a class="edit" title="Edition rapide"><i class="fa fa-pencil"></i></a>');
+                    $modal.editButton.insertAfter($modal.title);
+                    return $modal.editButton;
                 };
 
                 /**
@@ -391,17 +413,6 @@
                         attrs.abstract.html(hb.util.cmn.convertPlainTextToParagraphed(this.object.abstract));
                     }
                 };
-                /**
-                 * @doc HArticleDetailMediator constructor
-                 * @class hb.ui.HArticleDetailMediator
-                 */
-                ui.HArticleDetailMediator = function() {
-                    /** @type {jQuery} */
-                    this.$target=null;
-                    /** @type {hb.util.HArticle} */
-                    this.object=null;
-                    return this;
-                };
 
                 /**
                  * @doc HArticleFormBuilder constructor
@@ -424,25 +435,24 @@
 
                         $form.detach().appendTo($target);
 
-                        return groups;
+                        console.log("groupes de formulaire : " + $form.data("groups"));
 
-
-                        if(typeof $target.hAttributes === 'undefined'){$target.hAttributes=[];}
-                        if(typeof $target.hGroups === 'undefined'){$target.hGroups=[];}
-                        console.log(groups);
-                        $.each(groups,function(key,value){
-                            console.log(value);
-                            if(typeof (_detailGroupBuilder["build" + hb.util.cmn.capitalize(value)]) !== 'function'){
-                                throw "Group " + value + " doesn't exist for HArticleDetail";
-                            }
-                            _detailGroupBuilder["build" + hb.util.cmn.capitalize(value)]($target);
-                        });
-                        return groups;
+                        return $form.data("groups");
                     }
                 });
                 let _formBuilder = new ui.HArticleFormBuilder();
 
-
+                /**
+                 * @doc HArticleDetailMediator constructor
+                 * @class hb.ui.HArticleDetailMediator
+                 */
+                ui.HArticleDetailMediator = function() {
+                    /** @type {jQuery} */
+                    this.$target=null;
+                    /** @type {hb.util.HArticle} */
+                    this.object=null;
+                    return this;
+                };
                 Object.assign(ui.HArticleDetailMediator.prototype,{
                     /**
                      * @param groups
@@ -510,6 +520,71 @@
                 let _detailMediator = new ui.HArticleDetailMediator();
 
                 /**
+                 * @doc SfFormMediator constructor
+                 * @class hb.ui.SfFormMediator
+                 */
+                ui.SfFormMediator = function() {
+                    /** @type {jQuery} */
+                    this.$target=null;
+                    /** @type {hb.util.HArticle} */
+                    this.object=null;
+                    return this;
+                };
+                Object.assign(ui.SfFormMediator.prototype,{
+                    /**
+                     * @return array
+                     */
+                    map:function(){
+                        let unloadedGroups = [];
+                        let object = this.object;
+                        let groups = object.groups;
+                        let $form = this.$target.form;
+
+                        console.log(groups);
+                        let $rows = $form.find("[data-hb-group*='hb-group-']");
+                        let $controls = $rows.find(".form-control");
+                        console.log($form);
+                        console.log($rows);
+                        console.log($controls);
+
+                        let objectGroupsIterator = function(key,value){
+                            console.log("[data-hb-group='hb-group-"+ value + "']");
+                            let $rowGroup = $rows.filter("[data-hb-group='hb-group-"+ value + "']");
+                            console.log(value);
+                            console.log($rowGroup);
+                            $.each($rowGroup,formGroupIterator);
+                        };
+
+                        let formGroupIterator = function(key,value){
+                            console.log(value);
+                            let $controls = $(value).find(".form-control");
+                            $.each($controls,objectAttributeMediator);
+                        };
+
+                        let objectAttributeMediator = function(key,value){
+                            let $control = $(value);
+                            let attributeName = $control.attr('id').split('_');
+                            attributeName = attributeName[attributeName.length-1];
+                            console.log(attributeName);
+                            if(typeof object[attributeName] !=='undefined'){
+                                //$control.val(object[attributeName]);
+                                //$control.text(object[attributeName]);
+                            }
+                            console.log($control);
+                            console.log(object[attributeName]);
+
+                        };
+
+
+
+                        $.each(groups,objectGroupsIterator);
+                        return groups;
+                    }
+                });
+                let _formMediator = new ui.SfFormMediator();
+
+
+                /**
                  * @doc HArticleModal modal constructor
                  * @class hb.ui.HArticleModal
                  * @param {object} option
@@ -520,20 +595,35 @@
                     this.object=null;
                     this.$modal = _build();
                     this.builtGroups=_detailBuilder.build(this.$modal.detail,this.option.groups);
-                    this.formBuiltGroups=_formBuilder.build(this.$modal.formContainer,this.option.groups);
+                    let $this = this;
+                    _addEditButton(this.$modal).on("click",function(){
+                        $this.$modal.detail.hide();
+                        $this.$modal.form.show();
+                        $this.formMediator.map();
+                    });
+                    this.formBuiltGroups=_formBuilder.build(this.$modal.form,this.option.groups);
+                    this.$modal.form.find("#cancel").on("click",function(){
+                        $this.$modal.form.hide();
+                        $this.$modal.detail.show();
+                    });
                     this.mediator.$target = this.$modal;
+                    this.formMediator.$target = this.$modal;
                     _applyOption(this);
                     return this;
                 };
 
                 let _prototype = {
                     mediator:_detailMediator,
+                    formMediator:_formMediator,
                     bind : function(object) {
                         this.object = object;
                         this.mediator.object = object;
+                        this.formMediator.object = object;
                         console.log(this.mediator.object);
                         console.log(this.mediator);
                         this.mediator.map(this.builtGroups);
+                        this.$modal.form.hide();
+                        this.$modal.detail.show();
                     },
                     unbind : function() {
                         if(this.$element === null){return;}
@@ -735,5 +825,7 @@
 {% block data %}
     {{ form_start(form) }}
     {{ form_widget(form) }}
+    <a id="save" name="save" class="btn btn-primary">Enregistrer</a>
+    <a id="cancel" name="cancel" class="btn btn-default">Annuler</a>
     {{ form_end(form) }}
 {% endblock %}

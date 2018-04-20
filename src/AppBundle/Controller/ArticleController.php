@@ -189,9 +189,8 @@ class ArticleController extends Controller
         $form = $this
             ->get('form.factory')
             ->createBuilder(ArticleDTOType::class,null,[
-                'validation_groups'=>['minimal','date']
+                'validation_groups'=>['minimal','date','abstract']
             ])
-            ->add('save',SubmitType::class)
             ->getForm();
 
 
