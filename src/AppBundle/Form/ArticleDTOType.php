@@ -118,7 +118,7 @@ class ArticleDTOType extends AbstractType
         $resolver->setDefaults(array(
             'data_class' => ArticleDTO::class,
             'allow_extra_fields' => true,
-            'attr' => array('class'=>'hb-form hb-article-search')
+            'attr' => array('class'=>'hb-form') // hb-article-search
         ));
     }
 }

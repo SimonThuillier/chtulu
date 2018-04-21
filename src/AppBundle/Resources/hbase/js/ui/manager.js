@@ -29,6 +29,9 @@ var hb = (function (hb) {
             if(loadedModules.includes("ui:HDatePicker/HDatePicker.js")){
                 _resources.hdatepicker = new hb.ui.HDatePicker();
             }
+            if(loadedModules.includes("ui:SfFormMediator/SfFormMediator.js")){
+                _resources.sfFormMediator = new hb.ui.SfFormMediator();
+            }
         };
 
         _instanciateUniques();
@@ -62,7 +65,6 @@ var hb = (function (hb) {
                     //(".hbase-hmaxlength").hmaxlength();
                     $(".hb-hdatepicker").hdatepicker();
                     //$(".hbase-htimescroller").htimescroller();
-                    $(".hb-hdatepicker").hdatepicker();
                     //$(".hbase-activer").each(function(){$.hbase.func.hbaseChecker(this)});
                     $(".hb-article-search").
                     off("submit").

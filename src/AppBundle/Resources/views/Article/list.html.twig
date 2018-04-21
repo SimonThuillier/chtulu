@@ -52,24 +52,6 @@
 
 {% block javascript %}
     <script type="application/javascript">
-        $(".hb-form").each(function(){
-            let $labels = $(this).find("[class*='hb-group-']");
-            let regex = new RegExp("^.*(hb-group-\\S+).*");
-            let groups = [];
-            $labels.each(function(){
-                let groupClass = regex.exec($(this).attr('class'));
-                if(groupClass.length<2){return;}
-                groupClass=groupClass[1];
-                let $formGroup = $(this).parent(".form-group");
-                console.log(groupClass);
-                console.log($formGroup);
-                $(this).removeClass(groupClass);
-                $($formGroup).attr("data-hb-group",groupClass);
-                groups.push(groupClass.replace('hb-group-',''));
-            });
-            groups = $.unique(groups);
-            $(this).attr("data-hb-groups",JSON.stringify(groups));
-        });
         /**
          * @package HArticleModal.js
          * @doc
@@ -519,6 +501,84 @@
                 });
                 let _detailMediator = new ui.HArticleDetailMediator();
 
+
+
+                $(".hb-form").each(function(){
+                    let $labels = $(this).find("[class*='hb-group-']");
+                    let regex = new RegExp("^.*(hb-group-\\S+).*");
+                    let groups = [];
+                    $labels.each(function(){
+                        let groupClass = regex.exec($(this).attr('class'));
+                        if(groupClass.length<2){return;}
+                        groupClass=groupClass[1];
+                        let $formGroup = $(this).closest(".form-group");
+                        $(this).removeClass(groupClass);
+                        $($formGroup).attr("data-hb-group",groupClass);
+                        groups.push(groupClass.replace('hb-group-',''));
+                    });
+                    groups = $.unique(groups);
+                    $(this).attr("data-hb-groups",JSON.stringify(groups));
+                });
+
+                let _inputMapper = {
+                    getStrValue:function(value){
+                        if(typeof value !== 'object'){return value;}
+                        return JSON.stringify(value);
+                    },
+                    mapInput:function(value,$element){
+                        if($element.attr('type') === "checkbox"){return this.mapInputCheckbox(value,$element);}
+                        $element.val(this.getStrValue(value)).trigger("hb.load");
+                    },
+                    mapInputCheckbox:function(value,$element){
+                        if(value !== false){$element.prop( "checked", true).trigger("hb.load");}
+                        else{$element.prop( "checked", false ).trigger("hb.load");}
+                    },
+                    mapSelect:function(value,$element){
+                        let selectValue = $element.find("option:first").val();
+                        if(typeof value === 'object' &&
+                            typeof value.id !== 'undefined' &&
+                                $element.find("option[value='"+ value.id +"']").length > 0
+                        ){
+                            selectValue = value.id;
+                        }
+                        $element.val(selectValue).prop('selected', true).trigger("hb.load");
+                    },
+                    mapTextarea:function(value,$element){
+                        $element.text(this.getStrValue(value)).trigger("hb.load");
+                    },
+                    unMapInput:function($element){
+                        if($element.attr('type') === "checkbox"){return this.unMapInputCheckbox($element);}
+                        $element.val("").trigger("hb.unload");
+                    },
+                    unMapInputCheckbox:function($element){
+                        $element.prop( "checked", false ).trigger("hb.unload");
+                    },
+                    unMapSelect:function($element){
+                        let selectValue = $element.find("option:first").val();
+                        $element.val(selectValue).prop('selected', true).trigger("hb.unload");
+                    },
+                    unMapTextarea:function($element){
+                        $element.text("").trigger("hb.unload");
+                    },
+                    returnInput:function($element,value){
+                        if($element.attr('type') === "checkbox"){return this.returnInputCheckbox($element,value);}
+                        if($element[0].hasAttribute('data-hb-value')){return $element.data("hb-value");}
+                        return value.value;
+                    },
+                    returnInputCheckbox:function($element,value){
+                        if($element[0].hasAttribute('data-hb-value')){return $element.data("hb-value");}
+                        return value.value;
+                    },
+                    returnSelect:function($element,value){
+                        if($element[0].hasAttribute('data-hb-value')){return $element.data("hb-value");}
+                        return {id:value.value,label:$element.find('option[value="'+ value.value +'"]').text()};
+                    },
+                    returnTextarea:function($element,value){
+                        if($element[0].hasAttribute('data-hb-value')){return $element.data("hb-value");}
+                        return value.value
+                    }
+                };
+
                 /**
                  * @doc SfFormMediator constructor
                  * @class hb.ui.SfFormMediator
@@ -530,6 +590,7 @@
                     this.object=null;
                     return this;
                 };
+
                 Object.assign(ui.SfFormMediator.prototype,{
                     /**
                      * @return array
@@ -539,25 +600,22 @@
                         let object = this.object;
                         let groups = object.groups;
                         let $form = this.$target.form;
-
-                        console.log(groups);
+                        this.unMap($form);
                         let $rows = $form.find("[data-hb-group*='hb-group-']");
-                        let $controls = $rows.find(".form-control");
-                        console.log($form);
-                        console.log($rows);
-                        console.log($controls);
+
 
                         let objectGroupsIterator = function(key,value){
                             console.log("[data-hb-group='hb-group-"+ value + "']");
                             let $rowGroup = $rows.filter("[data-hb-group='hb-group-"+ value + "']");
-                            console.log(value);
+                            //console.log(value);
+                            console.log("$rowGroup");
                             console.log($rowGroup);
                             $.each($rowGroup,formGroupIterator);
                         };
 
                         let formGroupIterator = function(key,value){
-                            console.log(value);
-                            let $controls = $(value).find(".form-control");
+                            //console.log(value);
+                            let $controls = $(value).find(".form-control,.form-check-input");
                             $.each($controls,objectAttributeMediator);
                         };
 
@@ -567,21 +625,81 @@
                             attributeName = attributeName[attributeName.length-1];
                             console.log(attributeName);
                             if(typeof object[attributeName] !=='undefined'){
-                                //$control.val(object[attributeName]);
-                                //$control.text(object[attributeName]);
+                                let attribute = object[attributeName];
+                                let nodeType = hb.util.cmn.capitalize($control.get(0).nodeName.toLowerCase());
+
+                                if(typeof _inputMapper["map"+nodeType] !== 'undefined'){
+                                    _inputMapper["map"+nodeType](attribute,$control);
+                                }
                             }
-                            console.log($control);
-                            console.log(object[attributeName]);
 
                         };
-
-
-
                         $.each(groups,objectGroupsIterator);
                         return groups;
+                    },
+                    /**
+                     * @doc reinitialize fields of the forms in order to prevent weird meltings between objects
+                     * @return array
+                     */
+                    unMap:function(){
+                        let $form = this.$target.form;
+
+                        $form.find(".form-control,.form-check-input").each(function(key,value){
+                            let $control = $(value);
+                            let nodeType = hb.util.cmn.capitalize($control.get(0).nodeName.toLowerCase());
+                            _inputMapper["unMap"+nodeType]($control);
+                        });
+                        return true;
+                    },
+                    /**
+                     * @doc return data of form both to associated object and the server
+                     * @param data form data as an array
+                     * @return array
+                     */
+                    return:function(data){
+                        let $form = this.$target.form;
+                        let object = this.object;
+                        let $controls = $form.find(".form-control,.form-check-input");
+                        let formName = "";
+                        data.forEach(function(value){
+                            if(value.name.indexOf(['[_token]']) !== -1) {formName = value.name.replace('[_token]','');}
+                        });
+                        console.log("formName : " + formName);
+                        let formObject = {};
+                        let $control = {};
+                        let attributeName="";
+
+                        data.forEach(function(value){
+                            if(value.name.indexOf(['[_token]']) === -1) {
+                                attributeName = value.name.replace(formName + '[','').replace(']','');
+                                $control = $controls.filter("#" + formName + "_" + attributeName);
+                                let nodeType = hb.util.cmn.capitalize($control.get(0).nodeName.toLowerCase());
+                                if(typeof _inputMapper["return"+nodeType] !== 'undefined'){
+                                    formObject[attributeName] = _inputMapper["return"+nodeType]($control,value);
+                                }
+                                else{
+                                    formObject[attributeName] = value.value;
+                                }
+                                delete object[attributeName];
+                                if($control[0].hasAttribute('data-hb-value')){value.value = $control.attr("data-hb-value");}
+                            }
+                        });
+                        console.log("data a transmettre");
+                        console.log(data);
+                        /*console.log("form as an object : ");
+                        console.log(formObject);*/
+                        $.extend(object,formObject);
+                        if(typeof object["finalize"] !== 'undefined'){
+                            object.finalize();
+                        }
+                        console.log("updated article : ");
+                        console.log(object);
+                        return [];
                     }
                 });
                 let _formMediator = new ui.SfFormMediator();
+
+                //let _formMediator = ui.manager.get("sfFormMediator");
 
 
                 /**
@@ -594,7 +712,9 @@
                     this.errors=[];
                     this.object=null;
                     this.$modal = _build();
+
                     this.builtGroups=_detailBuilder.build(this.$modal.detail,this.option.groups);
+                    //this.builtGroups = ['minimal','date','abstract'];
                     let $this = this;
                     _addEditButton(this.$modal).on("click",function(){
                         $this.$modal.detail.hide();
@@ -605,9 +725,19 @@
                     this.$modal.form.find("#cancel").on("click",function(){
                         $this.$modal.form.hide();
                         $this.$modal.detail.show();
+                        $this.refreshDetail();
                     });
                     this.mediator.$target = this.$modal;
                     this.formMediator.$target = this.$modal;
+                    console.log(this.$modal.form);
+                    this.$modal.form.find("form").on("submit",function(event,element){
+                        event.preventDefault();
+                        event.stopPropagation();
+                        console.log("submitted form");
+                        console.log(event);
+                        console.log($(event.target).serializeArray().slice());
+                        $this.formMediator.return($(event.target).serializeArray().slice());
+                    });
                     _applyOption(this);
                     return this;
                 };
@@ -621,9 +751,12 @@
                         this.formMediator.object = object;
                         console.log(this.mediator.object);
                         console.log(this.mediator);
-                        this.mediator.map(this.builtGroups);
+                        this.refreshDetail();
                         this.$modal.form.hide();
                         this.$modal.detail.show();
+                    },
+                    refreshDetail:function(){
+                        this.mediator.map(this.builtGroups);
                     },
                     unbind : function() {
                         if(this.$element === null){return;}
@@ -825,7 +958,7 @@
 {% block data %}
     {{ form_start(form) }}
     {{ form_widget(form) }}
-    <a id="save" name="save" class="btn btn-primary">Enregistrer</a>
+    <button id="{{ form.vars.id }}_save" name="{{ form.vars.id }}[save]" type="submit" class="btn btn-primary">Enregistrer</button>
     <a id="cancel" name="cancel" class="btn btn-default">Annuler</a>
     {{ form_end(form) }}
 {% endblock %}

@@ -5974,12 +5974,12 @@ var hb = (function (hb,$) {
             if(picker.errors.length > 0) {return;}
             if(! picker.hDate){
                 picker.$element.first().val("");
-                picker.$element.first().attr("data-hdate","");
+                picker.$element.first().attr("data-hb-value","");
                 picker.$element.first().change();
                 return;
             }
             picker.$element.first().val(picker.hDate.getLabel());
-            picker.$element.first().attr("data-hdate",JSON.stringify(picker.hDate));
+            picker.$element.first().attr("data-hb-value",JSON.stringify(picker.hDate));
             picker.$element.first().change();
         };
         /**
@@ -6065,8 +6065,8 @@ var hb = (function (hb,$) {
                 if(typeof ($element.first().attr("data-label")) !== "undefined"){
                     this.option.title = this.$element.first().attr("data-label");}
 
-                if(typeof ($element.first().attr("data-hdate")) !== "undefined" && $element.first().attr("data-hdate") !== ""){
-                    this.hDate = hb.util.HDate.prototype.parseFromJson($element.first().attr("data-hdate"));
+                if(typeof ($element.first().attr("data-hb-value")) !== "undefined" && $element.first().attr("data-hb-value") !== ""){
+                    this.hDate = hb.util.HDate.prototype.parseFromJson($element.first().attr("data-hb-value"));
                 }
                 else if (this.hDate !== null){this.hDate = this.hDate.clone();}
                 _refresh(this,true);
@@ -6102,22 +6102,26 @@ var hb = (function (hb,$) {
                         hb.ui.manager.get("hdatepicker").bind($element);
                     }
                 }
-                $element.ready(function(){
-                    console.log($element);
-                    if($element.val() && ! $element.attr("data-hdate")){
-                        $element.attr("data-hdate",$element.val());
-                        let hDate = hb.util.HDate.prototype.parseFromJson($element.attr("data-hdate"));
+                function convertValue(){
+                    if($element.val() && ! $element.attr("data-hb-value")){
+                        $element.attr("data-hb-value",$element.val());
+                        let hDate = hb.util.HDate.prototype.parseFromJson($element.attr("data-hb-value"));
                         $element.val(hDate.getLabel());
                     }
                     $element.addClass("hb-initialized");
-                })
-                .on("focus",function(){enableDatePicker();})
-                .on("keyup",function(){enableDatePicker();})
+                }
+                function eraseValue(){
+                    $element.removeClass("hb-initialized").removeAttr("data-hb-value");
+                }
+
+
+                $element.ready(convertValue).on("hb.load",convertValue).on("hb.unload",eraseValue)
+                .on("focus keyup",function(){enableDatePicker();})
                 .change(function(){
                     let $element = $(this).first();
-                    if($element.attr("data-hdate") === "undefined" || $element.attr("data-hdate") === null ||
-                        $element.attr("data-hdate") === "") return;
-                    let hDate = hb.util.HDate.prototype.parseFromJson($element.attr("data-hdate"));
+                    if($element.attr("data-hb-value") === "undefined" || $element.attr("data-hb-value") === null ||
+                        $element.attr("data-hb-value") === "") return;
+                    let hDate = hb.util.HDate.prototype.parseFromJson($element.attr("data-hb-value"));
                     //if(hDate === null){
                         //hDate = new hb.util.HDate("1",new Date());
                         $element.hDate = hDate;
@@ -6129,26 +6133,26 @@ var hb = (function (hb,$) {
                         $partner = $("#" + $element.attr("data-date-ender"));
                         if(! $partner.hasClass("hb-hdatepicker") ) return;
 
-                        if(typeof $partner.attr("data-hdate") !== "undefined" && $partner.attr("data-hdate") !== null &&
-                            $partner.attr("data-hdate") !== ""){
-                            partnerHDate =  hb.util.HDate.parseFromJson($partner.attr("data-hdate"));
+                        if(typeof $partner.attr("data-hb-value") !== "undefined" && $partner.attr("data-hb-value") !== null &&
+                            $partner.attr("data-hb-value") !== ""){
+                            partnerHDate =  hb.util.HDate.parseFromJson($partner.attr("data-hb-value"));
                         }
                         if(partnerHDate === null || partnerHDate.endDate < hDate.endDate){
                             newPartnerHDate = new hb.util.HDate("1",hDate.endDate);
-                            $partner.attr("data-hdate",JSON.stringify(newPartnerHDate));
+                            $partner.attr("data-hb-value",JSON.stringify(newPartnerHDate));
                             $partner.val(newPartnerHDate.label);
                         }
                     }
                     else if(typeof $element.attr("data-date-beginner") !== "undefined"){
                         $partner = $("#" + $element.attr("data-date-beginner"));
                         if(! $partner.hasClass("hb-hdatepicker") ) return;
-                        if(typeof $partner.attr("data-hdate") !== "undefined" && $partner.attr("data-hdate") !== null &&
-                            $partner.attr("data-hdate") !== ""){
-                            partnerHDate =  hb.util.HDate.parseFromJson($partner.attr("data-hdate"));
+                        if(typeof $partner.attr("data-hb-value") !== "undefined" && $partner.attr("data-hb-value") !== null &&
+                            $partner.attr("data-hb-value") !== ""){
+                            partnerHDate =  hb.util.HDate.parseFromJson($partner.attr("data-hb-value"));
                         }
                         if(partnerHDate === null || partnerHDate.beginDate > hDate.beginDate){
                             newPartnerHDate = new hb.util.HDate("1",hDate.beginDate);
-                            $partner.attr("data-hdate",JSON.stringify(newPartnerHDate));
+                            $partner.attr("data-hb-value",JSON.stringify(newPartnerHDate));
                             $partner.val(newPartnerHDate.label);
                         }
                     }
@@ -6309,6 +6313,9 @@ var hb = (function (hb) {
             if(loadedModules.includes("ui:HDatePicker/HDatePicker.js")){
                 _resources.hdatepicker = new hb.ui.HDatePicker();
             }
+            if(loadedModules.includes("ui:SfFormMediator/SfFormMediator.js")){
+                _resources.sfFormMediator = new hb.ui.SfFormMediator();
+            }
         };
 
         _instanciateUniques();
@@ -6342,7 +6349,6 @@ var hb = (function (hb) {
                     //(".hbase-hmaxlength").hmaxlength();
                     $(".hb-hdatepicker").hdatepicker();
                     //$(".hbase-htimescroller").htimescroller();
-                    $(".hb-hdatepicker").hdatepicker();
                     //$(".hbase-activer").each(function(){$.hbase.func.hbaseChecker(this)});
                     $(".hb-article-search").
                     off("submit").

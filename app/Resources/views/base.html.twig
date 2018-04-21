@@ -30,7 +30,10 @@
         <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
         <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
         <![endif]-->
-        {% form_theme form 'bootstrap_4_horizontal_layout.html.twig' %}
+
+        {% if form is defined%}
+            {% form_theme form 'bootstrap_4_horizontal_layout.html.twig' %}
+        {% endif %}
     {% endblock %}
 </head>
 
@@ -661,6 +664,7 @@
     '@AppBundle/Resources/hbase/js/util/geometry.js'
     '@AppBundle/Resources/hbase/js/ui/misc.js'
     '@AppBundle/Resources/hbase/js/ui/HDatePicker.js'
+    '@AppBundle/Resources/hbase/js/ui/SfFormMediator.js'
     '@AppBundle/Resources/hbase/js/ui/form.js'
     '@AppBundle/Resources/hbase/js/ui/manager.js'
 %}
