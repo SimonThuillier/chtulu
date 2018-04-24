@@ -50,7 +50,7 @@ class ArticleController extends Controller
             ->createBuilder($mediator->getFormTypeClassName(),$mediator->getDTO(),[
                 'validation_groups'=>$groups])
             ->add('save',SubmitType::class)
-            ->setAction($this->generateUrl("post_article_create"))
+            ->setAction($this->generateUrl("article_post_create"))
             ->getForm();
 
         return $this->render('@AppBundle/Article/create.html.twig',array(
@@ -62,7 +62,7 @@ class ArticleController extends Controller
     }
 
     /**
-     * @Route("/post-create",name="post_article_create")
+     * @Route("/post-create",name="article_post_create")
      * @Method({"POST"})
      */
     public function postCreateAction(Request $request,
@@ -132,7 +132,7 @@ class ArticleController extends Controller
     }
 
     /**
-     * @Route("/post-edit/{article}",name="post_article_edit")
+     * @Route("/post-edit/{article}",name="article_post_edit")
      * @ParamConverter("article", class="AppBundle:Article")
      * @Method({"POST"})
      */
@@ -142,30 +142,34 @@ class ArticleController extends Controller
                                      ArticleDTOMediator $mediator,
                                      ArticleMapper $mapper)
     {
-        $groups = ['minimal','abstract','date'];
-        $mediator
-            ->setEntity($article)
-            ->setDTO($dtoFactory->create($this->getUser()))
-            ->mapDTOGroups($groups);
-        $form = $this
-            ->get('form.factory')
-            ->createBuilder($mediator->getFormTypeClassName(),$mediator->getDTO(),[
-                'validation_groups'=>$groups])
-            ->add('save',SubmitType::class)
-            ->getForm();
+        $hResponse = new HJsonResponse();
+        $groups = $request->get("groups",['minimal']);
+        $groups = array_diff($groups,["url"]);
+        $groups=['minimal','date','abstract'];
+        try{
+            $mediator
+                ->setEntity($article)
+                ->setDTO($dtoFactory->create($this->getUser()))
+                ->mapDTOGroups($groups);
+            $form = $this
+                ->get('form.factory')
+                ->createBuilder($mediator->getFormTypeClassName(),$mediator->getDTO(),[
+                    'validation_groups'=>$groups])
+                ->add('save',SubmitType::class)
+                ->getForm();
 
-        $mediator
-            ->resetChangedProperties()
-            ->setMapper($mapper);
-        $form->handleRequest($request);
-        if (! $form->isValid()) {
-            return new JsonResponse("Echec Edition article, formulaire invalide");
-
-            //return $this->redirectToRoute("article_create");
+            $mediator
+                ->resetChangedProperties()
+                ->setMapper($mapper);
+            $form->submit($request->request->get("form"));
+            if (! $form->isValid()) {throw new \Exception("Le formulaire contient des erreurs à corriger avant validation");}
+            $mapper->edit();
+            $hResponse->setMessage("L'article a bien été mis à jour !");
         }
-
-        $mapper->edit();
-        return new JsonResponse("Edition article OK");
+        catch(\Exception $e){
+            $hResponse->setStatus(HJsonResponse::ERROR)->setMessage($e->getMessage());
+        }
+        return new JsonResponse(HJsonResponse::normalize($hResponse));
     }
 
 

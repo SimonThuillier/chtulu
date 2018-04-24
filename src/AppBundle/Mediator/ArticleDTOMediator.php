@@ -112,6 +112,7 @@ class ArticleDTOMediator extends DTOMediator
         $dto->getUrlBag()
             ->setView($this->router->generate("article_view",["article"=>$article]))
             ->setEdit($this->router->generate("article_edit",["article"=>$article]))
+            ->setPostEdit($this->router->generate("article_post_edit",["article"=>$article]))
             ->setInfo($this->router->generate("article_getdata",["article"=>$article]));
 
         $dto->addMappedGroup('url');

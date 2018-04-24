@@ -20,6 +20,8 @@ class UrlBag
     /** @var string */
     private $edit;
     /** @var string */
+    private $postEdit;
+    /** @var string */
     private $admin;
 
     /**
@@ -77,6 +79,25 @@ class UrlBag
     public function setEdit($edit): UrlBag
     {
         $this->edit = $edit;
+        return $this;
+    }
+
+    /**
+     * @return string
+     * @Groups({"editUrl","url"})
+     */
+    public function getPostEdit()
+    {
+        return $this->postEdit;
+    }
+
+    /**
+     * @param string $postEdit
+     * @return UrlBag
+     */
+    public function setPostEdit($postEdit): UrlBag
+    {
+        $this->postEdit = $postEdit;
         return $this;
     }
 

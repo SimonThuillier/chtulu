@@ -666,36 +666,75 @@
                         });
                         console.log("formName : " + formName);
                         let formObject = {};
+                        let localObject = {};
                         let $control = {};
                         let attributeName="";
 
                         data.forEach(function(value){
-                            if(value.name.indexOf(['[_token]']) === -1) {
-                                attributeName = value.name.replace(formName + '[','').replace(']','');
-                                $control = $controls.filter("#" + formName + "_" + attributeName);
-                                let nodeType = hb.util.cmn.capitalize($control.get(0).nodeName.toLowerCase());
-                                if(typeof _inputMapper["return"+nodeType] !== 'undefined'){
-                                    formObject[attributeName] = _inputMapper["return"+nodeType]($control,value);
-                                }
-                                else{
-                                    formObject[attributeName] = value.value;
-                                }
-                                delete object[attributeName];
-                                if($control[0].hasAttribute('data-hb-value')){value.value = $control.attr("data-hb-value");}
+                            if(value.name.indexOf(['[_token]']) !== -1) {
+                                formObject['_token'] = value.value;
+                                return;
                             }
+                            attributeName = value.name.replace(formName + '[','').replace(']','');
+                            $control = $controls.filter("#" + formName + "_" + attributeName);
+                            let nodeType = hb.util.cmn.capitalize($control.get(0).nodeName.toLowerCase());
+                            if(typeof _inputMapper["return"+nodeType] !== 'undefined'){
+                                localObject[attributeName] = _inputMapper["return"+nodeType]($control,value);
+                            }
+                            else{localObject[attributeName] = value.value;}
+                            formObject[attributeName]  = localObject[attributeName];
+                            if(nodeType === 'Select'){formObject[attributeName] = formObject[attributeName].id;}
+                            //if($control[0].hasAttribute('data-hb-value')){value.value = $control.attr("data-hb-value");}
                         });
                         console.log("data a transmettre");
-                        console.log(data);
-                        /*console.log("form as an object : ");
-                        console.log(formObject);*/
-                        $.extend(object,formObject);
+                        console.log(formObject);
+                        if(object.urlBag.postEdit !== null){
+                            console.log(object.urlBag.postEdit);
+                            this.submitToServer(object,formObject,localObject);
+                        }
+                        else{
+                            this.submitToLocal(object,localObject);
+                        }
+                        return [];
+                    },
+                    submitToServer:function(object,formObject,localObject){
+                        let $target = this.$target;
+                        let $this = this;
+                        $.ajax({
+                            method:'POST',
+                            url: object.urlBag.postEdit,
+                            data: {groups:object.groups,form:formObject},
+                            dataType:'json',
+                            error: function(jqXHR,textStatus,errorThrown){
+                                let status = "error";
+                                let msg = textStatus + " - " + errorThrown;
+                                if(textStatus === "timeout"){
+                                    status = "warning";
+                                    msg = "Le serveur prend trop de temps à répondre. Reessayez dans quelques instants.";
+                                }
+                                hb.ui.misc.alert(status,msg,$target.body);
+                            },
+                            complete: function(){},
+                            timeout:1000,
+                            success: function(response) {
+                                $target.alerts.push(hb.ui.misc.alert(response.status,response.message,$target.body));
+                                console.log(response);
+                                if(response.status === "error"){return;}
+                                $this.submitToLocal(object,localObject);
+                            }
+                        });
+
+                    },
+                    submitToLocal:function(object,localObject){
+                        Object.keys(localObject).map(function(key, index) {
+                            if(typeof object[key] === 'undefined'){return;}
+                            object[key] = localObject[key];
+                        });
                         if(typeof object["finalize"] !== 'undefined'){
                             object.finalize();
                         }
-                        console.log("updated article : ");
-                        console.log(object);
-                        return [];
                     }
+
                 });
                 let _formMediator = new ui.SfFormMediator();
 
@@ -736,7 +775,7 @@
                         console.log("submitted form");
                         console.log(event);
                         console.log($(event.target).serializeArray().slice());
-                        $this.formMediator.return($(event.target).serializeArray().slice());
+                        $this.formMediator.return($(event.target).serializeArray().slice(),$this.object.urlBag.postEdit);
                     });
                     _applyOption(this);
                     return this;

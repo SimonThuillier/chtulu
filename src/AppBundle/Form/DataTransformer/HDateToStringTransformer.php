@@ -59,7 +59,8 @@ class HDateToStringTransformer implements DataTransformerInterface
         }
 
         try{
-            $object = $this->serializer->deserialize($payload);
+            if(is_string($payload)) $payload = $this->serializer->decode($payload);
+            $object = $this->serializer->denormalize($payload);
         }
         catch(DeserializationException $e){
             throw new TransformationFailedException($e->getMessage());
