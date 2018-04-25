@@ -13,7 +13,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use AppBundle\Entity\ArticleType;
 use AppBundle\Mediator\DTOMediator;
 use AppBundle\Utils\HDate;
+use Symfony\Component\Validator\Constraints as Assert;
+use AppBundle\Validator as HbAssert;
 
+/**
+ * @HbAssert\EndHDateSuperiorToBeginHDate()
+ */
 class ArticleDTO extends EntityMutableDTO
 {
     /** @var integer */
@@ -105,6 +110,8 @@ class ArticleDTO extends EntityMutableDTO
     /**
      * @return string
      * @Groups({"abstract"})
+     * @Assert\NotBlank()
+     * @Assert\NotNull()
      */
     public function getAbstract()
     {

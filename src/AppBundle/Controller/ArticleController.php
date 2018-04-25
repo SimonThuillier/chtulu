@@ -23,6 +23,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use AppBundle\Processor\GenericProcessor;
 use AppBundle\Listener\SearchArticleFormListener;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Validator\ValidatorBuilder;
 
 /**
  *
@@ -162,7 +163,9 @@ class ArticleController extends Controller
                 ->resetChangedProperties()
                 ->setMapper($mapper);
             $form->submit($request->request->get("form"));
-            if (! $form->isValid()) {throw new \Exception("Le formulaire contient des erreurs à corriger avant validation");}
+            $errors = $this->get('validator')->validate($mediator->getDTO());
+            if (! $form->isValid() || count($errors)>0)
+            {throw new \Exception("Le formulaire contient des erreurs à corriger avant validation" . $errors);}
             $mapper->edit();
             $hResponse->setMessage("L'article a bien été mis à jour !");
         }

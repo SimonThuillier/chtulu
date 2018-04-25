@@ -64,6 +64,7 @@ class ArticleDTOType extends AbstractType
         ->add('abstract', TextareaType::class, array(
             'label' => "Resumé ",
             'label_attr' => array('class' => 'hb-group-abstract'),
+            'required'=>false,
             'attr' => array(
                 'class' => 'hb-hmaxlength hb-text',
                 'resize' => 'vertical',
@@ -77,7 +78,8 @@ class ArticleDTOType extends AbstractType
         $builder
             ->add('beginHDate', HDateType::class, array(
                 'label' => 'Date de début',
-                'label_attr' => array('class' => 'hb-group-date')
+                'label_attr' => array('class' => 'hb-group-date'),
+                'required' => true
             ))
             ->add('hasEndDate', CheckboxType::class, array(
                 'label' => "A une date de fin",
@@ -85,14 +87,15 @@ class ArticleDTOType extends AbstractType
                 'attr' => array(
                     'class' => 'checkbox icheck hb-activer',
                     'style' => 'display:inline',
-                    'hb-checked' => '#article_main_endDateLabel',
+                    'data-target' => 'endHDate',
                     'hb-default-required' => true
                 ),
                 'label_attr' => array('class' => 'hb-group-date')
             ))
             ->add('endHDate', HDateType::class, array(
                 'label' => 'Date de fin',
-                'label_attr' => array('class' => 'hb-group-date')
+                'label_attr' => array('class' => 'hb-group-date'),
+                'required' => true
             ));
     }
 

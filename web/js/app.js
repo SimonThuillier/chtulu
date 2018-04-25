@@ -6103,7 +6103,8 @@ var hb = (function (hb,$) {
                     }
                 }
                 function convertValue(){
-                    if($element.val() && ! $element.attr("data-hb-value")){
+                    console.log($element.val() === "null");
+                    if($element.val() && $element.val() !== "null" && ! $element.attr("data-hb-value")){
                         $element.attr("data-hb-value",$element.val());
                         let hDate = hb.util.HDate.prototype.parseFromJson($element.attr("data-hb-value"));
                         $element.val(hDate.getLabel());
