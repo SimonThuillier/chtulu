@@ -8,11 +8,7 @@ namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use AppBundle\DTO\ArticleMainDTO;
 use Doctrine\Common\Collections\ArrayCollection;
-use AppBundle\Utils\HDate;
-use AppBundle\Helper\DateHelper;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * Article
@@ -28,14 +24,12 @@ class Article extends DTOMutableEntity
      * @ORM\Column(name="id", type="bigint")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Groups({"main"})
      */
     protected $id;
 
     /**
      * @var string
      * @ORM\Column(name="title", type="string", length=50)
-     * @Groups({"main"})
      */
     protected $title;
 
@@ -68,7 +62,6 @@ class Article extends DTOMutableEntity
     /**
      * @var string
      * @ORM\Column(name="abstract", type="string", length=2000)
-     * @Groups({"main"})
      */
     protected $abstract;
 
@@ -76,7 +69,6 @@ class Article extends DTOMutableEntity
      * @var ArticleType
      * @ORM\ManyToOne(targetEntity="ArticleType")
      * @ORM\JoinColumn(name="type_id", referencedColumnName="id")
-     * @Groups({"main"})
      */
     protected $type;
 
@@ -150,7 +142,7 @@ class Article extends DTOMutableEntity
 
     public function __toString()
     {
-        return $this->title;
+        return strval($this->id);
     }
 
     /**

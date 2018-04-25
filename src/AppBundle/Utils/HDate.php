@@ -43,38 +43,6 @@ class HDate
     }
 
     /**
-     * @return string
-     */
-    public function __toString()
-    {
-        if ($this === null) return null;
-        return self::toJSON($this);
-    }
-
-
-    /**
-     *
-     * @param self $hdate
-     * @return string[]|NULL[]
-     */
-    static function normalize(HDate $hdate){
-        return [
-            'beginDate' => ($hdate->getBeginDate()->format('Y-m-d') . 'T00:00:00.000Z' ),
-            'endDate' => ($hdate->getEndDate()->format('Y-m-d') . 'T00:00:00.000Z' ),
-            'type' => $hdate->getType()->getId()
-        ];
-    }
-
-    /**
-     *
-     * @param self $hdate
-     * @return string
-     */
-    static function toJSON($hdate){
-        return json_encode(self::normalize($hdate));
-    }
-    
-    /**
      * label
      * @return string
      */
@@ -204,5 +172,28 @@ class HDate
     {
         $this->type = $type;
         return $this;
+    }
+
+    /**
+     * @doc compare two HDates
+     * returns 0 if both HDates are identical or one includes completely the other
+     * returns -2 if hDate1 both beginDate and endHDate are strictly inferior to hDate2 beginDate
+     * returns -1 if hDate1 beginDate is strictly inferior to hDate2 beginDate, hDate2 endDate is free
+     * and vice-versa
+     * @param HDate $hDate1
+     * @param HDate $hDate2
+     * @return integer
+     */
+    public static function compareHDates(HDate $hDate1,HDate $hDate2){
+        $b1 = DateHelper::dateToIndex($hDate1->getBeginDate());
+        $e1 = DateHelper::dateToIndex($hDate1->getEndDate());
+        $b2 = DateHelper::dateToIndex($hDate2->getBeginDate());
+        $e2 = DateHelper::dateToIndex($hDate2->getEndDate());
+
+        if($b1<$b2 && $e1<$b2){return -2;}
+        elseif($b1>$b2 && $e1>$b2){return 2;}
+        elseif($b1<$b2 && $e1<$e2){return -1;}
+        elseif($b1>$b2 && $e1>$e2){return 1;}
+        else{return 0;}
     }
 }

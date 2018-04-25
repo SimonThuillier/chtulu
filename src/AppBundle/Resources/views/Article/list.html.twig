@@ -1,25 +1,1052 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}
-Liste des articles
+    Liste des articles
 {% endblock %}
 
 {% block stylesheets %}
-{% stylesheets '@AppBundle/Resources/hbase/hts/css/hts.css'
-  filter='cssrewrite' %}
-<link rel="stylesheet" href="{{ asset_url }}" />
-{% endstylesheets %}
 {% endblock %}
 
 
 {% block content_header %}
-<h1 class="hts-article-title">Liste des articles</h1>
+    <h1 class="hts-article-title">Liste des articles</h1>
 {% endblock %}
 
 {%  block content %}
-<p>la liste viendra ci-dessous</p>
+    <p>la liste viendra ci-dessous</p>
 
-{% include '@AppBundle/Resources/views/Article/list_tab.html.twig' %}
+    <table id="table"
+           data-response-handler="responseHandler"
+           data-detail-formatter="detailFormatter"
+           data-minimum-count-columns="1"
+           data-show-pagination-switch="true"
+           data-pagination="true"
+           data-id-field="id"
+           data-page-list="[10, 25, 50, 100, ALL]"
+           data-side-pagination="server"
+           data-url="{{ path('article_getlistdata') }}"
+           >
+    </table>
 
 
+    <div id="modal-article" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="Article">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Modal Header</h4>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {#{% include '@AppBundle/Resources/views/Article/list_tab.html.twig' %}#}
+
+
+{% endblock %}
+
+{% block javascript %}
+    <script type="application/javascript">
+        /**
+         * @package HArticleModal.js
+         * @doc
+         * @requires hb.util.cmn,hb.util.date,hb.util.trans
+         */
+        var hb = (function (hb) {
+            "use strict";
+            var _moduleName = "util:HArticle/HArticle.js";
+            if(((typeof hb.getLoadedModules==="function"?hb.getLoadedModules():[])).includes(_moduleName)) {
+                console.log(_moduleName + " already loaded, skipping");
+                return hb;
+            }
+            hb.util = (function (util) {
+                var _requiredModules = ["util:cmn/cmn.js","util:trans/translation.js,util:HDate/HDate.js"];
+                let hd = hb.util.HDate;
+                let trans = hb.util.trans;
+
+                let _idGenerator = new hb.util.cmn.getIdGenerator();
+
+                $(".hb-form").each(function(){
+                    let $labels = $(this).find("[class*='hb-group-']");
+                    let regex = new RegExp("^.*(hb-group-\\S+).*");
+                    let groups = [];
+                    $labels.each(function(){
+                        let groupClass = regex.exec($(this).attr('class'));
+                        if(groupClass.length<2){return;}
+                        groupClass=groupClass[1];
+                        let $formGroup = $(this).closest(".form-group");
+                        $(this).removeClass(groupClass);
+                        $($formGroup).attr("data-hb-group",groupClass);
+                        groups.push(groupClass.replace('hb-group-',''));
+                    });
+                    groups = $.unique(groups);
+                    $(this).attr("data-hb-groups",JSON.stringify(groups));
+                });
+
+
+
+                $(".hb-form .hb-activer").on("change hb.load",function(event){
+                    let $element = $(this);
+                    let $form = $element.closest(".hb-form");
+                    if(! $element[0].hasAttribute("data-target") ){return;}
+
+                    let targets = $element[0].getAttribute("data-target");
+                    targets = targets.split(" ");
+                    let isActive = $element.prop( "checked");
+                    console.log(targets);
+                    let $target = $();
+                    let $controlTarget = $();
+                    let targetSelector = '';
+
+                    for (var i in targets) {
+                        targetSelector = "[name$='[" + targets[i] + "]']";
+                        $controlTarget = $.merge($controlTarget,$form.find(targetSelector));
+                        $target = $.merge($target,$controlTarget.closest(".form-group"));
+                    }
+
+                    if(isActive){
+                        $controlTarget.prop("disabled",false);
+                        $target.show();
+                    }
+                    else{
+                        $controlTarget.prop("disabled",true);
+                        $target.hide()
+                        if($controlTarget[0].hasAttribute("data-hb-value")){
+                            $controlTarget[0].removeAttribute("data-hb-value") ;
+                        }
+                        $controlTarget.val(null);
+                    }
+
+
+                    console.log($target);
+                    //$controlTarget;
+
+
+                });
+
+
+
+                /**
+                 * @doc HArticle object constructor
+                 * @class hb.util.HArticle
+                 * @return {hb.util.HArticle}
+                 */
+                util.HArticle = function()
+                {
+                    this.id = "t" + _idGenerator(); // at creation articles receive a temporary id
+                };
+
+                let _prototype = {
+                    id:null,
+                    title:null,
+                    type:null,
+                    abstract:null,
+                    beginHDate:null,
+                    hasEndDate:null,
+                    endHDate:null,
+                    groups:[],
+                    urlBag:null,
+                    /**
+                     * @doc HDate prototype clone function
+                     * @returns {HDate}
+                     */
+                    clone : function() {
+                        //return new util.HDate(this.type,hd.clone(this.beginDate),hd.clone(this.endDate));
+                    },
+                    /**
+                     * @doc : determines if two HArticle are equals (same id)
+                     * @param {HArticle} hArticle
+                     * @returns {boolean}
+                     */
+                    equals : function(hArticle) {
+                        return this.id === hArticle.id;
+                    },
+                    /**
+                     * @doc : function aimed to finalize constitution of new HArticle created by parsing JSon
+                     */
+                    finalize : function(){
+                        let jsonStr = null;
+                        if(this.beginHDate !== null){
+                            if(typeof this.beginHDate === "object"){jsonStr = JSON.stringify(this.beginHDate);}
+                            else{jsonStr = this.beginHDate;}
+                            this.beginHDate = hd.prototype.parseFromJson(jsonStr);
+                        }
+                        if(this.endHDate !== null){
+                            if(typeof this.endHDate === "object"){jsonStr = JSON.stringify(this.endHDate);}
+                            else{jsonStr = this.endHDate;}
+                            this.endHDate = hd.prototype.parseFromJson(jsonStr);
+                        }
+                    },
+                    /**
+                     * @doc HArticle json parser/creator function : returns the HArticle generated from its JSON representation
+                     * @param {string} jsonStr
+                     * @returns {HArticle}
+                     */
+                    parseFromJson : function(jsonStr)
+                    {
+                        let jsonObj = JSON.parse(jsonStr);
+                        let hArticle = new hb.util.HArticle();
+                        for(var key in hArticle) {
+                            if(jsonObj.hasOwnProperty(key)){
+                                hArticle[key] = jsonObj[key];
+                            }
+                        }
+                        return hArticle;
+                    },
+                    /**
+                     * @doc HArticle json parser/creator function : returns the HArticle generated from its JSON representation
+                     * @param {string} jsonStr
+                     * @returns {HArticle}
+                     */
+                    mapFromObject : function(jsonStr)
+                    {
+                        let jsonObj = JSON.parse(jsonStr);
+                        let hArticle = new hb.util.HArticle();
+                        for(var key in hArticle) {
+                            if(jsonObj.hasOwnProperty(key)){
+                                hArticle[key] = jsonObj[key];
+                            }
+                        }
+                        return hArticle;
+                    }
+                };
+                Object.assign(util.HArticle.prototype,_prototype);
+
+                console.log(_moduleName + " loaded");
+                return util;
+            }(hb.util || {}));
+
+            let _loadedModules = ((typeof hb.getLoadedModules==="function")?hb.getLoadedModules():[]);
+            _loadedModules.push(_moduleName);
+            hb.getLoadedModules = function() {
+                return _loadedModules;
+            }
+            return hb;
+        }(hb || {}));
+
+        hb = (function (hb,$) {
+            "use strict";
+            var _moduleName = "ui:HArticleModal/HArticleModal.js";
+            if(((typeof hb.getLoadedModules==="function"?hb.getLoadedModules():[])).includes(_moduleName)) {
+                console.log(_moduleName + " already loaded, skipping");
+                return hb;
+            }
+            hb.ui = (function (ui,hb,$) {
+                var _requiredModules = ["util:cmn/cmn.js","util:HArticle/HArticle.js",
+                    "util:trans/translation.js","util:HDate/HDate.js"];
+
+                /**
+                 * @doc setDefaultOption for HArticleModal
+                 * @param option
+                 * @returns {object}
+                 * @private
+                 */
+                let _setDefaultOption = function(option) {
+                    option.z = option.z || 7;
+                    option.fadeTime = option.fadeTime || 250;
+                    option.title = option.title || "Nouvel article";
+                    option.groups = option.groups || ["minimal"];
+                    return option;
+                };
+                /**
+                 * @doc apply options to HArticleModal
+                 * @param {hb.ui.HArticleModal} modal
+                 * @private
+                 */
+                let _applyOption = function(modal){
+                    let $modal = modal.$modal;
+                };
+                /**
+                 * @doc builds modal container
+                 * @private
+                 */
+                let _build = function() {
+                    //id="modal-article2"
+                    //aria-labelledby="Article"
+                    let $modal = $("<div class=\"modal fade\" " +
+                        "role=\"dialog\">").appendTo('body');
+                    $modal.alerts=[];
+                    $modal.container = $("<div class=\"modal-dialog modal-lg\" role=\"document\">").appendTo($modal);
+                    $modal.content = $("<div class=\"modal-content\">").appendTo($modal.container);
+
+                    $modal.header = $("<div class=\"modal-header\">").appendTo($modal.content);
+                    $modal.title = $("<h4 class=\"modal-title\">Modal Header</h4>").appendTo($modal.header);
+                    $modal.header.append("<button type=\"button\" class=\"close\" data-dismiss=\"modal\">&times;</button>");
+
+                    $modal.body = $("<div class=\"modal-body\">").appendTo($modal.content);
+                    $modal.detail = $("<div class= \"hb-detail\">").appendTo($modal.body);
+                    $modal.form = $("<div class= \"hb-form\">").appendTo($modal.body);
+
+                    $modal.footer = $("<div class=\"modal-footer\">").appendTo($modal.content);
+                    $modal.footer.append("<button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>");
+                    return $modal;
+                };
+
+                let _addEditButton = function($modal){
+                    $modal.editButton = $('<a class="edit" title="Edition rapide"><i class="fa fa-pencil"></i></a>');
+                    $modal.editButton.insertAfter($modal.title);
+                    return $modal.editButton;
+                };
+
+                /**
+                 * @doc refresh HDatePicker
+                 * @param {hb.ui.HDatePicker} picker
+                 * @param {boolean} total - if true type and input values are updated from the current hdate value
+                 * @private
+                 */
+                let _refresh = function(picker,total = false)
+                {
+                    let $modal = picker.$modal;
+                    let type = $modal.typeSelector.find(":selected").val();
+                    $modal.inputLabel.text(hb.util.trans.PARSING_HELP[type]);
+                    $modal.dateLabel.empty();
+                    $modal.dateInterval.empty();
+                    if(total){$modal.dateInput.empty();}
+                    if(picker.hDate !== null){
+                        if(total){
+                            $modal.dateInput.val(picker.hDate.getCanonicalInput());
+                            $modal.typeSelector.val(picker.hDate.type);
+                        }
+                        $modal.dateInput.attr("placeholder",hb.util.trans.PARSING_PLACEHOLDERS[type]);
+                        $modal.dateLabel.text(picker.hDate.getLabel());
+                        $modal.dateInterval.text(picker.hDate.getIntervalLabel());
+                    }
+                    $modal.validateButton.button("enable").removeClass("ui-state-error");
+                    $modal.validateButton.children().first().removeClass("fa-exclamation-triangle").addClass("fa-check");
+                    $modal.errorSpan.hide();
+                    $modal.validateButton.show();
+
+                    // if date value is empty validation icon isn"t displayed
+                    // if($modal.dateInput.val() === "" ){$modal.validateButton.hide();}
+                    if(picker.errors.length > 0 ){
+                        $modal.validateButton.button("disable").addClass("ui-state-error");
+                        $modal.validateButton.children().first().removeClass("fa-check").addClass("fa-exclamation-triangle");
+                        $modal.errorSpan.show();
+                        $modal.errorSpan.text(picker.errors[0]);
+                    }
+                };
+
+
+
+                let _detailGroupBuilder = {
+                    /**
+                     * @doc builds minimal part of article for HArticleModal
+                     * @param {jQuery} $target
+                     * @private
+                     */
+                    buildMinimal : function($target) {
+                        let groupLabel = 'minimal';
+                        let attrs = $target.hAttributes;
+                        let parentGroup = null;
+                        let $group = $("<div class=\"row\">").appendTo($target);
+                        $target.hGroups[groupLabel] = $group;
+                        $group.childrenContainers = [];
+
+                        let $col = $("<div class=\"col-md-6\">").appendTo($group);
+                        let $area = $("<div class=\"container-fluid\">").appendTo($col);
+                        let $sRow = $("<div class=\"row\">").appendTo($area);
+                        attrs["type"] = $("<h5 data-label='Type : '>").appendTo($sRow);
+                        $group.childrenContainers["date"] = $sRow;
+                        $group.childrenContainers["detailImage"] = $("<div class=\"col-md-5 ml-auto\">").appendTo($group);
+                        return $group;
+                    },
+                    buildDate : function($target) {
+                        let groupLabel = 'date';
+                        let attrs = $target.hAttributes;
+                        let parentGroup = 'minimal';
+                        let $group = $target.hGroups[parentGroup].childrenContainers[groupLabel];
+                        $target.hGroups[groupLabel] = $group;
+                        $group.childrenContainers = [];
+
+                        attrs["beginHDate"] = $("<h5 data-label='Date de début : '>").appendTo($group);
+                        attrs["endHDate"] = $("<h5 data-label='Date de fin : '>").appendTo($group);
+
+                        return $group;
+                    },
+                    buildDetailImage : function($target) {
+                        let groupLabel = 'detailImage';
+                        let attrs = $target.hAttributes;
+                        let parentGroup = 'minimal';
+                        let $group = $target.hGroups[parentGroup].childrenContainers[groupLabel];
+                        $target.hGroups[groupLabel] = $group;
+                        $group.childrenContainers = [];
+
+                        let $thumbnail = $("<a href=\"#\" class=\"thumbnail\">").appendTo($group);
+                        let $img = $("<img src=\"/images/420a08a_user2-160x160_1.jpg\" alt=\"...\">").appendTo($thumbnail);
+
+                        return $group;
+                    },
+                    buildAbstract : function($target) {
+                        let groupLabel = 'abstract';
+                        let attrs = $target.hAttributes;
+                        let parentGroup = null;
+                        let $group = $("<div class=\"row\">").appendTo($target);
+                        $target.hGroups[groupLabel] = $group;
+                        $group.childrenContainers = [];
+
+                        let $row = $("<div class=\"row\">").insertAfter($group);
+                        let $col = $("<div class=\"col-md-12\">").appendTo($row);
+                        attrs["abstract"] = $("<div class=\"well well-lg\">").appendTo($col);
+                        return $group;
+                    }
+                };
+
+                /**
+                 * @doc HArticleDetailBuilder constructor
+                 * @class hb.ui.HArticleDetailBuilder
+                 */
+                ui.HArticleDetailBuilder = function() {return this;};
+                Object.assign(ui.HArticleDetailBuilder.prototype,{
+                    /**
+                     * @param {jQuery} $target
+                     * @param groups
+                     * @return array
+                     */
+                    build:function($target,groups=['minimal']){
+                        if(typeof $target.hAttributes === 'undefined'){$target.hAttributes=[];}
+                        if(typeof $target.hGroups === 'undefined'){$target.hGroups=[];}
+                        console.log(groups);
+                        $.each(groups,function(key,value){
+                            console.log(value);
+                            if(typeof (_detailGroupBuilder["build" + hb.util.cmn.capitalize(value)]) !== 'function'){
+                                throw "Group " + value + " doesn't exist for HArticleDetail";
+                            }
+                            _detailGroupBuilder["build" + hb.util.cmn.capitalize(value)]($target);
+                        });
+                        return groups;
+                    }
+                });
+                let _detailBuilder = new ui.HArticleDetailBuilder();
+
+                let _detailGroupMediator = {
+                    /** @type {jQuery} */
+                    $target:null,
+                    /** @type {hb.util.HArticle} */
+                    object:null,
+                    /**
+                     * @doc mediates minimal part of hArticle to HArticleDetail
+                     * @private
+                     */
+                    mapMinimal : function() {
+                        let groupLabel = 'minimal';
+                        let attrs = this.$target.detail.hAttributes;
+                        this.$target.title.text(this.object.title);
+                        attrs.type.text(attrs.type.data('label') + this.object.type.label);
+                    },
+                    mapDate : function() {
+                        let groupLabel = 'date';
+                        let attrs = this.$target.detail.hAttributes;
+                        attrs.beginHDate.text(attrs.beginHDate.data('label') +
+                            ((this.object.beginHDate != null)?this.object.beginHDate.getLabel():"-"));
+                        attrs.endHDate.text(attrs.endHDate.data('label') +
+                            ((this.object.endHDate != null)?this.object.endHDate.getLabel():"-"));
+                    },
+                    mapDetailImage : function() {
+                    },
+                    mapAbstract : function() {
+                        let groupLabel = 'abstract';
+                        let attrs = this.$target.detail.hAttributes;
+
+                        if(! $.inArray('abstract',this.object.groups)){
+                           console.log(groupLabel + " ins't loaded");
+                        }
+                        attrs.abstract.html(hb.util.cmn.convertPlainTextToParagraphed(this.object.abstract));
+                    }
+                };
+
+                /**
+                 * @doc HArticleFormBuilder constructor
+                 * @class hb.ui.HArticleFormBuilder
+                 */
+                ui.HArticleFormBuilder = function() {return this;};
+                Object.assign(ui.HArticleFormBuilder.prototype,{
+                    /**
+                     * @param {jQuery} $target
+                     * @param groups
+                     * @return array
+                     */
+                    build:function($target,groups=['minimal']){
+                        console.log("building form");
+
+                        let $form = $("div#hb-data form[name='article_dto']");
+                        console.log($form);
+                        console.log($form.length>0);
+                        if($form.length!==1){return [];}
+
+                        $form.detach().appendTo($target);
+
+                        console.log("groupes de formulaire : " + $form.data("groups"));
+
+                        return $form.data("groups");
+                    }
+                });
+                let _formBuilder = new ui.HArticleFormBuilder();
+
+                /**
+                 * @doc HArticleDetailMediator constructor
+                 * @class hb.ui.HArticleDetailMediator
+                 */
+                ui.HArticleDetailMediator = function() {
+                    /** @type {jQuery} */
+                    this.$target=null;
+                    /** @type {hb.util.HArticle} */
+                    this.object=null;
+                    return this;
+                };
+                Object.assign(ui.HArticleDetailMediator.prototype,{
+                    /**
+                     * @param groups
+                     * @return array
+                     */
+                    map:function(groups=['minimal']){
+                        console.log(this.$target.detail.hGroups);
+                        _detailGroupMediator.$target = this.$target;
+                        _detailGroupMediator.object = this.object;
+                        console.log(this);
+                        let unloadedGroups = [];
+                        let object = this.object;
+
+
+                        $.each(groups,function(key,value){
+                            console.log(value);
+                            if(typeof (_detailGroupMediator["map" + hb.util.cmn.capitalize(value)]) !== 'function'){
+                                throw "Group " + value + " doesn't exist for HArticleMediator";
+                            }
+                            _detailGroupMediator["map" + hb.util.cmn.capitalize(value)]();
+                            if($.inArray(value,object.groups)<0){unloadedGroups.push(value);}
+                        });
+                        console.log("unloaded" + unloadedGroups);
+                        if(! $.isEmptyObject(unloadedGroups)){this.load(unloadedGroups);}
+                        return groups;
+                    },
+                    load:function(groups){
+                        let object = this.object;
+                        let $target = this.$target;
+                        if(object.urlBag === null || object.urlBag.info === null){return;}
+                        let $loadingSpinner = $("<div class=\"col-md-1\"><div class='hb-spinner fast' style='display:-moz-inline-box'></div>").
+                            prependTo($target.body);
+                        $.ajax({
+                            url: object.urlBag.info,
+                            data: {groups:groups},
+                            dataType:'json',
+                            error: function(jqXHR,textStatus,errorThrown){
+                                let status = "error";
+                                let msg = textStatus + " - " + errorThrown;
+                                if(textStatus === "timeout"){
+                                    status = "warning";
+                                    msg = "Le serveur prend trop de temps à répondre. Reessayez dans quelques instants.";
+                                }
+                                hb.ui.misc.alert(status,msg,$target.body);
+                            },
+                            complete: function(){
+                                $loadingSpinner.toggle(300,function() { $(this).remove(); });
+                            },
+                            timeout:1000,
+                            success: function(response) {
+                                    if(response.status !== "success"){$target.alerts.push(hb.ui.misc.alert(response.status,response.message,$target.body));}
+                                    if(response.status === "error"){return;}
+                                    console.log(response);
+                                    $.extend(object,response.data);
+                                    $.merge(object.groups,groups);
+                                    $.each(groups,function(key,value){
+                                        _detailGroupMediator["map" + hb.util.cmn.capitalize(value)]();
+                                    });
+
+                            }
+                        });
+
+                    }
+                });
+                let _detailMediator = new ui.HArticleDetailMediator();
+
+                let _inputMapper = {
+                    getStrValue:function(value){
+                        if(typeof value !== 'object'){return value;}
+                        return JSON.stringify(value);
+                    },
+                    mapInput:function(value,$element){
+                        if($element.attr('type') === "checkbox"){return this.mapInputCheckbox(value,$element);}
+                        $element.val(this.getStrValue(value)).trigger("hb.load");
+                    },
+                    mapInputCheckbox:function(value,$element){
+                        if(value !== false){$element.prop( "checked", true).trigger("hb.load");}
+                        else{$element.prop( "checked", false ).trigger("hb.load");}
+                    },
+                    mapSelect:function(value,$element){
+                        let selectValue = $element.find("option:first").val();
+                        if(typeof value === 'object' &&
+                            typeof value.id !== 'undefined' &&
+                                $element.find("option[value='"+ value.id +"']").length > 0
+                        ){
+                            selectValue = value.id;
+                        }
+                        $element.val(selectValue).prop('selected', true).trigger("hb.load");
+                    },
+                    mapTextarea:function(value,$element){
+                        $element.text(this.getStrValue(value)).trigger("hb.load");
+                    },
+                    unMapInput:function($element){
+                        if($element.attr('type') === "checkbox"){return this.unMapInputCheckbox($element);}
+                        $element.val("").trigger("hb.unload");
+                    },
+                    unMapInputCheckbox:function($element){
+                        $element.prop( "checked", false ).trigger("hb.unload");
+                    },
+                    unMapSelect:function($element){
+                        let selectValue = $element.find("option:first").val();
+                        $element.val(selectValue).prop('selected', true).trigger("hb.unload");
+                    },
+                    unMapTextarea:function($element){
+                        $element.text("").trigger("hb.unload");
+                    },
+                    returnInput:function($element,value){
+                        if($element.attr('type') === "checkbox"){return this.returnInputCheckbox($element,value);}
+                        if($element[0].hasAttribute('data-hb-value')){return $element[0].getAttribute('data-hb-value');}
+                        return value.value;
+                    },
+                    returnInputCheckbox:function($element,value){
+                        if($element[0].hasAttribute('data-hb-value')){return $element[0].getAttribute('data-hb-value');}
+                        return value.value;
+                    },
+                    returnSelect:function($element,value){
+                        if($element[0].hasAttribute('data-hb-value')){return $element[0].getAttribute('data-hb-value');}
+                        return {id:value.value,label:$element.find('option[value="'+ value.value +'"]').text()};
+                    },
+                    returnTextarea:function($element,value){
+                        if($element[0].hasAttribute('data-hb-value')){return $element[0].getAttribute('data-hb-value');}
+                        return value.value
+                    }
+                };
+
+                /**
+                 * @doc SfFormMediator constructor
+                 * @class hb.ui.SfFormMediator
+                 */
+                ui.SfFormMediator = function() {
+                    /** @type {jQuery} */
+                    this.$target=null;
+                    /** @type {hb.util.HArticle} */
+                    this.object=null;
+                    return this;
+                };
+
+                Object.assign(ui.SfFormMediator.prototype,{
+                    /**
+                     * @return array
+                     */
+                    map:function(){
+                        let unloadedGroups = [];
+                        let object = this.object;
+                        let groups = object.groups;
+                        let $form = this.$target.form;
+                        this.unMap($form);
+                        let $rows = $form.find("[data-hb-group*='hb-group-']");
+
+
+                        let objectGroupsIterator = function(key,value){
+                            console.log("[data-hb-group='hb-group-"+ value + "']");
+                            let $rowGroup = $rows.filter("[data-hb-group='hb-group-"+ value + "']");
+                            //console.log(value);
+                            console.log("$rowGroup");
+                            console.log($rowGroup);
+                            $.each($rowGroup,formGroupIterator);
+                        };
+
+                        let formGroupIterator = function(key,value){
+                            //console.log(value);
+                            let $controls = $(value).find(".form-control,.form-check-input");
+                            $.each($controls,objectAttributeMediator);
+                        };
+
+                        let objectAttributeMediator = function(key,value){
+                            let $control = $(value);
+                            let attributeName = $control.attr('id').split('_');
+                            attributeName = attributeName[attributeName.length-1];
+                            console.log(attributeName);
+                            if(typeof object[attributeName] !=='undefined'){
+                                let attribute = object[attributeName];
+                                let nodeType = hb.util.cmn.capitalize($control.get(0).nodeName.toLowerCase());
+
+                                if(typeof _inputMapper["map"+nodeType] !== 'undefined'){
+                                    _inputMapper["map"+nodeType](attribute,$control);
+                                }
+                            }
+
+                        };
+                        $.each(groups,objectGroupsIterator);
+                        return groups;
+                    },
+                    /**
+                     * @doc reinitialize fields of the forms in order to prevent weird meltings between objects
+                     * @return array
+                     */
+                    unMap:function(){
+                        let $form = this.$target.form;
+
+                        $form.find(".form-control,.form-check-input").each(function(key,value){
+                            let $control = $(value);
+                            let nodeType = hb.util.cmn.capitalize($control.get(0).nodeName.toLowerCase());
+                            _inputMapper["unMap"+nodeType]($control);
+                        });
+                        return true;
+                    },
+                    /**
+                     * @doc return data of form both to associated object and the server
+                     * @param data form data as an array
+                     * @return array
+                     */
+                    return:function(data){
+                        let $form = this.$target.form;
+                        let object = this.object;
+                        let $controls = $form.find(".form-control,.form-check-input");
+                        let formName = "";
+                        data.forEach(function(value){
+                            if(value.name.indexOf(['[_token]']) !== -1) {formName = value.name.replace('[_token]','');}
+                        });
+                        console.log("formName : " + formName);
+                        let formObject = {};
+                        let localObject = {};
+                        let $control = {};
+                        let attributeName="";
+
+                        data.forEach(function(value){
+                            if(value.name.indexOf(['[_token]']) !== -1) {
+                                formObject['_token'] = value.value;
+                                return;
+                            }
+                            attributeName = value.name.replace(formName + '[','').replace(']','');
+                            $control = $controls.filter("#" + formName + "_" + attributeName);
+                            let nodeType = hb.util.cmn.capitalize($control.get(0).nodeName.toLowerCase());
+                            if(typeof _inputMapper["return"+nodeType] !== 'undefined'){
+                                localObject[attributeName] = _inputMapper["return"+nodeType]($control,value);
+                            }
+                            else{localObject[attributeName] = value.value;}
+                            formObject[attributeName]  = localObject[attributeName];
+                            if(nodeType === 'Select'){formObject[attributeName] = formObject[attributeName].id;}
+                        });
+                        console.log("data a transmettre");
+                        console.log(formObject);
+                        if(object.urlBag.postEdit !== null){
+                            console.log(object.urlBag.postEdit);
+                            this.submitToServer(object,formObject,localObject);
+                        }
+                        else{
+                            this.submitToLocal(object,localObject);
+                        }
+                        return [];
+                    },
+                    submitToServer:function(object,formObject,localObject){
+                        let $target = this.$target;
+                        let $this = this;
+                        $.ajax({
+                            method:'POST',
+                            url: object.urlBag.postEdit,
+                            data: {groups:object.groups,form:formObject},
+                            dataType:'json',
+                            error: function(jqXHR,textStatus,errorThrown){
+                                let status = "error";
+                                let msg = textStatus + " - " + errorThrown;
+                                if(textStatus === "timeout"){
+                                    status = "warning";
+                                    msg = "Le serveur prend trop de temps à répondre. Reessayez dans quelques instants.";
+                                }
+                                hb.ui.misc.alert(status,msg,$target.body);
+                            },
+                            complete: function(){},
+                            timeout:1000,
+                            success: function(response) {
+                                $target.alerts.push(hb.ui.misc.alert(response.status,response.message,$target.body));
+                                console.log(response);
+                                if(response.status === "error"){return;}
+                                $this.submitToLocal(object,localObject);
+                            }
+                        });
+
+                    },
+                    submitToLocal:function(object,localObject){
+                        Object.keys(localObject).map(function(key, index) {
+                            if(typeof object[key] === 'undefined'){return;}
+                            object[key] = localObject[key];
+                        });
+                        if(typeof object["finalize"] !== 'undefined'){
+                            object.finalize();
+                        }
+                    }
+
+                });
+                let _formMediator = new ui.SfFormMediator();
+
+                //let _formMediator = ui.manager.get("sfFormMediator");
+
+
+                /**
+                 * @doc HArticleModal modal constructor
+                 * @class hb.ui.HArticleModal
+                 * @param {object} option
+                 */
+                ui.HArticleModal = function(option = {}) {
+                    this.option = _setDefaultOption(option);
+                    this.errors=[];
+                    this.object=null;
+                    this.$modal = _build();
+
+                    this.builtGroups=_detailBuilder.build(this.$modal.detail,this.option.groups);
+                    //this.builtGroups = ['minimal','date','abstract'];
+                    let $this = this;
+                    this.$modal.editButton = _addEditButton(this.$modal);
+                    this.$modal.editButton.on("click",function(){
+                        $this.$modal.editButton.hide();
+                        $this.$modal.detail.hide();
+                        $this.$modal.find(".hb-alert").remove();
+                        $this.$modal.form.show();
+                        $this.formMediator.map();
+                    });
+                    this.formBuiltGroups=_formBuilder.build(this.$modal.form,this.option.groups);
+                    this.$modal.form.find("#cancel").on("click",function(){
+                        $this.$modal.form.hide();
+                        $this.$modal.editButton.show();
+                        $this.$modal.find(".hb-alert").remove();
+                        $this.$modal.detail.show();
+                        $this.refreshDetail();
+                    });
+                    this.mediator.$target = this.$modal;
+                    this.formMediator.$target = this.$modal;
+                    console.log(this.$modal.form);
+                    this.$modal.form.find("form").on("submit",function(event,element){
+                        event.preventDefault();
+                        event.stopPropagation();
+                        console.log("submitted form");
+                        console.log(event);
+                        console.log($(event.target).serializeArray().slice());
+                        $this.formMediator.return($(event.target).serializeArray().slice(),$this.object.urlBag.postEdit);
+                    });
+                    _applyOption(this);
+                    return this;
+                };
+
+                let _prototype = {
+                    mediator:_detailMediator,
+                    formMediator:_formMediator,
+                    bind : function(object) {
+                        this.object = object;
+                        this.mediator.object = object;
+                        this.formMediator.object = object;
+                        console.log(this.mediator.object);
+                        console.log(this.mediator);
+                        this.refreshDetail();
+                        this.$modal.form.hide();
+                        this.$modal.editButton.show();
+                        this.$modal.detail.show();
+                    },
+                    refreshDetail:function(){
+                        this.mediator.map(this.builtGroups);
+                    },
+                    unbind : function() {
+                        if(this.$element === null){return;}
+                        let $element = this.$element;
+                        console.log("unbind");
+                        this.$modal.dialog("close");
+                        this.$element=null;
+                        setTimeout(function(){$($element).removeClass("hb-enabled");}, 40);
+                    }
+                };
+                Object.assign(ui.HArticleModal.prototype,_prototype);
+
+                console.log(_moduleName + " loaded");
+                return ui;
+            }(hb.ui || {},hb,$));
+
+            let _loadedModules = ((typeof hb.getLoadedModules==="function")?hb.getLoadedModules():[]);
+            _loadedModules.push(_moduleName);
+            hb.getLoadedModules = function() {
+                return _loadedModules;
+            }
+            return hb;
+        }(hb || {},$));
+
+
+        articleModal = new hb.ui.HArticleModal({groups:["minimal","date","abstract"]});
+
+        articleModal.$modal.on('show.bs.modal', function () {
+            console.log("modal shown !");
+            //hb.ui.manager.get("hdatepicker").$modal.appendTo(articleModal.$modal);
+        });
+
+        const $table = $('#table');
+        const $remove = $('#remove');
+        let selections = [];
+
+        function initTable() {
+            $table.bootstrapTable({
+                idField:'id',
+                responseHandler:function(res) {
+                    console.log(res.rows);
+                    for(let i=0;i<res.rows.length;i++){
+                        Object.setPrototypeOf(res.rows[i], hb.util.HArticle.prototype);
+                        res.rows[i].finalize();
+                    }
+                    console.log(res);
+                return res;
+                },
+                rowAttributes:function(row, index) {
+                    return {};
+                    //return {"data-value":JSON.stringify(row)};
+                },
+                height: getHeight(),
+                columns: [
+                    [
+                        {
+                            field: 'title',
+                            title: 'Titre',
+                            sortable: true,
+                            editable: false,
+                            align: 'center'
+                        },
+                        {
+                            field: 'type.label',
+                            title: 'Type',
+                            sortable: true,
+                            editable: false,
+                            align: 'center'
+                        },
+                        {
+                            field: 'beginHDate',
+                            title: 'Date de début',
+                            sortable: true,
+                            editable: false,
+                            align: 'center',
+                            formatter:function(value, row, index, field) {
+                                if(value === null) return '-';
+                                //let hDate = hb.util.HDate.prototype.parseFromJson(JSON.stringify(value));
+                                return value.getLabel();
+                            }
+                        },
+                        {
+                            field: 'endHDate',
+                            title: 'Date de fin',
+                            sortable: true,
+                            editable: false,
+                            align: 'center',
+                            formatter:function(value, row, index, field) {
+                                if(value === null) return '-';
+                                return value.getLabel();
+                            }
+                        },
+                        {
+                            field: 'actions',
+                            title: 'Actions',
+                            align: 'center',
+                            events: {
+                                'click .like': function (e, value, row, index) {
+                                    console.log(value);
+                                    console.log(row);
+                                    console.log(articleModal.$modal);
+                                    console.log($("#modal-article"));
+                                    //$("#modal-article").modal();
+                                    //$("#modal-article").modal();
+
+                                    articleModal.bind(row);
+                                    articleModal.$modal.modal();
+
+
+                                    //alert(`You click lol action, row: ${JSON.stringify(row)}`);
+                                },
+                                'click .remove': function(e, value, {id}, index) {
+                                    $table.bootstrapTable('remove', {
+                                        field: 'id',
+                                        values: [id]
+                                    });
+                                }
+                            },
+                            formatter: function(value, row, index) {
+                                let edit = "javascript:void(0)";
+                                if (row.urlBag !== null) edit = row.urlBag.edit;
+                                let info = "javascript:void(0)";
+                                if (row.urlBag !== null) info = row.urlBag.info;
+
+                                return [
+                                    '<a class="like" href="javascript:void(0)" title="Preview">',
+                                    '<i class="fa fa-info-circle"></i>',
+                                    '</a> ',
+                                    '<a class="like" href="javascript:void(0)" title="See">',
+                                    '<i class="fa fa-eye"></i>',
+                                    '</a> ',
+                                    '<a class="like" href="'+ edit + '"  title="Edit">',
+                                    '<i class="fa fa-edit"></i>',
+                                    '</a> ',
+                                    '<a class="remove" href="javascript:void(0)" disabled title="Remove">',
+                                    '<i class="fa fa-remove"></i>',
+                                    '</a>'
+                                ].join('');
+                            }
+                        }
+                    ]
+                ]
+            });
+            // sometimes footer render error.
+            setTimeout(() => {
+                $table.bootstrapTable('resetView');
+            }, 200);
+            $table.on('check.bs.table uncheck.bs.table ' +
+                'check-all.bs.table uncheck-all.bs.table', () => {
+                $remove.prop('disabled', !$table.bootstrapTable('getSelections').length);
+
+                // save your data, here just save the current page
+                selections = getIdSelections();
+                // push or splice the selections if you want to save all data selections
+            });
+            $table.on('expand-row.bs.table', (e, index, row, $detail) => {
+                if (index % 2 == 1) {
+                    $detail.html('Loading from ajax request...');
+                    $.get('LICENSE', res => {
+                        $detail.html(res.replace(/\n/g, '<br>'));
+                    });
+                }
+            });
+            $table.on('all.bs.table', (e, name, args) => {
+                //console.log(name, args);
+            });
+            $remove.click(() => {
+                const ids = getIdSelections();
+                $table.bootstrapTable('remove', {
+                    field: 'id',
+                    values: ids
+                });
+                $remove.prop('disabled', true);
+            });
+            $(window).resize(() => {
+                $table.bootstrapTable('resetView', {
+                    height: getHeight()
+                });
+            });
+        }
+
+
+
+        function getIdSelections() {
+            return $.map($table.bootstrapTable('getSelections'), ({id}) => id);
+        }
+
+        function getHeight() {
+            return $(window).height() - $('h1').outerHeight(true);
+        }
+
+        $(() => {
+            initTable();
+        })
+
+    </script>
+{% endblock%}
+
+{% block data %}
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button id="{{ form.vars.id }}_save" name="{{ form.vars.id }}[save]" type="submit" class="btn btn-primary">Enregistrer</button>
+    <a id="cancel" name="cancel" class="btn btn-default">Retour <i class="fa fa-info-circle"></i></a>
+    {{ form_end(form) }}
 {% endblock %}

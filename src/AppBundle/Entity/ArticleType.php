@@ -2,10 +2,8 @@
 
 namespace AppBundle\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use AppBundle\Repository;
 
 /**
  * ArticleType
@@ -18,20 +16,19 @@ class ArticleType
     const EVENT=1;
     const CHARACTER=2;
     const THEME=3;
+    const PLACE=4;
 
     /**
      * @var int
      * @ORM\Column(name="id", type="bigint")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Groups("group1")
      */
     private $id;
 
     /**
      * @var string
      * @ORM\Column(name="label", type="string", length=50, unique=true)
-     * @Groups("group1")
      */
     private $label;
 
@@ -43,7 +40,7 @@ class ArticleType
     /**
      * Get id
      * @return int
-     * @Groups("group1")
+     * @Groups({"type","minimal"})
      */
     public function getId()
     {
@@ -64,7 +61,7 @@ class ArticleType
     /**
      * Get label
      * @return string
-     * @Groups("group1")
+     * @Groups({"type"})
      */
     public function getLabel()
     {

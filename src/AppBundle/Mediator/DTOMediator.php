@@ -12,6 +12,8 @@ namespace AppBundle\Mediator;
 use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\Entity\DTOMutableEntity;
 use AppBundle\Mapper\EntityMapper;
+use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\Routing\Router;
 
 abstract class DTOMediator
 {
@@ -31,12 +33,12 @@ abstract class DTOMediator
     private $pendingSetEntity;
     /** @var boolean */
     protected $pendingSetMapper;
-    /** @var boolean */
-    protected $pendingSetting;
     /** @var string */
     protected $password;
     /** @var string */
     protected $formTypeClassName;
+    /** @var Router */
+    protected $router;
 
     /**
      * DTOBuilder constructor.
@@ -48,7 +50,6 @@ abstract class DTOMediator
         $this->pendingSetDTO = false;
         $this->pendingSetEntity = false;
         $this->pendingSetMapper = false;
-        $this->pendingSetting = false;
         $this->password = static::generateSalt();
     }
 
@@ -73,7 +74,7 @@ abstract class DTOMediator
         $this->dto = $dto;
         if($this->dto !== null) $this->dto->setMediator($this);
         $this->pendingSetDTO = false;
-        return $this;
+        return $this->resetChangedProperties();
     }
 
     /**
@@ -94,7 +95,7 @@ abstract class DTOMediator
         $this->entity = $entity;
         if($this->entity !== null) $this->entity->setMediator($this);
         $this->pendingSetEntity = false;
-        return $this;
+        return $this->resetChangedProperties();
     }
 
     /**
@@ -137,13 +138,12 @@ abstract class DTOMediator
      * @throws NullColleagueException
      * @return self
      */
-    public function setDTOGroup(String $group){
+    public function mapDTOGroup(String $group){
         if($this->dto === null) throw new NullColleagueException("DTO must be instanciated to build its groups");
         if($this->entity === null) throw new NullColleagueException("Entity must be specified to receive data");
-        if(! in_array($group,array_keys($this->groups))){
+        if(! in_array($group,$this->groups)){
             throw new NotAvailableGroupException("Group " . $group . " is not available for DTOMediator " . self::class);
         }
-        $this->pendingSetting = true;
         return $this;
     }
 
@@ -153,9 +153,9 @@ abstract class DTOMediator
      * @throws NullColleagueException
      * @return self
      */
-    public function setDTOGroups(array $groups){
+    public function mapDTOGroups(array $groups){
         foreach($groups as $group){
-            $this->setDTOGroup($group);
+            $this->mapDTOGroup($group);
         }
         return $this;
     }
@@ -165,10 +165,8 @@ abstract class DTOMediator
      * @return self
      */
     public function notifyChangeOfProperty($name){
-        if(! $this->pendingSetting){
-            if(! in_array($name,$this->changedProperties)){
+        if(! in_array($name,$this->changedProperties)){
                 $this->changedProperties[] = $name;
-            }
         }
         return $this;
     }
@@ -237,4 +235,27 @@ abstract class DTOMediator
         }
         return substr(md5($salt),0,255);
     }
+
+    /**
+     * @return Router
+     */
+    public function getRouter()
+    {
+        return $this->router;
+    }
+
+    /**
+     * @param Router $router
+     * @return DTOMediator
+     */
+    public function setRouter(Router $router): DTOMediator
+    {
+        $this->router = $router;
+        return $this;
+    }
+
+
+
+
+
 }

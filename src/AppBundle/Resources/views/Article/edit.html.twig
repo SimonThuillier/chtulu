@@ -1,14 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% form_theme form 'bootstrap_4_horizontal_layout.html.twig' %}
-
 {% block title %}
 {{ articleDto.title }}
 {% endblock %}
 
 
 {% block stylesheets %}
-{% stylesheets '@AppBundle/Resources/hbase/hts/css/hts.css'
+{% stylesheets '@AppBundle/Resources/hbase/css/hbase.css'
   filter='cssrewrite' %}
 <link rel="stylesheet" href="{{ asset_url }}" />
 

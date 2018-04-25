@@ -2,39 +2,28 @@
 namespace AppBundle\Controller;
 
 use AppBundle\DTO\ArticleDTO;
-use AppBundle\Entity\User;
 use AppBundle\Factory\ArticleFactory;
+use AppBundle\Form\ArticleDTOType;
+use AppBundle\Helper\BootstrapListHelper;
 use AppBundle\Mapper\ArticleMapper;
 use AppBundle\Mediator\ArticleDTOMediator;
+use AppBundle\Serializer\ArticleDTOSerializer;
+use AppBundle\Utils\HJsonResponse;
+use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use AppBundle\Entity\Article;
-use AppBundle\Form\ArticleMainType;
-use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Symfony\Component\Form\FormBuilderInterface;
 use AppBundle\Factory\ArticleDTOFactory;
-use AppBundle\Form\ArticleModalType;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Routing\Router;
 use AppBundle\Helper\ArticleHelper;
-use AppBundle\Entity\ArticleType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use AppBundle\Repository\ArticleRepository;
 use AppBundle\Processor\GenericProcessor;
 use AppBundle\Listener\SearchArticleFormListener;
-use AppBundle\Helper\DateHelper;
-use AppBundle\Entity\DateType;
-use AppBundle\Factory\HDateFactory;
-use AppBundle\Utils\HDate;
-use AppBundle\Mapper\AutoMapper;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use AppBundle\Serializer\HDateSerializer;
+use Symfony\Component\Validator\ValidatorBuilder;
 
 /**
  *
@@ -56,13 +45,13 @@ class ArticleController extends Controller
         $mediator
             ->setEntity($entityFactory->create($this->getUser()))
             ->setDTO($dtoFactory->create($this->getUser()))
-            ->setDTOGroups($groups);
+            ->mapDTOGroups($groups);
         $form = $this
             ->get('form.factory')
             ->createBuilder($mediator->getFormTypeClassName(),$mediator->getDTO(),[
                 'validation_groups'=>$groups])
             ->add('save',SubmitType::class)
-            ->setAction($this->generateUrl("post_article_create"))
+            ->setAction($this->generateUrl("article_post_create"))
             ->getForm();
 
         return $this->render('@AppBundle/Article/create.html.twig',array(
@@ -74,7 +63,7 @@ class ArticleController extends Controller
     }
 
     /**
-     * @Route("/post-create",name="post_article_create")
+     * @Route("/post-create",name="article_post_create")
      * @Method({"POST"})
      */
     public function postCreateAction(Request $request,
@@ -87,7 +76,7 @@ class ArticleController extends Controller
         $mediator
             ->setEntity($entityFactory->create($this->getUser()))
             ->setDTO($dtoFactory->create($this->getUser()))
-            ->setDTOGroups($groups);
+            ->mapDTOGroups($groups);
         $form = $this
             ->get('form.factory')
             ->createBuilder($mediator->getFormTypeClassName(),$mediator->getDTO(),[
@@ -115,13 +104,14 @@ class ArticleController extends Controller
     public function editAction(Request $request,
                                Article $article,
                                  ArticleDTOFactory $dtoFactory,
-                                 ArticleDTOMediator $mediator)
+                                 ArticleDTOMediator $mediator,
+                                Router $router)
     {
         $groups = ['minimal','abstract','date'];
         $mediator
             ->setEntity($article)
             ->setDTO($dtoFactory->create($this->getUser()))
-            ->setDTOGroups($groups);
+            ->mapDTOGroups($groups);
         $form = $this
             ->get('form.factory')
             ->createBuilder($mediator->getFormTypeClassName(),$mediator->getDTO(),[
@@ -131,6 +121,7 @@ class ArticleController extends Controller
             ->getForm();
         /** @var ArticleDTO $articleDto */
         $articleDto = $mediator->getDTO();
+
 
         return $this->render('@AppBundle/Article/create.html.twig',array(
             'form' => $form->createView(),
@@ -142,7 +133,7 @@ class ArticleController extends Controller
     }
 
     /**
-     * @Route("/post-edit/{article}",name="post_article_edit")
+     * @Route("/post-edit/{article}",name="article_post_edit")
      * @ParamConverter("article", class="AppBundle:Article")
      * @Method({"POST"})
      */
@@ -152,30 +143,36 @@ class ArticleController extends Controller
                                      ArticleDTOMediator $mediator,
                                      ArticleMapper $mapper)
     {
-        $groups = ['minimal','abstract','date'];
-        $mediator
-            ->setEntity($article)
-            ->setDTO($dtoFactory->create($this->getUser()))
-            ->setDTOGroups($groups);
-        $form = $this
-            ->get('form.factory')
-            ->createBuilder($mediator->getFormTypeClassName(),$mediator->getDTO(),[
-                'validation_groups'=>$groups])
-            ->add('save',SubmitType::class)
-            ->getForm();
+        $hResponse = new HJsonResponse();
+        $groups = $request->get("groups",['minimal']);
+        $groups = array_diff($groups,["url"]);
+        $groups=['minimal','date','abstract'];
+        try{
+            $mediator
+                ->setEntity($article)
+                ->setDTO($dtoFactory->create($this->getUser()))
+                ->mapDTOGroups($groups);
+            $form = $this
+                ->get('form.factory')
+                ->createBuilder($mediator->getFormTypeClassName(),$mediator->getDTO(),[
+                    'validation_groups'=>$groups])
+                ->add('save',SubmitType::class)
+                ->getForm();
 
-        $mediator
-            ->resetChangedProperties()
-            ->setMapper($mapper);
-        $form->handleRequest($request);
-        if (! $form->isValid()) {
-            return new JsonResponse("Echec Edition article, formulaire invalide");
-
-            //return $this->redirectToRoute("article_create");
+            $mediator
+                ->resetChangedProperties()
+                ->setMapper($mapper);
+            $form->submit($request->request->get("form"));
+            $errors = $this->get('validator')->validate($mediator->getDTO());
+            if (! $form->isValid() || count($errors)>0)
+            {throw new \Exception("Le formulaire contient des erreurs à corriger avant validation" . $errors);}
+            $mapper->edit();
+            $hResponse->setMessage("L'article a bien été mis à jour !");
         }
-
-        $mapper->edit();
-        return new JsonResponse("Edition article OK");
+        catch(\Exception $e){
+            $hResponse->setStatus(HJsonResponse::ERROR)->setMessage($e->getMessage());
+        }
+        return new JsonResponse(HJsonResponse::normalize($hResponse));
     }
 
 
@@ -196,23 +193,101 @@ class ArticleController extends Controller
      */
     public function listAction(Request $request,GenericProcessor $processor,SearchArticleFormListener $listener)
     {
-        /** @var Session $session */
-        $session = $this->get('session');
+        $form = $this
+            ->get('form.factory')
+            ->createBuilder(ArticleDTOType::class,null,[
+                'validation_groups'=>['minimal','date','abstract']
+            ])
+            ->getForm();
 
-        if($request->getMethod() === 'GET' && $session->has('articleListResponse')){
-            $page = $session->get('articleListResponse');
-            $session->remove('articleListResponse');
-            return new Response($page);
+
+
+        return $this->render('@AppBundle/Article/list.html.twig',["form"=>$form->createView()]);
+
+
+
+
+
+//        /** @var Session $session */
+//        $session = $this->get('session');
+//
+//        if($request->getMethod() === 'GET' && $session->has('articleListResponse')){
+//            $page = $session->get('articleListResponse');
+//            $session->remove('articleListResponse');
+//            return new Response($page);
+//        }
+//        else if($request->getMethod() === 'POST'){
+//            $result = $processor->addSubscriber($listener)->process($request);
+//            $session->set('articleListResponse',$this->get('templating')->render('@AppBundle/Article/list.html.twig',$result));
+//            return new JsonResponse(['success'=>true]);
+//        }
+//        // default GET behaviour
+//        /** @var Event $result */
+//        $result = $processor->addSubscriber($listener)->process($request);
+//        return $this->render('@AppBundle/Article/list.html.twig',$result);
+    }
+
+    /**
+     * @Route("/get-list-data",name="article_getlistdata")
+     * @Method({"GET","POST"})
+     */
+    public function getListDataAction(Request $request,
+                                      ManagerRegistry $doctrine,
+                                      ArticleDTOFactory $dtoFactory,
+                                      ArticleDTOMediator $mediator,
+                                      ArticleDTOSerializer $serializer,
+                                      Router $router)
+    {
+        $groups = ['minimal','date','url'];
+        $articles = $doctrine->getRepository(Article::class)->findAll();
+        $articleDtos = [];
+
+        foreach($articles as $article){
+            $articleDtos[] =  $mediator
+                ->setEntity($article)
+                ->setDTO($dtoFactory->create($this->getUser()))
+                ->setRouter($router)
+                ->mapDTOGroups($groups)
+                ->getDTO();
         }
-        else if($request->getMethod() === 'POST'){
-            $result = $processor->addSubscriber($listener)->process($request);
-            $session->set('articleListResponse',$this->get('templating')->render('@AppBundle/Article/list.html.twig',$result));
-            return new JsonResponse(['success'=>true]);
+
+        $groups = array_merge($groups,['groups','type']);
+        return new JsonResponse(BootstrapListHelper::getNormalizedListData($articleDtos,$serializer,$groups));
+    }
+
+    /**
+     * @Route("/view/{article}",name="article_view")
+     * @Method({"GET"})
+     *
+     */
+    public function viewAction(Article $article){
+        return new JsonResponse(["test" => "lol"]);
+    }
+
+
+
+    /**
+     * @Route("/get-data/{article}",name="article_getdata")
+     * @Method({"GET"})
+     *
+     */
+    public function getDataAction(Request $request,Article $article,  ArticleDTOFactory $dtoFactory,
+                                  ArticleDTOMediator $mediator,ArticleDTOSerializer $serializer){
+
+        $hResponse = new HJsonResponse();
+        $groups = $request->get("groups",['minimal']);
+        try{
+            $articleDto = $mediator
+                ->setEntity($article)
+                ->setDTO($dtoFactory->create($this->getUser()))
+                ->mapDTOGroups($groups)
+                ->getDTO();
+            $hResponse->setData($serializer->normalize($articleDto,$groups));
         }
-        // default GET behaviour
-        /** @var Event $result */
-        $result = $processor->addSubscriber($listener)->process($request);
-        return $this->render('@AppBundle/Article/list.html.twig',$result);
+        catch(\Exception $e){
+            $hResponse->setStatus(HJsonResponse::ERROR)->setMessage($e->getMessage());
+        }
+        return new JsonResponse(HJsonResponse::normalize($hResponse));
     }
 
 

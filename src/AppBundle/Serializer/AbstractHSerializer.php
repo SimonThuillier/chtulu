@@ -3,15 +3,16 @@
 namespace AppBundle\Serializer;
 
 use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Symfony\Component\Serializer\Normalizer\PropertyNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Doctrine\ORM\Mapping\ClassMetadataFactory;
+use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 
-abstract class AbstractHSerializer implements HSerializerInterface
+abstract class AbstractHSerializer implements HSerializer
 {
     /**
      * @var ManagerRegistry
@@ -21,10 +22,6 @@ abstract class AbstractHSerializer implements HSerializerInterface
      * @var SerializerInterface $serializer
      *  */
     protected $serializer;
-    /**
-     * @var mixed $mainFactory
-     */
-    protected $mainFactory;
     /**
      * 
      * @var array
@@ -51,26 +48,16 @@ abstract class AbstractHSerializer implements HSerializerInterface
     /**
      * 
      * @param ManagerRegistry $doctrine
-     * @param SerializerInterface $serializer
-     * @param mixed $mainFactory
      */
-    public function __construct(ManagerRegistry $doctrine,
-        SerializerInterface $serializer,$mainFactory)
+    public function __construct(ManagerRegistry $doctrine)
     {
         $this->doctrine = $doctrine;
-        $this->serializer = $serializer;
-        
-        $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
-        $encoders = array(new JsonEncoder());
-        $normalizers = array(new ObjectNormalizer());
-        $this->serializer = new Serializer($normalizers,$encoders);
-        $this->mainFactory = $mainFactory;
     }
     
     /**
      * 
      * {@inheritDoc}
-     * @see \AppBundle\Serializer\HSerializerInterface::getClass()
+     * @see \AppBundle\Serializer\HSerializer::getClass()
      */
     public function getClassNames(){
        return $this->classNames;
@@ -78,7 +65,7 @@ abstract class AbstractHSerializer implements HSerializerInterface
 
     /**
      * {@inheritdoc}
-     * @see \AppBundle\Serializer\HSerializerInterface::serialize()
+     * @see \AppBundle\Serializer\HSerializer::serialize()
      * @param mixed $object
      * @throws SerializationException
      */
@@ -105,12 +92,13 @@ abstract class AbstractHSerializer implements HSerializerInterface
      * @return string
      */
     public function encode($normalizedObject){
-        return json_encode($normalizedObject);
+        return $this->serializer->encode($normalizedObject,'json');
+        //return json_encode();
     }
 
     /**
      * {@inheritdoc}
-     * @see \AppBundle\Serializer\HSerializerInterface::deserialize()
+     * @see \AppBundle\Serializer\HSerializer::deserialize()
      * @param string $object
      * @throws DeserializationException
      */

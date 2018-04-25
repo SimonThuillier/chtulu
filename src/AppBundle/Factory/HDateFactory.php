@@ -31,8 +31,9 @@ class HDateFactory
      * @param DateType $type
      * @param \DateTime $date
      * @param \DateTime|null $endDate
+     * @return self
      */
-    private function setData(DateType $type,\DateTime $date,$endDate = null)
+    public function setData(DateType $type,\DateTime $date,$endDate = null)
     {
         $this->object->setBeginDate($date->setTime(0, 0));
         $this->object->setEndDate(($endDate !== null)?$endDate->setTime(0, 0):null);
@@ -74,5 +75,26 @@ class HDateFactory
                 break;
             default:break;
         }
+        return $this;
     }
+
+    /**
+     * @return HDate
+     */
+    public function getObject()
+    {
+        return $this->object;
+    }
+
+    /**
+     * @param HDate $object
+     * @return self
+     */
+    public function setObject($object)
+    {
+        $this->object = $object;
+        return $this;
+    }
+
+
 }

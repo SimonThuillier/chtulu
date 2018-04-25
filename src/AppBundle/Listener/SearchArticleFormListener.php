@@ -105,7 +105,7 @@ class SearchArticleFormListener extends AbstractFormListener
             $this->mediator
                 ->setEntity($article)
                 ->setDTO($dto)
-                ->setDTOGroups(['minimal','date']);
+                ->mapDTOGroups(['minimal','date']);
         }
 
 

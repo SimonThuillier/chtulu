@@ -33,7 +33,7 @@ var hb = (function (hb,$) {
             option.z = option.z || 7;
             option.fadeTime = option.fadeTime || 250;
             option.title = option.title || hb.util.trans.HDATEPICKER_DEFAULT_TITLE;
-            option.position = option.position || { my: "left top", at: "left bottom", of: null };
+            option.position = option.position || { my: "left top", at: "left top", of: null };
             return option;
         };
         /**
@@ -51,7 +51,7 @@ var hb = (function (hb,$) {
          * @param {jQuery} $modal
          * @private
          */
-        let _build = function($modal) {
+        let _build = function($modal){
             $modal.append("<label class='mx-2'><DATE_TYPE></label>&nbsp;");
             $('.ui-dialog-titlebar-close').append("<i class=\"fa fa-times-circle\"></i>");
             $modal.typeSelector = $("<select class='ui-corner-all'>").appendTo($modal);
@@ -186,12 +186,12 @@ var hb = (function (hb,$) {
             if(picker.errors.length > 0) {return;}
             if(! picker.hDate){
                 picker.$element.first().val("");
-                picker.$element.first().attr("data-hdate","");
+                picker.$element.first().attr("data-hb-value","");
                 picker.$element.first().change();
                 return;
             }
             picker.$element.first().val(picker.hDate.getLabel());
-            picker.$element.first().attr("data-hdate",JSON.stringify(picker.hDate));
+            picker.$element.first().attr("data-hb-value",JSON.stringify(picker.hDate));
             picker.$element.first().change();
         };
         /**
@@ -223,7 +223,7 @@ var hb = (function (hb,$) {
             $modal.validateButton.on("click", function() {_onValidate(picker);});
             $modal.on("focusout", function(event)
             {
-                if(picker.mouseOn){
+                if(picker.mouseOn || picker.preventedFocusout===true){
                     event.stopPropagation();
                     event.preventDefault();
                     return;
@@ -249,13 +249,16 @@ var hb = (function (hb,$) {
             this.$element=null;
             this.hDate=null;
             this.mouseOn = false;
+            this.preventedFocusout=false;
+            let picker = this;
             this.$modal =  $("<div>").dialog({
                 autoOpen: false,
-                dialogClass: "hb-modal-z" + this.option.z,
+                dialogClass: "hb-hdate-widget hb-modal-z" + this.option.z,
                 show: {
                     effect: "fade",
                     duration: this.option.fadeTime
-                }
+                },
+                close:function(){picker.unbind();}
             });
             _build(this.$modal);
             _applyOption(this);
@@ -266,30 +269,32 @@ var hb = (function (hb,$) {
         let _prototype = {
             bind : function($element) {
                 console.log($element);
-                if($element === null){return;}
                 this.unbind();
+                if($element === null){return;}
                 this.$element=$element;
                 $element.addClass( "hb-enabled");
-                console.log($element);
-                this.option.position = { my: "left top", at: "left bottom", of: $element };
+                this.option.position = { my: "left top", at: "left top", of: $element };
                 if(typeof ($element.first().attr("data-label")) !== "undefined"){
                     this.option.title = this.$element.first().attr("data-label");}
 
-                if(typeof ($element.first().attr("data-hdate")) !== "undefined" && $element.first().attr("data-hdate") !== ""){
-                    this.hDate = hb.util.HDate.prototype.parseFromJson($element.first().attr("data-hdate"));
+                if(typeof ($element.first().attr("data-hb-value")) !== "undefined" && $element.first().attr("data-hb-value") !== ""){
+                    this.hDate = hb.util.HDate.prototype.parseFromJson($element.first().attr("data-hb-value"));
                 }
                 else if (this.hDate !== null){this.hDate = this.hDate.clone();}
                 _refresh(this,true);
                 _applyOption(this);
+                this.preventedFocusout=true;
+                let picker = this;
+                setTimeout(function() {picker.preventedFocusout=false;}, 500);
+
                 this.$modal.dialog("open");
             },
             unbind : function() {
                 if(this.$element === null){return;}
                 let $element = this.$element;
-                console.log("unbind");
+                $(function(){$($element).removeClass("hb-enabled");}).delay(30);
                 this.$modal.dialog("close");
                 this.$element=null;
-                setTimeout(function(){$($element).removeClass("hb-enabled");}, 40);
             }
         };
         Object.assign(ui.HDatePicker.prototype,_prototype);
@@ -309,22 +314,27 @@ var hb = (function (hb,$) {
                         hb.ui.manager.get("hdatepicker").bind($element);
                     }
                 }
-                $element.ready(function(){
-                    console.log($element);
-;                   if($element.val() && ! $element.attr("data-hdate")){
-                        $element.attr("data-hdate",$element.val());
-                        let hDate = hb.util.HDate.prototype.parseFromJson($element.attr("data-hdate"));
+                function convertValue(){
+                    console.log($element.val() === "null");
+                    if($element.val() && $element.val() !== "null" && ! $element.attr("data-hb-value")){
+                        $element.attr("data-hb-value",$element.val());
+                        let hDate = hb.util.HDate.prototype.parseFromJson($element.attr("data-hb-value"));
                         $element.val(hDate.getLabel());
                     }
                     $element.addClass("hb-initialized");
-                })
-                .on("focus",function(){enableDatePicker();})
-                .on("keyup",function(){enableDatePicker();})
+                }
+                function eraseValue(){
+                    $element.removeClass("hb-initialized").removeAttr("data-hb-value");
+                }
+
+
+                $element.ready(convertValue).on("hb.load",convertValue).on("hb.unload",eraseValue)
+                .on("focus keyup",function(){enableDatePicker();})
                 .change(function(){
                     let $element = $(this).first();
-                    if($element.attr("data-hdate") === "undefined" || $element.attr("data-hdate") === null ||
-                        $element.attr("data-hdate") === "") return;
-                    let hDate = hb.util.HDate.prototype.parseFromJson($element.attr("data-hdate"));
+                    if($element.attr("data-hb-value") === "undefined" || $element.attr("data-hb-value") === null ||
+                        $element.attr("data-hb-value") === "") return;
+                    let hDate = hb.util.HDate.prototype.parseFromJson($element.attr("data-hb-value"));
                     //if(hDate === null){
                         //hDate = new hb.util.HDate("1",new Date());
                         $element.hDate = hDate;
@@ -336,26 +346,26 @@ var hb = (function (hb,$) {
                         $partner = $("#" + $element.attr("data-date-ender"));
                         if(! $partner.hasClass("hb-hdatepicker") ) return;
 
-                        if(typeof $partner.attr("data-hdate") !== "undefined" && $partner.attr("data-hdate") !== null &&
-                            $partner.attr("data-hdate") !== ""){
-                            partnerHDate =  hb.util.HDate.parseFromJson($partner.attr("data-hdate"));
+                        if(typeof $partner.attr("data-hb-value") !== "undefined" && $partner.attr("data-hb-value") !== null &&
+                            $partner.attr("data-hb-value") !== ""){
+                            partnerHDate =  hb.util.HDate.parseFromJson($partner.attr("data-hb-value"));
                         }
                         if(partnerHDate === null || partnerHDate.endDate < hDate.endDate){
                             newPartnerHDate = new hb.util.HDate("1",hDate.endDate);
-                            $partner.attr("data-hdate",JSON.stringify(newPartnerHDate));
+                            $partner.attr("data-hb-value",JSON.stringify(newPartnerHDate));
                             $partner.val(newPartnerHDate.label);
                         }
                     }
                     else if(typeof $element.attr("data-date-beginner") !== "undefined"){
                         $partner = $("#" + $element.attr("data-date-beginner"));
                         if(! $partner.hasClass("hb-hdatepicker") ) return;
-                        if(typeof $partner.attr("data-hdate") !== "undefined" && $partner.attr("data-hdate") !== null &&
-                            $partner.attr("data-hdate") !== ""){
-                            partnerHDate =  hb.util.HDate.parseFromJson($partner.attr("data-hdate"));
+                        if(typeof $partner.attr("data-hb-value") !== "undefined" && $partner.attr("data-hb-value") !== null &&
+                            $partner.attr("data-hb-value") !== ""){
+                            partnerHDate =  hb.util.HDate.parseFromJson($partner.attr("data-hb-value"));
                         }
                         if(partnerHDate === null || partnerHDate.beginDate > hDate.beginDate){
                             newPartnerHDate = new hb.util.HDate("1",hDate.beginDate);
-                            $partner.attr("data-hdate",JSON.stringify(newPartnerHDate));
+                            $partner.attr("data-hb-value",JSON.stringify(newPartnerHDate));
                             $partner.val(newPartnerHDate.label);
                         }
                     }

@@ -14,6 +14,8 @@ use AppBundle\Entity\Article;
 use AppBundle\Form\ArticleDTOType;
 use AppBundle\Helper\DateHelper;
 use AppBundle\Utils\HDate;
+use AppBundle\Utils\UrlBag;
+use Symfony\Component\Routing\Generator\UrlGenerator;
 
 class ArticleDTOMediator extends DTOMediator
 {
@@ -23,7 +25,7 @@ class ArticleDTOMediator extends DTOMediator
     public function __construct()
     {
         parent::__construct();
-        $this->groups = ['minimal'=>false,'abstract'=>false,'date'=>false];
+        $this->groups = ['minimal','abstract','date','type','url'];
         $this->formTypeClassName = ArticleDTOType::class;
     }
 
@@ -33,49 +35,48 @@ class ArticleDTOMediator extends DTOMediator
      * @throws NullColleagueException
      * @return self
      */
-    public function setDTOGroup(String $group)
+    public function mapDTOGroup(String $group)
     {
-        parent::setDTOGroup($group);
-        $function = 'setDTO' . ucfirst($group) . 'Group';
+        parent::mapDTOGroup($group);
+        $function = 'mapDTO' . ucfirst($group) . 'Group';
         $this->$function();
 
         return $this;
     }
 
-    private function setDTOMinimalGroup()
+    private function mapDTOMinimalGroup()
     {
         /** @var Article $article */
         $article = $this->entity;
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
         $dto
-            ->setEntityId($article->getId())
+            ->setId($article->getId())
             ->setTitle($article->getTitle())
             ->setType($article->getType())
-            ->setAbstract($article->getAbstract());
-        $this->pendingSetting = false;
-        $this->groups['minimal'] = true;
+            ->addMappedGroup('minimal');
+        // ensure mapped children are loaded
+        $article->getType()->getLabel();
     }
 
-    private function setDTOAbstractGroup()
+    private function mapDTOAbstractGroup()
     {
         /** @var Article $article */
         $article = $this->entity;
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
         $dto
-            ->setAbstract($article->getAbstract());
-        $this->pendingSetting = false;
-        $this->groups['abstract'] = true;
+            ->setAbstract($article->getAbstract())
+            ->addMappedGroup('abstract');
     }
 
-    private function setDTODateGroup()
+    private function mapDTODateGroup()
     {
         /** @var Article $article */
         $article = $this->entity;
         $beginHDate = ($article->getBeginDateType() !== null)?new HDate():null;
         $endHDate = ($article->getEndDateType() !== null)?new HDate():null;
-        $hasEndDate = false;
+        $hasEndDate = $article->getId()>0?false:true;
 
         if($beginHDate !== null){
             $beginHDate
@@ -96,9 +97,25 @@ class ArticleDTOMediator extends DTOMediator
         $dto
             ->setBeginHDate($beginHDate)
             ->setEndHDate($endHDate)
-            ->setHasEndDate($hasEndDate);
-        $this->pendingSetting = false;
-        $this->groups['date'] = true;
+            ->setHasEndDate($hasEndDate)
+            ->addMappedGroup('date');
+    }
+
+    private function mapDTOUrlGroup()
+    {
+        /** @var Article $article */
+        $article = $this->entity;
+        /** @var ArticleDTO $dto */
+        $dto = $this->dto;
+
+        if ($dto->getUrlBag() === null){$dto->setUrlBag(new UrlBag());}
+        $dto->getUrlBag()
+            ->setView($this->router->generate("article_view",["article"=>$article]))
+            ->setEdit($this->router->generate("article_edit",["article"=>$article]))
+            ->setPostEdit($this->router->generate("article_post_edit",["article"=>$article]))
+            ->setInfo($this->router->generate("article_getdata",["article"=>$article]));
+
+        $dto->addMappedGroup('url');
     }
 
     protected function mediateBeginHDate(){

@@ -22,7 +22,21 @@ var hb = (function (hb) {
              * @return {string}
              */
             capitalize: function (str) {
-                return str.charAt(0).toUpperCase() + this.slice(1);
+                return str.charAt(0).toUpperCase() + str.slice(1);
+            },
+            /**
+             * @doc convert plain text in html paragraphed text, with paragraph for each line breaks
+             * @param {string} str
+             * @return {string}
+             */
+            convertPlainTextToParagraphed: function (str) {
+                if(str === null) return null;
+                let splitText = str.split("\r\n");
+
+                $.each(splitText,function(key,value){
+                    splitText[key] = '<p>' + value + '</p>';
+                });
+                return splitText.join('');
             },
             /**
              * @doc converts an integer (arabic 10 base) to the corresponding roman number
