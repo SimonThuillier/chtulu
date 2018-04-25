@@ -112,11 +112,16 @@
                      * @doc : function aimed to finalize constitution of new HArticle created by parsing JSon
                      */
                     finalize : function(){
+                        let jsonStr = null;
                         if(this.beginHDate !== null){
-                            this.beginHDate = hd.prototype.parseFromJson(JSON.stringify(this.beginHDate ));
+                            if(typeof this.beginHDate === "object"){jsonStr = JSON.stringify(this.beginHDate);}
+                            else{jsonStr = this.beginHDate;}
+                            this.beginHDate = hd.prototype.parseFromJson(jsonStr);
                         }
                         if(this.endHDate !== null){
-                            this.endHDate = hd.prototype.parseFromJson(JSON.stringify(this.endHDate ));
+                            if(typeof this.endHDate === "object"){jsonStr = JSON.stringify(this.endHDate);}
+                            else{jsonStr = this.endHDate;}
+                            this.endHDate = hd.prototype.parseFromJson(jsonStr);
                         }
                     },
                     /**
@@ -562,19 +567,19 @@
                     },
                     returnInput:function($element,value){
                         if($element.attr('type') === "checkbox"){return this.returnInputCheckbox($element,value);}
-                        if($element[0].hasAttribute('data-hb-value')){return $element.data("hb-value");}
+                        if($element[0].hasAttribute('data-hb-value')){return $element[0].getAttribute('data-hb-value');}
                         return value.value;
                     },
                     returnInputCheckbox:function($element,value){
-                        if($element[0].hasAttribute('data-hb-value')){return $element.data("hb-value");}
+                        if($element[0].hasAttribute('data-hb-value')){return $element[0].getAttribute('data-hb-value');}
                         return value.value;
                     },
                     returnSelect:function($element,value){
-                        if($element[0].hasAttribute('data-hb-value')){return $element.data("hb-value");}
+                        if($element[0].hasAttribute('data-hb-value')){return $element[0].getAttribute('data-hb-value');}
                         return {id:value.value,label:$element.find('option[value="'+ value.value +'"]').text()};
                     },
                     returnTextarea:function($element,value){
-                        if($element[0].hasAttribute('data-hb-value')){return $element.data("hb-value");}
+                        if($element[0].hasAttribute('data-hb-value')){return $element[0].getAttribute('data-hb-value');}
                         return value.value
                     }
                 };
@@ -683,6 +688,8 @@
                             }
                             else{localObject[attributeName] = value.value;}
                             formObject[attributeName]  = localObject[attributeName];
+                            console.log("attribute : " + attributeName);
+                            console.log(localObject[attributeName]);
                             if(nodeType === 'Select'){formObject[attributeName] = formObject[attributeName].id;}
                             //if($control[0].hasAttribute('data-hb-value')){value.value = $control.attr("data-hb-value");}
                         });
@@ -755,14 +762,19 @@
                     this.builtGroups=_detailBuilder.build(this.$modal.detail,this.option.groups);
                     //this.builtGroups = ['minimal','date','abstract'];
                     let $this = this;
-                    _addEditButton(this.$modal).on("click",function(){
+                    this.$modal.editButton = _addEditButton(this.$modal);
+                    this.$modal.editButton.on("click",function(){
+                        $this.$modal.editButton.hide();
                         $this.$modal.detail.hide();
+                        $this.$modal.find(".hb-alert").remove();
                         $this.$modal.form.show();
                         $this.formMediator.map();
                     });
                     this.formBuiltGroups=_formBuilder.build(this.$modal.form,this.option.groups);
                     this.$modal.form.find("#cancel").on("click",function(){
                         $this.$modal.form.hide();
+                        $this.$modal.editButton.show();
+                        $this.$modal.find(".hb-alert").remove();
                         $this.$modal.detail.show();
                         $this.refreshDetail();
                     });
@@ -998,6 +1010,6 @@
     {{ form_start(form) }}
     {{ form_widget(form) }}
     <button id="{{ form.vars.id }}_save" name="{{ form.vars.id }}[save]" type="submit" class="btn btn-primary">Enregistrer</button>
-    <a id="cancel" name="cancel" class="btn btn-default">Annuler</a>
+    <a id="cancel" name="cancel" class="btn btn-default">Retour <i class="fa fa-info-circle"></i></a>
     {{ form_end(form) }}
 {% endblock %}
