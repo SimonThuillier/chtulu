@@ -188,8 +188,8 @@ abstract class DTOMediator
     }
 
     /**
-     * @doc this function returns data of mediator DTO to it's entity
-     * @doc it's protected so that only the colleague mapper of the mediator can call it
+     * this function returns data of mediator DTO to it's entity
+     * it's protected so that only the colleague mapper of the mediator can call it
      * @var string $password
      * @return array
      * @throws NullColleagueException

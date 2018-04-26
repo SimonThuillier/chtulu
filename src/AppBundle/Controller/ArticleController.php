@@ -23,6 +23,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use AppBundle\Processor\GenericProcessor;
 use AppBundle\Listener\SearchArticleFormListener;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Validator\ValidatorBuilder;
 
 /**
@@ -145,7 +148,7 @@ class ArticleController extends Controller
     {
         $hResponse = new HJsonResponse();
         $groups = $request->get("groups",['minimal']);
-        $groups = array_diff($groups,["url"]);
+        $errors=[];
         $groups=['minimal','date','abstract'];
         try{
             $mediator
@@ -165,12 +168,16 @@ class ArticleController extends Controller
             $form->submit($request->request->get("form"));
             $errors = $this->get('validator')->validate($mediator->getDTO());
             if (! $form->isValid() || count($errors)>0)
-            {throw new \Exception("Le formulaire contient des erreurs à corriger avant validation" . $errors);}
+            {
+                throw new \Exception("Le formulaire contient des erreurs à corriger avant validation");
+            }
             $mapper->edit();
             $hResponse->setMessage("L'article a bien été mis à jour !");
         }
         catch(\Exception $e){
-            $hResponse->setStatus(HJsonResponse::ERROR)->setMessage($e->getMessage());
+            $hResponse->setStatus(HJsonResponse::ERROR)
+                ->setMessage($e->getMessage())
+                ->setErrors(HJsonResponse::normalizeFormErrors($errors));
         }
         return new JsonResponse(HJsonResponse::normalize($hResponse));
     }
@@ -191,7 +198,14 @@ class ArticleController extends Controller
      * @Route("/list",name="article_list")
      * @Method({"GET","POST"})
      */
-    public function listAction(Request $request,GenericProcessor $processor,SearchArticleFormListener $listener)
+    public function listAction(Request $request,
+                               GenericProcessor $processor,
+                               SearchArticleFormListener $listener,
+                               ArticleDTOFactory $dtoFactory,
+                               ArticleFactory $entityFactory,
+                               ArticleDTOMediator $mediator,
+                               ArticleDTOSerializer $serializer,
+                               Router $router)
     {
         $form = $this
             ->get('form.factory')
@@ -200,9 +214,18 @@ class ArticleController extends Controller
             ])
             ->getForm();
 
+        $article=$entityFactory->create($this->getUser());
+        $groups = ['minimal','abstract','date'];
+        $articleDTO = $mediator
+            ->setEntity($article)
+            ->setDTO($dtoFactory->create($this->getUser()))
+            ->mapDTOGroups($groups)
+            ->getDTO();
+        $groups = array_merge($groups,['groups','type']);
+        $serializedArticleDTO = $serializer->encode($serializer->normalize($articleDTO,$groups));
 
 
-        return $this->render('@AppBundle/Article/list.html.twig',["form"=>$form->createView()]);
+        return $this->render('@AppBundle/Article/list.html.twig',["form"=>$form->createView(),"newArticleDTO" =>$serializedArticleDTO]);
 
 
 

@@ -191,7 +191,7 @@ class HDate
         $e2 = DateHelper::dateToIndex($hDate2->getEndDate());
 
         if($b1<$b2 && $e1<$b2){return -2;}
-        elseif($b1>$b2 && $e1>$b2){return 2;}
+        elseif($b1>$e2 && $e1>$e2){return 2;}
         elseif($b1<$b2 && $e1<$e2){return -1;}
         elseif($b1>$b2 && $e1>$e2){return 1;}
         else{return 0;}

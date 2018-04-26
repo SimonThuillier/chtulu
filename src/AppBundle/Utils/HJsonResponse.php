@@ -9,6 +9,9 @@
 namespace AppBundle\Utils;
 
 
+use Symfony\Component\Validator\ConstraintViolationInterface;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+
 class HJsonResponse
 {
     const SUCCESS="success";
@@ -116,6 +119,21 @@ class HJsonResponse
             "data" => $hResponse->getData(),
             "errors" =>$hResponse->getErrors()
         ];
+    }
+
+    static public function normalizeFormErrors(ConstraintViolationListInterface $errors){
+        $arrayErrors = [];
+        if(count($errors) === 0) return $arrayErrors;
+        /** @var ConstraintViolationInterface $error */
+        foreach($errors as $error){
+            if(array_key_exists($error->getPropertyPath(),$arrayErrors)){
+                $arrayErrors[$error->getPropertyPath()] = [$error->getMessage()];
+            }
+            else{
+                $arrayErrors[$error->getPropertyPath()][] = $error->getMessage();
+            }
+        }
+        return $arrayErrors;
     }
 
 

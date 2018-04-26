@@ -13,8 +13,12 @@
 {% endblock %}
 
 {%  block content %}
-    <p>la liste viendra ci-dessous</p>
 
+    <div id="toolbar" class="btn-group">
+        <button id="add-article" type="button"  class="btn btn-default">
+            <i class="glyphicon glyphicon-plus"></i>
+        </button>
+    </div>
     <table id="table"
            data-response-handler="responseHandler"
            data-detail-formatter="detailFormatter"
@@ -24,6 +28,7 @@
            data-id-field="id"
            data-page-list="[10, 25, 50, 100, ALL]"
            data-side-pagination="server"
+           data-toolbar="#toolbar"
            data-url="{{ path('article_getlistdata') }}"
            >
     </table>
@@ -566,6 +571,7 @@
 
                 let _inputMapper = {
                     getStrValue:function(value){
+                        if(value === null || value === "null"){return null;}
                         if(typeof value !== 'object'){return value;}
                         return JSON.stringify(value);
                     },
@@ -740,7 +746,13 @@
                         }
                         return [];
                     },
+                    clearForm:function(){
+                        let $target = this.$target.parent();
+                        $target.find(".hb-form-error").remove();
+                        $target.find(".hb-alert").remove();
+                    },
                     submitToServer:function(object,formObject,localObject){
+                        this.clearForm();
                         let $target = this.$target;
                         let $this = this;
                         $.ajax({
@@ -758,11 +770,30 @@
                                 hb.ui.misc.alert(status,msg,$target.body);
                             },
                             complete: function(){},
-                            timeout:1000,
+                            timeout:10000,
                             success: function(response) {
                                 $target.alerts.push(hb.ui.misc.alert(response.status,response.message,$target.body));
                                 console.log(response);
-                                if(response.status === "error"){return;}
+                                if(response.status === "error"){
+                                    if(response.errors !== null && typeof response.errors ==='object'){
+                                        Object.keys(response.errors).map(function(key, index) {
+                                            let $errorTarget = $target.find("[name$='["+ key +"]']");
+                                            let errorMsg = '';
+                                            //.closest(".form-group");
+                                            console.log($errorTarget);
+                                            for (var i in response.errors[key]){
+                                                errorMsg = response.errors[key][i];
+                                                console.log(errorMsg);
+                                                $("<li style='color:red' class='hb-form-error'>").html(errorMsg).
+                                                insertAfter($errorTarget);
+                                            }
+
+
+                                        });
+
+                                    }
+                                    return;
+                                }
                                 $this.submitToLocal(object,localObject);
                             }
                         });
@@ -776,12 +807,17 @@
                         if(typeof object["finalize"] !== 'undefined'){
                             object.finalize();
                         }
+                        if(typeof object.$bsTable !== 'undefined'){
+                            console.log(" et si je mettais à jour la table ?");
+                            object.$bsTable.bootstrapTable('updateRow', {index: object.localIndex, row: object});
+                        }
                     }
 
                 });
                 let _formMediator = new ui.SfFormMediator();
 
                 //let _formMediator = ui.manager.get("sfFormMediator");
+
 
 
                 /**
@@ -878,6 +914,7 @@
         });
 
         const $table = $('#table');
+        hb.util.HArticle.prototype.$bsTable =$table;
         const $remove = $('#remove');
         let selections = [];
 
@@ -889,6 +926,7 @@
                     for(let i=0;i<res.rows.length;i++){
                         Object.setPrototypeOf(res.rows[i], hb.util.HArticle.prototype);
                         res.rows[i].finalize();
+                        res.rows[i].localIndex = i;
                     }
                     console.log(res);
                 return res;
@@ -1040,6 +1078,23 @@
             initTable();
         })
 
+        let newHArticlePrototype = $("#data-new-article").html();
+        newHArticlePrototype = JSON.parse(newHArticlePrototype);
+        Object.setPrototypeOf(newHArticlePrototype, hb.util.HArticle.prototype);
+        newHArticlePrototype.finalize();
+        console.log(newHArticlePrototype);
+
+        $("#add-article").on("click",function(){
+            let newHArticle = {};
+            Object.assign(newHArticle,newHArticlePrototype);
+            articleModal.bind(newHArticle);
+            console.log(newHArticle);
+            articleModal.$modal.modal();
+        });
+
+
+
+
     </script>
 {% endblock%}
 
@@ -1049,4 +1104,5 @@
     <button id="{{ form.vars.id }}_save" name="{{ form.vars.id }}[save]" type="submit" class="btn btn-primary">Enregistrer</button>
     <a id="cancel" name="cancel" class="btn btn-default">Retour <i class="fa fa-info-circle"></i></a>
     {{ form_end(form) }}
+    <div id="data-new-article">{{ newArticleDTO }}</div>
 {% endblock %}
