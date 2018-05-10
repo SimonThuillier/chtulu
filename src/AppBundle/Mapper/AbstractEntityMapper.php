@@ -160,7 +160,7 @@ abstract class AbstractEntityMapper
     }
 
     /**
-     * @param integer|null $id
+     * @param int|null $id
      * @return Entity
      * @throws EntityMapperException
      * @throws NullColleagueException
@@ -178,30 +178,30 @@ abstract class AbstractEntityMapper
     }
 
     /**
-     * @param integer $id
+     * @param int $id
      * @throws EntityMapperException
      */
-    protected function checkDelete(integer $id)
+    protected function checkDelete(int $id)
     {
         $this->find($id);
     }
 
     /**
-     * @param integer $id
+     * @param int $id
      * @throws EntityMapperException
      */
-    protected function defaultDelete(integer $id)
+    protected function defaultDelete(int $id)
     {
         $entity = $this->find($id);
         $this->getManager()->remove($entity);
     }
 
     /**
-     * @param integer $id
+     * @param int $id
      * @return Entity
      * @throws EntityMapperException
      */
-    public function find(integer $id)
+    public function find(int $id)
     {
         $entity = $this->repository->find($id);
         if ($entity === null) {

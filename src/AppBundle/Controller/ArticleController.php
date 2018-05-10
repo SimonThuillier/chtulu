@@ -16,6 +16,8 @@ use AppBundle\Entity\Article;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use AppBundle\Factory\ArticleDTOFactory;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Router;
 use AppBundle\Helper\ArticleHelper;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -67,36 +69,55 @@ class ArticleController extends Controller
 
     /**
      * @Route("/post-create",name="article_post_create")
-     * @Method({"POST"})
+     * @Method({"POST","GET"})
      */
     public function postCreateAction(Request $request,
                                  ArticleDTOFactory $dtoFactory,
                                  ArticleFactory $entityFactory,
                                  ArticleDTOMediator $mediator,
-                                 ArticleMapper $mapper)
+                                 ArticleMapper $mapper,
+                                     Router $router,
+                                     ArticleDTOSerializer $serializer)
     {
-        $groups = ['minimal','abstract','date'];
-        $mediator
-            ->setEntity($entityFactory->create($this->getUser()))
-            ->setDTO($dtoFactory->create($this->getUser()))
-            ->mapDTOGroups($groups);
-        $form = $this
-            ->get('form.factory')
-            ->createBuilder($mediator->getFormTypeClassName(),$mediator->getDTO(),[
-                'validation_groups'=>$groups])
-            ->add('save',SubmitType::class)
-            ->getForm();
+        $hResponse = new HJsonResponse();
+        $groups = $request->get("groups",['minimal']);
+        $errors=[];
+        $groups=['minimal','date','abstract'];
+        $data = null;
+        try{
+            $mediator
+                ->setEntity($entityFactory->create($this->getUser()))
+                ->setDTO($dtoFactory->create($this->getUser()))
+                ->setRouter($router)
+                ->mapDTOGroups($groups);
+            $form = $this
+                ->get('form.factory')
+                ->createBuilder($mediator->getFormTypeClassName(),$mediator->getDTO(),[
+                    'validation_groups'=>$groups])
+                ->add('save',SubmitType::class)
+                ->getForm();
 
-        $mediator
-            ->resetChangedProperties()
-            ->setMapper($mapper);
-        $form->handleRequest($request);
-        if (! $form->isValid()) {
-            return new JsonResponse("Echec Ajout article, formulaire invalide");
+            $mediator
+                ->resetChangedProperties()
+                ->setMapper($mapper);
+            $form->submit($request->request->get("form"));
+            $errors = $this->get('validator')->validate($mediator->getDTO());
+            if (! $form->isValid() || count($errors)>0)
+            {
+                throw new \Exception("Le formulaire contient des erreurs à corriger avant creation");
+            }
+            $mapper->add();
+            $mediator->mapDTOGroup('url');
+            $hResponse
+                ->setMessage("L'article a été creé")
+                ->setData($serializer->normalize($mediator->getDTO(),['url']));
         }
-
-        $mapper->add();
-        return new JsonResponse("Ajout article OK");
+        catch(\Exception $e){
+            $hResponse->setStatus(HJsonResponse::ERROR)
+                ->setMessage($e->getMessage())
+                ->setErrors(HJsonResponse::normalizeFormErrors($errors));
+        }
+        return new JsonResponse(HJsonResponse::normalize($hResponse));
     }
 
     /**
@@ -172,7 +193,7 @@ class ArticleController extends Controller
                 throw new \Exception("Le formulaire contient des erreurs à corriger avant validation");
             }
             $mapper->edit();
-            $hResponse->setMessage("L'article a bien été mis à jour !");
+            $hResponse->setMessage("L'article a été mis à jour");
         }
         catch(\Exception $e){
             $hResponse->setStatus(HJsonResponse::ERROR)
@@ -182,6 +203,66 @@ class ArticleController extends Controller
         return new JsonResponse(HJsonResponse::normalize($hResponse));
     }
 
+
+
+    /**
+     * @Route("/cancel/{article}",name="article_cancel")
+     * @ParamConverter("article", class="AppBundle:Article")
+     * @Method({"POST"})
+     */
+    public function cancelAction(Request $request,
+                                 Article $article)
+    {
+        $this->get('session')->remove('processedConfirmation');
+        return new Response("OK");
+    }
+
+
+    /**
+     * @Route("/delete/{article}",name="article_delete")
+     * @ParamConverter("article", class="AppBundle:Article")
+     * @Method({"GET","POST"})
+     */
+    public function deleteAction(Request $request,
+                                   Article $article,
+                                   ArticleMapper $mapper)
+    {
+        $hResponse = new HJsonResponse();
+        /** @var Session $session */
+        $session = $this->get('session');
+
+        $confirm = null;
+        if(! $session->has('processedConfirmation')){
+            try{
+                $confirm = $mapper->confirmDelete($article->getId());
+                $session->set('processedConfirmation',$article->getId());
+            }
+            catch(\Exception $e){
+                $hResponse->setStatus(HJsonResponse::ERROR)
+                    ->setMessage($e->getMessage());
+                return new JsonResponse(HJsonResponse::normalize($hResponse));
+            }
+        }
+
+        if($confirm !== null){
+            $hResponse->setStatus(HJsonResponse::CONFIRM)
+                ->setMessage($confirm);
+            return new JsonResponse(HJsonResponse::normalize($hResponse));
+        }
+
+        // else we delete the article
+        $session->remove('processedConfirmation');
+        try{
+            $mapper->delete($article->getId());
+            $hResponse->setMessage("L'article a été supprimé");
+        }
+        catch(\Exception $e){
+            $hResponse->setStatus(HJsonResponse::ERROR)
+                ->setMessage($e->getMessage());
+            return new JsonResponse(HJsonResponse::normalize($hResponse));
+        }
+        return new JsonResponse(HJsonResponse::normalize($hResponse));
+    }
 
     /**
      * @Route("/get-json/{article}",name="article_get_json",requirements={"page": "\d+"})
@@ -207,6 +288,7 @@ class ArticleController extends Controller
                                ArticleDTOSerializer $serializer,
                                Router $router)
     {
+        $this->get('session')->remove('processedConfirmation');
         $form = $this
             ->get('form.factory')
             ->createBuilder(ArticleDTOType::class,null,[
@@ -215,10 +297,11 @@ class ArticleController extends Controller
             ->getForm();
 
         $article=$entityFactory->create($this->getUser());
-        $groups = ['minimal','abstract','date'];
+        $groups = ['minimal','abstract','date','url'];
         $articleDTO = $mediator
             ->setEntity($article)
             ->setDTO($dtoFactory->create($this->getUser()))
+            ->setRouter($router)
             ->mapDTOGroups($groups)
             ->getDTO();
         $groups = array_merge($groups,['groups','type']);

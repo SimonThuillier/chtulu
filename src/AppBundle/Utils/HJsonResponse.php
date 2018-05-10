@@ -18,6 +18,7 @@ class HJsonResponse
     const INFO="info";
     const WARNING="warning";
     const ERROR="error";
+    const CONFIRM="confirm";
 
 
     /** @var string */

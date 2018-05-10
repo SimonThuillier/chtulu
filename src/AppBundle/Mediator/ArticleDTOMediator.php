@@ -103,17 +103,36 @@ class ArticleDTOMediator extends DTOMediator
 
     private function mapDTOUrlGroup()
     {
+        if ($this->dto->getId() <1) return $this->mapDTOUrlGroupForNewEntity();
+
         /** @var Article $article */
         $article = $this->entity;
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
 
+        $postUrl = $dto->getId()>0?$this->router->generate("article_post_edit",["article"=>$article])
+            :$this->router->generate("article_post_create");
+
         if ($dto->getUrlBag() === null){$dto->setUrlBag(new UrlBag());}
         $dto->getUrlBag()
             ->setView($this->router->generate("article_view",["article"=>$article]))
             ->setEdit($this->router->generate("article_edit",["article"=>$article]))
-            ->setPostEdit($this->router->generate("article_post_edit",["article"=>$article]))
-            ->setInfo($this->router->generate("article_getdata",["article"=>$article]));
+            ->setPost($this->router->generate("article_post_edit",["article"=>$article]))
+            ->setInfo($this->router->generate("article_getdata",["article"=>$article]))
+            ->setDelete($this->router->generate("article_delete",["article"=>$article]))
+            ->setCancel($this->router->generate("article_cancel",["article"=>$article]));
+
+        $dto->addMappedGroup('url');
+    }
+
+    private function mapDTOUrlGroupForNewEntity()
+    {
+        /** @var ArticleDTO $dto */
+        $dto = $this->dto;
+
+        if ($dto->getUrlBag() === null){$dto->setUrlBag(new UrlBag());}
+        $dto->getUrlBag()
+            ->setPost($this->router->generate("article_post_create"));
 
         $dto->addMappedGroup('url');
     }

@@ -90,7 +90,37 @@ var hb = (function (hb) {
                 }
                 $alert.hide().show(duration);
                 return $alert;
-            }
+            },
+            confirm:function(title,message,onConfirm,onCancel,$target=null)
+            {
+                let $confirm = this.makeNewConfirm(title,message);
+                if($target === null) $target = $('.hb-container');
+                $confirm.dialog({
+                    title:title,
+                    dialogClass: "no-close hb-modal-z9",
+                    buttons: [
+                        {
+                            text: "Valider",
+                            class: "btn btn-warning",
+                            click: onConfirm
+                        },
+                        {
+                            text: "Annuler",
+                            class: "btn btn-default",
+                            click: onCancel
+                        }
+                    ],
+                    position: { my: "left top", at: "left bottom", of: $target }
+                });
+                $confirm.parent().find(".ui-dialog-titlebar-close").hide();
+
+            },
+            makeNewConfirm:function (title,message)
+            {
+                let $confirm = $('<div id="dialog" title="' + title + '">');
+                $confirm.$message = $('<p>'+ message + '</p>').appendTo($confirm);
+                return $confirm;
+            },
         };
         console.log(_moduleName + " loaded");
         return ui;

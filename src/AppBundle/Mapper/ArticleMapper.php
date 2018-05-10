@@ -64,6 +64,7 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapper
             ->setEditionDate(new \DateTime())
             ->setEditionUser($this->currentUser);
         $this->getManager()->flush();
+        $this->mediator->getDTO()->setId($article->getId());
         return $article;
     }
 
@@ -86,11 +87,19 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapper
         return $article;
     }
 
+
+    public function confirmDelete(int $id)
+    {
+        /** @var Article $article */
+        $article = $this->find($id);
+        return "êtes vous sûr de vouloir supprimer l'article " . $article->getTitle() . " ?";
+    }
+
     /**
      * @param integer $id
      * @throws EntityMapperException
      */
-    public function delete(integer $id)
+    public function delete(int $id)
     {
         $this->checkDelete($id);
         $this->defaultDelete($id);

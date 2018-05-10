@@ -14,15 +14,17 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class UrlBag
 {
     /** @var string */
-    private $view;
+    private $view="";
     /** @var string */
-    private $info;
+    private $info="";
     /** @var string */
-    private $edit;
+    private $edit="";
     /** @var string */
-    private $postEdit;
+    private $post="";
     /** @var string */
-    private $admin;
+    private $delete="";
+    /** @var string */
+    private $cancel="";
 
     /**
      * @return string
@@ -86,37 +88,58 @@ class UrlBag
      * @return string
      * @Groups({"editUrl","url"})
      */
-    public function getPostEdit()
+    public function getPost()
     {
-        return $this->postEdit;
+        return $this->post;
     }
 
     /**
-     * @param string $postEdit
+     * @param string $post
      * @return UrlBag
      */
-    public function setPostEdit($postEdit): UrlBag
+    public function setPost($post): UrlBag
     {
-        $this->postEdit = $postEdit;
+        $this->post = $post;
         return $this;
     }
 
     /**
      * @return string
-     * @Groups({"adminUrl","url"})
+     * @Groups({"editUrl","url"})
      */
-    public function getAdmin()
+    public function getDelete()
     {
-        return $this->admin;
+        return $this->delete;
     }
 
     /**
-     * @param string $admin
+     * @param string $delete
      * @return UrlBag
      */
-    public function setAdmin($admin): UrlBag
+    public function setDelete($delete): UrlBag
     {
-        $this->admin = $admin;
+        $this->delete = $delete;
+        return $this;
+    }
+
+
+
+    /**
+     * @return string
+     * @Groups({"editUrl","url"})
+     */
+    public function getCancel()
+    {
+        return $this->cancel;
+    }
+
+    /**
+     * @param string $cancel
+     * @return UrlBag
+     */
+    public function setCancel($cancel): UrlBag
+    {
+        $this->cancel = $cancel;
         return $this;
     }
 

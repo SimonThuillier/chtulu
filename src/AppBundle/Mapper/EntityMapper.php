@@ -37,11 +37,11 @@ interface EntityMapper
     public function add();
 
     /**
-     * @param integer $id
+     * @param int $id
      * @return Entity
      * @throws EntityMapperException
      */
-    public function find(integer $id);
+    public function find(int $id);
     /**
      * @param array $searchAttributes
      * @return mixed
@@ -53,7 +53,7 @@ interface EntityMapper
     public function findLast();
 
     /**
-     * @param integer|null $id
+     * @param int|null $id
      * @return Entity
      * @throws EntityMapperException
      * @throws NullColleagueException
@@ -62,8 +62,14 @@ interface EntityMapper
     public function edit($id=null);
 
     /**
-     * @param integer $id
+     * @param int $id
+     * @return string
+     */
+    public function confirmDelete(int $id);
+
+    /**
+     * @param int $id
      * @throws EntityMapperException
      */
-    public function delete(integer $id);
+    public function delete(int $id);
 }

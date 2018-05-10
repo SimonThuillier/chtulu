@@ -149,9 +149,9 @@ class Article extends DTOMutableEntity
      * Get id
      * @return int
      */
-    public function getId()
+    public function getId() :?int
     {
-        return $this->id;
+        return (integer)$this->id;
     }
 
     /**
