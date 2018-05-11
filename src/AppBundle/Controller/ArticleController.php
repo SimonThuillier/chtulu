@@ -357,6 +357,12 @@ class ArticleController extends Controller
                                       ArticleDTOSerializer $serializer,
                                       Router $router)
     {
+        $logger = $this->get('logger');
+        $logger->info(urldecode($request->getRequestUri()));
+        $logger->info('I just got the logger2');
+
+
+
         $groups = ['minimal','date','url'];
         $articles = $doctrine->getRepository(Article::class)->findAll();
         $articleDtos = [];

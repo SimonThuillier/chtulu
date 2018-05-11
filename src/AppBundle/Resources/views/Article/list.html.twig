@@ -38,6 +38,9 @@
         <button id="add-article" type="button"  title="Ajout rapide article" class="btn btn-info">
             <i class="glyphicon glyphicon-plus"></i>
         </button>
+        <button id="test-search" type="button"  title="test" class="btn btn-default">
+            <i class="glyphicon glyphicon-search"></i>
+        </button>
     </div>
     <table id="table"
            data-response-handler="responseHandler"
@@ -48,6 +51,7 @@
            data-id-field="id"
            data-page-list="[10, 25, 50, 100, ALL]"
            data-side-pagination="server"
+           data-search="true",
            data-toolbar="#toolbar"
            data-url="{{ path('article_getlistdata') }}"
            >
@@ -1071,6 +1075,7 @@
                             title: 'Type',
                             sortable: true,
                             editable: false,
+                            searchable : true,
                             align: 'center'
                         },
                         {
@@ -1196,7 +1201,8 @@
         }
 
         $(() => {
-            initTable();
+            initTable()
+            $(".search").hide();
         })
 
         let newHArticlePrototype = $("#data-new-article").html();
@@ -1212,6 +1218,12 @@
             articleModal.bind(newHArticle,'edit');
             console.log(newHArticle);
             articleModal.$modal.modal();
+        });
+
+        $("#test-search").on("click",function(){
+            console.log("un petit test");
+            let options = $table.bootstrapTable('resetSearch','[trucmuche.valet=blop&trucmuche.date={"sdvsdv";sdvsdvsdv}]');
+            console.log(options);
         });
 
         this.$modal.form.find("form").on("submit",function(event,element){
