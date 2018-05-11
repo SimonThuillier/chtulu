@@ -14,8 +14,28 @@
 
 {%  block content %}
 
-    <div id="toolbar" class="btn-group">
-        <button id="add-article" type="button"  class="btn btn-default">
+    <div id="search" class = "container">
+        {{ form_start(searchForm) }}
+            <div class="form-group col-xs-12 col-4 col-lg-3 row">
+                {{ form_label(searchForm.type) }}
+                {{ form_widget(searchForm.type) }}
+            </div>
+            <div class="form-group col-xs-6 col-4 col-lg-3 row">
+                {{ form_label(searchForm.beginHDate) }}
+                {{ form_widget(searchForm.beginHDate) }}
+            </div>
+            <div class="form-group col-xs-6 col-4 col-lg-3 row">
+                {{ form_label(searchForm.endHDate) }}
+                {{ form_widget(searchForm.endHDate) }}
+            </div>
+            <div class="form-group col-xs-12 col-4 col-lg-3 row">
+                <button type="submit" class="btn btn-primary">Rechercher</button>
+            </div>
+
+        {{ form_end(searchForm) }}
+    </div>
+    <div id="toolbar" class="btn-group" >
+        <button id="add-article" type="button"  title="Ajout rapide article" class="btn btn-info">
             <i class="glyphicon glyphicon-plus"></i>
         </button>
     </div>
@@ -688,7 +708,8 @@
 
                         // button delete appears if deleteUrl is present
                         let $deleteButton = $form.find("#delete");
-                        if(typeof object.urlBag.delete === 'undefined' || object.urlBag.delete == ""){
+                        console.log(object.urlBag.delete);
+                        if(typeof object.urlBag.delete === 'undefined' || object.urlBag.delete === ""){
                             $deleteButton.hide();
                         }
 
@@ -973,6 +994,7 @@
                             this.$modal.detail.show();
                         }
                         else if(page === 'edit'){
+                            this.formMediator.map();
                             this.$modal.form.show();
                             this.$modal.editButton.hide();
                             this.$modal.detail.hide();
@@ -1190,6 +1212,15 @@
             articleModal.bind(newHArticle,'edit');
             console.log(newHArticle);
             articleModal.$modal.modal();
+        });
+
+        this.$modal.form.find("form").on("submit",function(event,element){
+            event.preventDefault();
+            event.stopPropagation();
+            console.log("submitted form");
+            console.log(event);
+            console.log($(event.target).serializeArray().slice());
+            $this.formMediator.return($(event.target).serializeArray().slice(),$this.object.urlBag.post);
         });
 
 

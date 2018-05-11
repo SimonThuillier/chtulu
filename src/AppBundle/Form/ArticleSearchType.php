@@ -20,14 +20,6 @@ class ArticleSearchType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->setMethod('POST')
-            ->add('title', TextType::class, array(
-                'label' => 'Titre',
-                'required' => false,
-                'attr' => ['class' => 'form-control form-control-sm mb-2 mr-sm-2 mb-sm-0'],
-                'label_attr' => array(
-                    'placeholder' => 'Titre'
-                )
-            ))
             ->add('type', EntityType::class, array(
                 'label' => "Type ",
                 'class' => ArticleType::class,
@@ -35,23 +27,28 @@ class ArticleSearchType extends AbstractType
                     return $er->getFindAllQB();
                 },
                 'required' => false,
-                'attr' => ['class' => 'form-control form-control-sm mb-2 mr-sm-2 mb-sm-0'],
+                'attr' => ['class' => 'form-control'],
+                'label_attr' => array('class' => 'col-form-label'),
                 'empty_data' => ''
             ))
             ->add('beginHDate', HDateType::class, array(
-                'label' => 'Date de début'
+                'label' => 'Début',
+                'label_attr' => array('class' => 'col-form-label hb-group-date'),
+                'required' => false
             ))
             ->add('endHDate', HDateType::class, array(
-                'label' => 'Date de fin'
-            ));
+                'label' => 'Fin',
+                'label_attr' => array('class' => 'col-form-label hb-group-date'),
+                'required' => false
+        ));
     }
 
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => ArticleDTO::class,
-            'allow_extra_fields' => true
+            'allow_extra_fields' => true,
+            'attr' => array('class'=>'form-inline hb-form')
         ));
     }
 

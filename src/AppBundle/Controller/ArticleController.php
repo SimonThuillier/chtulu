@@ -4,6 +4,7 @@ namespace AppBundle\Controller;
 use AppBundle\DTO\ArticleDTO;
 use AppBundle\Factory\ArticleFactory;
 use AppBundle\Form\ArticleDTOType;
+use AppBundle\Form\ArticleSearchType;
 use AppBundle\Helper\BootstrapListHelper;
 use AppBundle\Mapper\ArticleMapper;
 use AppBundle\Mediator\ArticleDTOMediator;
@@ -296,6 +297,13 @@ class ArticleController extends Controller
             ])
             ->getForm();
 
+        $searchForm = $this
+            ->get('form.factory')
+            ->createBuilder(ArticleSearchType::class,null,[
+                'validation_groups'=>['minimal','date','abstract']
+            ])
+            ->getForm();
+
         $article=$entityFactory->create($this->getUser());
         $groups = ['minimal','abstract','date','url'];
         $articleDTO = $mediator
@@ -308,7 +316,12 @@ class ArticleController extends Controller
         $serializedArticleDTO = $serializer->encode($serializer->normalize($articleDTO,$groups));
 
 
-        return $this->render('@AppBundle/Article/list.html.twig',["form"=>$form->createView(),"newArticleDTO" =>$serializedArticleDTO]);
+        return $this->render('@AppBundle/Article/list.html.twig',[
+            "form"=>$form->createView(),
+            "searchForm"=>$searchForm->createView(),
+            "newArticleDTO" =>$serializedArticleDTO
+            ]
+        );
 
 
 
