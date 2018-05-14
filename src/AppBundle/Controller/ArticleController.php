@@ -9,6 +9,7 @@ use AppBundle\Helper\BootstrapListHelper;
 use AppBundle\Mapper\ArticleMapper;
 use AppBundle\Mediator\ArticleDTOMediator;
 use AppBundle\Serializer\ArticleDTOSerializer;
+use AppBundle\Serializer\UrlEncoder;
 use AppBundle\Utils\HJsonResponse;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -355,11 +356,15 @@ class ArticleController extends Controller
                                       ArticleDTOFactory $dtoFactory,
                                       ArticleDTOMediator $mediator,
                                       ArticleDTOSerializer $serializer,
-                                      Router $router)
+                                      Router $router,UrlEncoder $urlEncoder)
     {
         $logger = $this->get('logger');
-        $logger->info(urldecode($request->getRequestUri()));
+
+        $test = $urlEncoder->decode($request->getRequestUri());
+        $logger->info(join(";",array_keys($test)));
+        $logger->info(join(";",array_values($test)));
         $logger->info('I just got the logger2');
+
 
 
 

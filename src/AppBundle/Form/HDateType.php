@@ -33,17 +33,12 @@ class HDateType extends AbstractType
     {
         $resolver->setDefaults(array(
             'attr' => array(
-                'class' => 'hb-hdatepicker',
+                'class' => 'hb-hdatepicker form-control',
             ),
             //'data_class' => HDate::class,
             'allow_extra_fields' => false
         ));
     }
-
-
-
-
-
 
     public function getParent()
     {

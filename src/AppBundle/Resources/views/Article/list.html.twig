@@ -29,7 +29,7 @@
                 {{ form_widget(searchForm.endHDate) }}
             </div>
             <div class="form-group col-xs-12 col-4 col-lg-3 row">
-                <button type="submit" class="btn btn-primary">Rechercher</button>
+                <button id="{{ searchForm.vars.id }}_save" name="{{ searchForm.vars.id }}[save]" type="submit" class="btn btn-primary">Rechercher</button>
             </div>
 
         {{ form_end(searchForm) }}
@@ -755,6 +755,7 @@
                             if(value.name.indexOf(['[_token]']) !== -1) {formName = value.name.replace('[_token]','');}
                         });
                         console.log("formName : " + formName);
+                        console.log($controls);
                         let formObject = {};
                         let localObject = {};
                         let $control = {};
@@ -763,10 +764,13 @@
                         data.forEach(function(value){
                             if(value.name.indexOf(['[_token]']) !== -1) {
                                 formObject['_token'] = value.value;
+                                localObject['_token'] = value.value;
                                 return;
                             }
                             attributeName = value.name.replace(formName + '[','').replace(']','');
                             $control = $controls.filter("#" + formName + "_" + attributeName);
+                            console.log($control.get(0));
+                            console.log("#" + formName + "_" + attributeName);
                             let nodeType = hb.util.cmn.capitalize($control.get(0).nodeName.toLowerCase());
                             if(typeof _inputMapper["return"+nodeType] !== 'undefined'){
                                 localObject[attributeName] = _inputMapper["return"+nodeType]($control,value);
@@ -777,7 +781,7 @@
                         });
                         console.log("data a transmettre");
                         console.log(formObject);
-                        if(object.urlBag.post !== null){
+                        if(typeof object.urlBag !== 'undefined' && object.urlBag.post !== null){
                             console.log(object.urlBag.post);
                             this.submitToServer(object,formObject,localObject);
                         }
@@ -847,7 +851,16 @@
 
                     },
                     submitToLocal:function(object,localObject){
-                        let isNew = object.urlBag.view==='';
+                        console.log(Object.keys(object).length === 0 && object.constructor === Object);
+                        console.log(object);
+                        if($.isEmptyObject(object)){
+                            console.log(object);
+                            console.log(localObject);
+                            Object.assign(object,localObject);
+                            //object._token = localObject["_token"];
+                            return;
+                        }
+                        let isNew = (typeof object.urlBag === 'undefined') || object.urlBag.view==='';
 
                         Object.keys(localObject).map(function(key, index) {
                             if(typeof object[key] === 'undefined'){return;}
@@ -1220,20 +1233,42 @@
             articleModal.$modal.modal();
         });
 
-        $("#test-search").on("click",function(){
-            console.log("un petit test");
-            let options = $table.bootstrapTable('resetSearch','[trucmuche.valet=blop&trucmuche.date={"sdvsdv";sdvsdvsdv}]');
-            console.log(options);
-        });
+        let $searchForm = $('form[name="article_search"]');
+        $searchForm.form = $searchForm;
+        let searchFormMediator = new hb.ui.SfFormMediator();
+        searchFormMediator.$target = $searchForm;
 
-        this.$modal.form.find("form").on("submit",function(event,element){
+
+
+
+
+        $searchForm.on("submit",function(event){
+            console.log("un petit test");
+            event.preventDefault();
+            event.stopPropagation();
+
+            $(event.target).serializeArray().slice();
+
+
+            let searchObject = {};
+            searchFormMediator.object = searchObject;
+
+            searchFormMediator.return($(event.target).serializeArray().slice());
+
+            console.log(searchObject);
+            let options = $table.bootstrapTable('resetSearch',JSON.stringify(searchObject));
+        });
+        console.log("lolilol");
+        console.log($searchForm);
+
+        /*this.$modal.form.find("form").on("submit",function(event,element){
             event.preventDefault();
             event.stopPropagation();
             console.log("submitted form");
             console.log(event);
             console.log($(event.target).serializeArray().slice());
             $this.formMediator.return($(event.target).serializeArray().slice(),$this.object.urlBag.post);
-        });
+        });*/
 
 
 
