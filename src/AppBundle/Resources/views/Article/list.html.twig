@@ -764,7 +764,7 @@
                         data.forEach(function(value){
                             if(value.name.indexOf(['[_token]']) !== -1) {
                                 formObject['_token'] = value.value;
-                                localObject['_token'] = value.value;
+                                //localObject['_token'] = value.value;
                                 return;
                             }
                             attributeName = value.name.replace(formName + '[','').replace(']','');
@@ -780,8 +780,12 @@
                             if(nodeType === 'Select'){formObject[attributeName] = formObject[attributeName].id;}
                         });
                         console.log("data a transmettre");
-                        console.log(formObject);
-                        if(typeof object.urlBag !== 'undefined' && object.urlBag.post !== null){
+                        console.log(formObject)
+                        if(object === null){
+                            this.object = formObject;
+                            this.pendingAction= false;
+                        }
+                        else if(typeof object.urlBag !== 'undefined' && object.urlBag.post !== null){
                             console.log(object.urlBag.post);
                             this.submitToServer(object,formObject,localObject);
                         }
@@ -1215,7 +1219,7 @@
 
         $(() => {
             initTable()
-            $(".search").hide();
+            //$(".search").hide();
         })
 
         let newHArticlePrototype = $("#data-new-article").html();
@@ -1243,20 +1247,19 @@
 
 
         $searchForm.on("submit",function(event){
-            console.log("un petit test");
+
             event.preventDefault();
             event.stopPropagation();
 
             $(event.target).serializeArray().slice();
 
 
-            let searchObject = {};
-            searchFormMediator.object = searchObject;
-
+            searchFormMediator.object = null;
             searchFormMediator.return($(event.target).serializeArray().slice());
-
-            console.log(searchObject);
-            let options = $table.bootstrapTable('resetSearch',JSON.stringify(searchObject));
+            console.log($(event.target).serializeArray().slice());
+            console.log("un petit test");
+            console.log(searchFormMediator.object);
+            let options = $table.bootstrapTable('resetSearch',JSON.stringify(searchFormMediator.object));
         });
         console.log("lolilol");
         console.log($searchForm);

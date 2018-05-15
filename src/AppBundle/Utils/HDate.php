@@ -175,7 +175,7 @@ class HDate
     }
 
     /**
-     * @doc compare two HDates
+     * compare two HDates
      * returns 0 if both HDates are identical or one includes completely the other
      * returns -2 if hDate1 both beginDate and endHDate are strictly inferior to hDate2 beginDate
      * returns -1 if hDate1 beginDate is strictly inferior to hDate2 beginDate, hDate2 endDate is free

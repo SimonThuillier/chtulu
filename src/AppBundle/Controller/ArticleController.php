@@ -11,6 +11,7 @@ use AppBundle\Mediator\ArticleDTOMediator;
 use AppBundle\Serializer\ArticleDTOSerializer;
 use AppBundle\Serializer\UrlEncoder;
 use AppBundle\Utils\HJsonResponse;
+use AppBundle\Utils\SearchBag;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -189,6 +190,7 @@ class ArticleController extends Controller
                 ->resetChangedProperties()
                 ->setMapper($mapper);
             $form->submit($request->request->get("form"));
+            $this->get('logger')->info($request->request->get("form"));
             $errors = $this->get('validator')->validate($mediator->getDTO());
             if (! $form->isValid() || count($errors)>0)
             {
@@ -300,9 +302,7 @@ class ArticleController extends Controller
 
         $searchForm = $this
             ->get('form.factory')
-            ->createBuilder(ArticleSearchType::class,null,[
-                'validation_groups'=>['minimal','date','abstract']
-            ])
+            ->createBuilder(ArticleSearchType::class,null,['validation_groups'=>[]])
             ->getForm();
 
         $article=$entityFactory->create($this->getUser());
@@ -364,6 +364,26 @@ class ArticleController extends Controller
         $logger->info(join(";",array_keys($test)));
         $logger->info(join(";",array_values($test)));
         $logger->info('I just got the logger2');
+
+        if(array_key_exists("search",$test)){
+            $blop = [];
+            $searchForm = $this
+                ->get('form.factory')
+                ->createBuilder(ArticleSearchType::class,null,['validation_groups'=>[]])
+                ->getForm();
+
+            $searchForm->submit((array)json_decode($test["search"]));
+                $logger->info($test["search"]);
+            //$logger->info($searchForm->getErrors()[0]->getMessage());
+            //var_dump($searchForm->isValid());
+        }
+
+        $searchBag = SearchBag::createFromArray($test);
+        //$logger->info($searchBag->getSearch()["beginHDate"]);
+        $logger->info($searchBag);
+        $logger->info($searchForm->getData()["beginHDate"]->getLabel());
+        $logger->info('I just got the logger3');
+
 
 
 
