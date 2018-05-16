@@ -14,6 +14,7 @@ use AppBundle\DTO\ArticleMainDTO;
 use AppBundle\DTO\ArticleCollectionDTO;
 use AppBundle\Helper\StaticHelper;
 use Doctrine\ORM\Query;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * ArticleRepository
@@ -23,70 +24,64 @@ use Doctrine\ORM\Query;
  */
 class ArticleRepository extends EntityRepository
 {
-    private function hydrateSubEvents($id, $dto)
-    {
-        $qb = $this->createQueryBuilder('a')
-            ->join('a.links', 'l')
-            ->join('l.childArticle', 'sa')
-            ->join('sa.type', 't')
-            ->leftJoin('sa.beginDateType', 'bdt')
-            ->leftJoin('sa.endDateType', 'edt')
-            ->select('sa.title')
-            ->addSelect('a.id as parentId')
-            ->addSelect('t.id as type')
-            ->addSelect('sa.id')
-            ->addSelect('sa.abstract')
-            ->addSelect('sa.beginDateMinIndex')
-            ->addSelect('sa.beginDateMaxIndex')
-            ->addSelect('bdt.id as beginDateType')
-            ->addSelect('sa.endDateMinIndex')
-            ->addSelect('sa.endDateMaxIndex')
-            ->addSelect('edt.id as endDateType')
-            ->addSelect('l.id as linkId')
-            ->addSelect('l.y')
-            ->where('a.id = :id')
-            ->setParameter('id', $id);
-
-        $results = $qb->getQuery()->getArrayResult();
-
-        foreach ($results as $result) {
-            $modalDTO = new ArticleModalDTO();
-            AutoMapper::autoMap($result,$modalDTO);
-            $dto->subEventsArray[] = $modalDTO;
-            $dto->subEventsCount ++;
-        }
+    /**
+     * @param QueryBuilder $qb
+     * @param ArticleType|null $type
+     * @return QueryBuilder
+     */
+    public function filterByType(QueryBuilder $qb,?ArticleType $type){
+        if($type === null) return $qb;
+        return $qb->andWhere('o.type = :type')
+            ->setParameter('type',$type);
     }
 
     /**
-     * @param string|null $title
-     * @param ArticleType | null $type
-     * @param HDate|null $beginHDate
-     * @param HDate|null $endHDate
-     * @return Query
+     * @param QueryBuilder $qb
+     * @param string $order
+     * @return QueryBuilder
      */
-    public function findBySearch($title = null, $type = null, $beginHDate = null, $endHDate = null)
-    {
-        /** @var \Doctrine\DBAL\Query\QueryBuilder $qb */
-        $qb = $this->createQueryBuilder('a')->select('a');
-
-
-        if($title !== null) $qb->andWhere($qb->expr()->like('a.title', $qb->expr()->literal('%' . $title . '%')));
-        if($type !== null) $qb->andWhere('a.type =: type')->setParameter('type', $type);
-        if($beginHDate !== null){
-            $qb->andWhere('(a.endDateType IS NULL OR a.endDateMaxIndex >= :beginDateMinIndex)')
-                ->setParameter('beginDateMinIndex', $beginHDate->getBeginDateIndex());
-        }
-        if($endHDate !== null){
-            $qb->andWhere('(a.beginDateType IS NULL OR a.beginDateMinIndex <= :endDateMaxIndex)')
-                ->setParameter('endDateMaxIndex', $endHDate->getEndDateIndex());
-        }
-
-        $qb->orderBy('a.id','DESC');
-
-        return $qb->getQuery();
+    public function sortByType_label(QueryBuilder $qb,string $order){
+        return $qb->join('o.type','t')
+        ->orderBy('t.label',$order);
+    }
+    
+    /**
+     * @param QueryBuilder $qb
+     * @param HDate|null $hDate
+     * @return QueryBuilder
+     */
+    public function filterByBeginHDate(QueryBuilder $qb,?HDate $hDate){
+        if($hDate === null) return $qb;
+        return $qb->andWhere('(o.endDateType IS NULL OR o.endDateMaxIndex >= :beginDateMinIndex)')
+            ->setParameter('beginDateMinIndex', DateHelper::dateToIndex($hDate->getBeginDate()));
     }
 
-    private function findAllBySearch(){
+    /**
+     * @param QueryBuilder $qb
+     * @param string $order
+     * @return QueryBuilder
+     */
+    public function sortByBeginHDate(QueryBuilder $qb,string $order){
+        return $qb->orderBy('o.beginDateMinIndex',$order);
+    }
 
+    /**
+     * @param QueryBuilder $qb
+     * @param HDate|null $hDate
+     * @return QueryBuilder
+     */
+    public function filterByEndHDate(QueryBuilder $qb,?HDate $hDate){
+        if($hDate === null) return $qb;
+        return $qb->andWhere('(o.beginDateType IS NULL OR o.beginDateMinIndex <= :endDateMaxIndex)')
+            ->setParameter('endDateMaxIndex', DateHelper::dateToIndex($hDate->getEndDate()));
+    }
+
+    /**
+     * @param QueryBuilder $qb
+     * @param string $order
+     * @return QueryBuilder
+     */
+    public function sortByEndHDate(QueryBuilder $qb,string $order){
+        return $qb->orderBy('o.endDateMaxIndex',$order);
     }
 }

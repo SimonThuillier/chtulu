@@ -18,10 +18,11 @@ class BootstrapListHelper
      * @param array $objects
      * @param HSerializer $serializer
      * @param array $groups
+     * @param int $count
      * @return array
      * @throws SerializationException
      */
-    public static function getNormalizedListData($objects,$serializer,$groups)
+    public static function getNormalizedListData($objects,$serializer,$groups,$count=null)
     {
         $data = ["total"=>0,"rows"=>[]];
         if($objects == null || count($objects) === 0) return $data;
@@ -29,7 +30,8 @@ class BootstrapListHelper
         foreach($objects as $object){
             $data["rows"][] = $serializer->normalize($object,$groups);
         }
-        $data["total"] = count($objects);
+        if($count === null ) $count = count($objects);
+        $data["total"] = $count;
         return $data;
     }
 

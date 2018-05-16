@@ -16,6 +16,8 @@ use AppBundle\Factory\FactoryException;
 use AppBundle\Factory\PaginatorFactory;
 use AppBundle\Mediator\InvalidCallerException;
 use AppBundle\Mediator\NullColleagueException;
+use AppBundle\Repository\ArticleRepository;
+use AppBundle\Utils\SearchBag;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -104,5 +106,15 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapper
         $this->checkDelete($id);
         $this->defaultDelete($id);
         $this->getManager()->flush();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getFindAllQB()
+    {
+        return $this->repository->createQueryBuilder('o')
+            ->select('o')
+            ->orderBy('o.editionDate','DESC');
     }
 }

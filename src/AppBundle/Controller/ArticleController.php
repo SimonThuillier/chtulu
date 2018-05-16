@@ -162,7 +162,7 @@ class ArticleController extends Controller
     /**
      * @Route("/post-edit/{article}",name="article_post_edit")
      * @ParamConverter("article", class="AppBundle:Article")
-     * @Method({"POST"})
+     * @Method({"POST","GET"})
      */
     public function postEditAction(Request $request,
                                    Article $article,
@@ -190,7 +190,7 @@ class ArticleController extends Controller
                 ->resetChangedProperties()
                 ->setMapper($mapper);
             $form->submit($request->request->get("form"));
-            $this->get('logger')->info($request->request->get("form"));
+            //$this->get('logger')->info($request->request->get("form"));
             $errors = $this->get('validator')->validate($mediator->getDTO());
             if (! $form->isValid() || count($errors)>0)
             {
@@ -356,7 +356,9 @@ class ArticleController extends Controller
                                       ArticleDTOFactory $dtoFactory,
                                       ArticleDTOMediator $mediator,
                                       ArticleDTOSerializer $serializer,
-                                      Router $router,UrlEncoder $urlEncoder)
+                                      Router $router,
+                                      UrlEncoder $urlEncoder,
+                                      ArticleMapper $mapper)
     {
         $logger = $this->get('logger');
 
@@ -373,7 +375,8 @@ class ArticleController extends Controller
                 ->getForm();
 
             $searchForm->submit((array)json_decode($test["search"]));
-                $logger->info($test["search"]);
+            $test["search"] = $searchForm->getData();
+                //$logger->info($test["search"]);
             //$logger->info($searchForm->getErrors()[0]->getMessage());
             //var_dump($searchForm->isValid());
         }
@@ -381,15 +384,16 @@ class ArticleController extends Controller
         $searchBag = SearchBag::createFromArray($test);
         //$logger->info($searchBag->getSearch()["beginHDate"]);
         $logger->info($searchBag);
-        $logger->info($searchForm->getData()["beginHDate"]->getLabel());
+        //$logger->info($searchForm->getData()["beginHDate"]->getLabel());
         $logger->info('I just got the logger3');
 
 
-
+        $count = 0;
 
 
         $groups = ['minimal','date','url'];
-        $articles = $doctrine->getRepository(Article::class)->findAll();
+        $logger->info(count($searchBag->getSearch()));
+        $articles = $mapper->searchBy($searchBag,$count);
         $articleDtos = [];
 
         foreach($articles as $article){
@@ -402,7 +406,7 @@ class ArticleController extends Controller
         }
 
         $groups = array_merge($groups,['groups','type']);
-        return new JsonResponse(BootstrapListHelper::getNormalizedListData($articleDtos,$serializer,$groups));
+        return new JsonResponse(BootstrapListHelper::getNormalizedListData($articleDtos,$serializer,$groups,$count));
     }
 
     /**

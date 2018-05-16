@@ -3,6 +3,7 @@ namespace AppBundle\Form;
 
 use AppBundle\DTO\ArticleDTO;
 use AppBundle\Entity\ArticleType;
+use AppBundle\Repository\ArticleTypeRepository;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -14,6 +15,16 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 class ArticleDTOType extends AbstractType
 {
+    private $test;
+
+    /**
+     * ArticleDTOType constructor.
+     */
+    public function __construct($test='ASC')
+    {
+        $this->test = $test;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->setMethod('POST');
@@ -49,8 +60,11 @@ class ArticleDTOType extends AbstractType
             ->add('type', EntityType::class, array(
                 'label' => "Type ",
                 'class' => ArticleType::class,
-                'query_builder' => function (EntityRepository $er) {
-                    return $er->getFindAllQB();
+                'query_builder' => function (ArticleTypeRepository $er) {
+                    //return $er->getFindAllQB();
+                    $blop = $er->getFindAllQB();
+                    $blop->orderBy("o.label",$this->test);
+                    return $blop;
                 },
                 'required' => true,
                 'empty_data' => 'Selectionnez un type d\'article',

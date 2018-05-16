@@ -16,9 +16,9 @@ class ArticleTypeRepository extends \Doctrine\ORM\EntityRepository
      */
     public function getFindAllQB()
     {
-        $qb = $this->createQueryBuilder('t')
-        ->select('t')
-        ->orderBy('t.label','ASC');
+        $qb = $this->createQueryBuilder('o')
+        ->select('o')
+        ->orderBy('o.label','ASC');
         return $qb;
     }
 

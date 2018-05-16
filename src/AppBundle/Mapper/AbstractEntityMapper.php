@@ -10,10 +10,12 @@ use AppBundle\Factory\PaginatorFactory;
 use AppBundle\Mediator\DTOMediator;
 use AppBundle\Mediator\InvalidCallerException;
 use AppBundle\Mediator\NullColleagueException;
+use AppBundle\Utils\SearchBag;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping\MappingException;
+use Doctrine\ORM\QueryBuilder;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Form\Exception\LogicException;
 use AppBundle\Entity\User;
@@ -211,15 +213,6 @@ abstract class AbstractEntityMapper
     }
 
     /**
-     * @param array $searchAttributes
-     * @return mixed
-     */
-    public function findBy($searchAttributes)
-    {
-        return $this->repository->findBy($searchAttributes);
-    }
-
-    /**
      * @return mixed
      */
     public function findAll()
@@ -233,5 +226,80 @@ abstract class AbstractEntityMapper
     public function findLast()
     {
         return $this->repository->findBy([], ['id' => 'DESC']);
+    }
+
+    /**
+     * @return QueryBuilder
+     */
+    abstract public function getFindAllQB();
+
+    /**
+     * @return QueryBuilder
+     */
+    protected function getCountAllQB(){
+        return $this->repository->createQueryBuilder('o')
+            ->select('COUNT(o.id)');
+    }
+
+    /**
+     * @param QueryBuilder $qb
+     * @param SearchBag $searchBag
+     */
+    protected function filterBy(QueryBuilder $qb,SearchBag $searchBag){
+        foreach((array)($searchBag->getSearch()) as $key => $value){
+            $function = 'filterBy' . str_replace('.','_',ucfirst($key));
+            if(method_exists($this->repository,$function)){
+                $this->repository->$function($qb,$value);
+            }
+            else{
+                $qb->andWhere('o.'. $key . ' = ' . $value);
+            }
+        }
+    }
+
+    /**
+     * @param QueryBuilder $qb
+     * @param SearchBag $searchBag
+     */
+    protected function sortBy(QueryBuilder $qb,SearchBag $searchBag){
+        $function = 'sortBy' . str_replace('.','_',ucfirst($searchBag->getSort()));
+        if(method_exists($this->repository,$function)){
+            $this->repository->$function($qb,$searchBag->getOrder());
+        }
+        else{
+            $qb->orderBy('o.' . $searchBag->getSort(),$searchBag->getOrder());
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCountBy(?SearchBag $searchBag)
+    {
+        $countQb = $this->getCountAllQB();
+        if($searchBag !== null){$this->filterBy($countQb,$searchBag);}
+        try{
+            return $countQb->getQuery()->getSingleScalarResult();}
+        catch(\Exception $e){return 0;}
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function searchBy(?SearchBag $searchBag,&$count=0)
+    {
+        $count = $this->getCountBy($searchBag);
+        if($count == 0) return [];
+
+        $qb = $this->getFindAllQB();
+
+        if($searchBag !== null){
+            $this->filterBy($qb,$searchBag);
+            $this->sortBy($qb,$searchBag);
+            $qb->setMaxResults($searchBag->getLimit())
+                ->setFirstResult($searchBag->getOffset());
+        }
+
+        return $qb->getQuery()->getResult();
     }
 }

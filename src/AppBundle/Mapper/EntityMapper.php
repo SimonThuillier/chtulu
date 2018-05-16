@@ -6,7 +6,9 @@ use AppBundle\Factory\FactoryException;
 use AppBundle\Mediator\DTOMediator;
 use AppBundle\Mediator\InvalidCallerException;
 use AppBundle\Mediator\NullColleagueException;
+use AppBundle\Utils\SearchBag;
 use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * Interface MapperInterface
@@ -42,11 +44,24 @@ interface EntityMapper
      * @throws EntityMapperException
      */
     public function find(int $id);
+
     /**
-     * @param array $searchAttributes
-     * @return mixed
+     * @return QueryBuilder
      */
-    public function findBy($searchAttributes);
+    public function getFindAllQB();
+
+    /**
+     * @param SearchBag|null $searchBag
+     * @return integer
+     */
+    public function getCountBy(?SearchBag $searchBag);
+
+    /**
+     * @param SearchBag|null $searchBag
+     * @param int $count
+     * @return array
+     */
+    public function searchBy(?SearchBag $searchBag,&$count=0);
     /**
      * @return Entity
      */
