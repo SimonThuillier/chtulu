@@ -44,7 +44,7 @@ class ArticleRepository extends EntityRepository
         return $qb->join('o.type','t')
         ->orderBy('t.label',$order);
     }
-    
+
     /**
      * @param QueryBuilder $qb
      * @param HDate|null $hDate

@@ -12,59 +12,70 @@ var hb = (function (hb) {
     hb.ui = (function (ui,hb,$) {
         var _requiredModules = ["util:cmn/common.js"];
 
+        $(() => {
+            $(".hb-form").each(function(){
+                let $labels = $(this).find("[class*='hb-group-']");
+                let regex = new RegExp("^.*(hb-group-\\S+).*");
+                let groups = [];
+                $labels.each(function(){
+                    let groupClass = regex.exec($(this).attr('class'));
+                    if(groupClass.length<2){return;}
+                    groupClass=groupClass[1];
+                    let $formGroup = $(this).closest(".form-group");
+                    $(this).removeClass(groupClass);
+                    $($formGroup).attr("data-hb-group",groupClass);
+                    groups.push(groupClass.replace('hb-group-',''));
+                });
+                groups = $.unique(groups);
+                $(this).attr("data-hb-groups",JSON.stringify(groups));
+            });
+
+            $(".hb-form .hb-activer").on("change hb.load",function(event){
+                let $element = $(this);
+                let $form = $element.closest(".hb-form");
+                if(! $element[0].hasAttribute("data-target") ){return;}
+
+                let targets = $element[0].getAttribute("data-target");
+                targets = targets.split(" ");
+                let isActive = $element.prop( "checked");
+                console.log(targets);
+                let $target = $();
+                let $controlTarget = $();
+                let targetSelector = '';
+
+                for (var i in targets) {
+                    targetSelector = "[name$='[" + targets[i] + "]']";
+                    $controlTarget = $.merge($controlTarget,$form.find(targetSelector));
+                    $target = $.merge($target,$controlTarget.closest(".form-group"));
+                }
+
+                if(isActive){
+                    $controlTarget.prop("disabled",false);
+                    $target.show();
+                }
+                else{
+                    $controlTarget.prop("disabled",true);
+                    $target.hide()
+                    if($controlTarget[0].hasAttribute("data-hb-value")){
+                        $controlTarget[0].removeAttribute("data-hb-value") ;
+                    }
+                    $controlTarget.val(null);
+                }
+            });
+        });
+
+
+
+
+
+
+
+
         /**
          * @module hb/ui/form
          * @class hb.ui.form
          */
         ui.form = {
-            submitArticleSearch : function(event,element)
-        {
-            event.preventDefault();
-            event.stopPropagation();
-            console.log(event);
-            console.log(event.target.href);
-            let $this = $(element);
-            let $formData = $this.serializeArray().slice();
-            let formMap = hb.util.sf.getFormMap($formData);
-            let $data;
-            let tempValue;
-            $this.find(".hb-hdatepicker").each(function(index){
-                if(typeof formMap[this.name] !== "undefined"){
-                    //$formData[formMap[this.name]].value = null;
-                    $formData[formMap[this.name]].value = $(this).attr("data-hdate");
-                    // $this = $(this);
-                    //$data.value = $(this).attr("data-hdate");
-                    //$data.attr("data-hdate",$data.value);
-                    //$data.val(tempValue);
-                }
-            });
-            console.log($formData);
-            let action = $this.attr("action");
-            if (typeof action === "undefined" || action === null || action ==="") return;
-            $.ajax({
-                url : $this.attr("action"),
-                type : "POST",
-                dataType : "html",
-                data : $formData,
-                success:function(data) {
-                    console.log("success ! " + data);
-                    //location.reload();
-                }
-            });
-
-            /*$this.find(".hb-hdatepicker").each(function(index){
-                if(typeof formMap[this.name] !== "undefined"){
-                    $data = $formData[formMap[this.name]];
-                    tempValue = $data.value;
-                    console.log(tempValue);
-                    $(this).val($(this).attr("data-hdate"));
-                    console.log($data.value);
-                    $(this).attr("data-hdate",tempValue);
-                }
-            });*/
-
-            return true;
-        },
             /**
              * @doc returns the name of the module
              * @return {string}
