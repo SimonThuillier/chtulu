@@ -29,7 +29,9 @@
                 {{ form_widget(searchForm.endHDate) }}
             </div>
             <div class="form-group col-xs-12 col-4 col-lg-3 row">
-                <button id="{{ searchForm.vars.id }}_save" name="{{ searchForm.vars.id }}[save]" type="submit" class="btn btn-primary">Rechercher</button>
+                <button id="{{ searchForm.vars.id }}_save" name="{{ searchForm.vars.id }}[save]" type="submit" class="btn btn-primary">
+                    <i class="glyphicon glyphicon-search"></i>
+                </button>
             </div>
 
         {{ form_end(searchForm) }}
@@ -37,9 +39,6 @@
     <div id="toolbar" class="btn-group" >
         <button id="add-article" type="button"  title="Ajout rapide article" class="btn btn-info">
             <i class="glyphicon glyphicon-plus"></i>
-        </button>
-        <button id="test-search" type="button"  title="test" class="btn btn-default">
-            <i class="glyphicon glyphicon-search"></i>
         </button>
     </div>
     <table id="table"
@@ -49,7 +48,7 @@
            data-show-pagination-switch="true"
            data-pagination="true"
            data-id-field="id"
-           data-page-list="[10, 25, 50, 100, ALL]"
+           data-page-list="[10, 25, 50, 100]"
            data-side-pagination="server"
            data-search="true",
            data-toolbar="#toolbar"
@@ -73,617 +72,18 @@
             </div>
         </div>
     </div>
-
-    {#{% include '@AppBundle/Resources/views/Article/list_tab.html.twig' %}#}
-
-
 {% endblock %}
 
 {% block javascript %}
     <script type="application/javascript">
-        hb = (function (hb,$) {
-            "use strict";
-            var _moduleName = "ui:HArticleModal/HArticleModal.js";
-            if(((typeof hb.getLoadedModules==="function"?hb.getLoadedModules():[])).includes(_moduleName)) {
-                console.log(_moduleName + " already loaded, skipping");
-                return hb;
-            }
-            hb.ui = (function (ui,hb,$) {
-
-
-
-
-                let _detailGroupBuilder = {
-                    /**
-                     * @doc builds minimal part of article for HArticleModal
-                     * @param {jQuery} $target
-                     * @private
-                     */
-                    buildMinimal : function($target) {
-                        let groupLabel = 'minimal';
-                        let attrs = $target.hAttributes;
-                        let parentGroup = null;
-                        let $group = $("<div class=\"row\">").appendTo($target);
-                        $target.hGroups[groupLabel] = $group;
-                        $group.childrenContainers = [];
-
-                        let $col = $("<div class=\"col-md-6\">").appendTo($group);
-                        let $area = $("<div class=\"container-fluid\">").appendTo($col);
-                        let $sRow = $("<div class=\"row\">").appendTo($area);
-                        attrs["type"] = $("<h5 data-label='Type : '>").appendTo($sRow);
-                        $group.childrenContainers["date"] = $sRow;
-                        $group.childrenContainers["detailImage"] = $("<div class=\"col-md-5 ml-auto\">").appendTo($group);
-                        return $group;
-                    },
-                    buildDate : function($target) {
-                        let groupLabel = 'date';
-                        let attrs = $target.hAttributes;
-                        let parentGroup = 'minimal';
-                        let $group = $target.hGroups[parentGroup].childrenContainers[groupLabel];
-                        $target.hGroups[groupLabel] = $group;
-                        $group.childrenContainers = [];
-
-                        attrs["beginHDate"] = $("<h5 data-label='Date de début : '>").appendTo($group);
-                        attrs["endHDate"] = $("<h5 data-label='Date de fin : '>").appendTo($group);
-
-                        return $group;
-                    },
-                    buildDetailImage : function($target) {
-                        let groupLabel = 'detailImage';
-                        let attrs = $target.hAttributes;
-                        let parentGroup = 'minimal';
-                        let $group = $target.hGroups[parentGroup].childrenContainers[groupLabel];
-                        $target.hGroups[groupLabel] = $group;
-                        $group.childrenContainers = [];
-
-                        let $thumbnail = $("<a href=\"#\" class=\"thumbnail\">").appendTo($group);
-                        let $img = $("<img src=\"/images/420a08a_user2-160x160_1.jpg\" alt=\"...\">").appendTo($thumbnail);
-
-                        return $group;
-                    },
-                    buildAbstract : function($target) {
-                        let groupLabel = 'abstract';
-                        let attrs = $target.hAttributes;
-                        let parentGroup = null;
-                        let $group = $("<div class=\"row\">").appendTo($target);
-                        $target.hGroups[groupLabel] = $group;
-                        $group.childrenContainers = [];
-
-                        let $row = $("<div class=\"row\">").insertAfter($group);
-                        let $col = $("<div class=\"col-md-12\">").appendTo($row);
-                        attrs["abstract"] = $("<div class=\"well well-lg\">").appendTo($col);
-                        return $group;
-                    }
-                };
-
-                /**
-                 * @doc HArticleDetailBuilder constructor
-                 * @class hb.ui.HArticleDetailBuilder
-                 */
-                ui.HArticleDetailBuilder = function() {return this;};
-                Object.assign(ui.HArticleDetailBuilder.prototype,{
-                    /**
-                     * @param {jQuery} $target
-                     * @param groups
-                     * @return array
-                     */
-                    build:function($target,groups=['minimal']){
-                        if(typeof $target.hAttributes === 'undefined'){$target.hAttributes=[];}
-                        if(typeof $target.hGroups === 'undefined'){$target.hGroups=[];}
-                        console.log(groups);
-                        $.each(groups,function(key,value){
-                            console.log(value);
-                            if(typeof (_detailGroupBuilder["build" + hb.util.cmn.capitalize(value)]) !== 'function'){
-                                throw "Group " + value + " doesn't exist for HArticleDetail";
-                            }
-                            _detailGroupBuilder["build" + hb.util.cmn.capitalize(value)]($target);
-                        });
-                        return groups;
-                    }
-                });
-                let _detailBuilder = new ui.HArticleDetailBuilder();
-
-                let _detailGroupMediator = {
-                    /** @type {jQuery} */
-                    $target:null,
-                    /** @type {hb.util.HArticle} */
-                    object:null,
-                    /**
-                     * @doc mediates minimal part of hArticle to HArticleDetail
-                     * @private
-                     */
-                    mapMinimal : function() {
-                        let groupLabel = 'minimal';
-                        let attrs = this.$target.detail.hAttributes;
-                        this.$target.title.text((this.object.title && this.object.title !=='')?this.object.title:'Nouvel article');
-                        attrs.type.text(attrs.type.data('label') + this.object.type.label);
-                    },
-                    mapDate : function() {
-                        let groupLabel = 'date';
-                        let attrs = this.$target.detail.hAttributes;
-                        attrs.beginHDate.text(attrs.beginHDate.data('label') +
-                            ((this.object.beginHDate != null)?this.object.beginHDate.getLabel():"-"));
-                        attrs.endHDate.text(attrs.endHDate.data('label') +
-                            ((this.object.endHDate != null)?this.object.endHDate.getLabel():"-"));
-                    },
-                    mapDetailImage : function() {
-                    },
-                    mapAbstract : function() {
-                        let groupLabel = 'abstract';
-                        let attrs = this.$target.detail.hAttributes;
-
-                        if(! $.inArray('abstract',this.object.groups)){
-                           console.log(groupLabel + " ins't loaded");
-                        }
-                        attrs.abstract.html(hb.util.cmn.convertPlainTextToParagraphed(this.object.abstract));
-                    }
-                };
-
-                /**
-                 * @doc HArticleFormBuilder constructor
-                 * @class hb.ui.HArticleFormBuilder
-                 */
-                ui.HArticleFormBuilder = function() {return this;};
-                Object.assign(ui.HArticleFormBuilder.prototype,{
-                    /**
-                     * @param {jQuery} $target
-                     * @param groups
-                     * @return array
-                     */
-                    build:function($target,groups=['minimal']){
-                        console.log("building form");
-
-                        let $form = $("div#hb-data form[name='article_dto']");
-                        console.log($form);
-                        console.log($form.length>0);
-                        if($form.length!==1){return [];}
-
-                        $form.detach().appendTo($target);
-
-                        console.log("groupes de formulaire : " + $form.data("groups"));
-
-                        return $form.data("groups");
-                    }
-                });
-                let _formBuilder = new ui.HArticleFormBuilder();
-
-                /**
-                 * @doc HArticleDetailMediator constructor
-                 * @class hb.ui.HArticleDetailMediator
-                 */
-                ui.HArticleDetailMediator = function() {
-                    /** @type {jQuery} */
-                    this.$target=null;
-                    /** @type {hb.util.HArticle} */
-                    this.object=null;
-                    return this;
-                };
-                Object.assign(ui.HArticleDetailMediator.prototype,{
-                    /**
-                     * @param groups
-                     * @return array
-                     */
-                    map:function(groups=['minimal']){
-                        console.log(this.$target.detail.hGroups);
-                        _detailGroupMediator.$target = this.$target;
-                        _detailGroupMediator.object = this.object;
-                        console.log(this);
-                        let unloadedGroups = [];
-                        let object = this.object;
-
-
-                        $.each(groups,function(key,value){
-                            console.log(value);
-                            if(typeof (_detailGroupMediator["map" + hb.util.cmn.capitalize(value)]) !== 'function'){
-                                throw "Group " + value + " doesn't exist for HArticleMediator";
-                            }
-                            _detailGroupMediator["map" + hb.util.cmn.capitalize(value)]();
-                            if($.inArray(value,object.groups)<0){unloadedGroups.push(value);}
-                        });
-                        console.log("unloaded" + unloadedGroups);
-                        if(! $.isEmptyObject(unloadedGroups)){this.load(unloadedGroups);}
-                        return groups;
-                    },
-                    load:function(groups){
-                        let object = this.object;
-                        let $target = this.$target;
-                        if(object.urlBag === null || object.urlBag.info === null){return;}
-                        let $loadingSpinner = $("<div class=\"col-md-1\"><div class='hb-spinner fast' style='display:-moz-inline-box'></div>").
-                            prependTo($target.body);
-                        $.ajax({
-                            url: object.urlBag.info,
-                            data: {groups:groups},
-                            dataType:'json',
-                            error: function(jqXHR,textStatus,errorThrown){
-                                let status = "error";
-                                let msg = textStatus + " - " + errorThrown;
-                                if(textStatus === "timeout"){
-                                    status = "warning";
-                                    msg = "Le serveur prend trop de temps à répondre. Reessayez dans quelques instants.";
-                                }
-                                hb.ui.misc.alert(status,msg,$target.body);
-                            },
-                            complete: function(){
-                                $loadingSpinner.toggle(300,function() { $(this).remove(); });
-                            },
-                            timeout:1000,
-                            success: function(response) {
-                                    if(response.status !== "success"){$target.alerts.push(hb.ui.misc.alert(response.status,response.message,$target.body));}
-                                    if(response.status === "error"){return;}
-                                    console.log(response);
-                                    $.extend(object,response.data);
-                                    $.merge(object.groups,groups);
-                                    $.each(groups,function(key,value){
-                                        _detailGroupMediator["map" + hb.util.cmn.capitalize(value)]();
-                                    });
-
-                            }
-                        });
-
-                    }
-                });
-                let _detailMediator = new ui.HArticleDetailMediator();
-
-                let _inputMapper = {
-                    getStrValue:function(value){
-                        if(value === null || value === "null"){return null;}
-                        if(typeof value !== 'object'){return value;}
-                        return JSON.stringify(value);
-                    },
-                    mapInput:function(value,$element){
-                        if($element.attr('type') === "checkbox"){return this.mapInputCheckbox(value,$element);}
-                        $element.val(this.getStrValue(value)).trigger("hb.load");
-                    },
-                    mapInputCheckbox:function(value,$element){
-                        if(value !== false){$element.prop( "checked", true).trigger("hb.load");}
-                        else{$element.prop( "checked", false ).trigger("hb.load");}
-                    },
-                    mapSelect:function(value,$element){
-                        let selectValue = $element.find("option:first").val();
-                        if(typeof value === 'object' &&
-                            typeof value.id !== 'undefined' &&
-                                $element.find("option[value='"+ value.id +"']").length > 0
-                        ){
-                            selectValue = value.id;
-                        }
-                        $element.val(selectValue).prop('selected', true).trigger("hb.load");
-                    },
-                    mapTextarea:function(value,$element){
-                        $element.val(this.getStrValue(value)).trigger("hb.load");
-                    },
-                    unMapInput:function($element){
-                        if($element.attr('type') === "checkbox"){return this.unMapInputCheckbox($element);}
-                        $element.val("").trigger("hb.unload");
-                    },
-                    unMapInputCheckbox:function($element){
-                        $element.prop( "checked", false ).trigger("hb.unload");
-                    },
-                    unMapSelect:function($element){
-                        let selectValue = $element.find("option:first").val();
-                        $element.val(selectValue).prop('selected', true).trigger("hb.unload");
-                    },
-                    unMapTextarea:function($element){
-                        $element.text("").trigger("hb.unload");
-                    },
-                    returnInput:function($element,value){
-                        if($element.attr('type') === "checkbox"){return this.returnInputCheckbox($element,value);}
-                        if($element[0].hasAttribute('data-hb-value')){return $element[0].getAttribute('data-hb-value');}
-                        return value.value;
-                    },
-                    returnInputCheckbox:function($element,value){
-                        if($element[0].hasAttribute('data-hb-value')){return $element[0].getAttribute('data-hb-value');}
-                        return value.value;
-                    },
-                    returnSelect:function($element,value){
-                        if($element[0].hasAttribute('data-hb-value')){return $element[0].getAttribute('data-hb-value');}
-                        return {id:value.value,label:$element.find('option[value="'+ value.value +'"]').text()};
-                    },
-                    returnTextarea:function($element,value){
-                        if($element[0].hasAttribute('data-hb-value')){return $element[0].getAttribute('data-hb-value');}
-                        return value.value
-                    }
-                };
-
-                /**
-                 * @doc SfFormMediator constructor
-                 * @class hb.ui.SfFormMediator
-                 */
-                ui.SfFormMediator = function() {
-                    /** @type {jQuery} */
-                    this.$target=null;
-                    /** @type {hb.util.HArticle} */
-                    this.object=null;
-                    this.pendingAction = false;
-                    return this;
-                };
-
-                Object.assign(ui.SfFormMediator.prototype,{
-                    /**
-                     * @return array
-                     */
-                    map:function(){
-                        let unloadedGroups = [];
-                        let object = this.object;
-                        let groups = object.groups;
-                        let $form = this.$target.form;
-                        this.unMap($form);
-                        let $rows = $form.find("[data-hb-group*='hb-group-']");
-
-                        let objectGroupsIterator = function(key,value){
-                            console.log("[data-hb-group='hb-group-"+ value + "']");
-                            let $rowGroup = $rows.filter("[data-hb-group='hb-group-"+ value + "']");
-                            //console.log(value);
-                            console.log("$rowGroup");
-                            console.log($rowGroup);
-                            $.each($rowGroup,formGroupIterator);
-                        };
-
-                        let formGroupIterator = function(key,value){
-                            //console.log(value);
-                            let $controls = $(value).find(".form-control,.form-check-input");
-                            $.each($controls,objectAttributeMediator);
-                        };
-
-                        let objectAttributeMediator = function(key,value){
-                            let $control = $(value);
-                            let attributeName = $control.attr('id').split('_');
-                            attributeName = attributeName[attributeName.length-1];
-                            console.log(attributeName);
-                            if(typeof object[attributeName] !=='undefined'){
-                                let attribute = object[attributeName];
-                                let nodeType = hb.util.cmn.capitalize($control.get(0).nodeName.toLowerCase());
-
-                                if(typeof _inputMapper["map"+nodeType] !== 'undefined'){
-                                    _inputMapper["map"+nodeType](attribute,$control);
-                                }
-                            }
-
-                        };
-                        $.each(groups,objectGroupsIterator);
-
-                        // button delete appears if deleteUrl is present
-                        let $deleteButton = $form.find("#delete");
-                        console.log(object.urlBag.delete);
-                        if(typeof object.urlBag.delete === 'undefined' || object.urlBag.delete === ""){
-                            $deleteButton.hide();
-                        }
-
-
-
-                        return groups;
-                    },
-                    /**
-                     * @doc reinitialize fields of the forms in order to prevent weird meltings between objects
-                     * @return array
-                     */
-                    unMap:function(){
-                        let $form = this.$target.form;
-
-                        $form.find(".form-control,.form-check-input").each(function(key,value){
-                            let $control = $(value);
-                            let nodeType = hb.util.cmn.capitalize($control.get(0).nodeName.toLowerCase());
-                            _inputMapper["unMap"+nodeType]($control);
-                        });
-                        $form.find("#delete").show();
-                        return true;
-                    },
-                    /**
-                     * @doc return data of form both to associated object and the server
-                     * @param data form data as an array
-                     * @return array
-                     */
-                    return:function(data){
-                        if(this.pendingAction){
-                            console.log("pendingAction, abort");
-                            return [];
-                        }
-                        this.pendingAction= true;
-                        let $form = this.$target.form;
-                        let object = this.object;
-                        let $controls = $form.find(".form-control,.form-check-input");
-                        let formName = "";
-                        data.forEach(function(value){
-                            if(value.name.indexOf(['[_token]']) !== -1) {formName = value.name.replace('[_token]','');}
-                        });
-                        console.log("formName : " + formName);
-                        console.log($controls);
-                        let formObject = {};
-                        let localObject = {};
-                        let $control = {};
-                        let attributeName="";
-
-                        data.forEach(function(value){
-                            if(value.name.indexOf(['[_token]']) !== -1) {
-                                formObject['_token'] = value.value;
-                                //localObject['_token'] = value.value;
-                                return;
-                            }
-                            attributeName = value.name.replace(formName + '[','').replace(']','');
-                            $control = $controls.filter("#" + formName + "_" + attributeName);
-                            console.log($control.get(0));
-                            console.log("#" + formName + "_" + attributeName);
-                            let nodeType = hb.util.cmn.capitalize($control.get(0).nodeName.toLowerCase());
-                            if(typeof _inputMapper["return"+nodeType] !== 'undefined'){
-                                localObject[attributeName] = _inputMapper["return"+nodeType]($control,value);
-                            }
-                            else{localObject[attributeName] = value.value;}
-                            formObject[attributeName]  = localObject[attributeName];
-                            if(nodeType === 'Select'){formObject[attributeName] = formObject[attributeName].id;}
-                        });
-                        console.log("data a transmettre");
-                        console.log(formObject)
-                        if(object === null){
-                            this.object = formObject;
-                            this.pendingAction= false;
-                        }
-                        else if(typeof object.urlBag !== 'undefined' && object.urlBag.post !== null){
-                            console.log(object.urlBag.post);
-                            this.submitToServer(object,formObject,localObject);
-                        }
-                        else{
-                            this.submitToLocal(object,localObject);
-                            this.pendingAction= false;
-                        }
-                        return [];
-                    },
-                    clearForm:function(){
-                        let $target = this.$target.parent();
-                        $target.find(".hb-form-error").remove();
-                        $target.find(".hb-alert").remove();
-                    },
-                    submitToServer:function(object,formObject,localObject){
-                        this.clearForm();
-                        let $target = this.$target;
-                        let $this = this;
-                        $.ajax({
-                            method:'POST',
-                            url: object.urlBag.post,
-                            data: {groups:object.groups,form:formObject},
-                            dataType:'json',
-                            error: function(jqXHR,textStatus,errorThrown){
-                                $this.pendingAction= false;
-                                let status = "error";
-                                let msg = textStatus + " - " + errorThrown;
-                                if(textStatus === "timeout"){
-                                    status = "warning";
-                                    msg = "Le serveur prend trop de temps à répondre. Reessayez dans quelques instants.";
-                                }
-                                hb.ui.misc.alert(status,msg,$target.body);
-                            },
-                            complete: function(){$this.pendingAction= false;},
-                            timeout:10000,
-                            success: function(response) {
-                                $target.alerts.push(hb.ui.misc.alert(response.status,response.message,$target.body));
-                                console.log(response.data);
-                                if(response.status === "error"){
-                                    if(response.errors !== null && typeof response.errors ==='object'){
-                                        Object.keys(response.errors).map(function(key, index) {
-                                            let $errorTarget = $target.find("[name$='["+ key +"]']");
-                                            let errorMsg = '';
-                                            //.closest(".form-group");
-                                            console.log($errorTarget);
-                                            for (var i in response.errors[key]){
-                                                errorMsg = response.errors[key][i];
-                                                console.log(errorMsg);
-                                                $("<li style='color:red' class='hb-form-error'>").html(errorMsg).
-                                                insertAfter($errorTarget);
-                                            }
-
-
-                                        });
-
-                                    }
-                                    return;
-                                }
-                                else if(typeof response.data === 'object' && response.data!==null){
-                                    Object.keys(response.data).map(function(key, index) {
-                                        object[key] = response.data[key];
-                                    });
-                                }
-                                $this.submitToLocal(object,localObject);
-                            }
-                        });
-
-                    },
-                    submitToLocal:function(object,localObject){
-                        console.log(Object.keys(object).length === 0 && object.constructor === Object);
-                        console.log(object);
-                        if($.isEmptyObject(object)){
-                            console.log(object);
-                            console.log(localObject);
-                            Object.assign(object,localObject);
-                            //object._token = localObject["_token"];
-                            return;
-                        }
-                        let isNew = (typeof object.urlBag === 'undefined') || object.urlBag.view==='';
-
-                        Object.keys(localObject).map(function(key, index) {
-                            if(typeof object[key] === 'undefined'){return;}
-                            object[key] = localObject[key];
-                        });
-                        if(typeof object["finalize"] !== 'undefined'){
-                            object.finalize();
-                        }
-
-                        if(isNew && typeof object.$bsTable !== 'undefined'){
-                            console.log("creation nouveau");
-                            object.$bsTable.bootstrapTable('insertRow', {index: 0, row: object});
-                        }
-                        else if(typeof object.$bsTable !== 'undefined'){
-                            object.$bsTable.bootstrapTable('updateRow', {index: object.localIndex, row: object});
-                        }
-                    },
-                    delete:function($targetButton=null,onDelete=function(){},force=false){
-                        if(this.pendingAction && !force){
-                            console.log("pendingAction, abort");
-                            return [];
-                        }
-                        this.pendingAction= true;
-
-                        let object = this.object;
-                        let $target = this.$target;
-                        let $this = this;
-                        $.ajax({
-                            method:'POST',
-                            url: object.urlBag.delete,
-                            error: function(jqXHR,textStatus,errorThrown){
-                                let status = "error";
-                                let msg = textStatus + " - " + errorThrown;
-                                if(textStatus === "timeout"){
-                                    status = "warning";
-                                    msg = "Le serveur prend trop de temps à répondre. Reessayez dans quelques instants.";
-                                }
-                                $this.pendingAction= false;
-                                hb.ui.misc.alert(status,msg,$target.body);
-                            },
-                            complete: function(){},
-                            timeout:10000,
-                            success: function(response) {
-                                //$target.alerts.push(hb.ui.misc.alert(response.status,response.message,$target.body));
-                                //console.log(response);
-                                if(response.status === "confirm"){
-                                    hb.ui.misc.confirm(
-                                        "Confirmer suppression",
-                                        response.message,
-                                        function(){
-                                            console.log("hoho");
-                                            $this.delete($targetButton,onDelete,true);
-                                            $this.pendingAction= false;
-                                            $(this).dialog( "close" );
-                                        },
-                                        function(){
-                                            $.ajax({method:"POST",url:object.urlBag.cancel});
-                                            $this.pendingAction= false;
-                                            $(this).dialog( "close" );
-                                        },
-                                        $targetButton
-                                    );
-                                }
-                                else if(response.status === "success"){
-                                    hb.ui.misc.alert("success",response.message);
-                                    $this.pendingAction= false;
-                                    onDelete();
-                                }
-                            }
-                        });
-                    }
-                });
-                let _formMediator = new ui.SfFormMediator();
-
-                console.log(_moduleName + " loaded");
-                return ui;
-            }(hb.ui || {},hb,$));
-
-            let _loadedModules = ((typeof hb.getLoadedModules==="function")?hb.getLoadedModules():[]);
-            _loadedModules.push(_moduleName);
-            hb.getLoadedModules = function() {
-                return _loadedModules;
-            }
-            return hb;
-        }(hb || {},$));
-
-
-        articleModal = new hb.ui.HArticleModal({groups:["minimal","date","abstract"]});
+        articleModal = new hb.ui.HModal({
+            detailBuilder:new hb.ui.detailBuilder.ArticleBuilder(),
+            formBuilder:new hb.ui.form.FormBuilder("article_dto"),
+            detailMediator:new hb.ui.detailMediator.ArticleMediator(),
+            formMediator:new hb.ui.SfFormMediator(),
+            groups:["minimal","date","abstract"],
+            defaultTitle:"Nouvel article"
+        });
 
         articleModal.$modal.on('show.bs.modal', function () {
             console.log("modal shown !");
@@ -691,7 +91,6 @@
         });
 
         const $table = $('#table');
-        hb.util.HArticle.prototype.$bsTable =$table;
         const $remove = $('#remove');
         let selections = [];
 
@@ -701,9 +100,10 @@
                 responseHandler:function(res) {
                     console.log(res.rows);
                     for(let i=0;i<res.rows.length;i++){
-                        Object.setPrototypeOf(res.rows[i], hb.util.HArticle.prototype);
+                        Object.setPrototypeOf(res.rows[i], hb.util.dto.Article);
                         res.rows[i].finalize();
                         res.rows[i].localIndex = i;
+                        res.rows[i].$bsTable = $table;
                     }
                     console.log(res);
                 return res;
@@ -794,10 +194,7 @@
                                     '</a> ',
                                     '<a class="like" href="'+ edit + '"  title="Edit">',
                                     '<i class="fa fa-edit"></i>',
-                                    '</a> ',
-                                    '<a class="remove" href="javascript:void(0)" disabled title="Remove">',
-                                    '<i class="fa fa-remove"></i>',
-                                    '</a>'
+                                    '</a> '
                                 ].join('');
                             }
                         }
@@ -824,50 +221,37 @@
                     });
                 }
             });
-            $table.on('all.bs.table', (e, name, args) => {
-                //console.log(name, args);
-            });
-            $remove.click(() => {
-                const ids = getIdSelections();
-                $table.bootstrapTable('remove', {
-                    field: 'id',
-                    values: ids
-                });
-                $remove.prop('disabled', true);
-            });
             $(window).resize(() => {
                 $table.bootstrapTable('resetView', {
                     height: getHeight()
                 });
             });
         }
-
-
-
         function getIdSelections() {
             return $.map($table.bootstrapTable('getSelections'), ({id}) => id);
         }
 
         function getHeight() {
-            return $(window).height() - $('h1').outerHeight(true);
+            return $(window).height() - $('h1').outerHeight(true)-420;
         }
 
         $(() => {
-            initTable()
+            initTable();
             $(".search").hide();
         });
 
         let newHArticlePrototype = $("#data-new-article").html();
         newHArticlePrototype = JSON.parse(newHArticlePrototype);
-        Object.setPrototypeOf(newHArticlePrototype, hb.util.HArticle.prototype);
+        Object.setPrototypeOf(newHArticlePrototype, hb.util.dto.Article);
         newHArticlePrototype.finalize();
         console.log(newHArticlePrototype);
 
         $("#add-article").on("click",function(){
             let newHArticle = {};
-            Object.setPrototypeOf(newHArticle,hb.util.HArticle.prototype);
+            newHArticle.$bsTable = $table;
+            Object.setPrototypeOf(newHArticle,hb.util.dto.Article);
             Object.assign(newHArticle,newHArticlePrototype);
-            articleModal.bind(newHArticle,'edit');
+            articleModal.bind(newHArticle,'form');
             console.log(newHArticle);
             articleModal.$modal.modal();
         });
@@ -877,18 +261,10 @@
         let searchFormMediator = new hb.ui.SfFormMediator();
         searchFormMediator.$target = $searchForm;
 
-
-
-
-
         $searchForm.on("submit",function(event){
-
             event.preventDefault();
             event.stopPropagation();
-
             $(event.target).serializeArray().slice();
-
-
             searchFormMediator.object = null;
             searchFormMediator.return($(event.target).serializeArray().slice());
             console.log($(event.target).serializeArray().slice());
@@ -896,21 +272,6 @@
             console.log(searchFormMediator.object);
             let options = $table.bootstrapTable('resetSearch',JSON.stringify(searchFormMediator.object));
         });
-        console.log("lolilol");
-        console.log($searchForm);
-
-        /*this.$modal.form.find("form").on("submit",function(event,element){
-            event.preventDefault();
-            event.stopPropagation();
-            console.log("submitted form");
-            console.log(event);
-            console.log($(event.target).serializeArray().slice());
-            $this.formMediator.return($(event.target).serializeArray().slice(),$this.object.urlBag.post);
-        });*/
-
-
-
-
     </script>
 {% endblock%}
 

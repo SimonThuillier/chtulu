@@ -113,7 +113,7 @@ class ArticleController extends Controller
             $mediator->mapDTOGroup('url');
             $hResponse
                 ->setMessage("L'article a été creé")
-                ->setData($serializer->normalize($mediator->getDTO(),['url']));
+                ->setData($serializer->normalize($mediator->getDTO(),['minimal','url']));
         }
         catch(\Exception $e){
             $hResponse->setStatus(HJsonResponse::ERROR)

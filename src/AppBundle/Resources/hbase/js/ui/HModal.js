@@ -68,16 +68,17 @@ var hb = (function (hb) {
         };
 
         let _buildForm = function(modal){
-            modal.$modal.editButton = _addEditButton(modal.$modal);
+            modal.$modal.editButton = _addEditButton(modal);
             modal.formBuiltGroups=modal.formBuilder.build(modal.$modal.form,modal.option.groups);
             modal.formMediator.$target = modal.$modal;
+            _addFormEvents(modal);
         };
 
         let _addEditButton = function(modal){
             let $modal = modal.$modal;
             $modal.editButton = $('<a class="edit" title="Edition rapide"><i class="fa fa-pencil"></i></a>');
             $modal.editButton.insertAfter($modal.title);
-            $modal.editButton.editButton.on("click",function(){
+            $modal.editButton.on("click",function(){
                 $modal.editButton.hide();
                 $modal.detail.hide();
                 $modal.find(".hb-alert").remove();
@@ -122,14 +123,17 @@ var hb = (function (hb) {
         let _refresh = function(modal,page='all')
         {
             let $modal = modal.$modal;
+            $modal.find(".hb-alert").remove();
+            $modal.title.text((modal.object.title && modal.object.title !=='')?modal.object.title:modal.option.defaultTitle);
             if(['all','form'].includes(page) && modal.formMediator){
-                modal.formMediator.map();
+                modal.formMediator.clearForm();
+                modal.formMediator.map(modal.option.groups);
                 if($modal.editButton){$modal.editButton.hide();}
                 $modal.detail.hide();
                 $modal.form.show();
             }
             if(['all','detail'].includes(page) && modal.detailMediator){
-                modal.detailMediator.map();
+                modal.detailMediator.map(modal.option.groups);
                 if($modal.editButton){$modal.editButton.show();}
                 $modal.form.hide();
                 $modal.detail.show();
@@ -154,7 +158,7 @@ var hb = (function (hb) {
             this.formMediator = this.option.formMediator;
 
             if(this.detailBuilder && this.detailMediator){
-                _buildDetail(this);
+                _buildDetail(this,this.groups);
             }
             if(this.formBuilder && this.formMediator){
                 _buildForm(this);

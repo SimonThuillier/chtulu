@@ -12,6 +12,58 @@ var hb = (function (hb) {
     hb.ui = (function (ui,hb,$) {
         var _requiredModules = ["util:cmn/common.js"];
 
+        /**
+         * @module hb/ui/form
+         * @class hb.ui.form
+         */
+        ui.form = {
+            /**
+             * @doc hb.ui.form.FormBuilder constructor
+             * @class hb.ui.form.FormBuilder
+             * @param formName : name of the embedded form to be used by the builder
+             */
+            FormBuilder : function(formName) {
+                this.formName = formName;
+                return this;
+                },
+            /**
+             * @doc returns the name of the module
+             * @return {string}
+             */
+            getModuleName : function() {
+                return _moduleName;
+            },
+            /**
+             * @doc returns list of required modules and libraries for this module
+             * @return {Array}
+             */
+            getRequiredModules : function () {
+                return _requiredModules;
+            }
+        };
+
+        Object.assign(hb.ui.form.FormBuilder.prototype,{
+            /**
+             * @param {jQuery} $target
+             * @param groups
+             * @return array
+             */
+            build:function($target,groups=['minimal']){
+                console.log("building form");
+
+                let $form = $("div#hb-data form[name='" + this.formName + "']");
+                console.log($form);
+                console.log($form.length>0);
+                if($form.length!==1){return [];}
+
+                $form.detach().appendTo($target);
+
+                console.log("groupes de formulaire : " + $form.data("groups"));
+
+                return $form.data("groups");
+            }
+        });
+
         $(() => {
             $(".hb-form").each(function(){
                 let $labels = $(this).find("[class*='hb-group-']");
@@ -63,41 +115,6 @@ var hb = (function (hb) {
                 }
             });
         });
-
-
-
-
-
-
-
-
-        /**
-         * @module hb/ui/form
-         * @class hb.ui.form
-         */
-        ui.form = {
-            /**
-             * @doc returns the name of the module
-             * @return {string}
-             */
-            getModuleName : function() {
-                return _moduleName;
-            },
-            /**
-             * @doc returns list of required modules and libraries for this module
-             * @return {Array}
-             */
-            getRequiredModules : function () {
-                return _requiredModules;
-            }
-        };
-
-        $(function() {
-            console.log("apply classes");
-            ui.manager.applyClasses();
-        });
-
-
 
         console.log(_moduleName + " loaded");
         return ui;

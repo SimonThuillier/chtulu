@@ -4327,6 +4327,98 @@ var hb = (function (hb) {
 }(hb || {}));
 
 /**
+ * @package dto.js
+ * @doc dto.js :
+ */
+var hb = (function (hb) {
+    "use strict";
+    var _moduleName = "util:dto/dto.js";
+    if (((typeof hb.getLoadedModules === "function" ? hb.getLoadedModules() : [])).includes(_moduleName)) {
+        console.log(_moduleName + " already loaded, skipping");
+        return hb;
+    }
+    hb.util = (function (util, hb, $) {
+        var _requiredModules = ["util:cmn/common.js","util:HDate/HDate.js"];
+        util.dto = {};
+
+        let _idGenerator = new hb.util.cmn.getIdGenerator();
+        /**
+         * @doc Article object constructor
+         * @class hb.util.dto.Article
+         * @return {hb.util.dto.Article}
+         */
+        util.dto.Article = function()
+        {
+            this.id = "t" + _idGenerator(); // at creation articles receive a temporary id
+            this.objectType = "article";
+            this.title = null;
+            this.type = null;
+            this.abstract = null;
+            this.beginHDate = null;
+            this.hasEndDate = null;
+            this.endHDate = null;
+            this.groups = [];
+            this.urlBag = null;
+        };
+
+        Object.assign(util.dto.Article,
+            {
+                /**
+                 * @doc : determines if two HArticle are equals (same id)
+                 * @param {hb.util.dto.Article} article
+                 * @returns {boolean}
+                 */
+                equals : function(article) {
+                    return this.id === article.id;
+                },
+                /**
+                 * @doc : function aimed to finalize constitution of new HArticle created by parsing JSon
+                 * @return {hb.util.dto.Article}
+                 */
+                finalize : function(){
+                    let jsonStr = null;
+                    if(this.beginHDate !== null){
+                        if(typeof this.beginHDate === "object"){jsonStr = JSON.stringify(this.beginHDate);}
+                        else{jsonStr = this.beginHDate;}
+                        this.beginHDate = util.HDate.prototype.parseFromJson(jsonStr);
+                    }
+                    if(this.endHDate !== null){
+                        if(typeof this.endHDate === "object"){jsonStr = JSON.stringify(this.endHDate);}
+                        else{jsonStr = this.endHDate;}
+                        this.endHDate = util.HDate.prototype.parseFromJson(jsonStr);
+                    }
+                },
+                /**
+                 * @deprecated
+                 */
+                parseFromJson : function(jsonStr)
+                {
+                    let jsonObj = JSON.parse(jsonStr);
+                    let hArticle = new hb.util.HArticle();
+                    for(var key in hArticle) {
+                        if(jsonObj.hasOwnProperty(key)){
+                            hArticle[key] = jsonObj[key];
+                        }
+                    }
+                    return hArticle;
+                }
+            });
+
+
+
+        console.log(_moduleName + " loaded");
+        return util;
+    }(hb.util || {}, hb, $));
+
+    let _loadedModules = ((typeof hb.getLoadedModules === "function") ? hb.getLoadedModules() : []);
+    _loadedModules.push(_moduleName);
+    hb.getLoadedModules = function () {
+        return _loadedModules;
+    };
+    return hb;
+}(hb || {}));
+
+/**
  * @package hbase.js
  * @doc symfony.js : Contains utilitary functions for handling DOM symfony formatted elements (forms,...)
  * @requires jQuery
@@ -6212,6 +6304,357 @@ var hb = (function (hb,$) {
 }(hb || {},$));
 
 /**
+ * @package SfFormMediator.js
+ * @doc SfFormMediator.js :
+ */
+var hb = (function (hb) {
+    "use strict";
+    var _moduleName = "ui:SfFormMediator/SfFormMediator.js";
+    if (((typeof hb.getLoadedModules === "function" ? hb.getLoadedModules() : [])).includes(_moduleName)) {
+        console.log(_moduleName + " already loaded, skipping");
+        return hb;
+    }
+    hb.ui = (function (ui, hb, $) {
+        var _requiredModules = ["util:cmn/common.js","util:form/form.js"];
+
+        let _inputMapper = {
+            getStrValue:function(value){
+                if(value === null || value === "null"){return null;}
+                if(typeof value !== 'object'){return value;}
+                return JSON.stringify(value);
+            },
+            mapInput:function(value,$element){
+                if($element.attr('type') === "checkbox"){return this.mapInputCheckbox(value,$element);}
+                $element.val(this.getStrValue(value)).trigger("hb.load");
+            },
+            mapInputCheckbox:function(value,$element){
+                if(value !== false){$element.prop( "checked", true).trigger("hb.load");}
+                else{$element.prop( "checked", false ).trigger("hb.load");}
+            },
+            mapSelect:function(value,$element){
+                let selectValue = $element.find("option:first").val();
+                if(typeof value === 'object' &&
+                    typeof value.id !== 'undefined' &&
+                    $element.find("option[value='"+ value.id +"']").length > 0
+                ){
+                    selectValue = value.id;
+                }
+                $element.val(selectValue).prop('selected', true).trigger("hb.load");
+            },
+            mapTextarea:function(value,$element){
+                $element.val(this.getStrValue(value)).trigger("hb.load");
+            },
+            unMapInput:function($element){
+                if($element.attr('type') === "checkbox"){return this.unMapInputCheckbox($element);}
+                $element.val("").trigger("hb.unload");
+            },
+            unMapInputCheckbox:function($element){
+                $element.prop( "checked", false ).trigger("hb.unload");
+            },
+            unMapSelect:function($element){
+                let selectValue = $element.find("option:first").val();
+                $element.val(selectValue).prop('selected', true).trigger("hb.unload");
+            },
+            unMapTextarea:function($element){
+                $element.text("").trigger("hb.unload");
+            },
+            returnInput:function($element,value){
+                if($element.attr('type') === "checkbox"){return this.returnInputCheckbox($element,value);}
+                if($element[0].hasAttribute('data-hb-value')){return $element[0].getAttribute('data-hb-value');}
+                return value.value;
+            },
+            returnInputCheckbox:function($element,value){
+                if($element[0].hasAttribute('data-hb-value')){return $element[0].getAttribute('data-hb-value');}
+                return value.value;
+            },
+            returnSelect:function($element,value){
+                if($element[0].hasAttribute('data-hb-value')){return $element[0].getAttribute('data-hb-value');}
+                return {id:value.value,label:$element.find('option[value="'+ value.value +'"]').text()};
+            },
+            returnTextarea:function($element,value){
+                if($element[0].hasAttribute('data-hb-value')){return $element[0].getAttribute('data-hb-value');}
+                return value.value;
+            }
+        };
+
+        /**
+         * @doc SfFormMediator constructor
+         * @class hb.ui.SfFormMediator
+         */
+        ui.SfFormMediator = function() {
+            /** @type {jQuery} */
+            this.$target=null;
+            this.object=null;
+            this.pendingAction = false;
+            return this;
+        };
+
+        Object.assign(ui.SfFormMediator.prototype,{
+            /**
+             * @return array
+             */
+            map:function(){
+                let unloadedGroups = [];
+                let object = this.object;
+                let groups = object.groups;
+                let $form = this.$target.form;
+                this.unMap($form);
+                console.log(object);
+                let $rows = $form.find("[data-hb-group*='hb-group-']");
+
+                let objectGroupsIterator = function(key,value){
+                    //console.log("[data-hb-group='hb-group-"+ value + "']");
+                    let $rowGroup = $rows.filter("[data-hb-group='hb-group-"+ value + "']");
+                    $.each($rowGroup,formGroupIterator);
+                };
+
+                let formGroupIterator = function(key,value){
+                    let $controls = $(value).find(".form-control,.form-check-input");
+                    $.each($controls,objectAttributeMediator);
+                };
+
+                let objectAttributeMediator = function(key,value){
+                    let $control = $(value);
+                    let attributeName = $control.attr('id').split('_');
+                    attributeName = attributeName[attributeName.length-1];
+                    if(typeof object[attributeName] !=='undefined'){
+                        let attribute = object[attributeName];
+                        let nodeType = hb.util.cmn.capitalize($control.get(0).nodeName.toLowerCase());
+                        if(typeof _inputMapper["map"+nodeType] !== 'undefined'){
+                            _inputMapper["map"+nodeType](attribute,$control);
+                        }
+                    }
+
+                };
+                $.each(groups,objectGroupsIterator);
+                // button delete appears if deleteUrl is present
+                let $deleteButton = $form.find("#delete");
+                if(typeof object.urlBag.delete === 'undefined' || object.urlBag.delete === ""){
+                    $deleteButton.hide();
+                }
+                return groups;
+            },
+            /**
+             * @doc reinitialize fields of the forms in order to prevent weird meltings between objects
+             * @return array
+             */
+            unMap:function(){
+                let $form = this.$target.form;
+
+                $form.find(".form-control,.form-check-input").each(function(key,value){
+                    let $control = $(value);
+                    let nodeType = hb.util.cmn.capitalize($control.get(0).nodeName.toLowerCase());
+                    _inputMapper["unMap"+nodeType]($control);
+                });
+                $form.find("#delete").show();
+                return true;
+            },
+            /**
+             * @doc return data of form both to associated object and the server
+             * @param data form data as an array
+             * @return array
+             */
+            return:function(data){
+                if(this.pendingAction){
+                    console.log("pendingAction, abort");
+                    return [];
+                }
+                this.pendingAction= true;
+                let $form = this.$target.form;
+                let object = this.object;
+                let $controls = $form.find(".form-control,.form-check-input");
+                let formName = "";
+                data.forEach(function(value){
+                    if(value.name.indexOf(['[_token]']) !== -1) {formName = value.name.replace('[_token]','');}
+                });
+                let formObject = {};
+                let localObject = {};
+                let $control = {};
+                let attributeName="";
+
+                data.forEach(function(value){
+                    if(value.name.indexOf(['[_token]']) !== -1) {
+                        formObject._token = value.value;
+                        //localObject['_token'] = value.value;
+                        return;
+                    }
+                    attributeName = value.name.replace(formName + '[','').replace(']','');
+                    $control = $controls.filter("#" + formName + "_" + attributeName);
+                    let nodeType = hb.util.cmn.capitalize($control.get(0).nodeName.toLowerCase());
+                    if(typeof _inputMapper["return"+nodeType] !== 'undefined'){
+                        localObject[attributeName] = _inputMapper["return"+nodeType]($control,value);
+                    }
+                    else{localObject[attributeName] = value.value;}
+                    formObject[attributeName]  = localObject[attributeName];
+                    if(nodeType === 'Select'){formObject[attributeName] = formObject[attributeName].id;}
+                });
+                if(object === null){
+                    this.object = formObject;
+                    this.pendingAction= false;
+                }
+                else if(typeof object.urlBag !== 'undefined' && object.urlBag.post !== null){
+                    this.submitToServer(object,formObject,localObject);
+                }
+                else{
+                    this.submitToLocal(object,localObject);
+                    this.pendingAction= false;
+                }
+                return [];
+            },
+            clearForm:function(){
+                let $target = this.$target.parent();
+                $target.find(".hb-form-error").remove();
+                $target.find(".hb-alert").remove();
+            },
+            submitToServer:function(object,formObject,localObject){
+                this.clearForm();
+                let $target = this.$target;
+                let $this = this;
+
+                let isNew = (typeof object.id === 'undefined') ||
+                    String(object.id)==='0' ||
+                    (String(object.id).indexOf('t')) !== -1;
+
+                $.ajax({
+                    method:'POST',
+                    url: object.urlBag.post,
+                    data: {groups:object.groups,form:formObject},
+                    dataType:'json',
+                    error: function(jqXHR,textStatus,errorThrown){
+                        $this.pendingAction= false;
+                        let status = "error";
+                        let msg = textStatus + " - " + errorThrown;
+                        if(textStatus === "timeout"){
+                            status = "warning";
+                            msg = "Le serveur prend trop de temps à répondre. Reessayez dans quelques instants.";
+                        }
+                        hb.ui.misc.alert(status,msg,$target.body);
+                    },
+                    complete: function(){$this.pendingAction= false;},
+                    timeout:10000,
+                    success: function(response) {
+                        $target.alerts.push(hb.ui.misc.alert(response.status,response.message,$target.body));
+                        if(response.status === "error"){
+                            if(response.errors !== null && typeof response.errors ==='object'){
+                                Object.keys(response.errors).map(function(key, index) {
+                                    let $errorTarget = $target.find("[name$='["+ key +"]']");
+                                    let errorMsg = '';
+                                    for (var i in response.errors[key]){
+                                        errorMsg = response.errors[key][i];
+                                        $("<li style='color:red' class='hb-form-error'>").html(errorMsg).
+                                        insertAfter($errorTarget);
+                                    }
+                                });
+
+                            }
+                            return;
+                        }
+                        else if(typeof response.data === 'object' && response.data!==null){
+                            Object.keys(response.data).map(function(key, index) {
+                                object[key] = response.data[key];
+                            });
+                        }
+                        $this.submitToLocal(object,localObject,isNew);
+                    }
+                });
+
+            },
+            submitToLocal:function(object,localObject,isNew=false){
+                isNew = isNew ||
+                    (typeof object.id === 'undefined') ||
+                    String(object.id)==='0' ||
+                    (String(object.id).indexOf('t')) !== -1;
+
+
+                if($.isEmptyObject(object)){
+                    Object.assign(object,localObject);
+                    return;
+                }
+
+                Object.keys(localObject).map(function(key, index) {
+                    if(typeof object[key] === 'undefined'){return;}
+                    object[key] = localObject[key];
+                });
+                if(typeof object["finalize"] !== 'undefined'){
+                    object.finalize();
+                }
+
+                if(isNew && typeof object.$bsTable !== 'undefined'){
+                    //object.$bsTable.bootstrapTable('prepend', object);
+                    object.$bsTable.bootstrapTable('insertRow', {index: 0, row: object});
+                }
+                else if(typeof object.$bsTable !== 'undefined'){
+                    object.$bsTable.bootstrapTable('updateRow', {index: object.localIndex, row: object});
+                }
+            },
+            delete:function($targetButton=null,onDelete=function(){},force=false){
+                if(this.pendingAction && !force){
+                    console.log("pendingAction, abort");
+                    return [];
+                }
+                this.pendingAction= true;
+
+                let object = this.object;
+                let $target = this.$target;
+                let $this = this;
+                $.ajax({
+                    method:'POST',
+                    url: object.urlBag.delete,
+                    error: function(jqXHR,textStatus,errorThrown){
+                        let status = "error";
+                        let msg = textStatus + " - " + errorThrown;
+                        if(textStatus === "timeout"){
+                            status = "warning";
+                            msg = "Le serveur prend trop de temps à répondre. Reessayez dans quelques instants.";
+                        }
+                        $this.pendingAction= false;
+                        hb.ui.misc.alert(status,msg,$target.body);
+                    },
+                    complete: function(){},
+                    timeout:10000,
+                    success: function(response) {
+                        //$target.alerts.push(hb.ui.misc.alert(response.status,response.message,$target.body));
+                        //console.log(response);
+                        if(response.status === "confirm"){
+                            hb.ui.misc.confirm(
+                                "Confirmer suppression",
+                                response.message,
+                                function(){
+                                    $this.delete($targetButton,onDelete,true);
+                                    $this.pendingAction= false;
+                                    $(this).dialog( "close" );
+                                },
+                                function(){
+                                    $.ajax({method:"POST",url:object.urlBag.cancel});
+                                    $this.pendingAction= false;
+                                    $(this).dialog( "close" );
+                                },
+                                $targetButton
+                            );
+                        }
+                        else if(response.status === "success"){
+                            hb.ui.misc.alert("success",response.message);
+                            $this.pendingAction= false;
+                            onDelete();
+                        }
+                    }
+                });
+            }
+        });
+
+        console.log(_moduleName + " loaded");
+        return ui;
+    }(hb.ui || {}, hb, $));
+
+    let _loadedModules = ((typeof hb.getLoadedModules === "function") ? hb.getLoadedModules() : []);
+    _loadedModules.push(_moduleName);
+    hb.getLoadedModules = function () {
+        return _loadedModules;
+    };
+    return hb;
+}(hb || {}));
+
+/**
  * @package form.js
  * @doc form.js : Handles special form actions
  */
@@ -6230,54 +6673,15 @@ var hb = (function (hb) {
          * @class hb.ui.form
          */
         ui.form = {
-            submitArticleSearch : function(event,element)
-        {
-            event.preventDefault();
-            event.stopPropagation();
-            console.log(event);
-            console.log(event.target.href);
-            let $this = $(element);
-            let $formData = $this.serializeArray().slice();
-            let formMap = hb.util.sf.getFormMap($formData);
-            let $data;
-            let tempValue;
-            $this.find(".hb-hdatepicker").each(function(index){
-                if(typeof formMap[this.name] !== "undefined"){
-                    //$formData[formMap[this.name]].value = null;
-                    $formData[formMap[this.name]].value = $(this).attr("data-hdate");
-                    // $this = $(this);
-                    //$data.value = $(this).attr("data-hdate");
-                    //$data.attr("data-hdate",$data.value);
-                    //$data.val(tempValue);
-                }
-            });
-            console.log($formData);
-            let action = $this.attr("action");
-            if (typeof action === "undefined" || action === null || action ==="") return;
-            $.ajax({
-                url : $this.attr("action"),
-                type : "POST",
-                dataType : "html",
-                data : $formData,
-                success:function(data) {
-                    console.log("success ! " + data);
-                    //location.reload();
-                }
-            });
-
-            /*$this.find(".hb-hdatepicker").each(function(index){
-                if(typeof formMap[this.name] !== "undefined"){
-                    $data = $formData[formMap[this.name]];
-                    tempValue = $data.value;
-                    console.log(tempValue);
-                    $(this).val($(this).attr("data-hdate"));
-                    console.log($data.value);
-                    $(this).attr("data-hdate",tempValue);
-                }
-            });*/
-
-            return true;
-        },
+            /**
+             * @doc hb.ui.form.FormBuilder constructor
+             * @class hb.ui.form.FormBuilder
+             * @param formName : name of the embedded form to be used by the builder
+             */
+            FormBuilder : function(formName) {
+                this.formName = formName;
+                return this;
+                },
             /**
              * @doc returns the name of the module
              * @return {string}
@@ -6294,12 +6698,79 @@ var hb = (function (hb) {
             }
         };
 
-        $(function() {
-            console.log("apply classes");
-            ui.manager.applyClasses();
+        Object.assign(hb.ui.form.FormBuilder.prototype,{
+            /**
+             * @param {jQuery} $target
+             * @param groups
+             * @return array
+             */
+            build:function($target,groups=['minimal']){
+                console.log("building form");
+
+                let $form = $("div#hb-data form[name='" + this.formName + "']");
+                console.log($form);
+                console.log($form.length>0);
+                if($form.length!==1){return [];}
+
+                $form.detach().appendTo($target);
+
+                console.log("groupes de formulaire : " + $form.data("groups"));
+
+                return $form.data("groups");
+            }
         });
 
+        $(() => {
+            $(".hb-form").each(function(){
+                let $labels = $(this).find("[class*='hb-group-']");
+                let regex = new RegExp("^.*(hb-group-\\S+).*");
+                let groups = [];
+                $labels.each(function(){
+                    let groupClass = regex.exec($(this).attr('class'));
+                    if(groupClass.length<2){return;}
+                    groupClass=groupClass[1];
+                    let $formGroup = $(this).closest(".form-group");
+                    $(this).removeClass(groupClass);
+                    $($formGroup).attr("data-hb-group",groupClass);
+                    groups.push(groupClass.replace('hb-group-',''));
+                });
+                groups = $.unique(groups);
+                $(this).attr("data-hb-groups",JSON.stringify(groups));
+            });
 
+            $(".hb-form .hb-activer").on("change hb.load",function(event){
+                let $element = $(this);
+                let $form = $element.closest(".hb-form");
+                if(! $element[0].hasAttribute("data-target") ){return;}
+
+                let targets = $element[0].getAttribute("data-target");
+                targets = targets.split(" ");
+                let isActive = $element.prop( "checked");
+                console.log(targets);
+                let $target = $();
+                let $controlTarget = $();
+                let targetSelector = '';
+
+                for (var i in targets) {
+                    targetSelector = "[name$='[" + targets[i] + "]']";
+                    $controlTarget = $.merge($controlTarget,$form.find(targetSelector));
+                    $target = $.merge($target,$controlTarget.closest(".form-group"));
+                }
+
+                if(isActive){
+                    $controlTarget.prop("disabled",false);
+                    $target.show();
+                }
+                else{
+                    $controlTarget.prop("disabled",true);
+                    $target.hide()
+                    if($controlTarget[0].hasAttribute("data-hb-value")){
+                        $controlTarget[0].removeAttribute("data-hb-value") ;
+                    }
+                    $controlTarget.val(null);
+                }
+            });
+        });
 
         console.log(_moduleName + " loaded");
         return ui;
@@ -6375,27 +6846,10 @@ var hb = (function (hb) {
              */
             applyClasses : function ($element) {
                 if(typeof $element === 'undefined' || $element === null){
-
-
                     //(".hbase-hmaxlength").hmaxlength();
                     $(".hb-hdatepicker").hdatepicker();
                     //$(".hbase-htimescroller").htimescroller();
                     //$(".hbase-activer").each(function(){$.hbase.func.hbaseChecker(this)});
-                    $(".hb-article-search").
-                    off("submit").
-                    on("submit",function(event){
-                        console.log(event);
-                        //event.preventDefault();
-                        //event.stopPropagation();
-                        // throw('lol');
-
-                        hb.ui.form.submitArticleSearch(event,this);
-                        //event.preventDefault();
-                        //event.stopPropagation();
-                        console.log('event killé');
-                        return true;
-                        })
-                    ;
                 }
                 else{
                     //$element.find(".hbase-hmaxlength").hmaxlength();
@@ -6403,11 +6857,6 @@ var hb = (function (hb) {
                     //$element.find(".hbase-htimescroller").htimescroller();
                     $element.find(".hb-hdatepicker").hdatepicker();
                     //$element.find(".hbase-activer").each(function(){$.hbase.func.hbaseChecker(this);});
-                    $element.find(".hb-article-search").on("submit",function(event){
-                        event.preventDefault();
-                        event.stopPropagation();
-                        console.log('event killé');
-                        return true;});
                 }
             },
             /**
@@ -6442,5 +6891,470 @@ var hb = (function (hb) {
     hb.getLoadedModules = function() {
         return _loadedModules;
     }
+    return hb;
+}(hb || {}));
+
+/**
+ * @package detailBuilder.js
+ * @doc detailBuilder.js :
+ */
+var hb = (function (hb) {
+    "use strict";
+    var _moduleName = "ui:detailBuilder/detailBuilder.js";
+    if (((typeof hb.getLoadedModules === "function" ? hb.getLoadedModules() : [])).includes(_moduleName)) {
+        console.log(_moduleName + " already loaded, skipping");
+        return hb;
+    }
+    hb.ui = (function (ui, hb, $) {
+        var _requiredModules = ["util:cmn/common.js"];
+
+        /**
+         * @module hb/ui/detailBuilder
+         * @class hb.ui.detailBuilder
+         */
+        ui.detailBuilder = {};
+
+        let _detailGroupBuilder = {
+            /**
+             * @doc builds minimal part of article for HArticleModal
+             * @param {jQuery} $target
+             * @private
+             */
+            buildMinimal : function($target) {
+                let groupLabel = 'minimal';
+                let attrs = $target.hAttributes;
+                let parentGroup = null;
+                let $group = $("<div class=\"row\">").appendTo($target);
+                $target.hGroups[groupLabel] = $group;
+                $group.childrenContainers = [];
+
+                let $col = $("<div class=\"col-md-6\">").appendTo($group);
+                let $area = $("<div class=\"container-fluid\">").appendTo($col);
+                let $sRow = $("<div class=\"row\">").appendTo($area);
+                attrs["type"] = $("<h5 data-label='Type : '>").appendTo($sRow);
+                $group.childrenContainers["date"] = $sRow;
+                $group.childrenContainers["detailImage"] = $("<div class=\"col-md-5 ml-auto\">").appendTo($group);
+                return $group;
+            },
+            buildDate : function($target) {
+                let groupLabel = 'date';
+                let attrs = $target.hAttributes;
+                let parentGroup = 'minimal';
+                let $group = $target.hGroups[parentGroup].childrenContainers[groupLabel];
+                $target.hGroups[groupLabel] = $group;
+                $group.childrenContainers = [];
+
+                attrs["beginHDate"] = $("<h5 data-label='Date de début : '>").appendTo($group);
+                attrs["endHDate"] = $("<h5 data-label='Date de fin : '>").appendTo($group);
+
+                return $group;
+            },
+            buildDetailImage : function($target) {
+                let groupLabel = 'detailImage';
+                let attrs = $target.hAttributes;
+                let parentGroup = 'minimal';
+                let $group = $target.hGroups[parentGroup].childrenContainers[groupLabel];
+                $target.hGroups[groupLabel] = $group;
+                $group.childrenContainers = [];
+
+                let $thumbnail = $("<a href=\"#\" class=\"thumbnail\">").appendTo($group);
+                let $img = $("<img src=\"/images/420a08a_user2-160x160_1.jpg\" alt=\"...\">").appendTo($thumbnail);
+
+                return $group;
+            },
+            buildAbstract : function($target) {
+                let groupLabel = 'abstract';
+                let attrs = $target.hAttributes;
+                let parentGroup = null;
+                let $group = $("<div class=\"row\">").appendTo($target);
+                $target.hGroups[groupLabel] = $group;
+                $group.childrenContainers = [];
+
+                let $row = $("<div class=\"row\">").insertAfter($group);
+                let $col = $("<div class=\"col-md-12\">").appendTo($row);
+                attrs["abstract"] = $("<div class=\"well well-lg\">").appendTo($col);
+                return $group;
+            }
+        };
+
+        /**
+         * @doc HArticleDetailBuilder constructor
+         * @class hb.ui.detailBuilder.ArticleBuilder
+         */
+        ui.detailBuilder.ArticleBuilder = function() {return this;};
+        Object.assign(ui.detailBuilder.ArticleBuilder.prototype,{
+            /**
+             * @param {jQuery} $target
+             * @param groups
+             * @return array
+             */
+            build:function($target,groups=['minimal']){
+                if(typeof $target.hAttributes === 'undefined'){$target.hAttributes=[];}
+                if(typeof $target.hGroups === 'undefined'){$target.hGroups=[];}
+                console.log(groups);
+                $.each(groups,function(key,value){
+                    console.log(value);
+                    if(typeof (_detailGroupBuilder["build" + hb.util.cmn.capitalize(value)]) !== 'function'){
+                        throw "Group " + value + " doesn't exist for HArticleDetail";
+                    }
+                    _detailGroupBuilder["build" + hb.util.cmn.capitalize(value)]($target);
+                });
+                return groups;
+            }
+        });
+
+
+
+
+
+        console.log(_moduleName + " loaded");
+        return ui;
+    }(hb.ui || {}, hb, $));
+
+    let _loadedModules = ((typeof hb.getLoadedModules === "function") ? hb.getLoadedModules() : []);
+    _loadedModules.push(_moduleName);
+    hb.getLoadedModules = function () {
+        return _loadedModules;
+    };
+    return hb;
+}(hb || {}));
+
+/**
+ * @package detailMediator.js
+ * @doc detailMediator.js :
+ */
+var hb = (function (hb) {
+    "use strict";
+    var _moduleName = "ui:detailMediator/detailMediator.js";
+    if (((typeof hb.getLoadedModules === "function" ? hb.getLoadedModules() : [])).includes(_moduleName)) {
+        console.log(_moduleName + " already loaded, skipping");
+        return hb;
+    }
+    hb.ui = (function (ui, hb, $) {
+        var _requiredModules = ["util:cmn/common.js"];
+
+        /**
+         * @module hb/ui/detailMediator
+         * @class hb.ui.detailMediator
+         */
+        ui.detailMediator = {};
+
+        let _detailGroupMediator = {
+            /** @type {jQuery} */
+            $target:null,
+            object:null,
+            /**
+             * @doc mediates minimal part of hArticle to HArticleDetail
+             * @private
+             */
+            mapMinimal : function() {
+                let groupLabel = 'minimal';
+                let attrs = this.$target.detail.hAttributes;
+                this.$target.title.text((this.object.title && this.object.title !=='')?this.object.title:'Nouvel article');
+                attrs.type.text(attrs.type.data('label') + this.object.type.label);
+            },
+            mapDate : function() {
+                let groupLabel = 'date';
+                let attrs = this.$target.detail.hAttributes;
+                attrs.beginHDate.text(attrs.beginHDate.data('label') +
+                    ((this.object.beginHDate != null)?this.object.beginHDate.getLabel():"-"));
+                attrs.endHDate.text(attrs.endHDate.data('label') +
+                    ((this.object.endHDate != null)?this.object.endHDate.getLabel():"-"));
+            },
+            mapDetailImage : function() {
+            },
+            mapAbstract : function() {
+                let groupLabel = 'abstract';
+                let attrs = this.$target.detail.hAttributes;
+
+                if(! $.inArray('abstract',this.object.groups)){
+                    console.log(groupLabel + " ins't loaded");
+                }
+                attrs.abstract.html(hb.util.cmn.convertPlainTextToParagraphed(this.object.abstract));
+            }
+        };
+
+        /**
+         * @doc hb.ui.detailMediator.ArticleMediator constructor
+         * @class hb.ui.detailMediator.ArticleMediator
+         */
+        ui.detailMediator.ArticleMediator = function() {
+            /** @type {jQuery} */
+            this.$target=null;
+            this.object=null;
+            return this;
+        };
+        Object.assign(ui.detailMediator.ArticleMediator.prototype,{
+            supportsGroup:function(group){
+                if(typeof (_detailGroupMediator["map" + hb.util.cmn.capitalize(group)]) !== 'function') return false;
+                return true;
+            },
+            /**
+             * @param groups
+             * @return array
+             */
+            map:function(groups=['minimal']){
+                let mediator = this;
+                _detailGroupMediator.$target = this.$target;
+                _detailGroupMediator.object = this.object;
+                let unloadedGroups = [];
+                let object = this.object;
+                console.log(object);
+
+                $.each(groups,function(key,value){
+                    if (!mediator.supportsGroup(value)) throw "Group " + value + " doesn't exist for ArticleMediator";
+                    if($.inArray(value,object.groups)<0){unloadedGroups.push(value);}
+                    else{_detailGroupMediator["map" + hb.util.cmn.capitalize(value)]();}
+                });
+                console.log("unloaded" + unloadedGroups);
+                if(! $.isEmptyObject(unloadedGroups)){this.load(unloadedGroups);}
+                return groups;
+            },
+            load:function(groups){
+                let object = this.object;
+                let $target = this.$target;
+                if(object.urlBag === null || object.urlBag.info === null){return;}
+                let $loadingSpinner = $("<div class=\"col-md-1\"><div class='hb-spinner fast' style='display:-moz-inline-box'></div>").
+                prependTo($target.body);
+                $.ajax({
+                    url: object.urlBag.info,
+                    data: {groups:groups},
+                    dataType:'json',
+                    error: function(jqXHR,textStatus,errorThrown){
+                        let status = "error";
+                        let msg = textStatus + " - " + errorThrown;
+                        if(textStatus === "timeout"){
+                            status = "warning";
+                            msg = "Le serveur prend trop de temps à répondre. Reessayez dans quelques instants.";
+                        }
+                        hb.ui.misc.alert(status,msg,$target.body);
+                    },
+                    complete: function(){
+                        $loadingSpinner.toggle(300,function() { $(this).remove(); });
+                    },
+                    timeout:1000,
+                    success: function(response) {
+                        if(response.status !== "success"){$target.alerts.push(hb.ui.misc.alert(response.status,response.message,$target.body));}
+                        if(response.status === "error"){return;}
+                        $.extend(object,response.data);
+                        $.merge(object.groups,groups);
+                        $.each(groups,function(key,value){
+                            _detailGroupMediator["map" + hb.util.cmn.capitalize(value)]();
+                        });
+                    }
+                });
+            }
+        });
+
+        console.log(_moduleName + " loaded");
+        return ui;
+    }(hb.ui || {}, hb, $));
+
+    let _loadedModules = ((typeof hb.getLoadedModules === "function") ? hb.getLoadedModules() : []);
+    _loadedModules.push(_moduleName);
+    hb.getLoadedModules = function () {
+        return _loadedModules;
+    };
+    return hb;
+}(hb || {}));
+
+/**
+ * @package HModal.js
+ * @doc HModal.js :
+ */
+var hb = (function (hb) {
+    "use strict";
+    var _moduleName = "ui:HModal/HModal.js";
+    if (((typeof hb.getLoadedModules === "function" ? hb.getLoadedModules() : [])).includes(_moduleName)) {
+        console.log(_moduleName + " already loaded, skipping");
+        return hb;
+    }
+    hb.ui = (function (ui, hb, $) {
+        var _requiredModules = ["util:cmn/cmn.js","util:HArticle/HArticle.js",
+            "util:trans/translation.js","util:HDate/HDate.js"];
+
+        /**
+         * @doc setDefaultOption for HArticleModal
+         * @param option
+         * @returns {object}
+         * @private
+         */
+        let _setDefaultOption = function(option) {
+            option.detailBuilder = option.detailBuilder || null;
+            option.detailMediator = option.detailMediator || null;
+            option.formBuilder = option.formBuilder || null;
+            option.formMediator = option.formMediator || null;
+            option.z = option.z || 7;
+            option.fadeTime = option.fadeTime || 250;
+            option.defaultTitle = option.defaultTitle || "Nouvel objet";
+            option.groups = option.groups || ["minimal"];
+            return option;
+        };
+        /**
+         * @doc apply options to HArticleModal
+         * @private
+         */
+        let _applyOption = function(modal){
+            let $modal = modal.$modal;
+        };
+        
+        /**
+         * @doc builds modal container
+         * @private
+         */
+        let _build = function() {
+            let $modal = $("<div class=\"modal fade\" " +
+                "role=\"dialog\">").appendTo('body');
+            $modal.alerts=[];
+            $modal.container = $("<div class=\"modal-dialog modal-lg\" role=\"document\">").appendTo($modal);
+            $modal.content = $("<div class=\"modal-content\">").appendTo($modal.container);
+
+            $modal.header = $("<div class=\"modal-header\">").appendTo($modal.content);
+            $modal.title = $("<h4 class=\"modal-title\">Modal Header</h4>").appendTo($modal.header);
+            $modal.header.append("<button type=\"button\" class=\"close\" data-dismiss=\"modal\">&times;</button>");
+
+            $modal.body = $("<div class=\"modal-body\">").appendTo($modal.content);
+            $modal.detail = $("<div class= \"hb-detail\">").appendTo($modal.body);
+            $modal.form = $("<div class= \"hb-form\">").appendTo($modal.body);
+
+            $modal.footer = $("<div class=\"modal-footer\">").appendTo($modal.content);
+            $modal.footer.append("<button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Fermer</button>");
+            return $modal;
+        };
+
+        let _buildDetail = function(modal){
+            modal.builtGroups=modal.detailBuilder.build(modal.$modal.detail,modal.option.groups);
+            modal.detailMediator.$target = modal.$modal;
+        };
+
+        let _buildForm = function(modal){
+            modal.$modal.editButton = _addEditButton(modal);
+            modal.formBuiltGroups=modal.formBuilder.build(modal.$modal.form,modal.option.groups);
+            modal.formMediator.$target = modal.$modal;
+            _addFormEvents(modal);
+        };
+
+        let _addEditButton = function(modal){
+            let $modal = modal.$modal;
+            $modal.editButton = $('<a class="edit" title="Edition rapide"><i class="fa fa-pencil"></i></a>');
+            $modal.editButton.insertAfter($modal.title);
+            $modal.editButton.on("click",function(){
+                $modal.editButton.hide();
+                $modal.detail.hide();
+                $modal.find(".hb-alert").remove();
+                $modal.form.show();
+                modal.formMediator.map();
+            });
+            return $modal.editButton;
+        };
+
+        let _addFormEvents = function(modal){
+            let $modal = modal.$modal;
+            $modal.form.find("#cancel").on("click",function(){
+                $modal.form.hide();
+                $modal.editButton.show();
+                $modal.find(".hb-alert").remove();
+                $modal.detail.show();
+                modal.refresh('detail');
+            });
+            $modal.form.find("form").on("submit",function(event,element){
+                event.preventDefault();
+                event.stopPropagation();
+                //console.log("submitted form");
+                console.log(event);
+                console.log($(event.target).serializeArray().slice());
+                modal.formMediator.return($(event.target).serializeArray().slice(),modal.object.urlBag.post);
+            });
+            $modal.form.find("#delete").on("click",function(event,element){
+                event.preventDefault();
+                event.stopPropagation();
+                //console.log("submitted delete");
+                modal.formMediator.delete($(this),function(){
+                    modal.object.$bsTable.bootstrapTable('remove', {field: 'id', values: [modal.object.id]});
+                    modal.unbind();
+                });
+            });
+        };
+
+        /**
+         * @doc refresh HModal
+         * @private
+         */
+        let _refresh = function(modal,page='all')
+        {
+            let $modal = modal.$modal;
+            $modal.find(".hb-alert").remove();
+            $modal.title.text((modal.object.title && modal.object.title !=='')?modal.object.title:modal.option.defaultTitle);
+            if(['all','form'].includes(page) && modal.formMediator){
+                modal.formMediator.clearForm();
+                modal.formMediator.map(modal.option.groups);
+                if($modal.editButton){$modal.editButton.hide();}
+                $modal.detail.hide();
+                $modal.form.show();
+            }
+            if(['all','detail'].includes(page) && modal.detailMediator){
+                modal.detailMediator.map(modal.option.groups);
+                if($modal.editButton){$modal.editButton.show();}
+                $modal.form.hide();
+                $modal.detail.show();
+            }
+        };
+
+        /**
+         * @module hb/ui/HModal
+         * @class hb.ui.HModal
+         * @param {object} option
+         */
+        ui.HModal = function(option = {}){
+            this.errors=[];
+            this.object=null;
+
+            this.option = _setDefaultOption(option);
+            this.$modal = _build(this);
+
+            this.detailBuilder = this.option.detailBuilder;
+            this.detailMediator = this.option.detailMediator;
+            this.formBuilder = this.option.formBuilder;
+            this.formMediator = this.option.formMediator;
+
+            if(this.detailBuilder && this.detailMediator){
+                _buildDetail(this,this.groups);
+            }
+            if(this.formBuilder && this.formMediator){
+                _buildForm(this);
+            }
+            _applyOption(this);
+            return this;
+        };
+
+        let _prototype = {
+            bind : function(object,page='detail') {
+                this.object = object;
+                if(this.detailMediator)this.detailMediator.object = object;
+                if(this.formMediator)this.formMediator.object = object;
+                this.refresh(page);
+            },
+            refresh:function(page='all'){
+                _refresh(this,page);
+            },
+            unbind : function() {
+                this.object = null;
+                if(this.detailMediator)this.detailMediator.object = null;
+                if(this.formMediator)this.formMediator.object = null;
+                this.$modal.modal("hide");
+            }
+        };
+        Object.assign(ui.HModal.prototype,_prototype);
+
+
+        console.log(_moduleName + " loaded");
+        return ui;
+    }(hb.ui || {}, hb, $));
+
+    let _loadedModules = ((typeof hb.getLoadedModules === "function") ? hb.getLoadedModules() : []);
+    _loadedModules.push(_moduleName);
+    hb.getLoadedModules = function () {
+        return _loadedModules;
+    };
     return hb;
 }(hb || {}));
