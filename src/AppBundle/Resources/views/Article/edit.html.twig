@@ -1,93 +1,71 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}
-{{ articleDto.title }}
+    {{ title }}
 {% endblock %}
 
-
 {% block stylesheets %}
-{% stylesheets '@AppBundle/Resources/hbase/css/hbase.css'
-  filter='cssrewrite' %}
-<link rel="stylesheet" href="{{ asset_url }}" />
-
-	<style>
-		.hbase-text{
-			width: 100%;
-			height: 120px;
-		}
-		.hbase-article-form.main{
-			width: 1160px;
-		}
-		.hbase-article-form.main > table{
-			width: 1160px;
-		}
-
-		.hbase-label{
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow:ellipsis;
-		}
-
-
-
-
-		</style>
-
-{% endstylesheets %}
 {% endblock %}
 
 
 {% block content_header %}
-<h1 class="hts-article-title">Nouvel Article</h1>
+    <h1 class="hb-title"></h1>
 {% endblock %}
 
-
-
-
-
-{% block content %}
-<div id="wrapper">
-	<div id="header"></div>
-
-	<div id="page">
-        {{ form_start(form) }}
-        {{ form_widget(form) }}
-        {{ form_end(form) }}
-	</div>
-</div>
-
-<button id="modal-test" type="button" class="btn btn-info btn-lg" data-toggle="modal">Open Modal</button>
-
-<div id="{{ modalForm.vars.id }}">
-</div>
-
-
-
+{%  block content %}
+    <div id="hb-article-container" class="row-fluid">
+        <div id="hb-article-form" class="row-fluid"></div>
+        <div id="hb-article-detail" class="row-fluid" hidden="hidden"></div>
+    </div>
 {% endblock %}
-
-
-
-
 
 {% block javascript %}
-{#{% include 'AppBundle:Article:hts-package.js.twig' %}#}
-{#<script>#}
-    {#$("#modal-test").click(function(){#}
-        {#$.hbase.modal.article.form.sfAttr('title').val("hello !");#}
-        {#$.hbase.modal.article.modal();#}
-	{#});#}
+    <script type="application/javascript">
+        let article = JSON.parse($("#data-article").html());
+        $("#data-article").html("");
+        Object.setPrototypeOf(article, hb.util.dto.Article);
+        article.finalize();
+
+        let formBuilder = new hb.ui.form.FormBuilder("article_dto");
+        let formMediator = new hb.ui.SfFormMediator();
+        let detailBuilder = new hb.ui.detailBuilder.ArticleBuilder();
+        let detailMediator = new hb.ui.detailMediator.ArticleMediator();
+
+        let $target = $("#hb-article-container");
+        $target.alerts=[];
+        $target.detail = $("#hb-article-detail");
+        $target.form = $("#hb-article-form");
+        $target.title = $(".hb-title");
+        detailMediator.$target = $target;
+        formMediator.$target = $target;
+        formMediator.object = article;
+
+        formBuilder.build($target.form,article.groups.filter(item => item !== 'url'));
+
+        detailBuilder.build($target.detail,article.groups.filter(item => item !== 'url'));
+        detailMediator.object = article;
+        detailMediator.map(article.groups.filter(item => item !== 'url'));
 
 
-{#finalizeForm('main');#}
+        $target.form.find("form").on("submit",function(event,element){
+            event.preventDefault();
+            event.stopPropagation();
+            //console.log("submitted form");
+            console.log(event);
+            console.log($(event.target).serializeArray().slice());
+            formMediator.return($(event.target).serializeArray().slice(),article.urlBag.post);
+        });
 
-{#var d1 = new Date({{ beginDate|date("Y")}},{{ beginDate|date("m") - 1 }},{{ beginDate|date("d") }});#}
-{#var d2 = new Date({{ endDate|date("Y")}},{{ endDate|date("m") - 1 }},{{ endDate|date("d") }});#}
-{#d1 = null;#}
-{#d2 = null;#}
+        console.log(article);
 
-
-{#$("#article_main_form").on("submit",function(event){#}
-	  {#// hts.eventManager.prepareSubmission('article_modal','article_main');#}
-{#});#}
-{#</script>#}
+    </script>
 {% endblock%}
+
+{% block data %}
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button id="{{ form.vars.id }}_save" name="{{ form.vars.id }}[save]" type="submit" class="btn btn-primary">Enregistrer</button>
+    <a id="cancel" name="cancel" class="btn btn-default">Retour <i class="fa fa-info-circle"></i></a>
+    {{ form_end(form) }}
+    <div id="data-article">{{ articleDTO }}</div>
+{% endblock %}

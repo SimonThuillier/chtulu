@@ -32,7 +32,7 @@ class ArticleDTOType extends AbstractType
         //var_dump($options['validation_groups']);
          $groups = $options['validation_groups'];
         if($groups === null || $groups ===[]) {
-            $groups = ['minimal','abstract','date'];
+            $groups = ['minimal','abstract','date','detailImage'];
         }
 
         foreach($options['validation_groups'] as $group){
@@ -113,6 +113,10 @@ class ArticleDTOType extends AbstractType
             ));
     }
 
+    private function buildDetailImageGroup(FormBuilderInterface $builder, array $options){
+        // TODO : implement when image management is done
+    }
+
     private function buildSubArticlesGroup(FormBuilderInterface $builder, array $options){
 
         $builder
@@ -121,6 +125,8 @@ class ArticleDTOType extends AbstractType
                 'label' => 'sous-events'
             ));
     }
+
+
 
     private function buildLinkGroup(FormBuilderInterface $builder, array $options){
 

@@ -9,7 +9,7 @@
 
 
 {% block content_header %}
-    <h1 class="hts-article-title">Liste des articles</h1>
+    <h1 class="hb-title">Liste des articles</h1>
 {% endblock %}
 
 {%  block content %}
@@ -182,17 +182,17 @@
                             formatter: function(value, row, index) {
                                 let edit = "javascript:void(0)";
                                 if (row.urlBag !== null) edit = row.urlBag.edit;
-                                let info = "javascript:void(0)";
-                                if (row.urlBag !== null) info = row.urlBag.info;
+                                let view = "javascript:void(0)";
+                                if (row.urlBag !== null) view = row.urlBag.view;
 
                                 return [
                                     '<a class="like" href="javascript:void(0)" title="Preview">',
                                     '<i class="fa fa-info-circle"></i>',
                                     '</a> ',
-                                    '<a class="like" href="javascript:void(0)" title="See">',
+                                    '<a class="like" href="'+ view + '" title="Voir">',
                                     '<i class="fa fa-eye"></i>',
                                     '</a> ',
-                                    '<a class="like" href="'+ edit + '"  title="Edit">',
+                                    '<a class="like" href="'+ edit + '"  title="Editer">',
                                     '<i class="fa fa-edit"></i>',
                                     '</a> '
                                 ].join('');

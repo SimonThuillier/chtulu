@@ -25,7 +25,7 @@ class ArticleDTOMediator extends DTOMediator
     public function __construct()
     {
         parent::__construct();
-        $this->groups = ['minimal','abstract','date','type','url'];
+        $this->groups = ['minimal','abstract','date','type','url','detailImage'];
         $this->formTypeClassName = ArticleDTOType::class;
     }
 
@@ -135,6 +135,14 @@ class ArticleDTOMediator extends DTOMediator
             ->setPost($this->router->generate("article_post_create"));
 
         $dto->addMappedGroup('url');
+    }
+
+    private function mapDTODetailImageGroup()
+    {
+        /** @var ArticleDTO $dto */
+        $dto = $this->dto;
+        // TODO : complete when images management is completed
+        $dto->addMappedGroup('detailImage');
     }
 
     protected function mediateBeginHDate(){

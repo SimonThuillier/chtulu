@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block stylesheets %}
+{% endblock %}
+
+
+{% block content_header %}
+    <h1 class="hb-title"></h1>
+{% endblock %}
+
+{%  block content %}
+    <div id="hb-article-detail" class="row-fluid">
+
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script type="application/javascript">
+        let article = JSON.parse($("#data-article").html());
+        $("#data-article").html("");
+        Object.setPrototypeOf(article, hb.util.dto.Article);
+        article.finalize();
+
+        let detailBuilder = new hb.ui.detailBuilder.ArticleBuilder();
+        let detailMediator = new hb.ui.detailMediator.ArticleMediator();
+
+        let $target = $("#hb-article-detail");
+        $target.detail = $target;
+        $target.title = $(".hb-title");
+
+        detailBuilder.build($target,article.groups);
+        detailMediator.$target = $target;
+        detailMediator.object = article;
+        detailMediator.map(article.groups);
+
+        console.log(article);
+
+    </script>
+{% endblock%}
+
+{% block data %}
+    <div id="data-article">{{ articleDTO }}</div>
+{% endblock %}
