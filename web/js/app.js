@@ -5518,14 +5518,22 @@ var hb = (function (hb) {
                 console.log(jsonObj.beginDate.substring(1));*/
                 if(jsonObj.beginDate !== null && jsonObj.beginDate.substring(0,1) === "-"){
                     jsonObj.beginDate = jsonObj.beginDate.substring(1);
+                    while(jsonObj.beginDate.substring(0,1) === "0"){jsonObj.beginDate = jsonObj.beginDate.substring(1);}
+                    //console.log(jsonObj.beginDate.indexOf("-"));
+                    while(jsonObj.beginDate.indexOf("-") < 4){jsonObj.beginDate = "0" + jsonObj.beginDate;}
+                    //console.log(jsonObj.beginDate);
                     jsonObj.beginDate = new Date(Date.parse(jsonObj.beginDate));
+                    //console.log(jsonObj.beginDate);
                     jsonObj.beginDate.setFullYear(-jsonObj.beginDate.getFullYear());
+                    //console.log(-jsonObj.beginDate.getFullYear());
                 }
                 else{
                     jsonObj.beginDate = new Date(Date.parse(jsonObj.beginDate));
                 }
                 if(jsonObj.endDate !== null && jsonObj.endDate.substring(0,1) === "-"){
                     jsonObj.endDate = jsonObj.endDate.substring(1);
+                    while(jsonObj.endDate.substring(0,1) === "0"){jsonObj.endDate = jsonObj.endDate.substring(1);}
+                    while(jsonObj.endDate.indexOf("-") < 4){jsonObj.endDate = "0" + jsonObj.endDate;}
                     jsonObj.endDate = new Date(Date.parse(jsonObj.endDate));
                     jsonObj.endDate.setFullYear(-jsonObj.endDate.getFullYear());
                 }
@@ -6974,7 +6982,21 @@ var hb = (function (hb) {
                 let $col = $("<div class=\"col-md-12\">").appendTo($row);
                 attrs["abstract"] = $("<div class=\"well well-lg\">").appendTo($col);
                 return $group;
+            },
+            buildSubArticles : function($target) {
+                let groupLabel = 'abstract';
+                let attrs = $target.hAttributes;
+                let parentGroup = null;
+                let $group = $("<div class=\"row\">").appendTo($target);
+                $target.hGroups[groupLabel] = $group;
+                $group.childrenContainers = [];
+
+                let $row = $("<div class=\"row\">").insertAfter($group);
+                let $col = $("<div class=\"col-md-12\">").appendTo($row);
+                attrs["subArticle"] = $("<input class=\"hb-hts\">").appendTo($col);
+                return $group;
             }
+
         };
 
         /**
@@ -7071,7 +7093,9 @@ var hb = (function (hb) {
                     console.log(groupLabel + " ins't loaded");
                 }
                 attrs.abstract.html(hb.util.cmn.convertPlainTextToParagraphed(this.object.abstract));
-            }
+            },
+            mapSubArticles : function() {
+            },
         };
 
         /**

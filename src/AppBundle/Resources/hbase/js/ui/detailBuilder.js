@@ -78,7 +78,21 @@ var hb = (function (hb) {
                 let $col = $("<div class=\"col-md-12\">").appendTo($row);
                 attrs["abstract"] = $("<div class=\"well well-lg\">").appendTo($col);
                 return $group;
+            },
+            buildSubArticles : function($target) {
+                let groupLabel = 'abstract';
+                let attrs = $target.hAttributes;
+                let parentGroup = null;
+                let $group = $("<div class=\"row\">").appendTo($target);
+                $target.hGroups[groupLabel] = $group;
+                $group.childrenContainers = [];
+
+                let $row = $("<div class=\"row\">").insertAfter($group);
+                let $col = $("<div class=\"col-md-12\">").appendTo($row);
+                attrs["subArticle"] = $("<input class=\"hb-hts\">").appendTo($col);
+                return $group;
             }
+
         };
 
         /**

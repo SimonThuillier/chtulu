@@ -142,14 +142,22 @@ var hb = (function (hb) {
                 console.log(jsonObj.beginDate.substring(1));*/
                 if(jsonObj.beginDate !== null && jsonObj.beginDate.substring(0,1) === "-"){
                     jsonObj.beginDate = jsonObj.beginDate.substring(1);
+                    while(jsonObj.beginDate.substring(0,1) === "0"){jsonObj.beginDate = jsonObj.beginDate.substring(1);}
+                    //console.log(jsonObj.beginDate.indexOf("-"));
+                    while(jsonObj.beginDate.indexOf("-") < 4){jsonObj.beginDate = "0" + jsonObj.beginDate;}
+                    //console.log(jsonObj.beginDate);
                     jsonObj.beginDate = new Date(Date.parse(jsonObj.beginDate));
+                    //console.log(jsonObj.beginDate);
                     jsonObj.beginDate.setFullYear(-jsonObj.beginDate.getFullYear());
+                    //console.log(-jsonObj.beginDate.getFullYear());
                 }
                 else{
                     jsonObj.beginDate = new Date(Date.parse(jsonObj.beginDate));
                 }
                 if(jsonObj.endDate !== null && jsonObj.endDate.substring(0,1) === "-"){
                     jsonObj.endDate = jsonObj.endDate.substring(1);
+                    while(jsonObj.endDate.substring(0,1) === "0"){jsonObj.endDate = jsonObj.endDate.substring(1);}
+                    while(jsonObj.endDate.indexOf("-") < 4){jsonObj.endDate = "0" + jsonObj.endDate;}
                     jsonObj.endDate = new Date(Date.parse(jsonObj.endDate));
                     jsonObj.endDate.setFullYear(-jsonObj.endDate.getFullYear());
                 }

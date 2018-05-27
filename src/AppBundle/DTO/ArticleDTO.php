@@ -39,6 +39,8 @@ class ArticleDTO extends EntityMutableDTO
     protected $mediator;
     /** @var UrlBag */
     protected $urlBag;
+    /** @var array */
+    protected $subArticles=[];
 
     /**
      * ArticleDTO constructor.
@@ -207,6 +209,27 @@ class ArticleDTO extends EntityMutableDTO
         $this->urlBag = $urlBag;
         return $this;
     }
+
+    /**
+     * @return array
+     * @Groups({"subArticles"})
+     */
+    public function getSubArticles(): array
+    {
+        return $this->subArticles;
+    }
+
+    /**
+     * @param array $subArticles
+     * @return ArticleDTO
+     */
+    public function setSubArticles($subArticles): ArticleDTO
+    {
+        $this->subArticles = $subArticles;
+        return $this;
+    }
+
+
 
 
 

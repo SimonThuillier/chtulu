@@ -45,29 +45,34 @@ class ArticleController extends Controller
      * @Method({"GET"})
      */
     public function createAction(Request $request,
-                                 ArticleDTOFactory $dtoFactory,
                                  ArticleFactory $entityFactory,
-                                 ArticleDTOMediator $mediator)
+                               ArticleDTOFactory $dtoFactory,
+                               ArticleDTOMediator $mediator,
+                               ArticleDTOSerializer $serializer,
+                               Router $router)
     {
-        $groups = ['minimal','abstract','date'];
-        $mediator
+        $groups = ['minimal','abstract','date','detailImage'];
+
+        $articleDto = $mediator
+            ->setRouter($router)
             ->setEntity($entityFactory->create($this->getUser()))
             ->setDTO($dtoFactory->create($this->getUser()))
-            ->mapDTOGroups($groups);
+            ->mapDTOGroups(array_merge($groups,['url']))
+            ->getDTO();
+
         $form = $this
             ->get('form.factory')
-            ->createBuilder($mediator->getFormTypeClassName(),$mediator->getDTO(),[
-                'validation_groups'=>$groups])
-            ->add('save',SubmitType::class)
-            ->setAction($this->generateUrl("article_post_create"))
+            ->createBuilder(ArticleDTOType::class,$articleDto,[
+                'validation_groups'=>$groups
+            ])
             ->getForm();
 
-        return $this->render('@AppBundle/Article/create.html.twig',array(
-            'form' => $form->createView(),
-            'modalForm' => $form->createView(),
-            'beginDate' => (new \DateTime())->sub(new \DateInterval('P30D')),
-            'endDate' =>(new \DateTime())
-        ));
+        return $this->render('@AppBundle/Article/edit.html.twig',[
+                "title" => "[Creer] Nouvel article",
+                "articleDTO" =>json_encode($serializer->normalize($articleDto,array_merge($groups,['groups','url','type']))),
+                "form" => $form->createView()
+            ]
+        );
     }
 
     /**
@@ -159,7 +164,7 @@ class ArticleController extends Controller
                                ArticleDTOSerializer $serializer,
                                Router $router)
     {
-        $groups = ['minimal','abstract','date','detailImage'];
+        $groups = ['minimal','abstract','date','detailImage','subArticles'];
 
         $articleDto = $mediator
             ->setRouter($router)
@@ -176,13 +181,11 @@ class ArticleController extends Controller
             ->getForm();
 
         return $this->render('@AppBundle/Article/edit.html.twig',[
-                "title" => "Editer " . $articleDto->getTitle(),
+                "title" => "[Editer] " . $articleDto->getTitle(),
                 "articleDTO" =>json_encode($serializer->normalize($articleDto,array_merge($groups,['groups','url','type']))),
                 "form" => $form->createView()
             ]
         );
-
-
     }
 
     /**

@@ -50,7 +50,9 @@ var hb = (function (hb) {
                     console.log(groupLabel + " ins't loaded");
                 }
                 attrs.abstract.html(hb.util.cmn.convertPlainTextToParagraphed(this.object.abstract));
-            }
+            },
+            mapSubArticles : function() {
+            },
         };
 
         /**

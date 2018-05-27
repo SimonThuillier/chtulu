@@ -43,6 +43,7 @@
         formBuilder.build($target.form,article.groups.filter(item => item !== 'url'));
 
         detailBuilder.build($target.detail,article.groups.filter(item => item !== 'url'));
+        $target.detail.append($("<a id=\"resume-edit\" name=\"preview\" class=\"btn btn-primary\">Continuer l'édition <i class=\"fa fa-edit\"></i></a>"));
         detailMediator.object = article;
         detailMediator.map(article.groups.filter(item => item !== 'url'));
 
@@ -50,10 +51,35 @@
         $target.form.find("form").on("submit",function(event,element){
             event.preventDefault();
             event.stopPropagation();
-            //console.log("submitted form");
+            console.log("submitted form");
             console.log(event);
             console.log($(event.target).serializeArray().slice());
-            formMediator.return($(event.target).serializeArray().slice(),article.urlBag.post);
+            formMediator.return($(event.target).serializeArray().slice());
+        });
+
+        let tempArticle = {};
+        $("#preview").on("click",function(event,element){
+            tempArticle = jQuery.extend(true, {}, article);
+            tempArticle.urlBag.post = null;
+            formMediator.object = tempArticle;
+            detailMediator.object = tempArticle;
+            $target.form.find("form").trigger("submit");
+
+            detailMediator.map(tempArticle.groups.filter(item => item !== 'url'));
+
+            $target.form.hide();
+            $target.detail.show();
+
+            formMediator.object = article;
+            detailMediator.object = article;
+        });
+        $("#resume-edit").on("click",function(event,element){
+            $target.detail.hide();
+            $target.form.show();
+            tempArticle= null;
+        });
+        $("#cancel").on("click",function(event,element){
+            formMediator.map();
         });
 
         console.log(article);
@@ -65,7 +91,8 @@
     {{ form_start(form) }}
     {{ form_widget(form) }}
     <button id="{{ form.vars.id }}_save" name="{{ form.vars.id }}[save]" type="submit" class="btn btn-primary">Enregistrer</button>
-    <a id="cancel" name="cancel" class="btn btn-default">Retour <i class="fa fa-info-circle"></i></a>
+    <a id="preview" name="preview" class="btn btn-info">Previsualiser <i class="fa fa-eye"></i></a>
+    <a id="cancel" name="cancel" class="btn btn-default">Annuler modifications <i class="fa fa-undo"></i></a>
     {{ form_end(form) }}
     <div id="data-article">{{ articleDTO }}</div>
 {% endblock %}

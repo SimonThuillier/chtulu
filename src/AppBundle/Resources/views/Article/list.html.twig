@@ -96,6 +96,8 @@
 
         function initTable() {
             $table.bootstrapTable({
+                sortName:'editionDate',
+                sortOrder:'desc',
                 idField:'id',
                 responseHandler:function(res) {
                     console.log(res.rows);

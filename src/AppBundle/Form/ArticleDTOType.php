@@ -32,7 +32,7 @@ class ArticleDTOType extends AbstractType
         //var_dump($options['validation_groups']);
          $groups = $options['validation_groups'];
         if($groups === null || $groups ===[]) {
-            $groups = ['minimal','abstract','date','detailImage'];
+            $groups = ['minimal','abstract','date','detailImage','subArticles'];
         }
 
         foreach($options['validation_groups'] as $group){
@@ -120,9 +120,11 @@ class ArticleDTOType extends AbstractType
     private function buildSubArticlesGroup(FormBuilderInterface $builder, array $options){
 
         $builder
-            ->add('subArticles', TextareaType::class, array(
+            ->add('subArticles', TextType::class, array(
                 'required' => false,
-                'label' => 'sous-events'
+                'label' => '',
+                'label_attr' => array('class' => 'hb-group-subArticles'),
+                'attr' => array('class' => 'hb-hts')
             ));
     }
 
