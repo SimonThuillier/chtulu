@@ -124,7 +124,7 @@ class ArticleDTOType extends AbstractType
                 'required' => false,
                 'label' => '',
                 'label_attr' => array('class' => 'hb-group-subArticles'),
-                'attr' => array('class' => 'hb-hts')
+                'attr' => array('class' => 'hb-hte')
             ));
     }
 
