@@ -40,7 +40,9 @@ class ArticleDTO extends EntityMutableDTO
     /** @var UrlBag */
     protected $urlBag;
     /** @var array */
-    protected $subArticles=[];
+    protected $subArticles;
+    /** @var HDate */
+    protected $hteRange;
 
     /**
      * ArticleDTO constructor.
@@ -214,7 +216,7 @@ class ArticleDTO extends EntityMutableDTO
      * @return array
      * @Groups({"subArticles"})
      */
-    public function getSubArticles(): array
+    public function getSubArticles(): ?array
     {
         return $this->subArticles;
     }
@@ -228,6 +230,28 @@ class ArticleDTO extends EntityMutableDTO
         $this->subArticles = $subArticles;
         return $this;
     }
+
+    /**
+     * @return HDate
+     * @Groups({"hteRange"})
+     */
+    public function getHteRange(): ?HDate
+    {
+        return $this->hteRange;
+    }
+
+    /**
+     * @param HDate $hteRange
+     * @return ArticleDTO
+     */
+    public function setHteRange(?HDate $hteRange): ArticleDTO
+    {
+        $this->hteRange = $hteRange;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('hteRange');
+        return $this;
+    }
+
+
 
 
 

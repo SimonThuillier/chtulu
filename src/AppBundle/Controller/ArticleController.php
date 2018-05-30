@@ -164,7 +164,7 @@ class ArticleController extends Controller
                                ArticleDTOSerializer $serializer,
                                Router $router)
     {
-        $groups = ['minimal','abstract','date','detailImage','subArticles'];
+        $groups = ['minimal','abstract','date','detailImage','hteRange'];
 
         $articleDto = $mediator
             ->setRouter($router)
@@ -197,15 +197,17 @@ class ArticleController extends Controller
                                    Article $article,
                                      ArticleDTOFactory $dtoFactory,
                                      ArticleDTOMediator $mediator,
-                                     ArticleMapper $mapper)
+                                     ArticleMapper $mapper,
+                                   Router $router)
     {
         $hResponse = new HJsonResponse();
         $groups = $request->get("groups",['minimal']);
         $errors=[];
-        $groups=['minimal','date','abstract'];
+        //$groups=['minimal','date','abstract'];
         try{
             $mediator
                 ->setEntity($article)
+                ->setRouter($router)
                 ->setDTO($dtoFactory->create($this->getUser()))
                 ->mapDTOGroups($groups);
             $form = $this

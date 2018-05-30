@@ -13,20 +13,29 @@ use AppBundle\DTO\ArticleDTO;
 use AppBundle\Entity\Article;
 use AppBundle\Form\ArticleDTOType;
 use AppBundle\Helper\DateHelper;
+use AppBundle\Serializer\HDateSerializer;
 use AppBundle\Utils\HDate;
 use AppBundle\Utils\UrlBag;
+use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\Validator\Constraints\DateTime;
 
 class ArticleDTOMediator extends DTOMediator
 {
+    /** @var HDateSerializer */
+    private $hDateSerializer;
+
     /**
      * ArticleDTOMediator constructor.
+     * @param HDateSerializer $hDateSerializer
      */
-    public function __construct()
+    public function __construct(HDateSerializer $hDateSerializer)
     {
         parent::__construct();
-        $this->groups = ['minimal','abstract','date','type','url','detailImage','subArticles'];
+        $this->groups = ['minimal','abstract','date','type','url',
+            'detailImage','subArticles','hteRange'];
         $this->formTypeClassName = ArticleDTOType::class;
+        $this->hDateSerializer = $hDateSerializer;
     }
 
     /**
@@ -70,13 +79,12 @@ class ArticleDTOMediator extends DTOMediator
             ->addMappedGroup('abstract');
     }
 
-    private function mapDTODateGroup()
-    {
-        /** @var Article $article */
-        $article = $this->entity;
+    /**
+     * @param Article $article
+     * @return null|HDate
+     */
+    private function getArticleBeginHDate($article){
         $beginHDate = ($article->getBeginDateType() !== null)?new HDate():null;
-        $endHDate = ($article->getEndDateType() !== null)?new HDate():null;
-        $hasEndDate = $article->getId()>0?false:true;
 
         if($beginHDate !== null){
             $beginHDate
@@ -84,13 +92,34 @@ class ArticleDTOMediator extends DTOMediator
                 ->setBeginDate(DateHelper::indexToDate($article->getBeginDateMinIndex()))
                 ->setEndDate(DateHelper::indexToDate($article->getBeginDateMaxIndex()));
         }
+        return $beginHDate;
+    }
+
+    /**
+     * @param Article $article
+     * @return null|HDate
+     */
+    private function getArticleEndHDate($article){
+        $endHDate = ($article->getEndDateType() !== null)?new HDate():null;
+
         if($endHDate !== null){
             $endHDate
                 ->setType($article->getEndDateType())
                 ->setBeginDate(DateHelper::indexToDate($article->getEndDateMinIndex()))
                 ->setEndDate(DateHelper::indexToDate($article->getEndDateMaxIndex()));
-            $hasEndDate = true;
         }
+        return $endHDate;
+    }
+
+    private function mapDTODateGroup()
+    {
+        /** @var Article $article */
+        $article = $this->entity;
+        $hasEndDate = $article->getId()>0?false:true;
+
+        $beginHDate = $this->getArticleBeginHDate($article);
+        $endHDate = $this->getArticleEndHDate($article);
+        if($endHDate !== null) $hasEndDate = true;
 
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
@@ -153,6 +182,27 @@ class ArticleDTOMediator extends DTOMediator
         $dto->addMappedGroup('subArticles');
     }
 
+    private function mapDTOhteRangeGroup()
+    {
+        /** @var Article $article */
+        $article = $this->entity;
+        /** @var ArticleDTO $dto */
+        $dto = $this->dto;
+
+        if($article->gethteRange() !==null){
+            $dto->sethteRange($this->hDateSerializer->deserialize($article->gethteRange()));
+        }
+        else{
+            $beginHDate = $this->getArticleBeginHDate($article);
+            $endHDate = $this->getArticleEndHDate($article);
+            $hteRange = $dto->gethteRange();
+            if($beginHDate !== null) $hteRange->setBeginDate($beginHDate->getBeginDate());
+            if($endHDate !== null) $hteRange->setEndDate($endHDate->getEndDate());
+        }
+        // TODO : complete when sub-article management is completed
+        $dto->addMappedGroup('hteRange');
+    }
+
     protected function mediateBeginHDate(){
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
@@ -197,5 +247,14 @@ class ArticleDTOMediator extends DTOMediator
                 ->setEndDateMaxIndex(null)
                 ->setEndDateLabel(null);
         }
+    }
+
+    protected function mediatehteRange(){
+        /** @var ArticleDTO $dto */
+        $dto = $this->dto;
+        /** @var Article $article */
+        $article = $this->entity;
+
+        $article->sethteRange($dto->gethteRange()?$this->hDateSerializer->serialize($dto->gethteRange()):null);
     }
 }

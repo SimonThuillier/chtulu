@@ -32,10 +32,11 @@ class ArticleDTOType extends AbstractType
         //var_dump($options['validation_groups']);
          $groups = $options['validation_groups'];
         if($groups === null || $groups ===[]) {
-            $groups = ['minimal','abstract','date','detailImage','subArticles'];
+            $groups = ['minimal','abstract','date','detailImage','hteRange'];
         }
 
         foreach($options['validation_groups'] as $group){
+            if($group === 'url') continue;
             $function = 'build' . ucfirst($group) . 'Group';
             $this->$function($builder,$options);
         }
@@ -117,14 +118,13 @@ class ArticleDTOType extends AbstractType
         // TODO : implement when image management is done
     }
 
-    private function buildSubArticlesGroup(FormBuilderInterface $builder, array $options){
+    private function buildHteRangeGroup(FormBuilderInterface $builder, array $options){
 
         $builder
-            ->add('subArticles', TextType::class, array(
+            ->add('hteRange', HTimeExplorerType::class, array(
                 'required' => false,
                 'label' => '',
-                'label_attr' => array('class' => 'hb-group-subArticles'),
-                'attr' => array('class' => 'hb-hte')
+                'label_attr' => array('class' => 'hb-group-hteRange')
             ));
     }
 

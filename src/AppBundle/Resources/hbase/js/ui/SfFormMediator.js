@@ -205,6 +205,9 @@ var hb = (function (hb) {
                 this.clearForm();
                 let $target = this.$target;
                 let $this = this;
+                /*console.log(object);
+                console.log(formObject);
+                console.log(localObject);*/
 
                 let isNew = (typeof object.id === 'undefined') ||
                     String(object.id)==='0' ||

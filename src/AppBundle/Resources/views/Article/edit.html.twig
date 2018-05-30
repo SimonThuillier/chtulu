@@ -112,6 +112,16 @@
 
                 };
 
+                let _svgDrawer = function(explorer,drawGroups=['all']){
+                    explorer.d3SvgContainer.attr("width","100%").attr("height","100%");
+
+                    explorer.d3SvgContainer.append("rect")
+                        .attr("width", "100%")
+                        .attr("height", "100%")
+                        .attr("fill", "pink");
+
+                };
+
                 /**
                  * @doc builds explorer main object
                  * @private
@@ -124,19 +134,24 @@
                         $(this).parent().remove();
                     });
 
-                    let $header = $("<div class=\"row\"</div>").appendTo($container);
+                    explorer.$header = $("<div class=\"row\"</div>").appendTo($container);
                     let $inputContainer = $("<div class=\"col-xs-6 col-xs-offset-3" +
                         " col-sm-4 col-sm-offset-4" +
                         " col-md-2 col-md-offset-5 +" +
-                        " col-lg-2 col-lg-offset-5\"></div>").appendTo($header);
+                        " col-lg-2 col-lg-offset-5\"></div>").appendTo(explorer.$header);
 
                     explorer.$target.parent().detach();
                     $inputContainer.append(explorer.$target.detach());
 
-                    let $body = $("<div class=\"row\"</div>").appendTo($container);
-                    let $centralContainer = $("<div class=\"col-xs-12 col-sm-12 col-md-12 col-lg-12\" " +
-                        "style=\"white-space: nowrap;display: inline-block;float: none\"><p>center</p></div>").appendTo($body);
+                    explorer.$body = $("<div class=\"row\"</div>").appendTo($container);
 
+                    explorer.$centralContainer = $("<div class=\"col-xs-12 col-sm-12 col-md-12 col-lg-12\" " +
+                        "style=\"white-space: nowrap;display: inline-block;" +
+                        "float: none;padding:0px 30px 0px;\"><p>center</p></div>").appendTo(explorer.$body);
+
+                    let d3CentralContainer = d3.select(explorer.$centralContainer.get(0));
+                    explorer.d3SvgContainer = d3CentralContainer.append("svg");
+                    _svgDrawer(explorer);
 
 
 

@@ -4357,6 +4357,7 @@ var hb = (function (hb) {
             this.beginHDate = null;
             this.hasEndDate = null;
             this.endHDate = null;
+            this.hteRange = null;
             this.groups = [];
             this.urlBag = null;
         };
@@ -4386,6 +4387,11 @@ var hb = (function (hb) {
                         if(typeof this.endHDate === "object"){jsonStr = JSON.stringify(this.endHDate);}
                         else{jsonStr = this.endHDate;}
                         this.endHDate = util.HDate.prototype.parseFromJson(jsonStr);
+                    }
+                    if(this.hteRange !== null){
+                        if(typeof this.hteRange === "object"){jsonStr = JSON.stringify(this.hteRange);}
+                        else{jsonStr = this.hteRange;}
+                        this.hteRange = util.HDate.prototype.parseFromJson(jsonStr);
                     }
                 },
                 /**
@@ -6518,6 +6524,9 @@ var hb = (function (hb) {
                 this.clearForm();
                 let $target = this.$target;
                 let $this = this;
+                /*console.log(object);
+                console.log(formObject);
+                console.log(localObject);*/
 
                 let isNew = (typeof object.id === 'undefined') ||
                     String(object.id)==='0' ||
@@ -6983,8 +6992,8 @@ var hb = (function (hb) {
                 attrs["abstract"] = $("<div class=\"well well-lg\">").appendTo($col);
                 return $group;
             },
-            buildSubArticles : function($target) {
-                let groupLabel = 'abstract';
+            buildHteRange : function($target) {
+                let groupLabel = 'hteRange';
                 let attrs = $target.hAttributes;
                 let parentGroup = null;
                 let $group = $("<div class=\"row\">").appendTo($target);
@@ -6993,7 +7002,7 @@ var hb = (function (hb) {
 
                 let $row = $("<div class=\"row\">").insertAfter($group);
                 let $col = $("<div class=\"col-md-12\">").appendTo($row);
-                attrs["subArticle"] = $("<input class=\"hb-hts\">").appendTo($col);
+                attrs["hteRange"] = $("<input class=\"hb-hts\">").appendTo($col);
                 return $group;
             }
 
@@ -7094,7 +7103,7 @@ var hb = (function (hb) {
                 }
                 attrs.abstract.html(hb.util.cmn.convertPlainTextToParagraphed(this.object.abstract));
             },
-            mapSubArticles : function() {
+            mapHteRange : function() {
             },
         };
 

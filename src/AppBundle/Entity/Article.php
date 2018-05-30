@@ -129,6 +129,12 @@ class Article extends DTOMutableEntity
     protected $endDateLabel;
 
     /**
+     * @var string
+     * @ORM\Column(name="hte_range", type="string", nullable=true,length=255)
+     */
+    protected $hteRange;
+
+    /**
      * @var array
      * @ORM\Column(name="domain", type="simple_array",nullable=true)
      */
@@ -441,6 +447,26 @@ class Article extends DTOMutableEntity
         $this->endDateLabel = $endDateLabel;
         return $this;
     }
+
+    /**
+     * @return string
+     */
+    public function gethteRange(): ?string
+    {
+        return $this->hteRange;
+    }
+
+    /**
+     * @param string $hteRange
+     * @return Article
+     */
+    public function sethteRange(?string $hteRange): Article
+    {
+        $this->hteRange = $hteRange;
+        return $this;
+    }
+
+
 
     /**
      * Get domain

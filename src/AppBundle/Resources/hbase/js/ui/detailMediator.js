@@ -51,7 +51,7 @@ var hb = (function (hb) {
                 }
                 attrs.abstract.html(hb.util.cmn.convertPlainTextToParagraphed(this.object.abstract));
             },
-            mapSubArticles : function() {
+            mapHteRange : function() {
             },
         };
 

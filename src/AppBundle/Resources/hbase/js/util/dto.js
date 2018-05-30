@@ -29,6 +29,7 @@ var hb = (function (hb) {
             this.beginHDate = null;
             this.hasEndDate = null;
             this.endHDate = null;
+            this.hteRange = null;
             this.groups = [];
             this.urlBag = null;
         };
@@ -58,6 +59,11 @@ var hb = (function (hb) {
                         if(typeof this.endHDate === "object"){jsonStr = JSON.stringify(this.endHDate);}
                         else{jsonStr = this.endHDate;}
                         this.endHDate = util.HDate.prototype.parseFromJson(jsonStr);
+                    }
+                    if(this.hteRange !== null){
+                        if(typeof this.hteRange === "object"){jsonStr = JSON.stringify(this.hteRange);}
+                        else{jsonStr = this.hteRange;}
+                        this.hteRange = util.HDate.prototype.parseFromJson(jsonStr);
                     }
                 },
                 /**
