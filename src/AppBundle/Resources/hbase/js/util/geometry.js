@@ -16,6 +16,56 @@ var hb = (function (hb) {
          * @class hb.util.geom
          */
         util.geom = {
+            /**
+             * @doc returns the absolute path from a custom horizontally-relative path
+             * @param relPath
+             * @param hScale
+             * @returns {string}
+             */
+            hScalePath:function(relPath,hScale){
+            let hasZ = (relPath.indexOf('Z') !== -1);
+            let rawArrayPath = relPath.replace('M','').replace('Z','').trim().split('L');
+            let arrayPath = [];
+            rawArrayPath.forEach(function(element){
+                arrayPath.push(element.trim().split(' '));
+            });
+            let absPath = 'M ';
+            arrayPath.forEach(function(element){
+                let relX = element[0];
+                if(relX.indexOf('%') === -1){return;}
+                relX = Number(relX.replace('%',''));
+                let x = Math.floor(hScale(relX));
+                absPath = absPath + ' ' + x + ' ' + element[1] + ' L';
+            });
+            absPath = absPath.substring(0,absPath.length-2).trim();
+            if (hasZ) absPath = absPath + ' Z';
+            return absPath;
+            },
+            /**
+             * @doc returns the absolute path from a custom vertically-relative path
+             * @param relPath
+             * @param vScale
+             * @returns {string}
+             */
+            vScalePath:function(relPath,vScale){
+                let hasZ = (relPath.indexOf('Z') !== -1);
+                let rawArrayPath = relPath.replace('M','').replace('Z','').trim().split('L');
+                let arrayPath = [];
+                rawArrayPath.forEach(function(element){
+                    arrayPath.push(element.trim().split(' '));
+                });
+                let absPath = 'M ';
+                arrayPath.forEach(function(element){
+                    let relY = element[1];
+                    if(relY.indexOf('%') === -1){return;}
+                    relY = Number(relY.replace('%',''));
+                    let y = Math.floor(vScale(relY));
+                    absPath = absPath + ' ' + element[0] + ' ' + y + ' L';
+                });
+                absPath = absPath.substring(0,absPath.length-2).trim();
+                if (hasZ) absPath = absPath + ' Z';
+                return absPath;
+            },
             /** @doc returns D3 points for htsChevron : takes for argument the upper point and the peak point
              * @param {Number} x1
              * @param {Number} y1
@@ -30,7 +80,6 @@ var hb = (function (hb) {
                     'L',x1+((x2-x1)/2),y2,
                     'Z'].join(' ');
             },
-
             /** @doc returns D3 points for isocel triangle : takes for argument the upper point and the peak point
              * @param {Number} x1
              * @param {Number} y1

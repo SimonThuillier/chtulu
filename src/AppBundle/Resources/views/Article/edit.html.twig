@@ -113,12 +113,54 @@
                 };
 
                 let _svgDrawer = function(explorer,drawGroups=['all']){
-                    explorer.d3SvgContainer.attr("width","100%").attr("height","100%");
+                    explorer.d3SvgContainer.attr("width","100%");
+                    console.log(explorer.$centralContainer.width());
 
-                    explorer.d3SvgContainer.append("rect")
-                        .attr("width", "100%")
-                        .attr("height", "100%")
-                        .attr("fill", "pink");
+                    let hScale = d3.scaleLinear()
+                        .domain([0, 100])
+                        .range([0, explorer.$centralContainer.width()]);
+                    console.log(hScale);
+
+                    //let path = hb.util.geom.getTriangleDefPoints(100,10,150,50);
+                    let relPath = "M 0% 50 L 5% 10 L 5% 30 L 88% 30 L "
+                    + "88% 10 L 95% 50 L 88% 90 L 88% 70 L " +
+                    "5% 70 L 5% 90 Z";
+
+                    let absPath = hb.util.geom.hScalePath(relPath,hScale);
+
+
+
+
+                    explorer.d3SvgTimeArrow= explorer.d3SvgContainer.append("path");
+                    explorer.d3SvgTimeArrow.attr("fill","pink")
+                        .attr("stroke","blue").attr("stroke-width",1)
+                        .attr("d",absPath);
+
+                    let bridge = explorer.d3SvgContainer
+                            .append("foreignObject")
+                            .attr("border","solid")
+                            .attr("width","95%")
+                            .attr("height","100")
+                            .attr("y","100")
+                            .attr("max-height",6000);
+
+
+
+                    explorer.d3EventContainer = bridge
+                        .append("xhtml:div")
+                        .attr("class","hb-hte-articles")
+                        .attr("width","100%").attr("height","100");
+
+
+
+                    explorer.$centralContainer.on("hb.hresize",function(event,ratio){
+                        console.log(explorer.$centralContainer.width());
+                        console.log(explorer.d3SvgTimeArrow.attr("width"));
+                        explorer.d3SvgTimeArrow.attr("transform","scale(" + ratio + ",1)");
+                    });
+
+
+
 
                 };
 
@@ -145,7 +187,7 @@
 
                     explorer.$body = $("<div class=\"row\"</div>").appendTo($container);
 
-                    explorer.$centralContainer = $("<div class=\"col-xs-12 col-sm-12 col-md-12 col-lg-12\" " +
+                    explorer.$centralContainer = $("<div class=\"col-xs-12 col-sm-12 col-md-12 col-lg-12 hb-hte-container\" " +
                         "style=\"white-space: nowrap;display: inline-block;" +
                         "float: none;padding:0px 30px 0px;\"><p>center</p></div>").appendTo(explorer.$body);
 
@@ -204,6 +246,45 @@
             };
             return hb;
         }(hb || {}));
+
+        $(() => {
+            let $container = $(".hb-container");
+            let currentWidth = $container.width();
+            let currentHeight = $container.height();
+            let originalWidth = $container.width();
+            let originalHeight = $container.height();
+            console.log(originalWidth);
+
+            let triggerResize = function() {
+                resize = false;
+
+                if(currentWidth !== $container.width()){
+                    currentWidth = $container.width();
+                    $(".hb-hte-container").trigger('hb.hresize',[$container.width()/originalWidth]);
+                    resize = true;
+                }
+                if(currentHeight !== $container.height()){
+                    resize = true;
+                    currentHeight = $container.height();
+                    //$(".hb-the-container").trigger('hb.vresize');
+                }
+                console.log(resize);
+                return resize;
+            };
+
+            $(window).resize(triggerResize);
+            $(".sidebar-toggle").on("click",function(){
+                setTimeout(function(){
+                    console.log($container.width());
+                    triggerResize();
+                }, 350);
+            });
+        });
+
+        $(
+
+
+        );
 
 
 
