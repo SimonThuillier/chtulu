@@ -22,20 +22,21 @@ var hb = (function (hb) {
         util.dto.Article = function()
         {
             this.id = "t" + _idGenerator(); // at creation articles receive a temporary id
-            this.objectType = "article";
-            this.title = null;
-            this.type = null;
-            this.abstract = null;
-            this.beginHDate = null;
-            this.hasEndDate = null;
-            this.endHDate = null;
-            this.hteRange = null;
-            this.groups = [];
-            this.urlBag = null;
+
         };
 
         Object.assign(util.dto.Article,
             {
+                objectType : "article",
+                title : null,
+                type : null,
+                abstract : null,
+                beginHDate : null,
+                hasEndDate : null,
+                endHDate : null,
+                hteRange : null,
+                groups : [],
+                urlBag : null,
                 /**
                  * @doc : determines if two HArticle are equals (same id)
                  * @param {hb.util.dto.Article} article
@@ -49,6 +50,7 @@ var hb = (function (hb) {
                  * @return {hb.util.dto.Article}
                  */
                 finalize : function(){
+                    console.log(this);
                     let jsonStr = null;
                     if(this.beginHDate !== null){
                         if(typeof this.beginHDate === "object"){jsonStr = JSON.stringify(this.beginHDate);}
