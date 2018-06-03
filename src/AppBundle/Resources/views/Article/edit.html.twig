@@ -84,6 +84,150 @@
 
         console.log(article);
 
+        /**
+         * @package HTimeRange.js
+         * @doc HTimeRange.js :
+         */
+        var hb = (function (hb) {
+            "use strict";
+            var _moduleName = "util:HTimeRange/HTimeRange.js";
+            if (((typeof hb.getLoadedModules === "function" ? hb.getLoadedModules() : [])).includes(_moduleName)) {
+                console.log(_moduleName + " already loaded, skipping");
+                return hb;
+            }
+            hb.util = (function (util, hb, $) {
+                var _requiredModules = ["util:cmn/common.js,util:date/date.js"];
+
+                /** @doc returns the best type of range according to a given HDate
+                 * @param {hb.util.HDate} hDate
+                 * @return {string}
+                 * */
+                let _getTypeFromHDate = function(hDate){
+                    let dayCount = hDate.getIntervalSize();
+                    if(dayCount <1){throw('unhandled date period for date range : minimum interval is one day.');}
+                    else if(dayCount <50){return 'day';}
+                    else if(dayCount <210){return 'week';}
+                    else if(dayCount <1500){return 'month';}
+                    else if(dayCount <20000){return 'year';}
+                    else if(dayCount <200000){return 'decade';}
+                    else{return 'century';}
+                };
+
+                /** @doc function adding/removing graduations according to a new beginDate */
+                let _makeBeginGrad = function(hTimeRange){
+                    if (this.beginDate.dateEquals(beginDate)) return;
+                    else if (beginDate < this.beginDate){ // this case we need to add grads at the beginning of grad array
+                        let subArray = this.computeSubArray(beginDate,this.beginDate,type);
+                        this.grads = subArray.concat(this.grads);
+                    }
+                    else if (beginDate > this.endDate){
+                        this.grads.forEach(function(grad) {
+                            grad.remove();
+                        });
+                        this.grads = [];
+                    }
+                    else if (beginDate > this.beginDate){
+                        let index =0;
+                        while(this.grads[index].date < beginDate){
+                            this.grads[index].remove();
+                            index++;
+                        }
+                        this.grads.splice(0,index);
+                    }
+                    this.beginDate = beginDate;
+                };
+
+                /** @doc function adding/removing graduations according to a new endDate */
+                let _setEndDate = function(hTimeRange){
+                    if (this.endDate.dateEquals(endDate)) return;
+                    else if (endDate > this.endDate){ // this case we need to add grads at the end of grad array
+                        let subArray = this.computeSubArray(this.endDate,endDate,type);
+                        this.grads = this.grads.concat(subArray);
+                    }
+                    else if (endDate <= this.beginDate){
+                        this.grads.forEach(function(grad) {
+                            grad.remove();
+                        });
+                        this.grads = [];
+                    }
+                    else if (endDate < this.endDate){
+                        let index =this.grads.length-1;
+                        while(index>=0 && this.grads[index].date >= endDate){
+                            this.grads[index].remove();
+                            index--;
+                        }
+                        this.grads.splice(index+1,this.grads.length-1-index);
+                    }
+                    this.endDate = endDate;
+                };
+
+
+
+                /**
+                 * @doc handles the range of date graduations in a given HDate
+                 * @module hb/util/HTimeRange
+                 * @class hb.util.HTimeRange
+                 */
+                util.HTimeRange = function(parent = null){
+                    this.parent = null;
+                    this.hDate = null;
+                    this.type = null;
+                    this.grads = [];
+                };
+
+                Object.assign(util.HTimeRange.prototype,{
+                    /** @doc switcher functions according to type */
+                    switchFunctions:[
+                        {type:'day',switcher:util.date.switchToNextDay,supType:'week'},
+                        {type:'week',switcher:util.date.switchToNextWeek,supType:'month'},
+                        {type:'month',switcher:util.date.switchToNextMonth,supType:'year'},
+                        {type:'year',switcher:util.date.switchToNextYear,supType:'decade'},
+                        {type:'decade',switcher:util.date.switchToNextDecade,supType:'century'},
+                        {type:'century',switcher:util.date.switchToNextCentury,supType:'millennium'},
+                        {type:'millennium',switcher:util.date.switchToNextMillennium,supType:'millennium'}
+                    ],
+                    /** @doc callback function to find the adhoc switcher function and superior type (compound) */
+                    findSwitcherFunction: function(thisType){
+                        return (this.switchFunctions).find(function(functionArray){
+                            return (functionArray.type === thisType);
+                        });
+                    },
+                    /**
+                     * @param {jQuery} $target
+                     * @param groups
+                     * @return array
+                     */
+                    build:function($target,groups=['minimal']){
+                        if(typeof $target.hAttributes === 'undefined'){$target.hAttributes=[];}
+                        if(typeof $target.hGroups === 'undefined'){$target.hGroups=[];}
+                        console.log(groups);
+                        $.each(groups,function(key,value){
+                            console.log(value);
+                            if(typeof (_detailGroupBuilder["build" + hb.util.cmn.capitalize(value)]) !== 'function'){
+                                throw "Group " + value + " doesn't exist for HArticleDetail";
+                            }
+                            _detailGroupBuilder["build" + hb.util.cmn.capitalize(value)]($target);
+                        });
+                        return groups;
+                    }
+                });
+
+
+                console.log(_moduleName + " loaded");
+                return util;
+            }(hb.util || {}, hb, $));
+
+            let _loadedModules = ((typeof hb.getLoadedModules === "function") ? hb.getLoadedModules() : []);
+            _loadedModules.push(_moduleName);
+            hb.getLoadedModules = function () {
+                return _loadedModules;
+            };
+            return hb;
+        }(hb || {}));
+
+
+
+
         // HTimeExplorer prototyping
         var hb = (function (hb) {
             "use strict";
@@ -113,7 +257,7 @@
                 };
 
                 let _svgDrawer = function(explorer,drawGroups=['all']){
-                    explorer.d3SvgContainer.attr("width","100%");
+                    explorer.d3SvgContainer.attr("width","100%").attr("height","100");
                     console.log(explorer.$centralContainer.width());
 
                     let hScale = d3.scaleLinear()
@@ -136,27 +280,42 @@
                         .attr("stroke","blue").attr("stroke-width",1)
                         .attr("d",absPath);
 
-                    let bridge = explorer.d3SvgContainer
-                            .append("foreignObject")
-                            .attr("border","solid")
-                            .attr("width","95%")
-                            .attr("height","100")
-                            .attr("y","100")
-                            .attr("max-height",6000);
+                    explorer.$articleContainer = $("<div class='hb-hte-articles'/>").appendTo(explorer.$centralContainer);
+                    console.log(explorer.d3SvgContainer.style("width"));
+                    explorer.$articleContainer.height("50").width(hb.util.geom.getPathMaxX(explorer.d3SvgTimeArrow.attr('d')));
+
+                    explorer.d3ArticleContainer = d3.select(explorer.$articleContainer.get(0));
+
+                    explorer.d3SvgArticleContainer = explorer.d3ArticleContainer.append("svg").attr("width","100%")
+                        .attr("height","100");
+
+                    let timeScale = d3.scaleTime()
+                        .domain([new Date(2000,0,1),new Date(2001,0,1)])
+                        .range([0,hb.util.geom.getPathMaxX(explorer.d3SvgTimeArrow.attr('d'))]);
+
+                    let date = new Date(2000,6,24);
+
+                    explorer.d3SvgArticleTest = explorer.d3SvgArticleContainer.append("circle")
+                        .attr("r",5)
+                        .attr("fill","yellow")
+                        .attr("cursor","pointer")
+                        .attr("stroke","orange")
+                        .attr("stroke-width",2)
+                        .attr("cx",timeScale(date))
+                        .attr('cy',30);
 
 
-
-                    explorer.d3EventContainer = bridge
-                        .append("xhtml:div")
-                        .attr("class","hb-hte-articles")
-                        .attr("width","100%").attr("height","100");
 
 
 
                     explorer.$centralContainer.on("hb.hresize",function(event,ratio){
+                        timeScale.range([0,hb.util.geom.getPathMaxX(explorer.d3SvgTimeArrow.attr('d'))*ratio]);
                         console.log(explorer.$centralContainer.width());
-                        console.log(explorer.d3SvgTimeArrow.attr("width"));
+                        console.log(explorer.d3SvgTimeArrow.style("width"));
+                        console.log(ratio);
                         explorer.d3SvgTimeArrow.attr("transform","scale(" + ratio + ",1)");
+                        explorer.d3SvgArticleTest.attr("cx",timeScale(date));
+                        explorer.$articleContainer.width(hb.util.geom.getPathMaxX(explorer.d3SvgTimeArrow.attr('d'))*ratio);
                     });
 
 
@@ -189,30 +348,13 @@
 
                     explorer.$centralContainer = $("<div class=\"col-xs-12 col-sm-12 col-md-12 col-lg-12 hb-hte-container\" " +
                         "style=\"white-space: nowrap;display: inline-block;" +
-                        "float: none;padding:0px 30px 0px;\"><p>center</p></div>").appendTo(explorer.$body);
+                        "float: none;padding:0px 30px 0px;\"></div>").appendTo(explorer.$body);
 
                     let d3CentralContainer = d3.select(explorer.$centralContainer.get(0));
                     explorer.d3SvgContainer = d3CentralContainer.append("svg");
                     _svgDrawer(explorer);
 
 
-
-
-                    /*$modal.alerts=[];
-                    $modal.container = $("<div class=\"modal-dialog modal-lg\" role=\"document\">").appendTo($modal);
-                    $modal.content = $("<div class=\"modal-content\">").appendTo($modal.container);
-
-                    $modal.header = $("<div class=\"modal-header\">").appendTo($modal.content);
-                    $modal.title = $("<h4 class=\"modal-title\">Modal Header</h4>").appendTo($modal.header);
-                    $modal.header.append("<button type=\"button\" class=\"close\" data-dismiss=\"modal\">&times;</button>");
-
-                    $modal.body = $("<div class=\"modal-body\">").appendTo($modal.content);
-                    $modal.detail = $("<div class= \"hb-detail\">").appendTo($modal.body);
-                    $modal.form = $("<div class= \"hb-form\">").appendTo($modal.body);
-
-                    $modal.footer = $("<div class=\"modal-footer\">").appendTo($modal.content);
-                    $modal.footer.append("<button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Fermer</button>");
-                    */
                     return $container;
                 };
 

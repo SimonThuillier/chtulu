@@ -24,8 +24,9 @@ div.hb-hte-articles {
     color: Gray;
 	overflow-x: hidden;
 	border:solid;
-	font-size:14 px;
+	font-size:14px;
 	position:auto;
+	width:1000px;
 	overflow-y: auto;
 	resize: vertical;
 	border-width:1px;

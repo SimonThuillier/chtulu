@@ -11,36 +11,6 @@ function HRange(hts,beginDate,endDate){
 	this.grads = this.computeSubArray(this.beginDate,this.endDate, this.type);
 }
 
-/** function returning the type of range according to begin and end date */
-function hRangeGetType(beginDate,endDate){
-	var dayCount = endDate.dayDiff(beginDate);
-	if(dayCount <1){throw('unhandled date period for date range : minimum interval is one day.');}
-	else if(dayCount <50){return 'day';}
-	else if(dayCount <210){return 'week';}
-	else if(dayCount <1500){return 'month';}
-	else if(dayCount <20000){return 'year';}
-	else if(dayCount <200000){return 'decade';}
-	else{return 'century';}
-}
-
-/** make the range date switcher functions according to type */
-HRange.prototype.switchFunctions = [
-	{type:'day',switcher:switchToNextDay,supType:'week'},
-	{type:'week',switcher:switchToNextWeek,supType:'month'},
-	{type:'month',switcher:switchToNextMonth,supType:'year'},
-	{type:'year',switcher:switchToNextYear,supType:'decade'},
-	{type:'decade',switcher:switchToNextDecade,supType:'century'},
-	{type:'century',switcher:switchToNextCentury,supType:'millenia'},
-	{type:'millenia',switcher:switchToNextMillenia,supType:'millenia'}	
-	];
-
-/**  callback function to find the adhoc switcher function and superior type (compound) */
-HRange.prototype.findSwitcherFunction = function(thisType){
-	return (this.switchFunctions).find(function(functionArray){
-		return (functionArray.type === thisType);
-	});
-};
-
 /** function that computes array of graduation between two dates with a given type */
 HRange.prototype.computeSubArray = function(beginDate,endDate,type){
 	var compoundSwitcher = this.findSwitcherFunction(type);
@@ -92,52 +62,7 @@ HRange.prototype.setDates = function(beginDate,endDate){
 	}
 };
 
-/** function adding/removing graduations according to a new beginDate */
-HRange.prototype.setBeginDate = function(beginDate,type){
-	if (this.beginDate.dateEquals(beginDate)) return;
-	else if (beginDate < this.beginDate){ // this case we need to add grads at the beginning of grad array
-		var subArray = this.computeSubArray(beginDate,this.beginDate,type);
-		this.grads = subArray.concat(this.grads);
-	}
-	else if (beginDate > this.endDate){
-		this.grads.forEach(function(grad) {
-			grad.remove();
-		});
-		this.grads = [];
-	}
-	else if (beginDate > this.beginDate){
-		var index =0;
-		while(this.grads[index].date < beginDate){
-			this.grads[index].remove();
-			index++;
-		}
-		this.grads.splice(0,index);
-	}
-	this.beginDate = beginDate;
-};
-/** function adding/removing graduations according to a new endDate */
-HRange.prototype.setEndDate = function(endDate,type){
-	if (this.endDate.dateEquals(endDate)) return;
-	else if (endDate > this.endDate){ // this case we need to add grads at the end of grad array
-		var subArray = this.computeSubArray(this.endDate,endDate,type);
-		this.grads = this.grads.concat(subArray);
-	}
-	else if (endDate <= this.beginDate){
-		this.grads.forEach(function(grad) {
-			grad.remove();
-		});
-		this.grads = [];
-	}
-	else if (endDate < this.endDate){
-		var index =this.grads.length-1;
-		while(index>=0 && this.grads[index].date >= endDate){
-			this.grads[index].remove();
-			index--;
-		}
-		this.grads.splice(index+1,this.grads.length-1-index);
-	}
-	this.endDate = endDate;
-};
+
 
 
 

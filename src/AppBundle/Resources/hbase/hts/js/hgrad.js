@@ -17,9 +17,9 @@ function HGrad(hts,date,type,major){
 	this.legend = null;
 	this.legendId = null;
 	this.gradHeight = 0;
-	if(major == 1) {this.gradHeight=hts.htsGradMaxHeight;}
-	else if (major == 0 ) {this.gradHeight=hts.htsGradMinHeight;}
-	else if (major == -1 ) {this.gradHeight=hts.htsGradMinHeight;}
+	if(major === 1) {this.gradHeight=hts.htsGradMaxHeight;}
+	else if (major === 0 ) {this.gradHeight=hts.htsGradMinHeight;}
+	else if (major === -1 ) {this.gradHeight=hts.htsGradMinHeight;}
 
 	if(hts !== null) render(this);
 

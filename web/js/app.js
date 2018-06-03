@@ -5739,6 +5739,20 @@ var hb = (function (hb) {
                 if (hasZ) absPath = absPath + ' Z';
                 return absPath;
             },
+            /**
+             * @doc returns the maximum X of a path
+             * @param {string} path
+             * @returns {number}
+             */
+            getPathMaxX:function(path){
+
+                let arrayPath = path.replace('M','').replace('Z','').trim().split('L');
+                let maxX = 0;
+                arrayPath.forEach(function(element){
+                    maxX = Math.max(maxX,Number(element.trim().split(' ')[0]));
+                });
+                return maxX;
+            },
             /** @doc returns D3 points for htsChevron : takes for argument the upper point and the peak point
              * @param {Number} x1
              * @param {Number} y1
