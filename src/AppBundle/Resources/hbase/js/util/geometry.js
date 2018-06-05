@@ -67,6 +67,20 @@ var hb = (function (hb) {
                 return absPath;
             },
             /**
+             * @doc returns the minimum X of a path
+             * @param {string} path
+             * @returns {number}
+             */
+            getPathMinX:function(path){
+
+                let arrayPath = path.replace('M','').replace('Z','').trim().split('L');
+                let minX = 100000;
+                arrayPath.forEach(function(element){
+                    minX = Math.min(minX,Number(element.trim().split(' ')[0]));
+                });
+                return minX;
+            },
+            /**
              * @doc returns the maximum X of a path
              * @param {string} path
              * @returns {number}

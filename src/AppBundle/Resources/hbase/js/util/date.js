@@ -53,7 +53,7 @@ var hb = (function (hb) {
              * @param {Date} date
              * @returns {string}
              */
-            "D": function(date){return trans.DAY_NAMES_SHORT[date.getDay()];},
+            "D": function(date){return trans.DAY_NAMES_MIN[date.getDay()];},
             /**
              * @doc returns month number with initial zero
              * @param {Date} date
@@ -226,7 +226,7 @@ var hb = (function (hb) {
              * @returns {boolean}
              */
             equals: function(date1,date2) {
-                return (this.dayDiff(date1,date2) ===0);
+                return (util.date.dayDiff(date1,date2) ===0);
             },
             /**
              * @doc returns the float number of days between two dates
@@ -366,7 +366,7 @@ var hb = (function (hb) {
              * @returns {Date}
              */
             switchToNextDay: function(date,force=false,exact=false) {
-                if (force===true) return this.addDay(date,1);
+                if (force===true) return util.date.addDay(date,1);
                 return date;
             },
             /**
@@ -378,10 +378,10 @@ var hb = (function (hb) {
              * @returns {Date}
              */
             switchToNextWeek: function(date,force=false,exact=false) {
-                if (exact) return this.addDay(date,7);
-                let originDay = this.getFrenchDay(date);
+                if (exact) return util.date.addDay(date,7);
+                let originDay = util.date.getFrenchDay(date);
                 if(force || originDay  !== 0){
-                    this.addDay(date,7 - originDay);
+                    util.date.addDay(date,7 - originDay);
                 }
                 return date;
             },
@@ -550,7 +550,7 @@ var hb = (function (hb) {
              * @throws Exception - if unknown type
              */
             getParserFromStyle: function (type) {
-                let module = this;
+                let module = util.date;
                 let parseRegex = _PARSE_REGEXS[type];
                 if (typeof parseRegex === "undefined" || parseRegex === null){
                     throw ["The given type : '",type,"' isn't a valid parsing style ('1,3-8' accepted)."].join("");
@@ -564,7 +564,6 @@ var hb = (function (hb) {
                  */
                 function parser(sDate,errors=[]) {
                     let regexArray = parseRegex.exec(sDate);
-                    console.log(regexArray);
                     if (regexArray === null){
                         errors.push(cmn.multiReplace(
                             trans.PARSING_ERRORS[0],

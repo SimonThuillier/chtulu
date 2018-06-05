@@ -23,3 +23,5 @@ web/css/*
 .idea/*
 
 \.idea/
+
+web/js/

@@ -64,25 +64,25 @@ svg.hts-event-container {
 	fill:Gold;
 }
 
-.hts-grad {
+.hte-grad {
 	cursor:pointer;
 }
-text.hts-grad {
+text.hte-grad {
 	fill:black;
 	font-size:11px;
 	text-anchor:middle;
 	font-family:sans-serif;
 }
-text.hts-grad:hover {
+text.hte-grad:hover {
 	fill:DimGray;
 	font-size:16px;
 	font-weight:Bold;
 }
-line.hts-grad {
+line.hte-grad {
 	stroke-width:2;
 	stroke:black;
 }
-line.hts-grad:hover {
+line.hte-grad:hover {
 	stroke-width:4;
 	stroke:Gray;
 }
