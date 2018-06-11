@@ -81,10 +81,7 @@ text.hte-grad:hover {
 line.hte-grad {
 	stroke-width:2;
 	stroke:black;
-}
-line.hte-grad:hover {
-	stroke-width:4;
-	stroke:Gray;
+	pointer-events:none;
 }
 
 .hts-svg-chevron{

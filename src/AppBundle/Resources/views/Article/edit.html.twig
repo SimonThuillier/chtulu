@@ -84,403 +84,10 @@
 
         console.log(article);
 
-        /**
-         * @package HTimeGrad.js
-         * @doc HTimeGrad.js :
-         */
-        var hb = (function (hb) {
-            "use strict";
-            var _moduleName = "util:HTimeGrad/HTimeGrad.js";
-            if (((typeof hb.getLoadedModules === "function" ? hb.getLoadedModules() : [])).includes(_moduleName)) {
-                console.log(_moduleName + " already loaded, skipping");
-                return hb;
-            }
-            hb.util = (function (util, hb, $) {
-                var _requiredModules = ["util:cmn/common.js"];
-
-                /** make the idGenerator for graduations */
-                let _idGenerator = hb.util.cmn.getIdGenerator();
-                /** animations time (ms) */
-                let _animationTime = 600;
-                let _gradMinHeight = 15;
-                let _gradMaxHeight = 25;
-
-                /**  make the date formatters functions according to different type/major */
-                let _formatDateFunctions = [
-                    {type:'day',major:1,formatter: hb.util.date.getFormatterFromPattern("Dj/m")},
-                    {type:'day',major:0,formatter: hb.util.date.getFormatterFromPattern("Dd")},
-                    {type:'day',major:-1,formatter: function(){return '';}},
-                    {type:'week',major:1,formatter: hb.util.date.getFormatterFromPattern("M")},
-                    {type:'week',major:0,formatter: hb.util.date.getFormatterFromPattern("Dd")},
-                    {type:'week',major:-1,formatter: function(){return '';}},
-                    {type:'month',major:1,formatter: hb.util.date.getFormatterFromPattern("Y")},
-                    {type:'month',major:0,formatter: hb.util.date.getFormatterFromPattern("M")},
-                    {type:'month',major:-1,formatter: function(){return '';}},
-                    {type:'year',major:1,formatter: hb.util.date.getFormatterFromPattern("Y")},
-                    {type:'year',major:0,formatter: hb.util.date.getFormatterFromPattern("y")},
-                    {type:'year',major:-1,formatter: function(){return '';}},
-                    {type:'decade',major:1,formatter: hb.util.date.getFormatterFromPattern("Y")},
-                    {type:'decade',major:0,formatter: hb.util.date.getFormatterFromPattern("y")},
-                    {type:'decade',major:-1,formatter: function(){return '';}},
-                    {type:'century',major:1,formatter: hb.util.date.getFormatterFromPattern("Y")},
-                    {type:'century',major:0,formatter: hb.util.date.getFormatterFromPattern("c")},
-                    {type:'century',major:-1,formatter: function(){return '';}},
-                    {type:'id',major:0,formatter: hb.util.date.getFormatterFromPattern("d_m_Y")}
-                ];
-
-                /**  callback function to find the adhoc formatter function */
-                let _findFormatDateFunction = function(thisType,thisMajor){
-                    return (_formatDateFunctions).find(function(functionArray){
-                        return (functionArray.type === thisType && functionArray.major === thisMajor);
-                    }).formatter;
-                };
-
-                /** trigger centering on a graduation with anchor middle ( click on text) or begin (click on line) */
-                /*
-                let _centerHRange = function (hGrad,anchor){
-                    if(hGrad.type === 'day') return; // it's not allowed to center to one day range
-                    var switcher = hGrad.hts.hRange.findSwitcherFunction(hGrad.type).switcher;
-                    var newBeginDate = hGrad.date.clone();
-                    var newEndDate = switcher(hGrad.date.clone(),true);
-                    if(anchor === 'center'){
-                        var dayDiff = newEndDate.dayDiff(newBeginDate);
-                        newBeginDate.addDay(-dayDiff/2);
-                        newEndDate.addDay(-dayDiff/2);
-                    }
-                    hGrad.hts.setDates(newBeginDate,newEndDate);
-                };*/
-
-                /**
-                 * @doc
-                 * @module hb/util/HTimeGrad
-                 * @class hb.util.HTimeGrad
-                 */
-                util.HTimeGrad = function(parent,date,type,major){
-                    this.id=_idGenerator();
-                    this.parent = parent;
-                    this.date = date;
-                    this.type = type;
-                    this.major = major;
-                    if(major === 1) {this.gradHeight=_gradMaxHeight;}
-                    else if (major === 0 ) {this.gradHeight=_gradMinHeight;}
-                    else if (major === -1 ) {this.gradHeight=_gradMinHeight;}
-
-                    if(parent !== null && typeof parent.d3SvgTimeArrow !== 'undefined') this.render();
-                };
-
-                Object.assign(util.HTimeGrad.prototype,{
-                    line:null,
-                    lineId:null,
-                    legend:null,
-                    legendId:null,
-                    gradHeight:0,
-                    rendered:false,
-                    getLegend: function(){
-                        return _findFormatDateFunction(this.type,this.major)(this.date);
-                    },
-                    /** make or update dom components displaying the graduation */
-                    render: function(){
-                        if(this.rendered) return;
-                        this.lineId = 'hte-grad-line-' + this.type + '-' + (_findFormatDateFunction('id',0))(this.date) + '-' + this.id;
-                        this.legendId = 'hte-grad-legend-' + this.type + '-' + (_findFormatDateFunction('id',0))(this.date) + '-' + this.id;
-
-                        this.line = this.parent.d3SvgContainer
-                            .append("line")
-                            .attr("id",this.lineId)
-                            .attr("stroke-opacity",0)
-                            .attr('class','hte-grad');
-                        //.on('click', function(){centerHRange(this,'begin');});
-
-                        this.legend = this.parent.d3SvgContainer
-                            .append("text")
-                            .attr("id",this.legendId)
-                            .text(this.getLegend())
-                            .attr("fill-opacity",0)
-                            .attr('class','hte-grad');
-                        //.on('click', function(){centerHRange(this,'center');});
-
-                        this.rendered= true;
-                        this.updateScale();
-
-                        // animation at the creation (only if visible ie custom opacity superior to 0)
-                        if(this.legend.attr("custom-opacity") > 0){
-                            this.line
-                                .transition()
-                                .attr("stroke-opacity",1)
-                                .duration(_animationTime);
-
-                            this.legend
-                                .attr("tr-begin",0)
-                                .transition()
-                                .attr("fill-opacity",this.legend.attr("custom-opacity"))
-                                .attr("tr-begin",1)
-                                .on("end",function(){
-                                    if(typeof this !== 'undefined' && this !== null){
-                                        this.setAttribute("fill-opacity",this.getAttribute("custom-opacity"));
-                                    }
-                                })
-                                .duration(_animationTime);
-                        }
-                        else{
-                            this.line.attr("stroke-opacity",1);
-                            this.legend.attr("tr-begin",1);
-                        }
-                    },
-                    updateScale : function(){
-                        //console.log(this.parent.timeScale(this.date));
-                        this.line.attr("x1",this.parent.timeScale(this.date)).attr("x2",this.parent.timeScale(this.date));
-                        this.legend.attr("x",this.parent.timeScale(this.date));
-                        this.legend.attr("y",65);
-                        let opacity = 1;
-
-                        /*if(this.parent.parentBaseWidth-this.legend.attr("x") < this.parent.parentPinWidth/2){opacity = 0;}
-                        else if(this.parent.parentBaseWidth-this.legend.attr("x") < this.parent.parentPinWidth){
-                            opacity = (this.parent.parentBaseWidth-this.parent.parentPinWidth/2 - this.legend.attr("x"))/(this.parent.parentPinWidth/2);
-                        }
-                        else if(this.legend.attr("x") < 0){opacity = 0;}
-                        else if(this.legend.attr("x") < this.parent.parentPinWidth/2){
-                            opacity = (this.legend.attr("x"))/(this.parent.parentPinWidth/2);
-                        }*/
-                        this.legend.attr("custom-opacity",opacity);
-                        if(this.legend.attr("tr-begin")==1) this.legend.attr("fill-opacity",opacity);
-                        this.line.attr("y1",45 - opacity*this.gradHeight/2);
-                        this.line.attr("y2",45 + opacity*this.gradHeight/2);
-                    },
-                    /** remove dom components of the graduations with animation*/
-                    remove : function(){
-                        console.log("grad in remove");
-                    if(this.parent !== null){
-                        this.line
-                            .transition()
-                            .attr("opacity",0)
-                            .duration(this.animationTime)
-                            .attr("class","suppressed");
-                        this.legend
-                            .transition()
-                            .attr("opacity",0)
-                            .duration(this.animationTime)
-                            .attr("class","suppressed");
-
-                        $(this.line).detach();
-                        $(this.legend).detach();
-                        delete this.line;
-                        delete this.legend;
-                        this.parent = null;
-                        this.lineId = null;
-                        this.legendId = null;
-                    }
-                }
-
-
-                });
-
-
-                console.log(_moduleName + " loaded");
-                return util;
-            }(hb.util || {}, hb, $));
-
-            let _loadedModules = ((typeof hb.getLoadedModules === "function") ? hb.getLoadedModules() : []);
-            _loadedModules.push(_moduleName);
-            hb.getLoadedModules = function () {
-                return _loadedModules;
-            };
-            return hb;
-        }(hb || {}));
-
-        /**
-         * @package HTimeRange.js
-         * @doc HTimeRange.js :
-         */
-        var hb = (function (hb) {
-            "use strict";
-            var _moduleName = "util:HTimeRange/HTimeRange.js";
-            if (((typeof hb.getLoadedModules === "function" ? hb.getLoadedModules() : [])).includes(_moduleName)) {
-                console.log(_moduleName + " already loaded, skipping");
-                return hb;
-            }
-            hb.util = (function (util, hb, $) {
-                var _requiredModules = ["util:cmn/common.js,util:date/date.js"];
-
-                /** @doc returns the best type of range according to a given HDate
-                 * @param {hb.util.HDate} hDate
-                 * @return {string}
-                 * */
-                let _getTypeFromHDate = function(hDate){
-                    let dayCount = hDate.getIntervalSize();
-                    if(dayCount <1){throw('unhandled date period for date range : minimum interval is one day.');}
-                    else if(dayCount <50){return 'day';}
-                    else if(dayCount <210){return 'week';}
-                    else if(dayCount <1500){return 'month';}
-                    else if(dayCount <20000){return 'year';}
-                    else if(dayCount <200000){return 'decade';}
-                    else{return 'century';}
-                };
-
-                /** @doc switcher functions according to type */
-                let _switchFunctions = [
-                    {type:'day',switcher:util.date.switchToNextDay,supType:'week'},
-                    {type:'week',switcher:util.date.switchToNextWeek,supType:'month'},
-                    {type:'month',switcher:util.date.switchToNextMonth,supType:'year'},
-                    {type:'year',switcher:util.date.switchToNextYear,supType:'decade'},
-                    {type:'decade',switcher:util.date.switchToNextDecade,supType:'century'},
-                    {type:'century',switcher:util.date.switchToNextCentury,supType:'millennium'},
-                    {type:'millennium',switcher:util.date.switchToNextMillennium,supType:'millennium'}
-                ];
-                /** @doc callback function to find the adhoc switcher function and superior type (compound) */
-                let _findSwitcherFunction = function(thisType){
-                    return (_switchFunctions).find(function(functionArray){
-                        return (functionArray.type === thisType);
-                    });
-                };
-
-                let _createGrads = function(beginDate,endDate,type,parent){
-                    /*console.log("create grads");
-                    console.log(beginDate);
-                    console.log(endDate);
-                    console.log(type);
-                    console.log(parent);*/
-                    let compoundSwitcher = _findSwitcherFunction(type);
-                    type = compoundSwitcher.type;
-                    let switcher = compoundSwitcher.switcher;
-                    let supType = compoundSwitcher.supType;
-                    let supSwitcher = _findSwitcherFunction(supType).switcher;
-                    // dates to begin with
-                    let currentDate = switcher(hb.util.date.clone(beginDate));
-                    let currentMajorDate = supSwitcher(hb.util.date.clone(beginDate));
-                    let range = [];
-                    let minorGradMajor = 0; // to allow minor graduations with major -1 (legend undisplayed) if too close to next major graduations
-                    while(currentDate < endDate || currentMajorDate < endDate){
-                        if(type === 'week'){
-                            if (currentDate.getDate() > 27 || currentDate.getDate() < 4 ) {minorGradMajor = -1;}
-                            else{minorGradMajor=0;}
-                        }
-                        if(currentDate < currentMajorDate){
-                            range.push(new hb.util.HTimeGrad(parent,hb.util.date.clone(currentDate),type,minorGradMajor));
-                            currentDate = switcher(currentDate,true);
-                        }
-                        else if(currentDate > currentMajorDate){
-                            range.push(new hb.util.HTimeGrad(parent,hb.util.date.clone(currentMajorDate),type,1));
-                            currentMajorDate = supSwitcher(currentMajorDate,true);
-                        }
-                        else{ // equal dates
-                            range.push(new hb.util.HTimeGrad(parent,hb.util.date.clone(currentMajorDate),type,1));
-                            currentDate = switcher(currentDate,true);
-                            currentMajorDate = supSwitcher(currentMajorDate,true);
-                        }
-                    }
-                    return range;
-                };
-
-                /** @doc function adding/removing graduations according to a new beginDate */
-                let _handleLeftSide = function(hTimeRange,newBeginDate){
-                    /*console.log(hb.util.date.equals(hTimeRange.hDate.beginDate,newBeginDate));
-                    console.log(hTimeRange.hDate.beginDate);
-                    console.log(newBeginDate);*/
-                    if (hb.util.date.equals(hTimeRange.hDate.beginDate,newBeginDate)) return;
-                    else if (newBeginDate < hTimeRange.hDate.beginDate){ // this case we need to add grads at the beginning of grad array
-                        let newGrads = _createGrads(newBeginDate,hTimeRange.hDate.beginDate,hTimeRange.type,hTimeRange.parent);
-                        hTimeRange.grads = newGrads.concat(hTimeRange.grads);
-                    }
-                    else if (newBeginDate > hTimeRange.hDate.endDate){
-                        hTimeRange.grads.forEach(function(grad) {
-                            console.log("remove");
-                            grad.remove();
-                        });
-                        hTimeRange.grads = [];
-                    }
-                    else if (newBeginDate > hTimeRange.hDate.beginDate){
-                        let index =0;
-                        /*console.log("remove ?");
-                        console.log(hTimeRange.grads[index].date);
-                        console.log(newBeginDate);*/
-                        while(hTimeRange.grads[index].date < newBeginDate){
-                            //console.log("remove");
-                            hTimeRange.grads[index].remove();
-                            index++;
-                        }
-                        hTimeRange.grads.splice(0,index);
-                    }
-                };
-
-                /** @doc function adding/removing graduations according to a new endDate */
-                let _handleRightSide = function(hTimeRange,newEndDate){
-                    if (hb.util.date.equals(hTimeRange.hDate.endDate,newEndDate)) return;
-                    else if (newEndDate > hTimeRange.hDate.endDate){ // this case we need to add grads at the end of grad array
-                        let newGrads = _createGrads(hTimeRange.hDate.endDate,newEndDate,hTimeRange.type,hTimeRange.parent);
-                        hTimeRange.grads = hTimeRange.grads.concat(newGrads);
-                    }
-                    else if (newEndDate <= hTimeRange.hDate.beginDate){
-                        hTimeRange.grads.forEach(function(grad) {
-                            grad.remove();
-                        });
-                        hTimeRange.grads = [];
-                    }
-                    else if (newEndDate < hTimeRange.hDate.endDate){
-                        let index =hTimeRange.grads.length-1;
-                        while(index>=0 && hTimeRange.grads[index].date >= newEndDate){
-                            hTimeRange.grads[index].remove();
-                            index--;
-                        }
-                        hTimeRange.grads.splice(index+1,hTimeRange.grads.length-1-index);
-                    }
-                };
-
-                /**
-                 * @doc handles the range of date graduations in a given HDate
-                 * @module hb/util/HTimeRange
-                 * @class hb.util.HTimeRange
-                 */
-                util.HTimeRange = function(parent){
-                    this.parent = parent;
-                    this.hDate = null;
-                    this.type = null;
-                    this.grads = [];
-                };
-
-                Object.assign(util.HTimeRange.prototype,{
-                    /** @doc set interval HDate of the range  */
-                    setHDate : function(hDate){
-                        let newType = _getTypeFromHDate(hDate);
-                        if(newType === this.type){ // add new elements
-                            console.log("creer sur les cotes");
-                            _handleLeftSide(this,hDate.beginDate);
-                            _handleRightSide(this,hDate.endDate);
-                            this.hDate = hDate;
-                        }
-                        else{ // drop old graduations and compute new range
-                            this.grads.forEach(function(grad) {
-                                grad.remove();
-                            });
-
-                            this.hDate = hDate;
-                            this.type = newType;
-                            this.grads = _createGrads(hDate.beginDate,hDate.endDate,this.type,this.parent);
-                        }
-                        this.grads.forEach(function(grad) {
-                            grad.updateScale();
-                        });
-                    }
-                });
-
-                console.log(_moduleName + " loaded");
-                return util;
-            }(hb.util || {}, hb, $));
-
-            let _loadedModules = ((typeof hb.getLoadedModules === "function") ? hb.getLoadedModules() : []);
-            _loadedModules.push(_moduleName);
-            hb.getLoadedModules = function () {
-                return _loadedModules;
-            };
-            return hb;
-        }(hb || {}));
-
-
-
-
         // HTimeExplorer prototyping
         var hb = (function (hb) {
             "use strict";
-            var _moduleName = "ui:HTimeExplorerBuilder/HTimeExplorerBuilder.js";
+            var _moduleName = "ui:HTimeExplorer/HTimeExplorer.js";
             if (((typeof hb.getLoadedModules === "function" ? hb.getLoadedModules() : [])).includes(_moduleName)) {
                 console.log(_moduleName + " already loaded, skipping");
                 return hb;
@@ -488,8 +95,15 @@
             hb.ui = (function (ui, hb, $) {
                 var _requiredModules = ["util:cmn/common.js"];
 
+                const _ZOOM_SCALE = [0.000001,1000000];
+                let _zoomAccelerator = d3.scaleLinear()
+                    .domain([0,1,7,20,40,80,1000,10000*365.25,12000*365.25])
+                    .range([15, 10,5,3,1.8,1,0.5,0.2]);
+                const _DATE_MIN = (new Date('9999-01-01')).setFullYear(-9999);
+                const _DATE_MAX = new Date();
+
                 /**
-                 * @doc setDefaultOption for HTimeExplorerBuilder
+                 * @doc setDefaultOption for HTimeExplorer
                  * @param option
                  * @returns {object}
                  * @private
@@ -532,6 +146,12 @@
                             .on("start", function(){return _dateDragStarted(d3.event,explorer);})
                             .on("drag",  function(){return _dateDragged(d3.event,explorer);})
                             .on("end", function(){return _dateDragEnded(d3.event,explorer);})
+                        )
+                        .call(d3.zoom()
+                            .scaleExtent(_ZOOM_SCALE)
+                            .on("start", function(){return _dateZoomStarted(d3.event,explorer,d3.mouse(this));})
+                            .on("zoom",  function(){return _dateZoomed(d3.event,explorer);})
+                            .on("end", function(){return _dateZoomEnded(d3.event,explorer);})
                         );
 
                     explorer.$articleContainer = $("<div class='hb-hte-articles'/>").appendTo(explorer.$centralContainer);
@@ -567,9 +187,9 @@
                             hb.util.geom.getPathMinX(explorer.d3SvgTimeArrow.attr('d')),
                             hb.util.geom.getPathMaxX(explorer.d3SvgTimeArrow.attr('d'))*ratio]);
 
-                        console.log(explorer.$centralContainer.width());
+                        /*console.log(explorer.$centralContainer.width());
                         console.log(explorer.d3SvgTimeArrow.style("width"));
-                        console.log(ratio);
+                        console.log(ratio);*/
                         explorer.d3SvgTimeArrow.attr("transform","scale(" + ratio + ",1)");
                         explorer.d3SvgArticleTest.attr("cx",explorer.timeScale(date));
                         explorer.$articleContainer.width(hb.util.geom.getPathMaxX(explorer.d3SvgTimeArrow.attr('d'))*ratio);
@@ -616,28 +236,82 @@
                     explorer.dragData = {initialX:event.x,delta:0};
                 };
                 let _dateDragged = function (event,explorer) {
-                    let dx = event.x - explorer.dragData.initialX;
+                    let ud = hb.util.date;
+                    //let dx = event.x - explorer.dragData.initialX;
                     let delta = - (explorer.dragData.delta + hb.util.date.floatDayDiff(explorer.timeScale.invert(event.x),
-                    explorer.timeScale.invert(explorer.dragData.initialX)));
+                        explorer.timeScale.invert(explorer.dragData.initialX)));
                     let intDelta = Math.floor(delta);
 
                     explorer.dragData.delta  = intDelta -delta;
                     explorer.dragData.initialX = event.x;
 
                     if(intDelta !== 0){
-                        explorer.setHDate(new hb.util.HDate(2,
-                            hb.util.date.addDay(hb.util.date.clone(explorer.hDate.beginDate),intDelta),
-                            hb.util.date.addDay(hb.util.date.clone(explorer.hDate.endDate),intDelta)));
+                        let newBeginDate = hb.util.date.addDay(hb.util.date.clone(explorer.hDate.beginDate),intDelta);
+                        let newEndDate = hb.util.date.addDay(hb.util.date.clone(explorer.hDate.endDate),intDelta);
+
+                        if(newBeginDate < _DATE_MIN) newBeginDate = ud.clone(_DATE_MIN);
+                        if(newEndDate > _DATE_MAX) newEndDate = ud.clone(_DATE_MAX);
+
+                        explorer.setHDate(new hb.util.HDate(2,newBeginDate,newEndDate));
 
                         explorer.$target.first().val(explorer.hDate.getLabel());
                         explorer.$target.first().attr("data-hb-value",JSON.stringify(explorer.hDate));
-
                     }
                     /*if(hts.eventInitialized){
                         hts.renderEvent();
                     }*/
                 };
                 let _dateDragEnded = function (event,explorer) {} ;
+
+                let _dateZoomStarted = function (event,explorer,mousePos){
+                    let ud = hb.util.date;
+
+                    explorer.zoomData = explorer.zoomData || {};
+                    let adjRatio=explorer.zoomData.initialZoomK || event.transform.k;
+
+                    explorer.zoomData = {initialZoomX:mousePos[0],initialZoomK:adjRatio};
+
+                    explorer.zoomData.initialZoomDate = ud.addDay(
+                        ud.clone(explorer.timeScale.invert(explorer.zoomData.initialZoomX)),1);
+                };
+
+                let _dateZoomed = function (event,explorer) {
+                    let ud = hb.util.date;
+
+                    let hDate = explorer.hDate;
+                    let zoomData = explorer.zoomData;
+                    let nbJBegin = hb.util.date.dayDiff(hDate.beginDate,zoomData.initialZoomDate);
+                    let nbJEnd = hb.util.date.dayDiff(hDate.endDate,zoomData.initialZoomDate);
+
+                    // acceleration varies with the number of day
+                    let intervalSize = explorer.hDate.getIntervalSize();
+                    console.log(intervalSize );
+                    console.log(_zoomAccelerator(intervalSize));
+                    let adjRatio = 1 + (event.transform.k - 1)*_zoomAccelerator(intervalSize);
+
+                    // new day count from zoom date
+                    let newNbJBegin = Math.round(nbJBegin * zoomData.initialZoomK /adjRatio);
+                    let newNbJEnd = Math.round(nbJEnd * zoomData.initialZoomK /adjRatio);
+
+                    let newBeginDate = ud.addDay(ud.clone(zoomData.initialZoomDate),newNbJBegin);
+                    let newEndDate = ud.addDay(ud.clone(zoomData.initialZoomDate),newNbJEnd);
+
+                    if(newBeginDate < _DATE_MIN) newBeginDate = ud.clone(_DATE_MIN);
+                    if(newEndDate > _DATE_MAX) newEndDate = ud.clone(_DATE_MAX);
+
+                    explorer.setHDate(new hb.util.HDate(2,newBeginDate,newEndDate));
+                    explorer.$target.first().val(explorer.hDate.getLabel());
+                    explorer.$target.first().attr("data-hb-value",JSON.stringify(explorer.hDate));
+
+
+
+                    zoomData.initialZoomK = adjRatio;
+                };
+
+                let _dateZoomEnded = function (event,explorer) {
+                    explorer.zoomData.initialZoomK=1;
+                    event.transform.k=1;
+                };
 
                 /**
                  * @module hb/ui/HTimeExplorer
@@ -657,14 +331,14 @@
                     //this.hDate = new hb.util.HDate(2,new Date(2000,0,1),new Date(2001,0,1));
 
                     this.timeScale = d3.scaleTime().domain([this.hDate.beginDate,this.hDate.endDate]);
+                    this.relativeTimeScale = d3.scaleTime()
+                        .range([0,100])
+                        .domain([this.hDate.beginDate,this.hDate.endDate]);
                     _build(this);
 
                     let $this = this;
                     this.$target.on("change",function(){
-                        console.log("yolo);");
-                        console.log(hb.util.HDate.prototype.parseFromJson($target.first().attr("data-hb-value")));
                         $this.setHDate(hb.util.HDate.prototype.parseFromJson($target.first().attr("data-hb-value")));
-
                     });
 
                     return this;
@@ -674,6 +348,7 @@
                     setHDate:function(hDate){
                         this.hDate = hDate;
                         this.timeScale.domain([this.hDate.beginDate,this.hDate.endDate]);
+                        this.relativeTimeScale.domain([this.hDate.beginDate,this.hDate.endDate]);
                         this.hTimeRange.setHDate(this.hDate);
                     }
                 });

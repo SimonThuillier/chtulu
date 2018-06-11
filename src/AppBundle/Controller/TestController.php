@@ -31,6 +31,9 @@ class TestController extends Controller
         /** @var Session $session */
         $session = $this->get('session');
 
+        $credentials = $this->getParameter('hb_credentials');
+        var_dump($credentials);
+
         //if(!$session->has("msg")) $session->set("msg","truc");
 
         $test = new Test();
