@@ -36,11 +36,15 @@ var hb = (function (hb) {
                 let groupLabel = 'date';
                 let attrs = this.$target.detail.hAttributes;
                 attrs.beginHDate.text(attrs.beginHDate.data('label') +
-                    ((this.object.beginHDate != null)?this.object.beginHDate.getLabel():"-"));
+                    ((this.object.beginHDate !== null)?this.object.beginHDate.getLabel():"-"));
                 attrs.endHDate.text(attrs.endHDate.data('label') +
-                    ((this.object.endHDate != null)?this.object.endHDate.getLabel():"-"));
+                    ((this.object.endHDate !== null)?this.object.endHDate.getLabel():"-"));
             },
             mapDetailImage : function() {
+                let attrs = this.$target.detail.hAttributes;
+
+                attrs.detailImage.empty();
+                attrs.detailImage.append($("<img src=\"" + this.object.detailImage + "\" alt=\"...\">"));
             },
             mapAbstract : function() {
                 let groupLabel = 'abstract';

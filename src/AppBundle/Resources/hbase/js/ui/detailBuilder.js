@@ -61,8 +61,7 @@ var hb = (function (hb) {
                 $target.hGroups[groupLabel] = $group;
                 $group.childrenContainers = [];
 
-                let $thumbnail = $("<a href=\"#\" class=\"thumbnail\">").appendTo($group);
-                let $img = $("<img src=\"/images/420a08a_user2-160x160_1.jpg\" alt=\"...\">").appendTo($thumbnail);
+                attrs.detailImage = $("<a href=\"#\" class=\"thumbnail\">").appendTo($group);
 
                 return $group;
             },

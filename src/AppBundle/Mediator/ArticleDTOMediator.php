@@ -12,6 +12,7 @@ namespace AppBundle\Mediator;
 use AppBundle\DTO\ArticleDTO;
 use AppBundle\Entity\Article;
 use AppBundle\Form\ArticleDTOType;
+use AppBundle\Helper\AssetHelper;
 use AppBundle\Helper\DateHelper;
 use AppBundle\Serializer\HDateSerializer;
 use AppBundle\Utils\HDate;
@@ -24,18 +25,22 @@ class ArticleDTOMediator extends DTOMediator
 {
     /** @var HDateSerializer */
     private $hDateSerializer;
+    /** @var AssetHelper */
+    private $assetHelper;
 
     /**
      * ArticleDTOMediator constructor.
      * @param HDateSerializer $hDateSerializer
+     * @param AssetHelper $assetHelper
      */
-    public function __construct(HDateSerializer $hDateSerializer)
+    public function __construct(HDateSerializer $hDateSerializer,AssetHelper $assetHelper)
     {
         parent::__construct();
         $this->groups = ['minimal','abstract','date','type','url',
             'detailImage','subArticles','hteRange'];
         $this->formTypeClassName = ArticleDTOType::class;
         $this->hDateSerializer = $hDateSerializer;
+        $this->assetHelper = $assetHelper;
     }
 
     /**
@@ -170,7 +175,9 @@ class ArticleDTOMediator extends DTOMediator
     {
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
-        // TODO : complete when images management is completed
+
+        $dto->setDetailImage($this->assetHelper->getMainImage($this->entity));
+
         $dto->addMappedGroup('detailImage');
     }
 

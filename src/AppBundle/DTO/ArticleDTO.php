@@ -35,6 +35,8 @@ class ArticleDTO extends EntityMutableDTO
     protected $endHDate;
     /** @var boolean */
     protected $hasEndDate;
+    /** @var string */
+    protected $detailImage;
     /** @var DTOMediator */
     protected $mediator;
     /** @var UrlBag */
@@ -190,6 +192,25 @@ class ArticleDTO extends EntityMutableDTO
     {
         $this->hasEndDate = $hasEndDate;
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('hasEndDate');
+        return $this;
+    }
+
+    /**
+     * @return string
+     * @Groups({"detailImage"})
+     */
+    public function getDetailImage(): ?string
+    {
+        return $this->detailImage;
+    }
+
+    /**
+     * @param string $detailImage
+     * @return ArticleDTO
+     */
+    public function setDetailImage(?string $detailImage): ArticleDTO
+    {
+        $this->detailImage = $detailImage;
         return $this;
     }
 

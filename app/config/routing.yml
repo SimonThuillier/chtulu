@@ -5,6 +5,9 @@ app:
     
 homepage:     
     path:   /
-    defaults:  { _controller: 'AppBundle:Default:index' }    
+    defaults:  { _controller: 'AppBundle:Default:index' }
+
+_liip_imagine:
+    resource: "@LiipImagineBundle/Resources/config/routing.yaml"
     
     

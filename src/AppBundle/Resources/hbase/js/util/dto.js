@@ -57,11 +57,12 @@ var hb = (function (hb) {
                         else{jsonStr = this.beginHDate;}
                         this.beginHDate = util.HDate.prototype.parseFromJson(jsonStr);
                     }
-                    if(this.endHDate !== null){
+                    if(this.hasEndDate && this.endHDate !== null && this.endHDate !== ''){
                         if(typeof this.endHDate === "object"){jsonStr = JSON.stringify(this.endHDate);}
                         else{jsonStr = this.endHDate;}
                         this.endHDate = util.HDate.prototype.parseFromJson(jsonStr);
                     }
+                    else{this.endHDate = null;}
                     if(this.hteRange !== null){
                         if(typeof this.hteRange === "object"){jsonStr = JSON.stringify(this.hteRange);}
                         else{jsonStr = this.hteRange;}
