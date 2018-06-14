@@ -43,7 +43,6 @@ abstract class AbstractEntityMapper
     /** @var string */
     protected $mediatorPassword = null;
 
-
     /**
      * @return ObjectManager
      */

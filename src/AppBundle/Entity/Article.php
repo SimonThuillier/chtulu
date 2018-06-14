@@ -48,7 +48,7 @@ class Article extends DTOMutableEntity
 
     /**
      * @var User
-     * @ORM\ManyToOne(targetEntity="User",inversedBy="editedArticles")
+     * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="edition_user_id", referencedColumnName="id")
      */
     protected $editionUser;
@@ -451,7 +451,7 @@ class Article extends DTOMutableEntity
     /**
      * @return string
      */
-    public function gethteRange(): ?string
+    public function getHteRange(): ?string
     {
         return $this->hteRange;
     }
@@ -460,7 +460,7 @@ class Article extends DTOMutableEntity
      * @param string $hteRange
      * @return Article
      */
-    public function sethteRange(?string $hteRange): Article
+    public function setHteRange(?string $hteRange): Article
     {
         $this->hteRange = $hteRange;
         return $this;

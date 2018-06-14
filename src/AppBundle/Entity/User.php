@@ -114,12 +114,18 @@ class User implements AdvancedUserInterface, \Serializable
      * @ORM\OneToMany(targetEntity="Article", mappedBy="creationUser")
      */
     private $createdArticles;
-    
+
     /**
      * @var ArrayCollection
-     * @ORM\OneToMany(targetEntity="Article", mappedBy="editionUser")
+     * @ORM\OneToMany(targetEntity="Resource", mappedBy="creationUser")
      */
-    private $editedArticles;
+    private $createdResources;
+
+    /**
+     * @var ArrayCollection
+     * @ORM\OneToMany(targetEntity="ResourceVersion", mappedBy="creationUser")
+     */
+    private $createdResourceVersions;
     
     
     public function __construct(){
@@ -479,12 +485,21 @@ class User implements AdvancedUserInterface, \Serializable
     }
 
     /**
-     * Get editedArticles
      * @return ArrayCollection
      */
-    public function getEditedArticles(){
-        return $this->editedArticles;
+    public function getCreatedResources(): ArrayCollection
+    {
+        return $this->createdResources;
     }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getCreatedResourceVersions(): ArrayCollection
+    {
+        return $this->createdResourceVersions;
+    }
+
 
 }
 

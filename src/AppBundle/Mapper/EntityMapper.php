@@ -31,12 +31,13 @@ interface EntityMapper
     public function setMediatorPassword($mediatorPassword);
 
     /**
+     * @param boolean $commit
      * @return Entity
      * @throws FactoryException
      * @throws NullColleagueException
      * @throws InvalidCallerException
      */
-    public function add();
+    public function add($commit=true);
 
     /**
      * @param int $id
@@ -69,12 +70,13 @@ interface EntityMapper
 
     /**
      * @param int|null $id
+     * @param boolean $commit
      * @return Entity
      * @throws EntityMapperException
      * @throws NullColleagueException
      * @throws InvalidCallerException
      */
-    public function edit($id=null);
+    public function edit($id=null,$commit=true);
 
     /**
      * @param int $id
@@ -84,7 +86,8 @@ interface EntityMapper
 
     /**
      * @param int $id
+     * @param boolean $commit
      * @throws EntityMapperException
      */
-    public function delete(int $id);
+    public function delete(int $id,$commit=true);
 }

@@ -2,43 +2,43 @@
 /**
  * Created by PhpStorm.
  * User: ajeelomen-1
- * Date: 27/03/18
- * Time: 23:57
+ * Date: 14/06/18
+ * Time: 23:15
  */
 
 namespace AppBundle\Mapper;
 
 
-use AppBundle\Entity\Article;
-use AppBundle\Factory\ArticleFactory;
+use AppBundle\Entity\ResourceVersion;
 use AppBundle\Factory\FactoryException;
 use AppBundle\Factory\PaginatorFactory;
+use AppBundle\Factory\ResourceVersionFactory;
 use AppBundle\Mediator\InvalidCallerException;
 use AppBundle\Mediator\NullColleagueException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class ArticleMapper extends AbstractEntityMapper implements EntityMapper
+class ResourceVersionMapper extends AbstractEntityMapper implements EntityMapper
 {
     /**
-     * ArticleMapper constructor.
+     * ResourceVersionMapper constructor.
      *
      * @param ManagerRegistry $doctrine
-     * @param ArticleFactory|null $entityFactory
+     * @param ResourceVersionFactory|null $entityFactory
      * @param PaginatorFactory|null $paginatorFactory
      * @param TokenStorageInterface $tokenStorage
      * @param LoggerInterface $logger
      */
     public function __construct(
         ManagerRegistry $doctrine,
-        ArticleFactory $entityFactory = null,
+        ResourceVersionFactory $entityFactory = null,
         PaginatorFactory $paginatorFactory = null,
         TokenStorageInterface $tokenStorage,
         LoggerInterface $logger
     )
     {
-        $this->entityClassName = Article::class;
+        $this->entityClassName = ResourceVersion::class;
         parent::__construct(
             $doctrine,
             $entityFactory,
@@ -49,7 +49,7 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapper
 
     /**
      * @param boolean $commit
-     * @return Article
+     * @return ResourceVersion
      * @throws FactoryException
      * @throws NullColleagueException
      * @throws InvalidCallerException
@@ -58,20 +58,18 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapper
     public function add($commit=true)
     {
         $this->checkAdd();
-        /** @var Article $article */
-        $article = $this->defaultAdd();
-        $article
-            ->setEditionDate(new \DateTime())
-            ->setEditionUser($this->currentUser);
+        /** @var ResourceVersion $version */
+        $version = $this->defaultAdd();
+
         $this->getManager()->flush();
-        $this->mediator->getDTO()->setId($article->getId());
-        return $article;
+        //$this->mediator->getDTO()->setId($article->getId());
+        return $version;
     }
 
     /**
      * @param integer|null $id
      * @param boolean $commit
-     * @return Article
+     * @return ResourceVersion
      * @throws EntityMapperException
      * @throws NullColleagueException
      * @throws InvalidCallerException
@@ -79,21 +77,17 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapper
     public function edit($id=null,$commit=true)
     {
         $this->checkEdit($id);
-        /** @var Article $article */
-        $article = $this->defaultEdit($id);
-        $article
-            ->setEditionDate(new \DateTime())
-            ->setEditionUser($this->currentUser);
+        /** @var ResourceVersion $version */
+        $version = $this->defaultEdit($id);
+
         $this->getManager()->flush();
-        return $article;
+        return $version;
     }
 
 
     public function confirmDelete(int $id)
     {
-        /** @var Article $article */
-        $article = $this->find($id);
-        return "êtes vous sûr de vouloir supprimer l'article " . $article->getTitle() . " ?";
+        return true;
     }
 
     /**
@@ -103,7 +97,6 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapper
      */
     public function delete(int $id,$commit=true)
     {
-        $this->checkDelete($id);
         $this->defaultDelete($id);
         $this->getManager()->flush();
     }
