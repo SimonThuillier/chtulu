@@ -7,6 +7,7 @@ use AppBundle\Repository\ArticleTypeRepository;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -34,6 +35,7 @@ class ArticleDTOType extends AbstractType
         if($groups === null || $groups ===[]) {
             $groups = ['minimal','abstract','date','detailImage','hteRange'];
         }
+        $groups = array_unique($groups);
 
         foreach($options['validation_groups'] as $group){
             if($group === 'url') continue;
@@ -115,7 +117,12 @@ class ArticleDTOType extends AbstractType
     }
 
     private function buildDetailImageGroup(FormBuilderInterface $builder, array $options){
-        // TODO : implement when image management is done
+        $builder
+            ->add('detailImage', HImageType::class, array(
+                'label' => 'Image de présentation',
+                'label_attr' => array('class' => 'hb-group-detailImage'),
+                'required' => false
+            ));
     }
 
     private function buildHteRangeGroup(FormBuilderInterface $builder, array $options){

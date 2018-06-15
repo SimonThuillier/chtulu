@@ -15,7 +15,7 @@ var hb = (function (hb) {
         /** make the idGenerator for graduations */
         let _idGenerator = hb.util.cmn.getIdGenerator();
         /** animations time (ms) */
-        let _animationTime = 600;
+        let _animationTime = 300;
         let _gradMinHeight = 15;
         let _gradMaxHeight = 25;
 

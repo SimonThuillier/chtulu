@@ -155,9 +155,10 @@ var hb = (function (hb) {
                     return [];
                 }
                 this.pendingAction= true;
+                console.log(data);
                 let $form = this.$target.form;
                 let object = this.object;
-                let $controls = $form.find(".form-control,.form-check-input");
+                let $controls = $form.find(".form-control,.form-check-input,.form-control-file");
                 let formName = "";
                 data.forEach(function(value){
                     if(value.name.indexOf(['[_token]']) !== -1) {formName = value.name.replace('[_token]','');}
@@ -183,6 +184,8 @@ var hb = (function (hb) {
                     formObject[attributeName]  = localObject[attributeName];
                     if(nodeType === 'Select'){formObject[attributeName] = formObject[attributeName].id;}
                 });
+                console.log(formObject);
+
                 if(object === null){
                     this.object = formObject;
                     this.pendingAction= false;

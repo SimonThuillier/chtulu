@@ -35,7 +35,7 @@ class ArticleDTO extends EntityMutableDTO
     protected $endHDate;
     /** @var boolean */
     protected $hasEndDate;
-    /** @var string */
+    /** @var mixed */
     protected $detailImage;
     /** @var DTOMediator */
     protected $mediator;
@@ -196,19 +196,26 @@ class ArticleDTO extends EntityMutableDTO
     }
 
     /**
-     * @return string
+     * @return mixed|null
      * @Groups({"detailImage"})
+     * @Assert\Image(
+     *     minWidth = 120,
+     *     maxWidth = 2000,
+     *     minHeight = 100,
+     *     maxHeight = 1200
+     * )
      */
-    public function getDetailImage(): ?string
+    public function getDetailImage()
     {
+        var_dump($this->detailImage);
         return $this->detailImage;
     }
 
     /**
-     * @param string $detailImage
+     * @param mixed $detailImage
      * @return ArticleDTO
      */
-    public function setDetailImage(?string $detailImage): ArticleDTO
+    public function setDetailImage($detailImage): ArticleDTO
     {
         $this->detailImage = $detailImage;
         return $this;
