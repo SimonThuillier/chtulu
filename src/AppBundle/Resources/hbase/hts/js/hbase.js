@@ -1,6 +1,5 @@
 
 
-
 /** the jQuery Hbase object will be the core object for various variables and methods of hbase front-end library */
 
 $.hbase = {};

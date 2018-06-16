@@ -16,24 +16,6 @@
     <div id="hb-article-container" class="row-fluid">
         <div id="hb-article-form" class="row-fluid"></div>
         <div id="hb-article-detail" class="row-fluid" hidden="hidden"></div>
-
-
-
-        <div id="modal-resource" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="Article">
-            <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h4 class="modal-title">Modal Header</h4>
-                    </div>
-                    <div class="modal-body">
-                    </div>
-                    <div class="modal-footer">
-
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 {% endblock %}
 
@@ -102,6 +84,28 @@
 
         console.log(article);
 
+        submitFile = function(){
+            console.log("yolo");
+            throw 'lol';
+
+            let $form = hResourcePicker.$modal.uploadPanel.form;
+            let $iframe = hResourcePicker.$modal.uploadPanel.iframe;
+
+            let typeId = "resource_post_upload_image";
+
+            let url = $form.find("#" + typeId).html();
+            $iframe.attr("name","iframe_" + typeId);
+            $form.attr('action',url);
+            $form.attr('target',"iframe_" + typeId);
+
+            console.log($form);
+            return;
+
+
+
+            $form.get(0).submit();
+        };
+
 
         // prototyping a resource picker
         var hb = (function (hb) {
@@ -128,9 +132,171 @@
                     $this.hide();
                 }));
 
+
+                /**
+                 * @doc setDefaultOption for HResourcePicker
+                 * @param option
+                 * @returns {object}
+                 * @private
+                 */
+                let _setDefaultOption = function(option) {
+                    option.detailBuilder = option.detailBuilder || null;
+                    option.detailMediator = option.detailMediator || null;
+                    option.formBuilder = option.formBuilder || null;
+                    option.formMediator = option.formMediator || null;
+                    option.z = option.z || 7;
+                    option.fadeTime = option.fadeTime || 250;
+                    option.defaultTitle = option.defaultTitle || "Choisissez une ressource";
+                    option.groups = option.groups || ["minimal"];
+                    option.uploadFormName = "h_file_upload";
+                    return option;
+                };
+
+                /**
+                 * @doc apply options to HResourcePicker
+                 * @private
+                 */
+                let _applyOption = function(modal){
+
+                    let $modal = modal.$modal;
+                };
+
+                /**
+                 * @doc builds modal container
+                 * @private
+                 */
+                let _build = function() {
+                    let $modal = $("<div class=\"modal fade\" " +
+                        "role=\"dialog\">").appendTo('body');
+                    $modal.alerts=[];
+                    $modal.container = $("<div class=\"modal-dialog\" role=\"document\">").appendTo($modal);
+                    $modal.content = $("<div class=\"modal-content\">").appendTo($modal.container);
+
+                    $modal.header = $("<div class=\"modal-header\">").appendTo($modal.content);
+                    $modal.title = $("<h4 class=\"modal-title\">Modal Header</h4>").appendTo($modal.header);
+                    $modal.header.append("<button type=\"button\" class=\"close\" data-dismiss=\"modal\">&times;</button>");
+
+                    $modal.body = $("<div class=\"modal-body\">").appendTo($modal.content);
+                    $modal.detail = $("<div class= \"hb-detail\">").appendTo($modal.body);
+                    $modal.form = $("<div class= \"hb-form\">").appendTo($modal.body);
+
+                    $modal.footer = $("<div class=\"modal-footer\">").appendTo($modal.content);
+                    $modal.footer.append("<button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Fermer</button>");
+
+                    return $modal;
+                };
+
+                let _getNewPanel = function(id,accordionSelector){
+                    let $panel = $("<div class=\"panel panel-default\">");
+                    $panel.heading = $("<div class=\"panel-heading\" role=\"tab\" id=\""+ id +"-heading\">").appendTo($panel);
+
+                    $panel.button = $("<a role=\"button\" data-toggle=\"collapse\" data-parent=\"" + accordionSelector + "\" " +
+                        "href=\"#" + id + "-collapse\" class=\"collapsed\" aria-controls=\""+ id + "-collapse\">lol</a>")
+                        .appendTo($("<h4 class=\"panel-title\">").appendTo($panel.heading));
+
+                    $panel.body = $("<div class=\"panel-body\">")
+                        .appendTo($("<div id=\""+ id +"-collapse\" class=\"panel-collapse collapse\" " +
+                            "role=\"tabpanel\" aria-labelledby=\"" + id + "\">").appendTo($panel));
+                    console.log($panel);
+                    return $panel;
+                };
+
+                let _buildUploadPanel = function(modal){
+                    let $modal = modal.$modal;
+                    $modal.uploadPanel = _getNewPanel('hrp-upload','#resource-picker-accordion');
+                    $modal.uploadPanel.appendTo($modal.panelGroup);
+
+                    let $form = $("div#hb-data form[name='" + modal.option.uploadFormName  + "']");
+                    console.log($form);
+                    console.log($form.length>0);
+                    if($form.length!==1){return [];}
+                    $form.detach().appendTo($modal.uploadPanel.body);
+
+                    $modal.uploadPanel.form = $form;
+                    $modal.uploadPanel.iframe = $form.parent().find("iframe");
+
+                    $modal.uploadPanel.submitButton = $form.parent().find("button[type='submit']");
+                    /*$modal.uploadPanel.submitButton.removeAttr('type');
+                    $modal.uploadPanel.submitButton.attr("onclick","submitFile()");*/
+
+
+                };
+
+                let _buildSelectPanel = function(modal){
+                    let $modal = modal.$modal;
+                    $modal.selectPanel = _getNewPanel('hrp-select','#resource-picker-accordion');
+                    $modal.selectPanel.appendTo($modal.panelGroup);
+                };
+
+                /**
+                 * @module hb/ui/HResourcePicker
+                 * @class hb.ui.HResourcePicker
+                 * @param {object} option
+                 */
+                ui.HResourcePicker = function(option = {}){
+                    this.errors=[];
+                    this.object=null;
+
+                    this.option = _setDefaultOption(option);
+                    this.$modal = _build(this);
+                    this.$modal.title.text(this.option.defaultTitle);
+
+                    this.$modal.panelGroup = $("<div class=\"panel-group\" id=\"resource-picker-accordion\" " +
+                        "role=\"tablist\" aria-multiselectable=\"true\">").appendTo(this.$modal.body);
+                    _buildUploadPanel(this);
+                    _buildSelectPanel(this);
+                    console.log(this.$modal.uploadPanel.button);
+                    this.$modal.uploadPanel.button.html('Charger depuis votre poste');
+                    this.$modal.selectPanel.button.html('Selectionner dans votre galerie');
+
+                    let modal = this;
+                    this.$modal.uploadPanel.submitButton.on('click',function(){
+                        console.log("yolo");
+                        //throw 'lol';
+
+                        let $form = modal.$modal.uploadPanel.form;
+                        let $iframe = modal.$modal.uploadPanel.iframe;
+
+                        let typeId = "resource_post_upload_image";
+
+                        let url = $form.parent().find("#" + typeId).html();
+                        $iframe.attr("name","iframe_" + typeId);
+                        $form.attr('action',url);
+                        $form.attr('target',"iframe_" + typeId);
+
+                        console.log($form);
+                        return;
+
+
+
+                        $form.get(0).submit();
+                    });
+
+
+
+                    _applyOption(this);
+                    return this;
+                };
+
+                let hResourcePicker = new hb.ui.HResourcePicker();
+
+
+                ui.hResourcePicker = {};
+                ui.hResourcePicker.submitFile = function(){
+
+                };
+
+
+
+
+
                 $($("a.hb-imagepicker").on('click',function(){
-                    $("#modal-resource").modal();
+                    console.log(hResourcePicker.$modal);
+                    hResourcePicker.$modal.modal('show');
                 }));
+
+
+
 
 
                 console.log(_moduleName + " loaded");
@@ -491,4 +657,5 @@
     <a id="cancel" name="cancel" class="btn btn-default">Annuler modifications <i class="fa fa-undo"></i></a>
     {{ form_end(form) }}
     <div id="data-article">{{ articleDTO }}</div>
+    {% include '@AppBundle/Form/uploadFileForm.html.twig' with {'form': fileUploadForm} %}
 {% endblock %}

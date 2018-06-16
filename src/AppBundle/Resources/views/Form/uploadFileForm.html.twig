@@ -1,0 +1,12 @@
+{% if form is defined%}
+    {% form_theme form 'bootstrap_4_horizontal_layout.html.twig' %}
+{% endif %}yes
+
+<div>
+{{ form_start(form) }}
+{{ form_widget(form) }}
+<button id="{{ form.vars.id }}_save" name="{{ form.vars.id }}[save]" type="submit" class="btn btn-primary">Charger Fichier</button>
+{{ form_end(form) }}
+<iframe src=""></iframe>
+<div hidden id="resource_post_upload_image">{{ url('resource_post_upload_image') }}</div>
+</div>

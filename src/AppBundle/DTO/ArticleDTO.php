@@ -207,7 +207,7 @@ class ArticleDTO extends EntityMutableDTO
      */
     public function getDetailImage()
     {
-        var_dump($this->detailImage);
+        //var_dump($this->detailImage);
         return $this->detailImage;
     }
 

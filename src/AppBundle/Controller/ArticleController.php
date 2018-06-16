@@ -5,6 +5,7 @@ use AppBundle\DTO\ArticleDTO;
 use AppBundle\Factory\ArticleFactory;
 use AppBundle\Form\ArticleDTOType;
 use AppBundle\Form\ArticleSearchType;
+use AppBundle\Form\HFileUploadType;
 use AppBundle\Helper\BootstrapListHelper;
 use AppBundle\Mapper\ArticleMapper;
 use AppBundle\Mediator\ArticleDTOMediator;
@@ -183,7 +184,9 @@ class ArticleController extends Controller
         return $this->render('@AppBundle/Article/edit.html.twig',[
                 "title" => "[Editer] " . $articleDto->getTitle(),
                 "articleDTO" =>json_encode($serializer->normalize($articleDto,array_merge($groups,['groups','url','type']))),
-                "form" => $form->createView()
+                "form" => $form->createView(),
+                "fileUploadForm" => $this->get('form.factory')
+                    ->createBuilder(HFileUploadType::class,null)->getForm()->createView()
             ]
         );
     }
