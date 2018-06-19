@@ -9,6 +9,7 @@
 namespace AppBundle\Mapper;
 
 
+use AppBundle\DTO\ResourceVersionDTO;
 use AppBundle\Entity\ResourceVersion;
 use AppBundle\Factory\FactoryException;
 use AppBundle\Factory\PaginatorFactory;
@@ -60,10 +61,29 @@ class ResourceVersionMapper extends AbstractEntityMapper implements EntityMapper
         $this->checkAdd();
         /** @var ResourceVersion $version */
         $version = $this->defaultAdd();
+        $version->setEditionDate(new \DateTime())
+            ->setEditionUser($this->currentUser);
 
-        $this->getManager()->flush();
+        $this->doctrine->getManager()->persist($version->getFile());
+
+        if($commit) $this->getManager()->flush();
         //$this->mediator->getDTO()->setId($article->getId());
         return $version;
+    }
+
+    /**
+     * @return mixed|void
+     * @throws EntityMapperException
+     */
+    protected function checkAdd()
+    {
+        parent::checkAdd();
+        /** @var ResourceVersionDTO $dto */
+        $dto = $this->mediator->getDTO();
+
+        if($dto->getFile() === null){
+            throw new EntityMapperException("Impossible to create a resource version without a file");
+        }
     }
 
     /**
@@ -80,7 +100,7 @@ class ResourceVersionMapper extends AbstractEntityMapper implements EntityMapper
         /** @var ResourceVersion $version */
         $version = $this->defaultEdit($id);
 
-        $this->getManager()->flush();
+        if($commit) $this->getManager()->flush();
         return $version;
     }
 
@@ -98,7 +118,7 @@ class ResourceVersionMapper extends AbstractEntityMapper implements EntityMapper
     public function delete(int $id,$commit=true)
     {
         $this->defaultDelete($id);
-        $this->getManager()->flush();
+        if($commit) $this->getManager()->flush();
     }
 
     /**

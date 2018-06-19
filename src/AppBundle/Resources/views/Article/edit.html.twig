@@ -96,7 +96,8 @@
             let url = $form.find("#" + typeId).html();
             $iframe.attr("name","iframe_" + typeId);
             $form.attr('action',url);
-            $form.attr('target',"iframe_" + typeId);
+            //$form.attr('target',"iframe_" + typeId);
+            $form.attr('target',"_blank");
 
             console.log($form);
             return;
@@ -210,7 +211,7 @@
                     console.log($form);
                     console.log($form.length>0);
                     if($form.length!==1){return [];}
-                    $form.detach().appendTo($modal.uploadPanel.body);
+                    $form.parent().detach().appendTo($modal.uploadPanel.body);
 
                     $modal.uploadPanel.form = $form;
                     $modal.uploadPanel.iframe = $form.parent().find("iframe");
@@ -218,6 +219,14 @@
                     $modal.uploadPanel.submitButton = $form.parent().find("button[type='submit']");
                     /*$modal.uploadPanel.submitButton.removeAttr('type');
                     $modal.uploadPanel.submitButton.attr("onclick","submitFile()");*/
+
+                    let typeId = "resource_post_upload_resource";
+                    //$modal.uploadPanel.iframe.attr("id","iframe_" + typeId);
+                    //$modal.uploadPanel.iframe.attr("name","iframe_" + typeId);
+                    //$modal.uploadPanel.iframe.attr("src","");
+                    //$form.attr('target',"iframe_" + typeId);
+                    //$form.attr('target',"_blank");
+
 
 
                 };
@@ -250,7 +259,9 @@
                     this.$modal.selectPanel.button.html('Selectionner dans votre galerie');
 
                     let modal = this;
-                    this.$modal.uploadPanel.submitButton.on('click',function(){
+                    this.$modal.uploadPanel.submitButton.on('click',function(event){
+                        event.preventDefault();
+                        event.stopPropagation();
                         console.log("yolo");
                         //throw 'lol';
 
@@ -260,16 +271,18 @@
                         let typeId = "resource_post_upload_image";
 
                         let url = $form.parent().find("#" + typeId).html();
-                        $iframe.attr("name","iframe_" + typeId);
                         $form.attr('action',url);
-                        $form.attr('target',"iframe_" + typeId);
 
+                        console.log($iframe);
                         console.log($form);
-                        return;
+                        console.log($form.attr('target'));
 
+                        $form.submit();
+                    });
 
-
-                        $form.get(0).submit();
+                    this.$modal.uploadPanel.iframe.on('load',function(event){
+                        let response = modal.$modal.uploadPanel.iframe.get(0).contentDocument.body.textContent;
+                        console.log(response);
                     });
 
 

@@ -117,7 +117,7 @@ class User implements AdvancedUserInterface, \Serializable
 
     /**
      * @var ArrayCollection
-     * @ORM\OneToMany(targetEntity="Resource", mappedBy="creationUser")
+     * @ORM\OneToMany(targetEntity="HResource", mappedBy="creationUser")
      */
     private $createdResources;
 

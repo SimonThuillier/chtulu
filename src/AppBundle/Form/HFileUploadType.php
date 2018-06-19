@@ -26,7 +26,7 @@ class HFileUploadType extends AbstractType
                 'label' => 'Fichier à charger',
                 'required' => true
             ))
-            ->add('fileName', TextType::class, array(
+            ->add('name', TextType::class, array(
                 'label' => 'Nom du fichier',
                 'required' => false,
                 'attr' => array(
@@ -37,5 +37,11 @@ class HFileUploadType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver)
     {
+        $resolver->setDefaults(array(
+            'attr' => array(
+                'target' => 'resource_post_upload_resource',
+            ),
+            'allow_extra_fields' => true
+        ));
     }
 }

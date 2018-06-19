@@ -24,13 +24,6 @@ class ResourceFile
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=100)
-     */
-    private $name;
-
-    /**
-     * @var string
-     *
      * @ORM\Column(name="uri", type="string", length=255)
      */
     private $uri;
@@ -65,30 +58,6 @@ class ResourceFile
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Set name.
-     *
-     * @param string $name
-     *
-     * @return ResourceFile
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * Get name.
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
     }
 
     /**

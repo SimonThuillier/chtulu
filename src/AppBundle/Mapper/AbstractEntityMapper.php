@@ -84,12 +84,14 @@ abstract class AbstractEntityMapper
 
     /**
      * @param DTOMediator|null $mediator
+     * @return self
      */
     public function setMediator($mediator){
         if($mediator === $this->mediator) return;
         if($this->mediator !== null) $this->mediator->setMapper(null);
         $this->mediator = $mediator;
         if($this->mediator !== null) $this->mediator->setMapper($this);
+        return $this;
     }
 
     /**

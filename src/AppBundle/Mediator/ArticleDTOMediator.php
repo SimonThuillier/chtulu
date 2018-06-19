@@ -256,7 +256,7 @@ class ArticleDTOMediator extends DTOMediator
         }
     }
 
-    protected function mediatehteRange(){
+    protected function mediateHteRange(){
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
         /** @var Article $article */

@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="hb_resource")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\ResourceRepository")
  */
-class Resource
+class HResource extends DTOMutableEntity
 {
     /**
      * @var int
@@ -25,9 +25,9 @@ class Resource
     /**
      * @var string
      *
-     * @ORM\Column(name="reference", type="string", length=100, unique=true)
+     * @ORM\Column(name="name", type="string", length=100, unique=false)
      */
-    protected $reference;
+    protected $name;
 
     /**
      * @var ResourceType
@@ -82,18 +82,18 @@ class Resource
     /**
      * @return string
      */
-    public function getReference(): string
+    public function getName(): string
     {
-        return $this->reference;
+        return $this->name;
     }
 
     /**
-     * @param string $reference
+     * @param string $name
      * @return self
      */
-    public function setReference(string $reference): Resource
+    public function setName(string $name): HResource
     {
-        $this->reference = $reference;
+        $this->name = $name;
         return $this;
     }
 
@@ -109,7 +109,7 @@ class Resource
      * @param ResourceType $type
      * @return self
      */
-    public function setType(ResourceType $type): Resource
+    public function setType(ResourceType $type): HResource
     {
         $this->type = $type;
         return $this;
@@ -127,7 +127,7 @@ class Resource
      * @param User $creationUser
      * @return Resource
      */
-    public function setCreationUser(User $creationUser): Resource
+    public function setCreationUser(User $creationUser): HResource
     {
         $this->creationUser = $creationUser;
         return $this;
@@ -145,7 +145,7 @@ class Resource
      * @param \DateTime $creationDate
      * @return Resource
      */
-    public function setCreationDate(\DateTime $creationDate): Resource
+    public function setCreationDate(\DateTime $creationDate): HResource
     {
         $this->creationDate = $creationDate;
         return $this;
@@ -163,7 +163,7 @@ class Resource
      * @param User $editionUser
      * @return self
      */
-    public function setEditionUser(User $editionUser): Resource
+    public function setEditionUser(User $editionUser): HResource
     {
         $this->editionUser = $editionUser;
         return $this;
@@ -181,7 +181,7 @@ class Resource
      * @param \DateTime $editionDate
      * @return self
      */
-    public function setEditionDate(\DateTime $editionDate): Resource
+    public function setEditionDate(\DateTime $editionDate): HResource
     {
         $this->editionDate = $editionDate;
         return $this;

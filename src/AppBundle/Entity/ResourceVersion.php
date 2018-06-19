@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="hb_resource_version")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\ResourceVersionRepository")
  */
-class ResourceVersion
+class ResourceVersion extends DTOMutableEntity
 {
     /**
      * @var int
@@ -23,7 +23,7 @@ class ResourceVersion
 
     /**
      * @var Resource
-     * @ORM\ManyToOne(targetEntity="Resource",inversedBy="versions")
+     * @ORM\ManyToOne(targetEntity="HResource",inversedBy="versions")
      * @ORM\JoinColumn(name="resource_id", referencedColumnName="id")
      */
     protected $resource;
@@ -51,7 +51,7 @@ class ResourceVersion
 
     /**
      * @var ResourceFile|null
-     * @ORM\OneToOne(targetEntity="Resource")
+     * @ORM\OneToOne(targetEntity="ResourceFile")
      * @ORM\JoinColumn(name="resource_file_id", referencedColumnName="id",nullable=true)
      */
     protected $file;
@@ -122,7 +122,7 @@ class ResourceVersion
     /**
      * @return Resource
      */
-    public function getResource(): Resource
+    public function getResource(): HResource
     {
         return $this->resource;
     }
@@ -131,7 +131,7 @@ class ResourceVersion
      * @param Resource $resource
      * @return ResourceVersion
      */
-    public function setResource(Resource $resource): ResourceVersion
+    public function setResource(HResource $resource): ResourceVersion
     {
         $this->resource = $resource;
         return $this;
