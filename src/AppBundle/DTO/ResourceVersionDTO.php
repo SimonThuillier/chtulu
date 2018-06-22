@@ -54,6 +54,8 @@ class ResourceVersionDTO extends EntityMutableDTO
     /**
      * @return string|null
      * @Groups({"minimal"})
+     * @Assert\NotBlank()
+     * @Assert\NotNull()
      */
     public function getName(): ?string
     {
@@ -73,6 +75,9 @@ class ResourceVersionDTO extends EntityMutableDTO
 
     /**
      * @return UploadedFile|null
+     * @Groups({"file"})
+     * @Assert\NotBlank()
+     * @Assert\NotNull()
      */
     public function getFile(): ?UploadedFile
     {

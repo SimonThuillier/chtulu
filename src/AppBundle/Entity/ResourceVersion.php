@@ -22,7 +22,7 @@ class ResourceVersion extends DTOMutableEntity
     private $id;
 
     /**
-     * @var Resource
+     * @var HResource
      * @ORM\ManyToOne(targetEntity="HResource",inversedBy="versions")
      * @ORM\JoinColumn(name="resource_id", referencedColumnName="id")
      */
@@ -120,7 +120,7 @@ class ResourceVersion extends DTOMutableEntity
     }
 
     /**
-     * @return Resource
+     * @return HResource
      */
     public function getResource(): HResource
     {
@@ -128,7 +128,7 @@ class ResourceVersion extends DTOMutableEntity
     }
 
     /**
-     * @param Resource $resource
+     * @param HResource $resource
      * @return ResourceVersion
      */
     public function setResource(HResource $resource): ResourceVersion

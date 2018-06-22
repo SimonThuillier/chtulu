@@ -25,3 +25,5 @@ web/css/*
 \.idea/
 
 web/js/
+
+app/config/hresources\.yml

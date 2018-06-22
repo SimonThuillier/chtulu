@@ -58,6 +58,8 @@ class ResourceDTO extends EntityMutableDTO
     /**
      * @return string
      * @Groups({"minimal"})
+     * @Assert\NotBlank()
+     * @Assert\NotNull()
      */
     public function getName(): string
     {

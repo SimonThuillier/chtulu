@@ -198,12 +198,6 @@ class ArticleDTO extends EntityMutableDTO
     /**
      * @return mixed|null
      * @Groups({"detailImage"})
-     * @Assert\Image(
-     *     minWidth = 120,
-     *     maxWidth = 2000,
-     *     minHeight = 100,
-     *     maxHeight = 1200
-     * )
      */
     public function getDetailImage()
     {

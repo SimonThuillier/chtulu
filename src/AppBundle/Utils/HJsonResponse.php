@@ -122,7 +122,12 @@ class HJsonResponse
         ];
     }
 
-    static public function normalizeFormErrors(ConstraintViolationListInterface $errors){
+    /**
+     * @param ConstraintViolationListInterface|array $errors
+     * @return array
+     */
+    static public function normalizeFormErrors($errors){
+        if(is_array($errors)) return $errors;
         $arrayErrors = [];
         if(count($errors) === 0) return $arrayErrors;
         /** @var ConstraintViolationInterface $error */

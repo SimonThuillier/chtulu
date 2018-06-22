@@ -8,6 +8,7 @@
 
 namespace AppBundle\Form;
 
+use AppBundle\DTO\ResourceVersionDTO;
 use AppBundle\Form\DataTransformer\HImageTransformer;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -28,7 +29,7 @@ class HFileUploadType extends AbstractType
             ))
             ->add('name', TextType::class, array(
                 'label' => 'Nom du fichier',
-                'required' => false,
+                'required' => true,
                 'attr' => array(
                     'maxlength' => 100
                 )
@@ -38,6 +39,7 @@ class HFileUploadType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
+            'data_class' => ResourceVersionDTO::class,
             'attr' => array(
                 'target' => 'resource_post_upload_resource',
             ),

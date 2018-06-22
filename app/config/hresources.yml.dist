@@ -1,0 +1,7 @@
+parameters:
+    hb_resources:
+        provider: file_system
+
+        file_system:
+            root: "%kernel.root_dir%/../hresources/"
+

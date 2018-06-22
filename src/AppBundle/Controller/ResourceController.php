@@ -6,6 +6,7 @@ use AppBundle\DTO\ResourceDTO;
 use AppBundle\DTO\ResourceVersionDTO;
 use AppBundle\Factory\ResourceDTOFactory;
 use AppBundle\Factory\ResourceFactory;
+use AppBundle\Factory\ResourceImageDTOFactory;
 use AppBundle\Factory\ResourceVersionDTOFactory;
 use AppBundle\Factory\ResourceVersionFactory;
 use AppBundle\Form\HFileUploadType;
@@ -33,7 +34,7 @@ class ResourceController extends Controller
     public function postUploadImageAction(Request $request, ResourceDTOMediator $mediator,
                                           ResourceFactory $entityFactory,ResourceDTOFactory $dtoFactory,
                                           ResourceVersionDTOMediator $versionMediator,
-                                          ResourceVersionFactory $versionFactory,ResourceVersionDTOFactory $versionDtoFactory,
+                                          ResourceVersionFactory $versionFactory,ResourceImageDTOFactory $versionDtoFactory,
                                           ResourceMapper $mapper)
     {
         $groups = ['minimal'];
@@ -51,21 +52,38 @@ class ResourceController extends Controller
             ->setDTO($versionDtoFactory->create($this->getUser()))
             ->mapDTOGroups(array_merge($versionGroups,[]))
             ->getDTO();
+        $versionDto->setName(null);
         $resourceDto->setActiveVersion($versionDto);
 
         $form = $this->get('form.factory')
-            ->createBuilder(HFileUploadType::class,$versionDto)->getForm();
-
+            ->createBuilder(HFileUploadType::class,$versionDto)
+            ->getForm();
 
         $mediator->resetChangedProperties();
-        $form->handleRequest($request);
-
-        $mapper->setMediator($mediator);
-        $mapper->add();
-
         $hResponse = new HJsonResponse();
-        $hResponse->setMessage("J'ai bien recu un truc !");
-        $hResponse->setStatus(HJsonResponse::SUCCESS);
+        $errors=[];
+        try{
+            $form->handleRequest($request);
+            $versionDto->setName($request->get('name'));
+            $errors = $this->get('validator')->validate($versionMediator->getDTO());
+            if (! $form->isValid() || count($errors)>0)
+            {
+                $truc = $this->getParameter('hb_resources');
+                var_dump($truc);
+                throw new \Exception("Le formulaire contient des erreurs à corriger avant chargement");
+            }
+
+            $mapper->setMediator($mediator);
+            $mapper->add();
+
+            $hResponse->setMessage("J'ai bien recu un truc !");
+            $hResponse->setStatus(HJsonResponse::SUCCESS);
+        }
+        catch(\Exception $e){
+            $hResponse->setStatus(HJsonResponse::ERROR)
+                ->setMessage($e->getMessage())
+                ->setErrors(HJsonResponse::normalizeFormErrors($errors));
+        }
 
         return new JsonResponse(HJsonResponse::normalize($hResponse));
     }
