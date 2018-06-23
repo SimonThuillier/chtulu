@@ -75,22 +75,19 @@ class ResourceMapper extends AbstractEntityMapper implements EntityMapper
 
         $this->versionMapper->setMediator($versionMediator);
         $this->versionMapper->add(false);
-        $this->doctrine->getManager()->remove($versionMediator->getEntity());
 
         /** @var HResource $resource */
         $resource = $this->defaultAdd();
-
-        $resource->setEditionDate(new \DateTime())
-            ->setEditionUser($this->currentUser);
-
-        $this->getManager()->flush();
         /** @var ResourceVersion $version */
         $version = $versionMediator->getEntity();
         $version
             ->setResource($resource)
             ->setNumber(1);
-        $this->versionMapper->add(true);
-        //$this->mediator->getDTO()->setId($article->getId());
+
+        $resource->setEditionDate(new \DateTime())
+            ->setEditionUser($this->currentUser);
+
+        $this->getManager()->flush();
         return $resource;
     }
 

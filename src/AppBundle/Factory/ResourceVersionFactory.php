@@ -21,8 +21,8 @@ class ResourceVersionFactory extends EntityFactory
     {
         /** @var ResourceVersion $version */
         $version = $this->product;
-        $version->setCreationDate(new \DateTime());
-        $version->setCreationUser($this->user);
-        $version->setActive(true);
+        $version->setCreationDate(new \DateTime())
+        ->setCreationUser($this->user)
+        ->setActive(true);
     }
 }

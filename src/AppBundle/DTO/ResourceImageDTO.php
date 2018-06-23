@@ -24,7 +24,7 @@ class ResourceImageDTO extends ResourceVersionDTO
      * @Assert\NotNull()
     *  @Assert\Image(
      *     minWidth = 120,
-     *     maxWidth = 2000,
+     *     maxWidth = 2100,
      *     minHeight = 100,
      *     maxHeight = 1200
      * )

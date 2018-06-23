@@ -14,6 +14,8 @@ use AppBundle\Entity\ResourceVersion;
 use AppBundle\Factory\FactoryException;
 use AppBundle\Factory\PaginatorFactory;
 use AppBundle\Factory\ResourceVersionFactory;
+use AppBundle\Manager\File\FileLocalUploader;
+use AppBundle\Manager\File\FileUploader;
 use AppBundle\Mediator\InvalidCallerException;
 use AppBundle\Mediator\NullColleagueException;
 use Psr\Log\LoggerInterface;
@@ -22,6 +24,9 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 
 class ResourceVersionMapper extends AbstractEntityMapper implements EntityMapper
 {
+    /** @var FileUploader */
+    private $uploader;
+
     /**
      * ResourceVersionMapper constructor.
      *
@@ -30,13 +35,15 @@ class ResourceVersionMapper extends AbstractEntityMapper implements EntityMapper
      * @param PaginatorFactory|null $paginatorFactory
      * @param TokenStorageInterface $tokenStorage
      * @param LoggerInterface $logger
+     * @param FileLocalUploader $uploader
      */
     public function __construct(
         ManagerRegistry $doctrine,
         ResourceVersionFactory $entityFactory = null,
         PaginatorFactory $paginatorFactory = null,
         TokenStorageInterface $tokenStorage,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        FileLocalUploader $uploader
     )
     {
         $this->entityClassName = ResourceVersion::class;
@@ -46,6 +53,7 @@ class ResourceVersionMapper extends AbstractEntityMapper implements EntityMapper
             $paginatorFactory,
             $tokenStorage,
             $logger);
+        $this->uploader = $uploader;
     }
 
     /**
@@ -64,10 +72,19 @@ class ResourceVersionMapper extends AbstractEntityMapper implements EntityMapper
         $version->setEditionDate(new \DateTime())
             ->setEditionUser($this->currentUser);
 
-        $this->doctrine->getManager()->persist($version->getFile());
-
+        if($version->getFile() !== null){
+            $this->doctrine->getManager()->persist($version->getFile());
+            try{
+                /** @var ResourceVersionDTO $versionDto */
+                $versionDto = $this->mediator->getDTO();
+                $version->getFile()->setUri($this->uploader->upload($versionDto->getFile()));
+                $versionDto->setFile(null);
+            }
+            catch(\Exception $e){
+               throw new EntityMapperException("Impossible to store the uploaded file : " . $e->getMessage());
+            }
+        }
         if($commit) $this->getManager()->flush();
-        //$this->mediator->getDTO()->setId($article->getId());
         return $version;
     }
 

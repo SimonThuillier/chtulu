@@ -85,7 +85,7 @@ class ResourceVersion extends DTOMutableEntity
     /**
      * @var User
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="creation_user_id", referencedColumnName="id",nullable=true)
+     * @ORM\JoinColumn(name="archiving_user_id", referencedColumnName="id",nullable=true)
      */
     protected $archivingUser;
 

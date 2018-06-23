@@ -12,7 +12,6 @@ namespace AppBundle\Mediator;
 use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\Entity\DTOMutableEntity;
 use AppBundle\Mapper\EntityMapper;
-use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Router;
 
 abstract class DTOMediator

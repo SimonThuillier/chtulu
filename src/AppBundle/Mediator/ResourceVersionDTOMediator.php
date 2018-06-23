@@ -15,7 +15,6 @@ use AppBundle\Entity\ResourceVersion;
 
 class ResourceVersionDTOMediator extends DTOMediator
 {
-
     /**
      * ResourceVersionDTOMediator constructor.
      */
@@ -54,6 +53,8 @@ class ResourceVersionDTOMediator extends DTOMediator
     protected function mediateFile(){
         /** @var ResourceVersionDTO $dto */
         $dto = $this->dto;
+        if($dto->getFile() === null){return;}
+
         /** @var ResourceVersion $version*/
         $version = $this->entity;
 
@@ -62,7 +63,8 @@ class ResourceVersionDTOMediator extends DTOMediator
         }
         $resourceFile = $version->getFile();
 
-        $resourceFile->setUri($dto->getFile()->getFilename())->setType('lol')->setMimeType('lol')
+        $resourceFile->setType($dto->getFile()->guessExtension())
+            ->setMimeType($dto->getFile()->getMimeType())
             ->setSize($dto->getFile()->getSize());
     }
 
