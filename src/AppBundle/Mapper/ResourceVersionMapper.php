@@ -9,14 +9,12 @@
 namespace AppBundle\Mapper;
 
 
+use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\DTO\ResourceVersionDTO;
 use AppBundle\Entity\ResourceVersion;
 use AppBundle\Factory\FactoryException;
-use AppBundle\Factory\PaginatorFactory;
 use AppBundle\Factory\ResourceVersionFactory;
-use AppBundle\Manager\File\FileLocalUploader;
 use AppBundle\Manager\File\FileUploader;
-use AppBundle\Mediator\InvalidCallerException;
 use AppBundle\Mediator\NullColleagueException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
@@ -31,54 +29,50 @@ class ResourceVersionMapper extends AbstractEntityMapper implements EntityMapper
      * ResourceVersionMapper constructor.
      *
      * @param ManagerRegistry $doctrine
-     * @param ResourceVersionFactory|null $entityFactory
-     * @param PaginatorFactory|null $paginatorFactory
-     * @param TokenStorageInterface $tokenStorage
+     * @param ResourceVersionFactory $entityFactory
      * @param LoggerInterface $logger
-     * @param FileLocalUploader $uploader
+     * @param TokenStorageInterface $tokenStorage
      */
     public function __construct(
         ManagerRegistry $doctrine,
-        ResourceVersionFactory $entityFactory = null,
-        PaginatorFactory $paginatorFactory = null,
         TokenStorageInterface $tokenStorage,
         LoggerInterface $logger,
-        FileLocalUploader $uploader
+        ResourceVersionFactory $entityFactory,
+        FileUploader $uploader
     )
     {
         $this->entityClassName = ResourceVersion::class;
         parent::__construct(
             $doctrine,
-            $entityFactory,
-            $paginatorFactory,
             $tokenStorage,
-            $logger);
+            $logger,
+            $entityFactory
+        );
         $this->uploader = $uploader;
     }
 
     /**
+     * @param EntityMutableDTO $dto
      * @param boolean $commit
      * @return ResourceVersion
      * @throws FactoryException
      * @throws NullColleagueException
-     * @throws InvalidCallerException
      * @throws EntityMapperException
      */
-    public function add($commit=true)
+    public function add(EntityMutableDTO $dto,$commit=true)
     {
-        $this->checkAdd();
+        $this->checkAdd($dto);
         /** @var ResourceVersion $version */
-        $version = $this->defaultAdd();
+        $version = $this->defaultAdd($dto);
         $version->setEditionDate(new \DateTime())
-            ->setEditionUser($this->currentUser);
+            ->setEditionUser($this->getUser());
 
         if($version->getFile() !== null){
             $this->doctrine->getManager()->persist($version->getFile());
             try{
-                /** @var ResourceVersionDTO $versionDto */
-                $versionDto = $this->mediator->getDTO();
-                $version->getFile()->setUri($this->uploader->upload($versionDto->getFile()));
-                $versionDto->setFile(null);
+                /** @var ResourceVersionDTO $dto */
+                $version->getFile()->setUri($this->uploader->upload($dto->getFile()));
+                $dto->setFile(null);
             }
             catch(\Exception $e){
                throw new EntityMapperException("Impossible to store the uploaded file : " . $e->getMessage());
@@ -89,33 +83,32 @@ class ResourceVersionMapper extends AbstractEntityMapper implements EntityMapper
     }
 
     /**
+     * @param EntityMutableDTO $dto
      * @return mixed|void
      * @throws EntityMapperException
      */
-    protected function checkAdd()
+    protected function checkAdd(EntityMutableDTO $dto)
     {
-        parent::checkAdd();
+        parent::checkAdd($dto);
         /** @var ResourceVersionDTO $dto */
-        $dto = $this->mediator->getDTO();
-
         if($dto->getFile() === null){
             throw new EntityMapperException("Impossible to create a resource version without a file");
         }
     }
 
     /**
+     * @param EntityMutableDTO $dto
      * @param integer|null $id
      * @param boolean $commit
      * @return ResourceVersion
      * @throws EntityMapperException
      * @throws NullColleagueException
-     * @throws InvalidCallerException
      */
-    public function edit($id=null,$commit=true)
+    public function edit(EntityMutableDTO $dto,$id=null,$commit=true)
     {
-        $this->checkEdit($id);
+        $this->checkEdit($dto,$id);
         /** @var ResourceVersion $version */
-        $version = $this->defaultEdit($id);
+        $version = $this->defaultEdit($dto,$id);
 
         if($commit) $this->getManager()->flush();
         return $version;

@@ -14,7 +14,7 @@ use AppBundle\Entity\Article;
 use AppBundle\Form\ArticleDTOType;
 use AppBundle\Helper\AssetHelper;
 use AppBundle\Helper\DateHelper;
-use AppBundle\Serializer\HDateSerializer;
+use AppBundle\Serializer\HDateNormalizer;
 use AppBundle\Utils\HDate;
 use AppBundle\Utils\UrlBag;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
@@ -23,42 +23,26 @@ use Symfony\Component\Validator\Constraints\DateTime;
 
 class ArticleDTOMediator extends DTOMediator
 {
-    /** @var HDateSerializer */
+    /** @var HDateNormalizer */
     private $hDateSerializer;
     /** @var AssetHelper */
     private $assetHelper;
 
     /**
      * ArticleDTOMediator constructor.
-     * @param HDateSerializer $hDateSerializer
+     * @param HDateNormalizer $hDateSerializer
      * @param AssetHelper $assetHelper
      */
-    public function __construct(HDateSerializer $hDateSerializer,AssetHelper $assetHelper)
+    public function __construct(HDateNormalizer $hDateSerializer, AssetHelper $assetHelper)
     {
         parent::__construct();
         $this->groups = ['minimal','abstract','date','type','url',
             'detailImage','subArticles','hteRange'];
-        $this->formTypeClassName = ArticleDTOType::class;
         $this->hDateSerializer = $hDateSerializer;
         $this->assetHelper = $assetHelper;
     }
 
-    /**
-     * @param string $group
-     * @throws NotAvailableGroupException
-     * @throws NullColleagueException
-     * @return self
-     */
-    public function mapDTOGroup(String $group)
-    {
-        parent::mapDTOGroup($group);
-        $function = 'mapDTO' . ucfirst($group) . 'Group';
-        $this->$function();
-
-        return $this;
-    }
-
-    private function mapDTOMinimalGroup()
+    protected function mapDTOMinimalGroup()
     {
         /** @var Article $article */
         $article = $this->entity;
@@ -73,7 +57,7 @@ class ArticleDTOMediator extends DTOMediator
         $article->getType()->getLabel();
     }
 
-    private function mapDTOAbstractGroup()
+    protected function mapDTOAbstractGroup()
     {
         /** @var Article $article */
         $article = $this->entity;
@@ -88,7 +72,7 @@ class ArticleDTOMediator extends DTOMediator
      * @param Article $article
      * @return null|HDate
      */
-    private function getArticleBeginHDate($article){
+    protected function getArticleBeginHDate($article){
         $beginHDate = ($article->getBeginDateType() !== null)?new HDate():null;
 
         if($beginHDate !== null){
@@ -116,7 +100,7 @@ class ArticleDTOMediator extends DTOMediator
         return $endHDate;
     }
 
-    private function mapDTODateGroup()
+    protected function mapDTODateGroup()
     {
         /** @var Article $article */
         $article = $this->entity;
@@ -135,7 +119,7 @@ class ArticleDTOMediator extends DTOMediator
             ->addMappedGroup('date');
     }
 
-    private function mapDTOUrlGroup()
+    protected function mapDTOUrlGroup()
     {
         if ($this->dto->getId() <1) return $this->mapDTOUrlGroupForNewEntity();
 
@@ -159,7 +143,7 @@ class ArticleDTOMediator extends DTOMediator
         $dto->addMappedGroup('url');
     }
 
-    private function mapDTOUrlGroupForNewEntity()
+    protected function mapDTOUrlGroupForNewEntity()
     {
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
@@ -171,7 +155,7 @@ class ArticleDTOMediator extends DTOMediator
         $dto->addMappedGroup('url');
     }
 
-    private function mapDTODetailImageGroup()
+    protected function mapDTODetailImageGroup()
     {
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
@@ -181,7 +165,7 @@ class ArticleDTOMediator extends DTOMediator
         $dto->addMappedGroup('detailImage');
     }
 
-    private function mapDTOSubArticlesGroup()
+    protected function mapDTOSubArticlesGroup()
     {
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
@@ -189,7 +173,7 @@ class ArticleDTOMediator extends DTOMediator
         $dto->addMappedGroup('subArticles');
     }
 
-    private function mapDTOhteRangeGroup()
+    protected function mapDTOhteRangeGroup()
     {
         /** @var Article $article */
         $article = $this->entity;
@@ -197,7 +181,7 @@ class ArticleDTOMediator extends DTOMediator
         $dto = $this->dto;
 
         if($article->gethteRange() !==null){
-            $dto->sethteRange($this->hDateSerializer->deserialize($article->gethteRange()));
+            $dto->sethteRange($this->hDateSerializer->deserialize($article->gethteRange(),null,'json'));
         }
         else{
             $beginHDate = $this->getArticleBeginHDate($article);
@@ -262,6 +246,6 @@ class ArticleDTOMediator extends DTOMediator
         /** @var Article $article */
         $article = $this->entity;
 
-        $article->sethteRange($dto->gethteRange()?$this->hDateSerializer->serialize($dto->gethteRange()):null);
+        $article->sethteRange($dto->gethteRange()?$this->hDateSerializer->serialize($dto->gethteRange(),'json'):null);
     }
 }

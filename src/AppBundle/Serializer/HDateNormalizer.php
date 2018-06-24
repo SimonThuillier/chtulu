@@ -2,20 +2,18 @@
 namespace AppBundle\Serializer;
 
 use Symfony\Bridge\Doctrine\ManagerRegistry;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
 use AppBundle\Factory\HDateFactory;
 use AppBundle\Utils\HDate;
 use AppBundle\Helper\DateHelper;
 use AppBundle\Entity\DateType;
 
-class HDateSerializer extends AbstractHSerializer implements HSerializer,NormalizerInterface
+class HDateNormalizer extends HSerializer implements NormalizerInterface
 {
-    /**
-     * @var HDateFactory
-     */
+    /** @var ManagerRegistry */
+    private $doctrine;
+    /** @var HDateFactory */
     private $mainFactory;
 
     /**
@@ -24,15 +22,9 @@ class HDateSerializer extends AbstractHSerializer implements HSerializer,Normali
      */
     public function __construct(ManagerRegistry $doctrine, HDateFactory $mainFactory)
     {
-        parent::__construct($doctrine);
+        parent::__construct([]);
+        $this->doctrine = $doctrine;
         $this->mainFactory = $mainFactory;
-
-        $encoders = array(new JsonEncoder());
-        $normalizers = array(new ObjectNormalizer());
-        $this->serializer = new Serializer($normalizers,$encoders);
-
-        $this->classNames = [HDate::class];
-        $this->mandatoryKeys = ["beginDate","endDate","type"];
     }
 
     public function supportsNormalization($data, $format = null)
@@ -45,18 +37,15 @@ class HDateSerializer extends AbstractHSerializer implements HSerializer,Normali
         return isset($data['__jsonclass__']) && 'json' === $format;
     }
 
-
-
     /**
      * @param HDate $object
      * @param array|null $groups
      * @param array $context
      * @return array
-     * @throws SerializationException
+     * @throws InvalidArgumentException
      */
     public function normalize($object,$groups=null,array $context=[])
     {
-        $this->preCheckNormalize($object);
         try{
             $normalization = [
                 'beginDate' => ($object->getBeginDate()->format('Y-m-d') . 'T00:00:00.000Z' ),
@@ -65,7 +54,7 @@ class HDateSerializer extends AbstractHSerializer implements HSerializer,Normali
             ;
         }
         catch(\Exception $e){
-            throw new SerializationException("Error while serializing object of class " .
+            throw new InvalidArgumentException("Error while serializing object of class " .
                 get_class($object) . " :  " . $e->getMessage());
         }
         return $normalization;
@@ -75,11 +64,10 @@ class HDateSerializer extends AbstractHSerializer implements HSerializer,Normali
      * @param array $normalizedPayload
      * @param HDate|null $object
      * @return HDate
-     * @throws DeserializationException
+     * @throws InvalidArgumentException
      */
     public function denormalize($normalizedPayload,$object=null)
     {
-        $this->preCheckDenormalize($normalizedPayload);
         try{
             $normalizedPayload["beginDate"] = DateHelper::createFromJson($normalizedPayload["beginDate"]);
             $normalizedPayload["endDate"] = DateHelper::createFromJson($normalizedPayload["endDate"]);
@@ -87,8 +75,8 @@ class HDateSerializer extends AbstractHSerializer implements HSerializer,Normali
                 ->find(intval($normalizedPayload["type"]));
         }
         catch(\Exception $e){
-            throw new DeserializationException("Invalid argument for transformation while deserializing to " .
-                reset($classNames) . " :  " . $e->getMessage());
+            throw new InvalidArgumentException("Invalid argument for transformation while deserializing to " .
+                HDate::class . " :  " . $e->getMessage());
         }
 
         try{
@@ -104,8 +92,8 @@ class HDateSerializer extends AbstractHSerializer implements HSerializer,Normali
             }
         }
         catch(\Exception $e){
-            throw new DeserializationException("Error while deserializing onto '" .
-                reset($classNames) . "' object :  " . $e->getMessage());
+            throw new InvalidArgumentException("Error while deserializing onto '" .
+                HDate::class . "' object :  " . $e->getMessage());
         }
         return $object;
     }

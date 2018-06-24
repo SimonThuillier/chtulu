@@ -9,7 +9,7 @@
 namespace AppBundle\Form\DataTransformer;
 
 use AppBundle\Serializer\DeserializationException;
-use AppBundle\Serializer\HDateSerializer;
+use AppBundle\Serializer\HDateNormalizer;
 use AppBundle\Serializer\SerializationException;
 use AppBundle\Utils\HDate;
 use Symfony\Component\Form\DataTransformerInterface;
@@ -19,11 +19,11 @@ use Symfony\Component\Form\Exception\TransformationFailedException;
 class HDateToStringTransformer implements DataTransformerInterface
 {
     /**
-     * @var HDateSerializer
+     * @var HDateNormalizer
      */
     private $serializer;
 
-    public function __construct(HDateSerializer $serializer)
+    public function __construct(HDateNormalizer $serializer)
     {
         $this->serializer = $serializer;
     }
@@ -39,9 +39,9 @@ class HDateToStringTransformer implements DataTransformerInterface
             return '';
         }
         try{
-            $payload = $this->serializer->serialize($object);
+            $payload = $this->serializer->serialize($object,'json');
         }
-        catch(SerializationException $e){
+        catch(\Exception $e){
             throw new TransformationFailedException($e->getMessage());
         }
         return $payload;
@@ -59,10 +59,9 @@ class HDateToStringTransformer implements DataTransformerInterface
         }
 
         try{
-            if(is_string($payload)) $payload = $this->serializer->decode($payload);
-            $object = $this->serializer->denormalize($payload);
+            if(is_string($payload)) $object = $this->serializer->deserialize($payload,null,'json');
         }
-        catch(DeserializationException $e){
+        catch(\Exception $e){
             throw new TransformationFailedException($e->getMessage());
         }
         return $object;

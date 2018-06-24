@@ -15,7 +15,7 @@ use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
 use Doctrine\Common\Annotations\AnnotationReader;
-use AppBundle\Serializer\HDateSerializer;
+use AppBundle\Serializer\HDateNormalizer;
 use AppBundle\Mapper\AutoMapper;
 
 class ArticleHelper
@@ -25,10 +25,10 @@ class ArticleHelper
     private $serializer;
     /** @var ArticleDTOFactory $articleDTOFactory */
     private $articleDTOFactory;
-    /**@var HDateSerializer*/
+    /**@var HDateNormalizer*/
     private $hDateSerializer;
     
-    public function __construct(ArticleDTOFactory $articleDTOFactory,HDateSerializer $hDateSerializer)
+    public function __construct(ArticleDTOFactory $articleDTOFactory, HDateNormalizer $hDateSerializer)
     {
         $this->articleDTOFactory = $articleDTOFactory;
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));

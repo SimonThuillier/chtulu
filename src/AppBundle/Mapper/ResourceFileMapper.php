@@ -9,11 +9,10 @@
 namespace AppBundle\Mapper;
 
 
+use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\Entity\ResourceFile;
 use AppBundle\Factory\FactoryException;
-use AppBundle\Factory\PaginatorFactory;
 use AppBundle\Factory\ResourceFileFactory;
-use AppBundle\Mediator\InvalidCallerException;
 use AppBundle\Mediator\NullColleagueException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
@@ -25,62 +24,59 @@ class ResourceFileMapper extends AbstractEntityMapper implements EntityMapper
      * ResourceFileMapper constructor.
      *
      * @param ManagerRegistry $doctrine
-     * @param ResourceFileFactory|null $entityFactory
-     * @param PaginatorFactory|null $paginatorFactory
-     * @param TokenStorageInterface $tokenStorage
+     * @param ResourceFileFactory $entityFactory
      * @param LoggerInterface $logger
+     * @param TokenStorageInterface $tokenStorage
      */
     public function __construct(
         ManagerRegistry $doctrine,
-        ResourceFileFactory $entityFactory = null,
-        PaginatorFactory $paginatorFactory = null,
         TokenStorageInterface $tokenStorage,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        ResourceFileFactory $entityFactory
     )
     {
         $this->entityClassName = ResourceFile::class;
         parent::__construct(
             $doctrine,
-            $entityFactory,
-            $paginatorFactory,
             $tokenStorage,
-            $logger);
+            $logger,
+            $entityFactory
+        );
     }
 
     /**
+     * @param EntityMutableDTO $dto
      * @param boolean $commit
      * @return ResourceFile
      * @throws FactoryException
      * @throws NullColleagueException
-     * @throws InvalidCallerException
      * @throws EntityMapperException
      */
-    public function add($commit=true)
+    public function add(EntityMutableDTO $dto,$commit=true)
     {
-        $this->checkAdd();
+        $this->checkAdd($dto);
         /** @var ResourceFile $file */
-        $file = $this->defaultAdd();
+        $file = $this->defaultAdd($dto);
 
-        $this->getManager()->flush();
-        //$this->mediator->getDTO()->setId($article->getId());
+        if($commit) $this->getManager()->flush();
         return $file;
     }
 
     /**
+     * @param EntityMutableDTO $dto
      * @param integer|null $id
      * @param boolean $commit
      * @return ResourceFile
      * @throws EntityMapperException
      * @throws NullColleagueException
-     * @throws InvalidCallerException
      */
-    public function edit($id=null,$commit=true)
+    public function edit(EntityMutableDTO $dto,$id=null,$commit=true)
     {
-        $this->checkEdit($id);
+        $this->checkEdit($dto,$id);
         /** @var ResourceFile $file */
-        $file = $this->defaultEdit($id);
+        $file = $this->defaultEdit($dto,$id);
 
-        $this->getManager()->flush();
+        if($commit) $this->getManager()->flush();
         return $file;
     }
 

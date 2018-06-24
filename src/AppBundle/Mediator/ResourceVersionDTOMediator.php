@@ -11,35 +11,25 @@ namespace AppBundle\Mediator;
 use AppBundle\DTO\ResourceVersionDTO;
 use AppBundle\Entity\ResourceFile;
 use AppBundle\Entity\ResourceVersion;
+use AppBundle\Manager\File\FileRouter;
 
 
 class ResourceVersionDTOMediator extends DTOMediator
 {
+    /** @var FileRouter */
+    private $fileRouter;
     /**
      * ResourceVersionDTOMediator constructor.
+     * @param FileRouter $fileRouter
      */
-    public function __construct()
+    public function __construct(FileRouter $fileRouter)
     {
         parent::__construct();
-        $this->groups = ['minimal'];
+        $this->fileRouter = $fileRouter;
+        $this->groups = ['minimal','urlDetailThumbnail'];
     }
 
-    /**
-     * @param string $group
-     * @throws NotAvailableGroupException
-     * @throws NullColleagueException
-     * @return self
-     */
-    public function mapDTOGroup(String $group)
-    {
-        parent::mapDTOGroup($group);
-        $function = 'mapDTO' . ucfirst($group) . 'Group';
-        $this->$function();
-
-        return $this;
-    }
-
-    private function mapDTOMinimalGroup()
+    protected function mapDTOMinimalGroup()
     {
         /** @var ResourceVersion $version */
         $version = $this->entity;
@@ -47,6 +37,8 @@ class ResourceVersionDTOMediator extends DTOMediator
         $dto = $this->dto;
         $dto
             ->setId($version->getId())
+            ->setNumber($version->getNumber())
+            ->setType(($version->getFile())?$version->getFile()->getType():null)
             ->addMappedGroup('minimal');
     }
 
@@ -66,6 +58,15 @@ class ResourceVersionDTOMediator extends DTOMediator
         $resourceFile->setType($dto->getFile()->guessExtension())
             ->setMimeType($dto->getFile()->getMimeType())
             ->setSize($dto->getFile()->getSize());
+    }
+
+    protected function mapDTOUrlDetailThumbnailGroup(){
+        /** @var ResourceVersionDTO $dto */
+        $dto = $this->dto;
+        /** @var ResourceVersion $version*/
+        $version = $this->entity;
+
+        $dto->addUrls(["detail_thumbnail"=>$this->fileRouter->getVersionRoute($version,"detail_thumbnail")]);
     }
 
 

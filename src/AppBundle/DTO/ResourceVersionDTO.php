@@ -20,8 +20,14 @@ class ResourceVersionDTO extends EntityMutableDTO
     protected $id;
     /** @var string */
     protected $name;
+    /** @var string */
+    protected $type;
+    /** @var integer */
+    protected $number;
     /** @var UploadedFile */
     protected $file;
+    /** @var array */
+    protected $urls;
 
     /**
      * ResourceVersionDTO constructor.
@@ -30,6 +36,7 @@ class ResourceVersionDTO extends EntityMutableDTO
     {
         parent::__construct();
         $this->versions = [];
+        $this->urls = [];
     }
 
     /**
@@ -74,6 +81,46 @@ class ResourceVersionDTO extends EntityMutableDTO
     }
 
     /**
+     * @return string|null
+     * @Groups({"minimal"})
+     */
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param string $type
+     * @return ResourceVersionDTO
+     */
+    public function setType(?string $type): ResourceVersionDTO
+    {
+        $this->type = $type;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('type');
+        return $this;
+    }
+
+    /**
+     * @return int
+     * @Groups({"minimal"})
+     */
+    public function getNumber(): ?int
+    {
+        return $this->number;
+    }
+
+    /**
+     * @param int $number
+     * @return ResourceVersionDTO
+     */
+    public function setNumber(?int $number): ResourceVersionDTO
+    {
+        $this->number = $number;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('number');
+        return $this;
+    }
+
+    /**
      * @return UploadedFile|null
      * @Groups({"file"})
      * @Assert\NotBlank()
@@ -92,6 +139,26 @@ class ResourceVersionDTO extends EntityMutableDTO
     {
         $this->file = $file;
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('file');
+        return $this;
+    }
+
+    /**
+     * @return string
+     * @Groups({"urlDetailThumbnail","minimal"})
+     */
+    public function getUrlDetailThumbnail(): ?string
+    {
+        if(! array_key_exists("detail_thumbnail",$this->urls)) return "lol";
+        return $this->urls["detail_thumbnail"];
+    }
+
+    /**
+     * @param array $urls
+     * @return ResourceVersionDTO
+     */
+    public function addUrls(array $urls): ResourceVersionDTO
+    {
+        $this->urls = array_merge($this->urls,$urls);
         return $this;
     }
 }

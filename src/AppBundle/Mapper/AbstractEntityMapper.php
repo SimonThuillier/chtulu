@@ -2,23 +2,16 @@
 
 namespace AppBundle\Mapper;
 
-use AppBundle\DTO\ArticleDTO;
 use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\Factory\EntityFactory;
 use AppBundle\Factory\FactoryException;
-use AppBundle\Factory\PaginatorFactory;
-use AppBundle\Mediator\DTOMediator;
-use AppBundle\Mediator\InvalidCallerException;
 use AppBundle\Mediator\NullColleagueException;
 use AppBundle\Utils\SearchBag;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Mapping\MappingException;
 use Doctrine\ORM\QueryBuilder;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Form\Exception\LogicException;
-use AppBundle\Entity\User;
 use Doctrine\ORM\Mapping\Entity;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
@@ -28,20 +21,16 @@ abstract class AbstractEntityMapper
     protected $doctrine;
     /** @var string  */
     protected $entityClassName;
+    /** @var string  */
+    protected $dtoClassName;
     /** @var EntityFactory */
     protected $entityFactory;
-    /** @var PaginatorFactory */
-    protected $paginatorFactory;
-    /** @var User */
-    protected $currentUser;
-    /** @var LoggerInterface */
-    protected $logger;
     /** @var EntityRepository */
     protected $repository;
-    /** @var DTOMediator */
-    protected $mediator;
-    /** @var string */
-    protected $mediatorPassword = null;
+    /** @var LoggerInterface */
+    protected $logger;
+    /** @var TokenStorageInterface */
+    protected $tokenStorage;
 
     /**
      * @return ObjectManager
@@ -55,128 +44,97 @@ abstract class AbstractEntityMapper
      * AbstractDoctrineMapper constructor.
      *
      * @param ManagerRegistry $doctrine
-     * @param EntityFactory|null $entityFactory
-     * @param PaginatorFactory|null $paginatorFactory
-     * @param User $user
+     * @param EntityFactory $entityFactory
+     * @param LoggerInterface $logger
+     * @param TokenStorageInterface $tokenStorage
      */
     public function __construct(
         ManagerRegistry $doctrine,
-        EntityFactory $entityFactory = null,
-        PaginatorFactory $paginatorFactory = null,
         TokenStorageInterface $tokenStorage,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        EntityFactory $entityFactory
     )
     {
         $this->doctrine         = $doctrine;
-        $this->entityFactory    = $entityFactory;
-        $this->paginatorFactory = $paginatorFactory;
-        $this->currentUser      = $tokenStorage->getToken()->getUser();
+        $this->tokenStorage     = $tokenStorage;
         $this->logger = $logger;
+        $this->entityFactory    = $entityFactory;
         $this->repository = $this->doctrine->getRepository($this->entityClassName);
     }
 
     /**
-     * @return DTOMediator|null
+     * @return mixed
      */
-    public function getMediator(){
-        return $this->mediator;
+    protected function getUser(){
+        return $this->tokenStorage->getToken()->getUser();
     }
 
     /**
-     * @param DTOMediator|null $mediator
-     * @return self
-     */
-    public function setMediator($mediator){
-        if($mediator === $this->mediator) return;
-        if($this->mediator !== null) $this->mediator->setMapper(null);
-        $this->mediator = $mediator;
-        if($this->mediator !== null) $this->mediator->setMapper($this);
-        return $this;
-    }
-
-    /**
-     * @param string $mediatorPassword
-     */
-    public function setMediatorPassword($mediatorPassword)
-    {
-        $this->mediatorPassword = $mediatorPassword;
-    }
-
-    /**
+     * @param EntityMutableDTO $dto
      * @return mixed
      * @throws EntityMapperException
      */
-    protected function checkAdd()
+    protected function checkAdd(EntityMutableDTO $dto)
     {
-        if($this->mediator === null){
-            throw new EntityMapperException("Mapper's mediator must be set to add an entity");
+        if($dto->getMediator() === null){
+            throw new EntityMapperException("Dto's mediator must be set to add an entity");
         }
-        /** @var EntityMutableDTO $dto */
-        $dto = $this->mediator->getDTO();
-        if($dto === null){
-            throw new EntityMapperException("Mediator's DTO must be set to add an entity");
-        }
-        if($this->mediator->getEntity() !== null && $this->mediator->getEntity()->getId()>0){
+        if($dto->getMediator()->getEntity() !== null && $dto->getMediator()->getEntity()->getId()>0){
             throw new EntityMapperException("Mediator's entity already exists; please consider editing it instead");
         }
     }
 
     /**
+     * @param EntityMutableDTO $dto
      * @return Entity
      * @throws FactoryException
      * @throws NullColleagueException
-     * @throws InvalidCallerException
      */
-    protected function defaultAdd()
+    protected function defaultAdd(EntityMutableDTO $dto)
     {
-        $entity = $this->mediator->getEntity();
+        $mediator = $dto->getMediator();
+        $entity = $mediator->getEntity();
         if($entity === null){
-            $entity = $this->entityFactory->create($this->currentUser);
-            $this->mediator->setEntity($entity);
+            $entity = $this->entityFactory->create($this->tokenStorage->getToken()->getUser());
+            $mediator->setEntity($entity);
         }
-        $this->mediator->returnDataToEntity($this->mediatorPassword);
+        $mediator->returnDataToEntity();
         $this->getManager()->persist($entity);
         return $entity;
     }
 
     /**
-     * @param integer
+     * @param EntityMutableDTO $dto
+     * @param integer|null $id
      * @throws EntityMapperException
      */
-    protected function checkEdit($id=null)
+    protected function checkEdit(EntityMutableDTO $dto,$id=null)
     {
-        if($this->mediator === null){
+        if($dto->getMediator() === null){
             throw new EntityMapperException("Mapper's mediator must be set to edit an entity");
         }
-        /** @var EntityMutableDTO $dto */
-        $dto = $this->mediator->getDTO();
-        if($dto === null){
-            throw new EntityMapperException("Mediator's DTO must be set to edit an entity");
-        }
-        $entity = $this->mediator->getEntity();
-        if($id !==null){
-            $entity = $this->find($id);
-        }
+        $entity = $dto->getMediator()->getEntity();
+        if($id !==null){$entity = $this->find($id);}
         if($entity === null || $entity->getId() == 0){
             throw new EntityMapperException("Entity is either null or non persisted : please consider add instead of edit");
         }
     }
 
     /**
+     * @param EntityMutableDTO $dto
      * @param int|null $id
      * @return Entity
      * @throws EntityMapperException
      * @throws NullColleagueException
-     * @throws InvalidCallerException
      */
-    protected function defaultEdit($id=null)
+    protected function defaultEdit(EntityMutableDTO $dto,$id=null)
     {
+        $entity = $dto->getMediator()->getEntity();
         if($id !== null){
             $entity = $this->find($id);
-            $this->mediator->setEntity($entity);
+            $dto->getMediator()->setEntity($entity);
         }
-        $entity = $this->mediator->getEntity();
-        $this->mediator->returnDataToEntity($this->mediatorPassword);
+        $dto->getMediator()->returnDataToEntity();
         return $entity;
     }
 

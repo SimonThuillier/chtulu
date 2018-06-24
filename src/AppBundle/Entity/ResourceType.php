@@ -3,6 +3,7 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * ResourceType
@@ -33,9 +34,9 @@ class ResourceType
 
 
     /**
-     * Get id.
-     *
+     * Get id .
      * @return int
+     * @Groups({"type","minimal"})
      */
     public function getId()
     {
@@ -57,6 +58,7 @@ class ResourceType
 
     /**
      * Get label.
+     * @Groups({"type","minimal"})
      *
      * @return string
      */

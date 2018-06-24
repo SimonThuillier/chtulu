@@ -1,60 +1,61 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: ajeelomen-1
+ * Date: 24/06/18
+ * Time: 22:59
+ */
 
 namespace AppBundle\Serializer;
 
-interface HSerializer
+use AppBundle\Mediator\NotAvailableGroupException;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Exception\CircularReferenceException;
+use Symfony\Component\Serializer\Exception\InvalidArgumentException;
+use Symfony\Component\Serializer\Exception\LogicException;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
+
+abstract class HSerializer implements NormalizerInterface
 {
-    /**
-     * returns admissible class names of objects operated by the serializer
-     * first className is the class of object created during deserialization
-     * @return array
-     */
-    public function getClassNames();
-    
-    /**
-     * @param mixed $object
-     * @return string
-     * @throws SerializationException
-     */
-    public function serialize($object);
+    /** @var Serializer */
+    protected $serializer;
 
     /**
-     * @param mixed $object
+     * JsonSerializer constructor.
+     * @param array $normalizers
+     */
+    public function __construct(array $normalizers)
+    {
+        $this->serializer = new Serializer($normalizers,array(new JsonEncoder()));
+    }
+
+
+
+    abstract public function normalize($object, $format = null, array $context = array());
+
+
+    abstract public function denormalize($normalizedPayload,$object=null);
+
+    /**
+     * helper function to transform multiple depth groups allowing an in-depth serialization/deserialization
      * @param array|null $groups
      * @return array
-     * @throws SerializationException
+     * @throws NotAvailableGroupException
      */
-    public function normalize($object,$groups=null);
-
-    /**
-     * @param array $normalizedObject
-     * @return string
-     * @throws SerializationException
-     */
-    public function encode($normalizedObject);
-
-    /**
-     * @param string $payload 
-     * @return mixed
-     * @throws DeserializationException
-     */
-    public function deserialize($payload);
-
-    /**
-     * @param string $payload
-     * @return array
-     * @throws DeserializationException
-     */
-    public function decode($payload);
-
-    /**
-     * @param array $normalizedPayload
-     * @param mixed $object
-     * @return mixed
-     * @throws DeserializationException
-     */
-    public function denormalize($normalizedPayload,$object=null);
-
-
-
+    protected function handleGroups(?array $groups){
+        if($groups === null) {return ["this"=>null];}
+        $normGroups = ["this"=>[]];
+        foreach($groups as $k => $v){
+            if(is_numeric($k)) $normGroups["this"][] = $v;
+            elseif(is_string($k) && is_array($v)){
+                $normGroups["this"][] = $k;
+                $normGroups[$k] = $v;
+            }
+            else throw new NotAvailableGroupException(
+                "Groups elements must be either a string or a string referencing an array of subgroups");
+        }
+        return $normGroups;
+    }
 }

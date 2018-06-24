@@ -9,16 +9,13 @@
 namespace AppBundle\Mapper;
 
 
+use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\DTO\ResourceDTO;
 use AppBundle\Entity\HResource;
 use AppBundle\Entity\ResourceVersion;
 use AppBundle\Factory\FactoryException;
-use AppBundle\Factory\PaginatorFactory;
-
 use AppBundle\Factory\ResourceFactory;
-use AppBundle\Mediator\InvalidCallerException;
 use AppBundle\Mediator\NullColleagueException;
-use AppBundle\Mediator\ResourceVersionDTOMediator;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -28,96 +25,89 @@ class ResourceMapper extends AbstractEntityMapper implements EntityMapper
     /** @var ResourceVersionMapper */
     private $versionMapper;
 
-
     /**
-     * ResourceVersionMapper constructor.
+     * ResourceMapper constructor.
      *
      * @param ManagerRegistry $doctrine
-     * @param ResourceFactory|null $entityFactory
-     * @param PaginatorFactory|null $paginatorFactory
-     * @param TokenStorageInterface $tokenStorage
+     * @param ResourceFactory $entityFactory
      * @param LoggerInterface $logger
+     * @param TokenStorageInterface $tokenStorage
      * @param ResourceVersionMapper $versionMapper
      */
     public function __construct(
         ManagerRegistry $doctrine,
-        ResourceFactory $entityFactory = null,
-        PaginatorFactory $paginatorFactory = null,
         TokenStorageInterface $tokenStorage,
         LoggerInterface $logger,
+        ResourceFactory $entityFactory,
         ResourceVersionMapper $versionMapper
     )
     {
         $this->entityClassName = HResource::class;
         parent::__construct(
             $doctrine,
-            $entityFactory,
-            $paginatorFactory,
             $tokenStorage,
-            $logger);
+            $logger,
+            $entityFactory
+        );
         $this->versionMapper = $versionMapper;
     }
 
     /**
+     * @param EntityMutableDTO $dto
      * @param boolean $commit
      * @return HResource
      * @throws FactoryException
      * @throws NullColleagueException
-     * @throws InvalidCallerException
      * @throws EntityMapperException
      */
-    public function add($commit=true)
+    public function add(EntityMutableDTO $dto,$commit=true)
     {
-        $this->checkAdd();
+        $this->checkAdd($dto);
 
-        /** @var ResourceVersionDTOMediator $versionMediator */
-        $versionMediator = $this->mediator->getDTO()->getActiveVersion()->getMediator();
-
-        $this->versionMapper->setMediator($versionMediator);
-        $this->versionMapper->add(false);
+        /** @var ResourceDTO $dto */
+        /** @var ResourceVersion $version */
+        $version = $this->versionMapper->add($dto->getActiveVersion(),false);
 
         /** @var HResource $resource */
-        $resource = $this->defaultAdd();
-        /** @var ResourceVersion $version */
-        $version = $versionMediator->getEntity();
+        $resource = $this->defaultAdd($dto);
+
         $version
             ->setResource($resource)
             ->setNumber(1);
 
         $resource->setEditionDate(new \DateTime())
-            ->setEditionUser($this->currentUser);
+            ->setEditionUser($this->getUser());
 
         $this->getManager()->flush();
         return $resource;
     }
 
     /**
+     * @param EntityMutableDTO $dto
      * @return mixed|void
      * @throws EntityMapperException
      */
-    protected function checkAdd(){
-        parent::checkAdd();
+    protected function checkAdd(EntityMutableDTO $dto){
+        parent::checkAdd($dto);
         /** @var ResourceDTO $dto */
-        $dto = $this->mediator->getDTO();
-
         if($dto->getActiveVersion() === null){
-            throw new EntityMapperException("Impossible to create a resource without an active version");
+            throw new EntityMapperException("Impossible to create a resource without active version of it");
         }
     }
 
     /**
+     * @param EntityMutableDTO $dto
      * @param integer|null $id
      * @param boolean $commit
      * @return HResource
      * @throws EntityMapperException
      * @throws NullColleagueException
-     * @throws InvalidCallerException
      */
-    public function edit($id=null,$commit=true)
+    public function edit(EntityMutableDTO $dto,$id=null,$commit=true)
     {
-        $this->checkEdit($id);
+        $this->checkEdit($dto,$id);
         /** @var HResource $resource */
-        $resource = $this->defaultEdit($id);
+        $resource = $this->defaultEdit($dto,$id);
 
         if($commit) $this->getManager()->flush();
         return $resource;

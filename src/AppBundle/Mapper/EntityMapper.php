@@ -2,8 +2,8 @@
 
 namespace AppBundle\Mapper;
 
+use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\Factory\FactoryException;
-use AppBundle\Mediator\DTOMediator;
 use AppBundle\Mediator\InvalidCallerException;
 use AppBundle\Mediator\NullColleagueException;
 use AppBundle\Utils\SearchBag;
@@ -17,27 +17,15 @@ use Doctrine\ORM\QueryBuilder;
  */
 interface EntityMapper
 {
-    /** @return DTOMediator */
-    public function getMediator();
-
-    /** @param DTOMediator $mediator
-     *  @return self
-     */
-    public function setMediator($mediator);
-
-    /** @param string $mediatorPassword
-     *  @return self
-     */
-    public function setMediatorPassword($mediatorPassword);
-
     /**
+     * @param EntityMutableDTO $dto
      * @param boolean $commit
      * @return Entity
      * @throws FactoryException
      * @throws NullColleagueException
      * @throws InvalidCallerException
      */
-    public function add($commit=true);
+    public function add(EntityMutableDTO $dto,$commit=true);
 
     /**
      * @param int $id
@@ -69,6 +57,7 @@ interface EntityMapper
     public function findLast();
 
     /**
+     * @param EntityMutableDTO $dto
      * @param int|null $id
      * @param boolean $commit
      * @return Entity
@@ -76,7 +65,7 @@ interface EntityMapper
      * @throws NullColleagueException
      * @throws InvalidCallerException
      */
-    public function edit($id=null,$commit=true);
+    public function edit(EntityMutableDTO $dto,$id=null,$commit=true);
 
     /**
      * @param int $id

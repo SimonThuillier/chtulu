@@ -9,7 +9,7 @@ use AppBundle\Form\HFileUploadType;
 use AppBundle\Helper\BootstrapListHelper;
 use AppBundle\Mapper\ArticleMapper;
 use AppBundle\Mediator\ArticleDTOMediator;
-use AppBundle\Serializer\ArticleDTOSerializer;
+use AppBundle\Serializer\ArticleDTONormalizer;
 use AppBundle\Serializer\UrlEncoder;
 use AppBundle\Utils\HJsonResponse;
 use AppBundle\Utils\SearchBag;
@@ -44,13 +44,14 @@ class ArticleController extends Controller
     /**
      * @Route("/create",name="article_create")
      * @Method({"GET"})
+     * @throws \Exception
      */
     public function createAction(Request $request,
                                  ArticleFactory $entityFactory,
-                               ArticleDTOFactory $dtoFactory,
-                               ArticleDTOMediator $mediator,
-                               ArticleDTOSerializer $serializer,
-                               Router $router)
+                                 ArticleDTOFactory $dtoFactory,
+                                 ArticleDTOMediator $mediator,
+                                 ArticleDTONormalizer $serializer,
+                                 Router $router)
     {
         $groups = ['minimal','abstract','date','detailImage'];
 
@@ -79,14 +80,15 @@ class ArticleController extends Controller
     /**
      * @Route("/post-create",name="article_post_create")
      * @Method({"POST","GET"})
+     * @throws \Exception
      */
     public function postCreateAction(Request $request,
-                                 ArticleDTOFactory $dtoFactory,
-                                 ArticleFactory $entityFactory,
-                                 ArticleDTOMediator $mediator,
-                                 ArticleMapper $mapper,
+                                     ArticleDTOFactory $dtoFactory,
+                                     ArticleFactory $entityFactory,
+                                     ArticleDTOMediator $mediator,
+                                     ArticleMapper $mapper,
                                      Router $router,
-                                     ArticleDTOSerializer $serializer)
+                                     ArticleDTONormalizer $serializer)
     {
         $hResponse = new HJsonResponse();
         $groups = $request->get("groups",['minimal']);
@@ -101,22 +103,20 @@ class ArticleController extends Controller
                 ->mapDTOGroups($groups);
             $form = $this
                 ->get('form.factory')
-                ->createBuilder($mediator->getFormTypeClassName(),$mediator->getDTO(),[
+                ->createBuilder(ArticleDTOType::class,$mediator->getDTO(),[
                     'validation_groups'=>$groups])
                 ->add('save',SubmitType::class)
                 ->getForm();
 
-            $mediator
-                ->resetChangedProperties()
-                ->setMapper($mapper);
+            $mediator->resetChangedProperties();
             $form->submit($request->request->get("form"));
             $errors = $this->get('validator')->validate($mediator->getDTO());
             if (! $form->isValid() || count($errors)>0)
             {
                 throw new \Exception("Le formulaire contient des erreurs à corriger avant creation");
             }
-            $mapper->add();
-            $mediator->mapDTOGroup('url');
+            $mapper->add($mediator->getDTO());
+            $mediator->mapDTOGroups(['url']);
             $hResponse
                 ->setMessage("L'article a été creé")
                 ->setData($serializer->normalize($mediator->getDTO(),['minimal','url']));
@@ -132,12 +132,13 @@ class ArticleController extends Controller
     /**
      * @Route("/view/{article}",name="article_view")
      * @Method({"GET"})
+     * @throws \Exception
      *
      */
     public function viewAction(Article $article,
                                ArticleDTOFactory $dtoFactory,
                                ArticleDTOMediator $mediator,
-                               ArticleDTOSerializer $serializer){
+                               ArticleDTONormalizer $serializer){
         $groups = ['minimal','date','abstract','detailImage'];
 
         $articleDto = $mediator
@@ -157,12 +158,13 @@ class ArticleController extends Controller
      * @Route("/edit/{article}",name="article_edit")
      * @ParamConverter("article", class="AppBundle:Article")
      * @Method({"GET"})
+     * @throws \Exception
      */
     public function editAction(Request $request,
                                Article $article,
                                ArticleDTOFactory $dtoFactory,
                                ArticleDTOMediator $mediator,
-                               ArticleDTOSerializer $serializer,
+                               ArticleDTONormalizer $serializer,
                                Router $router)
     {
         $groups = ['minimal','abstract','date','detailImage','hteRange'];
@@ -215,14 +217,13 @@ class ArticleController extends Controller
                 ->mapDTOGroups($groups);
             $form = $this
                 ->get('form.factory')
-                ->createBuilder($mediator->getFormTypeClassName(),$mediator->getDTO(),[
+                ->createBuilder(ArticleDTOType::class,$mediator->getDTO(),[
                     'validation_groups'=>$groups])
                 ->add('save',SubmitType::class)
                 ->getForm();
 
-            $mediator
-                ->resetChangedProperties()
-                ->setMapper($mapper);
+            $mediator->resetChangedProperties();
+
             $form->submit($request->request->get("form"));
             //$this->get('logger')->info($request->request->get("form"));
             $errors = $this->get('validator')->validate($mediator->getDTO());
@@ -230,7 +231,7 @@ class ArticleController extends Controller
             {
                 throw new \Exception("Le formulaire contient des erreurs à corriger avant validation");
             }
-            $mapper->edit();
+            $mapper->edit($mediator->getDTO());
             $hResponse->setMessage("L'article a été mis à jour");
         }
         catch(\Exception $e){
@@ -316,6 +317,7 @@ class ArticleController extends Controller
     /**
      * @Route("/list",name="article_list")
      * @Method({"GET","POST"})
+     * @throws \Exception
      */
     public function listAction(Request $request,
                                GenericProcessor $processor,
@@ -323,7 +325,7 @@ class ArticleController extends Controller
                                ArticleDTOFactory $dtoFactory,
                                ArticleFactory $entityFactory,
                                ArticleDTOMediator $mediator,
-                               ArticleDTOSerializer $serializer,
+                               ArticleDTONormalizer $serializer,
                                Router $router)
     {
         $this->get('session')->remove('processedConfirmation');
@@ -362,12 +364,13 @@ class ArticleController extends Controller
     /**
      * @Route("/get-list-data",name="article_getlistdata")
      * @Method({"GET","POST"})
+     * @throws \Exception
      */
     public function getListDataAction(Request $request,
                                       ManagerRegistry $doctrine,
                                       ArticleDTOFactory $dtoFactory,
                                       ArticleDTOMediator $mediator,
-                                      ArticleDTOSerializer $serializer,
+                                      ArticleDTONormalizer $serializer,
                                       Router $router,
                                       UrlEncoder $urlEncoder,
                                       ArticleMapper $mapper)
@@ -380,7 +383,6 @@ class ArticleController extends Controller
         $logger->info('I just got the logger2');
 
         if(array_key_exists("search",$test)){
-            $blop = [];
             $searchForm = $this
                 ->get('form.factory')
                 ->createBuilder(ArticleSearchType::class,null,['validation_groups'=>[]])
@@ -388,9 +390,6 @@ class ArticleController extends Controller
 
             $searchForm->submit((array)json_decode($test["search"]));
             $test["search"] = $searchForm->getData();
-                //$logger->info($test["search"]);
-            //$logger->info($searchForm->getErrors()[0]->getMessage());
-            //var_dump($searchForm->isValid());
         }
 
         $searchBag = SearchBag::createFromArray($test);
@@ -426,8 +425,8 @@ class ArticleController extends Controller
      * @Method({"GET"})
      *
      */
-    public function getDataAction(Request $request,Article $article,  ArticleDTOFactory $dtoFactory,
-                                  ArticleDTOMediator $mediator,ArticleDTOSerializer $serializer){
+    public function getDataAction(Request $request, Article $article, ArticleDTOFactory $dtoFactory,
+                                  ArticleDTOMediator $mediator, ArticleDTONormalizer $serializer){
 
         $hResponse = new HJsonResponse();
         $groups = $request->get("groups",['minimal']);

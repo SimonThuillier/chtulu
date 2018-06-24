@@ -20,8 +20,6 @@ abstract class DTOMediator
     protected $dto;
     /** @var DTOMutableEntity */
     protected $entity;
-    /** @var EntityMapper */
-    protected $mapper;
     /** @var array */
     protected $groups;
     /** @var array */
@@ -30,12 +28,8 @@ abstract class DTOMediator
     private $pendingSetDTO;
     /** @var boolean */
     private $pendingSetEntity;
-    /** @var boolean */
-    protected $pendingSetMapper;
     /** @var string */
     protected $password;
-    /** @var string */
-    protected $formTypeClassName;
     /** @var Router */
     protected $router;
 
@@ -48,19 +42,7 @@ abstract class DTOMediator
         $this->changedProperties = [];
         $this->pendingSetDTO = false;
         $this->pendingSetEntity = false;
-        $this->pendingSetMapper = false;
-        $this->password = static::generateSalt();
     }
-
-    /**
-     * @return string
-     */
-    public function getFormTypeClassName(): string
-    {
-        return $this->formTypeClassName;
-    }
-
-
 
     /**
      * @param EntityMutableDTO|null $dto
@@ -105,56 +87,55 @@ abstract class DTOMediator
     }
 
     /**
-     * @param EntityMapper|null $mapper
-     * @return $this
+     * @return array
      */
-    public function setMapper($mapper){
-        if($this->mapper === $mapper || $this->pendingSetMapper) return $this;
-        $this->pendingSetMapper = true;
-        if($this->mapper !== null){
-            $this->mapper->setMediator(null);
-            $this->mapper->setMediatorPassword(null);
-        }
-        $this->mapper = $mapper;
-        if($this->mapper !== null){
-            $this->mapper->setMediator($this);
-            $this->mapper->setMediatorPassword($this->password);
-        }
-        $this->pendingSetMapper = false;
-        return $this;
-    }
-
-    /**
-     * @return EntityMapper|null
-     */
-    public function getMapper(){
-        return $this->mapper;
+    public function getAvailableGroups():array{
+        return $this->groups;
     }
 
     /**
      * @param string $group
+     * @param array|null $subGroups
      * @throws NotAvailableGroupException
      * @throws NullColleagueException
      * @return self
      */
-    public function mapDTOGroup(String $group){
+    protected function mapDTOGroup(String $group,?array $subGroups=null)
+    {
         if($this->dto === null) throw new NullColleagueException("DTO must be instanciated to build its groups");
         if($this->entity === null) throw new NullColleagueException("Entity must be specified to receive data");
         if(! in_array($group,$this->groups)){
             throw new NotAvailableGroupException("Group " . $group . " is not available for DTOMediator " . self::class);
         }
+
+        $function = 'mapDTO' . ucfirst($group) . 'Group';
+
+        if($subGroups === null) $this->$function();
+        else {
+            try{
+                $this->$function($subGroups);
+            }
+            catch(\Exception $e) {
+                throw new NotAvailableGroupException("Group " . $group . " doesn't support subGroups in DTOMediator " . self::class);
+            }
+        }
         return $this;
     }
 
     /**
-     * @param array $groups
+     * if groups is null or not given all groups are mapped
+     * @param array|null $groups
      * @throws NotAvailableGroupException
      * @throws NullColleagueException
      * @return self
      */
-    public function mapDTOGroups(array $groups){
-        foreach($groups as $group){
-            $this->mapDTOGroup($group);
+    public function mapDTOGroups(?array $groups=null){
+        if ($groups === null) $groups = $this->getAvailableGroups();
+        foreach($groups as $k => $v){
+            if(is_numeric($k)) $this->mapDTOGroup($v);
+            elseif(is_string($k) && is_array($v)) $this->mapDTOGroup($k,$v);
+            else throw new NotAvailableGroupException(
+                "Groups elements must be either a string or a string referencing an array of subgroups");
         }
         return $this;
     }
@@ -192,12 +173,8 @@ abstract class DTOMediator
      * @var string $password
      * @return array
      * @throws NullColleagueException
-     * @throws InvalidCallerException
      */
-    public function returnDataToEntity(string $password){
-        if($this->mapper === null) throw new NullColleagueException("Mapper must be specified to return data");
-        if($password !== $this->password) throw new InvalidCallerException("
-        password isn't the one attributed by the mediator : only mediator's mapper can request entity creation/modification");
+    public function returnDataToEntity(){
         if($this->dto === null) throw new NullColleagueException("DTO must be specified to return data");
         if($this->entity === null) throw new NullColleagueException("Entity must be specified to receive data");
         $propertiesToReturn = array_unique($this->changedProperties);
@@ -219,20 +196,6 @@ abstract class DTOMediator
         }
         $this->resetChangedProperties();
         return $returnedProperties;
-    }
-
-    /**
-     * generate custom password to give to colleague
-     * @param integer $length
-     * @return string
-     */
-    static private function generateSalt($length=10){
-        $chars = str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789" . (new \DateTime())->format('His'));
-        $salt="";
-        for($i=0;$i<$length;$i++){
-            $salt.=substr($chars,mt_rand(0,strlen($chars)),1);
-        }
-        return substr(md5($salt),0,255);
     }
 
     /**

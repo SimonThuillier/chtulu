@@ -8,12 +8,10 @@
 
 namespace AppBundle\Mapper;
 
-
+use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\Entity\Article;
 use AppBundle\Factory\ArticleFactory;
 use AppBundle\Factory\FactoryException;
-use AppBundle\Factory\PaginatorFactory;
-use AppBundle\Mediator\InvalidCallerException;
 use AppBundle\Mediator\NullColleagueException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
@@ -25,70 +23,74 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapper
      * ArticleMapper constructor.
      *
      * @param ManagerRegistry $doctrine
-     * @param ArticleFactory|null $entityFactory
-     * @param PaginatorFactory|null $paginatorFactory
-     * @param TokenStorageInterface $tokenStorage
+     * @param ArticleFactory $entityFactory
      * @param LoggerInterface $logger
+     * @param TokenStorageInterface $tokenStorage
      */
     public function __construct(
         ManagerRegistry $doctrine,
-        ArticleFactory $entityFactory = null,
-        PaginatorFactory $paginatorFactory = null,
         TokenStorageInterface $tokenStorage,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        ArticleFactory $entityFactory
     )
     {
         $this->entityClassName = Article::class;
         parent::__construct(
             $doctrine,
-            $entityFactory,
-            $paginatorFactory,
             $tokenStorage,
-            $logger);
+            $logger,
+            $entityFactory
+            );
     }
 
     /**
+     * @param EntityMutableDTO $dto
      * @param boolean $commit
      * @return Article
      * @throws FactoryException
      * @throws NullColleagueException
-     * @throws InvalidCallerException
      * @throws EntityMapperException
      */
-    public function add($commit=true)
+    public function add(EntityMutableDTO $dto,$commit=true)
     {
-        $this->checkAdd();
+        $this->checkAdd($dto);
         /** @var Article $article */
-        $article = $this->defaultAdd();
+        $article = $this->defaultAdd($dto);
         $article
             ->setEditionDate(new \DateTime())
-            ->setEditionUser($this->currentUser);
-        $this->getManager()->flush();
-        $this->mediator->getDTO()->setId($article->getId());
+            ->setEditionUser($this->getUser());
+        if($commit){
+            $this->getManager()->flush();
+            $dto->setId($article->getId());
+        }
         return $article;
     }
 
     /**
+     * @param EntityMutableDTO $dto
      * @param integer|null $id
      * @param boolean $commit
      * @return Article
      * @throws EntityMapperException
      * @throws NullColleagueException
-     * @throws InvalidCallerException
      */
-    public function edit($id=null,$commit=true)
+    public function edit(EntityMutableDTO $dto,$id=null,$commit=true)
     {
-        $this->checkEdit($id);
+        $this->checkEdit($dto,$id);
         /** @var Article $article */
-        $article = $this->defaultEdit($id);
+        $article = $this->defaultEdit($dto,$id);
         $article
             ->setEditionDate(new \DateTime())
-            ->setEditionUser($this->currentUser);
-        $this->getManager()->flush();
+            ->setEditionUser($this->getUser());
+        if($commit) $this->getManager()->flush();
         return $article;
     }
 
-
+    /**
+     * @param int $id
+     * @return string
+     * @throws EntityMapperException
+     */
     public function confirmDelete(int $id)
     {
         /** @var Article $article */

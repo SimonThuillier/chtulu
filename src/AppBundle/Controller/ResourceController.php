@@ -18,6 +18,7 @@ use AppBundle\Mapper\ResourceMapper;
 use AppBundle\Mediator\ResourceDTOMediator;
 use AppBundle\Mediator\ResourceVersionDTOMediator;
 use AppBundle\Repository\ResourceVersionRepository;
+use AppBundle\Serializer\ResourceDTONormalizer;
 use AppBundle\Utils\HJsonResponse;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -39,12 +40,13 @@ class ResourceController extends Controller
     /**
      * @Route("/post-upload-image",name="resource_post_upload_image")
      * @Method({"POST"})
+     * @throws \Exception
      */
     public function postUploadImageAction(Request $request, ResourceDTOMediator $mediator,
-                                          ResourceFactory $entityFactory,ResourceDTOFactory $dtoFactory,
+                                          ResourceFactory $entityFactory, ResourceDTOFactory $dtoFactory,
                                           ResourceVersionDTOMediator $versionMediator,
-                                          ResourceVersionFactory $versionFactory,ResourceImageDTOFactory $versionDtoFactory,
-                                          ResourceMapper $mapper)
+                                          ResourceVersionFactory $versionFactory, ResourceImageDTOFactory $versionDtoFactory,
+                                          ResourceMapper $mapper, ResourceDTONormalizer $serializer)
     {
         $groups = ['minimal'];
         $versionGroups = ['minimal'];
@@ -80,12 +82,13 @@ class ResourceController extends Controller
             {
                 throw new \Exception("Le formulaire contient des erreurs à corriger avant chargement");
             }
+            $mapper->add($resourceDto);
 
-            $mapper->setMediator($mediator);
-            $mapper->add();
-
-            $hResponse->setMessage("Le fichier a bien été chargé");
-            $hResponse->setStatus(HJsonResponse::SUCCESS);
+            $mediator->mapDTOGroups(["minimal"]);
+//,"activeVersion"=>["minimal","urlDetailThumbnail"]
+            $hResponse->setMessage("Le fichier a bien été chargé")
+                ->setData($serializer->normalize($resourceDto,['minimal',"activeVersion"]))
+            ->setStatus(HJsonResponse::SUCCESS);
         }
         catch(\Exception $e){
             $hResponse->setStatus(HJsonResponse::ERROR)
