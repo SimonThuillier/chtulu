@@ -22,7 +22,7 @@ use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Serializer;
 
 
-class ResourceDTONormalizer extends HSerializer implements NormalizerInterface
+class ResourceDTONormalizer extends HNormalizer implements NormalizerInterface
 {
     /** @var ResourceVersionDTONormalizer */
     private $versionDtoNormalizer;
@@ -35,12 +35,13 @@ class ResourceDTONormalizer extends HSerializer implements NormalizerInterface
      */
     public function __construct(ManagerRegistry $doctrine,ResourceVersionDTONormalizer $versionDtoNormalizer)
     {
+        $this->customCallbackParams = [];
         $this->versionDtoNormalizer = $versionDtoNormalizer;
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
             $this->getCallbacksNormalizer(),
-            new PropertyNormalizer($classMetadataFactory),
-            new ObjectNormalizer());
+            //$versionDtoNormalizer,
+            new PropertyNormalizer($classMetadataFactory));
         parent::__construct($normalizers);
     }
 
@@ -50,6 +51,7 @@ class ResourceDTONormalizer extends HSerializer implements NormalizerInterface
         $this->customCallbackParams = ["activeVersion"=>null];
         $customCallbacks["activeVersion"] = function ($version) {
             //throw new \Exception(json_encode($this->customCallbackParams["activeVersion"]) . '-' . get_class($version));
+            //return "lol";
             return $this->versionDtoNormalizer->normalize($version,$this->customCallbackParams["activeVersion"]);
         };
 
@@ -66,7 +68,7 @@ class ResourceDTONormalizer extends HSerializer implements NormalizerInterface
         $this->cleanCallbackParams();
         foreach($normGroups as $k=>$v){
             if($k === "this") continue;
-            if(! array_key_exists($k,$this->customCallbackParams)){
+            if(false && ! array_key_exists($k,$this->customCallbackParams)){
                 throw new NotAvailableGroupException(
                     "Group " . $k . " doesn't support normalization subGroups in normalizer " . self::class);
             }
@@ -89,7 +91,7 @@ class ResourceDTONormalizer extends HSerializer implements NormalizerInterface
 
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return isset($data['__jsonclass__']) && 'json' === $format;
+        return true;
     }
 
     /**
@@ -102,21 +104,25 @@ class ResourceDTONormalizer extends HSerializer implements NormalizerInterface
      */
     public function normalize($object,$groups=null,array $context=[])
     {
+        //return ["lol"];
         $normGroups = $this->handleGroups($groups);
         $this->setCallbackParams($normGroups);
         $normalization = $this->serializer->normalize($object, null, array('groups' => $normGroups["this"]));
+        //throw new \Exception("lol");
         return $normalization;
     }
 
     /**
-     * @param array $normalizedPayload
-     * @param mixed|null $object
-     * @return ResourceDTO
+     * @param mixed $data
+     * @param string $class
+     * @param null $format
+     * @param array $context
+     * @return mixed
      * @throws InvalidArgumentException
      */
-    public function denormalize($normalizedPayload,$object=null)
+    public function denormalize($data, $class, $format = null, array $context = array())
     {
         // TODO implements ?
-        return $object;
+        return $data;
     }
 }

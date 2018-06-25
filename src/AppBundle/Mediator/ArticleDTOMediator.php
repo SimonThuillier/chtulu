@@ -19,27 +19,31 @@ use AppBundle\Utils\HDate;
 use AppBundle\Utils\UrlBag;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Validator\Constraints\DateTime;
 
 class ArticleDTOMediator extends DTOMediator
 {
     /** @var HDateNormalizer */
-    private $hDateSerializer;
+    private $hDateNormalizer;
     /** @var AssetHelper */
     private $assetHelper;
+    /** @var JsonEncoder */
+    private $encoder;
 
     /**
      * ArticleDTOMediator constructor.
-     * @param HDateNormalizer $hDateSerializer
+     * @param HDateNormalizer $hDateNormalizer
      * @param AssetHelper $assetHelper
      */
-    public function __construct(HDateNormalizer $hDateSerializer, AssetHelper $assetHelper)
+    public function __construct(HDateNormalizer $hDateNormalizer, AssetHelper $assetHelper,JsonEncoder $encoder)
     {
         parent::__construct();
         $this->groups = ['minimal','abstract','date','type','url',
             'detailImage','subArticles','hteRange'];
-        $this->hDateSerializer = $hDateSerializer;
+        $this->hDateNormalizer = $hDateNormalizer;
         $this->assetHelper = $assetHelper;
+        $this->encoder = $encoder;
     }
 
     protected function mapDTOMinimalGroup()
@@ -181,7 +185,8 @@ class ArticleDTOMediator extends DTOMediator
         $dto = $this->dto;
 
         if($article->gethteRange() !==null){
-            $dto->sethteRange($this->hDateSerializer->deserialize($article->gethteRange(),null,'json'));
+            $dto->sethteRange($this->hDateNormalizer->denormalize(
+                $this->encoder->decode($article->gethteRange(),'json'),HDate::class));
         }
         else{
             $beginHDate = $this->getArticleBeginHDate($article);
@@ -246,6 +251,7 @@ class ArticleDTOMediator extends DTOMediator
         /** @var Article $article */
         $article = $this->entity;
 
-        $article->sethteRange($dto->gethteRange()?$this->hDateSerializer->serialize($dto->gethteRange(),'json'):null);
+        $article->sethteRange($dto->gethteRange()?$this->encoder->encode(
+            $this->hDateNormalizer->normalize($dto->gethteRange()),'json'):null);
     }
 }

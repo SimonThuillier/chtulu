@@ -9,15 +9,17 @@
 namespace AppBundle\Serializer;
 
 use AppBundle\Mediator\NotAvailableGroupException;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Exception\CircularReferenceException;
+use Symfony\Component\Serializer\Exception\BadMethodCallException;
+use Symfony\Component\Serializer\Exception\ExtraAttributesException;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\LogicException;
+use Symfony\Component\Serializer\Exception\RuntimeException;
+use Symfony\Component\Serializer\Exception\UnexpectedValueException;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\SerializerInterface;
 
-abstract class HSerializer implements NormalizerInterface
+abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
 {
     /** @var Serializer */
     protected $serializer;
@@ -28,13 +30,27 @@ abstract class HSerializer implements NormalizerInterface
      */
     public function __construct(array $normalizers)
     {
+        $normalizers = array_merge([new MediatorNormalizer()],$normalizers);
         $this->serializer = new Serializer($normalizers,[]);
     }
 
+    /**
+     * @param object $object
+     * @param null $format
+     * @param array $context
+     * @return mixed
+     */
     abstract public function normalize($object, $format = null, array $context = array());
 
+    /**
+     * @param mixed $data
+     * @param string $class
+     * @param null $format
+     * @param array $context
+     * @return mixed
+     */
+    abstract public function denormalize($data, $class, $format = null, array $context = array());
 
-    abstract public function denormalize($normalizedPayload,$object=null);
 
     /**
      * helper function to transform multiple depth groups allowing an in-depth serialization/deserialization
@@ -47,7 +63,7 @@ abstract class HSerializer implements NormalizerInterface
         $normGroups = ["this"=>[]];
         foreach($groups as $k => $v){
             if(is_numeric($k)) $normGroups["this"][] = $v;
-            elseif(is_string($k) && is_array($v)){
+            elseif(true || (is_string($k) && is_array($v))){
                 $normGroups["this"][] = $k;
                 $normGroups[$k] = $v;
             }

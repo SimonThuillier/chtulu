@@ -50,7 +50,8 @@ class ArticleController extends Controller
                                  ArticleFactory $entityFactory,
                                  ArticleDTOFactory $dtoFactory,
                                  ArticleDTOMediator $mediator,
-                                 ArticleDTONormalizer $serializer,
+                                 ArticleDTONormalizer $normalizer,
+                                 JsonEncoder $encoder,
                                  Router $router)
     {
         $groups = ['minimal','abstract','date','detailImage'];
@@ -71,8 +72,11 @@ class ArticleController extends Controller
 
         return $this->render('@AppBundle/Article/edit.html.twig',[
                 "title" => "[Creer] Nouvel article",
-                "articleDTO" =>json_encode($serializer->normalize($articleDto,array_merge($groups,['groups','url','type']))),
-                "form" => $form->createView()
+                "articleDTO" =>$encoder->encode($normalizer
+                    ->normalize($articleDto,array_merge($groups,['groups','url','type'])),'json'),
+                "form" => $form->createView(),
+                "fileUploadForm" => $this->get('form.factory')
+                    ->createBuilder(HFileUploadType::class,null)->getForm()->createView()
             ]
         );
     }
@@ -88,7 +92,7 @@ class ArticleController extends Controller
                                      ArticleDTOMediator $mediator,
                                      ArticleMapper $mapper,
                                      Router $router,
-                                     ArticleDTONormalizer $serializer)
+                                     ArticleDTONormalizer $normalizer)
     {
         $hResponse = new HJsonResponse();
         $groups = $request->get("groups",['minimal']);
@@ -119,7 +123,7 @@ class ArticleController extends Controller
             $mediator->mapDTOGroups(['url']);
             $hResponse
                 ->setMessage("L'article a été creé")
-                ->setData($serializer->normalize($mediator->getDTO(),['minimal','url']));
+                ->setData($normalizer->normalize($mediator->getDTO(),['minimal','url']));
         }
         catch(\Exception $e){
             $hResponse->setStatus(HJsonResponse::ERROR)
@@ -138,7 +142,7 @@ class ArticleController extends Controller
     public function viewAction(Article $article,
                                ArticleDTOFactory $dtoFactory,
                                ArticleDTOMediator $mediator,
-                               ArticleDTONormalizer $serializer){
+                               ArticleDTONormalizer $normalizer){
         $groups = ['minimal','date','abstract','detailImage'];
 
         $articleDto = $mediator
@@ -149,7 +153,7 @@ class ArticleController extends Controller
 
         return $this->render('@AppBundle/Article/view.html.twig',[
                 "title" => $articleDto->getTitle(),
-                "articleDTO" =>json_encode($serializer->normalize($articleDto,array_merge($groups,['groups','type'])))
+                "articleDTO" =>json_encode($normalizer->normalize($articleDto,array_merge($groups,['groups','type'])))
             ]
         );
     }
@@ -164,7 +168,8 @@ class ArticleController extends Controller
                                Article $article,
                                ArticleDTOFactory $dtoFactory,
                                ArticleDTOMediator $mediator,
-                               ArticleDTONormalizer $serializer,
+                               ArticleDTONormalizer $normalizer,
+                               JsonEncoder $encoder,
                                Router $router)
     {
         $groups = ['minimal','abstract','date','detailImage','hteRange'];
@@ -185,7 +190,8 @@ class ArticleController extends Controller
 
         return $this->render('@AppBundle/Article/edit.html.twig',[
                 "title" => "[Editer] " . $articleDto->getTitle(),
-                "articleDTO" =>json_encode($serializer->normalize($articleDto,array_merge($groups,['groups','url','type']))),
+                "articleDTO" =>$encoder->
+                encode($normalizer->normalize($articleDto,array_merge($groups,['groups','url','type'])),'json'),
                 "form" => $form->createView(),
                 "fileUploadForm" => $this->get('form.factory')
                     ->createBuilder(HFileUploadType::class,null)->getForm()->createView()
@@ -325,7 +331,8 @@ class ArticleController extends Controller
                                ArticleDTOFactory $dtoFactory,
                                ArticleFactory $entityFactory,
                                ArticleDTOMediator $mediator,
-                               ArticleDTONormalizer $serializer,
+                               ArticleDTONormalizer $normalizer,
+                               JsonEncoder $encoder,
                                Router $router)
     {
         $this->get('session')->remove('processedConfirmation');
@@ -350,8 +357,8 @@ class ArticleController extends Controller
             ->mapDTOGroups($groups)
             ->getDTO();
         $groups = array_merge($groups,['groups','type']);
-        $serializedArticleDTO = $serializer->encode($serializer->normalize($articleDTO,$groups));
 
+        $serializedArticleDTO = $encoder->encode($normalizer->normalize($articleDTO,$groups),'json');
 
         return $this->render('@AppBundle/Article/list.html.twig',[
             "form"=>$form->createView(),
@@ -370,7 +377,7 @@ class ArticleController extends Controller
                                       ManagerRegistry $doctrine,
                                       ArticleDTOFactory $dtoFactory,
                                       ArticleDTOMediator $mediator,
-                                      ArticleDTONormalizer $serializer,
+                                      ArticleDTONormalizer $normalizer,
                                       Router $router,
                                       UrlEncoder $urlEncoder,
                                       ArticleMapper $mapper)
@@ -417,7 +424,7 @@ class ArticleController extends Controller
         }
 
         $groups = array_merge($groups,['groups','type']);
-        return new JsonResponse(BootstrapListHelper::getNormalizedListData($articleDtos,$serializer,$groups,$count));
+        return new JsonResponse(BootstrapListHelper::getNormalizedListData($articleDtos,$normalizer,$groups,$count));
     }
 
     /**
@@ -426,7 +433,7 @@ class ArticleController extends Controller
      *
      */
     public function getDataAction(Request $request, Article $article, ArticleDTOFactory $dtoFactory,
-                                  ArticleDTOMediator $mediator, ArticleDTONormalizer $serializer){
+                                  ArticleDTOMediator $mediator, ArticleDTONormalizer $normalizer){
 
         $hResponse = new HJsonResponse();
         $groups = $request->get("groups",['minimal']);
@@ -436,7 +443,7 @@ class ArticleController extends Controller
                 ->setDTO($dtoFactory->create($this->getUser()))
                 ->mapDTOGroups($groups)
                 ->getDTO();
-            $hResponse->setData($serializer->normalize($articleDto,$groups));
+            $hResponse->setData($normalizer->normalize($articleDto,$groups));
         }
         catch(\Exception $e){
             $hResponse->setStatus(HJsonResponse::ERROR)->setMessage($e->getMessage());

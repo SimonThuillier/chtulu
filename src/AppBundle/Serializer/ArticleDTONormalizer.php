@@ -20,7 +20,7 @@ use Symfony\Component\Serializer\Normalizer\PropertyNormalizer;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 
 
-class ArticleDTONormalizer extends HSerializer implements NormalizerInterface
+class ArticleDTONormalizer extends HNormalizer
 {
     /**
      * @param ManagerRegistry $doctrine
@@ -29,10 +29,16 @@ class ArticleDTONormalizer extends HSerializer implements NormalizerInterface
     public function __construct(ManagerRegistry $doctrine, HDateNormalizer $hDateSerializer)
     {
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
+        $propertyNormalizer = new PropertyNormalizer($classMetadataFactory);
+        $propertyNormalizer->setCircularReferenceHandler(function ($object) {
+            return "circular reference";
+        });;
+
+
         $normalizers = array(
             $hDateSerializer,
-            new PropertyNormalizer($classMetadataFactory),
-            new ObjectNormalizer());
+            $propertyNormalizer,);
+            //new ObjectNormalizer());
 
         parent::__construct($normalizers);
     }
@@ -44,7 +50,7 @@ class ArticleDTONormalizer extends HSerializer implements NormalizerInterface
 
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return isset($data['__jsonclass__']) && 'json' === $format;
+        return true;
     }
 
     /**
@@ -61,14 +67,16 @@ class ArticleDTONormalizer extends HSerializer implements NormalizerInterface
     }
 
     /**
-     * @param array $normalizedPayload
-     * @param mixed|null $object
-     * @return ArticleDTO
+     * @param mixed $data
+     * @param string $class
+     * @param null $format
+     * @param array $context
+     * @return mixed
      * @throws InvalidArgumentException
      */
-    public function denormalize($normalizedPayload,$object=null)
+    public function denormalize($data, $class, $format = null, array $context = array())
     {
         // TODO : implements ?
-        return $object;
+        return $data;
     }
 }

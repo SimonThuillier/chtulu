@@ -14,6 +14,7 @@ use AppBundle\Factory\ResourceVersionFactory;
 use AppBundle\Form\HFileUploadType;
 use AppBundle\Image\LocalDataLoader;
 use AppBundle\Manager\File\FileRouter;
+use AppBundle\Mapper\EntityMapperException;
 use AppBundle\Mapper\ResourceMapper;
 use AppBundle\Mediator\ResourceDTOMediator;
 use AppBundle\Mediator\ResourceVersionDTOMediator;
@@ -46,7 +47,7 @@ class ResourceController extends Controller
                                           ResourceFactory $entityFactory, ResourceDTOFactory $dtoFactory,
                                           ResourceVersionDTOMediator $versionMediator,
                                           ResourceVersionFactory $versionFactory, ResourceImageDTOFactory $versionDtoFactory,
-                                          ResourceMapper $mapper, ResourceDTONormalizer $serializer)
+                                          ResourceMapper $mapper, ResourceDTONormalizer $normalizer)
     {
         $groups = ['minimal'];
         $versionGroups = ['minimal'];
@@ -86,11 +87,12 @@ class ResourceController extends Controller
 
             $mediator->mapDTOGroups(["minimal"]);
 //,"activeVersion"=>["minimal","urlDetailThumbnail"]
+            //,"activeVersion"=>["minimal"]
             $hResponse->setMessage("Le fichier a bien été chargé")
-                ->setData($serializer->normalize($resourceDto,['minimal',"activeVersion"]))
+                ->setData($normalizer->normalize($resourceDto,['minimal',"activeVersion"]))
             ->setStatus(HJsonResponse::SUCCESS);
         }
-        catch(\Exception $e){
+        catch(EntityMapperException $e){
             $hResponse->setStatus(HJsonResponse::ERROR)
                 ->setMessage($e->getMessage())
                 ->setErrors(HJsonResponse::normalizeFormErrors($errors));

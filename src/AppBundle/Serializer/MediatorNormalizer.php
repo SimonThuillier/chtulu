@@ -10,6 +10,7 @@ namespace AppBundle\Serializer;
 
 
 use AppBundle\DTO\ArticleDTO;
+use AppBundle\Mediator\ArticleDTOMediator;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
@@ -20,37 +21,22 @@ use Symfony\Component\Serializer\Normalizer\PropertyNormalizer;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 
 
-class ArticleDTONormalizer extends HNormalizer
+class MediatorNormalizer implements NormalizerInterface
 {
-    /**
-     * @param ManagerRegistry $doctrine
-     * @param HDateNormalizer $hDateSerializer
-     */
-    public function __construct(ManagerRegistry $doctrine, HDateNormalizer $hDateSerializer)
+    public function __construct()
     {
-        $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
-        $propertyNormalizer = new PropertyNormalizer($classMetadataFactory);
-        $propertyNormalizer->setCircularReferenceHandler(function ($object) {
-            return "circular reference";
-        });;
 
-
-        $normalizers = array(
-            $hDateSerializer,
-            $propertyNormalizer,);
-            //new ObjectNormalizer());
-
-        parent::__construct($normalizers);
     }
 
     public function supportsNormalization($data, $format = null)
     {
-        return is_object($data) && get_class($data) === ArticleDTO::class;
+        return (is_object($data) && strpos(strtoupper(get_class($data)),"MEDIATOR") !== false);
+
     }
 
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return true;
+        return false;
     }
 
     /**
@@ -62,8 +48,7 @@ class ArticleDTONormalizer extends HNormalizer
      */
     public function normalize($object,$groups=null,array $context=[])
     {
-            $normalization = $this->serializer->normalize($object, null, array('groups' => $groups));
-        return $normalization;
+        return [];
     }
 
     /**

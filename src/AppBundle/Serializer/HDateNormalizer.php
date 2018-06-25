@@ -3,13 +3,14 @@ namespace AppBundle\Serializer;
 
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use AppBundle\Factory\HDateFactory;
 use AppBundle\Utils\HDate;
 use AppBundle\Helper\DateHelper;
 use AppBundle\Entity\DateType;
 
-class HDateNormalizer extends HSerializer implements NormalizerInterface
+class HDateNormalizer extends HNormalizer
 {
     /** @var ManagerRegistry */
     private $doctrine;
@@ -34,7 +35,7 @@ class HDateNormalizer extends HSerializer implements NormalizerInterface
 
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return isset($data['__jsonclass__']) && 'json' === $format;
+        return isset($data['beginDate']) && isset($data['endDate']) && isset($data['type']);
     }
 
     /**
@@ -61,35 +62,28 @@ class HDateNormalizer extends HSerializer implements NormalizerInterface
     }
 
     /**
-     * @param array $normalizedPayload
-     * @param HDate|null $object
-     * @return HDate
+     * @param mixed $data
+     * @param string $class
+     * @param null $format
+     * @param array $context
+     * @return mixed
      * @throws InvalidArgumentException
      */
-    public function denormalize($normalizedPayload,$object=null)
+    public function denormalize($data, $class, $format = null, array $context = array())
     {
         try{
-            $normalizedPayload["beginDate"] = DateHelper::createFromJson($normalizedPayload["beginDate"]);
-            $normalizedPayload["endDate"] = DateHelper::createFromJson($normalizedPayload["endDate"]);
-            $normalizedPayload["type"] = $this->doctrine->getRepository(DateType::class)
-                ->find(intval($normalizedPayload["type"]));
+            $data["beginDate"] = DateHelper::createFromJson($data["beginDate"]);
+            $data["endDate"] = DateHelper::createFromJson($data["endDate"]);
+            $data["type"] = $this->doctrine->getRepository(DateType::class)
+                ->find(intval($data["type"]));
         }
         catch(\Exception $e){
             throw new InvalidArgumentException("Invalid argument for transformation while deserializing to " .
                 HDate::class . " :  " . $e->getMessage());
         }
-
         try{
-            if($object !== null){
-                $this->mainFactory
-                    ->setObject($object)
-                    ->setData($normalizedPayload["type"],$normalizedPayload["beginDate"], ["endDate"])
-                    ->getObject();
-            }
-            else{
-                $object = $this->mainFactory->create($normalizedPayload["type"],$normalizedPayload["beginDate"],
-                    $normalizedPayload["endDate"]);
-            }
+            $object = $this->mainFactory->create($data["type"],$data["beginDate"], $data["endDate"]);
+
         }
         catch(\Exception $e){
             throw new InvalidArgumentException("Error while deserializing onto '" .

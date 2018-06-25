@@ -8,24 +8,24 @@
 
 namespace AppBundle\Form\DataTransformer;
 
-use AppBundle\Serializer\DeserializationException;
-use AppBundle\Serializer\HDateNormalizer;
-use AppBundle\Serializer\SerializationException;
+use AppBundle\serializer\HDateNormalizer;
 use AppBundle\Utils\HDate;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Serializer;
 
 
 class HDateToStringTransformer implements DataTransformerInterface
 {
     /**
-     * @var HDateNormalizer
+     * @var Serializer
      */
     private $serializer;
 
-    public function __construct(HDateNormalizer $serializer)
+    public function __construct(HDateNormalizer $normalizer,JsonEncoder $encoder)
     {
-        $this->serializer = $serializer;
+        $this->serializer = new Serializer([$normalizer],[$encoder]);
     }
 
     /**

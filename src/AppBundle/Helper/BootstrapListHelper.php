@@ -9,14 +9,14 @@
 namespace AppBundle\Helper;
 
 
-use AppBundle\Serializer\HSerializer;
+use AppBundle\Serializer\HNormalizer;
 use AppBundle\Serializer\SerializationException;
 
 class BootstrapListHelper
 {
     /**
      * @param array $objects
-     * @param HSerializer $serializer
+     * @param HNormalizer $serializer
      * @param array $groups
      * @param int $count
      * @return array
@@ -37,7 +37,7 @@ class BootstrapListHelper
 
     /**
      * @param array $objects
-     * @param HSerializer $serializer
+     * @param HNormalizer $serializer
      * @param array $groups
      * @return string
      * @throws SerializationException

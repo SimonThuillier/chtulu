@@ -29,6 +29,9 @@ class ResourceVersionDTO extends EntityMutableDTO
     /** @var array */
     protected $urls;
 
+    protected $urlDetailThumbnail;
+    protected $milord;
+
     /**
      * ResourceVersionDTO constructor.
      */
@@ -144,12 +147,21 @@ class ResourceVersionDTO extends EntityMutableDTO
 
     /**
      * @return string
-     * @Groups({"urlDetailThumbnail","minimal"})
+     * @Groups({"urlDetailThumbnail"})
      */
     public function getUrlDetailThumbnail(): ?string
     {
         if(! array_key_exists("detail_thumbnail",$this->urls)) return "lol";
         return $this->urls["detail_thumbnail"];
+    }
+
+    /**
+     * @return string
+     * @Groups({"urlDetailThumbnail"})
+     */
+    public function getMilord(): ?string
+    {
+        return "milord";
     }
 
     /**
