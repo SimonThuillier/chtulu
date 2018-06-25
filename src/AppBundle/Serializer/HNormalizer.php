@@ -28,10 +28,8 @@ abstract class HSerializer implements NormalizerInterface
      */
     public function __construct(array $normalizers)
     {
-        $this->serializer = new Serializer($normalizers,array(new JsonEncoder()));
+        $this->serializer = new Serializer($normalizers,[]);
     }
-
-
 
     abstract public function normalize($object, $format = null, array $context = array());
 
