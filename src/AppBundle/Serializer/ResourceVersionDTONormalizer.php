@@ -10,6 +10,7 @@ namespace AppBundle\Serializer;
 
 use AppBundle\DTO\ResourceImageDTO;
 use AppBundle\DTO\ResourceVersionDTO;
+use AppBundle\Mediator\NotAvailableGroupException;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
@@ -30,16 +31,13 @@ class ResourceVersionDTONormalizer extends HNormalizer implements NormalizerInte
 
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
-            new PropertyNormalizer($classMetadataFactory),);
-            //new ObjectNormalizer());
+            new PropertyNormalizer($classMetadataFactory),
+            new ObjectNormalizer());
         parent::__construct($normalizers);
     }
 
     public function supportsNormalization($data, $format = null)
     {
-       /* if(is_object($data)){
-            var_dump(get_class($data));
-        }*/
         return is_object($data) && in_array(get_class($data),
                 [ResourceVersionDTO::class, ResourceImageDTO::class]);
     }
@@ -55,13 +53,11 @@ class ResourceVersionDTONormalizer extends HNormalizer implements NormalizerInte
      * @param array $context
      * @return array
      * @throws InvalidArgumentException
+     * @throws NotAvailableGroupException
      */
     public function normalize($object,$groups=null,array $context=[])
     {
-        var_dump(get_class($object));
-        //return "lol";
-        $normalization = $this->serializer->normalize($object, null, array('groups' => $groups));
-        //throw new \Exception(json_encode($groups));
+        $normalization = parent::defaultNormalize($object,$groups,$context);
         return $normalization;
     }
 

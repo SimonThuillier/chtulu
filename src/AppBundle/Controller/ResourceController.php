@@ -89,7 +89,8 @@ class ResourceController extends Controller
 //,"activeVersion"=>["minimal","urlDetailThumbnail"]
             //,"activeVersion"=>["minimal"]
             $hResponse->setMessage("Le fichier a bien été chargé")
-                ->setData($normalizer->normalize($resourceDto,['minimal',"activeVersion"]))
+                ->setData($normalizer->normalize($resourceDto,['minimal',"lol","activeVersion"=>"urlDetailThumbnail",
+                    ]))
             ->setStatus(HJsonResponse::SUCCESS);
         }
         catch(EntityMapperException $e){

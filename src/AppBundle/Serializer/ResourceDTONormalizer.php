@@ -26,62 +26,20 @@ class ResourceDTONormalizer extends HNormalizer implements NormalizerInterface
 {
     /** @var ResourceVersionDTONormalizer */
     private $versionDtoNormalizer;
-    /** @var array */
-    private $customCallbackParams;
 
     /**
      * @param ManagerRegistry $doctrine
-     * @param ResourceVersionDTONormalizer $versionDtoNormalizer
      */
-    public function __construct(ManagerRegistry $doctrine,ResourceVersionDTONormalizer $versionDtoNormalizer)
+    public function __construct(ManagerRegistry $doctrine)
     {
-        $this->customCallbackParams = [];
-        $this->versionDtoNormalizer = $versionDtoNormalizer;
+        $this->versionDtoNormalizer = new ResourceVersionDTONormalizer($doctrine);
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
-            $this->getCallbacksNormalizer(),
-            //$versionDtoNormalizer,
-            new PropertyNormalizer($classMetadataFactory));
+            $this->versionDtoNormalizer,
+            new PropertyNormalizer($classMetadataFactory),
+            new ObjectNormalizer());
         parent::__construct($normalizers);
-    }
-
-    private function getCallbacksNormalizer()
-    {
-        $customCallbacks = [];
-        $this->customCallbackParams = ["activeVersion"=>null];
-        $customCallbacks["activeVersion"] = function ($version) {
-            //throw new \Exception(json_encode($this->customCallbackParams["activeVersion"]) . '-' . get_class($version));
-            //return "lol";
-            return $this->versionDtoNormalizer->normalize($version,$this->customCallbackParams["activeVersion"]);
-        };
-
-        $normalizer = new GetSetMethodNormalizer();
-        $normalizer->setCallbacks($customCallbacks);
-        return $normalizer;
-    }
-
-    /**
-     * @param array $normGroups
-     * @throws NotAvailableGroupException
-     */
-    private function setCallbackParams(array $normGroups){
-        $this->cleanCallbackParams();
-        foreach($normGroups as $k=>$v){
-            if($k === "this") continue;
-            if(false && ! array_key_exists($k,$this->customCallbackParams)){
-                throw new NotAvailableGroupException(
-                    "Group " . $k . " doesn't support normalization subGroups in normalizer " . self::class);
-            }
-            else{
-                $this->customCallbackParams[$k] = $v;
-            }
-        }
-    }
-
-    private function cleanCallbackParams(){
-        foreach($this->customCallbackParams as $param=>$value){
-            $this->customCallbackParams[$param] = null;
-        }
+        $this->subGroupables = ["activeVersion"=>($this->versionDtoNormalizer)];
     }
 
     public function supportsNormalization($data, $format = null)
@@ -104,11 +62,7 @@ class ResourceDTONormalizer extends HNormalizer implements NormalizerInterface
      */
     public function normalize($object,$groups=null,array $context=[])
     {
-        //return ["lol"];
-        $normGroups = $this->handleGroups($groups);
-        $this->setCallbackParams($normGroups);
-        $normalization = $this->serializer->normalize($object, null, array('groups' => $normGroups["this"]));
-        //throw new \Exception("lol");
+        $normalization = parent::defaultNormalize($object,$groups,$context);
         return $normalization;
     }
 

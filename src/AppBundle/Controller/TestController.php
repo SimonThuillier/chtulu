@@ -11,6 +11,7 @@ use AppBundle\Entity\DateType;
 use AppBundle\Form\ArticleDTOType;
 use AppBundle\Form\TestType;
 use AppBundle\Test;
+use AppBundle\Utils\ArrayUtil;
 use AppBundle\Utils\HDate;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -37,14 +38,12 @@ class TestController extends Controller
 
         $lol = ["a","b"=>["c"=>"d","e"=>["f","g"]]];
 
-        foreach($lol as $k => $v){
-            var_dump($k);
-            var_dump($v);
-        }
+        $lol2 = ArrayUtil::flatten(null);
+        $subArray = [];
+        $lol2 = ArrayUtil::flatten($lol,$subArray);
 
-        foreach($lol as $k=>$v){
-            var_dump($k . '=>' . json_encode($v));
-        }
+        var_dump($lol2);
+        var_dump($subArray);
 
 
         // replace this example code with whatever you need

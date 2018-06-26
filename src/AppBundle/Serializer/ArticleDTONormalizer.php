@@ -10,6 +10,7 @@ namespace AppBundle\Serializer;
 
 
 use AppBundle\DTO\ArticleDTO;
+use AppBundle\Mediator\NotAvailableGroupException;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
@@ -29,16 +30,10 @@ class ArticleDTONormalizer extends HNormalizer
     public function __construct(ManagerRegistry $doctrine, HDateNormalizer $hDateSerializer)
     {
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
-        $propertyNormalizer = new PropertyNormalizer($classMetadataFactory);
-        $propertyNormalizer->setCircularReferenceHandler(function ($object) {
-            return "circular reference";
-        });;
-
-
         $normalizers = array(
             $hDateSerializer,
-            $propertyNormalizer,);
-            //new ObjectNormalizer());
+            new PropertyNormalizer($classMetadataFactory),
+            new ObjectNormalizer());
 
         parent::__construct($normalizers);
     }
@@ -59,10 +54,11 @@ class ArticleDTONormalizer extends HNormalizer
      * @param array $context
      * @return array
      * @throws InvalidArgumentException
+     * @throws NotAvailableGroupException
      */
     public function normalize($object,$groups=null,array $context=[])
     {
-            $normalization = $this->serializer->normalize($object, null, array('groups' => $groups));
+        $normalization = parent::defaultNormalize($object,$groups,$context);
         return $normalization;
     }
 
