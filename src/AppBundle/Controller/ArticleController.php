@@ -58,8 +58,8 @@ class ArticleController extends Controller
 
         $articleDto = $mediator
             ->setRouter($router)
-            ->setEntity($entityFactory->create($this->getUser()))
-            ->setDTO($dtoFactory->create($this->getUser()))
+            ->setEntity($entityFactory->create())
+            ->setDTO($dtoFactory->create())
             ->mapDTOGroups(array_merge($groups,['url']))
             ->getDTO();
 
@@ -101,8 +101,8 @@ class ArticleController extends Controller
         $data = null;
         try{
             $mediator
-                ->setEntity($entityFactory->create($this->getUser()))
-                ->setDTO($dtoFactory->create($this->getUser()))
+                ->setEntity($entityFactory->create())
+                ->setDTO($dtoFactory->create())
                 ->setRouter($router)
                 ->mapDTOGroups($groups);
             $form = $this
@@ -147,7 +147,7 @@ class ArticleController extends Controller
 
         $articleDto = $mediator
             ->setEntity($article)
-            ->setDTO($dtoFactory->create($this->getUser()))
+            ->setDTO($dtoFactory->create())
             ->mapDTOGroups($groups)
             ->getDTO();
 
@@ -177,7 +177,7 @@ class ArticleController extends Controller
         $articleDto = $mediator
             ->setRouter($router)
             ->setEntity($article)
-            ->setDTO($dtoFactory->create($this->getUser()))
+            ->setDTO($dtoFactory->create())
             ->mapDTOGroups(array_merge($groups,['url']))
             ->getDTO();
 
@@ -206,9 +206,9 @@ class ArticleController extends Controller
      */
     public function postEditAction(Request $request,
                                    Article $article,
-                                     ArticleDTOFactory $dtoFactory,
-                                     ArticleDTOMediator $mediator,
-                                     ArticleMapper $mapper,
+                                   ArticleDTOFactory $dtoFactory,
+                                   ArticleDTOMediator $mediator,
+                                   ArticleMapper $mapper,
                                    Router $router)
     {
         $hResponse = new HJsonResponse();
@@ -219,7 +219,7 @@ class ArticleController extends Controller
             $mediator
                 ->setEntity($article)
                 ->setRouter($router)
-                ->setDTO($dtoFactory->create($this->getUser()))
+                ->setDTO($dtoFactory->create())
                 ->mapDTOGroups($groups);
             $form = $this
                 ->get('form.factory')
@@ -348,11 +348,11 @@ class ArticleController extends Controller
             ->createBuilder(ArticleSearchType::class,null,['validation_groups'=>[]])
             ->getForm();
 
-        $article=$entityFactory->create($this->getUser());
+        $article=$entityFactory->create();
         $groups = ['minimal','abstract','date','url'];
         $articleDTO = $mediator
             ->setEntity($article)
-            ->setDTO($dtoFactory->create($this->getUser()))
+            ->setDTO($dtoFactory->create())
             ->setRouter($router)
             ->mapDTOGroups($groups)
             ->getDTO();
@@ -417,7 +417,7 @@ class ArticleController extends Controller
         foreach($articles as $article){
             $articleDtos[] =  $mediator
                 ->setEntity($article)
-                ->setDTO($dtoFactory->create($this->getUser()))
+                ->setDTO($dtoFactory->create())
                 ->setRouter($router)
                 ->mapDTOGroups($groups)
                 ->getDTO();
@@ -440,7 +440,7 @@ class ArticleController extends Controller
         try{
             $articleDto = $mediator
                 ->setEntity($article)
-                ->setDTO($dtoFactory->create($this->getUser()))
+                ->setDTO($dtoFactory->create())
                 ->mapDTOGroups($groups)
                 ->getDTO();
             $hResponse->setData($normalizer->normalize($articleDto,$groups));

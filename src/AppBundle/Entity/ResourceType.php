@@ -3,7 +3,6 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * ResourceType
@@ -27,7 +26,6 @@ class ResourceType
 
     /**
      * @var string
-     *
      * @ORM\Column(name="label", type="string", length=50, unique=true)
      */
     private $label;
@@ -36,7 +34,6 @@ class ResourceType
     /**
      * Get id .
      * @return int
-     * @Groups({"type","minimal"})
      */
     public function getId()
     {
@@ -45,9 +42,7 @@ class ResourceType
 
     /**
      * Set label.
-     *
      * @param string $label
-     *
      * @return ResourceType
      */
     public function setLabel($label)
@@ -58,8 +53,6 @@ class ResourceType
 
     /**
      * Get label.
-     * @Groups({"type","minimal"})
-     *
      * @return string
      */
     public function getLabel()

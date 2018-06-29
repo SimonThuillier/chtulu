@@ -3,7 +3,7 @@
 namespace AppBundle\Listener;
 
 use AppBundle\Entity\User;
-use AppBundle\Factory\DTOFactory;
+use AppBundle\Factory\AbstractDTOFactory;
 use AppBundle\Helper\FormErrorHelper;
 use AppBundle\Helper\TableActionHelper;
 use AppBundle\Mapper\AbstractEntityMapper;
@@ -20,7 +20,7 @@ use AppBundle\Mapper\EntityMapper;
 abstract class AbstractFormListener implements EventSubscriberInterface, ListenerInterface
 {
     /**
-     * @var DTOFactory
+     * @var AbstractDTOFactory
      */
     protected $dtoFactory;
     /**
@@ -57,7 +57,7 @@ abstract class AbstractFormListener implements EventSubscriberInterface, Listene
     /**
      * SearchUserFormListener constructor.
      *
-     * @param DTOFactory $dtoFactory
+     * @param AbstractDTOFactory $dtoFactory
      * @param FormFactoryInterface $formFactory
      * @param EntityMapper $mapper
      * @param FormErrorHelper $formError
@@ -65,7 +65,7 @@ abstract class AbstractFormListener implements EventSubscriberInterface, Listene
      * @param TableActionHelper $tableHelper
      */
     public function __construct(
-        DTOFactory $dtoFactory,
+        AbstractDTOFactory $dtoFactory,
         FormFactoryInterface $formFactory,
         EntityMapper $mapper,
         FormErrorHelper $formError,

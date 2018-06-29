@@ -5,23 +5,26 @@ use AppBundle\DTO\ArticleDTO;
 use AppBundle\Entity\DateType;
 use AppBundle\Utils\HDate;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class ArticleDTOFactory extends DTOFactory
+class ArticleDTOFactory extends AbstractDTOFactory
 {
     /**
-     * ArticleDTOFactory constructor.
-     * @param ManagerRegistry $doctrine
+     * @inheritdoc
      */
-    public function __construct(ManagerRegistry $doctrine)
+    public function __construct(ManagerRegistry $doctrine,TokenStorageInterface $tokenStorage)
     {
         $this->productClassName = ArticleDTO::class;
-        parent::__construct($doctrine);
+        parent::__construct($doctrine,$tokenStorage);
     }
 
-    protected function setDefaultData()
+    /**
+     * @inheritdoc
+     */
+    protected function setDefaultData($product)
     {
         /** @var ArticleDTO $articleDTO */
-        $articleDTO = $this->product;
+        $articleDTO = $product;
         $articleDTO->setHasEndDate(true);
 
         $hteRange = new HDate();

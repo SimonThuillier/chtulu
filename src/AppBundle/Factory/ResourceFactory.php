@@ -5,25 +5,29 @@ namespace AppBundle\Factory;
 use AppBundle\Entity\HResource;
 use AppBundle\Entity\ResourceType;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class ResourceFactory extends EntityFactory
+class ResourceFactory extends AbstractEntityFactory
 {
     /**
      * ResourceFactory constructor.
-     * @param $doctrine ManagerRegistry
+     * @inheritdoc
      */
-    public function __construct(ManagerRegistry $doctrine)
+    public function __construct(ManagerRegistry $doctrine,TokenStorageInterface $tokenStorage)
     {
         $this->productClassName = HResource::class;
-        parent::__construct($doctrine);
+        parent::__construct($doctrine,$tokenStorage);
     }
 
-    protected function setDefaultData()
+    /**
+     * @inheritdoc
+     */
+    protected function setDefaultData($product)
     {
         /** @var $resource HResource */
-        $resource = $this->product;
+        $resource = $product;
         $resource->setCreationDate(new \DateTime())
-            ->setCreationUser($this->user)
+            ->setCreationUser($this->getUser())
             ->setName("Nouvelle ressource")
             ->setType(
             $this->doctrine->getRepository(ResourceType::class)->find(ResourceType::IMAGE)

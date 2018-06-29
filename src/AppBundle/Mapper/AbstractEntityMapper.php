@@ -3,7 +3,7 @@
 namespace AppBundle\Mapper;
 
 use AppBundle\DTO\EntityMutableDTO;
-use AppBundle\Factory\EntityFactory;
+use AppBundle\Factory\AbstractEntityFactory;
 use AppBundle\Factory\FactoryException;
 use AppBundle\Mediator\NullColleagueException;
 use AppBundle\Utils\SearchBag;
@@ -23,7 +23,7 @@ abstract class AbstractEntityMapper
     protected $entityClassName;
     /** @var string  */
     protected $dtoClassName;
-    /** @var EntityFactory */
+    /** @var AbstractEntityFactory */
     protected $entityFactory;
     /** @var EntityRepository */
     protected $repository;
@@ -44,7 +44,7 @@ abstract class AbstractEntityMapper
      * AbstractDoctrineMapper constructor.
      *
      * @param ManagerRegistry $doctrine
-     * @param EntityFactory $entityFactory
+     * @param AbstractEntityFactory $entityFactory
      * @param LoggerInterface $logger
      * @param TokenStorageInterface $tokenStorage
      */
@@ -52,7 +52,7 @@ abstract class AbstractEntityMapper
         ManagerRegistry $doctrine,
         TokenStorageInterface $tokenStorage,
         LoggerInterface $logger,
-        EntityFactory $entityFactory
+        AbstractEntityFactory $entityFactory
     )
     {
         $this->doctrine         = $doctrine;

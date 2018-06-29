@@ -54,14 +54,14 @@ class ResourceController extends Controller
 
         /** @var ResourceDTO $resourceDto */
         $resourceDto = $mediator
-            ->setEntity($entityFactory->create($this->getUser()))
-            ->setDTO($dtoFactory->create($this->getUser()))
+            ->setEntity($entityFactory->create())
+            ->setDTO($dtoFactory->create())
             ->mapDTOGroups(array_merge($groups,[]))
             ->getDTO();
         /** @var ResourceVersionDTO $versionDto */
         $versionDto = $versionMediator
-            ->setEntity($versionFactory->create($this->getUser()))
-            ->setDTO($versionDtoFactory->create($this->getUser()))
+            ->setEntity($versionFactory->create())
+            ->setDTO($versionDtoFactory->create())
             ->mapDTOGroups(array_merge($versionGroups,[]))
             ->getDTO();
         $versionDto->setName(null);
@@ -89,7 +89,8 @@ class ResourceController extends Controller
 //,"activeVersion"=>["minimal","urlDetailThumbnail"]
             //,"activeVersion"=>["minimal"]
             $hResponse->setMessage("Le fichier a bien été chargé")
-                ->setData($normalizer->normalize($resourceDto,['minimal',"lol","activeVersion"=>"urlDetailThumbnail",
+                ->setData($normalizer->normalize($resourceDto,['minimal',"activeVersion"=>["urlDetailThumbnail"],
+                    "lol"=>["minimal"],"lol2"=>["urlDetailThumbnail","minimal"]
                     ]))
             ->setStatus(HJsonResponse::SUCCESS);
         }

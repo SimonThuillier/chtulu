@@ -15,9 +15,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Normalizer\PropertyNormalizer;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 
 
@@ -26,13 +24,17 @@ class ArticleDTONormalizer extends HNormalizer
     /**
      * @param ManagerRegistry $doctrine
      * @param HDateNormalizer $hDateSerializer
+     * @param TypeNormalizer $typeNormalizer
      */
-    public function __construct(ManagerRegistry $doctrine, HDateNormalizer $hDateSerializer)
+    public function __construct(ManagerRegistry $doctrine,
+                                HDateNormalizer $hDateSerializer,
+                                TypeNormalizer $typeNormalizer)
     {
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
             $hDateSerializer,
-            new PropertyNormalizer($classMetadataFactory),
+            $typeNormalizer,
+            new HGetSetMethodNormalizer($classMetadataFactory),
             new ObjectNormalizer());
 
         parent::__construct($normalizers);

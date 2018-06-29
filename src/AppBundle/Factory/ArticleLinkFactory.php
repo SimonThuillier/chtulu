@@ -3,23 +3,27 @@ namespace AppBundle\Factory;
 
 use AppBundle\Entity\ArticleLink;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class ArticleLinkFactory extends EntityFactory
+class ArticleLinkFactory extends AbstractEntityFactory
 {
     /**
      * ArticleLinkFactory constructor.
-     * @param ManagerRegistry $doctrine
+     * @inheritdoc
      */
-    public function __construct(ManagerRegistry $doctrine)
+    public function __construct(ManagerRegistry $doctrine,TokenStorageInterface $tokenStorage)
     {
         $this->productClassName = ArticleLink::class;
-        parent::__construct($doctrine);
+        parent::__construct($doctrine,$tokenStorage);
     }
 
-    protected function setDefaultData()
+    /**
+     * @inheritdoc
+     */
+    protected function setDefaultData($product)
     {
         /** @var ArticleLink $articleLink */
-        $articleLink = $this->product;
+        $articleLink = $product;
         // TODO : implements some actions if needed
     }
 }

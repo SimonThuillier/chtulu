@@ -14,12 +14,9 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
-use Symfony\Component\Serializer\Normalizer\GetSetMethodNormalizer;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Normalizer\PropertyNormalizer;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
-use Symfony\Component\Serializer\Serializer;
 
 
 class ResourceDTONormalizer extends HNormalizer implements NormalizerInterface
@@ -36,10 +33,13 @@ class ResourceDTONormalizer extends HNormalizer implements NormalizerInterface
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
             $this->versionDtoNormalizer,
-            new PropertyNormalizer($classMetadataFactory),
+            //new PropertyNormalizer($classMetadataFactory),
+            new HGetSetMethodNormalizer($classMetadataFactory),
             new ObjectNormalizer());
         parent::__construct($normalizers);
-        $this->subGroupables = ["activeVersion"=>($this->versionDtoNormalizer)];
+        $this->subGroupables = ["activeVersion"=>($this->versionDtoNormalizer),
+            "lol"=>($this->versionDtoNormalizer),
+            "lol2"=>($this->versionDtoNormalizer)];
     }
 
     public function supportsNormalization($data, $format = null)

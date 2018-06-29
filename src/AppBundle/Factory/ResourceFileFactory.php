@@ -4,23 +4,27 @@ namespace AppBundle\Factory;
 
 use AppBundle\Entity\ResourceFile;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class ResourceFileFactory extends EntityFactory
+class ResourceFileFactory extends AbstractEntityFactory
 {
     /**
      * ResourceFileFactory constructor.
-     * @param ManagerRegistry $doctrine
+     * @inheritdoc
      */
-    public function __construct(ManagerRegistry $doctrine)
+    public function __construct(ManagerRegistry $doctrine,TokenStorageInterface $tokenStorage)
     {
         $this->productClassName = ResourceFile::class;
-        parent::__construct($doctrine);
+        parent::__construct($doctrine,$tokenStorage);
     }
 
-    protected function setDefaultData()
+    /**
+     * @inheritdoc
+     */
+    protected function setDefaultData($product)
     {
         /** @var ResourceFile $file */
-        $file = $this->product;
+        $file = $product;
         $file->setSize(0);
     }
 }

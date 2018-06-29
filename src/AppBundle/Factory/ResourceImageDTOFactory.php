@@ -3,22 +3,26 @@ namespace AppBundle\Factory;
 
 use AppBundle\DTO\ResourceImageDTO;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class ResourceImageDTOFactory extends DTOFactory
+class ResourceImageDTOFactory extends ResourceVersionDTOFactory
 {
     /**
-     * ResourceVersionDTOFactory constructor.
-     * @param ManagerRegistry $doctrine
+     * @inheritdoc
      */
-    public function __construct(ManagerRegistry $doctrine)
+    public function __construct(ManagerRegistry $doctrine,TokenStorageInterface $tokenStorage)
     {
+        parent::__construct($doctrine,$tokenStorage);
         $this->productClassName = ResourceImageDTO::class;
-        parent::__construct($doctrine);
     }
 
-    protected function setDefaultData()
+    /**
+     * @inheritdoc
+     */
+    protected function setDefaultData($product)
     {
+        parent::setDefaultData($product);
         /** @var ResourceImageDTO $versionDTO */
-        $versionDTO = $this->product;
+        $imageDTO = $product;
     }
 }

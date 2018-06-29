@@ -4,25 +4,29 @@ namespace AppBundle\Factory;
 use AppBundle\Entity\Article;
 use AppBundle\Entity\ArticleType;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class ArticleFactory extends EntityFactory
+class ArticleFactory extends AbstractEntityFactory
 {
     /**
      * ArticleFactory constructor.
-     * @param ManagerRegistry $doctrine
+     * @inheritdoc
      */
-    public function __construct(ManagerRegistry $doctrine)
+    public function __construct(ManagerRegistry $doctrine,TokenStorageInterface $tokenStorage)
     {
         $this->productClassName = Article::class;
-        parent::__construct($doctrine);
+        parent::__construct($doctrine,$tokenStorage);
     }
 
-    protected function setDefaultData()
+    /**
+     * @inheritdoc
+     */
+    protected function setDefaultData($product)
     {
         /** @var Article $article */
-        $article = $this->product;
+        $article = $product;
         $article->setCreationDate(new \DateTime());
-        $article->setCreationUser($this->user);
+        $article->setCreationUser($this->getUser());
         $article->setType(
             $this->doctrine->getRepository(ArticleType::class)->find(ArticleType::EVENT)
         );

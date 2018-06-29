@@ -21,8 +21,6 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
     protected $serializer;
     /** @var array */
     protected $subGroupables;
-    /** @var ?array */
-    protected $preDefinedGroups;
 
     /**
      * JsonSerializer constructor.
@@ -45,9 +43,22 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
      */
     protected function defaultNormalize($object,$groups=null,array $context=[])
     {
-        $flattenGroups = $this->handleGroups($groups);
-        $normalization = $this->serializer->normalize($object, null, array('groups' => $flattenGroups));
-        $this->setPreDefinedGroups(null);
+        /*var_dump(get_class($this));
+        var_dump($context);*/
+        $upperSubGroups = ($context && array_key_exists("subGroups",$context))?$context["subGroups"]:null;
+        $subGroups = [];
+        $flattenGroups = $this->handleGroups($groups,$subGroups);
+        if($flattenGroups == null && $context &&
+            array_key_exists("currentKey",$context) &&
+            array_key_exists($context["currentKey"],$upperSubGroups)
+        ){
+            $flattenGroups = $this->handleGroups($upperSubGroups[$context["currentKey"]],$subGroups);
+        }
+
+        $normalization = $this->serializer->normalize($object, null, array(
+            'groups' => $flattenGroups, 'subGroups' => $subGroups,'currentKey' => ''
+            )
+        );
         return $normalization;
     }
 
@@ -68,9 +79,9 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
      * @return array
      * @throws NotAvailableGroupException
      */
-    protected function handleGroups(?array $groups,$subGroups = []){
-        if (!$groups) return $this->preDefinedGroups;
-        if(!$subGroups) $subGroups = [];
+    protected function handleGroups(?array $groups,?array &$subGroups = []){
+
+        if (!$groups || count($groups) === 0) return null;
         $flattenGroups = ArrayUtil::flatten($groups,$subGroups);
         foreach($subGroups as $k => $v){
             if(! is_array($v)){
@@ -81,15 +92,8 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
                 throw new NotAvailableGroupException(
                     "this normalizer doesn't support subgroups for group " . $k);
             }
-            /** @var HNormalizer $subNormalizer */
-            $subNormalizer = $this->subGroupables[$k];
-            $subNormalizer->setPreDefinedGroups($v);
         }
-
         return $flattenGroups;
     }
 
-    protected function setPreDefinedGroups(?array $groups){
-        $this->preDefinedGroups = $groups;
-    }
 }

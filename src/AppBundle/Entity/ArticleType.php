@@ -3,7 +3,6 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * ArticleType
@@ -40,7 +39,6 @@ class ArticleType
     /**
      * Get id
      * @return int
-     * @Groups({"type","minimal"})
      */
     public function getId()
     {
@@ -61,7 +59,6 @@ class ArticleType
     /**
      * Get label
      * @return string
-     * @Groups({"type"})
      */
     public function getLabel()
     {

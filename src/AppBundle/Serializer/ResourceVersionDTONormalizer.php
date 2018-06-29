@@ -17,7 +17,6 @@ use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Normalizer\PropertyNormalizer;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 
 
@@ -31,9 +30,12 @@ class ResourceVersionDTONormalizer extends HNormalizer implements NormalizerInte
 
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
-            new PropertyNormalizer($classMetadataFactory),
+            //new PropertyNormalizer($classMetadataFactory),
+            new HGetSetMethodNormalizer($classMetadataFactory),
             new ObjectNormalizer());
         parent::__construct($normalizers);
+        $this->subGroupables = [
+            "lol"=>($this)];
     }
 
     public function supportsNormalization($data, $format = null)

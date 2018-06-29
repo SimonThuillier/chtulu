@@ -12,10 +12,10 @@ namespace AppBundle\Serializer;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 
-class MediatorNormalizer implements NormalizerInterface
+class TypeNormalizer implements NormalizerInterface
 {
     /**
-     * handles mediator object which should not be serialized
+     * handles type entities which are always normalized the same way
      * MediatorNormalizer constructor.
      */
     public function __construct()
@@ -25,7 +25,7 @@ class MediatorNormalizer implements NormalizerInterface
 
     public function supportsNormalization($data, $format = null)
     {
-        return (is_object($data) && strpos(strtoupper(get_class($data)),"MEDIATOR") !== false);
+        return (is_object($data) && strpos(strtoupper(get_class($data)),"TYPE") !== false);
 
     }
 
@@ -39,7 +39,7 @@ class MediatorNormalizer implements NormalizerInterface
      */
     public function normalize($object,$groups=null,array $context=[])
     {
-        return [];
+        return ["id" => $object->getId(),"label" => $object->getLabel()];
     }
 
     /**

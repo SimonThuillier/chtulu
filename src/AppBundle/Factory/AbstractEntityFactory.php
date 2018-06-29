@@ -2,54 +2,60 @@
 
 namespace AppBundle\Factory;
 
-use AppBundle\Entity\User;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-abstract class EntityFactory
+abstract class AbstractEntityFactory
 {
     /** @var string */
     protected $productClassName;
     /** @var ManagerRegistry */
     protected $doctrine;
-    /** @var mixed $product */
-    protected $product;
-    /** @var User $user */
-    protected $user;
+    /** @var TokenStorageInterface */
+    protected $tokenStorage;
 
     /**
      * EntityFactory constructor.
      * @param ManagerRegistry $doctrine
+     * @param TokenStorageInterface $tokenStorage
      */
-    public function __construct(ManagerRegistry $doctrine)
+    public function __construct(ManagerRegistry $doctrine,TokenStorageInterface $tokenStorage)
     {
         $this->doctrine = $doctrine;
+        $this->tokenStorage = $tokenStorage;
     }
 
     /**
-     * @param User $user
      * @return mixed
      * @throws FactoryException
      */
-    public function create($user)
+    public function create()
     {
         if (!class_exists($this->productClassName)) {
             throw new FactoryException('Class ' . $this->productClassName . ' doesn\'t exists');
         }
         $productClassName = $this->productClassName;
         try{
-            $this->product = new $productClassName();
+            $product = new $productClassName();
         }
         catch(\Exception $e){
             throw new FactoryException($e->getMessage());
         }
-        $this->user = $user;
-        $this->setDefaultData();
-        return $this->product;
+        $this->setDefaultData($product);
+        return $product;
     }
 
     /**
+     * @param mixed $product
      * @throws FactoryException
      */
-    abstract protected function setDefaultData();
+    abstract protected function setDefaultData($product);
+
+    /**
+     * @return mixed
+     */
+    protected function getUser(){
+        return $this->tokenStorage->getToken()->getUser();
+    }
 
 }

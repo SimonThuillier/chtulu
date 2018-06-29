@@ -25,6 +25,8 @@ class ResourceDTO extends EntityMutableDTO
     protected $activeVersion;
     /** @var array */
     protected $versions;
+    /** @var array */
+    //protected $lol=["a","b"];
 
 
     /**
@@ -104,6 +106,26 @@ class ResourceDTO extends EntityMutableDTO
     public function getActiveVersion(): ResourceVersionDTO
     {
         return $this->activeVersion;
+    }
+
+    /**
+     * @return array
+     * @Groups({"lol"})
+     */
+    public function getLol()
+    {
+        //return $this->activeVersion;
+        return ["alpha"=>$this->activeVersion,"beta"=>$this->activeVersion];
+    }
+
+    /**
+     * @return array
+     * @Groups({"lol2"})
+     */
+    public function getLol2()
+    {
+        //return $this->activeVersion;
+        return ["alpha"=>$this->activeVersion,"beta"=>$this->activeVersion];
     }
 
     /**

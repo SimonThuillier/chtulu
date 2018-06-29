@@ -4,25 +4,29 @@ namespace AppBundle\Factory;
 
 use AppBundle\Entity\ResourceVersion;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class ResourceVersionFactory extends EntityFactory
+class ResourceVersionFactory extends AbstractEntityFactory
 {
     /**
      * ResourceVersionFactory constructor.
-     * @param ManagerRegistry $doctrine
+     * @inheritdoc
      */
-    public function __construct(ManagerRegistry $doctrine)
+    public function __construct(ManagerRegistry $doctrine,TokenStorageInterface $tokenStorage)
     {
         $this->productClassName = ResourceVersion::class;
-        parent::__construct($doctrine);
+        parent::__construct($doctrine,$tokenStorage);
     }
 
-    protected function setDefaultData()
+    /**
+     * @inheritdoc
+     */
+    protected function setDefaultData($product)
     {
         /** @var ResourceVersion $version */
-        $version = $this->product;
+        $version = $product;
         $version->setCreationDate(new \DateTime())
-        ->setCreationUser($this->user)
+        ->setCreationUser($this->getUser())
         ->setActive(true);
     }
 }
