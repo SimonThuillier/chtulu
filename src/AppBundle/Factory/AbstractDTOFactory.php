@@ -59,4 +59,12 @@ abstract class AbstractDTOFactory
         return $this->tokenStorage->getToken()->getUser();
     }
 
+    /**
+     * @return string
+     */
+    public function getProductClassName(): string
+    {
+        return $this->productClassName;
+    }
+
 }

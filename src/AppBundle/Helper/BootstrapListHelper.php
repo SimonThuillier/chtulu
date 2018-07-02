@@ -20,7 +20,6 @@ class BootstrapListHelper
      * @param array $groups
      * @param int $count
      * @return array
-     * @throws SerializationException
      */
     public static function getNormalizedListData($objects,$serializer,$groups,$count=null)
     {
@@ -34,20 +33,4 @@ class BootstrapListHelper
         $data["total"] = $count;
         return $data;
     }
-
-    /**
-     * @param array $objects
-     * @param HNormalizer $serializer
-     * @param array $groups
-     * @return string
-     * @throws SerializationException
-     */
-    public static function getSerializedListData($objects,$serializer,$groups)
-    {
-        return $serializer->encode(self::getNormalizedListData($objects,$serializer,$groups));
-    }
-
-
-
-
 }

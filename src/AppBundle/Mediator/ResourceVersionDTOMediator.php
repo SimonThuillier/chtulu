@@ -11,7 +11,10 @@ namespace AppBundle\Mediator;
 use AppBundle\DTO\ResourceVersionDTO;
 use AppBundle\Entity\ResourceFile;
 use AppBundle\Entity\ResourceVersion;
+use AppBundle\Factory\DTOFactory;
+use AppBundle\Factory\EntityFactory;
 use AppBundle\Manager\File\FileRouter;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 
 class ResourceVersionDTOMediator extends DTOMediator
@@ -20,13 +23,26 @@ class ResourceVersionDTOMediator extends DTOMediator
     private $fileRouter;
     /**
      * ResourceVersionDTOMediator constructor.
-     * @param FileRouter $fileRouter
+     * @param ContainerInterface $locator
      */
-    public function __construct(FileRouter $fileRouter)
+    public function __construct(ContainerInterface $locator)
     {
-        parent::__construct();
-        $this->fileRouter = $fileRouter;
+        parent::__construct($locator);
+        $this->entityClassName = ResourceVersion::class;
+        $this->dtoClassName = ResourceVersionDTO::class;
         $this->groups = ['minimal','urlDetailThumbnail'];
+    }
+
+    /**
+     * @return array
+     */
+    public static function getSubscribedServices()
+    {
+        return [
+            EntityFactory::class,
+            DTOFactory::class,
+            FileRouter::class
+        ];
     }
 
     protected function mapDTOMinimalGroup()
@@ -51,7 +67,7 @@ class ResourceVersionDTOMediator extends DTOMediator
         $version = $this->entity;
 
         if($version->getFile() === null){
-            $version->setFile(new ResourceFile());
+            $version->setFile($this->locator->get(EntityFactory::class)->create(ResourceFile::class));
         }
         $resourceFile = $version->getFile();
 

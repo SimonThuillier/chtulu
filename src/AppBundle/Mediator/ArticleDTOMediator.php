@@ -18,32 +18,39 @@ use AppBundle\Serializer\HDateNormalizer;
 use AppBundle\Utils\HDate;
 use AppBundle\Utils\UrlBag;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\Routing\Router;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Validator\Constraints\DateTime;
 
 class ArticleDTOMediator extends DTOMediator
 {
-    /** @var HDateNormalizer */
-    private $hDateNormalizer;
-    /** @var AssetHelper */
-    private $assetHelper;
-    /** @var JsonEncoder */
-    private $encoder;
 
     /**
      * ArticleDTOMediator constructor.
-     * @param HDateNormalizer $hDateNormalizer
-     * @param AssetHelper $assetHelper
+     * @param ContainerInterface $locator
      */
-    public function __construct(HDateNormalizer $hDateNormalizer, AssetHelper $assetHelper,JsonEncoder $encoder)
+    public function __construct(ContainerInterface $locator)
     {
-        parent::__construct();
+        parent::__construct($locator);
         $this->groups = ['minimal','abstract','date','type','url',
             'detailImage','subArticles','hteRange'];
-        $this->hDateNormalizer = $hDateNormalizer;
-        $this->assetHelper = $assetHelper;
-        $this->encoder = $encoder;
+        $this->entityClassName = Article::class;
+        $this->dtoClassName = ArticleDTO::class;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getSubscribedServices()
+    {
+        return [
+            HDateNormalizer::class,
+            AssetHelper::class,
+            'serializer.encoder.json' => JsonEncoder::class,
+            'router' => Router::class
+        ];
     }
 
     protected function mapDTOMinimalGroup()
@@ -132,39 +139,43 @@ class ArticleDTOMediator extends DTOMediator
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
 
-        $postUrl = $dto->getId()>0?$this->router->generate("article_post_edit",["article"=>$article])
-            :$this->router->generate("article_post_create");
+        $router = $this->locator->get('router');
+
+        $postUrl = $dto->getId()>0?$router->generate("article_post_edit",["article"=>$article])
+            :$router->generate("article_post_create");
 
         if ($dto->getUrlBag() === null){$dto->setUrlBag(new UrlBag());}
         $dto->getUrlBag()
-            ->setView($this->router->generate("article_view",["article"=>$article]))
-            ->setEdit($this->router->generate("article_edit",["article"=>$article]))
-            ->setPost($this->router->generate("article_post_edit",["article"=>$article]))
-            ->setInfo($this->router->generate("article_getdata",["article"=>$article]))
-            ->setDelete($this->router->generate("article_delete",["article"=>$article]))
-            ->setCancel($this->router->generate("article_cancel",["article"=>$article]));
+            ->setView($router->generate("article_view",["article"=>$article]))
+            ->setEdit($router->generate("article_edit",["article"=>$article]))
+            ->setPost($postUrl)
+            ->setInfo($router->generate("article_getdata",["article"=>$article]))
+            ->setDelete($router->generate("article_delete",["article"=>$article]))
+            ->setCancel($router->generate("article_cancel",["article"=>$article]));
 
         $dto->addMappedGroup('url');
     }
 
     protected function mapDTOUrlGroupForNewEntity()
     {
+        $router = $this->locator->get('router');
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
 
         if ($dto->getUrlBag() === null){$dto->setUrlBag(new UrlBag());}
         $dto->getUrlBag()
-            ->setPost($this->router->generate("article_post_create"));
+            ->setPost($router->generate("article_post_create"));
 
         $dto->addMappedGroup('url');
     }
 
     protected function mapDTODetailImageGroup()
     {
+        $assetHelper = $this->locator->get(AssetHelper::class);
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
 
-        $dto->setDetailImage($this->assetHelper->getMainImage($this->entity));
+        $dto->setDetailImage($assetHelper->getMainImage($this->entity));
 
         $dto->addMappedGroup('detailImage');
     }
@@ -179,14 +190,18 @@ class ArticleDTOMediator extends DTOMediator
 
     protected function mapDTOhteRangeGroup()
     {
+        $hDateNormalizer = $this->locator->get(HDateNormalizer::class);
+        $encoder = $this->locator->get('serializer.encoder.json');
+
+
         /** @var Article $article */
         $article = $this->entity;
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
 
         if($article->gethteRange() !==null){
-            $dto->sethteRange($this->hDateNormalizer->denormalize(
-                $this->encoder->decode($article->gethteRange(),'json'),HDate::class));
+            $dto->sethteRange($hDateNormalizer->denormalize(
+                $encoder->decode($article->gethteRange(),'json'),HDate::class));
         }
         else{
             $beginHDate = $this->getArticleBeginHDate($article);
@@ -246,12 +261,15 @@ class ArticleDTOMediator extends DTOMediator
     }
 
     protected function mediateHteRange(){
+        $hDateNormalizer = $this->locator->get(HDateNormalizer::class);
+        $encoder = $this->locator->get('serializer.encoder.json');
+
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
         /** @var Article $article */
         $article = $this->entity;
 
-        $article->sethteRange($dto->gethteRange()?$this->encoder->encode(
-            $this->hDateNormalizer->normalize($dto->gethteRange()),'json'):null);
+        $article->sethteRange($dto->gethteRange()?$encoder->encode(
+            $hDateNormalizer->normalize($dto->gethteRange()),'json'):null);
     }
 }

@@ -11,31 +11,40 @@ namespace AppBundle\Mediator;
 use AppBundle\DTO\ResourceDTO;
 use AppBundle\Entity\HResource;
 use AppBundle\Entity\ResourceVersion;
+use AppBundle\Factory\DTOFactory;
+use AppBundle\Factory\EntityFactory;
+use AppBundle\Factory\MediatorFactory;
 use AppBundle\Factory\ResourceVersionDTOFactory;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 
 class ResourceDTOMediator extends DTOMediator
 {
-    /** @var ResourceVersionDTOMediator */
-    private $versionDtoMediator;
-    /** @var ResourceVersionDTOFactory */
-    private $versionDtoFactory;
-    /** @var ManagerRegistry */
-    private $doctrine;
 
     /**
      * ResourceDTOMediator constructor.
+     * @param ContainerInterface $locator
      */
-    public function __construct(ResourceVersionDTOMediator $versionDtoMediator,
-                                ResourceVersionDTOFactory $versionDtoFactory,
-                                ManagerRegistry $doctrine)
+    public function __construct(ContainerInterface $locator)
     {
-        parent::__construct();
-        $this->versionDtoFactory = $versionDtoFactory;
-        $this->versionDtoMediator = $versionDtoMediator;
-        $this->doctrine = $doctrine;
+        parent::__construct($locator);
+        $this->entityClassName = HResource::class;
+        $this->dtoClassName = ResourceDTO::class;
         $this->groups = ['minimal','activeVersion','versions'];
+    }
+
+    /**
+     * @return array
+     */
+    public static function getSubscribedServices()
+    {
+        return [
+            EntityFactory::class,
+            DTOFactory::class,
+            MediatorFactory::class,
+            ManagerRegistry::class
+        ];
     }
 
     protected function mapDTOMinimalGroup()
@@ -68,15 +77,15 @@ class ResourceDTOMediator extends DTOMediator
         /** @var ResourceDTO $dto */
         $dto = $this->dto;
 
-        $version = $this->doctrine->getRepository(ResourceVersion::class)
+        $version = $this->locator->get(ManagerRegistry::class)->getRepository(ResourceVersion::class)
             ->findOneBy(["resource"=>$resource,"active"=>true]);
 
         if($version !== null){
-            $versionDto = $this->versionDtoFactory->create($resource->getEditionUser());
-            $this->versionDtoMediator->setEntity($version)->setDTO($versionDto)
-                ->mapDTOGroup("minimal");
-            $dto->setActiveVersion($versionDto);
-            $this->versionDtoMediator->setEntity(null)->setDTO(null);
+            /** @var ResourceVersionDTOMediator $versionMediator */
+            $versionMediator = $this->locator->get(MediatorFactory::class)
+                ->create(ResourceVersionDTOMediator::class,$version);
+            $versionMediator->mapDTOGroup("minimal");
+            $dto->setActiveVersion($versionMediator->getDTO());
         }
         else{
             $dto->setActiveVersion(null);

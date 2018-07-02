@@ -2,37 +2,31 @@
 namespace AppBundle\Controller;
 
 use AppBundle\DTO\ArticleDTO;
-use AppBundle\Factory\ArticleFactory;
+use AppBundle\Factory\DTOFactory;
+use AppBundle\Factory\MediatorFactory;
 use AppBundle\Form\ArticleDTOType;
 use AppBundle\Form\ArticleSearchType;
 use AppBundle\Form\HFileUploadType;
 use AppBundle\Helper\BootstrapListHelper;
 use AppBundle\Mapper\ArticleMapper;
 use AppBundle\Mediator\ArticleDTOMediator;
+use AppBundle\Mediator\DTOMediator;
 use AppBundle\Serializer\ArticleDTONormalizer;
 use AppBundle\Serializer\UrlEncoder;
 use AppBundle\Utils\HJsonResponse;
 use AppBundle\Utils\SearchBag;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use AppBundle\Entity\Article;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
-use AppBundle\Factory\ArticleDTOFactory;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\Routing\Router;
 use AppBundle\Helper\ArticleHelper;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use AppBundle\Processor\GenericProcessor;
-use AppBundle\Listener\SearchArticleFormListener;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Validator\ValidatorBuilder;
 
 /**
  *
@@ -42,24 +36,24 @@ use Symfony\Component\Validator\ValidatorBuilder;
 class ArticleController extends Controller
 {
     /**
+     * @param Request $request
+     * @param MediatorFactory $mediatorFactory
+     * @param ArticleDTONormalizer $normalizer
+     * @param JsonEncoder $encoder
      * @Route("/create",name="article_create")
      * @Method({"GET"})
      * @throws \Exception
+     * @return Response
      */
     public function createAction(Request $request,
-                                 ArticleFactory $entityFactory,
-                                 ArticleDTOFactory $dtoFactory,
-                                 ArticleDTOMediator $mediator,
+                                 MediatorFactory $mediatorFactory,
                                  ArticleDTONormalizer $normalizer,
-                                 JsonEncoder $encoder,
-                                 Router $router)
+                                 JsonEncoder $encoder)
     {
         $groups = ['minimal','abstract','date','detailImage'];
 
+        $mediator = $mediatorFactory->create(ArticleDTOMediator::class);
         $articleDto = $mediator
-            ->setRouter($router)
-            ->setEntity($entityFactory->create())
-            ->setDTO($dtoFactory->create())
             ->mapDTOGroups(array_merge($groups,['url']))
             ->getDTO();
 
@@ -82,16 +76,18 @@ class ArticleController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @param MediatorFactory $mediatorFactory
+     * @param ArticleMapper $mapper
+     * @param ArticleDTONormalizer $normalizer
      * @Route("/post-create",name="article_post_create")
      * @Method({"POST","GET"})
      * @throws \Exception
+     * @return JsonResponse
      */
     public function postCreateAction(Request $request,
-                                     ArticleDTOFactory $dtoFactory,
-                                     ArticleFactory $entityFactory,
-                                     ArticleDTOMediator $mediator,
+                                     MediatorFactory $mediatorFactory,
                                      ArticleMapper $mapper,
-                                     Router $router,
                                      ArticleDTONormalizer $normalizer)
     {
         $hResponse = new HJsonResponse();
@@ -100,11 +96,8 @@ class ArticleController extends Controller
         $groups=['minimal','date','abstract'];
         $data = null;
         try{
-            $mediator
-                ->setEntity($entityFactory->create())
-                ->setDTO($dtoFactory->create())
-                ->setRouter($router)
-                ->mapDTOGroups($groups);
+            $mediator = $mediatorFactory->create(ArticleDTOMediator::class);
+            $mediator->mapDTOGroups($groups);
             $form = $this
                 ->get('form.factory')
                 ->createBuilder(ArticleDTOType::class,$mediator->getDTO(),[
@@ -134,20 +127,21 @@ class ArticleController extends Controller
     }
 
     /**
+     * @param Article $article
+     * @param MediatorFactory $mediatorFactory
+     * @param ArticleDTONormalizer $normalizer
      * @Route("/view/{article}",name="article_view")
      * @Method({"GET"})
      * @throws \Exception
-     *
+     * @return Response
      */
     public function viewAction(Article $article,
-                               ArticleDTOFactory $dtoFactory,
-                               ArticleDTOMediator $mediator,
+                               MediatorFactory $mediatorFactory,
                                ArticleDTONormalizer $normalizer){
         $groups = ['minimal','date','abstract','detailImage'];
 
+        $mediator = $mediatorFactory->create(ArticleDTOMediator::class,$article);
         $articleDto = $mediator
-            ->setEntity($article)
-            ->setDTO($dtoFactory->create())
             ->mapDTOGroups($groups)
             ->getDTO();
 
@@ -159,25 +153,27 @@ class ArticleController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @param Article $article
+     * @param MediatorFactory $mediatorFactory
+     * @param ArticleDTONormalizer $normalizer
+     * @param JsonEncoder $encoder
      * @Route("/edit/{article}",name="article_edit")
      * @ParamConverter("article", class="AppBundle:Article")
      * @Method({"GET"})
      * @throws \Exception
+     * @return Response
      */
     public function editAction(Request $request,
                                Article $article,
-                               ArticleDTOFactory $dtoFactory,
-                               ArticleDTOMediator $mediator,
+                               MediatorFactory $mediatorFactory,
                                ArticleDTONormalizer $normalizer,
-                               JsonEncoder $encoder,
-                               Router $router)
+                               JsonEncoder $encoder)
     {
         $groups = ['minimal','abstract','date','detailImage','hteRange'];
 
+        $mediator = $mediatorFactory->create(ArticleDTOMediator::class,$article);
         $articleDto = $mediator
-            ->setRouter($router)
-            ->setEntity($article)
-            ->setDTO($dtoFactory->create())
             ->mapDTOGroups(array_merge($groups,['url']))
             ->getDTO();
 
@@ -200,27 +196,25 @@ class ArticleController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @param Article $article
+     * @param MediatorFactory $mediatorFactory
      * @Route("/post-edit/{article}",name="article_post_edit")
      * @ParamConverter("article", class="AppBundle:Article")
      * @Method({"POST","GET"})
+     * @return JsonResponse
      */
     public function postEditAction(Request $request,
                                    Article $article,
-                                   ArticleDTOFactory $dtoFactory,
-                                   ArticleDTOMediator $mediator,
-                                   ArticleMapper $mapper,
-                                   Router $router)
+                                   MediatorFactory $mediatorFactory,
+                                   ArticleMapper $mapper)
     {
         $hResponse = new HJsonResponse();
         $groups = $request->get("groups",['minimal']);
         $errors=[];
-        //$groups=['minimal','date','abstract'];
         try{
-            $mediator
-                ->setEntity($article)
-                ->setRouter($router)
-                ->setDTO($dtoFactory->create())
-                ->mapDTOGroups($groups);
+            $mediator = $mediatorFactory->create(ArticleDTOMediator::class,$article);
+            $mediator->mapDTOGroups($groups);
             $form = $this
                 ->get('form.factory')
                 ->createBuilder(ArticleDTOType::class,$mediator->getDTO(),[
@@ -251,9 +245,12 @@ class ArticleController extends Controller
 
 
     /**
+     * @param Request $request
+     * @param Article $article
      * @Route("/cancel/{article}",name="article_cancel")
      * @ParamConverter("article", class="AppBundle:Article")
      * @Method({"POST"})
+     * @return Response
      */
     public function cancelAction(Request $request,
                                  Article $article)
@@ -264,9 +261,13 @@ class ArticleController extends Controller
 
 
     /**
+     * @param Request $request
+     * @param Article $article
+     * @param ArticleMapper $mapper
      * @Route("/delete/{article}",name="article_delete")
      * @ParamConverter("article", class="AppBundle:Article")
      * @Method({"GET","POST"})
+     * @return JsonResponse
      */
     public function deleteAction(Request $request,
                                    Article $article,
@@ -310,9 +311,12 @@ class ArticleController extends Controller
     }
 
     /**
+     * @param Article $article
+     * @param ArticleHelper $helper
      * @Route("/get-json/{article}",name="article_get_json",requirements={"page": "\d+"})
      * @ParamConverter("article", class="AppBundle:Article")
      * @Method({"GET"})
+     * @return JsonResponse
      */
     public function getJsonAction(Article $article,ArticleHelper $helper)
     {
@@ -321,19 +325,19 @@ class ArticleController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @param MediatorFactory $mediatorFactory
+     * @param ArticleDTONormalizer $normalizer
+     * @param JsonEncoder $encoder
      * @Route("/list",name="article_list")
      * @Method({"GET","POST"})
      * @throws \Exception
+     * @return Response
      */
     public function listAction(Request $request,
-                               GenericProcessor $processor,
-                               SearchArticleFormListener $listener,
-                               ArticleDTOFactory $dtoFactory,
-                               ArticleFactory $entityFactory,
-                               ArticleDTOMediator $mediator,
+                               MediatorFactory $mediatorFactory,
                                ArticleDTONormalizer $normalizer,
-                               JsonEncoder $encoder,
-                               Router $router)
+                               JsonEncoder $encoder)
     {
         $this->get('session')->remove('processedConfirmation');
         $form = $this
@@ -348,12 +352,9 @@ class ArticleController extends Controller
             ->createBuilder(ArticleSearchType::class,null,['validation_groups'=>[]])
             ->getForm();
 
-        $article=$entityFactory->create();
         $groups = ['minimal','abstract','date','url'];
+        $mediator = $mediatorFactory->create(ArticleDTOMediator::class);
         $articleDTO = $mediator
-            ->setEntity($article)
-            ->setDTO($dtoFactory->create())
-            ->setRouter($router)
             ->mapDTOGroups($groups)
             ->getDTO();
         $groups = array_merge($groups,['groups','type']);
@@ -369,16 +370,22 @@ class ArticleController extends Controller
     }
 
     /**
+     *
+     * @param Request $request
+     * @param DTOFactory $dtoFactory
+     * @param MediatorFactory $mediatorFactory
+     * @param ArticleDTONormalizer $normalizer
+     * @param UrlEncoder $urlEncoder
+     * @param ArticleMapper $mapper
      * @Route("/get-list-data",name="article_getlistdata")
      * @Method({"GET","POST"})
      * @throws \Exception
+     * @return JsonResponse
      */
     public function getListDataAction(Request $request,
-                                      ManagerRegistry $doctrine,
-                                      ArticleDTOFactory $dtoFactory,
-                                      ArticleDTOMediator $mediator,
+                                      dtoFactory $dtoFactory,
+                                      MediatorFactory $mediatorFactory,
                                       ArticleDTONormalizer $normalizer,
-                                      Router $router,
                                       UrlEncoder $urlEncoder,
                                       ArticleMapper $mapper)
     {
@@ -414,11 +421,11 @@ class ArticleController extends Controller
         $articles = $mapper->searchBy($searchBag,$count);
         $articleDtos = [];
 
+        $mediator = $mediatorFactory->create(ArticleDTOMediator::class,null,null,DTOMediator::NOTHING_IF_NULL);
         foreach($articles as $article){
             $articleDtos[] =  $mediator
                 ->setEntity($article)
-                ->setDTO($dtoFactory->create())
-                ->setRouter($router)
+                ->setDTO($dtoFactory->create(ArticleDTO::class))
                 ->mapDTOGroups($groups)
                 ->getDTO();
         }
@@ -428,19 +435,24 @@ class ArticleController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @param Article $article
+     * @param MediatorFactory $mediatorFactory
+     * @param ArticleDTONormalizer $normalizer
      * @Route("/get-data/{article}",name="article_getdata")
      * @Method({"GET"})
-     *
+     * @return JsonResponse
      */
-    public function getDataAction(Request $request, Article $article, ArticleDTOFactory $dtoFactory,
-                                  ArticleDTOMediator $mediator, ArticleDTONormalizer $normalizer){
+    public function getDataAction(Request $request,
+                                  Article $article,
+                                  MediatorFactory $mediatorFactory,
+                                  ArticleDTONormalizer $normalizer){
 
         $hResponse = new HJsonResponse();
         $groups = $request->get("groups",['minimal']);
         try{
+            $mediator = $mediatorFactory->create(ArticleDTOMediator::class,$article);
             $articleDto = $mediator
-                ->setEntity($article)
-                ->setDTO($dtoFactory->create())
                 ->mapDTOGroups($groups)
                 ->getDTO();
             $hResponse->setData($normalizer->normalize($articleDto,$groups));

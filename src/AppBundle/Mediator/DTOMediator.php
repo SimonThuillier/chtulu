@@ -11,11 +11,16 @@ namespace AppBundle\Mediator;
 
 use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\Entity\DTOMutableEntity;
-use AppBundle\Mapper\EntityMapper;
-use Symfony\Component\Routing\Router;
+use AppBundle\Factory\MediatorFactory;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\ServiceSubscriberInterface;
 
-abstract class DTOMediator
+abstract class DTOMediator implements ServiceSubscriberInterface
 {
+    /** @var string */
+    protected $entityClassName;
+    /** @var string */
+    protected $dtoClassName;
     /** @var EntityMutableDTO */
     protected $dto;
     /** @var DTOMutableEntity */
@@ -24,24 +29,46 @@ abstract class DTOMediator
     protected $groups;
     /** @var array */
     protected $changedProperties;
+    /** @var ContainerInterface */
+    protected $locator;
     /** @var boolean */
     private $pendingSetDTO;
     /** @var boolean */
     private $pendingSetEntity;
-    /** @var string */
-    protected $password;
-    /** @var Router */
-    protected $router;
+    /** @var int */
+    protected $mode;
+
+    public const CREATE_IF_NULL=1;
+    public const ERROR_IF_NULL=2;
+    public const NOTHING_IF_NULL=3;
 
     /**
      * DTOBuilder constructor.
+     * @param ContainerInterface $locator
      */
-    public function __construct()
+    public function __construct(ContainerInterface $locator)
     {
+        $this->locator = $locator;
         $this->groups = [];
         $this->changedProperties = [];
         $this->pendingSetDTO = false;
         $this->pendingSetEntity = false;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEntityClassName(): string
+    {
+        return $this->entityClassName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDtoClassName(): string
+    {
+        return $this->dtoClassName;
     }
 
     /**
@@ -95,12 +122,13 @@ abstract class DTOMediator
 
     /**
      * @param string $group
+     * @param int $mode
      * @param array|null $subGroups
      * @throws NotAvailableGroupException
      * @throws NullColleagueException
      * @return self
      */
-    protected function mapDTOGroup(String $group,?array $subGroups=null)
+    protected function mapDTOGroup(String $group,$mode = self::CREATE_IF_NULL,?array $subGroups=null)
     {
         if($this->dto === null) throw new NullColleagueException("DTO must be instanciated to build its groups");
         if($this->entity === null) throw new NullColleagueException("Entity must be specified to receive data");
@@ -110,10 +138,10 @@ abstract class DTOMediator
 
         $function = 'mapDTO' . ucfirst($group) . 'Group';
 
-        if($subGroups === null) $this->$function();
+        if($subGroups === null) $this->$function($mode);
         else {
             try{
-                $this->$function($subGroups);
+                $this->$function($mode,$subGroups);
             }
             catch(\Exception $e) {
                 throw new NotAvailableGroupException("Group " . $group . " doesn't support subGroups in DTOMediator " . self::class);
@@ -125,15 +153,16 @@ abstract class DTOMediator
     /**
      * if groups is null or not given all groups are mapped
      * @param array|null $groups
+     * @param int $mode
      * @throws NotAvailableGroupException
      * @throws NullColleagueException
      * @return self
      */
-    public function mapDTOGroups(?array $groups=null){
+    public function mapDTOGroups(?array $groups=null,$mode = self::CREATE_IF_NULL){
         if ($groups === null) $groups = $this->getAvailableGroups();
         foreach($groups as $k => $v){
-            if(is_numeric($k)) $this->mapDTOGroup($v);
-            elseif(is_string($k) && is_array($v)) $this->mapDTOGroup($k,$v);
+            if(is_numeric($k)) $this->mapDTOGroup($v,$mode);
+            elseif(is_string($k) && is_array($v)) $this->mapDTOGroup($k,$mode,$v);
             else throw new NotAvailableGroupException(
                 "Groups elements must be either a string or a string referencing an array of subgroups");
         }
@@ -197,26 +226,6 @@ abstract class DTOMediator
         $this->resetChangedProperties();
         return $returnedProperties;
     }
-
-    /**
-     * @return Router
-     */
-    public function getRouter()
-    {
-        return $this->router;
-    }
-
-    /**
-     * @param Router $router
-     * @return DTOMediator
-     */
-    public function setRouter(Router $router): DTOMediator
-    {
-        $this->router = $router;
-        return $this;
-    }
-
-
 
 
 

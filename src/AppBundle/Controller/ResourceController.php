@@ -3,9 +3,12 @@
 namespace AppBundle\Controller;
 
 use AppBundle\DTO\ResourceDTO;
+use AppBundle\DTO\ResourceImageDTO;
 use AppBundle\DTO\ResourceVersionDTO;
 use AppBundle\Entity\HResource;
 use AppBundle\Entity\ResourceVersion;
+use AppBundle\Factory\DTOFactory;
+use AppBundle\Factory\EntityFactory;
 use AppBundle\Factory\ResourceDTOFactory;
 use AppBundle\Factory\ResourceFactory;
 use AppBundle\Factory\ResourceImageDTOFactory;
@@ -44,9 +47,8 @@ class ResourceController extends Controller
      * @throws \Exception
      */
     public function postUploadImageAction(Request $request, ResourceDTOMediator $mediator,
-                                          ResourceFactory $entityFactory, ResourceDTOFactory $dtoFactory,
+                                          EntityFactory $entityFactory, DTOFactory $dtoFactory,
                                           ResourceVersionDTOMediator $versionMediator,
-                                          ResourceVersionFactory $versionFactory, ResourceImageDTOFactory $versionDtoFactory,
                                           ResourceMapper $mapper, ResourceDTONormalizer $normalizer)
     {
         $groups = ['minimal'];
@@ -54,14 +56,14 @@ class ResourceController extends Controller
 
         /** @var ResourceDTO $resourceDto */
         $resourceDto = $mediator
-            ->setEntity($entityFactory->create())
-            ->setDTO($dtoFactory->create())
+            ->setEntity($entityFactory->create(HResource::class))
+            ->setDTO($dtoFactory->create(ResourceDTO::class))
             ->mapDTOGroups(array_merge($groups,[]))
             ->getDTO();
         /** @var ResourceVersionDTO $versionDto */
         $versionDto = $versionMediator
-            ->setEntity($versionFactory->create())
-            ->setDTO($versionDtoFactory->create())
+            ->setEntity($entityFactory->create(ResourceVersion::class))
+            ->setDTO($dtoFactory->create(ResourceImageDTO::class))
             ->mapDTOGroups(array_merge($versionGroups,[]))
             ->getDTO();
         $versionDto->setName(null);
@@ -94,7 +96,7 @@ class ResourceController extends Controller
                     ]))
             ->setStatus(HJsonResponse::SUCCESS);
         }
-        catch(EntityMapperException $e){
+        catch(\Exception $e){
             $hResponse->setStatus(HJsonResponse::ERROR)
                 ->setMessage($e->getMessage())
                 ->setErrors(HJsonResponse::normalizeFormErrors($errors));
