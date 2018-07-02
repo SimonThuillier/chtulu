@@ -118,7 +118,7 @@ class ArticleDTOType extends AbstractType
 
     private function buildDetailImageGroup(FormBuilderInterface $builder, array $options){
         $builder
-            ->add('detailImage', HImageType::class, array(
+            ->add('detailImageResource', HImageType::class, array(
                 'label' => 'Image de présentation',
                 'label_attr' => array('class' => 'hb-group-detailImage'),
                 'required' => false

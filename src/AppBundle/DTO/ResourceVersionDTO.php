@@ -26,8 +26,8 @@ class ResourceVersionDTO extends EntityMutableDTO
     protected $number;
     /** @var UploadedFile */
     protected $file;
-    /** @var string */
-    protected $urlDetailThumbnail;
+    /** @var array */
+    protected $urls;
 
     /**
      * ResourceVersionDTO constructor.
@@ -35,6 +35,7 @@ class ResourceVersionDTO extends EntityMutableDTO
     public function __construct()
     {
         parent::__construct();
+        $this->urls = [];
     }
 
     /**
@@ -146,16 +147,17 @@ class ResourceVersionDTO extends EntityMutableDTO
      */
     public function getUrlDetailThumbnail(): ?string
     {
-        return $this->urlDetailThumbnail;
+        if(!array_key_exists('detailThumbnail',$this->urls)) return null;
+        return $this->urls['detailThumbnail'];
     }
 
     /**
-     * @param string|null $urlDetailThumbnail
+     * @param array $urls
      * @return ResourceVersionDTO
      */
-    public function setUrlDetailThumbnail(?string $urlDetailThumbnail): ResourceVersionDTO
+    public function addUrls(array $urls): ResourceVersionDTO
     {
-        $this->urlDetailThumbnail = $urlDetailThumbnail;
+        $this->urls = array_merge($this->urls,$urls);
         return $this;
     }
 

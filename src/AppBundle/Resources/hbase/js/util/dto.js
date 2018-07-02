@@ -37,6 +37,7 @@ var hb = (function (hb) {
                 hteRange : null,
                 groups : [],
                 urlBag : null,
+                detailImageUrl : null,
                 /**
                  * @doc : determines if two HArticle are equals (same id)
                  * @param {hb.util.dto.Article} article

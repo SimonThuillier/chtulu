@@ -44,7 +44,7 @@ var hb = (function (hb) {
                 let attrs = this.$target.detail.hAttributes;
 
                 attrs.detailImage.empty();
-                attrs.detailImage.append($("<img src=\"" + this.object.detailImage + "\" alt=\"...\">"));
+                attrs.detailImage.append($("<img src=\"" + this.object.detailImageUrl + "\" alt=\"...\">"));
             },
             mapAbstract : function() {
                 let groupLabel = 'abstract';

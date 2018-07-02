@@ -9,9 +9,24 @@
 namespace AppBundle\Helper;
 
 
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
 class AssetHelper
 {
-    public function getMainImage($entity,$filter=null){
-        return "/images/battersea-huge.jpg";
+    /** @var ContainerInterface */
+    private $locator;
+
+    /**
+     * AssetHelper constructor.
+     * @param ContainerInterface $locator
+     */
+    public function __construct(ContainerInterface $locator)
+    {
+        $this->locator = $locator;
+    }
+
+
+    public function getdefaultImage($entity,$filter=null){
+        return "/images/default-image.jpeg";
     }
 }

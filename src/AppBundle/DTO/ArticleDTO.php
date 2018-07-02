@@ -36,7 +36,9 @@ class ArticleDTO extends EntityMutableDTO
     /** @var boolean */
     protected $hasEndDate;
     /** @var mixed */
-    protected $detailImage;
+    protected $detailImageUrl;
+    /** @var mixed */
+    protected $detailImageResource;
     /** @var DTOMediator */
     protected $mediator;
     /** @var UrlBag */
@@ -199,19 +201,40 @@ class ArticleDTO extends EntityMutableDTO
      * @return mixed|null
      * @Groups({"detailImage"})
      */
-    public function getDetailImage()
+    public function getDetailImageUrl()
     {
         //var_dump($this->detailImage);
-        return $this->detailImage;
+        return $this->detailImageUrl;
     }
 
     /**
-     * @param mixed $detailImage
+     * @param string $detailImageUrl
+     * @return self
+     */
+    public function setDetailImageUrl($detailImageUrl)
+    {
+        $this->detailImageUrl = $detailImageUrl;
+        return $this;
+    }
+
+    /**
+     * @return mixed|null
+     * @Groups({"detailImage"})
+     */
+    public function getDetailImageResource()
+    {
+        //var_dump($this->detailImage);
+        return $this->detailImageResource;
+    }
+
+    /**
+     * @param ResourceDTO|null $resource
      * @return ArticleDTO
      */
-    public function setDetailImage($detailImage): ArticleDTO
+    public function setDetailImageResource(?ResourceDTO $resource): ArticleDTO
     {
-        $this->detailImage = $detailImage;
+        $this->detailImageResource = $resource;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('detailImageResource');
         return $this;
     }
 

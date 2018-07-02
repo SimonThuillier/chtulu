@@ -101,7 +101,7 @@ class ResourceDTO extends EntityMutableDTO
 
     /**
      * @return ResourceVersionDTO
-     * @Groups({"activeVersion"})
+     * @Groups({"activeVersion","activeImages"})
      */
     public function getActiveVersion(): ResourceVersionDTO
     {
@@ -126,6 +126,17 @@ class ResourceDTO extends EntityMutableDTO
     {
         //return $this->activeVersion;
         return ["alpha"=>$this->activeVersion,"beta"=>$this->activeVersion];
+    }
+
+    /**
+     * @param ResourceImageDTO $activeVersion
+     * @return ResourceDTO
+     */
+    public function setActiveImage(ResourceImageDTO $activeVersion): ResourceDTO
+    {
+        $this->activeVersion = $activeVersion;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('activeVersion');
+        return $this;
     }
 
     /**

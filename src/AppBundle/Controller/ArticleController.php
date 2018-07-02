@@ -199,6 +199,7 @@ class ArticleController extends Controller
      * @param Request $request
      * @param Article $article
      * @param MediatorFactory $mediatorFactory
+     * @param ArticleMapper $mapper
      * @Route("/post-edit/{article}",name="article_post_edit")
      * @ParamConverter("article", class="AppBundle:Article")
      * @Method({"POST","GET"})

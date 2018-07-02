@@ -49,7 +49,8 @@ class ArticleDTOMediator extends DTOMediator
             HDateNormalizer::class,
             AssetHelper::class,
             'serializer.encoder.json' => JsonEncoder::class,
-            'router' => Router::class
+            'router' => Router::class,
+            'doctrine' => ManagerRegistry::class
         ];
     }
 
@@ -175,7 +176,7 @@ class ArticleDTOMediator extends DTOMediator
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
 
-        $dto->setDetailImage($assetHelper->getMainImage($this->entity));
+        $dto->setDetailImageUrl($assetHelper->getDefaultImage($this->entity));
 
         $dto->addMappedGroup('detailImage');
     }

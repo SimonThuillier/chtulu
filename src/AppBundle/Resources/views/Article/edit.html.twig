@@ -126,7 +126,9 @@
 
 
                     console.log($this.attr('class').split(/\s+/));
-                    let $button = $("<a class=\"btn btn-default " + concreteClass + " \">Selectionner une image <i class=\"fa fa-image\"></i></a>").insertAfter($this);
+                    let $button = $("<a target=\"#" + $this.attr('id') + "\" class=\"btn btn-default " + concreteClass + " \">" +
+                        "Selectionner une image <i class=\"fa fa-image\"></i></a>").insertAfter($this);
+                    $button.attr('data-value',$this.attr('value'));
                     $this.hide();
                 }));
 
@@ -296,13 +298,42 @@
                             }
                             return;
                         }
+                        if(response.status === "success"){
+                            let resource = response.data;
+                            let name = resource.name + '-' + resource.activeVersion.number;
+                            if(resource.activeVersion.type && resource.activeVersion.type !==''){
+                                name = name + '.' + resource.activeVersion.type;
+                            }
+                            modal.object.attr('data-value',response.data);
+                            console.log(modal.object);
+                            modal.object.text(name);
+                            let $target = $(modal.object.attr('target'));
+                            console.log($target);
+                            if($target !== null){
+                                $target.attr('data-hb-value',JSON.stringify(resource));
+                            }
+                        }
                     });
-
-
-
                     _applyOption(this);
                     return this;
                 };
+
+                let _prototype = {
+                    bind : function(object,page='detail') {
+                        this.object = object;
+                        this.$modal.modal('show');
+                    },
+                    refresh:function(page='all'){
+                        //_refresh(this,page);
+                    },
+                    unbind : function() {
+                        this.object = null;
+                        this.$modal.modal("hide");
+                    }
+                };
+                Object.assign(ui.HResourcePicker.prototype,_prototype);
+
+
 
                 let hResourcePicker = new hb.ui.HResourcePicker();
 
@@ -317,8 +348,8 @@
 
 
                 $($("a.hb-imagepicker").on('click',function(){
-                    console.log(hResourcePicker.$modal);
-                    hResourcePicker.$modal.modal('show');
+                    //console.log(hResourcePicker.$modal);
+                    hResourcePicker.bind($(this));
                 }));
 
 

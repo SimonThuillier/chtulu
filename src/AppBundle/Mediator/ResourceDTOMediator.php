@@ -9,12 +9,14 @@
 namespace AppBundle\Mediator;
 
 use AppBundle\DTO\ResourceDTO;
+use AppBundle\DTO\ResourceImageDTO;
 use AppBundle\Entity\HResource;
 use AppBundle\Entity\ResourceVersion;
 use AppBundle\Factory\DTOFactory;
 use AppBundle\Factory\EntityFactory;
 use AppBundle\Factory\MediatorFactory;
 use AppBundle\Factory\ResourceVersionDTOFactory;
+use AppBundle\Utils\ArrayUtil;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -31,7 +33,7 @@ class ResourceDTOMediator extends DTOMediator
         parent::__construct($locator);
         $this->entityClassName = HResource::class;
         $this->dtoClassName = ResourceDTO::class;
-        $this->groups = ['minimal','activeVersion','versions'];
+        $this->groups = ['minimal','activeVersion','activeImage','versions'];
     }
 
     /**
@@ -43,7 +45,7 @@ class ResourceDTOMediator extends DTOMediator
             EntityFactory::class,
             DTOFactory::class,
             MediatorFactory::class,
-            ManagerRegistry::class
+            'doctrine' => ManagerRegistry::class
         ];
     }
 
@@ -64,12 +66,13 @@ class ResourceDTOMediator extends DTOMediator
     }
 
     /**
+     * @param int $mode
      * @param null $subGroups
      * @throws NotAvailableGroupException
      * @throws NullColleagueException
      * @throws \AppBundle\Factory\FactoryException
      */
-    protected function mapDTOActiveVersionGroup($subGroups=null)
+    protected function mapDTOActiveImageGroup($mode=DTOMediator::NOTHING_IF_NULL,$subGroups=null)
     {
         // TODO : improve and handle nested subgroups
         /** @var HResource $resource */
@@ -77,14 +80,54 @@ class ResourceDTOMediator extends DTOMediator
         /** @var ResourceDTO $dto */
         $dto = $this->dto;
 
-        $version = $this->locator->get(ManagerRegistry::class)->getRepository(ResourceVersion::class)
+        $version = $this->locator->get('doctrine')->getRepository(ResourceVersion::class)
             ->findOneBy(["resource"=>$resource,"active"=>true]);
+        if($version === null && $mode === self::CREATE_IF_NULL){
+            $version = $this->locator->get(EntityFactory::class)->create(ResourceVersion::class);
+        }
+
+        if($version !== null){
+            /** @var ResourceVersionDTOMediator $versionMediator */
+            $versionMediator = $this->locator->get(MediatorFactory::class)
+                ->create(ResourceVersionDTOMediator::class,$version,
+                    $this->locator->get(DTOFactory::class)->create(ResourceImageDTO::class));
+            $versionMediator->mapDTOGroups($subGroups);
+            $dto->setActiveVersion($versionMediator->getDTO());
+        }
+        else{
+            $dto->setActiveVersion(null);
+        }
+
+        $dto->addMappedGroup('activeImage');
+        $dto->addMappedGroup('activeVersion');
+    }
+
+    /**
+     * @param int $mode
+     * @param null $subGroups
+     * @throws NotAvailableGroupException
+     * @throws NullColleagueException
+     * @throws \AppBundle\Factory\FactoryException
+     */
+    protected function mapDTOActiveVersionGroup($mode=DTOMediator::NOTHING_IF_NULL,$subGroups=null)
+    {
+        // TODO : improve and handle nested subgroups
+        /** @var HResource $resource */
+        $resource = $this->entity;
+        /** @var ResourceDTO $dto */
+        $dto = $this->dto;
+
+        $version = $this->locator->get('doctrine')->getRepository(ResourceVersion::class)
+            ->findOneBy(["resource"=>$resource,"active"=>true]);
+        if($version === null && $mode === self::CREATE_IF_NULL){
+            $version = $this->locator->get(EntityFactory::class)->create(ResourceVersion::class);
+        }
 
         if($version !== null){
             /** @var ResourceVersionDTOMediator $versionMediator */
             $versionMediator = $this->locator->get(MediatorFactory::class)
                 ->create(ResourceVersionDTOMediator::class,$version);
-            $versionMediator->mapDTOGroup("minimal");
+            $versionMediator->mapDTOGroups($subGroups);
             $dto->setActiveVersion($versionMediator->getDTO());
         }
         else{
@@ -94,7 +137,7 @@ class ResourceDTOMediator extends DTOMediator
         $dto->addMappedGroup('activeVersion');
     }
 
-    protected function mapDTOVersionsGroup($subGroups=null){
+    protected function mapDTOVersionsGroup($mode=DTOMediator::NOTHING_IF_NULL,$subGroups=null){
         /** @var ResourceDTO $dto */
         $dto = $this->dto;
 

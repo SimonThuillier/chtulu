@@ -82,7 +82,10 @@ class ResourceVersionDTOMediator extends DTOMediator
         /** @var ResourceVersion $version*/
         $version = $this->entity;
 
-        $dto->addUrls(["detail_thumbnail"=>$this->fileRouter->getVersionRoute($version,"detail_thumbnail")]);
+        $fileRouter = $this->locator->get(fileRouter::class);
+
+        $dto->addUrls(
+            ["detailThumbnail"=>$fileRouter->getVersionRoute($version,"detail_thumbnail")]);
     }
 
 

@@ -9,29 +9,19 @@ use AppBundle\Entity\HResource;
 use AppBundle\Entity\ResourceVersion;
 use AppBundle\Factory\DTOFactory;
 use AppBundle\Factory\EntityFactory;
-use AppBundle\Factory\ResourceDTOFactory;
-use AppBundle\Factory\ResourceFactory;
-use AppBundle\Factory\ResourceImageDTOFactory;
-use AppBundle\Factory\ResourceVersionDTOFactory;
-use AppBundle\Factory\ResourceVersionFactory;
+use AppBundle\Factory\MediatorFactory;
 use AppBundle\Form\HFileUploadType;
-use AppBundle\Image\LocalDataLoader;
 use AppBundle\Manager\File\FileRouter;
-use AppBundle\Mapper\EntityMapperException;
 use AppBundle\Mapper\ResourceMapper;
 use AppBundle\Mediator\ResourceDTOMediator;
-use AppBundle\Mediator\ResourceVersionDTOMediator;
-use AppBundle\Repository\ResourceVersionRepository;
 use AppBundle\Serializer\ResourceDTONormalizer;
 use AppBundle\Utils\HJsonResponse;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 
 /**
@@ -42,32 +32,30 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 class ResourceController extends Controller
 {
     /**
+     * @param Request $request
+     * @param MediatorFactory $mediatorFactory
+     * @param ResourceMapper $mapper
+     * @param ResourceDTONormalizer $normalizer
      * @Route("/post-upload-image",name="resource_post_upload_image")
      * @Method({"POST"})
      * @throws \Exception
+     * @return JsonResponse
      */
-    public function postUploadImageAction(Request $request, ResourceDTOMediator $mediator,
-                                          EntityFactory $entityFactory, DTOFactory $dtoFactory,
-                                          ResourceVersionDTOMediator $versionMediator,
-                                          ResourceMapper $mapper, ResourceDTONormalizer $normalizer)
+    public function postUploadImageAction(Request $request,
+                                          MediatorFactory $mediatorFactory,
+                                          ResourceMapper $mapper,
+                                          ResourceDTONormalizer $normalizer)
     {
-        $groups = ['minimal'];
-        $versionGroups = ['minimal'];
+        $groups = ['minimal','activeImage'=>['minimal']];
+
+        $mediator = $mediatorFactory->create(ResourceDTOMediator::class);
 
         /** @var ResourceDTO $resourceDto */
         $resourceDto = $mediator
-            ->setEntity($entityFactory->create(HResource::class))
-            ->setDTO($dtoFactory->create(ResourceDTO::class))
             ->mapDTOGroups(array_merge($groups,[]))
             ->getDTO();
         /** @var ResourceVersionDTO $versionDto */
-        $versionDto = $versionMediator
-            ->setEntity($entityFactory->create(ResourceVersion::class))
-            ->setDTO($dtoFactory->create(ResourceImageDTO::class))
-            ->mapDTOGroups(array_merge($versionGroups,[]))
-            ->getDTO();
-        $versionDto->setName(null);
-        $resourceDto->setActiveVersion($versionDto);
+        $versionDto = $resourceDto->getActiveVersion()->setName(null);
 
         $form = $this->get('form.factory')
             ->createBuilder(HFileUploadType::class,$versionDto)
@@ -80,19 +68,16 @@ class ResourceController extends Controller
             $form->handleRequest($request);
             $versionDto->setName($request->get('name'));
             $resourceDto->setName($request->get('name'));
-            $errors = $this->get('validator')->validate($versionMediator->getDTO());
+            $errors = $this->get('validator')->validate($versionDto);
             if (! $form->isValid() || count($errors)>0)
             {
                 throw new \Exception("Le formulaire contient des erreurs à corriger avant chargement");
             }
             $mapper->add($resourceDto);
 
-            $mediator->mapDTOGroups(["minimal"]);
-//,"activeVersion"=>["minimal","urlDetailThumbnail"]
-            //,"activeVersion"=>["minimal"]
+            $mediator->mapDTOGroups(["minimal",'activeImage'=>['minimal',"urlDetailThumbnail"]]);
             $hResponse->setMessage("Le fichier a bien été chargé")
-                ->setData($normalizer->normalize($resourceDto,['minimal',"activeVersion"=>["urlDetailThumbnail"],
-                    "lol"=>["minimal"],"lol2"=>["urlDetailThumbnail","minimal"]
+                ->setData($normalizer->normalize($resourceDto,['minimal',"activeVersion"=>["minimal","urlDetailThumbnail"]
                     ]))
             ->setStatus(HJsonResponse::SUCCESS);
         }
