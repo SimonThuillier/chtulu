@@ -8,25 +8,49 @@
 
 namespace AppBundle\Form\DataTransformer;
 
+use AppBundle\Entity\HResource;
+use AppBundle\Factory\MediatorFactory;
+use AppBundle\Mediator\NotAvailableGroupException;
+use AppBundle\Mediator\ResourceDTOMediator;
+use AppBundle\Serializer\ResourceDTONormalizer;
+use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 
 
 class HImageTransformer implements DataTransformerInterface
 {
+    /** @var ResourceDTONormalizer $normalizer */
+    private $normalizer;
+    /** @var JsonEncoder $encoder */
+    private $encoder;
+    /** @var ManagerRegistry $doctrine */
+    private $doctrine;
+    /** @var MediatorFactory $mediatorFactory */
+    private $mediatorFactory;
 
-    public function __construct()
+    public function __construct(ResourceDTONormalizer $normalizer,
+                                JsonEncoder $encoder,
+                                ManagerRegistry $doctrine,
+                                MediatorFactory $mediatorFactory)
     {
+        $this->normalizer = $normalizer;
+        $this->encoder = $encoder;
+        $this->doctrine = $doctrine;
+        $this->mediatorFactory = $mediatorFactory;
     }
 
     /**
      * @param  mixed|null $object
      * @return mixed|null
      * @throws TransformationFailedException
+     * @throws NotAvailableGroupException
      */
     public function transform($object)
     {
-        return $object;
+        $normalization = $this->normalizer->normalize($object,["minimal","activeVersion"=>["minimal","urlDetailThumbnail"]]);
+        return $this->encoder->encode($normalization,'json');
     }
 
     /**
@@ -36,7 +60,18 @@ class HImageTransformer implements DataTransformerInterface
      */
     public function reverseTransform($payload)
     {
-        return $payload;
+        $arrayPayload = $this->encoder->decode($payload,'json');
+        $id = null;
+        if(! array_key_exists("id",$arrayPayload)){
+            return null;
+        }
+        $id = intval($arrayPayload["id"]);
+        $hResource = $this->doctrine->getRepository(HResource::class)->find($id);
+        if($hResource === null) return null;
+
+        $resourceMediator = $this->mediatorFactory->create(ResourceDTOMediator::class,$hResource);
+        $resourceMediator->mapDTOGroups(["minimal","activeVersion"=>["minimal"]]);
+        return $resourceMediator->getDTO();
     }
 
 }

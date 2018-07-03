@@ -218,10 +218,10 @@ class ArticleDTO extends EntityMutableDTO
     }
 
     /**
-     * @return mixed|null
+     * @return ResourceDTO|null
      * @Groups({"detailImage"})
      */
-    public function getDetailImageResource()
+    public function getDetailImageResource() : ?ResourceDTO
     {
         //var_dump($this->detailImage);
         return $this->detailImageResource;

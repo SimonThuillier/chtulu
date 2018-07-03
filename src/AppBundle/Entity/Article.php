@@ -146,6 +146,13 @@ class Article extends DTOMutableEntity
      */
     protected $links;
 
+    /**
+     * @var HResource
+     * @ORM\ManyToOne(targetEntity="HResource")
+     * @ORM\JoinColumn(name="detail_image_resource_id", referencedColumnName="id", nullable=true)
+     */
+    protected $detailImage;
+
     public function __toString()
     {
         return strval($this->id);
@@ -466,7 +473,23 @@ class Article extends DTOMutableEntity
         return $this;
     }
 
+    /**
+     * @return HResource|null
+     */
+    public function getDetailImage(): ?HResource
+    {
+        return $this->detailImage;
+    }
 
+    /**
+     * @param HResource|null $detailImage
+     * @return Article
+     */
+    public function setDetailImage(?HResource $detailImage): Article
+    {
+        $this->detailImage = $detailImage;
+        return $this;
+    }
 
     /**
      * Get domain

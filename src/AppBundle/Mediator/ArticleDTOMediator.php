@@ -10,10 +10,13 @@ namespace AppBundle\Mediator;
 
 
 use AppBundle\DTO\ArticleDTO;
+use AppBundle\DTO\ResourceDTO;
 use AppBundle\Entity\Article;
+use AppBundle\Factory\MediatorFactory;
 use AppBundle\Form\ArticleDTOType;
 use AppBundle\Helper\AssetHelper;
 use AppBundle\Helper\DateHelper;
+use AppBundle\Manager\File\FileRouter;
 use AppBundle\Serializer\HDateNormalizer;
 use AppBundle\Utils\HDate;
 use AppBundle\Utils\UrlBag;
@@ -48,6 +51,7 @@ class ArticleDTOMediator extends DTOMediator
         return [
             HDateNormalizer::class,
             AssetHelper::class,
+            MediatorFactory::class,
             'serializer.encoder.json' => JsonEncoder::class,
             'router' => Router::class,
             'doctrine' => ManagerRegistry::class
@@ -170,13 +174,43 @@ class ArticleDTOMediator extends DTOMediator
         $dto->addMappedGroup('url');
     }
 
-    protected function mapDTODetailImageGroup()
+    protected function mapDTODetailImageGroup($mode=DTOMediator::NOTHING_IF_NULL,$subGroups=null)
     {
         $assetHelper = $this->locator->get(AssetHelper::class);
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
+        /** @var Article $article */
+        $article = $this->entity;
 
-        $dto->setDetailImageUrl($assetHelper->getDefaultImage($this->entity));
+        $detailImage = $article->getDetailImage();
+        $detailUrl = null;
+
+        if($detailImage !== null){
+            if($dto->getDetailImageResource() === null){
+                $resourceMediator = $this->locator->get(MediatorFactory::class)
+                    ->create(ResourceDTOMediator::class,$detailImage,null,$mode);
+            }
+            else{
+                $resourceMediator = $dto->getDetailImageResource()->getMediator();
+            }
+            $resourceMediator->mapDTOGroups($subGroups,$mode);
+            $dto->setDetailImageResource($resourceMediator->getDTO());
+            /** @var ResourceDTO $resourceDto */
+            $resourceDto = $resourceMediator->getDTO();
+            if($resourceDto && $resourceDto->getActiveVersion() !== null){
+                $detailUrl = $resourceDto->getActiveVersion()->getUrlDetailThumbnail();
+            }
+        }
+        else{
+            $dto->setDetailImageResource(null);
+        }
+
+        if($detailUrl !== null){
+            $dto->setDetailImageUrl($detailUrl);
+        }
+        else{
+            $dto->setDetailImageUrl($assetHelper->getDefaultImage($this->entity));
+        }
 
         $dto->addMappedGroup('detailImage');
     }
@@ -272,5 +306,14 @@ class ArticleDTOMediator extends DTOMediator
 
         $article->sethteRange($dto->gethteRange()?$encoder->encode(
             $hDateNormalizer->normalize($dto->gethteRange()),'json'):null);
+    }
+
+    protected function mediateDetailImageResource(){
+        /** @var ArticleDTO $dto */
+        $dto = $this->dto;
+        /** @var Article $article */
+        $article = $this->entity;
+
+        $article->setDetailImage($dto->getDetailImageResource()->getMediator()->getEntity());
     }
 }
