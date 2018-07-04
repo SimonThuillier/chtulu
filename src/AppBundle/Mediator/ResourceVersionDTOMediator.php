@@ -30,7 +30,7 @@ class ResourceVersionDTOMediator extends DTOMediator
         parent::__construct($locator);
         $this->entityClassName = ResourceVersion::class;
         $this->dtoClassName = ResourceVersionDTO::class;
-        $this->groups = ['minimal','urlDetailThumbnail'];
+        $this->groups = ['minimal','urlDetailThumbnail','urlMini'];
     }
 
     /**
@@ -86,6 +86,18 @@ class ResourceVersionDTOMediator extends DTOMediator
 
         $dto->addUrls(
             ["detailThumbnail"=>$fileRouter->getVersionRoute($version,"detail_thumbnail")]);
+    }
+
+    protected function mapDTOUrlMiniGroup(){
+        /** @var ResourceVersionDTO $dto */
+        $dto = $this->dto;
+        /** @var ResourceVersion $version*/
+        $version = $this->entity;
+
+        $fileRouter = $this->locator->get(fileRouter::class);
+
+        $dto->addUrls(
+            ["mini"=>$fileRouter->getVersionRoute($version,"mini")]);
     }
 
 

@@ -9,6 +9,7 @@
 namespace AppBundle\Form\DataTransformer;
 
 use AppBundle\Entity\HResource;
+use AppBundle\Factory\FactoryException;
 use AppBundle\Factory\MediatorFactory;
 use AppBundle\Mediator\NotAvailableGroupException;
 use AppBundle\Mediator\ResourceDTOMediator;
@@ -19,6 +20,10 @@ use Symfony\Component\Form\Exception\TransformationFailedException;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 
 
+/**
+ * Class HImageTransformer
+ * @package AppBundle\Form\DataTransformer
+ */
 class HImageTransformer implements DataTransformerInterface
 {
     /** @var ResourceDTONormalizer $normalizer */
@@ -49,7 +54,9 @@ class HImageTransformer implements DataTransformerInterface
      */
     public function transform($object)
     {
-        $normalization = $this->normalizer->normalize($object,["minimal","activeVersion"=>["minimal","urlDetailThumbnail"]]);
+        if (null === $object) return '';
+        $normalization = $this->normalizer->normalize($object,
+            ["minimal","activeVersion"=>["minimal","urlDetailThumbnail","urlMini"]]);
         return $this->encoder->encode($normalization,'json');
     }
 
@@ -57,14 +64,15 @@ class HImageTransformer implements DataTransformerInterface
      * @param  mixed|null $payload
      * @return mixed|null
      * @throws TransformationFailedException
+     * @throws FactoryException
+     * @throws NotAvailableGroupException
+     * @throws \Exception
      */
     public function reverseTransform($payload)
     {
+        if (null === $payload || $payload === "") return null;
         $arrayPayload = $this->encoder->decode($payload,'json');
-        $id = null;
-        if(! array_key_exists("id",$arrayPayload)){
-            return null;
-        }
+        if(! array_key_exists("id",$arrayPayload)) return null;
         $id = intval($arrayPayload["id"]);
         $hResource = $this->doctrine->getRepository(HResource::class)->find($id);
         if($hResource === null) return null;

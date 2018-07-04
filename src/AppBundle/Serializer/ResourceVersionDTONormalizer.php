@@ -34,8 +34,8 @@ class ResourceVersionDTONormalizer extends HNormalizer implements NormalizerInte
             new HGetSetMethodNormalizer($classMetadataFactory),
             new ObjectNormalizer());
         parent::__construct($normalizers);
-        $this->subGroupables = [
-            "lol"=>($this)];
+        /*$this->subGroupables = [
+            "lol"=>($this)];*/
     }
 
     public function supportsNormalization($data, $format = null)

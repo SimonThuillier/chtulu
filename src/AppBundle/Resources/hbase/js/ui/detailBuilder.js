@@ -53,6 +53,7 @@ var hb = (function (hb) {
 
                 return $group;
             },
+            buildDetailImageUrl : function($target) {return null;},
             buildDetailImage : function($target) {
                 let groupLabel = 'detailImage';
                 let attrs = $target.hAttributes;

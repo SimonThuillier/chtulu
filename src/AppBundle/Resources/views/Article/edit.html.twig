@@ -55,6 +55,8 @@
             console.log($(event.target));
             console.log($(event.target).serializeArray().slice());
             formMediator.return($(event.target).serializeArray().slice());
+            console.log("objet : ");
+            console.log(article);
         });
 
         let tempArticle = {};
@@ -116,6 +118,47 @@
             hb.ui = (function (ui, hb, $) {
                 var _requiredModules = ["util:cmn/common.js"];
 
+                let _onHbDeleterClick = function($this,mode='value'){
+                    console.log("delete");
+                    let $target = $($this.attr('target'));
+                    $target.attr("value",null);
+                };
+
+                let _onHbResourcePickerChange = function($this){
+                    console.log("change");
+                    console.log($this);
+                    let $button = $("a[target=\"#" + $this.attr('id') + "\"]");
+                    if(typeof $this.attr("value") !== 'undefined' &&
+                        $this.attr("value") !== null &&
+                        $this.attr("value") !==''){
+                        let resource = JSON.parse($this.attr("value"));
+                        let name = resource.name + '-' + resource.activeVersion.number;
+                        if(resource.activeVersion.type && resource.activeVersion.type !==''){
+                            name = name + '.' + resource.activeVersion.type;
+                        }
+                        $button.html(name + "&nbsp;");
+                        console.log(resource);
+                        if(resource.activeVersion.urlMini && resource.activeVersion.urlMini!==''){
+                            let $mini = $("<img src=\"" + resource.activeVersion.urlMini + "\"  class=\"img-circle\">");
+                            $button.append($mini);
+                        }
+
+                        $button.append("&nbsp;");
+                        let $deleter = $("<i class=\"fa fa-times-circle hb-deleter\"></i>");
+                        $deleter.attr("target","#" + $this.attr('id'));
+                        $deleter.on("click",function(event){
+                            event.preventDefault();
+                            event.stopPropagation();
+                            _onHbDeleterClick($(this));
+                            _onHbResourcePickerChange($this);
+                        });
+                        $button.append($deleter);
+                    }
+                    else{
+                        $button.html("Selectionner une image <i class=\"fa fa-image\"></i>");
+                    }
+                };
+
                 $($(".hb-resourcepicker").each(function(){
                     let $this = $(this);
                     let classes = $this.attr('class').split(/\s+/);
@@ -127,10 +170,13 @@
 
                     console.log($this.attr('class').split(/\s+/));
                     let $button = $("<a target=\"#" + $this.attr('id') + "\" class=\"btn btn-default " + concreteClass + " \">" +
-                        "Selectionner une image <i class=\"fa fa-image\"></i></a>").insertAfter($this);
-                    $button.attr('data-value',$this.attr('value'));
+                        "</a>").insertAfter($this);
+                    $button.attr('data-hb-value',$this.attr('value'));
                     $this.hide();
+                    _onHbResourcePickerChange($this);
                 }));
+
+                $(".hb-resourcepicker").on("change",function(){_onHbResourcePickerChange($(this));});
 
 
                 /**
@@ -304,13 +350,14 @@
                             if(resource.activeVersion.type && resource.activeVersion.type !==''){
                                 name = name + '.' + resource.activeVersion.type;
                             }
-                            modal.object.attr('data-value',response.data);
+                            modal.object.attr('data-hb-value',response.data);
                             console.log(modal.object);
                             modal.object.text(name);
                             let $target = $(modal.object.attr('target'));
                             console.log($target);
                             if($target !== null){
-                                $target.attr('data-hb-value',JSON.stringify(resource));
+                                $target.attr('value',JSON.stringify(resource));
+                                $target.trigger("change");
                             }
                         }
                     });

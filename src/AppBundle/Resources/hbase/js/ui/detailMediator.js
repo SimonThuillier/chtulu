@@ -40,6 +40,12 @@ var hb = (function (hb) {
                 attrs.endHDate.text(attrs.endHDate.data('label') +
                     ((this.object.endHDate !== null)?this.object.endHDate.getLabel():"-"));
             },
+            mapDetailImageUrl : function() {
+                let attrs = this.$target.detail.hAttributes;
+
+                attrs.detailImage.empty();
+                attrs.detailImage.append($("<img src=\"" + this.object.detailImageUrl + "\" alt=\"...\">"));
+            },
             mapDetailImage : function() {
                 let attrs = this.$target.detail.hAttributes;
 

@@ -152,6 +152,16 @@ class ResourceVersionDTO extends EntityMutableDTO
     }
 
     /**
+     * @return string
+     * @Groups({"urlMini"})
+     */
+    public function getUrlMini(): ?string
+    {
+        if(!array_key_exists('mini',$this->urls)) return null;
+        return $this->urls['mini'];
+    }
+
+    /**
      * @param array $urls
      * @return ResourceVersionDTO
      */

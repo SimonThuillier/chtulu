@@ -81,7 +81,7 @@
             formBuilder:new hb.ui.form.FormBuilder("article_dto"),
             detailMediator:new hb.ui.detailMediator.ArticleMediator(),
             formMediator:new hb.ui.SfFormMediator(),
-            groups:["minimal","date","abstract","detailImage"],
+            groups:["minimal","date","abstract","detailImage","detailImageUrl"],
             defaultTitle:"Nouvel article"
         });
 
@@ -122,7 +122,20 @@
                             title: 'Titre',
                             sortable: true,
                             editable: false,
-                            align: 'center'
+                            align: 'center',
+                            formatter:function(value, row, index, field) {
+                                console.log(row);
+                                let finalValue = value;
+                                if(row.detailImageResource &&
+                                    row.detailImageResource.activeVersion){
+                                    let activeVersion = row.detailImageResource.activeVersion;
+                                    finalValue += "&nbsp;";
+                                    finalValue +=
+                                        "<img src=\"" + activeVersion.urlMini + "\"  class=\"img-circle\">";
+
+                                }
+                                return finalValue;
+                            }
                         },
                         {
                             field: 'type.label',

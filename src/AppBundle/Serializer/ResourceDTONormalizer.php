@@ -21,25 +21,24 @@ use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 
 class ResourceDTONormalizer extends HNormalizer implements NormalizerInterface
 {
-    /** @var ResourceVersionDTONormalizer */
-    private $versionDtoNormalizer;
-
     /**
      * @param ManagerRegistry $doctrine
+     * @param ResourceVersionDTONormalizer $versionDtoNormalizer
      */
-    public function __construct(ManagerRegistry $doctrine)
+    public function __construct(ManagerRegistry $doctrine,
+                                ResourceVersionDTONormalizer $versionDtoNormalizer)
     {
-        $this->versionDtoNormalizer = new ResourceVersionDTONormalizer($doctrine);
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
-            $this->versionDtoNormalizer,
+            $versionDtoNormalizer,
             //new PropertyNormalizer($classMetadataFactory),
             new HGetSetMethodNormalizer($classMetadataFactory),
             new ObjectNormalizer());
         parent::__construct($normalizers);
-        $this->subGroupables = ["activeVersion"=>($this->versionDtoNormalizer),
+       /* $this->subGroupables = ["activeVersion"=>($this->versionDtoNormalizer),
             "lol"=>($this->versionDtoNormalizer),
-            "lol2"=>($this->versionDtoNormalizer)];
+            "lol2"=>($this->versionDtoNormalizer)
+        ];*/
     }
 
     public function supportsNormalization($data, $format = null)

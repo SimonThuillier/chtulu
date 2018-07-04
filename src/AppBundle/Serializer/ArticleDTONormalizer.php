@@ -25,15 +25,18 @@ class ArticleDTONormalizer extends HNormalizer
      * @param ManagerRegistry $doctrine
      * @param HDateNormalizer $hDateSerializer
      * @param TypeNormalizer $typeNormalizer
+     * @param ResourceDTONormalizer $resourceDTONormalizer
      */
     public function __construct(ManagerRegistry $doctrine,
                                 HDateNormalizer $hDateSerializer,
-                                TypeNormalizer $typeNormalizer)
+                                TypeNormalizer $typeNormalizer,
+                                ResourceDTONormalizer $resourceDTONormalizer)
     {
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
             $hDateSerializer,
             $typeNormalizer,
+            $resourceDTONormalizer,
             new HGetSetMethodNormalizer($classMetadataFactory),
             new ObjectNormalizer());
 

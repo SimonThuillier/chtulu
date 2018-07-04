@@ -75,9 +75,9 @@ class ResourceController extends Controller
             }
             $mapper->add($resourceDto);
 
-            $mediator->mapDTOGroups(["minimal",'activeImage'=>['minimal',"urlDetailThumbnail"]]);
+            $mediator->mapDTOGroups(["minimal",'activeImage'=>['minimal',"urlMini","urlDetailThumbnail"]]);
             $hResponse->setMessage("Le fichier a bien été chargé")
-                ->setData($normalizer->normalize($resourceDto,['minimal',"activeVersion"=>["minimal","urlDetailThumbnail"]
+                ->setData($normalizer->normalize($resourceDto,['minimal',"activeVersion"=>["urlMini","minimal","urlDetailThumbnail"]
                     ]))
             ->setStatus(HJsonResponse::SUCCESS);
         }

@@ -199,7 +199,7 @@ class ArticleDTO extends EntityMutableDTO
 
     /**
      * @return mixed|null
-     * @Groups({"detailImage"})
+     * @Groups({"detailImage","detailImageUrl"})
      */
     public function getDetailImageUrl()
     {
@@ -219,7 +219,7 @@ class ArticleDTO extends EntityMutableDTO
 
     /**
      * @return ResourceDTO|null
-     * @Groups({"detailImage"})
+     * @Groups({"detailImage","detailImageResource"})
      */
     public function getDetailImageResource() : ?ResourceDTO
     {

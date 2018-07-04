@@ -30,7 +30,7 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
     {
         $normalizers = array_merge([new MediatorNormalizer()],$normalizers);
         $this->serializer = new Serializer($normalizers,[]);
-        $this->subGroupables = [];
+        //$this->subGroupables = [];
     }
 
     /**
@@ -54,6 +54,9 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
         ){
             $flattenGroups = $this->handleGroups($upperSubGroups[$context["currentKey"]],$subGroups);
         }
+
+        /*var_dump($flattenGroups);
+        var_dump($subGroups);*/
 
         $normalization = $this->serializer->normalize($object, null, array(
             'groups' => $flattenGroups, 'subGroups' => $subGroups,'currentKey' => ''
@@ -88,10 +91,10 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
                 throw new NotAvailableGroupException(
                     "Groups elements must either be a string or a string key referencing an array of subgroups");
             }
-            else if(! array_key_exists($k,$this->subGroupables)){
+            /*else if(! array_key_exists($k,$this->subGroupables)){
                 throw new NotAvailableGroupException(
                     "this normalizer doesn't support subgroups for group " . $k);
-            }
+            }*/
         }
         return $flattenGroups;
     }

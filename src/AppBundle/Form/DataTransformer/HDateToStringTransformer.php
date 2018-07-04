@@ -35,9 +35,8 @@ class HDateToStringTransformer implements DataTransformerInterface
      */
     public function transform($object)
     {
-        if (null === $object) {
-            return '';
-        }
+        if (null === $object) return '';
+
         try{
             $payload = $this->serializer->serialize($object,'json');
         }
@@ -54,10 +53,7 @@ class HDateToStringTransformer implements DataTransformerInterface
      */
     public function reverseTransform($payload)
     {
-        if (null === $payload || $payload === "") {
-            return null;
-        }
-
+        if (null === $payload || $payload === "") return null;
         try{
             if(is_string($payload)) $object = $this->serializer->deserialize($payload,null,'json');
         }

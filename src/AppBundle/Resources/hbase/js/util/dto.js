@@ -37,6 +37,7 @@ var hb = (function (hb) {
                 hteRange : null,
                 groups : [],
                 urlBag : null,
+                detailImageResource : null,
                 detailImageUrl : null,
                 /**
                  * @doc : determines if two HArticle are equals (same id)
@@ -51,7 +52,7 @@ var hb = (function (hb) {
                  * @return {hb.util.dto.Article}
                  */
                 finalize : function(){
-                    console.log(this);
+                    //console.log(this);
                     let jsonStr = null;
                     if(this.beginHDate !== null){
                         if(typeof this.beginHDate === "object"){jsonStr = JSON.stringify(this.beginHDate);}
@@ -68,6 +69,12 @@ var hb = (function (hb) {
                         if(typeof this.hteRange === "object"){jsonStr = JSON.stringify(this.hteRange);}
                         else{jsonStr = this.hteRange;}
                         this.hteRange = util.HDate.prototype.parseFromJson(jsonStr);
+                    }
+                    if(this.detailImageResource === "") this.detailImageResource = null;
+                    if(this.detailImageResource !== null){
+                        if(typeof this.detailImageResource === "string"){
+                            this.detailImageResource = JSON.parse(this.detailImageResource);
+                        }
                     }
                 },
                 /**

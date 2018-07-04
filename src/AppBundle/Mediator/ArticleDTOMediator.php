@@ -38,7 +38,7 @@ class ArticleDTOMediator extends DTOMediator
     {
         parent::__construct($locator);
         $this->groups = ['minimal','abstract','date','type','url',
-            'detailImage','subArticles','hteRange'];
+            'detailImage','detailImageUrl','subArticles','hteRange'];
         $this->entityClassName = Article::class;
         $this->dtoClassName = ArticleDTO::class;
     }
@@ -172,6 +172,10 @@ class ArticleDTOMediator extends DTOMediator
             ->setPost($router->generate("article_post_create"));
 
         $dto->addMappedGroup('url');
+    }
+
+    protected function mapDTODetailImageUrlGroup(){
+        // for js compatibility only
     }
 
     protected function mapDTODetailImageGroup($mode=DTOMediator::NOTHING_IF_NULL,$subGroups=null)
@@ -314,6 +318,8 @@ class ArticleDTOMediator extends DTOMediator
         /** @var Article $article */
         $article = $this->entity;
 
-        $article->setDetailImage($dto->getDetailImageResource()->getMediator()->getEntity());
+        $article->setDetailImage(
+            $dto->getDetailImageResource()?
+                $dto->getDetailImageResource()->getMediator()->getEntity():null);
     }
 }

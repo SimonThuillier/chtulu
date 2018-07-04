@@ -13,6 +13,7 @@ use AppBundle\Mediator\ArticleDTOMediator;
 use AppBundle\Mediator\DTOMediator;
 use AppBundle\Serializer\ArticleDTONormalizer;
 use AppBundle\Serializer\UrlEncoder;
+use AppBundle\Utils\ArrayUtil;
 use AppBundle\Utils\HJsonResponse;
 use AppBundle\Utils\SearchBag;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -170,7 +171,9 @@ class ArticleController extends Controller
                                ArticleDTONormalizer $normalizer,
                                JsonEncoder $encoder)
     {
-        $groups = ['minimal','abstract','date','detailImage','hteRange'];
+        $groups = ['minimal','abstract','date',
+            'detailImage'=>["activeVersion"=>["minimal","urlMini","urlDetailThumbnail"],"minimal"],
+            'hteRange'];
 
         $mediator = $mediatorFactory->create(ArticleDTOMediator::class,$article);
         $articleDto = $mediator
@@ -180,7 +183,7 @@ class ArticleController extends Controller
         $form = $this
             ->get('form.factory')
             ->createBuilder(ArticleDTOType::class,$articleDto,[
-                'validation_groups'=>$groups
+                'validation_groups'=>ArrayUtil::flatten($groups)
             ])
             ->getForm();
 
@@ -200,6 +203,7 @@ class ArticleController extends Controller
      * @param Article $article
      * @param MediatorFactory $mediatorFactory
      * @param ArticleMapper $mapper
+     * @param ArticleDTONormalizer $normalizer
      * @Route("/post-edit/{article}",name="article_post_edit")
      * @ParamConverter("article", class="AppBundle:Article")
      * @Method({"POST","GET"})
@@ -208,7 +212,8 @@ class ArticleController extends Controller
     public function postEditAction(Request $request,
                                    Article $article,
                                    MediatorFactory $mediatorFactory,
-                                   ArticleMapper $mapper)
+                                   ArticleMapper $mapper,
+                                   ArticleDTONormalizer $normalizer)
     {
         $hResponse = new HJsonResponse();
         $groups = $request->get("groups",['minimal']);
@@ -233,6 +238,9 @@ class ArticleController extends Controller
                 throw new \Exception("Le formulaire contient des erreurs à corriger avant validation");
             }
             $mapper->edit($mediator->getDTO());
+            $mediator->mapDTOGroups(["detailImage"=>["activeVersion"=>["urlMini"]]]);
+            $hResponse->setData($normalizer->normalize($mediator->getDTO(),
+                ["detailImageResource"=>["activeVersion"=>["minimal","urlMini"],"minimal","detailImageUrl"]])); //
             $hResponse->setMessage("L'article a été mis à jour");
         }
         catch(\Exception $e){
@@ -417,7 +425,7 @@ class ArticleController extends Controller
         $count = 0;
 
 
-        $groups = ['minimal','date','url'];
+        $groups = ['minimal','date','url','detailImage'=>["minimal","activeVersion"=>["minimal","urlMini"]]];
         $logger->info(count($searchBag->getSearch()));
         $articles = $mapper->searchBy($searchBag,$count);
         $articleDtos = [];
@@ -450,13 +458,14 @@ class ArticleController extends Controller
                                   ArticleDTONormalizer $normalizer){
 
         $hResponse = new HJsonResponse();
-        $groups = $request->get("groups",['minimal']);
+        $groups = array_merge($request->get("groups"),['minimal',
+            'detailImage'=>["minimal","activeVersion"=>["minimal","urlDetailThumbnail"]]]);
         try{
             $mediator = $mediatorFactory->create(ArticleDTOMediator::class,$article);
             $articleDto = $mediator
                 ->mapDTOGroups($groups)
                 ->getDTO();
-            $hResponse->setData($normalizer->normalize($articleDto,$groups));
+            $hResponse->setData($normalizer->normalize($articleDto,array_merge($groups,["detailImageUrl"])));
         }
         catch(\Exception $e){
             $hResponse->setStatus(HJsonResponse::ERROR)->setMessage($e->getMessage());
