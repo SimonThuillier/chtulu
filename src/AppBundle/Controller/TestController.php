@@ -20,6 +20,10 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 
+/**
+ * Class TestController
+ * @package AppBundle\Controller
+ */
 class TestController extends Controller
 {
 

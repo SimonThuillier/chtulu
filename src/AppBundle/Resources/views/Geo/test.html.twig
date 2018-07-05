@@ -1,0 +1,40 @@
+{% extends "base.html.twig" %}
+
+
+{% block title %}
+Tests Geographiques
+{% endblock %}
+
+{%  block content %}
+<p>Page de tests Geographiques</p>
+
+    {% stylesheets output='css/geo-css.css'
+        '@AppBundle/Resources/third-party/leaflet/leaflet.css'
+    %}
+    {% endstylesheets %}
+
+    <link rel="stylesheet" href="{{ path('homepage') }}css/geo-css.css" />
+
+    <style>
+        #map{
+            width: 960px;
+            height: 500px;
+        }
+    </style>
+
+
+    <p id="map"></p>
+
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ path('homepage') }}js/geo.js"></script>
+    <script>
+        var map = new L.Map("map", {center: [37.8, -96.9], zoom: 4})
+            .addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        ));
+
+        var svg = d3.select(map.getPanes().overlayPane).append("svg"),
+            g = svg.append("g").attr("class", "leaflet-zoom-hide");
+    </script>
+{% endblock %}

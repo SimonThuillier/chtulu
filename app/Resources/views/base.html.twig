@@ -675,6 +675,11 @@
     '@AppBundle/Resources/hbase/js/util/HTimeRange.js'
 %}
 {% endjavascripts %}
+
+{% javascripts output="js/geo.js"
+    '@AppBundle/Resources/third-party/leaflet/leaflet.js'
+%}
+{% endjavascripts %}
 <script src="{{ path('homepage') }}js/app.js"></script>
 {% block javascript %}
 {% endblock %}
