@@ -474,8 +474,8 @@
 
 
                     explorer.d3SvgTimeArrow= explorer.d3SvgContainer.append("path");
-                    explorer.d3SvgTimeArrow.attr("fill","pink")
-                        .attr("stroke","blue").attr("stroke-width",1)
+                    explorer.d3SvgTimeArrow.attr("fill","LightBlue")
+                        .attr("stroke","LightBlue").attr("stroke-width",1)
                         .attr("d",absPath)
                         .call(d3.drag()
                             .on("start", function(){return _dateDragStarted(d3.event,explorer);})
