@@ -34,16 +34,30 @@ Tests Geographiques
     <script src="{{ path('homepage') }}js/geo.js"></script>
     <script src='https://api.mapbox.com/mapbox-gl-js/v0.46.0/mapbox-gl.js'></script>
     <script>
-        let map = new L.Map("map", {center: [48.845, 2.29], zoom: 13})
+        let map = new L.Map("map", {center: [48.845, 2.29], zoom: 6})
             .addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         ));
 
-        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+        var mapBounds = new L.LatLngBounds(
+            new L.LatLng(-85.05112878, -179.99999738),
+            new L.LatLng(85.05112878, 179.99953284));
+        var mapMinZoom = 0;
+        var mapMaxZoom = 8;
+
+        let geoUrl = 'http://localhost:8000/tiles/{z}/{x}/{y}.png';
+
+        L.tileLayer(geoUrl, {
+            minZoom: mapMinZoom, maxZoom: mapMaxZoom,
+            bounds: mapBounds,
+            opacity: 0.85
+        }).addTo(map);
+
+        /*L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
             maxZoom: 18,
             id: 'mapbox.satellite',
             accessToken: 'pk.eyJ1IjoiYmVsemU4OCIsImEiOiJjamphZGs3djExaHc1M2xvaWFsZnU3cGJmIn0.DfyZn6Cr_4bjJtIE44iyAQ'
-        }).addTo(map);
+        }).addTo(map);*/
 
         let svg = d3.select(map.getPanes().overlayPane).append("svg");
         let g = svg.append("g").attr("class", "leaflet-zoom-hide");
