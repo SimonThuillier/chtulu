@@ -1,0 +1,1 @@
+PGPASSWORD=Propusk45 psql -hlocalhost -Usuperadmin -dpostgre

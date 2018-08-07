@@ -50,3 +50,7 @@ services:
             - "@liip_imagine"
         tags:
             - { name: "liip_imagine.binary.loader", loader: local }
+
+    Jsor\Doctrine\PostGIS\Event\ORMSchemaEventSubscriber:
+            tags:
+                - { name: doctrine.event_subscriber, connection: default }
