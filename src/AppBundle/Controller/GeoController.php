@@ -2,6 +2,7 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Manager\ReactTranspiler;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -23,6 +24,20 @@ class GeoController extends Controller
     {
         /** @var Session $session */
         $session = $this->get('session');
+
+        return array();
+    }
+
+    /**
+     * @Route("/react", name="geo_testpage")
+     * @Template()
+     */
+    public function reactAction(Request $request,ReactTranspiler $transpiler)
+    {
+        /** @var Session $session */
+        $session = $this->get('session');
+
+        $transpiler->test1();
 
         return array();
     }

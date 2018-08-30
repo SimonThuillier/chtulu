@@ -1,0 +1,17 @@
+{% extends "base.html.twig" %}
+
+
+{% block title %}
+Tests React
+{% endblock %}
+
+{%  block content %}
+<p>Page de tests React</p>
+
+    <div id="title"></div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ path('homepage') }}js/react.js"></script>
+    <script src="{{ path('homepage') }}js/test-react-compiled.js"></script>
+{% endblock %}
