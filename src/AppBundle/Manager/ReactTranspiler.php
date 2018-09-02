@@ -10,6 +10,8 @@ namespace AppBundle\Manager;
 
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 class ReactTranspiler
 {
@@ -28,7 +30,14 @@ class ReactTranspiler
 
             $cmd = str_replace('[ROOT]',$this->rootDir . '/../', $cmd);
 
+        $process = new Process($cmd);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
 
         exec($cmd);
+        return $cmd;
     }
 }

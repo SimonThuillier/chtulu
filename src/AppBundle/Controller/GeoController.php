@@ -37,8 +37,8 @@ class GeoController extends Controller
         /** @var Session $session */
         $session = $this->get('session');
 
-        $transpiler->test1();
+        $cmd = $transpiler->test1();
 
-        return array();
+        return array('cmd'=>$cmd);
     }
 }
