@@ -3,7 +3,7 @@
  * @doc symfony.js : Contains utilitary functions for handling DOM symfony formatted elements (forms,...)
  * @requires jQuery
  */
-var hb = (function (hb,$) {
+hb = (function (hb,$) {
     "use strict";
     var _moduleName = "util:sf/symfony.js";
     console.log(hb.getLoadedModules());

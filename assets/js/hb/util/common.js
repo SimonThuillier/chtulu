@@ -2,7 +2,7 @@
  * @package hbase.js
  * @doc common.js : Contains various common utilitary function for hbase
  */
-var hb = (function (hb) {
+hb = (function (hb) {
     "use strict";
     var _moduleName = "util:cmn/common.js";
     if(((typeof hb.getLoadedModules==="function")?hb.getLoadedModules():[]).includes(_moduleName)) {

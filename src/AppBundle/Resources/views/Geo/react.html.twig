@@ -11,6 +11,13 @@ Tests React
 
 {% block stylesheets %}
 
+    {% stylesheets output='css/geo-css.css'
+        '@AppBundle/Resources/third-party/leaflet/leaflet.css'
+    %}
+    {% endstylesheets %}
+
+    <link rel="stylesheet" href="{{ path('homepage') }}css/geo-css.css" />
+
     <style>
         body {
             font: 14px "Century Gothic", Futura, sans-serif;
@@ -62,6 +69,11 @@ Tests React
         .game-info {
             margin-left: 20px;
         }
+
+        .map{
+            width: 960px;
+            height: 500px;
+        }
     </style>
 {% endblock %}
 
@@ -72,9 +84,41 @@ Tests React
     <div id="menu"></div>
 
     <div id="game"></div>
+
+    <div id="map" class="map"></div>
+
+    <div id="map2" class="map"></div>
 {% endblock %}
 
 {% block javascript %}
-    <script src="{{ path('homepage') }}js/react.js"></script>
+    <script src="{{ path('homepage') }}js/react-with-addons.js"></script>
+    <script src="{{ path('homepage') }}js/react-dom.js"></script>
+    <script src="{{ path('homepage') }}js/geo.js"></script>
+    <script src="{{ path('homepage') }}js/react-leaflet.js"></script>
     <script src="{{ path('homepage') }}js/test-react-compiled.js"></script>
+
+    <script type="text/javascript">
+
+        let map = new L.Map("map", {center: [48.845, 2.29], zoom: 6,drawControl:true})
+            .addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            ));
+
+        var mapBounds = new L.LatLngBounds(
+            new L.LatLng(-85.05112878, -179.99999738),
+            new L.LatLng(85.05112878, 179.99953284));
+        var mapMinZoom = 0;
+        var mapMaxZoom = 8;
+
+        let geoUrl = 'http://localhost:8000/tiles/{z}/{x}/{y}.png';
+
+        L.tileLayer(geoUrl, {
+            minZoom: mapMinZoom, maxZoom: mapMaxZoom,
+            bounds: mapBounds,
+            opacity: 0.85
+        }).addTo(map);
+
+        //render(map2, document.getElementById('map2'));
+
+
+    </script>
 {% endblock %}
