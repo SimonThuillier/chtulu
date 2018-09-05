@@ -20,9 +20,9 @@ class User implements AdvancedUserInterface, \Serializable
 {
     /**
      * @var int
-     * @ORM\Column(name="id", type="bigint")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\Column(name="id", type="bigint")
      */
     private $id;
 

@@ -4,32 +4,23 @@
  */
 
 let _resources = {
-    "hdatepicker":null
+    "hdatepicker":null,
+    "sfFormMediator":null
 };
-
-/**
- * @doc instanciate available unique resources
- * @returns {object}
- * @private
- */
-let _instanciateUniques = function() {
-    let loadedModules = ((typeof hb.getLoadedModules==="function")?hb.getLoadedModules():[]);
-
-    if(loadedModules.includes("ui:HDatePicker/HDatePicker.js")){
-        _resources.hdatepicker = new hb.ui.HDatePicker();
-    }
-    if(loadedModules.includes("ui:SfFormMediator/SfFormMediator.js")){
-        _resources.sfFormMediator = new hb.ui.SfFormMediator();
-    }
-};
-
-_instanciateUniques();
 
 /**
  * @module hb/ui/manager
  * @class hb.ui.manager
  */
 let mod = {
+    /**
+     * @doc instanciate available unique resources
+     * @returns {object}
+     */
+    instanciateUniques : function() {
+        _resources.hdatepicker = new hb.ui.HDatePicker();
+        _resources.sfFormMediator = new hb.ui.SfFormMediator();
+    },
     /**
      * @doc get requested HBase resource : either a new object or the instanciated one if it's unique
      * @param {string} str
@@ -63,10 +54,5 @@ let mod = {
         }
     }
 };
-
-$(function() {
-    console.log("apply classes");
-    mod.applyClasses(null);
-});
 
 module.exports = mod;

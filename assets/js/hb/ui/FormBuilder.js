@@ -9,8 +9,8 @@
  */
 
 /**
- * @doc hb.ui.form.FormBuilder constructor
- * @class hb.ui.form.FormBuilder
+ * @doc hb.ui.FormBuilder constructor
+ * @class hb.ui.FormBuilder
  * @param formName : name of the embedded form to be used by the builder
  */
 let FormBuilder = function(formName) {

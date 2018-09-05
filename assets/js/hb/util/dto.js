@@ -47,18 +47,18 @@ Object.assign(mod.Article,
             if(this.beginHDate !== null){
                 if(typeof this.beginHDate === "object"){jsonStr = JSON.stringify(this.beginHDate);}
                 else{jsonStr = this.beginHDate;}
-                this.beginHDate = util.HDate.prototype.parseFromJson(jsonStr);
+                this.beginHDate = hb.util.HDate.prototype.parseFromJson(jsonStr);
             }
             if(this.hasEndDate && this.endHDate !== null && this.endHDate !== ''){
                 if(typeof this.endHDate === "object"){jsonStr = JSON.stringify(this.endHDate);}
                 else{jsonStr = this.endHDate;}
-                this.endHDate = util.HDate.prototype.parseFromJson(jsonStr);
+                this.endHDate = hb.util.HDate.prototype.parseFromJson(jsonStr);
             }
             else{this.endHDate = null;}
             if(this.hteRange !== null){
                 if(typeof this.hteRange === "object"){jsonStr = JSON.stringify(this.hteRange);}
                 else{jsonStr = this.hteRange;}
-                this.hteRange = util.HDate.prototype.parseFromJson(jsonStr);
+                this.hteRange = hb.util.HDate.prototype.parseFromJson(jsonStr);
             }
             if(this.detailImageResource === "") this.detailImageResource = null;
             if(this.detailImageResource !== null){
@@ -73,7 +73,7 @@ Object.assign(mod.Article,
         parseFromJson : function(jsonStr)
         {
             let jsonObj = JSON.parse(jsonStr);
-            let hArticle = new hb.util.HArticle();
+            let hArticle = new mod.Article();
             for(var key in hArticle) {
                 if(jsonObj.hasOwnProperty(key)){
                     hArticle[key] = jsonObj[key];

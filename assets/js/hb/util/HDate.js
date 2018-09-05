@@ -4,6 +4,7 @@
  * @requires hb.util.cmn,hb.util.date,hb.util.trans
  */
 
+let util = hb.util;
 let hd = hb.util.date;
 let trans = hb.util.trans;
 
@@ -266,6 +267,6 @@ let _prototype = {
     }
 };
 
-Object.assign(HDate,_prototype);
+Object.assign(HDate.prototype,_prototype);
 
 module.exports = HDate;

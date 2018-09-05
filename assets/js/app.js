@@ -4,17 +4,23 @@ require('admin-lte/dist/css/AdminLTE.min.css');
 require('admin-lte/dist/css/skins/skin-blue.min.css');
 require('font-awesome/css/font-awesome.css');
 require('icheck/skins/square/blue.css');
+require('jquery-ui/themes/base/all.css');
+require('bootstrap-table/dist/bootstrap-table.css');
+
 
 $ = require('jquery');
 jQuery = $;
 d3 = require('d3');
-require('jquery-ui');
+require('jquery-ui/ui/core.js');
+require('jquery-ui/ui/widget.js');
+require('jquery-ui/ui/widgets/dialog.js');
 
 require('bootstrap3/dist/js/bootstrap.js');
 require('admin-lte/dist/js/adminlte.js');
 require('admin-lte/dist/js/demo.js');
 require('jquery-slimscroll/jquery.slimscroll.min.js');
 require('fastclick/lib/fastclick.js');
+require('bootstrap-table/dist/bootstrap-table.js');
 require('icheck');
 
 
@@ -64,7 +70,17 @@ hb.ui.manager = require('./hb/ui/manager.js');
 
 
 
+
 // require('./hb/util/symfony.js');
+
+$(function() {
+
+    console.log("apply classes");
+    hb.ui.manager.instanciateUniques();
+    hb.ui.manager.applyClasses(null);
+});
+
+console.log(hb.ui.manager.get("hdatepicker"));
 
 console.log(hb);
 

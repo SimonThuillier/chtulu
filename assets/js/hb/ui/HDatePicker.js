@@ -288,6 +288,7 @@ let _prototype = {
 };
 Object.assign(HDatePicker.prototype,_prototype);
 
+
 $.widget( "hb.hdatepicker", {
     // default options
     options: {
@@ -299,6 +300,7 @@ $.widget( "hb.hdatepicker", {
 
         console.log("create hdatepicker widget");
         function enableDatePicker(){
+            console.log(hb);
             if(! $element.hasClass("hb-enabled")){
                 hb.ui.manager.get("hdatepicker").bind($element);
             }

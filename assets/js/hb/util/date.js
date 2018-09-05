@@ -3,6 +3,10 @@
  * @doc date.js : utilitary functions for date handling, parsing and formatting/rendering
  * @requires hb.util.cmn,hb.util.trans
  */
+
+let cmn = hb.util.cmn;
+let trans = hb.util.trans;
+
 /**
  *
  * @doc declaration of private consts for formatting

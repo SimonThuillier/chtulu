@@ -26,7 +26,7 @@
         Object.setPrototypeOf(article, hb.util.dto.Article);
         article.finalize();
 
-        let formBuilder = new hb.ui.form.FormBuilder("article_dto");
+        let formBuilder = new hb.ui.FormBuilder("article_dto");
         let formMediator = new hb.ui.SfFormMediator();
         let detailBuilder = new hb.ui.detailBuilder.ArticleBuilder();
         let detailMediator = new hb.ui.detailMediator.ArticleMediator();
