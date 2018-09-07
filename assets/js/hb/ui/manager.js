@@ -5,7 +5,8 @@
 
 let _resources = {
     "hdatepicker":null,
-    "sfFormMediator":null
+    "sfFormMediator":null,
+    "hResourcePicker":null
 };
 
 /**
@@ -20,6 +21,7 @@ let mod = {
     instanciateUniques : function() {
         _resources.hdatepicker = new hb.ui.HDatePicker();
         _resources.sfFormMediator = new hb.ui.SfFormMediator();
+        _resources.hResourcePicker = new hb.ui.HResourcePicker();
     },
     /**
      * @doc get requested HBase resource : either a new object or the instanciated one if it's unique
@@ -42,13 +44,37 @@ let mod = {
         if(typeof $element === 'undefined' || $element === null){
             //(".hbase-hmaxlength").hmaxlength();
             $(".hb-hdatepicker").hdatepicker();
-            //$(".hbase-htimescroller").htimescroller();
+            $(".hb-hte").each(function(){
+                let hte = new hb.ui.HTimeExplorer($(this));
+            });
+            $(function(){
+                    $(".hb-resourcepicker").each(function(){
+                        let $this = $(this);
+                        let classes = $this.attr('class').split(/\s+/);
+                        let concreteClass = '';
+                        $.each(classes, function(index, item) {
+                            if ($.inArray(item,['hb-imagepicker']) !== -1) {concreteClass = item;}
+                        });
+                        console.log($this.attr('class').split(/\s+/));
+                        let $button = $("<a target=\"#" + $this.attr('id') + "\" class=\"btn btn-default " + concreteClass + " \">" +
+                            "</a>").insertAfter($this);
+                        $button.attr('data-hb-value',$this.attr('value'));
+                        $this.hide();
+                        hb.ui.HResourcePicker.prototype.onHbResourcePickerChange($this);
+                    });
+                    $(".hb-resourcepicker").on("change",function(){hb.ui.HResourcePicker.prototype.onHbResourcePickerChange($(this));});
+
+                    $("a.hb-imagepicker").on('click',function(){
+                        //console.log(hResourcePicker.$modal);
+                        mod.get("hResourcePicker").bind($(this));
+                    });
+                }
+            );
+
             //$(".hbase-activer").each(function(){$.hbase.func.hbaseChecker(this)});
         }
         else{
             //$element.find(".hbase-hmaxlength").hmaxlength();
-            $element.find(".hb-hdatepicker").hdatepicker();
-            //$element.find(".hbase-htimescroller").htimescroller();
             $element.find(".hb-hdatepicker").hdatepicker();
             //$element.find(".hbase-activer").each(function(){$.hbase.func.hbaseChecker(this);});
         }

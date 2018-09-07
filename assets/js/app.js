@@ -6,11 +6,19 @@ require('font-awesome/css/font-awesome.css');
 require('icheck/skins/square/blue.css');
 require('jquery-ui/themes/base/all.css');
 require('bootstrap-table/dist/bootstrap-table.css');
+require('leaflet/dist/leaflet.css');
+require('../napoleon3.jpeg');
 
 
 $ = require('jquery');
 jQuery = $;
 d3 = require('d3');
+L = require('leaflet');
+React = require('react');
+ReactDOM = require('react-dom');
+// import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
+RL = require('react-leaflet');
+
 require('jquery-ui/ui/core.js');
 require('jquery-ui/ui/widget.js');
 require('jquery-ui/ui/widgets/dialog.js');
@@ -66,6 +74,8 @@ hb.ui.HDatePicker = require('./hb/ui/HDatePicker.js');
 hb.ui.detailBuilder = require('./hb/ui/detailBuilder.js');
 hb.ui.detailMediator = require('./hb/ui/detailMediator.js');
 hb.ui.HModal = require('./hb/ui/HModal.js');
+hb.ui.HTimeExplorer = require('./hb/ui/HTimeExplorer.js');
+hb.ui.HResourcePicker= require('./hb/ui/HResourcePicker.js');
 hb.ui.manager = require('./hb/ui/manager.js');
 
 

@@ -138,7 +138,7 @@ let HTimeRange = function(parent){
     this.grads = [];
 };
 
-Object.assign(HTimeRange,{
+Object.assign(HTimeRange.prototype,{
     /** @doc set interval HDate of the range  */
     setHDate : function(hDate){
         let newType = _getTypeFromHDate(hDate);

@@ -672,15 +672,16 @@
 {#%}#}
 {#{% endjavascripts %}#}
 
-{% javascripts output="js/geo.js"
-    '@AppBundle/Resources/third-party/leaflet/leaflet.js'
-%}
-{% endjavascripts %}
-{% javascripts output="js/react.js"
-    '@AppBundle/Resources/third-party/react/react.js'
-    '@AppBundle/Resources/third-party/react/react-dom.min.js'
-%}
-{% endjavascripts %}
+{#{% javascripts output="js/geo.js"#}
+    {#'@AppBundle/Resources/third-party/leaflet/leaflet.js'#}
+{#%}#}
+{#{% endjavascripts %}#}
+{#{% javascripts output="js/react.js"#}
+    {#'@AppBundle/Resources/third-party/react/react.js'#}
+    {#'@AppBundle/Resources/third-party/react/react-dom.min.js'#}
+{#%}#}
+{#{% endjavascripts %}#}
+
 <script src="{{ asset('build/app.js') }}"></script>
 {#<script src="{{ path('homepage') }}js/app.js"></script>#}
 {% block javascript %}
