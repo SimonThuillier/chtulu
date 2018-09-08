@@ -13,6 +13,7 @@ use AppBundle\Entity\ArticleLink;
 use AppBundle\Entity\DTOMutableEntity;
 use AppBundle\Entity\HResource;
 use AppBundle\Entity\ResourceFile;
+use AppBundle\Entity\ResourceGeometry;
 use AppBundle\Entity\ResourceVersion;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\ServiceSubscriberInterface;
@@ -41,7 +42,8 @@ class EntityFactory implements ServiceSubscriberInterface
             ArticleLink::class => ArticleLinkFactory::class,
             HResource::class => ResourceFactory::class,
             ResourceFile::class => ResourceFileFactory::class,
-            ResourceVersion::class => ResourceVersionFactory::class
+            ResourceVersion::class => ResourceVersionFactory::class,
+            ResourceGeometry::class => ResourceGeometryFactory::class
         ];
     }
 

@@ -11,6 +11,7 @@ namespace AppBundle\Factory;
 use AppBundle\DTO\ArticleDTO;
 use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\DTO\ResourceDTO;
+use AppBundle\DTO\ResourceGeometryDTO;
 use AppBundle\DTO\ResourceImageDTO;
 use AppBundle\DTO\ResourceVersionDTO;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -39,7 +40,8 @@ class DTOFactory implements ServiceSubscriberInterface
             ArticleDTO::class => ArticleDTOFactory::class,
             ResourceDTO::class =>  ResourceDTOFactory::class,
             ResourceImageDTO::class => ResourceImageDTOFactory::class,
-            ResourceVersionDTO::class => ResourceVersionDTOFactory::class
+            ResourceVersionDTO::class => ResourceVersionDTOFactory::class,
+            ResourceGeometryDTO::class => ResourceGeometryDTOFactory::class
         ];
     }
 

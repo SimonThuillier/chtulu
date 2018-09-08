@@ -38,7 +38,7 @@ CREATE SEQUENCE hb_resource_id_seq;
      SELECT setval('hb_resource_file_id_seq', (SELECT MAX(id) FROM hb_resource_file));
      ALTER TABLE hb_resource_file ALTER id SET DEFAULT nextval('hb_resource_file_id_seq');
 
-DROP SEQUENCE hb_resource_geography_id_seq;
-     CREATE SEQUENCE hb_resource_geography_id_seq;
-     SELECT setval('hb_resource_geography_id_seq', (SELECT MAX(id) FROM hb_resource_geography));
-     ALTER TABLE hb_resource_geography ALTER id SET DEFAULT nextval('hb_resource_geography_id_seq');
+DROP SEQUENCE hb_resource_geometry_id_seq;
+     CREATE SEQUENCE hb_resource_geometry_id_seq;
+     SELECT setval('hb_resource_geometry_id_seq', (SELECT MAX(id) FROM hb_resource_geometry));
+     ALTER TABLE hb_resource_geometry ALTER id SET DEFAULT nextval('hb_resource_geometry_id_seq');

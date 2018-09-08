@@ -294,13 +294,35 @@ var napoIcon = L.icon({
     popupAnchor:  [-3, -30] // point from which the popup should open relative to the iconAnchor
 });
 
-function MyForm(props){
-    return(
-        <form>
-            <input type="text" required="required" maxlength="60" size="60" />
-            <button type="submit" class="btn btn-primary">Enregistrer</button>
-        </form>
-    );
+class MyForm extends React.Component{
+
+    constructor(props) {
+        super(props);
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.onSave = props.onSave;
+        this.onDelete = props.onDelete;
+        this.onFinish = props.onFinish;
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.input = React.createRef();
+        this.data = {msg:null};
+    }
+
+    handleSubmit(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.onSave({msg:this.input.current.value});
+    }
+
+    render(){
+        return(
+            <form onSubmit={this.handleSubmit} >
+                <input type="text" required="required" ref={this.input} size="60" />
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                <a name="delete" class="btn btn-warning" onClick={this.onDelete}>Supprimer</a>
+                <a name="finish" class="btn" onClick={this.onFinish}>Finir</a>
+            </form>
+        );
+    }
 }
 
 class MyPopup extends React.Component {
@@ -309,7 +331,7 @@ class MyPopup extends React.Component {
             <Popup {...this.props}>
                 {this.props.msg}
                 {!this.props.finished ?
-                    <MyForm/>
+                    <MyForm {...this.props}/>
                 :null}
             </Popup>
             )
@@ -326,6 +348,42 @@ class SimpleExample extends React.Component {
             zoom: 6,
             pins:[{lat:51.505,lng : -0.09,msg : "Napoléon was here",finished : false}]
         }
+        this.refMarker = React.createRef();
+    }
+
+    handleOnDeletePin(key){
+        return function(){
+            console.log(key);
+            let pins = this.state.pins.slice(0, this.state.pins.length);
+            console.log(pins);
+            pins.splice(key,1);
+            console.log(pins);
+            this.setState({
+                pins:pins
+            });
+        }
+    }
+
+    handleOnSavePin(key){
+            return function(data) {
+                console.log(data);
+                console.log(key);
+                let pins = this.state.pins.slice(0, this.state.pins.length);
+                pins[key].msg = data.msg;
+                this.setState({
+                    pins:pins
+                });
+            }
+    }
+
+    handleOnFinishPin(key){
+        return function() {
+            let pins = this.state.pins.slice(0, this.state.pins.length);
+            pins[key].finished = true;
+            this.setState({
+                pins:pins
+            });
+        }
     }
 
     handleClickOnMap(event){
@@ -336,17 +394,43 @@ class SimpleExample extends React.Component {
         });
     }
 
+    updatePosition(key){
+        return function() {
+            if(!this.refMarker || !this.refMarker.current || !this.refMarker.current.leafletElement) return;
+            const { lat, lng } = this.refMarker.current.leafletElement.getLatLng();
+            let pins = this.state.pins.slice(0, this.state.pins.length);
+            pins[key].lat = lat;
+            pins[key].lng = lng;
+            this.setState({
+                pins: pins,
+            });
+        }
+    }
+
     render() {
         const position = [this.state.lat, this.state.lng];
 
         const pins = this.state.pins;
-        let index = 0;
+        let index = -1;
 
         const markers = pins.map(pin => {
             index++;
             return (
-                <Marker key={index} icon={napoIcon} position={[pin.lat,pin.lng]} draggable={true}>
-                    <MyPopup autoClose={false} closeOnClick={false} msg={pin.msg} finished={pin.finished}/>
+                <Marker key={index} icon={napoIcon}
+                        position={[pin.lat,pin.lng]}
+                        draggable={true}
+                        onDragend={this.updatePosition(index).bind(this)}
+                        ref={this.refMarker}
+                >
+                    <MyPopup autoClose={false}
+                             closeOnClick={false}
+                             msg={pin.msg}
+                             finished={pin.finished}
+                             onDelete={this.handleOnDeletePin(index).bind(this)}
+                             key={index}
+                             onSave={this.handleOnSavePin(index).bind(this)}
+                             onFinish={this.handleOnFinishPin(index).bind(this)}
+                    />
                     {/*<Popup autoClose={false} closeOnClick={false}>*/}
                         {/*{pin.msg}*/}
                     {/*</Popup>*/}
