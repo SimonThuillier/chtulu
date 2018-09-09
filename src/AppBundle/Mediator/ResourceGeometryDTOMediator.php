@@ -14,6 +14,7 @@ use AppBundle\Entity\ResourceGeometry;
 use AppBundle\Factory\DTOFactory;
 use AppBundle\Factory\EntityFactory;
 use AppBundle\Manager\File\FileRouter;
+use AppBundle\Utils\Geometry;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 
@@ -53,7 +54,7 @@ class ResourceGeometryDTOMediator extends DTOMediator
         $dto = $this->dto;
         $dto
             ->setId($geo->getId())
-            ->setTargetGeometry($geo->getTargetGeometry())
+            ->setTargetGeometry(new Geometry($geo->getTargetGeometry()))
             ->setZoomGeometry($geo->getZoomGeometry())
             ->setComment($geo->getComment())
             ->addMappedGroup('minimal');

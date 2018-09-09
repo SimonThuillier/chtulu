@@ -7,7 +7,7 @@ Tests insertions Geographiques
 
 {%  block content %}
 <p>Page de tests insertions statiques Geographiques</p>
-    <h1>Tests normalization</h1>
+    <h1>Tests Normalization</h1>
 
     <table class="table table-striped table-bordered">
         <tr>
@@ -16,6 +16,23 @@ Tests insertions Geographiques
             <th>result</th>
         </tr>
         {% for item in normRes %}
+            <tr>
+                <td>{{ item.arg }}</td>
+                <td>{{ item.support ? 'Oui' : 'Non' }}</td>
+                <td>{{ item.result }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <h1>Tests Denormalization</h1>
+
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th>arg</th>
+            <th>support</th>
+            <th>result</th>
+        </tr>
+        {% for item in denormRes %}
             <tr>
                 <td>{{ item.arg }}</td>
                 <td>{{ item.support ? 'Oui' : 'Non' }}</td>

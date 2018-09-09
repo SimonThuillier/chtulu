@@ -9,6 +9,7 @@ use AppBundle\Manager\ReactTranspiler;
 use AppBundle\Mapper\ResourceGeometryMapper;
 use AppBundle\Mediator\ResourceGeometryDTOMediator;
 use AppBundle\Serializer\GeoJsonNormalizer;
+use AppBundle\Utils\Geometry;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
@@ -66,7 +67,7 @@ class GeoController extends Controller
             ->mapDTOGroups(array_merge($groups,[]))
             ->getDTO();
 
-        $geoDto->setTargetGeometry("POINT(37.4220761 -122.0845187)");
+        // $geoDto->setTargetGeometry("POINT(37.4220761 -122.0845187)");
 
         //$mapper->add($geoDto);
 
@@ -76,15 +77,33 @@ class GeoController extends Controller
         // var_dump($geo->getTargetGeometry());
 
         $normTests = ["POINT(37.4220761 -122.0845187)","LINESTRING(45.786 -12.786,41.8767345 3.4)",
-            "POLYGON((0 1,10 2,9 4),(1 1,1 2,2 2))",
-            "GEOMETRYCOLLECTION(POINT(2 0),POLYGON((0 0, 1 0, 1 1, 0 1, 0 0)))"];
+            "POLYGON((0 1,10 2,9 4))","POLYGON((0 1,10 2,9 4),(1 1,1 2,2 2))",
+            "GEOMETRYCOLLECTION(POINT(2 0),POLYGON((0 0, 1 0, 1 1, 0 1, 0 0)))",
+            "MULTILINESTRING((0 0,1 1,1 2),(2 3,3 2,5 4))",
+            "MULTIPOLYGON(((0 0,4 0,4 4,0 4,0 0),(1 1,2 1,2 2,1 2,1 1)), ((-1 -1,-1 -2,-2 -2,-2 -1,-1 -1)))"];
         $normRes = array_map(function($item) use($normalizer){
-            $support = $normalizer->supportsNormalization($item);
-            return ["arg"=>$item,
+            $geometry = new Geometry($item);
+            $support = $normalizer->supportsNormalization($geometry);
+            return ["arg"=>$geometry->getValue(),
                 "support"=>$support,
-                "result" => $support ?json_encode($normalizer->normalize($item)):""];
+                "result" => $support ?json_encode($normalizer->normalize($geometry)):""];
         },$normTests);
 
-        return array("normRes"=>$normRes);
+        $denormTests = ["	{\"type\":\"Point\",\"coordinates\":[37.4220761,-122.0845187]}",
+            "	{\"type\":\"Geometrycollection\",\"geometries\":[{\"type\":\"Point\",\"coordinates\":[2,0]},{\"type\":\"Polygon\",\"coordinates\":[[[0,0],[1,0],[1,1],[0,1],[0,0]]]}]}",
+            "{\"type\":\"Multipolygon\",\"coordinates\":[[[[0,0],[4,0],[4,4],[0,4],[0,0]]],[[1,1],[2,1],[2,2],[1,2],[1,1]],[[[-1,-1],[-1,-2],[-2,-2],[-2,-1],[-1,-1]]]]}",
+            "{\"type\":\"Polygon\",\"coordinates\":[[[0,1],[10,2],[9,4]],[[1,1],[1,2],[2,2]]]}"];
+        $denormRes = array_map(function($item) use($normalizer){
+            $decoded = json_decode($item,true);
+            // var_dump($decoded);
+            $support = $normalizer->supportsDenormalization($decoded,null);
+            return ["arg"=>$item,
+                "support"=>$support,
+                "result" => $support ?json_encode($normalizer->denormalize($decoded,null)->getValue()):""];
+        },$denormTests);
+
+
+
+        return array("normRes"=>$normRes,"denormRes"=>$denormRes);
     }
 }

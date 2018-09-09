@@ -56,7 +56,7 @@ class ResourceGeometry extends DTOMutableEntity
     /**
      * Set targetGeometry.
      *
-     * @param geometry $targetGeometry
+     * @param string $targetGeometry
      *
      * @return ResourceGeometry
      */
@@ -70,7 +70,7 @@ class ResourceGeometry extends DTOMutableEntity
     /**
      * Get targetGeometry.
      *
-     * @return geometry
+     * @return string
      */
     public function getTargetGeometry()
     {
@@ -80,7 +80,7 @@ class ResourceGeometry extends DTOMutableEntity
     /**
      * Set zoomGeometry.
      *
-     * @param geometry $zoomGeometry
+     * @param string $zoomGeometry
      *
      * @return ResourceGeometry
      */
@@ -94,7 +94,7 @@ class ResourceGeometry extends DTOMutableEntity
     /**
      * Get zoomGeometry.
      *
-     * @return geometry
+     * @return string
      */
     public function getZoomGeometry()
     {

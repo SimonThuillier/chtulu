@@ -9,6 +9,7 @@
 namespace AppBundle\DTO;
 
 use AppBundle\Entity\ResourceType;
+use AppBundle\Utils\Geometry;
 use AppBundle\Utils\UrlBag;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -17,9 +18,9 @@ class ResourceGeometryDTO extends EntityMutableDTO
 {
     /** @var integer */
     protected $id;
-    /** @var geometry */
+    /** @var Geometry */
     protected $targetGeometry;
-    /** @var geometry */
+    /** @var string */
     protected $zoomGeometry;
     /** @var string */
     protected $comment;
@@ -31,7 +32,6 @@ class ResourceGeometryDTO extends EntityMutableDTO
     public function __construct()
     {
         parent::__construct();
-        $this->versions = [];
     }
 
     /**
@@ -58,16 +58,16 @@ class ResourceGeometryDTO extends EntityMutableDTO
      * @Assert\NotNull()
      * @return geometry
      */
-    public function getTargetGeometry()
+    public function getTargetGeometry(): Geometry
     {
         return $this->targetGeometry;
     }
 
     /**
-     * @param geometry $targetGeometry
+     * @param Geometry $targetGeometry
      * @return ResourceGeometryDTO
      */
-    public function setTargetGeometry($targetGeometry): ResourceGeometryDTO
+    public function setTargetGeometry(Geometry $targetGeometry): ResourceGeometryDTO
     {
         $this->targetGeometry = $targetGeometry;
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('targetGeometry');
@@ -76,7 +76,7 @@ class ResourceGeometryDTO extends EntityMutableDTO
 
     /**
      * @Groups({"minimal"})
-     * @return geometry
+     * @return string
      */
     public function getZoomGeometry()
     {
