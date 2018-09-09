@@ -8,6 +8,8 @@ require('jquery-ui/themes/base/all.css');
 require('bootstrap-table/dist/bootstrap-table.css');
 require('leaflet/dist/leaflet.css');
 require('../napoleon3.jpeg');
+require('../bismarck.jpeg');
+require('../hugo.jpeg');
 
 
 $ = require('jquery');

@@ -283,16 +283,44 @@ var TileLayer = RL.TileLayer;
 var Marker = RL.Marker;
 var Popup = RL.Popup;
 
+let iconSize = 35;
+
 var napoIcon = L.icon({
     iconUrl: 'http://localhost:8000/build/images/napoleon3.1c072bfc.jpeg',
     shadowUrl: 'http://localhost:8000/build/images/napoleon3.1c072bfc.jpeg',
 
-    iconSize:     [30, 30], // size of the icon
+    iconSize:     [iconSize, iconSize], // size of the icon
     shadowSize:   [0, 0], // size of the shadow
-    iconAnchor:   [30, 30], // point of the icon which will correspond to marker's location
+    iconAnchor:   [iconSize, iconSize], // point of the icon which will correspond to marker's location
     shadowAnchor: [4, 62],  // the same for the shadow
     popupAnchor:  [-3, -30] // point from which the popup should open relative to the iconAnchor
 });
+
+var bismarckIcon = L.icon({
+    iconUrl: 'http://localhost:8000/build/images/bismarck.badd1521.jpeg',
+    shadowUrl: 'http://localhost:8000/build/images/bismarck.badd1521.jpeg',
+
+    iconSize:     [iconSize, iconSize], // size of the icon
+    shadowSize:   [0, 0], // size of the shadow
+    iconAnchor:   [iconSize, iconSize], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [-3, -30] // point from which the popup should open relative to the iconAnchor
+});
+
+var hugoIcon = L.icon({
+    iconUrl: 'http://localhost:8000/build/images/hugo.9465935c.jpeg',
+    shadowUrl: 'http://localhost:8000/build/images/hugo.9465935c.jpeg',
+
+    iconSize:     [iconSize, iconSize], // size of the icon
+    shadowSize:   [0, 0], // size of the shadow
+    iconAnchor:   [iconSize, iconSize], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [-3, -30] // point from which the popup should open relative to the iconAnchor
+});
+
+let icons = [bismarckIcon,hugoIcon,napoIcon,napoIcon,napoIcon,napoIcon,napoIcon,napoIcon];
+
+
 
 class MyForm extends React.Component{
 
@@ -416,7 +444,7 @@ class SimpleExample extends React.Component {
         const markers = pins.map(pin => {
             index++;
             return (
-                <Marker key={index} icon={napoIcon}
+                <Marker key={index} icon={icons[index]}
                         position={[pin.lat,pin.lng]}
                         draggable={true}
                         onDragend={this.updatePosition(index).bind(this)}

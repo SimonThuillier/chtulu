@@ -26,17 +26,20 @@ class ResourceGeometryDTONormalizer extends HNormalizer
      * @param ManagerRegistry $doctrine
      * @param HDateNormalizer $hDateSerializer
      * @param TypeNormalizer $typeNormalizer
+     * @param GeoJsonNormalizer $geoJsonNormalizer
      * @param ResourceDTONormalizer $resourceDTONormalizer
      */
     public function __construct(ManagerRegistry $doctrine,
                                 HDateNormalizer $hDateSerializer,
                                 TypeNormalizer $typeNormalizer,
+                                GeoJsonNormalizer $geoJsonNormalizer,
                                 ResourceDTONormalizer $resourceDTONormalizer)
     {
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
             $hDateSerializer,
             $typeNormalizer,
+            $geoJsonNormalizer,
             $resourceDTONormalizer,
             new HGetSetMethodNormalizer($classMetadataFactory),
             new ObjectNormalizer());

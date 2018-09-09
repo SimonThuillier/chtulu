@@ -4,6 +4,45 @@
  */
 let _idGenerator = new hb.util.cmn.getIdGenerator();
 let mod = {};
+
+/**
+ * @doc ResourceGeometry object constructor
+ * @class hb.util.dto.ResourceGeometry
+ * @return {hb.util.dto.ResourceGeometry}
+ */
+mod.ResourceGeometry = function()
+{
+    this.id = "t" + (new hb.util.cmn.getIdGenerator());
+};
+
+
+Object.assign(mod.ResourceGeometry,
+    {
+        objectType : "resourceGeometry",
+        targetGeometry : null,
+        zoomGeometry : null,
+        comment:"commentaire par défaut",
+        urlBag : null,
+        /**
+         * @doc : determines if two ResourceGeometry are equals (same id)
+         * @param {hb.util.dto.ResourceGeometry} resource
+         * @returns {boolean}
+         */
+        equals : function(resource) {
+            return this.id === resource.id;
+        },
+        /**
+         * @doc : function aimed to finalize constitution of new object created by parsing JSon
+         * @return {hb.util.dto.Article}
+         */
+        finalize : function(){
+        },
+    });
+
+
+
+
+
 /**
  * @doc Article object constructor
  * @class hb.util.dto.Article

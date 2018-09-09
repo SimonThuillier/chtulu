@@ -14,6 +14,7 @@ use AppBundle\Entity\DateType;
 class GeoJsonNormalizer extends HNormalizer
 {
     private $allowedTypes;
+    const MAX_DEPTH=4;
 
     public function __construct()
     {
@@ -91,7 +92,8 @@ class GeoJsonNormalizer extends HNormalizer
         return $normalization;
     }
 
-    private function normalizeCoordinates($data){
+    private function normalizeCoordinates($data,$depth=1){
+        if($depth>self::MAX_DEPTH) return ["MAX_DEPTH_REACHED"];
         $coordinates = [];
 
         $greatRegex = "#^[\d|\.|\-|\s|[:space:]|\,]+$#";
@@ -115,8 +117,27 @@ class GeoJsonNormalizer extends HNormalizer
         }
 
         $coordinates = [];
-        $data = preg_replace("#(\d)\s*\)\s*\,\s*\(\s*([\d|-])#","$1\$),(\$$2",$data);
-        $subs = explode("\$),(\$",trim($data));
+        $data =trim($data);
+
+        // handling multiple nesting level
+        $nestingLevel = self::MAX_DEPTH;
+        $maxLevelFound = false;
+        $regex = "";
+        $replace = "";
+        $exploder="_\_"; // just to give a value
+        while(!$maxLevelFound && $nestingLevel>0){
+            $regex = "#([\d])\s*" . str_repeat("\)\s*",$nestingLevel) . "\," .
+                str_repeat("\s*\(",$nestingLevel) . "\s*([\d|-])#";
+            if(preg_match($regex, $data) == 1) $maxLevelFound=true;
+            $replace = "$1\$" . str_repeat(")",$nestingLevel) . "," . str_repeat("(",$nestingLevel) . "\$$2";
+            $exploder = "\$" . str_repeat(")",$nestingLevel) . "," . str_repeat("(",$nestingLevel) . "\$";
+            $nestingLevel--;
+        }
+
+
+        $data = preg_replace($regex,$replace,$data);
+        var_dump($data);
+        $subs = explode($exploder,$data);
         foreach($subs as $sub){
             $sub = trim($sub);
             if($sub[0] !== '(') $sub = '(' . $sub;
@@ -125,7 +146,7 @@ class GeoJsonNormalizer extends HNormalizer
             $subRegex = "#^\((?<sub>.+)\)$#";
             $matches = [];
             preg_match($subRegex, $sub,$matches);
-            $coordinates[] = $this->normalizeCoordinates($matches["sub"]);
+            $coordinates[] = $this->normalizeCoordinates($matches["sub"],$depth+1);
         }
         return $coordinates;
     }
@@ -164,8 +185,9 @@ class GeoJsonNormalizer extends HNormalizer
         return new Geometry($value);
     }
 
-    private function denormalizeCoordinates($data){
+    private function denormalizeCoordinates($data,$depth=1){
 
+        if($depth>self::MAX_DEPTH) return "MAX_DEPTH_REACHED";
         //var_dump()
         if(is_scalar(reset($data))){
             return (strval($data[0] . ' ' . $data[1]));
@@ -174,7 +196,7 @@ class GeoJsonNormalizer extends HNormalizer
             $value ='(';
             $i = 0;
             foreach($data as $sub){
-                $value .= (($i>0?',':'') . $this->denormalizeCoordinates($sub));
+                $value .= (($i>0?',':'') . $this->denormalizeCoordinates($sub,$depth+1));
                     $i++;
             }
             $value .= ')';

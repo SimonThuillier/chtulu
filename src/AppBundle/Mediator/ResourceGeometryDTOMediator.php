@@ -15,6 +15,7 @@ use AppBundle\Factory\DTOFactory;
 use AppBundle\Factory\EntityFactory;
 use AppBundle\Manager\File\FileRouter;
 use AppBundle\Utils\Geometry;
+use AppBundle\Utils\UrlBag;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 
@@ -31,7 +32,7 @@ class ResourceGeometryDTOMediator extends DTOMediator
         parent::__construct($locator);
         $this->entityClassName = ResourceGeometry::class;
         $this->dtoClassName = ResourceGeometryDTO::class;
-        $this->groups = ['minimal'];
+        $this->groups = ['minimal','url'];
     }
 
     /**
@@ -59,6 +60,44 @@ class ResourceGeometryDTOMediator extends DTOMediator
             ->setComment($geo->getComment())
             ->addMappedGroup('minimal');
     }
+
+    protected function mapDTOUrlGroup()
+    {
+        if ($this->dto->getId() <1) return $this->mapDTOUrlGroupForNewEntity();
+
+        /** @var ResourceGeometry $resource */
+        $resource = $this->entity;
+        /** @var ResourceGeometryDTO $dto */
+        $dto = $this->dto;
+
+        $router = $this->locator->get('router');
+
+        $postUrl = $dto->getId()>0?$router->generate("article_post_edit",["article"=>$resource])
+            :$router->generate("article_post_create");
+
+        if ($dto->getUrlBag() === null){$dto->setUrlBag(new UrlBag());}
+        $dto->getUrlBag()
+            ->setPost($postUrl);
+
+        $dto->addMappedGroup('url');
+    }
+
+    protected function mapDTOUrlGroupForNewEntity()
+    {
+        $router = $this->locator->get('router');
+        /** @var ResourceGeometryDTO $dto */
+        $dto = $this->dto;
+
+        if ($dto->getUrlBag() === null){$dto->setUrlBag(new UrlBag());}
+        $dto->getUrlBag()
+            ->setPost($router->generate("article_post_create"));
+
+        $dto->addMappedGroup('url');
+    }
+    
+    
+    
+    
 //
 //    protected function mediateFile(){
 //        /** @var ResourceGeometryDTO $dto */
