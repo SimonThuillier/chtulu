@@ -50,6 +50,28 @@ class GeoController extends Controller
     }
 
     /**
+     * @Route("/test-react-router1", name="geo_testreactrouter1")
+     * @Template()
+     */
+    public function testReactRouter1Action(Request $request)
+    {
+        /** @var Session $session */
+        $session = $this->get('session');
+        return array();
+    }
+
+    /**
+     * @Route("/test-react-router2", name="geo_testreactrouter2")
+     * @Template()
+     */
+    public function testReactRouter2Action(Request $request)
+    {
+        /** @var Session $session */
+        $session = $this->get('session');
+        return array();
+    }
+
+    /**
      * @Route("/test-static-insert", name="geo_teststaticinsert")
      * @throws \Exception
      * @Template()

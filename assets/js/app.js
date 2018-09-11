@@ -18,6 +18,7 @@ d3 = require('d3');
 L = require('leaflet');
 React = require('react');
 ReactDOM = require('react-dom');
+require('react-router-dom');
 // import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
 RL = require('react-leaflet');
 

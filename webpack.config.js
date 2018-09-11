@@ -22,6 +22,8 @@ Encore
      */
     .addEntry('app', './assets/js/app.js')
     .addEntry('test-react', './assets/js/test-react.jsx')
+    .addEntry('test-react-router1', './assets/js/test-react-router1.jsx')
+    .addEntry('test-react-router2', './assets/js/test-react-router2.jsx')
     //.addEntry('page1', './assets/js/page1.js')
     //.addEntry('page2', './assets/js/page2.js')
 
