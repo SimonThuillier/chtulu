@@ -19,25 +19,30 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 
 
-class ArticleDTONormalizer extends HNormalizer
+class DTONormalizer extends HNormalizer
 {
+    const DTO_NS = 'AppBundle\\DTO\\';
+
     /**
      * @param ManagerRegistry $doctrine
-     * @param HDateNormalizer $hDateSerializer
+     * @param ArticleDTONormalizer $articleDTONormalizer
      * @param TypeNormalizer $typeNormalizer
      * @param ResourceDTONormalizer $resourceDTONormalizer
+     * @param ResourceGeometryDTONormalizer $ResourceGeometryDTONormalizer
      */
     public function __construct(ManagerRegistry $doctrine,
-                                HDateNormalizer $hDateSerializer,
+                                ArticleDTONormalizer $articleDTONormalizer,
                                 TypeNormalizer $typeNormalizer,
-                                ResourceDTONormalizer $resourceDTONormalizer)
+                                ResourceDTONormalizer $resourceDTONormalizer,
+                                ResourceGeometryDTONormalizer $ResourceGeometryDTONormalizer)
     {
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
-            $hDateSerializer,
+            $articleDTONormalizer,
             $typeNormalizer,
             $resourceDTONormalizer,
             new HGetSetMethodNormalizer($classMetadataFactory),
+            $ResourceGeometryDTONormalizer,
             new ObjectNormalizer());
 
         parent::__construct($normalizers);
@@ -45,7 +50,7 @@ class ArticleDTONormalizer extends HNormalizer
 
     public function supportsNormalization($data, $format = null)
     {
-        return is_object($data) && get_class($data) === ArticleDTO::class;
+        return is_object($data) && strpos(get_class($data),self::DTO_NS)!=-1;
     }
 
     public function supportsDenormalization($data, $type, $format = null)

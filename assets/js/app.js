@@ -69,6 +69,7 @@ hb.util.geom = require('./hb/util/geometry.js');
 hb.util.HDate = require('./hb/util/HDate.js');
 hb.util.HTimeGrad = require('./hb/util/HTimeGrad.js');
 hb.util.HTimeRange = require('./hb/util/HTimeRange.js');
+hb.util.server = require('./hb/util/server.js');
 
 hb.ui.misc = require('./hb/ui/misc.js');
 hb.ui.FormBuilder = require('./hb/ui/FormBuilder.js');

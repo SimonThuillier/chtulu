@@ -137,6 +137,7 @@ abstract class DTOMediator implements ServiceSubscriberInterface
         }
 
         $function = 'mapDTO' . ucfirst($group) . 'Group';
+        if(!method_exists($this,$function)) return $this;
 
         if($subGroups === null) $this->$function($mode);
         else {

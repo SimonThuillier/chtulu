@@ -35,3 +35,5 @@ function Page2(props) {
 
 
 ReactDOM.render(React.createElement(App, null), document.getElementById('root'));
+
+hb.util.server.getNew('articl').then(data =>console.log(data));
