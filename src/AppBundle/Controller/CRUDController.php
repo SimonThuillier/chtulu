@@ -56,4 +56,33 @@ class CRUDController extends Controller
 
         return new JsonResponse(HJsonResponse::normalize($hResponse));
     }
+
+    /**
+     * @param Request $request
+     * @param MediatorFactory $mediatorFactory
+     * @param DTONormalizer $normalizer
+     * @param JsonEncoder $encoder
+     * @Route("/post",name="crud_post")
+     * @Method({"GET","POST"})
+     * @throws \Exception
+     * @return JsonResponse
+     */
+    public function postAction(Request $request,
+                               MediatorFactory $mediatorFactory,
+                               DTONormalizer $normalizer,
+                               JsonEncoder $encoder){
+        if (0 === strpos($request->headers->get('Content-Type'), 'application/json')) {
+            $data = json_decode($request->getContent(), true);
+            $request->request->replace(is_array($data) ? $data : array());
+        }
+
+
+        $request->get("test");
+        $hResponse = new HJsonResponse();
+        $hResponse
+            ->setMessage("OK")
+            ->setData(["content"=>$request->getContent(),"comment"=>$request->request->get("comment")]);
+
+        return new JsonResponse(HJsonResponse::normalize($hResponse));
+    }
 }

@@ -4,13 +4,14 @@
  * */
 
 let urls = {
-    crud_get_new : document.getElementById('hb-url-crud-get-new').getAttribute('data-url')
+    crud_get_new : document.getElementById('hb-url-crud-get-new').getAttribute('data-url'),
+    crud_post : document.getElementById('hb-url-crud-post').getAttribute('data-url')
 };
 
 const TIMEOUT = 10000;
 
-buildGetUrl = function(url,params){
-    if (!params) return encodeURI(url);
+buildGetUrl = function(url,params=null){
+    if (!params || params==null) return encodeURI(url);
     else{
         let query = Object.keys(params)
             .map(k => k + '=' + params[k])
@@ -139,5 +140,53 @@ module.exports =
                 }
 
             });
+        },
+        post : function(type,object,groups=null){
+            return new Promise((resolve,reject) => {
+
+                let url = buildGetUrl(urls.crud_post);
+
+                console.log(url);
+                // to ensure that server only receives what it is able to undesrtand, eg
+                // what it already sent to our client we remove keys that have no correspondences
+                // with the new object of this type key
+                let newObject = null;
+                if(typeof newObjects[type] !== 'undefined' || newObjects[type]!==null){
+                    newObject = newObjects[type];
+                }
+
+                const keys = Object.keys(newObject).concat(["postedGroups"]);
+                object.postedGroups = groups;
+
+                let headers = new Headers();
+                headers.append('Content-Type', 'application/json');
+
+                let requestProps = { method: 'POST',
+                    headers: headers,
+                    credentials:'same-origin',
+                    mode: 'same-origin',
+                    body: JSON.stringify(object,keys),
+                    cache: 'default' };
+
+                console.log(requestProps.body);
+
+                fetchWithTimeout(url,requestProps,TIMEOUT)
+                    .then(response => response.json())
+                    .then(hResponse => {
+                        //console.log(hResponse);
+                        console.log("posting");
+                        if(hResponse.status === 'success'){
+                            console.log(hResponse.data);
+                            resolve(hResponse.data);
+                        }
+                        else{
+                            reject(new Error(hResponse.message));
+                        }
+                    })
+                    .catch((error) => reject(error))
+                    ;
+
+            });
+
         }
     };

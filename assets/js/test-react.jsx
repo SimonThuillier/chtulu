@@ -377,7 +377,6 @@ class SimpleExample extends React.Component {
             pins:[],
             loading:0
         };
-        this.refMarker = React.createRef();
     }
 
 
@@ -403,10 +402,18 @@ class SimpleExample extends React.Component {
                 console.log(data);
                 console.log(key);
                 let pins = this.state.pins.slice(0, this.state.pins.length);
-                pins.find(x => x.id === key).comment = data.msg;
-                this.setState({
-                    pins:pins
-                });
+                let pin = pins.find(x => x.id === key);
+                let index = pins.findIndex(x => x.id === key);
+
+                hb.util.server.getNew('resourceGeometry')
+                    .then(data => Object.assign(data,pins.find(x => x.id === key)))
+                    .then(data => hb.util.server.post('resourceGeometry',data,{minimal:true,lol:{blop:true,blip:true}}))
+                    .then(data =>{
+                        pins[index] = data;
+                        this.setState({
+                            pins:pins
+                        });
+                    });
             }
     }
 
@@ -427,6 +434,7 @@ class SimpleExample extends React.Component {
             .then(data =>{
                 data.value = {type:"Point",coordinates:[latlng.lat,latlng.lng]};
                 data.finished = false;
+                data.marker = React.createRef();
                 const pins = this.state.pins.slice(0, this.state.pins.length);
                 this.setState({
                     pins:pins.concat([data])
@@ -436,12 +444,16 @@ class SimpleExample extends React.Component {
 
     updatePosition(key){
         return function() {
-            if(!this.refMarker || !this.refMarker.current || !this.refMarker.current.leafletElement) return;
-            const { lat, lng } = this.refMarker.current.leafletElement.getLatLng();
             let pins = this.state.pins.slice(0, this.state.pins.length);
-            console.log(pins.find(x => x.id === key));
-            pins.find(x => x.id === key).value.coordinates = [lat,lng];
-            console.log(pins.find(x => x.id === key));
+            let pin = pins.find(x => x.id === key);
+
+            if(!pin.marker || !pin.marker.current || !pin.marker.current.leafletElement) return;
+            const { lat, lng } = pin.marker.current.leafletElement.getLatLng();
+
+
+            console.log(key);
+            pin.value.coordinates = [lat,lng];
+            console.log(pins.map(pin => {return {id:pin.id,coords:pin.value.coordinates};}));
             this.setState({
                 pins: pins,
             });
@@ -461,7 +473,7 @@ class SimpleExample extends React.Component {
                         position={[pin.getPointLat(),pin.getPointLng()]}
                         draggable={true}
                         onDragend={this.updatePosition(pin.id).bind(this)}
-                        ref={this.refMarker}
+                        ref={pin.marker}
                 >
                     <MyPopup autoClose={false}
                              closeOnClick={false}
