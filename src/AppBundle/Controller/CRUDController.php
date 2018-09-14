@@ -38,10 +38,10 @@ class CRUDController extends Controller
                                  DTONormalizer $normalizer,
                                  JsonEncoder $encoder){
         $hResponse = new HJsonResponse();
-        sleep(2000);
+        //sleep(2000);
         try{
             if(! $request->query->has("type")) throw new \Exception("Type parameter is mandatory");
-            $mediatorClass = self::MEDIATOR_NS . ucfirst(strtolower($request->query->get("type"))) . 'DTOMediator';
+            $mediatorClass = self::MEDIATOR_NS . ucfirst($request->query->get("type")) . 'DTOMediator';
             $mediator = $mediatorFactory->create($mediatorClass);
             $mediator->mapDTOGroups();
 

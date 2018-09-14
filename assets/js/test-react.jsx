@@ -374,17 +374,23 @@ class SimpleExample extends React.Component {
             lat: 51.505,
             lng: -0.09,
             zoom: 6,
-            pins:[{lat:51.505,lng : -0.09,msg : "Napoléon was here",finished : false}]
-        }
+            pins:[],
+            loading:0
+        };
         this.refMarker = React.createRef();
+    }
+
+
+
+    componentDidMount(){
     }
 
     handleOnDeletePin(key){
         return function(){
             console.log(key);
             let pins = this.state.pins.slice(0, this.state.pins.length);
-            console.log(pins);
-            pins.splice(key,1);
+            let index = pins.findIndex(x => x.id === key);
+            pins.splice(index,1);
             console.log(pins);
             this.setState({
                 pins:pins
@@ -397,7 +403,7 @@ class SimpleExample extends React.Component {
                 console.log(data);
                 console.log(key);
                 let pins = this.state.pins.slice(0, this.state.pins.length);
-                pins[key].msg = data.msg;
+                pins.find(x => x.id === key).comment = data.msg;
                 this.setState({
                     pins:pins
                 });
@@ -407,7 +413,7 @@ class SimpleExample extends React.Component {
     handleOnFinishPin(key){
         return function() {
             let pins = this.state.pins.slice(0, this.state.pins.length);
-            pins[key].finished = true;
+            pins.find(x => x.id === key).finished = true;
             this.setState({
                 pins:pins
             });
@@ -415,11 +421,17 @@ class SimpleExample extends React.Component {
     }
 
     handleClickOnMap(event){
-        const pins = this.state.pins.slice(0, this.state.pins.length);
         let latlng = event.latlng;
-        this.setState({
-            pins:pins.concat([{lat:latlng.lat,lng:latlng.lng,msg:"ca roule !",finished:false}])
-        });
+
+        hb.util.server.getNew('resourceGeometry')
+            .then(data =>{
+                data.value = {type:"Point",coordinates:[latlng.lat,latlng.lng]};
+                data.finished = false;
+                const pins = this.state.pins.slice(0, this.state.pins.length);
+                this.setState({
+                    pins:pins.concat([data])
+                });
+            });
     }
 
     updatePosition(key){
@@ -427,8 +439,9 @@ class SimpleExample extends React.Component {
             if(!this.refMarker || !this.refMarker.current || !this.refMarker.current.leafletElement) return;
             const { lat, lng } = this.refMarker.current.leafletElement.getLatLng();
             let pins = this.state.pins.slice(0, this.state.pins.length);
-            pins[key].lat = lat;
-            pins[key].lng = lng;
+            console.log(pins.find(x => x.id === key));
+            pins.find(x => x.id === key).value.coordinates = [lat,lng];
+            console.log(pins.find(x => x.id === key));
             this.setState({
                 pins: pins,
             });
@@ -444,20 +457,20 @@ class SimpleExample extends React.Component {
         const markers = pins.map(pin => {
             index++;
             return (
-                <Marker key={index} icon={icons[index]}
-                        position={[pin.lat,pin.lng]}
+                <Marker key={pin.id} icon={icons[index]}
+                        position={[pin.getPointLat(),pin.getPointLng()]}
                         draggable={true}
-                        onDragend={this.updatePosition(index).bind(this)}
+                        onDragend={this.updatePosition(pin.id).bind(this)}
                         ref={this.refMarker}
                 >
                     <MyPopup autoClose={false}
                              closeOnClick={false}
-                             msg={pin.msg}
+                             msg={pin.comment}
                              finished={pin.finished}
-                             onDelete={this.handleOnDeletePin(index).bind(this)}
+                             onDelete={this.handleOnDeletePin(pin.id).bind(this)}
                              key={index}
-                             onSave={this.handleOnSavePin(index).bind(this)}
-                             onFinish={this.handleOnFinishPin(index).bind(this)}
+                             onSave={this.handleOnSavePin(pin.id).bind(this)}
+                             onFinish={this.handleOnFinishPin(pin.id).bind(this)}
                     />
                     {/*<Popup autoClose={false} closeOnClick={false}>*/}
                         {/*{pin.msg}*/}

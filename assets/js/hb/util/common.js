@@ -78,10 +78,12 @@ module.exports =
          * @doc returns and idGenerator function which returns at each call an id increased of 1 from 0
          * @returns {Function}
          */
-        getIdGenerator: function () {
-            let id = 0;
+        getIdGenerator: function (begin=0,step=1) {
+            let id = begin;
             return function () {
-                return ++id;
+                let toReturn = id;
+                id = id + step;
+                return toReturn;
             };
         },
         /**

@@ -36,4 +36,25 @@ function Page2(props) {
 
 ReactDOM.render(React.createElement(App, null), document.getElementById('root'));
 
-hb.util.server.getNew('articl').then(data =>console.log(data));
+let newArticle = null;
+
+hb.util.server.getNew('article').catch(error => console.log(error)).then(data =>{
+    data.finalize();
+    console.log(data);
+})
+;
+hb.util.server.getNew('article').catch(error => console.log(error)).then(data =>console.log(data))
+;
+
+setTimeout(
+    () => hb.util.server.getNew('resourceGeometry').then(data =>console.log(data)).catch(error => console.log(error)),
+    6000
+);
+
+setTimeout(
+    () => hb.util.server.getNew('resourceGeometry').then(data =>console.log(data)).catch(error => console.log(error)),
+    3000
+);
+
+hb.util.server.getNew('article').catch(error => console.log(error)).then(data =>console.log(data))
+;
