@@ -73,17 +73,18 @@ const prototypes = {article:{
             }
         },
         resourceGeometry : {
+            getPointCoords(){
+                if(typeof this.targetGeometry ==='undefined' ||
+                    typeof this.targetGeometry.value ==='undefined' ||
+                    typeof this.targetGeometry.value.type ==='undefined' ||
+                    this.targetGeometry.value.type !=='Point') return [0,0];
+                return this.targetGeometry.value.coordinates;
+            },
             getPointLat(){
-                if(typeof this.value ==='undefined' ||
-                    typeof this.value.type ==='undefined' ||
-                    this.value.type !=='Point') return 0;
-                return this.value.coordinates[0];
+                return this.getPointCoords()[0];
             },
             getPointLng(){
-                if(typeof this.value ==='undefined' ||
-                    typeof this.value.type ==='undefined' ||
-                    this.value.type !=='Point') return 0;
-                return this.value.coordinates[1];
+                return this.getPointCoords()[1];
             }
 
 
@@ -142,11 +143,12 @@ module.exports =
             });
         },
         post : function(type,object,groups=null){
+            console.log(object);
             return new Promise((resolve,reject) => {
 
-                let url = buildGetUrl(urls.crud_post);
+                let url = buildGetUrl(urls.crud_post,{type:type});
 
-                console.log(url);
+                console.log(object);
                 // to ensure that server only receives what it is able to undesrtand, eg
                 // what it already sent to our client we remove keys that have no correspondences
                 // with the new object of this type key
@@ -184,7 +186,7 @@ module.exports =
                         }
                     })
                     .catch((error) => reject(error))
-                    ;
+                ;
 
             });
 

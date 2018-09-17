@@ -332,13 +332,13 @@ class MyForm extends React.Component{
         this.onFinish = props.onFinish;
         this.handleSubmit = this.handleSubmit.bind(this);
         this.input = React.createRef();
-        this.data = {msg:null};
+        this.data = {comment:null};
     }
 
     handleSubmit(event) {
         event.preventDefault();
         event.stopPropagation();
-        this.onSave({msg:this.input.current.value});
+        this.onSave({comment:this.input.current.value});
     }
 
     render(){
@@ -398,15 +398,19 @@ class SimpleExample extends React.Component {
     }
 
     handleOnSavePin(key){
-            return function(data) {
-                console.log(data);
+            return function(formData) {
+                console.log(formData);
                 console.log(key);
                 let pins = this.state.pins.slice(0, this.state.pins.length);
                 let pin = pins.find(x => x.id === key);
                 let index = pins.findIndex(x => x.id === key);
 
+                console.log(pin);
+
                 hb.util.server.getNew('resourceGeometry')
-                    .then(data => Object.assign(data,pins.find(x => x.id === key)))
+                    .then(data => Object.assign(data,pin))
+                    .then(data => Object.assign(data,formData))
+                   // .then(data => console.log(data))
                     .then(data => hb.util.server.post('resourceGeometry',data,{minimal:true,lol:{blop:true,blip:true}}))
                     .then(data =>{
                         pins[index] = data;
@@ -432,10 +436,12 @@ class SimpleExample extends React.Component {
 
         hb.util.server.getNew('resourceGeometry')
             .then(data =>{
-                data.value = {type:"Point",coordinates:[latlng.lat,latlng.lng]};
+                data.targetGeometry = {};
+                data.targetGeometry.value = {type:"Point",coordinates:[latlng.lat,latlng.lng]};
                 data.finished = false;
                 data.marker = React.createRef();
                 const pins = this.state.pins.slice(0, this.state.pins.length);
+                console.log(data);
                 this.setState({
                     pins:pins.concat([data])
                 });
@@ -452,8 +458,8 @@ class SimpleExample extends React.Component {
 
 
             console.log(key);
-            pin.value.coordinates = [lat,lng];
-            console.log(pins.map(pin => {return {id:pin.id,coords:pin.value.coordinates};}));
+            pin.targetGeometry.value.coordinates = [lat,lng];
+            console.log(pins.map(pin => {return {id:pin.id,coords:pin.targetGeometry.value.coordinates};}));
             this.setState({
                 pins: pins,
             });
