@@ -93,8 +93,8 @@ class CRUDController extends Controller
         }
         $request->get("test");
         $hResponse = new HJsonResponse();
-
-        try{
+//
+//        try{
             if(! $request->query->has("type")) throw new \Exception("Type parameter is mandatory");
             $type = ucfirst($request->query->get("type"));
             $dtoClassName = self::DTO_NS . $type . 'DTO';
@@ -122,11 +122,11 @@ class CRUDController extends Controller
             $hResponse
                 ->setMessage("OK")
                 ->setData(["content"=>$request->getContent(),"comment"=>$request->request->get("comment")]);
-        }
-        catch(\Exception $e){
-            $hResponse->setStatus(HJsonResponse::ERROR)
-                ->setMessage($e->getMessage());
-        }
+//        }
+//        catch(\Exception $e){
+//            $hResponse->setStatus(HJsonResponse::ERROR)
+//                ->setMessage($e->getMessage());
+//        }
 
         return new JsonResponse(HJsonResponse::normalize($hResponse));
     }

@@ -62,6 +62,7 @@ class MapperRegistry implements ServiceSubscriberInterface
         if (!class_exists($mediatorClassName)) {
             throw new \Exception('Class ' . $mediatorClassName . ' doesn\'t exists');
         }
+        var_dump($mediatorClassName);
         $entityClassName = (get_class_vars($mediatorClassName))["ENTITY_CLASS_NAME"];
         return $this->getMapper($entityClassName);
     }
