@@ -21,8 +21,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ResourceGeometryDTOMediator extends DTOMediator
 {
-    const DTO_CLASS_NAME = ResourceGeometryDTO::class;
-    const ENTITY_CLASS_NAME = ResourceGeometry::class;
+    public $dtoClassName = ResourceGeometryDTO::class;
+    public $entityClassName = ResourceGeometry::class;
 
 
     /** @var FileRouter */
@@ -34,8 +34,8 @@ class ResourceGeometryDTOMediator extends DTOMediator
     public function __construct(ContainerInterface $locator)
     {
         parent::__construct($locator);
-        $this->dtoClassName = self::DTO_CLASS_NAME;
-        $this->entityClassName = self::ENTITY_CLASS_NAME;
+        //$this->dtoClassName = self::DTO_CLASS_NAME;
+        //$this->entityClassName = self::ENTITY_CLASS_NAME;
         $this->groups = ['minimal','url'];
     }
 

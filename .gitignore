@@ -45,3 +45,5 @@ web/build/fonts/
 web/build/images/
 
 web/build/
+
+bin/\.web-server-pid

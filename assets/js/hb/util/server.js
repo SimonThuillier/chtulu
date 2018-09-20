@@ -8,7 +8,7 @@ let urls = {
     crud_post : document.getElementById('hb-url-crud-post').getAttribute('data-url')
 };
 
-const TIMEOUT = 10000;
+const TIMEOUT = 1000000;
 
 buildGetUrl = function(url,params=null){
     if (!params || params==null) return encodeURI(url);
@@ -34,6 +34,8 @@ function fetchWithTimeout( url,props, timeout ) {
         ).finally( () => clearTimeout(timer) );
     })
 }
+
+function deepJsonStringify(object,)
 
 
 let newObjects = {};
@@ -148,7 +150,7 @@ module.exports =
 
                 let url = buildGetUrl(urls.crud_post,{type:type});
 
-                console.log(object);
+
                 // to ensure that server only receives what it is able to undesrtand, eg
                 // what it already sent to our client we remove keys that have no correspondences
                 // with the new object of this type key
@@ -160,6 +162,9 @@ module.exports =
                 const keys = Object.keys(newObject).concat(["postedGroups"]);
                 object.postedGroups = groups;
 
+                console.log(object);
+                console.log(JSON.stringify(object,keys));
+
                 let headers = new Headers();
                 headers.append('Content-Type', 'application/json');
 
@@ -167,7 +172,7 @@ module.exports =
                     headers: headers,
                     credentials:'same-origin',
                     mode: 'same-origin',
-                    body: JSON.stringify(object,keys),
+                    body: object,
                     cache: 'default' };
 
                 console.log(requestProps.body);

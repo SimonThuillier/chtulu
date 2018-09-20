@@ -91,6 +91,7 @@ class CRUDController extends Controller
             $data = json_decode($request->getContent(), true);
             $request->request->replace(is_array($data) ? $data : array());
         }
+        else die;
         $request->get("test");
         $hResponse = new HJsonResponse();
 //
@@ -106,13 +107,14 @@ class CRUDController extends Controller
             $id = intval($request->query->get("id"));
             if($id > 1 ) $entity = $mapper->find($id);
 
-            $mediator = $mediatorFactory->create($dtoClassName,$entity);
+            $mediator = $mediatorFactory->create($mediatorClassName,$entity);
 
             $form = $formFactory->createBuilder($formClassName,$mediator->getDTO(),[
                     'validation_groups'=>[]])
                 ->getForm();
 
-            $form->submit($request->request);
+            $form->submit($data);
+            $truc=$mediator->getDTO();
             $errors = $this->get('validator')->validate($mediator->getDTO());
             if (! $form->isValid() || count($errors)>0)
             {

@@ -18,9 +18,9 @@ use Symfony\Component\DependencyInjection\ServiceSubscriberInterface;
 abstract class DTOMediator implements ServiceSubscriberInterface
 {
     /** @var string */
-    protected $entityClassName;
+    public $entityClassName;
     /** @var string */
-    protected $dtoClassName;
+    public $dtoClassName;
     /** @var EntityMutableDTO */
     protected $dto;
     /** @var DTOMutableEntity */

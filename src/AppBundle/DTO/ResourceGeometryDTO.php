@@ -60,7 +60,7 @@ class ResourceGeometryDTO extends EntityMutableDTO
      * @Assert\NotNull()
      * @return geometry
      */
-    public function getTargetGeometry(): Geometry
+    public function getTargetGeometry(): ?Geometry
     {
         return $this->targetGeometry;
     }
