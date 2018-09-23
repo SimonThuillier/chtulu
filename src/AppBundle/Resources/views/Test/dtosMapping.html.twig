@@ -1,0 +1,25 @@
+{% extends "base.html.twig" %}
+
+
+{% block title %}
+Mapping des DTOs
+{% endblock %}
+
+{%  block content %}
+<p>Mapping des DTOs</p>
+    <h1>Mapping des DTOs</h1>
+
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th>DTO</th>
+            <th>result</th>
+        </tr>
+        {% for item in dtosMapping %}
+            <tr>
+                <td>{{ item.arg }}</td>
+                <td>{{ item.result }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+{% endblock %}

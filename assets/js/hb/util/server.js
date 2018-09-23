@@ -35,7 +35,7 @@ function fetchWithTimeout( url,props, timeout ) {
     })
 }
 
-function deepJsonStringify(object,)
+//function deepJsonStringify(object,)
 
 
 let newObjects = {};
@@ -43,6 +43,10 @@ let idGenerators = {};
 
 
 const prototypes = {article:{
+            groups:{
+               minimal:["id",""]
+            },
+
             /**
              * @doc : function aimed to finalize constitution of new HArticle created by parsing JSon
              * @return {hb.util.dto.Article}
@@ -75,6 +79,9 @@ const prototypes = {article:{
             }
         },
         resourceGeometry : {
+            groups:{
+
+            },
             getPointCoords(){
                 if(typeof this.targetGeometry ==='undefined' ||
                     typeof this.targetGeometry.value ==='undefined' ||
@@ -162,6 +169,7 @@ module.exports =
                 const keys = Object.keys(newObject).concat(["postedGroups"]);
                 object.postedGroups = groups;
 
+                console.log(keys);
                 console.log(object);
                 console.log(JSON.stringify(object,keys));
 
@@ -172,7 +180,7 @@ module.exports =
                     headers: headers,
                     credentials:'same-origin',
                     mode: 'same-origin',
-                    body: object,
+                    body: JSON.stringify(object,keys),
                     cache: 'default' };
 
                 console.log(requestProps.body);
