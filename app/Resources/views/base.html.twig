@@ -641,6 +641,9 @@
 {% block data %}
     <div data-url="{{ url('crud_get_new') }}" id="hb-url-crud-get-new"></div>
     <div data-url="{{ url('crud_post') }}" id="hb-url-crud-post"></div>
+    {% for dto in dtoList() %}
+        <div class="hb-dto-mapping" data-mapping="{{ dto|getMapping() }}" id="hb-mapping-{{ dto|getAbridgedName() }}"></div>
+    {% endfor %}
 {% endblock %}
 </div>
 

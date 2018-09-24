@@ -2,6 +2,9 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\DTO\EntityMutableDTO;
+use AppBundle\Factory\DTOFactory;
+use AppBundle\Helper\DTOHelper;
 use AppBundle\Mediator\ArticleDTOMediator;
 use AppBundle\Mediator\NotAvailableGroupException;
 use AppBundle\Mediator\NullColleagueException;
@@ -139,43 +142,14 @@ class TestController extends Controller
      * @throws \Exception
      * @Template()
      */
-    public function dtosMappingAction(Request $request){
-
-        $articleDTO = new \ReflectionClass(ArticleDTO::class);
-        $methods = $articleDTO->getMethods(\ReflectionMethod::IS_PUBLIC);
-        $getters = array_filter($methods,function($item){
-            return (preg_match("#^get#",$item->name) == 1) &&
-                !in_array($item->name,["getGroups","getMediator"]);
-        });
-
-        $annotations = array_map(function(\ReflectionMethod $item){
-            $groups = [];
-            $matches = [];
-            if(preg_match("#@Groups\({(?<groups>[^}]+)}\)#i",
-                    str_replace(" ","",$item->getDocComment()),$matches) == 1){
-                $groups = explode(",",str_replace("\"","",$matches["groups"]));
-            }
-
-            return ["name"=>lcfirst(substr($item->name,3)),"groups" => $groups];
-        },$getters);
-
-        $mapping = array();
-
-        foreach ($annotations as $annotation){
-            foreach($annotation["groups"] as $group){
-                $mapping[$group] = array_merge(isset($mapping[$group])?$mapping[$group]:[],
-                    [$annotation["name"]]);
-            }
+    public function dtosMappingAction(Request $request,
+                                      DTOHelper $DTOHelper)
+    {
+        $dtoClasses = $DTOHelper->getDTOClassNames();
+        $dtosMapping=[];
+        foreach($dtoClasses as $class){
+            $dtosMapping[] = ["arg"=>$class,"result" => json_encode($DTOHelper->getDTOMapping($class))];
         }
-
-        $d=4;
-
-        $dtosMapping = [
-            ["arg"=>ArticleDTO::class,"result" => json_encode($mapping)]
-        ];
-
-
-
         return array("dtosMapping"=>$dtosMapping);
     }
 }
