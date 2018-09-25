@@ -38,6 +38,30 @@ function fetchWithTimeout( url,props, timeout ) {
 //function deepJsonStringify(object,)
 
 
+const dtoPrototype = {
+    getPartial : function(groups = true){
+        if(typeof groups !== 'object' || !this.mapping) return this;
+        let keys = {};
+        for (var group in groups){
+            this.mapping[group].forEach(function(item){
+                keys[item] = groups[group];
+            });
+        }
+
+        let copy = {};
+        Object.keys(keys).forEach((item) => {
+            if(typeof keys[item] === 'object' && typeof this[item].mapping !== 'undefined'){
+                copy[item] = this[item].getPartial(keys[item]);
+            }
+            else{
+                //console.log(this[item]);
+                copy[item] = this[item];
+            }
+        });
+        return copy;
+    }
+};
+
 
 
 const defaultPrototypes = {article:{
