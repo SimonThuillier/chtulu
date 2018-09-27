@@ -45,7 +45,7 @@ class GeoController extends Controller
         $session = $this->get('session');
 
         //$cmd = $transpiler->test1();
-
+        ob_clean();
         return array('cmd'=>'yolo');
     }
 

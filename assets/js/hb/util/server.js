@@ -7,6 +7,7 @@ let urls = {
     crud_get_new : document.getElementById('hb-url-crud-get-new').getAttribute('data-url'),
     crud_post : document.getElementById('hb-url-crud-post').getAttribute('data-url')
 };
+let _token = document.getElementById('hb-security-token').getAttribute('data-token');
 
 const TIMEOUT = 1000000;
 
@@ -37,12 +38,21 @@ function fetchWithTimeout( url,props, timeout ) {
 
 //function deepJsonStringify(object,)
 
-
+/**
+ * @class DTO
+ */
 const dtoPrototype = {
+    dtoType: "rootDto",
+    mapping: {},
+    finalize : function(groups=true){console.log("vanillaFinalize")},
     getPartial : function(groups = true){
+        console.log(this);
+        console.log(groups);
         if(typeof groups !== 'object' || !this.mapping) return this;
         let keys = {};
-        for (var group in groups){
+        for (let group in groups){
+            if(typeof this.mapping[group] === 'undefined')
+                throw new Error("Group " + group + " undefined for " + this.dtoType + " dto");
             this.mapping[group].forEach(function(item){
                 keys[item] = groups[group];
             });
@@ -50,7 +60,7 @@ const dtoPrototype = {
 
         let copy = {};
         Object.keys(keys).forEach((item) => {
-            if(typeof keys[item] === 'object' && typeof this[item].mapping !== 'undefined'){
+            if(typeof keys[item] === 'object' && typeof this[item].getPartial !== 'undefined'){
                 copy[item] = this[item].getPartial(keys[item]);
             }
             else{
@@ -63,14 +73,16 @@ const dtoPrototype = {
 };
 
 
-
-const defaultPrototypes = {article:{
+const defaultPrototypes = {
+    /**
+     * @class Article
+     */
+    article:{
+        dtoType : "article",
         /**
          * @doc : function aimed to finalize constitution of new HArticle created by parsing JSon
-         * @return {hb.util.dto.Article}
          */
-        finalize : function(){
-            //console.log(this);
+        finalize : function(groups=true){
             let jsonStr = null;
             if(this.beginHDate !== null){
                 if(typeof this.beginHDate === "object"){jsonStr = JSON.stringify(this.beginHDate);}
@@ -96,7 +108,11 @@ const defaultPrototypes = {article:{
             }
         }
     },
+    /**
+     * @class ResourceGeometry
+     */
     resourceGeometry : {
+        dtoType : "resourceGeometry",
         getPointCoords(){
             if(typeof this.targetGeometry ==='undefined' ||
                 typeof this.targetGeometry.value ==='undefined' ||
@@ -118,9 +134,9 @@ const mappingDivs = document.getElementsByClassName('hb-dto-mapping');
 
 for (let i = 0; i < mappingDivs.length; ++i) {
     let item = mappingDivs[i];
-    prototypes[item.getAttribute('id').replace('hb-mapping-','')] = {
-        mapping:JSON.parse(item.getAttribute('data-mapping'))
-    };
+    let concreteDtoPrototype = Object.create(dtoPrototype);
+    concreteDtoPrototype.mapping = JSON.parse(item.getAttribute('data-mapping'));
+    prototypes[item.getAttribute('id').replace('hb-mapping-','')] = concreteDtoPrototype;
 }
 Object.keys(prototypes).forEach(function(key,index) {
     if(defaultPrototypes.hasOwnProperty(key)) Object.assign(prototypes[key],defaultPrototypes[key]);
@@ -163,15 +179,18 @@ module.exports =
                         cache: 'default' };
 
                     return fetchWithTimeout(url,requestProps,TIMEOUT)
-                        .then(response => response.json())
+                        .then(response => {
+                            //console.log(response);
+                            return response.json();})
                         .then(hResponse => {
-                            //console.log(hResponse);
+                            console.log(hResponse);
                             console.log("loading");
                             if(hResponse.status === 'success'){
                                 newObjects[type] = hResponse.data;
                                 let newObject = Object.create(typeof prototypes[type] !== 'undefined'?prototypes[type]:null);
                                 newObject = Object.assign(newObject,newObjects[type]);
                                 newObject.id = idGenerators[type]();
+                                console.log(newObject);
                                 resolve(newObject);
                             }
                             else{
@@ -184,27 +203,30 @@ module.exports =
 
             });
         },
-        post : function(type,object,groups=null){
+        /**
+         * @param type
+         * @param object
+         * @param groups
+         * @returns {Promise<any>}
+         */
+        post : function(type,object,groups=true){
             console.log(object);
             return new Promise((resolve,reject) => {
 
                 let url = buildGetUrl(urls.crud_post,{type:type});
 
 
-                // to ensure that server only receives what it is able to undesrtand, eg
+                // to ensure that server only receives what it is able to understand, eg
                 // what it already sent to our client we remove keys that have no correspondences
                 // with the new object of this type key
-                let newObject = null;
+                /*let newObject = null;
                 if(typeof newObjects[type] !== 'undefined' || newObjects[type]!==null){
                     newObject = newObjects[type];
-                }
+                }*/
 
-                const keys = Object.keys(newObject).concat(["postedGroups"]);
-                object.postedGroups = groups;
-
-                console.log(keys);
-                console.log(object);
-                console.log(JSON.stringify(object,keys));
+                let partial = object.getPartial(groups);
+                partial.postedGroups = groups;
+                partial._token = _token;
 
                 let headers = new Headers();
                 headers.append('Content-Type', 'application/json');
@@ -213,16 +235,17 @@ module.exports =
                     headers: headers,
                     credentials:'same-origin',
                     mode: 'same-origin',
-                    body: JSON.stringify(object,keys),
+                    body: JSON.stringify(partial),
                     cache: 'default' };
 
                 console.log(requestProps.body);
 
-                fetchWithTimeout(url,requestProps,TIMEOUT)
-                    .then(response => response.json())
+                return fetchWithTimeout(url,requestProps,TIMEOUT)
+                    .then(response => {//console.log(response);
+                    return response.json();})
                     .then(hResponse => {
-                        //console.log(hResponse);
-                        console.log("posting");
+                        console.log(hResponse);
+                        console.log("posted");
                         if(hResponse.status === 'success'){
                             console.log(hResponse.data);
                             resolve(hResponse.data);

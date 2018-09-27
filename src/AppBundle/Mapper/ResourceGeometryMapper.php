@@ -18,7 +18,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class ResourceGeometryMapper extends AbstractEntityMapper implements EntityMapper
+class ResourceGeometryMapper extends AbstractEntityMapper implements EntityMapperInterface
 {
     /**
      * ResourceGeometryMapper constructor.

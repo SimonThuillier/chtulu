@@ -53,14 +53,19 @@ class GeoJsonTransformer implements DataTransformerInterface
      */
     public function reverseTransform($payload)
     {
+        $truc = $this->serializer->supportsDenormalization($payload,null);
+        $lol = "lol";
         if (null === $payload || $payload === "") return null;
+        if(! $this->serializer->supportsDenormalization($payload,null)){
+            throw new TransformationFailedException("Unsupported denormalization to Geometry for this data");
+        }
         try{
-            if(is_string($payload)) $object = $this->serializer->deserialize($payload,null,'json');
+            return $this->serializer->denormalize($payload,null,'json');
         }
         catch(\Exception $e){
             throw new TransformationFailedException($e->getMessage());
         }
-        return $object;
+
     }
 
 }

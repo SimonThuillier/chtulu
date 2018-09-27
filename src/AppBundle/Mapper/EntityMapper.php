@@ -1,82 +1,204 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: ajeelomen-1
+ * Date: 27/09/18
+ * Time: 23:46
+ */
 
 namespace AppBundle\Mapper;
 
+
+use AppBundle\DTO\ArticleDTO;
 use AppBundle\DTO\EntityMutableDTO;
+use AppBundle\DTO\ResourceDTO;
+use AppBundle\DTO\ResourceGeometryDTO;
+use AppBundle\DTO\ResourceImageDTO;
+use AppBundle\DTO\ResourceVersionDTO;
 use AppBundle\Factory\FactoryException;
 use AppBundle\Mediator\InvalidCallerException;
 use AppBundle\Mediator\NullColleagueException;
 use AppBundle\Utils\SearchBag;
 use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\ServiceSubscriberInterface;
 
-/**
- * Interface MapperInterface
- *
- * @package AppBundle\Mapper
- */
-interface EntityMapper
+class EntityMapper implements ServiceSubscriberInterface
 {
+    /** @var ContainerInterface */
+    private $locator;
+
     /**
-     * @param EntityMutableDTO $dto
-     * @param boolean $commit
-     * @return Entity
-     * @throws FactoryException
-     * @throws NullColleagueException
+     * EntityFactory constructor.
+     * @param ContainerInterface $locator
+     */
+    public function __construct(ContainerInterface $locator)
+    {
+        $this->locator = $locator;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getSubscribedServices()
+    {
+        return [
+            ArticleDTO::class => ArticleMapper::class,
+            ResourceImageDTO::class => ResourceFileMapper::class,
+            ResourceGeometryDTO::class => ResourceGeometryMapper::class,
+            ResourceDTO::class => ResourceMapper::class,
+            ResourceVersionDTO::class => ResourceVersionMapper::class,
+        ];
+    }
+
+    /**
+     * @param string $dtoClassName
+     * @return EntityMapperInterface|object
      * @throws InvalidCallerException
      */
-    public function add(EntityMutableDTO $dto,$commit=true);
+    private function getMapperFromDtoClassName(string $dtoClassName){
+        if(!$this->locator->has($dtoClassName)){
+            throw new InvalidCallerException("Mapper isn't configured for class " . $dtoClassName);
+        }
+        /** @var EntityMapperInterface $mapper */
+        $mapper = $this->locator->get($dtoClassName);
+        return $mapper;
+    }
 
     /**
-     * @param int $id
+     * @param EntityMutableDTO $dto
+     * @param bool $commit
      * @return Entity
+     * @throws FactoryException
+     * @throws InvalidCallerException
+     * @throws NullColleagueException
+     */
+    public function add(EntityMutableDTO $dto, $commit = true)
+    {
+        $mapper = $this->getMapperFromDtoClassName(get_class($dto));
+        return $mapper->add($dto,$commit);
+    }
+
+    /**
+     * @param EntityMutableDTO $dto
+     * @param null $id
+     * @param bool $commit
+     * @return Entity
+     * @throws InvalidCallerException
+     * @throws NullColleagueException
      * @throws EntityMapperException
      */
-    public function find(int $id);
+    public function edit(EntityMutableDTO $dto, $id = null, $commit = true)
+    {
+        $mapper = $this->getMapperFromDtoClassName(get_class($dto));
+        return $mapper->edit($dto,$id,$commit);
+    }
 
     /**
-     * @return QueryBuilder
+     * @param EntityMutableDTO $dto
+     * @param null $id
+     * @param bool $commit
+     * @return Entity
+     * @throws InvalidCallerException
+     * @throws NullColleagueException
+     * @throws EntityMapperException
+     * @throws FactoryException
      */
-    public function getFindAllQB();
+    public function addOrEdit(EntityMutableDTO $dto, $id = null, $commit = true)
+    {
+        $mapper = $this->getMapperFromDtoClassName(get_class($dto));
+        if($dto->getId() < 1){
+            return $mapper->add($dto,$commit);
+        }
+        else{
+            return $mapper->edit($dto,$dto->getId(),$commit);
+        }
+    }
 
     /**
+     * @param string $dtoClassName
+     * @param int $id
+     * @return Entity
+     * @throws InvalidCallerException
+     * @throws EntityMapperException
+     */
+    public function find(string $dtoClassName,int $id)
+    {
+        $mapper = $this->getMapperFromDtoClassName($dtoClassName);
+        return $mapper->find($id);
+    }
+
+    /**
+     * @param string $dtoClassName
+     * @return \Doctrine\ORM\QueryBuilder
+     * @throws InvalidCallerException
+     */
+    public function getFindAllQB(string $dtoClassName)
+    {
+        $mapper = $this->getMapperFromDtoClassName($dtoClassName);
+        return $mapper->getFindAllQB();
+    }
+
+    /**
+     * @param string $dtoClassName
      * @param SearchBag|null $searchBag
-     * @return integer
+     * @return int
+     * @throws InvalidCallerException
      */
-    public function getCountBy(?SearchBag $searchBag);
+    public function getCountBy(string $dtoClassName,?SearchBag $searchBag)
+    {
+        $mapper = $this->getMapperFromDtoClassName($dtoClassName);
+        return $mapper->getCountBy($searchBag);
+    }
 
     /**
+     * @param string $dtoClassName
      * @param SearchBag|null $searchBag
      * @param int $count
      * @return array
-     */
-    public function searchBy(?SearchBag $searchBag,&$count=0);
-    /**
-     * @return Entity
-     */
-    public function findLast();
-
-    /**
-     * @param EntityMutableDTO $dto
-     * @param int|null $id
-     * @param boolean $commit
-     * @return Entity
-     * @throws EntityMapperException
-     * @throws NullColleagueException
      * @throws InvalidCallerException
      */
-    public function edit(EntityMutableDTO $dto,$id=null,$commit=true);
+    public function searchBy(string $dtoClassName,?SearchBag $searchBag, &$count = 0)
+    {
+        $mapper = $this->getMapperFromDtoClassName($dtoClassName);
+        return $mapper->searchBy($searchBag,$count);
+    }
 
     /**
+     * @param string $dtoClassName
+     * @return Entity
+     * @throws InvalidCallerException
+     */
+    public function findLast(string $dtoClassName)
+    {
+        $mapper = $this->getMapperFromDtoClassName($dtoClassName);
+        return $mapper->findLast();
+    }
+
+    /**
+     * @param string $dtoClassName
      * @param int $id
      * @return string
+     * @throws InvalidCallerException
      */
-    public function confirmDelete(int $id);
+    public function confirmDelete(string $dtoClassName,int $id)
+    {
+        $mapper = $this->getMapperFromDtoClassName($dtoClassName);
+        return $mapper->confirmDelete($id);
+    }
 
     /**
+     * @param string $dtoClassName
      * @param int $id
-     * @param boolean $commit
+     * @param bool $commit
+     * @throws InvalidCallerException
      * @throws EntityMapperException
      */
-    public function delete(int $id,$commit=true);
+    public function delete(string $dtoClassName,int $id, $commit = true)
+    {
+        $mapper = $this->getMapperFromDtoClassName($dtoClassName);
+        $mapper->delete($id,$commit);
+    }
+
+
 }

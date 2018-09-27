@@ -34,6 +34,9 @@ class GeoJsonNormalizer extends HNormalizer
 
     public function supportsDenormalization($data, $type, $format = null)
     {
+        if(!is_array($data) || count($data)!==1) return false;
+        if(!array_key_exists("value",$data)) return false;
+        $data = $data["value"];
         if(!is_array($data) || count($data)!==2) return false;
         if(!array_key_exists("type",$data) ||
             (!array_key_exists("coordinates",$data) && !array_key_exists("geometries",$data))){
@@ -161,6 +164,7 @@ class GeoJsonNormalizer extends HNormalizer
      */
     public function denormalize($data, $class, $format = null, array $context = array())
     {
+        $data = $data["value"];
         $value = strtoupper($data["type"]) ."(";
 
         if(isset($data["geometries"])){

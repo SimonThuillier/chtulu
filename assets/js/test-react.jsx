@@ -411,7 +411,7 @@ class SimpleExample extends React.Component {
                     .then(data => Object.assign(data,pin))
                     .then(data => Object.assign(data,formData))
                    // .then(data => console.log(data))
-                    .then(data => hb.util.server.post('resourceGeometry',data,{minimal:true,lol:{blop:true,blip:true}}))
+                    .then(data => hb.util.server.post('resourceGeometry',data,{minimal:true}))
                     .then(data =>{
                         pins[index] = data;
                         this.setState({

@@ -644,6 +644,7 @@
     {% for dto in dtoList() %}
         <div class="hb-dto-mapping" data-mapping="{{ dto|getMapping() }}" id="hb-mapping-{{ dto|getAbridgedName() }}"></div>
     {% endfor %}
+    <div data-token="{{ csrf_token("token_id") }}" id="hb-security-token"></div>
 {% endblock %}
 </div>
 

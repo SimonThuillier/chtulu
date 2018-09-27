@@ -17,7 +17,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class ArticleMapper extends AbstractEntityMapper implements EntityMapper
+class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterface
 {
     /**
      * ArticleMapper constructor.

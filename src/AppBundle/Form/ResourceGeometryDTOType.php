@@ -22,7 +22,7 @@ class ResourceGeometryDTOType extends AbstractType
         $builder->setMethod('POST');
 
         $builder
-            ->add('comment', FileType::class, array(
+            ->add('comment', TextType::class, array(
                 'required' => true
             ))
             ->add('targetGeometry', GeoJsonType::class, array(
@@ -34,10 +34,8 @@ class ResourceGeometryDTOType extends AbstractType
     {
         $resolver->setDefaults(array(
             'data_class' => ResourceGeometryDTO::class,
-            'attr' => array(
-                'target' => 'resource_post_upload_resource',
-            ),
-            'allow_extra_fields' => true
+            'allow_extra_fields' => true,
+            'csrf_protection' => false
         ));
     }
 }

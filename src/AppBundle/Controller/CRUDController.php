@@ -4,7 +4,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\DTO\ArticleDTO;
 use AppBundle\Factory\MediatorFactory;
-use AppBundle\Mapper\MapperRegistry;
+use AppBundle\Mapper\EntityMapper;
 use AppBundle\Serializer\DTONormalizer;
 use AppBundle\Utils\HJsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -60,7 +60,7 @@ class CRUDController extends Controller
             $hResponse->setStatus(HJsonResponse::ERROR)
                 ->setMessage($e->getMessage());
         }
-
+        ob_clean();
         return new JsonResponse(HJsonResponse::normalize($hResponse));
     }
 
@@ -68,7 +68,7 @@ class CRUDController extends Controller
      * @param Request $request
      * @param TraceableValidator $validator
      * @param FormFactory $formFactory
-     * @param MapperRegistry $mapperRegistry
+     * @param EntityMapper $mapper
      * @param MediatorFactory $mediatorFactory
      * @param DTONormalizer $normalizer
      * @param JsonEncoder $encoder
@@ -82,7 +82,7 @@ class CRUDController extends Controller
     public function postAction(Request $request,
                                TraceableValidator $validator,
                                FormFactory $formFactory,
-                               MapperRegistry $mapperRegistry,
+                               EntityMapper $mapper,
                                MediatorFactory $mediatorFactory,
                                DTONormalizer $normalizer,
                                JsonEncoder $encoder){
@@ -103,9 +103,8 @@ class CRUDController extends Controller
             $formClassName = self::FORM_NS . $type . 'DTOType';
 
             $entity = null;
-            $mapper = $mapperRegistry->getMapperByMediator($mediatorClassName);
             $id = intval($request->query->get("id"));
-            if($id > 1 ) $entity = $mapper->find($id);
+            if($id > 1 ) $entity = $mapper->find($dtoClassName,$id);
 
             $mediator = $mediatorFactory->create($mediatorClassName,$entity);
 
@@ -114,22 +113,24 @@ class CRUDController extends Controller
                 ->getForm();
 
             $form->submit($data);
-            $truc=$mediator->getDTO();
-            $errors = $this->get('validator')->validate($mediator->getDTO());
+            $dto=$mediator->getDTO();
+            $errors = $validator->validate($dto);
             if (! $form->isValid() || count($errors)>0)
             {
+                $la = $form->getErrors(true,false);
+                $lo = $this->isCsrfTokenValid('token_id',$data["_token"]);
                 throw new \Exception("Le formulaire contient des erreurs à corriger avant creation");
             }
+            $mapper->addOrEdit($dto);
 
             $hResponse
-                ->setMessage("OK")
-                ->setData(["content"=>$request->getContent(),"comment"=>$request->request->get("comment")]);
+                ->setMessage("Données enregistrées");
 //        }
 //        catch(\Exception $e){
 //            $hResponse->setStatus(HJsonResponse::ERROR)
 //                ->setMessage($e->getMessage());
 //        }
-
+        ob_clean();
         return new JsonResponse(HJsonResponse::normalize($hResponse));
     }
 }

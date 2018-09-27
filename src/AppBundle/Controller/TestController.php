@@ -26,6 +26,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 /**
  * Class TestController
  * @package AppBundle\Controller
+ * @Route("/test")
  */
 class TestController extends Controller
 {
