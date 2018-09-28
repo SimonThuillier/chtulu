@@ -10,6 +10,7 @@ namespace AppBundle\Serializer;
 
 
 use AppBundle\DTO\ArticleDTO;
+use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\Mediator\NotAvailableGroupException;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
@@ -41,8 +42,8 @@ class DTONormalizer extends HNormalizer
             $articleDTONormalizer,
             $typeNormalizer,
             $resourceDTONormalizer,
-            new HGetSetMethodNormalizer($classMetadataFactory),
             $ResourceGeometryDTONormalizer,
+            new HGetSetMethodNormalizer($classMetadataFactory),
             new ObjectNormalizer());
 
         parent::__construct($normalizers);
@@ -59,7 +60,7 @@ class DTONormalizer extends HNormalizer
     }
 
     /**
-     * @param ArticleDTO $object
+     * @param EntityMutableDTO $object
      * @param array|null $groups
      * @param array $context
      * @return array

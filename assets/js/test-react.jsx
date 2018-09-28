@@ -382,6 +382,15 @@ class SimpleExample extends React.Component {
 
 
     componentDidMount(){
+        hb.util.server.get('resourceGeometry',{minimal:true})
+            .then(data =>{
+                console.log("reception client");
+                data.rows.forEach((item) => this.onPinReception(item));
+                console.log(data);
+                this.setState({
+                    pins:data.rows
+                });
+            });
     }
 
     handleOnDeletePin(key){
@@ -402,18 +411,23 @@ class SimpleExample extends React.Component {
                 console.log(formData);
                 console.log(key);
                 let pins = this.state.pins.slice(0, this.state.pins.length);
-                let pin = pins.find(x => x.id === key);
                 let index = pins.findIndex(x => x.id === key);
-
+                let pin = pins[index];
                 console.log(pin);
 
-                hb.util.server.getNew('resourceGeometry')
-                    .then(data => Object.assign(data,pin))
-                    .then(data => Object.assign(data,formData))
-                   // .then(data => console.log(data))
-                    .then(data => hb.util.server.post('resourceGeometry',data,{minimal:true}))
+                hb.util.server.post('resourceGeometry',{minimal:true},pin,formData)
                     .then(data =>{
+                        console.log("reception client");
+                        console.log(data);
                         pins[index] = data;
+                        /*if(index !== data.id){
+                            pins.splice(index,1);
+                            pins[data.id] = data;
+                        }
+                        else{
+                            pins[index] = data;
+                        }*/
+                        console.log(pins);
                         this.setState({
                             pins:pins
                         });
@@ -438,8 +452,7 @@ class SimpleExample extends React.Component {
             .then(data =>{
                 data.targetGeometry = {};
                 data.targetGeometry.value = {type:"Point",coordinates:[latlng.lat,latlng.lng]};
-                data.finished = false;
-                data.marker = React.createRef();
+                this.onPinReception(data);
                 const pins = this.state.pins.slice(0, this.state.pins.length);
                 console.log(data);
                 this.setState({
@@ -448,10 +461,17 @@ class SimpleExample extends React.Component {
             });
     }
 
+    onPinReception(data){
+        data.finished = false;
+        data.marker = React.createRef();
+    }
+
     updatePosition(key){
         return function() {
             let pins = this.state.pins.slice(0, this.state.pins.length);
             let pin = pins.find(x => x.id === key);
+
+            console.log(pin);
 
             if(!pin.marker || !pin.marker.current || !pin.marker.current.leafletElement) return;
             const { lat, lng } = pin.marker.current.leafletElement.getLatLng();

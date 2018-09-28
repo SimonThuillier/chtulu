@@ -9,7 +9,7 @@
 namespace AppBundle\Form;
 
 use AppBundle\DTO\ResourceGeometryDTO;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -22,6 +22,9 @@ class ResourceGeometryDTOType extends AbstractType
         $builder->setMethod('POST');
 
         $builder
+            ->add('id', NumberType::class, array(
+                'required' => true
+            ))
             ->add('comment', TextType::class, array(
                 'required' => true
             ))

@@ -48,15 +48,6 @@ class GeoJsonNormalizer extends HNormalizer
     }
 
     /**
-     * @param string $data
-     * @return bool
-     */
-    private function stringSupportsNormalization(string $data):bool
-    {
-        return (is_scalar($data) && preg_match($this->normRegex, trim($data)) == 1);
-    }
-
-    /**
      * @param mixed $data
      * @param array|null $groups
      * @param array $context
@@ -66,6 +57,7 @@ class GeoJsonNormalizer extends HNormalizer
     public function normalize($data,$groups=null,array $context=[])
     {
         if(is_object($data)) $data = $data->getValue();
+        if($data === null || $data === "") return null;
         $normalization = ["type"=>null];
         $greatRegex = "#^(?<type>[[:alpha:]]*)\((?<coordinates>[\d|\.|\-|\s|[:space:]|\,]+)\)$#";
         $greatRegex = "#^(?<type>[[:alpha:]]*)\((?<sub>.+)\)$#";
@@ -92,7 +84,7 @@ class GeoJsonNormalizer extends HNormalizer
             }
         }
 
-        return $normalization;
+        return ["value" => $normalization];
     }
 
     private function normalizeCoordinates($data,$depth=1){

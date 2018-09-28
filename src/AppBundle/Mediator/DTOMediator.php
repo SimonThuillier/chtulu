@@ -12,7 +12,7 @@ namespace AppBundle\Mediator;
 use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\Entity\DTOMutableEntity;
 use AppBundle\Factory\MediatorFactory;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\ServiceSubscriberInterface;
 
 abstract class DTOMediator implements ServiceSubscriberInterface
@@ -103,7 +103,7 @@ abstract class DTOMediator implements ServiceSubscriberInterface
         $this->entity = $entity;
         if($this->entity !== null) $this->entity->setMediator($this);
         $this->pendingSetEntity = false;
-        return $this->resetChangedProperties();
+        return $this;
     }
 
     /**
@@ -163,6 +163,7 @@ abstract class DTOMediator implements ServiceSubscriberInterface
         if ($groups === null) $groups = $this->getAvailableGroups();
         foreach($groups as $k => $v){
             if(is_numeric($k)) $this->mapDTOGroup($v,$mode);
+            elseif(is_string($k) && is_bool($v)) $this->mapDTOGroup($k,$mode);
             elseif(is_string($k) && is_array($v)) $this->mapDTOGroup($k,$mode,$v);
             else throw new NotAvailableGroupException(
                 "Groups elements must be either a string or a string referencing an array of subgroups");

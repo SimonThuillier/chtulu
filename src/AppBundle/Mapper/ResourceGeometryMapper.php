@@ -55,11 +55,11 @@ class ResourceGeometryMapper extends AbstractEntityMapper implements EntityMappe
     public function add(EntityMutableDTO $dto,$commit=true)
     {
         $this->checkAdd($dto);
-        /** @var ResourceGeometry $file */
-        $file = $this->defaultAdd($dto);
+        /** @var ResourceGeometry $geo */
+        $geo = $this->defaultAdd($dto);
 
         if($commit) $this->getManager()->flush();
-        return $file;
+        return $geo;
     }
 
     /**
@@ -73,11 +73,11 @@ class ResourceGeometryMapper extends AbstractEntityMapper implements EntityMappe
     public function edit(EntityMutableDTO $dto,$id=null,$commit=true)
     {
         $this->checkEdit($dto,$id);
-        /** @var ResourceGeometry $file */
-        $file = $this->defaultEdit($dto,$id);
+        /** @var ResourceGeometry $geo */
+        $geo = $this->defaultEdit($dto,$id);
 
         if($commit) $this->getManager()->flush();
-        return $file;
+        return $geo;
     }
 
 

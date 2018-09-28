@@ -20,7 +20,7 @@ use AppBundle\Mediator\InvalidCallerException;
 use AppBundle\Mediator\NullColleagueException;
 use AppBundle\Utils\SearchBag;
 use Doctrine\ORM\Mapping\Entity;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\ServiceSubscriberInterface;
 
 class EntityMapper implements ServiceSubscriberInterface
@@ -29,7 +29,7 @@ class EntityMapper implements ServiceSubscriberInterface
     private $locator;
 
     /**
-     * EntityFactory constructor.
+     * EntityMapper constructor.
      * @param ContainerInterface $locator
      */
     public function __construct(ContainerInterface $locator)
@@ -46,6 +46,7 @@ class EntityMapper implements ServiceSubscriberInterface
             ArticleDTO::class => ArticleMapper::class,
             ResourceImageDTO::class => ResourceFileMapper::class,
             ResourceGeometryDTO::class => ResourceGeometryMapper::class,
+            'lala' => ResourceGeometryMapper::class,
             ResourceDTO::class => ResourceMapper::class,
             ResourceVersionDTO::class => ResourceVersionMapper::class,
         ];
@@ -53,16 +54,18 @@ class EntityMapper implements ServiceSubscriberInterface
 
     /**
      * @param string $dtoClassName
-     * @return EntityMapperInterface|object
+     * @return EntityMapperInterface
      * @throws InvalidCallerException
      */
     private function getMapperFromDtoClassName(string $dtoClassName){
-        if(!$this->locator->has($dtoClassName)){
+        if($this->locator->has($dtoClassName)){
+            /** @var EntityMapperInterface $mapper */
+            $mapper = $this->locator->get($dtoClassName);
+            return $mapper;
+        }
+        else{
             throw new InvalidCallerException("Mapper isn't configured for class " . $dtoClassName);
         }
-        /** @var EntityMapperInterface $mapper */
-        $mapper = $this->locator->get($dtoClassName);
-        return $mapper;
     }
 
     /**
@@ -107,6 +110,8 @@ class EntityMapper implements ServiceSubscriberInterface
     public function addOrEdit(EntityMutableDTO $dto, $id = null, $commit = true)
     {
         $mapper = $this->getMapperFromDtoClassName(get_class($dto));
+        $la = $dto->getId();
+        $lo = "truc";
         if($dto->getId() < 1){
             return $mapper->add($dto,$commit);
         }

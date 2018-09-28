@@ -14,7 +14,7 @@ use AppBundle\DTO\ResourceDTO;
 use AppBundle\DTO\ResourceGeometryDTO;
 use AppBundle\DTO\ResourceImageDTO;
 use AppBundle\DTO\ResourceVersionDTO;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\ServiceSubscriberInterface;
 
 class DTOFactory implements ServiceSubscriberInterface
@@ -56,15 +56,15 @@ class DTOFactory implements ServiceSubscriberInterface
             throw new FactoryException('Class ' . $className . ' doesn\'t exists');
         }
         // !array_key_exists($className,self::getSubscribedServices())
-        if (!array_key_exists($className,self::getSubscribedServices())) {
+        if (!$this->locator->has($className)) {
             throw new FactoryException('This factory isn\'t configured to create a ' . $className);
         }
         /** @var AbstractEntityFactory $specializedFactory */
-        $specializedFactory = $this->locator->get(self::getSubscribedServices()[$className]);
-        if($specializedFactory->getProductClassName() !== $className){
+        $specializedFactory = $this->locator->get($className);
+        /*if($specializedFactory->getProductClassName() !== $className){
             throw new FactoryException('Configuration error detected : ' . $className .
                 ' is asked but ' . $specializedFactory->getProductClassName() . ' would be returned');
-        }
+        }*/
 
         return $specializedFactory->create();
     }

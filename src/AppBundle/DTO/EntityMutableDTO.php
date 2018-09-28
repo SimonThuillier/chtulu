@@ -57,4 +57,12 @@ abstract class EntityMutableDTO {
         return $this->groups;
     }
 
+    /**
+     * when a post is done on a DTO we send back minimal groups to get the new id
+     * @return array
+     */
+    public function getReturnGroups(){
+        return [];
+    }
+
 }

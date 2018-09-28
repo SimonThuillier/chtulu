@@ -4,6 +4,7 @@
  * */
 
 let urls = {
+    crud_get : document.getElementById('hb-url-crud-get').getAttribute('data-url'),
     crud_get_new : document.getElementById('hb-url-crud-get-new').getAttribute('data-url'),
     crud_post : document.getElementById('hb-url-crud-post').getAttribute('data-url')
 };
@@ -153,6 +154,70 @@ let idGenerators = {};
 module.exports =
     {
         /**
+         * @param search
+         * @param sort
+         * @param order
+         * @param offset
+         * @param limit
+         * @returns object
+         */
+        createSearchBag : function(search={},sort='id',order='DESC',offset=0,limit=100){
+            return {
+                search : search,
+                sort : sort,
+                order : order,
+                offset : offset,
+                limit : limit
+            }
+        },
+        /**
+         * @param type
+         * @param searchBag
+         * @param groups
+         * @returns {Promise<any>}
+         */
+        get : function(type,groups=true,searchBag=null){
+            return new Promise((resolve,reject) => {
+                //throw new Error("what ?");
+                if(searchBag === null) searchBag = this.createSearchBag();
+                let url = buildGetUrl(urls.crud_get,{
+                    type:type,
+                    searchBag:JSON.stringify(searchBag),
+                    groups:JSON.stringify(groups)
+                });
+
+                let headers = new Headers();
+                headers.append('Content-Type', 'application/json');
+
+                let requestProps = { method: 'GET',
+                    headers: new Headers(),
+                    credentials:'same-origin',
+                    mode: 'same-origin',
+                    cache: 'default' };
+
+                return fetchWithTimeout(url,requestProps,TIMEOUT)
+                    .then(response => {console.log(response);
+                        return response.json();})
+                    .then(hResponse => {
+                        console.log(hResponse);
+                        console.log("posted");
+                        if(hResponse.status === 'success'){
+                            if(typeof prototypes[type] !== 'undefined'){
+                                hResponse.rows.forEach(function(item){
+                                    Object.setPrototypeOf(item,prototypes[type]);
+                                });
+                            }
+                            resolve(hResponse);
+                        }
+                        else{
+                            reject(new Error(hResponse.message));
+                        }
+                    })
+                    .catch((error) => reject(error))
+                    ;
+            });
+        },
+        /**
          * @param type
          * @return Promise
          */
@@ -206,25 +271,17 @@ module.exports =
         /**
          * @param type
          * @param object
+         * @param newData
          * @param groups
          * @returns {Promise<any>}
          */
-        post : function(type,object,groups=true){
+        post : function(type,groups=true,object,newData=null){
             console.log(object);
             return new Promise((resolve,reject) => {
-
                 let url = buildGetUrl(urls.crud_post,{type:type});
 
-
-                // to ensure that server only receives what it is able to understand, eg
-                // what it already sent to our client we remove keys that have no correspondences
-                // with the new object of this type key
-                /*let newObject = null;
-                if(typeof newObjects[type] !== 'undefined' || newObjects[type]!==null){
-                    newObject = newObjects[type];
-                }*/
-
                 let partial = object.getPartial(groups);
+                if(newData !== null) Object.assign(partial,newData);
                 partial.postedGroups = groups;
                 partial._token = _token;
 
@@ -241,23 +298,23 @@ module.exports =
                 console.log(requestProps.body);
 
                 return fetchWithTimeout(url,requestProps,TIMEOUT)
-                    .then(response => {//console.log(response);
-                    return response.json();})
+                    .then(response => {console.log(response);
+                        return response.json();})
                     .then(hResponse => {
                         console.log(hResponse);
                         console.log("posted");
                         if(hResponse.status === 'success'){
                             console.log(hResponse.data);
-                            resolve(hResponse.data);
+                            Object.assign(object,newData);
+                            Object.assign(object,hResponse.data);
+                            resolve(object);
                         }
                         else{
                             reject(new Error(hResponse.message));
                         }
                     })
                     .catch((error) => reject(error))
-                ;
-
+                    ;
             });
-
         }
     };

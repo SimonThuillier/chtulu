@@ -134,4 +134,8 @@ class ResourceGeometryDTO extends EntityMutableDTO
         $this->urlBag = $urlBag;
         return $this;
     }
+
+    public function getReturnGroups(){
+        return ["minimal"];
+    }
 }

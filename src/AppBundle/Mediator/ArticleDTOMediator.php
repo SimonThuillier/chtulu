@@ -21,7 +21,7 @@ use AppBundle\Serializer\HDateNormalizer;
 use AppBundle\Utils\HDate;
 use AppBundle\Utils\UrlBag;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Router;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;

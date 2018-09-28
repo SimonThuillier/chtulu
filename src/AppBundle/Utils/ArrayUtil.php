@@ -24,4 +24,33 @@ class ArrayUtil
         }
         return $resultArray;
     }
+
+    public static function filter(array $sourceArray,?array $filterArray){
+        if($filterArray === null) return $sourceArray;
+        $returnArray = [];
+        foreach($filterArray as $k => $v){
+            if(is_numeric($k)){
+                if(in_array($v,$sourceArray)){
+                    $returnArray[] = $v;
+                }
+                elseif(array_key_exists($v,$sourceArray)){
+                    $returnArray[$v] = $sourceArray[$v];
+                }
+            }
+            elseif(is_string($k)) {
+                if(in_array($k,$sourceArray)){
+                    $returnArray[] = $k;
+                }
+                elseif(array_key_exists($k,$sourceArray)){
+                    if(is_array($sourceArray[$k]) && is_array($filterArray[$k])){
+                        $returnArray[$k] = self::filter($sourceArray[$k],$filterArray[$k]);
+                    }
+                    else{
+                        $returnArray[$k] = $sourceArray[$k];
+                    }
+                }
+            }
+        }
+        return $returnArray;
+    }
 }
