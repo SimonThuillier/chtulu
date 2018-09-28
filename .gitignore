@@ -35,7 +35,10 @@ hresources/*
 web/geo/
 
 web/tiles/
-
+web/tiles/*
+web/tiles/*/*
+web/tiles/*/*/*
+web/tiles/*/*/*/*
 node_modules/
 node_modules/*
 package-lock\.json
@@ -47,3 +50,4 @@ web/build/images/
 web/build/
 
 bin/\.web-server-pid
+yarn.lock
