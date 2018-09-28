@@ -37,7 +37,7 @@ web/geo/
 web/tiles/
 
 node_modules/
-
+node_modules/*
 package-lock\.json
 
 web/build/fonts/
