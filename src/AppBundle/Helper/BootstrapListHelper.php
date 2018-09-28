@@ -10,7 +10,7 @@ namespace AppBundle\Helper;
 
 
 use AppBundle\Serializer\HNormalizer;
-use AppBundle\Serializer\SerializationException;
+use AppBundle\Utils\HJsonResponse;
 
 class BootstrapListHelper
 {
@@ -23,7 +23,7 @@ class BootstrapListHelper
      */
     public static function getNormalizedListData($objects,$serializer,$groups,$count=null)
     {
-        $data = ["total"=>0,"rows"=>[]];
+        $data = ["status"=>HJsonResponse::SUCCESS,"total"=>0,"rows"=>[]];
         if($objects == null || count($objects) === 0) return $data;
 
         foreach($objects as $object){

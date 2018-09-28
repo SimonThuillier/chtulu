@@ -23,6 +23,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ResourceDTOMediator extends DTOMediator
 {
+    const DTO_CLASS_NAME = ResourceDTO::class;
+    const ENTITY_CLASS_NAME = HResource::class;
 
     /**
      * ResourceDTOMediator constructor.
@@ -31,8 +33,8 @@ class ResourceDTOMediator extends DTOMediator
     public function __construct(ContainerInterface $locator)
     {
         parent::__construct($locator);
-        $this->entityClassName = HResource::class;
-        $this->dtoClassName = ResourceDTO::class;
+        $this->dtoClassName = self::DTO_CLASS_NAME;
+        $this->entityClassName = self::ENTITY_CLASS_NAME;
         $this->groups = ['minimal','activeVersion','activeImage','versions'];
     }
 

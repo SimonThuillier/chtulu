@@ -6,6 +6,7 @@ use AppBundle\Entity\ArticleType;
 use AppBundle\Repository\ArticleTypeRepository;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Debug\Exception\UndefinedMethodException;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -40,7 +41,9 @@ class ArticleDTOType extends AbstractType
         foreach($options['validation_groups'] as $group){
             if($group === 'url') continue;
             $function = 'build' . ucfirst($group) . 'Group';
-            $this->$function($builder,$options);
+            if(method_exists($this,$function)){
+                $this->$function($builder,$options);
+            }
         }
     }
 

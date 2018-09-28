@@ -19,6 +19,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ResourceVersionDTOMediator extends DTOMediator
 {
+    const DTO_CLASS_NAME = ResourceVersionDTO::class;
+    const ENTITY_CLASS_NAME = ResourceVersion::class;
+
     /** @var FileRouter */
     private $fileRouter;
     /**
@@ -28,8 +31,8 @@ class ResourceVersionDTOMediator extends DTOMediator
     public function __construct(ContainerInterface $locator)
     {
         parent::__construct($locator);
-        $this->entityClassName = ResourceVersion::class;
         $this->dtoClassName = ResourceVersionDTO::class;
+        $this->entityClassName = ResourceVersion::class;
         $this->groups = ['minimal','urlDetailThumbnail','urlMini'];
     }
 

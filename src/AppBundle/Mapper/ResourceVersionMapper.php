@@ -20,7 +20,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class ResourceVersionMapper extends AbstractEntityMapper implements EntityMapper
+class ResourceVersionMapper extends AbstractEntityMapper implements EntityMapperInterface
 {
     /** @var FileUploader */
     private $uploader;

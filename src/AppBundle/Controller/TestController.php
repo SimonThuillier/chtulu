@@ -2,6 +2,9 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\DTO\EntityMutableDTO;
+use AppBundle\Factory\DTOFactory;
+use AppBundle\Helper\DTOHelper;
 use AppBundle\Mediator\ArticleDTOMediator;
 use AppBundle\Mediator\NotAvailableGroupException;
 use AppBundle\Mediator\NullColleagueException;
@@ -20,6 +23,11 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 
+/**
+ * Class TestController
+ * @package AppBundle\Controller
+ * @Route("/test")
+ */
 class TestController extends Controller
 {
 
@@ -128,5 +136,21 @@ class TestController extends Controller
                 'datedate' => $date
             )
         ));
+    }
+
+    /**
+     * @Route("/dtos-mapping", name="test_dtos_mapping")
+     * @throws \Exception
+     * @Template()
+     */
+    public function dtosMappingAction(Request $request,
+                                      DTOHelper $DTOHelper)
+    {
+        $dtoClasses = $DTOHelper->getDTOClassNames();
+        $dtosMapping=[];
+        foreach($dtoClasses as $class){
+            $dtosMapping[] = ["arg"=>$class,"result" => json_encode($DTOHelper->getDTOMapping($class))];
+        }
+        return array("dtosMapping"=>$dtosMapping);
     }
 }

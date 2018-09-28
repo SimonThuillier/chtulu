@@ -14,6 +14,7 @@ use AppBundle\Form\HFileUploadType;
 use AppBundle\Manager\File\FileRouter;
 use AppBundle\Mapper\ResourceMapper;
 use AppBundle\Mediator\ResourceDTOMediator;
+use AppBundle\Serializer\GeoJsonNormalizer;
 use AppBundle\Serializer\ResourceDTONormalizer;
 use AppBundle\Utils\HJsonResponse;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
@@ -139,6 +140,67 @@ class ResourceController extends Controller
 
         return $this->redirect($router->getVersionRoute($version,$filter));
     }
+
+    /**
+     * @param Request $request
+     * @param MediatorFactory $mediatorFactory
+     * @param ResourceMapper $mapper
+     * @param ResourceDTONormalizer $normalizer
+     * @Route("/post-geometry",name="resource_post_create_geometry")
+     * @Method({"POST"})
+     * @throws \Exception
+     * @return JsonResponse
+     */
+    public function postCreateGeometryAction(Request $request,
+                                          MediatorFactory $mediatorFactory,
+                                          ResourceMapper $mapper,
+                                          GeoJsonNormalizer $normalizer)
+    {
+        $groups = ['minimal','activeImage'=>['minimal']];
+
+        $mediator = $mediatorFactory->create(ResourceDTOMediator::class);
+
+        /** @var ResourceDTO $resourceDto */
+        $resourceDto = $mediator
+            ->mapDTOGroups(array_merge($groups,[]))
+            ->getDTO();
+        /** @var ResourceVersionDTO $versionDto */
+        $versionDto = $resourceDto->getActiveVersion()->setName(null);
+
+        $form = $this->get('form.factory')
+            ->createBuilder(HFileUploadType::class,$versionDto)
+            ->getForm();
+
+        $mediator->resetChangedProperties();
+        $hResponse = new HJsonResponse();
+        $errors=[];
+        try{
+            $form->handleRequest($request);
+            $versionDto->setName($request->get('name'));
+            $resourceDto->setName($request->get('name'));
+            $errors = $this->get('validator')->validate($versionDto);
+            if (! $form->isValid() || count($errors)>0)
+            {
+                throw new \Exception("Le formulaire contient des erreurs à corriger avant chargement");
+            }
+            $mapper->add($resourceDto);
+
+            $mediator->mapDTOGroups(["minimal",'activeImage'=>['minimal',"urlMini","urlDetailThumbnail"]]);
+            $hResponse->setMessage("Le fichier a bien été chargé")
+                ->setData($normalizer->normalize($resourceDto,['minimal',"activeVersion"=>["urlMini","minimal","urlDetailThumbnail"]
+                ]))
+                ->setStatus(HJsonResponse::SUCCESS);
+        }
+        catch(\Exception $e){
+            $hResponse->setStatus(HJsonResponse::ERROR)
+                ->setMessage($e->getMessage())
+                ->setErrors(HJsonResponse::normalizeFormErrors($errors));
+        }
+
+        return new JsonResponse(HJsonResponse::normalize($hResponse));
+    }
+
+
 
 
 

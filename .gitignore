@@ -31,3 +31,19 @@ app/config/hresources\.yml
 web/media/*
 
 hresources/*
+
+web/geo/
+
+web/tiles/
+
+node_modules/
+
+package-lock\.json
+
+web/build/fonts/
+
+web/build/images/
+
+web/build/
+
+bin/\.web-server-pid

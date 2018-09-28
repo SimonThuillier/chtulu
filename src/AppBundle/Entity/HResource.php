@@ -4,6 +4,7 @@ namespace AppBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\CustomIdGenerator;
 
 /**
  * Resource
@@ -16,9 +17,10 @@ class HResource extends DTOMutableEntity
     /**
      * @var int
      *
-     * @ORM\Column(name="id", type="integer")
+     * @ORM\Column(name="id", type="bigint")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @CustomIdGenerator
      */
     private $id;
 

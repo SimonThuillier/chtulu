@@ -8,10 +8,20 @@
 
 namespace AppBundle\Factory;
 
+use AppBundle\DTO\ArticleDTO;
 use AppBundle\DTO\EntityMutableDTO;
+use AppBundle\DTO\ResourceDTO;
+use AppBundle\DTO\ResourceGeometryDTO;
+use AppBundle\DTO\ResourceImageDTO;
+use AppBundle\DTO\ResourceVersionDTO;
 use AppBundle\Entity\DTOMutableEntity;
+use AppBundle\Mediator\ArticleDTOMediator;
 use AppBundle\Mediator\DTOMediator;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use AppBundle\Mediator\ResourceDTOMediator;
+use AppBundle\Mediator\ResourceGeometryDTOMediator;
+use AppBundle\Mediator\ResourceVersionDTOMediator;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ServiceSubscriberInterface;
 
 class MediatorFactory implements ServiceSubscriberInterface
@@ -35,7 +45,11 @@ class MediatorFactory implements ServiceSubscriberInterface
     {
         return [
             EntityFactory::class,
-            DTOFactory::class
+            DTOFactory::class,
+            ArticleDTO::class => ArticleDTOMediator::class,
+            ResourceDTO::class =>  ResourceDTOMediator::class,
+            ResourceVersionDTO::class => ResourceVersionDTOMediator::class,
+            ResourceGeometryDTO::class => ResourceGeometryDTOMediator::class
         ];
     }
 
@@ -53,11 +67,17 @@ class MediatorFactory implements ServiceSubscriberInterface
         if (!class_exists($className)) {
             throw new FactoryException('Class ' . $className . ' doesn\'t exists');
         }
-        if (strpos(strtoupper($className),"MEDIATOR") === false) {
-            throw new FactoryException('Class ' . $className . ' isn\'t a valid mediator class');
+        if (!$this->locator->has($className)) {
+            throw new FactoryException('This factory isn\'t configured to create a ' . $className . 'Mediator');
         }
+
+
+        /*if (strpos(strtoupper($className),"MEDIATOR") === false) {
+            throw new FactoryException('Class ' . $className . ' isn\'t a valid mediator class');
+        }*/
         /** @var DTOMediator $mediator */
-        $mediator = new $className($this->locator);
+        $mediatorClassName = self::getSubscribedServices()[$className];
+        $mediator = new $mediatorClassName(new Container());
 
         if ($entity === null && $mode === DTOMediator::CREATE_IF_NULL){
             $entity = $this->locator->get(EntityFactory::class)->create($mediator->getEntityClassName());
@@ -66,7 +86,7 @@ class MediatorFactory implements ServiceSubscriberInterface
             throw new FactoryException('The provided Entity is null');
         }
         if ($dto === null && $entity !== null){
-            $dto = $this->locator->get(DtoFactory::class)->create($mediator->getDtoClassName());
+            $dto = $this->locator->get(DTOFactory::class)->create($mediator->getDtoClassName());
         }
         $mediator->setEntity($entity)->setDTO($dto);
 

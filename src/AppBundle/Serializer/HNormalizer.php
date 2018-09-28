@@ -87,9 +87,9 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
         if (!$groups || count($groups) === 0) return null;
         $flattenGroups = ArrayUtil::flatten($groups,$subGroups);
         foreach($subGroups as $k => $v){
-            if(! is_array($v)){
+            if(! is_array($v) && ! is_bool($v)){
                 throw new NotAvailableGroupException(
-                    "Groups elements must either be a string or a string key referencing an array of subgroups");
+                    "Groups elements must either be a string or a string key pointing to a boolean or an array of subgroups");
             }
             /*else if(! array_key_exists($k,$this->subGroupables)){
                 throw new NotAvailableGroupException(

@@ -20,7 +20,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class ResourceMapper extends AbstractEntityMapper implements EntityMapper
+class ResourceMapper extends AbstractEntityMapper implements EntityMapperInterface
 {
     /** @var ResourceVersionMapper */
     private $versionMapper;

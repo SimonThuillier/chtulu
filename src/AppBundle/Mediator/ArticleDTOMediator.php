@@ -21,7 +21,7 @@ use AppBundle\Serializer\HDateNormalizer;
 use AppBundle\Utils\HDate;
 use AppBundle\Utils\UrlBag;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Router;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -29,6 +29,8 @@ use Symfony\Component\Validator\Constraints\DateTime;
 
 class ArticleDTOMediator extends DTOMediator
 {
+    const DTO_CLASS_NAME = ArticleDTO::class;
+    const ENTITY_CLASS_NAME = Article::class;
 
     /**
      * ArticleDTOMediator constructor.
@@ -39,8 +41,8 @@ class ArticleDTOMediator extends DTOMediator
         parent::__construct($locator);
         $this->groups = ['minimal','abstract','date','type','url',
             'detailImage','detailImageUrl','subArticles','hteRange'];
-        $this->entityClassName = Article::class;
-        $this->dtoClassName = ArticleDTO::class;
+        $this->dtoClassName = self::DTO_CLASS_NAME;
+        $this->entityClassName = self::ENTITY_CLASS_NAME;
     }
 
     /**

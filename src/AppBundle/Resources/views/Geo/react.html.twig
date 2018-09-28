@@ -1,0 +1,118 @@
+{% extends "base.html.twig" %}
+
+
+{% block title %}
+Tests React
+{% endblock %}
+
+
+
+
+
+{% block stylesheets %}
+    <style>
+        body {
+            font: 14px "Century Gothic", Futura, sans-serif;
+            margin: 20px;
+        }
+
+        ol, ul {
+            padding-left: 30px;
+        }
+
+        .board-row:after {
+            clear: both;
+            content: "";
+            display: table;
+        }
+
+        .status {
+            margin-bottom: 10px;
+        }
+
+        .square {
+            background: #fff;
+            border: 1px solid #999;
+            float: left;
+            font-size: 24px;
+            font-weight: bold;
+            line-height: 34px;
+            height: 34px;
+            margin-right: -1px;
+            margin-top: -1px;
+            padding: 0;
+            text-align: center;
+            width: 34px;
+        }
+
+        .square:focus {
+            outline: none;
+        }
+
+        .kbd-navigation .square:focus {
+            background: #ddd;
+        }
+
+        .game {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .game-info {
+            margin-left: 20px;
+        }
+
+        .map{
+            width: 960px;
+            height: 500px;
+        }
+
+        .leaflet-container {
+            width: 960px !important;
+            height: 500px !important;
+        }
+    </style>
+{% endblock %}
+
+
+{%  block content %}
+<p>Page de tests React  {{ cmd }}</p>
+
+    <div id="menu"></div>
+
+    <div id="game"></div>
+
+    {#<div id="map" class="mapsdv"></div>#}
+
+    <div id="map2" class="map"></div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ asset('build/test-react.js') }}"></script>
+
+    <script type="text/javascript">
+
+        // console.log('why ?');
+        //
+        //
+        // let map = new L.Map("map", {center: [48.845, 2.29], zoom: 6,drawControl:true})
+        //     .addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        //     ));
+        //
+        // var mapBounds = new L.LatLngBounds(
+        //     new L.LatLng(-85.05112878, -179.99999738),
+        //     new L.LatLng(85.05112878, 179.99953284));
+        // var mapMinZoom = 0;
+        // var mapMaxZoom = 8;
+        //
+        // let geoUrl = 'http://localhost:8000/tiles/{z}/{x}/{y}.png';
+        //
+        // L.tileLayer(geoUrl, {
+        //     minZoom: mapMinZoom, maxZoom: mapMaxZoom,
+        //     bounds: mapBounds,
+        //     opacity: 0.85
+        // }).addTo(map);
+
+
+    </script>
+{% endblock %}
