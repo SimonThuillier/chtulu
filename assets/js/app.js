@@ -34,31 +34,6 @@ require('fastclick/lib/fastclick.js');
 require('bootstrap-table/dist/bootstrap-table.js');
 require('icheck');
 
-
-// import the function from greet.js (the .js extension is optional)
-// ./ (or ../) means to look for a local file
-// hb = {util:{
-//         cmn : require('./hb/util/common.js'),
-//         trans : require('./hb/util/translation.js'),
-//         date : require('./hb/util/date.js'),
-//         symfony : require('./hb/util/symfony.js'),
-//         dto : require('./hb/util/dto.js'),
-//         geom : require('./hb/util/geometry.js'),
-//         HDate : require('./hb/util/HDate.js'),
-//         HTimeGrad : require('./hb/util/HTimeGrad.js'),
-//         HTimeRange : require('./hb/util/HTimeRange.js'),
-//     },
-//     ui:{
-//         misc : require('./hb/ui/misc.js'),
-//         FormBuilder : require('./hb/ui/FormBuilder.js'),
-//         SfFormMediator : require('./hb/ui/SfFormMediator.js'),
-//         HDatePicker : require('./hb/ui/HDatePicker.js'),
-//         detailBuilder : require('./hb/ui/detailBuilder.js'),
-//         detailMediator : require('./hb/ui/detailMediator.js'),
-//         HModal : require('./hb/ui/HModal.js'),
-//         manager : require('./hb/ui/manager.js')
-//     }
-// };
 hb = {util:{},ui:{}};
 hb.util.cmn = require('./hb/util/common.js');
 hb.util.trans = require('./hb/util/translation.js');
@@ -71,6 +46,7 @@ hb.util.HTimeGrad = require('./hb/util/HTimeGrad.js');
 hb.util.HTimeRange = require('./hb/util/HTimeRange.js');
 hb.util.server = require('./hb/util/server.js');
 
+
 hb.ui.misc = require('./hb/ui/misc.js');
 hb.ui.FormBuilder = require('./hb/ui/FormBuilder.js');
 hb.ui.SfFormMediator = require('./hb/ui/SfFormMediator.js');
@@ -81,7 +57,6 @@ hb.ui.HModal = require('./hb/ui/HModal.js');
 hb.ui.HTimeExplorer = require('./hb/ui/HTimeExplorer.js');
 hb.ui.HResourcePicker= require('./hb/ui/HResourcePicker.js');
 hb.ui.manager = require('./hb/ui/manager.js');
-
 
 
 

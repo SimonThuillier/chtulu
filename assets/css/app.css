@@ -1,5 +1,15 @@
 @CHARSET "ISO-8859-1";
 
+div.wrapper {
+    position:absolute;
+    top:0;
+    left:0;
+    height: 100%;
+    width:100%;
+    min-height: 100%;
+    min-width: 100%;
+}
+
 div.hts-container {
     background-color: powderblue;
     min-width: 200px;

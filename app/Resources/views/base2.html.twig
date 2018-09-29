@@ -2,25 +2,37 @@
 <html lang="en">
 <head>
     {% block head %}
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>{% block title %}HistoricaBase | Blank Page 2{% endblock %}</title>
-    <!-- Tell the browser to be responsive to screen width -->
-    <meta
-            content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
-            name="viewport">
-    <!-- css assets : bootstrap (3.3.6), AdminLTE (2.3.11), font awesome(4.7.0) and ionicons(2.0.1) -->
-    <!-- AdminLTE Skins. Choose a skin from the css/skins
-           folder instead of downloading all of them to reduce the load. -->
-    <link rel="stylesheet" href="{{ asset('build/app.css') }}" />
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>{% block title %}HistoricaBase | Blank Page 2{% endblock %}</title>
+        <meta
+                content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+                name="viewport">
+        <link rel="stylesheet" href="{{ asset('build/app.css') }}" />
 
 
 
 
-    {% block stylesheets %}
+        {% block stylesheets %}
+        {% endblock %}
     {% endblock %}
 </head>
-<body>
-
+<body class ="hold-transition skin-blue sidebar-mini">
+<div id="hb-wrapper" class="hold-transition skin-blue sidebar-mini"></div>
 </body>
+<div id="hb-data" hidden>
+    {% block data %}
+        <div data-url="{{ url('crud_get') }}" id="hb-url-crud-get"></div>
+        <div data-url="{{ url('crud_get_new') }}" id="hb-url-crud-get-new"></div>
+        <div data-url="{{ url('crud_post') }}" id="hb-url-crud-post"></div>
+        {% for dto in dtoList() %}
+            <div class="hb-dto-mapping" data-mapping="{{ dto|getMapping() }}" id="hb-mapping-{{ dto|getAbridgedName() }}"></div>
+        {% endfor %}
+        <div data-token="{{ csrf_token("token_id") }}" id="hb-security-token"></div>
+    {% endblock %}
+</div>
+<script src="{{ asset('build/app.js') }}"></script>
+<script src="{{ asset('build/layout-react.js') }}"></script>
+{% block javascript %}
+{% endblock %}
 </html>

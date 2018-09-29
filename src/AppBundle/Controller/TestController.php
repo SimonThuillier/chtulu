@@ -153,4 +153,14 @@ class TestController extends Controller
         }
         return array("dtosMapping"=>$dtosMapping);
     }
+
+    /**
+     * @Route("/react-router", name="test_react_router")
+     * @throws \Exception
+     * @Template()
+     */
+    public function reactRouterAction(Request $request)
+    {
+        return array();
+    }
 }
