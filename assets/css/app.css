@@ -10,6 +10,12 @@ div.wrapper {
     min-width: 100%;
 }
 
+div.content-wrapper {
+    min-height:100%;
+    height: -moz-available;
+    height: -webkit-fill-available;
+}
+
 div.hts-container {
     background-color: powderblue;
     min-width: 200px;
