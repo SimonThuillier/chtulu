@@ -203,7 +203,7 @@ export const SideBar = (props) => {
                                 </NavLink>
                             </li>
                             <li>
-                                <NavLink to='/page2' activeClassName='hurray'>
+                                <NavLink to='/article-table' activeClassName='hurray'>
                                     <i className="fa fa-search"></i>
                                     Rechercher article
                                 </NavLink>

@@ -14,7 +14,7 @@ use AppBundle\Entity\ResourceVersion;
 use AppBundle\Factory\DTOFactory;
 use AppBundle\Factory\EntityFactory;
 use AppBundle\Manager\File\FileRouter;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Psr\Container\ContainerInterface;
 
 
 class ResourceVersionDTOMediator extends DTOMediator

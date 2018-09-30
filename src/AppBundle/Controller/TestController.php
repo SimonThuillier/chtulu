@@ -155,7 +155,7 @@ class TestController extends Controller
     }
 
     /**
-     * @Route("/react-router", name="test_react_router")
+     * @Route("/react-router/{sub}", name="test_react_router",requirements={"page"="\w+"})
      * @throws \Exception
      * @Template()
      */

@@ -194,7 +194,7 @@ class ArticleDTOMediator extends DTOMediator
         if($detailImage !== null){
             if($dto->getDetailImageResource() === null){
                 $resourceMediator = $this->locator->get(MediatorFactory::class)
-                    ->create(ResourceDTOMediator::class,$detailImage,null,$mode);
+                    ->create(ResourceDTO::class,$detailImage,null,$mode);
             }
             else{
                 $resourceMediator = $dto->getDetailImageResource()->getMediator();

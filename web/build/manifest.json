@@ -2,6 +2,7 @@
   "build/app.js": "/build/app.js",
   "build/app.css": "/build/app.css",
   "build/layout-react.js": "/build/layout-react.js",
+  "build/layout-react.css": "/build/layout-react.css",
   "build/test-react-router1.js": "/build/test-react-router1.js",
   "build/test-react.js": "/build/test-react.js",
   "build/test-react-router2.js": "/build/test-react-router2.js",

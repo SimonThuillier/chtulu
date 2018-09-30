@@ -205,6 +205,7 @@ module.exports =
                             if(typeof prototypes[type] !== 'undefined'){
                                 hResponse.rows.forEach(function(item){
                                     Object.setPrototypeOf(item,prototypes[type]);
+                                    if(typeof item.finalize !=='undefined'){item.finalize();}
                                 });
                             }
                             resolve(hResponse);

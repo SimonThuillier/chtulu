@@ -15,14 +15,22 @@ use AppBundle\DTO\ResourceGeometryDTO;
 use AppBundle\DTO\ResourceImageDTO;
 use AppBundle\DTO\ResourceVersionDTO;
 use AppBundle\Entity\DTOMutableEntity;
+use AppBundle\Helper\AssetHelper;
+use AppBundle\Manager\File\FileRouter;
 use AppBundle\Mediator\ArticleDTOMediator;
 use AppBundle\Mediator\DTOMediator;
 use AppBundle\Mediator\ResourceDTOMediator;
 use AppBundle\Mediator\ResourceGeometryDTOMediator;
 use AppBundle\Mediator\ResourceVersionDTOMediator;
+use AppBundle\Serializer\HDateNormalizer;
 use Psr\Container\ContainerInterface;
+use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\DependencyInjection\ServiceSubscriberInterface;
+use Symfony\Component\Routing\Router;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 
 class MediatorFactory implements ServiceSubscriberInterface
 {
@@ -49,7 +57,14 @@ class MediatorFactory implements ServiceSubscriberInterface
             ArticleDTO::class => ArticleDTOMediator::class,
             ResourceDTO::class =>  ResourceDTOMediator::class,
             ResourceVersionDTO::class => ResourceVersionDTOMediator::class,
-            ResourceGeometryDTO::class => ResourceGeometryDTOMediator::class
+            ResourceGeometryDTO::class => ResourceGeometryDTOMediator::class,
+            HDateNormalizer::class,
+            AssetHelper::class,
+            MediatorFactory::class,
+            FileRouter::class,
+            'serializer.encoder.json' => JsonEncoder::class,
+            'router' => Router::class,
+            'doctrine' => ManagerRegistry::class
         ];
     }
 
@@ -77,7 +92,7 @@ class MediatorFactory implements ServiceSubscriberInterface
         }*/
         /** @var DTOMediator $mediator */
         $mediatorClassName = self::getSubscribedServices()[$className];
-        $mediator = new $mediatorClassName(new Container());
+        $mediator = new $mediatorClassName($this->locator);
 
         if ($entity === null && $mode === DTOMediator::CREATE_IF_NULL){
             $entity = $this->locator->get(EntityFactory::class)->create($mediator->getEntityClassName());

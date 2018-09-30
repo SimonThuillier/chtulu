@@ -362,7 +362,7 @@ class ArticleController extends Controller
             ->getForm();
 
         $groups = ['minimal','abstract','date','url'];
-        $mediator = $mediatorFactory->create(ArticleDTOMediator::class);
+        $mediator = $mediatorFactory->create(ArticleDTO::class);
         $articleDTO = $mediator
             ->mapDTOGroups($groups)
             ->getDTO();
@@ -430,7 +430,7 @@ class ArticleController extends Controller
         $articles = $mapper->searchBy($searchBag,$count);
         $articleDtos = [];
 
-        $mediator = $mediatorFactory->create(ArticleDTOMediator::class,null,null,DTOMediator::NOTHING_IF_NULL);
+        $mediator = $mediatorFactory->create(ArticleDTO::class,null,null,DTOMediator::NOTHING_IF_NULL);
         foreach($articles as $article){
             $articleDtos[] =  $mediator
                 ->setEntity($article)
@@ -461,7 +461,7 @@ class ArticleController extends Controller
         $groups = array_merge($request->get("groups"),['minimal',
             'detailImage'=>["minimal","activeVersion"=>["minimal","urlDetailThumbnail"]]]);
         try{
-            $mediator = $mediatorFactory->create(ArticleDTOMediator::class,$article);
+            $mediator = $mediatorFactory->create(ArticleDTO::class,$article);
             $articleDto = $mediator
                 ->mapDTOGroups($groups)
                 ->getDTO();

@@ -10,6 +10,7 @@ namespace AppBundle\Mediator;
 
 use AppBundle\DTO\ResourceDTO;
 use AppBundle\DTO\ResourceImageDTO;
+use AppBundle\DTO\ResourceVersionDTO;
 use AppBundle\Entity\HResource;
 use AppBundle\Entity\ResourceVersion;
 use AppBundle\Factory\DTOFactory;
@@ -18,7 +19,7 @@ use AppBundle\Factory\MediatorFactory;
 use AppBundle\Factory\ResourceVersionDTOFactory;
 use AppBundle\Utils\ArrayUtil;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Psr\Container\ContainerInterface;
 
 
 class ResourceDTOMediator extends DTOMediator
@@ -91,7 +92,7 @@ class ResourceDTOMediator extends DTOMediator
         if($version !== null){
             /** @var ResourceVersionDTOMediator $versionMediator */
             $versionMediator = $this->locator->get(MediatorFactory::class)
-                ->create(ResourceVersionDTOMediator::class,$version,
+                ->create(ResourceVersionDTO::class,$version,
                     $this->locator->get(DTOFactory::class)->create(ResourceImageDTO::class));
             $versionMediator->mapDTOGroups($subGroups);
             $dto->setActiveVersion($versionMediator->getDTO());
@@ -128,7 +129,7 @@ class ResourceDTOMediator extends DTOMediator
         if($version !== null){
             /** @var ResourceVersionDTOMediator $versionMediator */
             $versionMediator = $this->locator->get(MediatorFactory::class)
-                ->create(ResourceVersionDTOMediator::class,$version);
+                ->create(ResourceVersionDTO::class,$version);
             $versionMediator->mapDTOGroups($subGroups);
             $dto->setActiveVersion($versionMediator->getDTO());
         }
