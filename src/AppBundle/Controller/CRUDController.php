@@ -92,6 +92,59 @@ class CRUDController extends Controller
      * @param DTOFactory $dtoFactory
      * @param MediatorFactory $mediatorFactory
      * @param DTONormalizer $normalizer
+     * @Route("/get",name="crud_get_one_by_id")
+     * @Method({"GET","POST"})
+     * @throws \Exception
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @return JsonResponse
+     */
+    public function getOneByIdAction(Request $request,
+                              EntityMapper $mapper,
+                              DTOFactory $dtoFactory,
+                              MediatorFactory $mediatorFactory,
+                              DTONormalizer $normalizer){
+        $hResponse = new HJsonResponse();
+
+        try{
+            if(! $request->query->has("type")) throw new \Exception("Type parameter is mandatory");
+            if(! $request->query->has("groups")) throw new \Exception("Groups parameter is mandatory");
+            if(! $request->query->has("id")) throw new \Exception("Id parameter is mandatory");
+            $type = ucfirst($request->query->get("type"));
+            $groups = json_decode($request->query->get("groups"),true);
+            $id = intval($request->query->get("id"));
+            $dtoClassName = self::getDtoClassName($type);
+
+            $entity = $mapper->find($dtoClassName,$id);
+
+            $mediator = $mediatorFactory->create($dtoClassName ,$entity,$dtoFactory->create($dtoClassName),DTOMediator::NOTHING_IF_NULL);
+            /** @var EntityMutableDTO $dto */
+            $dto =  $mediator->mapDTOGroups($groups)->getDTO();
+
+            $hResponse->setMessage("OK")->setData($normalizer->normalize($dto,$dto->getLoadedGroups()));
+
+            ob_clean();
+            return new JsonResponse($hResponse);
+        }
+        catch(\Exception $e){
+            $hResponse->setStatus(HJsonResponse::ERROR)
+                ->setMessage($e->getMessage());
+        }
+
+        ob_clean();
+        return new JsonResponse(HJsonResponse::normalize($hResponse));
+    }
+
+
+
+
+
+    /**
+     * @param Request $request
+     * @param EntityMapper $mapper
+     * @param DTOFactory $dtoFactory
+     * @param MediatorFactory $mediatorFactory
+     * @param DTONormalizer $normalizer
      * @Route("/get",name="crud_get")
      * @Method({"GET","POST"})
      * @throws \Exception

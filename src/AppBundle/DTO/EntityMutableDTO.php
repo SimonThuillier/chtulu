@@ -40,14 +40,20 @@ abstract class EntityMutableDTO {
 
     /**
      * @param string $group
+     * @param boolean|array $subGroups
      * @return self
      */
-    public function addMappedGroup(string $group){
-        if(! in_array($group,$this->groups)){
-            $this->groups[] = $group;
+    public function addMappedGroup(string $group,$subGroups=true){
+        if(! array_key_exists($group,$this->groups)){
+            $this->groups[$group] = $subGroups;
         }
         return $this;
     }
+
+    /**
+     * @return array
+     */
+    public abstract function getLoadedGroups();
 
     /**
      * @return array

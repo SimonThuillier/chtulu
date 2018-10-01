@@ -39,6 +39,14 @@ class ResourceDTO extends EntityMutableDTO
     }
 
     /**
+     * @return array
+     * @Groups({"minimal"})
+     */
+    public function getLoadedGroups(){
+        return $this->groups;
+    }
+
+    /**
      * @return int
      * @Groups({"minimal"})
      */

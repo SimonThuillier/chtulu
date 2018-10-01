@@ -5,6 +5,7 @@
 
 let urls = {
     crud_get : document.getElementById('hb-url-crud-get').getAttribute('data-url'),
+    crud_get_one_by_id : document.getElementById('hb-url-crud-get-one-by-id').getAttribute('data-url'),
     crud_get_new : document.getElementById('hb-url-crud-get-new').getAttribute('data-url'),
     crud_post : document.getElementById('hb-url-crud-post').getAttribute('data-url')
 };
@@ -12,7 +13,12 @@ let _token = document.getElementById('hb-security-token').getAttribute('data-tok
 
 const TIMEOUT = 1000000;
 
-buildGetUrl = function(url,params=null){
+/**
+ * @param url string
+ * @param params object
+ * @returns {string}
+ */
+const buildGetUrl = function(url,params=null){
     if (!params || params==null) return encodeURI(url);
     else{
         let query = Object.keys(params)
@@ -21,8 +27,13 @@ buildGetUrl = function(url,params=null){
         return encodeURI(url + '?' + query);
     }
 };
-
-function fetchWithTimeout( url,props, timeout ) {
+/**
+ * @param url string
+ * @param props object
+ * @param timeout integer
+ * @returns {Promise<any>}
+ */
+const fetchWithTimeout = function( url,props, timeout ) {
     return new Promise( (resolve, reject) => {
         // Set timeout timer
         let timer = setTimeout(
@@ -35,16 +46,16 @@ function fetchWithTimeout( url,props, timeout ) {
             err => reject( err )
         ).finally( () => clearTimeout(timer) );
     })
-}
-
-//function deepJsonStringify(object,)
+};
 
 /**
  * @class DTO
  */
 const dtoPrototype = {
     dtoType: "rootDto",
+    cacheLength:100,
     mapping: {},
+    dependencies:{},
     finalize : function(groups=true){console.log("vanillaFinalize")},
     getPartial : function(groups = true){
         console.log(this);
@@ -73,13 +84,14 @@ const dtoPrototype = {
     }
 };
 
-
 const defaultPrototypes = {
     /**
      * @class Article
      */
     article:{
         dtoType : "article",
+        cacheLength:100,
+        dependencies:{detailImageResource:"resourceImage"},
         /**
          * @doc : function aimed to finalize constitution of new HArticle created by parsing JSon
          */
@@ -114,6 +126,7 @@ const defaultPrototypes = {
      */
     resourceGeometry : {
         dtoType : "resourceGeometry",
+        cacheLength:50,
         getPointCoords(){
             if(typeof this.targetGeometry ==='undefined' ||
                 typeof this.targetGeometry.value ==='undefined' ||
@@ -131,6 +144,7 @@ const defaultPrototypes = {
 };
 
 let prototypes = {};
+let cache = {};
 const mappingDivs = document.getElementsByClassName('hb-dto-mapping');
 
 for (let i = 0; i < mappingDivs.length; ++i) {
@@ -138,11 +152,101 @@ for (let i = 0; i < mappingDivs.length; ++i) {
     let concreteDtoPrototype = Object.create(dtoPrototype);
     concreteDtoPrototype.mapping = JSON.parse(item.getAttribute('data-mapping'));
     prototypes[item.getAttribute('id').replace('hb-mapping-','')] = concreteDtoPrototype;
+    cache[item.getAttribute('id').replace('hb-mapping-','')] = [];
 }
 Object.keys(prototypes).forEach(function(key,index) {
     if(defaultPrototypes.hasOwnProperty(key)) Object.assign(prototypes[key],defaultPrototypes[key]);
     Object.freeze(prototypes[key]);
 });
+/**
+ * remove objects from the cache if queue exceed its limit
+ */
+const watchCache = function(type){
+    while(cache[type].length > prototypes[type].cacheLength){
+        cache[type].shift();
+    }
+};
+/**
+ * @param targetGroups object|boolean
+ * @param sourceGroups object|boolean
+ * @return object|boolean
+ */
+const mergeGroups = function(targetGroups,sourceGroups){
+    if(typeof targetGroups !== 'object' || typeof sourceGroups !== 'object') return true;
+    Object.keys(sourceGroups).forEach(function(key){
+        if(typeof sourceGroups[key] === 'object'){
+            if(typeof targetGroups[key] === 'object'){
+                targetGroups[key] = mergeGroups(targetGroups[key],sourceGroups[key]);
+            }
+            else if(typeof targetGroups[key] === 'undefined'){
+                targetGroups[key] = sourceGroups[key];
+            }
+        }
+        else{
+            targetGroups[key] = true;
+        }
+    });
+    return targetGroups[key];
+};
+/**
+ * // TODO : handle nesting
+ * @param type string
+ * @param baseGroups object|boolean
+ * @param compareGroups object|boolean
+ * @return object|null
+ */
+const diffGroups = function(type,baseGroups,compareGroups){
+    let diff = null;
+    if(typeof baseGroups !== 'object') return diff;
+    if(typeof compareGroups !== 'object'){
+        diff = {};
+        Object.keys(prototypes[type].mapping).forEach(function(key){
+            if(typeof baseGroups[key] === 'undefined'){
+                diff[key] = true;
+            }
+        });
+        return (Object.keys(diff).length > 0 ? diff:null);
+    }
+    else{
+        diff = {};
+        Object.keys(prototypes[type].mapping).forEach(function(key){
+            if(typeof baseGroups[key] === 'undefined' && typeof compareGroups[key] !== 'undefined'){
+                diff[key] = true;
+            }
+        });
+        return (Object.keys(diff).length > 0 ? diff:null);
+    }
+};
+
+
+
+
+/**
+ * function called when dto data is received from the server
+ * @param type
+ * @param object
+ */
+const handleResponseObject = function(type,object){
+    if(typeof cache[type] !== 'undefined' && typeof prototypes[type] !== 'undefined'){
+        let cachedObject = cache[type].find(x => x.id === object.id);
+        if(typeof cachedObject !== 'undefined'){
+            let loadedGroups = mergeGroups(JSON.parse(JSON.stringify(cachedObject.loadedGroups)),object.loadedGroups);
+            Object.assign(cachedObject,object);
+            if(typeof object.finalize !=='undefined'){object.finalize(object.loadedGroups);}
+            cachedObject.loadedGroups = loadedGroups;
+            cache[type].push(cache[type].splice(cache[type].indexOf(cachedObject), 1)[0]);
+            return cachedObject;
+        }
+        else{
+            Object.setPrototypeOf(object,prototypes[type]);
+            if(typeof object.finalize !=='undefined'){object.finalize();}
+            cache[type].push(object);
+            return object;
+        }
+    }
+    return object; // fallback
+};
+
 
 console.log(prototypes);
 
@@ -172,13 +276,68 @@ module.exports =
         },
         /**
          * @param type
+         * @param groups
+         * @param id integer
+         * @returns {Promise<any>}
+         */
+        getOneById : function(type,groups=true,id){
+            return new Promise((resolve,reject) => {
+
+                if(typeof cache[type] !== 'undefined'){
+                    let cachedObject = cache[type].find(x => x.id = id);
+                    if(cachedObject !== 'undefined'){
+                        let diff = diffGroups(type,cachedObject.loadedGroups,groups);
+                        if(diff === null) resolve({status:"success",message:"OK",data:cachedObject});
+                    }
+                    else{
+                        groups = diff;
+                    }
+                }
+
+                let url = buildGetUrl(urls.crud_get_one_by_id,{
+                    type:type,
+                    id:id,
+                    groups:JSON.stringify(groups)
+                });
+
+                let headers = new Headers();
+                headers.append('Content-Type', 'application/json');
+
+                let requestProps = { method: 'GET',
+                    headers: new Headers(),
+                    credentials:'same-origin',
+                    mode: 'same-origin',
+                    cache: 'default' };
+
+                return fetchWithTimeout(url,requestProps,TIMEOUT)
+                    .then(response => {console.log(response);
+                        return response.json();})
+                    .then(hResponse => {
+                        console.log(hResponse);
+                        console.log("posted");
+                        if(hResponse.status === 'success'){
+                            hResponse.data = handleResponseObject(type,hResponse.data);
+                            watchCache(type);
+                            console.log(cache);
+                            resolve(hResponse);
+                        }
+                        else{
+                            reject(new Error(hResponse.message));
+                        }
+                    })
+                    .catch((error) => reject(error))
+                    ;
+            });
+        },
+        /**
+         * @param type
          * @param searchBag
          * @param groups
          * @returns {Promise<any>}
          */
         get : function(type,groups=true,searchBag=null){
             return new Promise((resolve,reject) => {
-                //throw new Error("what ?");
+
                 if(searchBag === null) searchBag = this.createSearchBag();
                 let url = buildGetUrl(urls.crud_get,{
                     type:type,
@@ -202,12 +361,9 @@ module.exports =
                         console.log(hResponse);
                         console.log("posted");
                         if(hResponse.status === 'success'){
-                            if(typeof prototypes[type] !== 'undefined'){
-                                hResponse.rows.forEach(function(item){
-                                    Object.setPrototypeOf(item,prototypes[type]);
-                                    if(typeof item.finalize !=='undefined'){item.finalize();}
-                                });
-                            }
+                            hResponse.rows = hResponse.rows.map(item => handleResponseObject(type,item) );
+                            watchCache(type);
+                            console.log(cache);
                             resolve(hResponse);
                         }
                         else{
