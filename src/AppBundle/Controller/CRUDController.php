@@ -92,7 +92,7 @@ class CRUDController extends Controller
      * @param DTOFactory $dtoFactory
      * @param MediatorFactory $mediatorFactory
      * @param DTONormalizer $normalizer
-     * @Route("/get",name="crud_get_one_by_id")
+     * @Route("/get-one-by-id",name="crud_get_one_by_id")
      * @Method({"GET","POST"})
      * @throws \Exception
      * @throws \Psr\Container\ContainerExceptionInterface
@@ -134,10 +134,6 @@ class CRUDController extends Controller
         ob_clean();
         return new JsonResponse(HJsonResponse::normalize($hResponse));
     }
-
-
-
-
 
     /**
      * @param Request $request

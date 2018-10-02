@@ -56,6 +56,7 @@ const dtoPrototype = {
     cacheLength:100,
     mapping: {},
     dependencies:{},
+    pendingModification:false,
     finalize : function(groups=true){console.log("vanillaFinalize")},
     getPartial : function(groups = true){
         console.log(this);
@@ -218,6 +219,30 @@ const diffGroups = function(type,baseGroups,compareGroups){
     }
 };
 
+/**
+ * // TODO : improve nesting handling
+ * @param type string
+ * @param baseGroups object|boolean
+ * @param compareGroups object|boolean
+ * @return object|null
+ */
+const intersectGroups = function(type,baseGroups,compareGroups){
+    if(typeof baseGroups !== 'object') return compareGroups;
+    if(typeof compareGroups !== 'object') return baseGroups;
+    let intersect = {};
+
+    let baseSet = new Set(Object.keys(baseGroups));
+    let compareSet = new Set(Object.keys(compareGroups));
+
+    let setSection = new Set(
+        [...baseSet].filter(x => compareSet.has(x)));
+
+    setSection.forEach(function(key){
+        intersect[key] = intersectGroups(type,baseGroups[key],compareGroups[key]);
+    });
+    return intersect;
+};
+
 
 
 
@@ -300,6 +325,8 @@ module.exports =
                     groups:JSON.stringify(groups)
                 });
 
+                console.log(url);
+
                 let headers = new Headers();
                 headers.append('Content-Type', 'application/json');
 
@@ -344,6 +371,7 @@ module.exports =
                     searchBag:JSON.stringify(searchBag),
                     groups:JSON.stringify(groups)
                 });
+                console.log(url);
 
                 let headers = new Headers();
                 headers.append('Content-Type', 'application/json');
@@ -473,5 +501,8 @@ module.exports =
                     .catch((error) => reject(error))
                     ;
             });
+        },
+        intersectGroups :function(type,baseGroups,compareGroups) {
+            return intersectGroups(type,baseGroups,compareGroups);
         }
     };

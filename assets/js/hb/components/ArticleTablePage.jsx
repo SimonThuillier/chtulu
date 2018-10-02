@@ -5,10 +5,14 @@ import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import BootstrapTable from 'react-bootstrap-table-next';
 import Loadable from 'react-loading-overlay';
 import {Helmet} from 'react-helmet';
+import {Preview} from './actions.jsx';
+import {Modal,Popover,OverlayTrigger,Tooltip,Button} from 'react-bootstrap';
+import {ArticleDetail} from "./article";
 
 const articles = [
     {id:1,title:"Emile Zola",type:{id:1,label:"Personnage"},beginHDate:"debut",endHDate:"fin"}
     ];
+
 const columns = [{
     dataField: 'title',
     text: 'Titre',
@@ -41,10 +45,7 @@ const columns = [{
         if(cell === null) return '-';
         return cell.getLabel();
     }
-}, {
-        dataField: 'id',
-        text: 'Action'
-    }
+}
     ];
 
 
@@ -56,7 +57,9 @@ class ArticleTablePage extends React.Component{
         this.state = {
             rows:[],
             loading:true,
-            searchBag:server.createSearchBag(null,'id','DESC',0,5)
+            searchBag:server.createSearchBag(null,'id','DESC',0,10),
+            selected:null,
+            activeData:null,
         };
     }
 
@@ -64,7 +67,7 @@ class ArticleTablePage extends React.Component{
         server.get('article',{minimal:true,date:true,detailImage:true,detailImageUrl:true},this.state.searchBag)
             .then(data =>{
                 console.log("reception client");
-                data.rows.forEach((item) => this.onArticleReception(item));
+                data.rows.forEach((item) => this.onRowReception(item));
                 console.log(data);
                 this.setState({
                     rows:data.rows,
@@ -73,11 +76,23 @@ class ArticleTablePage extends React.Component{
             });
     }
 
-    onArticleReception(data){
+    onRowReception(data){
 
     }
 
+    onRowPreview(row,rowIndex){
+        console.log(rowIndex);
+        this.setState({selected:[row.id],activeData:row});
+    }
+
+    handleClose() {
+        this.setState({ activeData: null });
+    }
+
+
+
     render(){
+
         return(
             <div className="content-wrapper hb-container">
                 <Helmet>
@@ -96,6 +111,12 @@ class ArticleTablePage extends React.Component{
                     <BootstrapTable
                         keyField='id'
                         data={ this.state.rows }
+                        selectRow={{
+                            hideSelectColumn:true,
+                            mode :'radio',
+                            style: { backgroundColor: '#c8e6c9' },
+                            selected:this.state.selected,
+                        }}
                         remote={ {
                             filter: true,
                             pagination: false,
@@ -103,8 +124,29 @@ class ArticleTablePage extends React.Component{
                             cellEdit: true
                         } }
                         loading={this.state.loading}
-                        columns={ columns } />
+                        columns={ columns.concat([
+                            {
+                                dataField: 'id',
+                                text: 'Action',
+                                formatter: (cell, row, rowIndex) =>
+                                    (<Preview onClick={() => this.onRowPreview(row,rowIndex)}/>)
+                            }
+                            ])
+                                }
+                    />
                     </Loadable>
+                    <Modal show={this.state.activeData !== null} onHide={this.handleClose.bind(this)}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>{this.state.activeData && this.state.activeData.title}</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <ArticleDetail data={this.state.activeData}/>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button onClick={this.handleClose.bind(this)}>Close</Button>
+                        </Modal.Footer>
+                    </Modal>
+
                 </section>
             </div>
         );
