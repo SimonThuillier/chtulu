@@ -97,27 +97,32 @@ const defaultPrototypes = {
          * @doc : function aimed to finalize constitution of new HArticle created by parsing JSon
          */
         finalize : function(groups=true){
+            console.log(groups);
             let jsonStr = null;
-            if(this.beginHDate !== null){
-                if(typeof this.beginHDate === "object"){jsonStr = JSON.stringify(this.beginHDate);}
-                else{jsonStr = this.beginHDate;}
-                this.beginHDate = hb.util.HDate.prototype.parseFromJson(jsonStr);
+            if(groups === true || (typeof groups === 'object' && groups.hasOwnProperty('date'))){
+                if(this.beginHDate !== null){
+                    if(typeof this.beginHDate === "object"){jsonStr = JSON.stringify(this.beginHDate);}
+                    else{jsonStr = this.beginHDate;}
+                    this.beginHDate = hb.util.HDate.prototype.parseFromJson(jsonStr);
+                }
+                if(this.hasEndDate && this.endHDate !== null && this.endHDate !== ''){
+                    if(typeof this.endHDate === "object"){jsonStr = JSON.stringify(this.endHDate);}
+                    else{jsonStr = this.endHDate;}
+                    this.endHDate = hb.util.HDate.prototype.parseFromJson(jsonStr);
+                }
+                else{this.endHDate = null;}
             }
-            if(this.hasEndDate && this.endHDate !== null && this.endHDate !== ''){
-                if(typeof this.endHDate === "object"){jsonStr = JSON.stringify(this.endHDate);}
-                else{jsonStr = this.endHDate;}
-                this.endHDate = hb.util.HDate.prototype.parseFromJson(jsonStr);
-            }
-            else{this.endHDate = null;}
-            if(this.hteRange !== null){
-                if(typeof this.hteRange === "object"){jsonStr = JSON.stringify(this.hteRange);}
-                else{jsonStr = this.hteRange;}
-                this.hteRange = hb.util.HDate.prototype.parseFromJson(jsonStr);
-            }
-            if(this.detailImageResource === "") this.detailImageResource = null;
-            if(this.detailImageResource !== null){
-                if(typeof this.detailImageResource === "string"){
-                    this.detailImageResource = JSON.parse(this.detailImageResource);
+            if(groups === true || (typeof groups === 'object' && groups.hasOwnProperty('hteRange'))){
+                if(this.hteRange !== null){
+                    if(typeof this.hteRange === "object"){jsonStr = JSON.stringify(this.hteRange);}
+                    else{jsonStr = this.hteRange;}
+                    this.hteRange = hb.util.HDate.prototype.parseFromJson(jsonStr);
+                }
+                if(this.detailImageResource === "") this.detailImageResource = null;
+                if(this.detailImageResource !== null){
+                    if(typeof this.detailImageResource === "string"){
+                        this.detailImageResource = JSON.parse(this.detailImageResource);
+                    }
                 }
             }
         }
@@ -153,6 +158,7 @@ for (let i = 0; i < mappingDivs.length; ++i) {
     let concreteDtoPrototype = Object.create(dtoPrototype);
     concreteDtoPrototype.mapping = JSON.parse(item.getAttribute('data-mapping'));
     prototypes[item.getAttribute('id').replace('hb-mapping-','')] = concreteDtoPrototype;
+    console.log("create cache entry");
     cache[item.getAttribute('id').replace('hb-mapping-','')] = [];
 }
 Object.keys(prototypes).forEach(function(key,index) {
@@ -163,6 +169,7 @@ Object.keys(prototypes).forEach(function(key,index) {
  * remove objects from the cache if queue exceed its limit
  */
 const watchCache = function(type){
+    console.log("watch cache");
     while(cache[type].length > prototypes[type].cacheLength){
         cache[type].shift();
     }
@@ -187,7 +194,7 @@ const mergeGroups = function(targetGroups,sourceGroups){
             targetGroups[key] = true;
         }
     });
-    return targetGroups[key];
+    return targetGroups;
 };
 /**
  * // TODO : handle nesting
@@ -197,6 +204,9 @@ const mergeGroups = function(targetGroups,sourceGroups){
  * @return object|null
  */
 const diffGroups = function(type,baseGroups,compareGroups){
+    console.log(baseGroups);
+    console.log(compareGroups);
+    console.log(prototypes[type].mapping);
     let diff = null;
     if(typeof baseGroups !== 'object') return diff;
     if(typeof compareGroups !== 'object'){
@@ -253,18 +263,27 @@ const intersectGroups = function(type,baseGroups,compareGroups){
  */
 const handleResponseObject = function(type,object){
     if(typeof cache[type] !== 'undefined' && typeof prototypes[type] !== 'undefined'){
+        let index = cache[type].findIndex(x => x.id === object.id);
+        console.log(object.id);
+        console.log(index);
         let cachedObject = cache[type].find(x => x.id === object.id);
         if(typeof cachedObject !== 'undefined'){
+
             let loadedGroups = mergeGroups(JSON.parse(JSON.stringify(cachedObject.loadedGroups)),object.loadedGroups);
             Object.assign(cachedObject,object);
             if(typeof object.finalize !=='undefined'){object.finalize(object.loadedGroups);}
             cachedObject.loadedGroups = loadedGroups;
-            cache[type].push(cache[type].splice(cache[type].indexOf(cachedObject), 1)[0]);
+            console.log("initial cache");
+            console.log(cache[type]);
+            console.log(index);
+            cache[type].push(cache[type].splice(index, 1)[0]);
+            console.log("final cache");
+            console.log(cache[type]);
             return cachedObject;
         }
         else{
             Object.setPrototypeOf(object,prototypes[type]);
-            if(typeof object.finalize !=='undefined'){object.finalize();}
+            if(typeof object.finalize !=='undefined'){object.finalize(object.loadedGroups);}
             cache[type].push(object);
             return object;
         }
@@ -282,6 +301,9 @@ let idGenerators = {};
 
 module.exports =
     {
+        getCache(){
+            return cache;
+        },
         /**
          * @param search
          * @param sort
@@ -305,14 +327,21 @@ module.exports =
          * @param id integer
          * @returns {Promise<any>}
          */
-        getOneById : function(type,groups=true,id){
+        getOneById : function(type,groups=true,id,onDataLoading=null){
             return new Promise((resolve,reject) => {
 
                 if(typeof cache[type] !== 'undefined'){
-                    let cachedObject = cache[type].find(x => x.id = id);
-                    if(cachedObject !== 'undefined'){
+                    let cachedObject = cache[type].find(x => x.id === id);
+                    console.log(id);
+                    console.log("cache at beginning of getOne");
+                    console.log(cache);
+                    console.log(cachedObject);
+                    if(typeof cachedObject !== 'undefined'){
                         let diff = diffGroups(type,cachedObject.loadedGroups,groups);
-                        if(diff === null) resolve({status:"success",message:"OK",data:cachedObject});
+                        console.log("le diff");
+                        console.log(diff);
+                        console.log(diff === null);
+                        if(diff === null) return resolve({status:"success",message:"OK",data:cachedObject});
                     }
                     else{
                         groups = diff;
@@ -336,6 +365,10 @@ module.exports =
                     mode: 'same-origin',
                     cache: 'default' };
 
+                if(onDataLoading !== null) onDataLoading.call();
+                console.log("cache before actions");
+                console.log(cache);
+
                 return fetchWithTimeout(url,requestProps,TIMEOUT)
                     .then(response => {console.log(response);
                         return response.json();})
@@ -345,7 +378,8 @@ module.exports =
                         if(hResponse.status === 'success'){
                             hResponse.data = handleResponseObject(type,hResponse.data);
                             watchCache(type);
-                            console.log(cache);
+                            console.log(hResponse.data);
+                            console.log(cache[type]);
                             resolve(hResponse);
                         }
                         else{
@@ -391,6 +425,7 @@ module.exports =
                         if(hResponse.status === 'success'){
                             hResponse.rows = hResponse.rows.map(item => handleResponseObject(type,item) );
                             watchCache(type);
+                            console.log("cache after get");
                             console.log(cache);
                             resolve(hResponse);
                         }

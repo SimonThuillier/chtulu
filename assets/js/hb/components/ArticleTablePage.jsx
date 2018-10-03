@@ -17,13 +17,13 @@ const columns = [{
     dataField: 'title',
     text: 'Titre',
     formatter: function(cell,row){
-        console.log(row);
+        //console.log(row);
         let finalValue = cell;
         if(row.detailImageResource &&
             row.detailImageResource.activeVersion){
             let activeVersion = row.detailImageResource.activeVersion;
             return (
-                <div>{cell}&nbsp;<img src={activeVersion.urlMini} className="img-circle"></img></div>
+                <div>{cell}&nbsp;<img src={activeVersion.urlMini} className="img-circle"/></div>
             );
         }
         return cell;
@@ -69,6 +69,7 @@ class ArticleTablePage extends React.Component{
                 console.log("reception client");
                 data.rows.forEach((item) => this.onRowReception(item));
                 console.log(data);
+                console.log(server.getCache());
                 this.setState({
                     rows:data.rows,
                     loading:false

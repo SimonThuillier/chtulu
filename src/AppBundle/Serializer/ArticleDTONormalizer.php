@@ -38,7 +38,8 @@ class ArticleDTONormalizer extends HNormalizer
             $typeNormalizer,
             $resourceDTONormalizer,
             new HGetSetMethodNormalizer($classMetadataFactory),
-            new ObjectNormalizer());
+            new ObjectNormalizer($classMetadataFactory)
+        );
 
         parent::__construct($normalizers);
     }

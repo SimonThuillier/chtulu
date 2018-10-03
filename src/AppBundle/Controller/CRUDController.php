@@ -9,6 +9,7 @@ use AppBundle\Factory\MediatorFactory;
 use AppBundle\Helper\BootstrapListHelper;
 use AppBundle\Mapper\EntityMapper;
 use AppBundle\Mediator\DTOMediator;
+use AppBundle\Serializer\ArticleDTONormalizer;
 use AppBundle\Serializer\DTONormalizer;
 use AppBundle\Utils\ArrayUtil;
 use AppBundle\Utils\HJsonResponse;
@@ -124,7 +125,7 @@ class CRUDController extends Controller
             $hResponse->setMessage("OK")->setData($normalizer->normalize($dto,$dto->getLoadedGroups()));
 
             ob_clean();
-            return new JsonResponse($hResponse);
+            return new JsonResponse(HJsonResponse::normalize($hResponse));
         }
         catch(\Exception $e){
             $hResponse->setStatus(HJsonResponse::ERROR)
@@ -181,6 +182,8 @@ class CRUDController extends Controller
 
             // $groups = array_merge($groups,['groups','type']);
             ob_clean();
+            $truc =
+                BootstrapListHelper::getNormalizedListData($dtos,$normalizer,$groups,$count);
             return new JsonResponse(
                 BootstrapListHelper::getNormalizedListData($dtos,$normalizer,$groups,$count));
         }

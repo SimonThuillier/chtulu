@@ -44,7 +44,8 @@ class DTONormalizer extends HNormalizer
             $resourceDTONormalizer,
             $ResourceGeometryDTONormalizer,
             new HGetSetMethodNormalizer($classMetadataFactory),
-            new ObjectNormalizer());
+            new ObjectNormalizer($classMetadataFactory)
+        );
 
         parent::__construct($normalizers);
     }
@@ -69,7 +70,9 @@ class DTONormalizer extends HNormalizer
      */
     public function normalize($object,$groups=null,array $context=[])
     {
-        $normalization = parent::defaultNormalize($object,$groups,$context);
+        $normalization = $this->serializer->normalize($object, null, array(
+                'overGroups' => $groups)
+        );
         return $normalization;
     }
 

@@ -43,8 +43,11 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
      */
     protected function defaultNormalize($object,$groups=null,array $context=[])
     {
-        /*var_dump(get_class($this));
-        var_dump($context);*/
+        if(array_key_exists("overGroups",$context)){
+            $groups = $context["overGroups"];
+            $context=[];
+        }
+
         $upperSubGroups = ($context && array_key_exists("subGroups",$context))?$context["subGroups"]:null;
         $subGroups = [];
         $flattenGroups = $this->handleGroups($groups,$subGroups);
@@ -54,9 +57,6 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
         ){
             $flattenGroups = $this->handleGroups($upperSubGroups[$context["currentKey"]],$subGroups);
         }
-
-        /*var_dump($flattenGroups);
-        var_dump($subGroups);*/
 
         $normalization = $this->serializer->normalize($object, null, array(
             'groups' => $flattenGroups, 'subGroups' => $subGroups,'currentKey' => ''
