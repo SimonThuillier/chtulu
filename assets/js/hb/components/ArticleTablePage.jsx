@@ -6,8 +6,8 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import Loadable from 'react-loading-overlay';
 import {Helmet} from 'react-helmet';
 import {Preview} from './actions.jsx';
-import {Modal,Popover,OverlayTrigger,Tooltip,Button} from 'react-bootstrap';
-import {ArticleDetail} from "./article";
+import {Modal,Popover,OverlayTrigger,Tooltip,Button,ButtonToolbar,ToggleButtonGroup,ToggleButton} from 'react-bootstrap';
+import {Article} from "./article";
 
 const articles = [
     {id:1,title:"Emile Zola",type:{id:1,label:"Personnage"},beginHDate:"debut",endHDate:"fin"}
@@ -59,7 +59,7 @@ class ArticleTablePage extends React.Component{
             loading:true,
             searchBag:server.createSearchBag(null,'id','DESC',0,10),
             selected:null,
-            activeData:null,
+            activeData:null
         };
     }
 
@@ -72,7 +72,8 @@ class ArticleTablePage extends React.Component{
                 console.log(server.getCache());
                 this.setState({
                     rows:data.rows,
-                    loading:false
+                    loading:false,
+                    activeComponent:'detail',
                 });
             });
     }
@@ -83,17 +84,21 @@ class ArticleTablePage extends React.Component{
 
     onRowPreview(row,rowIndex){
         console.log(rowIndex);
-        this.setState({selected:[row.id],activeData:row});
+        this.setState({selected:[row.id],activeData:row,activeComponent:'detail'});
     }
 
     handleClose() {
         this.setState({ activeData: null });
     }
 
+    handleArticleSwitch() {
+        console.log("switch");
+        this.setState({ activeComponent: (this.state.activeComponent === 'detail')?'form':'detail' });
+    }
+
 
 
     render(){
-
         return(
             <div className="content-wrapper hb-container">
                 <Helmet>
@@ -141,10 +146,24 @@ class ArticleTablePage extends React.Component{
                             <Modal.Title>{this.state.activeData && this.state.activeData.title}</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            <ArticleDetail data={this.state.activeData}/>
+                            <Article data={this.state.activeData} activeComponent={this.state.activeComponent}/>
                         </Modal.Body>
                         <Modal.Footer>
-                            <Button onClick={this.handleClose.bind(this)}>Close</Button>
+                            <ButtonToolbar>
+                                <ToggleButtonGroup
+                                    type={'radio'}
+                                    name="options"
+                                    defaultValue={this.state.activeComponent}
+                                >
+                                    <ToggleButton onClick={this.handleArticleSwitch.bind(this)} value={"detail"}>
+                                        Previsualiser
+                                    </ToggleButton>
+                                    <ToggleButton onClick={this.handleArticleSwitch.bind(this)} value={"form"}>
+                                        Editer
+                                    </ToggleButton>
+                                </ToggleButtonGroup>
+                            </ButtonToolbar>
+                            <Button onClick={this.handleClose.bind(this)}>Fermer</Button>
                         </Modal.Footer>
                     </Modal>
 

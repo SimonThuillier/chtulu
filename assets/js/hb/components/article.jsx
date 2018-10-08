@@ -1,5 +1,5 @@
 import React from "react";
-import {Modal,Popover,OverlayTrigger,Tooltip,Button} from 'react-bootstrap';
+import {Popover,OverlayTrigger,Tooltip,Image} from 'react-bootstrap';
 import server from '../util/server.js';
 import Loadable from 'react-loading-overlay';
 
@@ -18,34 +18,103 @@ export function ArticleDetailMinimal(props){
     )
 }
 
-export function ArticleDetailAbstract(props){
-    const abstract = props.abstract || "";
-    const paragraphs =  abstract.split("\r\n").map((line) =>{
-        return(
-            <p>
-                &nbsp;&nbsp;{line}
-            </p>
-        );
-    });
+export function ArticleDetailImage(props){
     return(
-        <div className="row">
-            <div className="col-md-12">
-                <div className="container-fluid">
-                    {paragraphs}
-                </div>
+        <div className="col-md-6">
+            <div className="container-fluid">
+                <Image src={props.url} rounded />
             </div>
         </div>
     )
 }
 
-export class ArticleDetail extends React.Component {
+export function ArticleDetailAbstract(props){
+    const abstract = props.abstract || "";
+    const paragraphs =  abstract.split("\n").map((line) =>{
+        if (line.length === 0) return null;
+        return(
+            <p>
+                &nbsp;&nbsp;&nbsp;{line}
+            </p>
+        );
+    });
+    return(
+        <div className="col-md-12">
+            <div className="container-fluid">
+                {paragraphs}
+            </div>
+        </div>
+    )
+}
+
+export function ArticleDetail(props){
+    let data = props.data;
+    const availableGroups = (data && data.loadedGroups)?server.intersectGroups('article',props.groups,data.loadedGroups):{};
+
+    return (
+        <div>
+            <div className="row">
+                {availableGroups.hasOwnProperty("minimal") &&
+                <ArticleDetailMinimal type={data.type} beginHDate={data.beginHDate} endHDate={data.endHDate}/>
+                }
+                {availableGroups.hasOwnProperty("detailImageResource") &&
+                data.detailImageResource && data.detailImageResource.activeVersion &&
+                <ArticleDetailImage url={data.detailImageResource.activeVersion.urlDetailThumbnail}/>
+                }
+            </div>
+            <div className="row">
+                <hr/>
+            </div>
+            <div className="row">
+                {availableGroups.hasOwnProperty("abstract") &&
+                <ArticleDetailAbstract abstract={data.abstract}/>
+                }
+            </div>
+        </div>
+    );
+}
+
+const formDataTransformer = {
+    abstract:function(value){
+        return value.replace('<br />',"\n");
+    }
+};
+
+export function ArticleForm(props){
+    let data = props.data;
+    return (
+        <form onSubmit={null}>
+            <label>
+                Résumé :
+                <textarea value={data.abstract} onChange={props.changeHandler("abstract")} />
+            </label>
+            <input type="submit" value="Submit" />
+        </form>
+    );
+}
+
+export class Article extends React.Component{
     constructor(props) {
         super(props);
         this.state = {
+            activeComponent: props.activeComponent||'detail',
             data: props.data||null,
             loading: false,
-            wantedGroups:props.wantedGroups || {"minimal":true,"abstract":true},
+            detailGroups:props.detailGroups || {"minimal":true,"abstract":true,
+                "detailImageResource":{"activeVersion":{"urlDetailThumbnail":true}}
+            },
+            formGroups:props.formGroups || {"minimal":true},
+            pendingData: (props.data)?Object.create(props.data):null,
         };
+        console.log("Article built");
+    }
+
+    getChangeHandler(attribute){
+        return function(event){
+            this.state.pendingData[attribute] =
+                formDataTransformer[attribute] ? formDataTransformer[attribute](event.target.value):event.target.value;
+            this.setState({pendingData:this.state.pendingData});
+        }.bind(this)
     }
 
     onDataLoading(){
@@ -54,10 +123,20 @@ export class ArticleDetail extends React.Component {
         });
     }
 
+    static getDerivedStateFromProps(nextProps, prevState){
+        let toUpdate = {};
+        if(nextProps.activeComponent!==prevState.activeComponent){
+            toUpdate.activeComponent = nextProps.activeComponent;
+        }
+        else return null;
+        return toUpdate;
+    }
+
     componentDidMount(){
-        server.getOneById('article',this.state.wantedGroups,this.state.data.id,this.onDataLoading.bind(this))
+        console.log("Article begin Mount");
+        server.getOneById('article',this.state.detailGroups,this.state.data.id,this.onDataLoading.bind(this))
             .then(hResponse =>{
-                console.log("reception client");
+                console.log("reception client Article");
                 console.log(hResponse);
                 this.setState({
                     data:hResponse.data,
@@ -69,21 +148,44 @@ export class ArticleDetail extends React.Component {
                     loading:false
                 });
             });
+
     }
 
     render(){
-        let data = this.state.data;
-        const availableGroups = server.intersectGroups('article',this.state.wantedGroups,data.loadedGroups);
-        /*console.log(this.state.data);
-        console.log(availableGroups);*/
+        // const popover = (
+        //     <Popover id="modal-popover" title="popover">
+        //         very popover. such engagement
+        //     </Popover>
+        // );
+        // const tooltip = <Tooltip id="modal-tooltip">wow.</Tooltip>;
 
-        const popover = (
-            <Popover id="modal-popover" title="popover">
-                very popover. such engagement
-            </Popover>
-        );
-        const tooltip = <Tooltip id="modal-tooltip">wow.</Tooltip>;
-        //console.log(server.getCache());
+        {/*<h4>Text in a modal</h4>*/}
+        {/*<p>*/}
+        {/*Duis mollis, est non commodo luctus, nisi erat porttitor ligula.*/}
+        {/*</p>*/}
+
+        {/*<h4>Popover in a modal</h4>*/}
+        {/*<p>*/}
+        {/*there is a{' '}*/}
+        {/*<OverlayTrigger overlay={popover}>*/}
+        {/*<a href="#popover">popover</a>*/}
+        {/*</OverlayTrigger>{' '}*/}
+        {/*here*/}
+        {/*</p>*/}
+
+        {/*<h4>Tooltips in a modal</h4>*/}
+        {/*<p>*/}
+        {/*there is a{' '}*/}
+        {/*<OverlayTrigger overlay={tooltip}>*/}
+        {/*<a href="#tooltip">tooltip</a>*/}
+        {/*</OverlayTrigger>{' '}*/}
+        {/*here*/}
+        {/*</p>*/}
+
+        {/*<hr/>*/}
+
+        const data = this.state.pendingData; //
+
         return (
             <Loadable
                 active={this.state.loading}
@@ -92,43 +194,16 @@ export class ArticleDetail extends React.Component {
                 color='black'
                 background='rgba(192,192,192,0.4)'
             >
-                <div>
-                    <h4>Text in a modal</h4>
-                    <p>
-                        Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-                    </p>
-
-                    <h4>Popover in a modal</h4>
-                    <p>
-                        there is a{' '}
-                        <OverlayTrigger overlay={popover}>
-                            <a href="#popover">popover</a>
-                        </OverlayTrigger>{' '}
-                        here
-                    </p>
-
-                    <h4>Tooltips in a modal</h4>
-                    <p>
-                        there is a{' '}
-                        <OverlayTrigger overlay={tooltip}>
-                            <a href="#tooltip">tooltip</a>
-                        </OverlayTrigger>{' '}
-                        here
-                    </p>
-
-                    <hr />
-
-                    {availableGroups.hasOwnProperty("minimal") &&
-                    <ArticleDetailMinimal type={data.type} beginHDate={data.beginHDate} endHDate={data.endHDate}/>
-                    }
-
-                    {availableGroups.hasOwnProperty("abstract") &&
-                    <ArticleDetailAbstract abstract={data.abstract}/>
-                    }
+                <div hidden={this.state.activeComponent!=='detail'}>
+                    <ArticleDetail data={this.state.pendingData} groups={this.state.detailGroups}/>
+                </div>
+                <div hidden={this.state.activeComponent!=='form'}>
+                    <ArticleForm
+                        data={this.state.pendingData}
+                        groups={this.state.formGroups}
+                        changeHandler={this.getChangeHandler.bind(this)}/>
                 </div>
             </Loadable>
         );
     }
-
-
 }
