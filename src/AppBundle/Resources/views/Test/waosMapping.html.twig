@@ -1,0 +1,56 @@
+{% extends "base.html.twig" %}
+
+
+{% block title %}
+Mapping des WAOs
+{% endblock %}
+
+{%  block content %}
+<h2>Mapping des WAOs</h2>
+    <h3>Mapping des DTOs</h3>
+
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th>DTO</th>
+            <th>result</th>
+        </tr>
+        {% for item in dtosMapping %}
+            <tr>
+                <td>{{ item.arg }}</td>
+                <td>{{ item.result }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <hr/>
+    <h3>Structure des DTOs</h3>
+
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th>DTO</th>
+            <th>Result</th>
+        </tr>
+        {% for item in dtosStructure %}
+            <tr>
+                <td>{{ item.arg }}</td>
+                <td>{{ item.result }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <hr/>
+    <h3>Mapping des SimpleEntities</h3>
+
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th>Entity</th>
+            <th>result</th>
+        </tr>
+        {% for item in simpleEntitiesMapping %}
+            <tr>
+                <td>{{ item.arg }}</td>
+                <td>{{ item.result }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+
+{% endblock %}

@@ -6,7 +6,7 @@ use AppBundle\DTO\ArticleDTO;
 use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\Factory\DTOFactory;
 use AppBundle\Factory\MediatorFactory;
-use AppBundle\Helper\BootstrapListHelper;
+use AppBundle\Helper\ListHelper;
 use AppBundle\Mapper\EntityMapper;
 use AppBundle\Mediator\DTOMediator;
 use AppBundle\Serializer\ArticleDTONormalizer;
@@ -183,9 +183,9 @@ class CRUDController extends Controller
             // $groups = array_merge($groups,['groups','type']);
             ob_clean();
             $truc =
-                BootstrapListHelper::getNormalizedListData($dtos,$normalizer,$groups,$count);
+                ListHelper::getNormalizedListData($dtos,$normalizer,$groups,$count);
             return new JsonResponse(
-                BootstrapListHelper::getNormalizedListData($dtos,$normalizer,$groups,$count));
+                ListHelper::getNormalizedListData($dtos,$normalizer,$groups,$count));
         }
         catch(\Exception $e){
             $hResponse->setStatus(HJsonResponse::ERROR)

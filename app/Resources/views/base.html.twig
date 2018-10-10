@@ -643,8 +643,9 @@
     <div data-url="{{ url('crud_get_one_by_id') }}" id="hb-url-crud-get-one-by-id"></div>
     <div data-url="{{ url('crud_get_new') }}" id="hb-url-crud-get-new"></div>
     <div data-url="{{ url('crud_post') }}" id="hb-url-crud-post"></div>
-    {% for dto in dtoList() %}
-        <div class="hb-dto-mapping" data-mapping="{{ dto|getMapping() }}" id="hb-mapping-{{ dto|getAbridgedName() }}"></div>
+    {% for wao in waoList() %}
+        <div class="hb-wao-mapping" data-mapping="{{ wao|getMapping() }}" id="hb-mapping-{{ wao|getAbridgedName() }}"></div>
+        <div class="hb-wao-structure" data-structure="{{ wao|getStructure() }}" id="hb-structure-{{ wao|getAbridgedName() }}"></div>
     {% endfor %}
     <div data-token="{{ csrf_token("token_id") }}" id="hb-security-token"></div>
 {% endblock %}

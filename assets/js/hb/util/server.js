@@ -49,10 +49,10 @@ const fetchWithTimeout = function( url,props, timeout ) {
 };
 
 /**
- * @class DTO
+ * @class WAO
  */
-const dtoPrototype = {
-    dtoType: "rootDto",
+const waoPrototype = {
+    waoType: "rootWao",
     cacheLength:100,
     mapping: {},
     dependencies:{},
@@ -65,7 +65,7 @@ const dtoPrototype = {
         let keys = {};
         for (let group in groups){
             if(typeof this.mapping[group] === 'undefined')
-                throw new Error("Group " + group + " undefined for " + this.dtoType + " dto");
+                throw new Error("Group " + group + " undefined for " + this.waoType + " WAO");
             this.mapping[group].forEach(function(item){
                 keys[item] = groups[group];
             });
@@ -90,7 +90,7 @@ const defaultPrototypes = {
      * @class Article
      */
     article:{
-        dtoType : "article",
+        waoType : "article",
         cacheLength:100,
         dependencies:{detailImageResource:"resourceImage"},
         /**
@@ -131,7 +131,7 @@ const defaultPrototypes = {
      * @class ResourceGeometry
      */
     resourceGeometry : {
-        dtoType : "resourceGeometry",
+        waoType : "resourceGeometry",
         cacheLength:50,
         getPointCoords(){
             if(typeof this.targetGeometry ==='undefined' ||
@@ -151,11 +151,11 @@ const defaultPrototypes = {
 
 let prototypes = {};
 let cache = {};
-const mappingDivs = document.getElementsByClassName('hb-dto-mapping');
+const mappingDivs = document.getElementsByClassName('hb-wao-mapping');
 
 for (let i = 0; i < mappingDivs.length; ++i) {
     let item = mappingDivs[i];
-    let concreteDtoPrototype = Object.create(dtoPrototype);
+    let concreteDtoPrototype = Object.create(waoPrototype);
     concreteDtoPrototype.mapping = JSON.parse(item.getAttribute('data-mapping'));
     prototypes[item.getAttribute('id').replace('hb-mapping-','')] = concreteDtoPrototype;
     console.log("create cache entry");
@@ -257,7 +257,7 @@ const intersectGroups = function(type,baseGroups,compareGroups){
 
 
 /**
- * function called when dto data is received from the server
+ * function called when wao data is received from the server
  * @param type
  * @param object
  */

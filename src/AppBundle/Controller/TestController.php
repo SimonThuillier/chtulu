@@ -5,6 +5,7 @@ namespace AppBundle\Controller;
 use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\Factory\DTOFactory;
 use AppBundle\Helper\DTOHelper;
+use AppBundle\Helper\SimpleEntityHelper;
 use AppBundle\Mediator\ArticleDTOMediator;
 use AppBundle\Mediator\NotAvailableGroupException;
 use AppBundle\Mediator\NullColleagueException;
@@ -139,19 +140,41 @@ class TestController extends Controller
     }
 
     /**
-     * @Route("/dtos-mapping", name="test_dtos_mapping")
+     * @Route("/waos-mapping", name="test_waos_mapping")
      * @throws \Exception
      * @Template()
      */
-    public function dtosMappingAction(Request $request,
-                                      DTOHelper $DTOHelper)
+    public function waosMappingAction(Request $request,
+                                      DTOHelper $DTOHelper,
+                                      SimpleEntityHelper $simpleEntityHelper)
     {
         $dtoClasses = $DTOHelper->getDTOClassNames();
         $dtosMapping=[];
+        $dtosStructure=[];
         foreach($dtoClasses as $class){
-            $dtosMapping[] = ["arg"=>$class,"result" => json_encode($DTOHelper->getDTOMapping($class))];
+            $dtosMapping[] = ["arg"=>$DTOHelper->getAbridgedName($class),
+                "result" => json_encode($DTOHelper->getDTOMapping($class))];
+
+            $dtoStructure = $DTOHelper->getDTOStructure($class);
+            $dtoStructure = array_map(function(array $item) use ($DTOHelper){
+
+                return [$item["name"] => $DTOHelper->getAbridgedName($item["returnType"])];
+            },$dtoStructure);
+            $dtosStructure[] = ["arg"=>$DTOHelper->getAbridgedName($class),"result" => json_encode($dtoStructure)];
         }
-        return array("dtosMapping"=>$dtosMapping);
+
+        $simpleEntityClasses = $simpleEntityHelper->getEntityClassNames();
+        $simpleEntitiesMapping=[];
+        foreach($simpleEntityClasses as $class){
+            $simpleEntitiesMapping[] = ["arg"=>$DTOHelper->getAbridgedName($class),
+                "result" => json_encode($simpleEntityHelper->getEntityMapping($class))];
+        }
+
+        return array(
+            "dtosMapping"=>$dtosMapping,
+            "dtosStructure"=>$dtosStructure,
+            "simpleEntitiesMapping"=>$simpleEntitiesMapping
+        );
     }
 
     /**

@@ -7,7 +7,7 @@ use AppBundle\Factory\MediatorFactory;
 use AppBundle\Form\ArticleDTOType;
 use AppBundle\Form\ArticleSearchType;
 use AppBundle\Form\HFileUploadType;
-use AppBundle\Helper\BootstrapListHelper;
+use AppBundle\Helper\ListHelper;
 use AppBundle\Mapper\ArticleMapper;
 use AppBundle\Mediator\ArticleDTOMediator;
 use AppBundle\Mediator\DTOMediator;
@@ -440,7 +440,7 @@ class ArticleController extends Controller
         }
 
         $groups = array_merge($groups,['groups','type']);
-        return new JsonResponse(BootstrapListHelper::getNormalizedListData($articleDtos,$normalizer,$groups,$count));
+        return new JsonResponse(ListHelper::getNormalizedListData($articleDtos,$normalizer,$groups,$count));
     }
 
     /**

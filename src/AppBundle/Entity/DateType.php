@@ -3,6 +3,7 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * DateType
@@ -54,9 +55,7 @@ class DateType
 
     /**
      * Set id (temporary)
-     *
      * @param int $id
-     *
      * @return DateType
      */
     public function setId($id)
@@ -64,9 +63,10 @@ class DateType
         $this->id = $id;
         return $this;
     }
+
     /**
      * Get id
-     *
+     * @Groups({"minimal"})
      * @return integer
      */
     public function getId()
@@ -90,7 +90,7 @@ class DateType
 
     /**
      * Get label
-     *
+     * @Groups({"minimal"})
      * @return string
      */
     public function getLabel()
@@ -114,7 +114,7 @@ class DateType
 
     /**
      * Get comment
-     *
+     * @Groups({"comment"})
      * @return string
      */
     public function getComment()

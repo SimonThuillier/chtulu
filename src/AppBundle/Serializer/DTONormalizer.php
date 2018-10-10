@@ -8,8 +8,6 @@
 
 namespace AppBundle\Serializer;
 
-
-use AppBundle\DTO\ArticleDTO;
 use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\Mediator\NotAvailableGroupException;
 use Doctrine\Common\Annotations\AnnotationReader;
@@ -27,20 +25,20 @@ class DTONormalizer extends HNormalizer
     /**
      * @param ManagerRegistry $doctrine
      * @param ArticleDTONormalizer $articleDTONormalizer
-     * @param TypeNormalizer $typeNormalizer
+     * @param SimpleEntityNormalizer $simpleEntityNormalizer
      * @param ResourceDTONormalizer $resourceDTONormalizer
      * @param ResourceGeometryDTONormalizer $ResourceGeometryDTONormalizer
      */
     public function __construct(ManagerRegistry $doctrine,
                                 ArticleDTONormalizer $articleDTONormalizer,
-                                TypeNormalizer $typeNormalizer,
+                                SimpleEntityNormalizer $simpleEntityNormalizer,
                                 ResourceDTONormalizer $resourceDTONormalizer,
                                 ResourceGeometryDTONormalizer $ResourceGeometryDTONormalizer)
     {
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
+            $simpleEntityNormalizer,
             $articleDTONormalizer,
-            $typeNormalizer,
             $resourceDTONormalizer,
             $ResourceGeometryDTONormalizer,
             new HGetSetMethodNormalizer($classMetadataFactory),
