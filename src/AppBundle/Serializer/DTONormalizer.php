@@ -59,7 +59,7 @@ class DTONormalizer extends HNormalizer
     }
 
     /**
-     * @param EntityMutableDTO $object
+     * @param mixed $object
      * @param array|null $groups
      * @param array $context
      * @return array

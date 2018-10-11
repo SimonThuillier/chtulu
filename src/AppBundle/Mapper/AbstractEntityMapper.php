@@ -184,7 +184,7 @@ abstract class AbstractEntityMapper
      */
     public function findLast()
     {
-        return $this->repository->findBy([], ['id' => 'DESC']);
+        return $this->repository->findBy([], ['id' => 'DESC'],1);
     }
 
     /**

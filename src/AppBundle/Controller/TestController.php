@@ -4,7 +4,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\Factory\DTOFactory;
-use AppBundle\Helper\DTOHelper;
+use AppBundle\Helper\WAOHelper;
 use AppBundle\Helper\SimpleEntityHelper;
 use AppBundle\Mediator\ArticleDTOMediator;
 use AppBundle\Mediator\NotAvailableGroupException;
@@ -145,29 +145,28 @@ class TestController extends Controller
      * @Template()
      */
     public function waosMappingAction(Request $request,
-                                      DTOHelper $DTOHelper,
-                                      SimpleEntityHelper $simpleEntityHelper)
+                                      WAOHelper $waoHelper)
     {
-        $dtoClasses = $DTOHelper->getDTOClassNames();
+        $dtoClasses = $waoHelper->getDTOClassNames();
         $dtosMapping=[];
         $dtosStructure=[];
         foreach($dtoClasses as $class){
-            $dtosMapping[] = ["arg"=>$DTOHelper->getAbridgedName($class),
-                "result" => json_encode($DTOHelper->getDTOMapping($class))];
+            $dtosMapping[] = ["arg"=>$waoHelper->getAbridgedName($class),
+                "result" => json_encode($waoHelper->getDTOMapping($class))];
 
-            $dtoStructure = $DTOHelper->getDTOStructure($class);
-            $dtoStructure = array_map(function(array $item) use ($DTOHelper){
+            $dtoStructure = $waoHelper->getDTOStructure($class);
+            $dtoStructure = array_map(function(array $item) use ($waoHelper){
 
-                return [$item["name"] => $DTOHelper->getAbridgedName($item["returnType"])];
+                return [$item["name"] => $waoHelper->getAbridgedName($item["returnType"])];
             },$dtoStructure);
-            $dtosStructure[] = ["arg"=>$DTOHelper->getAbridgedName($class),"result" => json_encode($dtoStructure)];
+            $dtosStructure[] = ["arg"=>$waoHelper->getAbridgedName($class),"result" => json_encode($dtoStructure)];
         }
 
-        $simpleEntityClasses = $simpleEntityHelper->getEntityClassNames();
+        $simpleEntityClasses = $waoHelper->getSimpleEntityClassNames();
         $simpleEntitiesMapping=[];
         foreach($simpleEntityClasses as $class){
-            $simpleEntitiesMapping[] = ["arg"=>$DTOHelper->getAbridgedName($class),
-                "result" => json_encode($simpleEntityHelper->getEntityMapping($class))];
+            $simpleEntitiesMapping[] = ["arg"=>$waoHelper->getAbridgedName($class),
+                "result" => json_encode($waoHelper->getEntityMapping($class))];
         }
 
         return array(

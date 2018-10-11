@@ -27,7 +27,11 @@ class ListHelper
         if($objects == null || count($objects) === 0) return $data;
 
         foreach($objects as $object){
-            $data["rows"][] = $serializer->normalize($object,$groups);
+            $normalization = $serializer->normalize($object,$groups);
+            if(!array_key_exists("loadedGroups",$normalization)){
+                $normalization["loadedGroups"] = $groups;
+            }
+            $data["rows"][] = $normalization;
         }
         if($count === null ) $count = count($objects);
         $data["total"] = $count;

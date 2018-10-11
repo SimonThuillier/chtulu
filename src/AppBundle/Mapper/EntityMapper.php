@@ -16,6 +16,7 @@ use AppBundle\DTO\ResourceGeometryDTO;
 use AppBundle\DTO\ResourceImageDTO;
 use AppBundle\DTO\ResourceVersionDTO;
 use AppBundle\Factory\FactoryException;
+use AppBundle\Helper\WAOHelper;
 use AppBundle\Mediator\InvalidCallerException;
 use AppBundle\Mediator\NullColleagueException;
 use AppBundle\Utils\SearchBag;
@@ -27,14 +28,24 @@ class EntityMapper implements ServiceSubscriberInterface
 {
     /** @var ContainerInterface */
     private $locator;
+    /** @var WAOHelper */
+    private $waoHelper;
+    /** @var SimpleEntityMapper */
+    private $simpleEntityMapper;
 
     /**
      * EntityMapper constructor.
      * @param ContainerInterface $locator
+     * @param WAOHelper $waoHelper
+     * @param SimpleEntityMapper $simpleEntityMapper
      */
-    public function __construct(ContainerInterface $locator)
+    public function __construct(ContainerInterface $locator,
+                                WAOHelper $waoHelper,
+                                SimpleEntityMapper $simpleEntityMapper)
     {
         $this->locator = $locator;
+        $this->waoHelper = $waoHelper;
+        $this->simpleEntityMapper = $simpleEntityMapper;
     }
 
     /**
@@ -46,7 +57,6 @@ class EntityMapper implements ServiceSubscriberInterface
             ArticleDTO::class => ArticleMapper::class,
             ResourceImageDTO::class => ResourceFileMapper::class,
             ResourceGeometryDTO::class => ResourceGeometryMapper::class,
-            'lala' => ResourceGeometryMapper::class,
             ResourceDTO::class => ResourceMapper::class,
             ResourceVersionDTO::class => ResourceVersionMapper::class,
         ];
@@ -56,6 +66,7 @@ class EntityMapper implements ServiceSubscriberInterface
      * @param string $dtoClassName
      * @return EntityMapperInterface
      * @throws InvalidCallerException
+     *
      */
     private function getMapperFromDtoClassName(string $dtoClassName){
         if($this->locator->has($dtoClassName)){
@@ -110,8 +121,6 @@ class EntityMapper implements ServiceSubscriberInterface
     public function addOrEdit(EntityMutableDTO $dto, $id = null, $commit = true)
     {
         $mapper = $this->getMapperFromDtoClassName(get_class($dto));
-        $la = $dto->getId();
-        $lo = "truc";
         if($dto->getId() < 1){
             return $mapper->add($dto,$commit);
         }
@@ -129,6 +138,9 @@ class EntityMapper implements ServiceSubscriberInterface
      */
     public function find(string $dtoClassName,int $id)
     {
+        if($this->waoHelper->isSimpleEntity($dtoClassName))
+            return $this->simpleEntityMapper->find($dtoClassName,$id);
+
         $mapper = $this->getMapperFromDtoClassName($dtoClassName);
         return $mapper->find($id);
     }
@@ -137,9 +149,13 @@ class EntityMapper implements ServiceSubscriberInterface
      * @param string $dtoClassName
      * @return \Doctrine\ORM\QueryBuilder
      * @throws InvalidCallerException
+     * @throws EntityMapperException
      */
     public function getFindAllQB(string $dtoClassName)
     {
+        if($this->waoHelper->isSimpleEntity($dtoClassName))
+            return $this->simpleEntityMapper->getFindAllQB($dtoClassName);
+
         $mapper = $this->getMapperFromDtoClassName($dtoClassName);
         return $mapper->getFindAllQB();
     }
@@ -152,6 +168,9 @@ class EntityMapper implements ServiceSubscriberInterface
      */
     public function getCountBy(string $dtoClassName,?SearchBag $searchBag)
     {
+        if($this->waoHelper->isSimpleEntity($dtoClassName))
+            return $this->simpleEntityMapper->getCountBy($dtoClassName,$searchBag);
+
         $mapper = $this->getMapperFromDtoClassName($dtoClassName);
         return $mapper->getCountBy($searchBag);
     }
@@ -165,6 +184,9 @@ class EntityMapper implements ServiceSubscriberInterface
      */
     public function searchBy(string $dtoClassName,?SearchBag $searchBag, &$count = 0)
     {
+        if($this->waoHelper->isSimpleEntity($dtoClassName))
+            return $this->simpleEntityMapper->searchBy($dtoClassName,$searchBag,$count);
+
         $mapper = $this->getMapperFromDtoClassName($dtoClassName);
         return $mapper->searchBy($searchBag,$count);
     }
@@ -173,9 +195,13 @@ class EntityMapper implements ServiceSubscriberInterface
      * @param string $dtoClassName
      * @return Entity
      * @throws InvalidCallerException
+     * @throws EntityMapperException
      */
     public function findLast(string $dtoClassName)
     {
+        if($this->waoHelper->isSimpleEntity($dtoClassName))
+            return $this->simpleEntityMapper->findLast($dtoClassName);
+
         $mapper = $this->getMapperFromDtoClassName($dtoClassName);
         return $mapper->findLast();
     }

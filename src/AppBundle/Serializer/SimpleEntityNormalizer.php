@@ -9,7 +9,7 @@
 namespace AppBundle\Serializer;
 
 
-use AppBundle\Helper\SimpleEntityHelper;
+use AppBundle\Helper\WAOHelper;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
@@ -19,9 +19,9 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 class SimpleEntityNormalizer implements NormalizerInterface
 {
     /**
-     * @var SimpleEntityHelper
+     * @var WAOHelper
      */
-    private $simpleEntityHelper;
+    private $waoHelper;
     /**
      * @var HGetSetMethodNormalizer
      */
@@ -30,11 +30,11 @@ class SimpleEntityNormalizer implements NormalizerInterface
     /**
      * handles simple entities which are always normalized the same way
      * MediatorNormalizer constructor.
-     * @param SimpleEntityHelper $simpleEntityHelper
+     * @param WAOHelper $waoHelper
      */
-    public function __construct(SimpleEntityHelper $simpleEntityHelper)
+    public function __construct(WAOHelper $waoHelper)
     {
-        $this->simpleEntityHelper = $simpleEntityHelper;
+        $this->waoHelper = $waoHelper;
 
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $this->normalizer = new HGetSetMethodNormalizer($classMetadataFactory);
@@ -42,7 +42,7 @@ class SimpleEntityNormalizer implements NormalizerInterface
 
     public function supportsNormalization($data, $format = null)
     {
-        return (is_object($data) && in_array(get_class($data),$this->simpleEntityHelper->getEntityClassNames()));
+        return (is_object($data) && in_array(get_class($data),$this->waoHelper->getSimpleEntityClassNames()));
     }
 
     public function supportsDenormalization($data, $type, $format = null)

@@ -9,36 +9,71 @@
 namespace AppBundle\Helper;
 
 
+use AppBundle\Entity\ArticleType;
+use AppBundle\Entity\DateType;
+use AppBundle\Entity\ResourceType;
 use AppBundle\Factory\DTOFactory;
 
-class DTOHelper
+class WAOHelper
 {
     const DTO_NS = 'AppBundle\\DTO\\';
     const ENTITY_NS = 'AppBundle\\Entity\\';
-
+    const FORM_NS = 'AppBundle\\Form\\';
 
     /**
      * @var DTOFactory
      */
     private $DTOFactory;
     /**
-     * @var SimpleEntityHelper
+     * @var array
      */
-    private $simpleEntityHelper;
+    private $simpleEntityClasses;
 
     /**
-     * DTOHelper constructor.
+     * WAOHelper constructor.
      * @param DTOFactory $DTOFactory
-     * @param SimpleEntityHelper $simpleEntityHelper
      */
-    public function __construct(DTOFactory $DTOFactory,
-                                SimpleEntityHelper $simpleEntityHelper)
+    public function __construct(DTOFactory $DTOFactory)
     {
         $this->DTOFactory = $DTOFactory;
-        $this->simpleEntityHelper = $simpleEntityHelper;
+        $this->simpleEntityClasses = array(
+            ArticleType::class,
+            DateType::class,
+            ResourceType::class
+        );
     }
 
     public function getDTOMapping(string $className)
+    {
+        $dtoReflectionClass = new \ReflectionClass($className);
+        $getters = array_filter($dtoReflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC),
+            function($item){
+                return (preg_match("#^get#",$item->name) == 1) &&
+                    !in_array($item->name,["getGroups","getMediator"]);
+            });
+
+        $annotations = array_map(function(\ReflectionMethod $item){
+            $groups = [];
+            $matches = [];
+            if(preg_match("#@Groups\({(?<groups>[^}]+)}\)#i",
+                    str_replace(" ","",$item->getDocComment()),$matches) == 1){
+                $groups = explode(",",str_replace("\"","",$matches["groups"]));
+            }
+
+            return ["name"=>lcfirst(substr($item->name,3)),"groups" => $groups];
+        },$getters);
+
+        $mapping = array();
+        foreach ($annotations as $annotation){
+            foreach($annotation["groups"] as $group){
+                $mapping[$group] = array_merge(isset($mapping[$group])?$mapping[$group]:[],
+                    [$annotation["name"]]);
+            }
+        }
+        return $mapping;
+    }
+
+    public function getEntityMapping(string $className)
     {
         $dtoReflectionClass = new \ReflectionClass($className);
         $getters = array_filter($dtoReflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC),
@@ -77,7 +112,7 @@ class DTOHelper
                     !in_array($item->name,["getGroups","getMediator"]);
             });
 
-        $waoClassNames = array_merge($this->getDTOClassNames(),$this->simpleEntityHelper->getEntityClassNames());
+        $waoClassNames = array_merge($this->getDTOClassNames(),$this->getSimpleEntityClassNames());
 
         $structure = [];
 
@@ -108,7 +143,7 @@ class DTOHelper
     }
 
     public function getAbridgedName($className){
-        if(in_array($className,$this->simpleEntityHelper->getEntityClassNames())){
+        if(in_array($className,$this->getSimpleEntityClassNames())){
             $matches=[];
             preg_match("#\\\\(?<name>[^\\\\]+)$#",$className,$matches);
             return lcfirst($matches["name"]);
@@ -121,9 +156,36 @@ class DTOHelper
         }
     }
 
+    public function guessClassName($abridgedClassName){
+        $className = self::ENTITY_NS . ucfirst($abridgedClassName);
+        if(in_array($className,$this->simpleEntityClasses)) return $className;
+        else return self::DTO_NS . ucfirst($abridgedClassName) . "DTO";
+    }
 
+    public function isSimpleEntity($className){
+        if(in_array($className,$this->simpleEntityClasses)) return true;
+        else return false;
+    }
+
+    public function isDTO($className){
+        if(in_array($className,array_keys($this->DTOFactory::getSubscribedServices()))) return true;
+        else return false;
+    }
+
+    public function getFormClassName($dtoClassName){
+        return str_replace(self::DTO_NS,self::FORM_NS,$dtoClassName) . "Type";
+    }
 
     public function getDTOClassNames(){
         return array_keys($this->DTOFactory::getSubscribedServices());
     }
+
+    public function getSimpleEntityClassNames(){
+        return $this->simpleEntityClasses;
+    }
+
+    public function getWAOClassNames(){
+        return array_merge($this->getDTOClassNames(),$this->getSimpleEntityClassNames());
+    }
+
 }
