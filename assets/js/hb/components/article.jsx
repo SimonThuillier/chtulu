@@ -1,5 +1,5 @@
 import React from "react";
-import {Popover,OverlayTrigger,Tooltip,Image} from 'react-bootstrap';
+import {Popover,OverlayTrigger,Tooltip,Image,ControlLabel,FormGroup,FormControl} from 'react-bootstrap';
 import server from '../util/server.js';
 import Loadable from 'react-loading-overlay';
 
@@ -30,8 +30,10 @@ export function ArticleDetailImage(props){
 
 export function ArticleDetailAbstract(props){
     const abstract = props.abstract || "";
-    const paragraphs =  abstract.split("\n").map((line) =>{
+    let paragraphKey=0;
+    const paragraphs =  abstract.split("\r\n").map((line) =>{
         if (line.length === 0) return null;
+        paragraphKey++;
         return(
             <p>
                 &nbsp;&nbsp;&nbsp;{line}
@@ -74,6 +76,62 @@ export function ArticleDetail(props){
     );
 }
 
+export class ArticleTypeSelect extends React.Component{
+    constructor(props) {
+        super(props);
+        this.state = {
+            choices:[],
+            loading: false,
+            disabled: false,
+            searchBag:server.createSearchBag(null,'label','ASC',0,100)
+        };
+    }
+
+    onDataLoading(){
+        this.setState({
+            loading:true
+        });
+    }
+
+    componentDidMount(){
+        console.log("article type has mounted");
+        // server.get('articleType',{minimal:true},this.state.searchBag,this.onDataLoading.bind(this))
+        //     .then(hResponse =>{
+        //         console.log("reception types article");
+        //         console.log(hResponse);
+        //         this.setState({
+        //             choices:hResponse.data,
+        //             loading:false
+        //         });
+        //     })
+        //     .catch((error) => {
+        //         this.setState({
+        //             loading:false
+        //         });
+        //     });
+    }
+
+    render(){
+        const options =  this.state.choices.map((choice) =>{
+            return(
+                <option value={choice.id}>
+                    {choice.label}
+                </option>
+            );
+        });
+
+
+        return(
+            <FormGroup validationState={null} controlId="formControlsSelect">
+                <ControlLabel>Type</ControlLabel>
+                <FormControl componentClass="select" placeholder="choisissez un type d'article">
+                    {options}
+                </FormControl>
+            </FormGroup>
+        );
+    }
+};
+
 const formDataTransformer = {
     abstract:function(value){
         return value.replace('<br />',"\n");
@@ -88,10 +146,11 @@ export function ArticleForm(props){
                 Résumé :
                 <textarea value={data.abstract} onChange={props.changeHandler("abstract")} />
             </label>
+            <ArticleTypeSelect/>
             <input type="submit" value="Submit" />
         </form>
     );
-}
+};
 
 export class Article extends React.Component{
     constructor(props) {

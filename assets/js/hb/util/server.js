@@ -170,6 +170,7 @@ Object.keys(prototypes).forEach(function(key,index) {
  */
 const watchCache = function(type){
     console.log("watch cache");
+    console.table(cache[type]);
     while(cache[type].length > prototypes[type].cacheLength){
         cache[type].shift();
     }
@@ -325,6 +326,7 @@ module.exports =
          * @param type
          * @param groups
          * @param id integer
+         * @param onDataLoading function
          * @returns {Promise<any>}
          */
         getOneById : function(type,groups=true,id,onDataLoading=null){
@@ -367,7 +369,7 @@ module.exports =
 
                 if(onDataLoading !== null) onDataLoading.call();
                 console.log("cache before actions");
-                console.log(cache);
+                console.table(cache);
 
                 return fetchWithTimeout(url,requestProps,TIMEOUT)
                     .then(response => {console.log(response);
@@ -394,9 +396,10 @@ module.exports =
          * @param type
          * @param searchBag
          * @param groups
+         * @param onDataLoading function
          * @returns {Promise<any>}
          */
-        get : function(type,groups=true,searchBag=null){
+        get : function(type,groups=true,searchBag=null,onDataLoading=null){
             return new Promise((resolve,reject) => {
 
                 if(searchBag === null) searchBag = this.createSearchBag();
@@ -415,6 +418,8 @@ module.exports =
                     credentials:'same-origin',
                     mode: 'same-origin',
                     cache: 'default' };
+
+                if(onDataLoading !== null) onDataLoading.call();
 
                 return fetchWithTimeout(url,requestProps,TIMEOUT)
                     .then(response => {console.log(response);
