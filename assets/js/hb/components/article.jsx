@@ -95,20 +95,20 @@ export class ArticleTypeSelect extends React.Component{
 
     componentDidMount(){
         console.log("article type has mounted");
-        // server.get('articleType',{minimal:true},this.state.searchBag,this.onDataLoading.bind(this))
-        //     .then(hResponse =>{
-        //         console.log("reception types article");
-        //         console.log(hResponse);
-        //         this.setState({
-        //             choices:hResponse.data,
-        //             loading:false
-        //         });
-        //     })
-        //     .catch((error) => {
-        //         this.setState({
-        //             loading:false
-        //         });
-        //     });
+        server.get('articleType',{minimal:true},this.state.searchBag,this.onDataLoading.bind(this))
+            .then(hResponse =>{
+                console.log("reception types article");
+                console.log(hResponse);
+                this.setState({
+                    choices:hResponse.data,
+                    loading:false
+                });
+            })
+            .catch((error) => {
+                // this.setState({
+                //     loading:false
+                // });
+            });
     }
 
     render(){
@@ -257,10 +257,10 @@ export class Article extends React.Component{
                     <ArticleDetail data={this.state.pendingData} groups={this.state.detailGroups}/>
                 </div>
                 <div hidden={this.state.activeComponent!=='form'}>
-                    <ArticleForm
+                    {this.state.activeComponent==='form' && <ArticleForm
                         data={this.state.pendingData}
                         groups={this.state.formGroups}
-                        changeHandler={this.getChangeHandler.bind(this)}/>
+                        changeHandler={this.getChangeHandler.bind(this)}/>}
                 </div>
             </Loadable>
         );
