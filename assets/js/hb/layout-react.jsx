@@ -1,5 +1,4 @@
-import { BrowserRouter, Router, Route,NavLink,Switch} from 'react-router-dom';
-//import { browserRouter } from 'react-router';
+import { BrowserRouter,Route,Switch} from 'react-router-dom';
 import {ArticleTablePage} from "./components/ArticleTablePage";
 
 //require('./components/SideBar.jsx');
@@ -32,12 +31,12 @@ export const Page2Content = (props) => {
 export const Page1 = ({match}) => {
     return (
         <BrowserRouter>
-        <div className="wrapper hold-transition skin-blue sidebar-mini">
+            <div className="wrapper hold-transition skin-blue sidebar-mini">
 
-            <Header/>
-            <SideBar/>
-            <Page1Content/>
-        </div>
+                {/*<Header/>*/}
+                {/*<SideBar/>*/}
+                <Page1Content/>
+            </div>
         </BrowserRouter>
     );
 };
@@ -45,38 +44,29 @@ export const Page1 = ({match}) => {
 export const Page2 = ({match}) => {
     return (
         <BrowserRouter>
-        <div className="wrapper hold-transition skin-blue sidebar-mini">
-            <Header/>
-            <SideBar/>
-            <Page2Content/>
-        </div>
+            <div className="wrapper hold-transition skin-blue sidebar-mini">
+                <Header/>
+                <SideBar/>
+                <Page2Content/>
+            </div>
         </BrowserRouter>
     );
 };
-
 
 export const App = (props) => {
     console.log(props);
     return (
-                <div className="wrapper hold-transition skin-blue sidebar-mini">
-                    <Header/>
-                    <SideBar/>
-                    <Switch>
-                        <Route exact path='/page1' component={Page1Content}/>
-                        <Route exact path='/page2' component={Page2Content}/>
-                        <Route exact path='/article-table' component={ArticleTablePage}/>
-                        {/*<Route exact path='' render={(props) => <App {...props} /> } />*/}
-                    </Switch>
-                </div>
+        <BrowserRouter basename="/test/react-router">
+            <div className="wrapper hold-transition skin-blue sidebar-mini">
+                <Header/>
+                <SideBar/>
+                <Switch>
+                    <Route exact path='/page1' component={Page1Content}/>
+                    <Route exact path='/page2' component={Page2Content}/>
+                    <Route exact path='/article-table' component={ArticleTablePage}/>
+                    {/*<Route exact path='' render={(props) => <App {...props} /> } />*/}
+                </Switch>
+            </div>
+        </BrowserRouter>
     );
 };
-
-
-
-ReactDOM.render(
-    (
-        <BrowserRouter basename="/test/react-router">
-            <App/>
-        </BrowserRouter>
-    ),
-    document.getElementById('hb-wrapper'));
