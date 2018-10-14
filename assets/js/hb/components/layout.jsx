@@ -1,18 +1,18 @@
 import { BrowserRouter, Router, Route,NavLink,Switch} from 'react-router-dom';
 import React, {Component} from 'react';
-import {Page1,Page2} from '../layout-react.jsx';
-
-
-export const HBRouter = (props) => {
-    return(
-        <BrowserRouter>
-            <Switch>
-                <Route path='/test/page1' component={Page1}/>
-                <Route path='/test/page2' component={Page2}/>
-            </Switch>
-        </BrowserRouter>
-    );
-};
+// import {Page1,Page2} from '../layout-react.jsx';
+//
+//
+// export const HBRouter = (props) => {
+//     return(
+//         <BrowserRouter>
+//             <Switch>
+//                 <Route path='/test/page1' component={Page1}/>
+//                 <Route path='/test/page2' component={Page2}/>
+//             </Switch>
+//         </BrowserRouter>
+//     );
+// };
 
 export const Header = (props) => {
     return (

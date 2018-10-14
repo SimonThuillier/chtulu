@@ -1,7 +1,9 @@
 import React from "react";
 import {Popover,OverlayTrigger,Tooltip,Image,ControlLabel,FormGroup,FormControl} from 'react-bootstrap';
-import server from '../util/server.js';
+import server from '../../Server.js';
 import Loadable from 'react-loading-overlay';
+import Actions from "../../Actions.js";
+const uuidv4 = require('uuid/v4');
 
 
 export function ArticleDetailMinimal(props){
@@ -76,11 +78,41 @@ export function ArticleDetail(props){
     );
 }
 
-export class ArticleTypeSelect extends React.Component{
+
+export function ArticleTypeSelect(props){
+    let uuid = uuidv4();
+    Actions.get(uuid,{dataType:"articleType"});
+
+    console.log(props.articleType.values());
+
+    /*const options =  props.articleType.options.map((option) =>{
+        return(
+            <option value={option.id}>
+                {option.label}
+            </option>
+        );
+    });*/
+    let options = [];
+
+
+    return(
+        <FormGroup validationState={null} controlId="formControlsSelect">
+            <ControlLabel>Type</ControlLabel>
+            <FormControl componentClass="select" placeholder="choisissez un type d'article">
+                {options}
+            </FormControl>
+        </FormGroup>
+    );
+}
+
+
+export class ArticleTypeSelect2 extends React.Component{
     constructor(props) {
+        console.log(props.articleType);
         super(props);
         this.state = {
-            choices:[],
+            uuid: uuidv4(),
+            options:props.articleType,
             loading: false,
             disabled: false,
             searchBag:server.createSearchBag(null,'label','ASC',0,100)
@@ -95,14 +127,19 @@ export class ArticleTypeSelect extends React.Component{
 
     componentDidMount(){
         console.log("article type has mounted");
+        Actions.get(this.state.uuid,{dataType:"articleType"});
+
+
+
+
         server.get('articleType',{minimal:true},this.state.searchBag,this.onDataLoading.bind(this))
             .then(hResponse =>{
                 console.log("reception types article");
                 console.log(hResponse);
-                this.setState({
-                    choices:hResponse.data,
+                /*this.setState({
+                    options:hResponse.data,
                     loading:false
-                });
+                });*/
             })
             .catch((error) => {
                 // this.setState({
@@ -112,10 +149,11 @@ export class ArticleTypeSelect extends React.Component{
     }
 
     render(){
-        const options =  this.state.choices.map((choice) =>{
+        console.log(this.state);
+        const options =  this.state.options.map((option) =>{
             return(
-                <option value={choice.id}>
-                    {choice.label}
+                <option value={option.id}>
+                    {option.label}
                 </option>
             );
         });

@@ -1,3 +1,4 @@
+import Immutable from 'immutable';
 
 /**
  * @class WAO
@@ -107,7 +108,9 @@ for (let i = 0; i < mappingDivs.length; ++i) {
     let concreteDtoPrototype = Object.create(waoPrototype);
     concreteDtoPrototype.mapping = JSON.parse(item.getAttribute('data-mapping'));
     concreteDtoPrototype.waoType = type;
+    // concreteDtoPrototype["createNew"] = Immutable.Record({id:null});
     prototypes[type] = concreteDtoPrototype;
+
 }
 Object.keys(prototypes).forEach(function(key,index) {
     if(defaultPrototypes.hasOwnProperty(key)) Object.assign(prototypes[key],defaultPrototypes[key]);

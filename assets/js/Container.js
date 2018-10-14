@@ -9,8 +9,8 @@ function getStores() {
             containerStores.push(Stores[type]);
         }
     }
-    console.log(Stores);
-    console.log(containerStores);
+    console.table(Stores);
+    console.table(containerStores);
     return containerStores;
 
 }

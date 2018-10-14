@@ -1,16 +1,20 @@
+import React from 'react';
 import { BrowserRouter,Route,Switch} from 'react-router-dom';
 import {ArticleTablePage} from "./components/ArticleTablePage";
+import {ArticleTypeSelect} from "./components/article.jsx"
 
 //require('./components/SideBar.jsx');
-import {Header,SideBar,HBRouter} from './components/layout.jsx';
+import {Header,SideBar} from './components/layout.jsx';
 
 export const Page1Content = (props) => {
+    console.log(props);
     return (
         <div className="content-wrapper hb-container">
             <section className="content-header">
             </section>
             <section className="content">
                 <p>Page 1</p>
+                <ArticleTypeSelect {...props}/>
             </section>
         </div>
     )
@@ -28,28 +32,44 @@ export const Page2Content = (props) => {
     )
 };
 
-export const Page1 = ({match}) => {
-    return (
-        <BrowserRouter>
-            <div className="wrapper hold-transition skin-blue sidebar-mini">
+// export const Page1 = ({match}) => {
+//     return (
+//         <BrowserRouter>
+//             <div className="wrapper hold-transition skin-blue sidebar-mini">
+//
+//                 {/*<Header/>*/}
+//                 {/*<SideBar/>*/}
+//                 <Page1Content/>
+//             </div>
+//         </BrowserRouter>
+//     );
+// };
+//
+// export const Page2 = ({match}) => {
+//     return (
+//         <BrowserRouter>
+//             <div className="wrapper hold-transition skin-blue sidebar-mini">
+//                 <Header/>
+//                 <SideBar/>
+//                 <Page2Content/>
+//             </div>
+//         </BrowserRouter>
+//     );
+// };
 
-                {/*<Header/>*/}
-                {/*<SideBar/>*/}
-                <Page1Content/>
-            </div>
-        </BrowserRouter>
+
+const renderMergedProps = (component, ...rest) => {
+    const finalProps = Object.assign({}, ...rest);
+    return (
+        React.createElement(component, finalProps)
     );
 };
 
-export const Page2 = ({match}) => {
+const PropsRoute = ({ component, ...rest }) => {
     return (
-        <BrowserRouter>
-            <div className="wrapper hold-transition skin-blue sidebar-mini">
-                <Header/>
-                <SideBar/>
-                <Page2Content/>
-            </div>
-        </BrowserRouter>
+        <Route {...rest} render={routeProps => {
+            return renderMergedProps(component, routeProps, rest);
+        }}/>
     );
 };
 
@@ -61,7 +81,7 @@ export const App = (props) => {
                 <Header/>
                 <SideBar/>
                 <Switch>
-                    <Route exact path='/page1' component={Page1Content}/>
+                    <PropsRoute exact path='/page1' component={Page1Content} {...props}/>
                     <Route exact path='/page2' component={Page2Content}/>
                     <Route exact path='/article-table' component={ArticleTablePage}/>
                     {/*<Route exact path='' render={(props) => <App {...props} /> } />*/}
