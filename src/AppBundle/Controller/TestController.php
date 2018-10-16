@@ -185,4 +185,14 @@ class TestController extends Controller
     {
         return array();
     }
+
+    /**
+     * @Route("/redux", name="test_redux")
+     * @throws \Exception
+     * @Template()
+     */
+    public function testReduxAction(Request $request)
+    {
+        return array();
+    }
 }

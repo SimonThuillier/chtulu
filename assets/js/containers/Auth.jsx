@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-// import { selectSubreddit, fetchPostsIfNeeded, invalidateSubreddit } from '../actions'
+ import { getData } from '../actions'
 import { BrowserRouter,Route,Switch} from 'react-router-dom';
 import Header from "../components/Header";
 import SideBar from "../components/SideBar";
@@ -28,15 +28,24 @@ const PropsRoute = ({ component, ...rest }) => {
 class App extends Component {
 
     render(){
+        const appProps = this.props;
+        const tacos = "tacos";
+
+        const routes = [{path:'/page1',component:Page1,exact:true,appProps:appProps}];
+
+
         return (
-            <BrowserRouter basename="/test/react-router">
+            <BrowserRouter tacos={tacos} {...appProps} basename="/test/react-router">
                 <div className="wrapper hold-transition skin-blue sidebar-mini">
-                    <Header/>
-                    <SideBar/>
-                    <Switch>
-                        <PropsRoute exact path='/page1' component={Page1} {...props}/>
-                        <Route exact path='/page2' component={Page2}/>
-                        <Route exact path='/article-table' component={ArticleTablePage}/>
+                    <Header {...appProps}/>
+                    <SideBar {...appProps}/>
+                    <Switch >
+                        {routes.map(({path,component:C,exact,appProps}) =>
+                            <Route exact={exact} path={path} render={(props) => <C {...appProps} {...props}/>}/>
+                        )}
+                        {/*<Route exact={true} path='/page1' render={(props) => <Page1 {...props}/>}/>*/}
+                        {/*<Route exact path='/page2' component={Page2}/>*/}
+                        {/*<Route exact path='/article-table' component={ArticleTablePage}/>*/}
                         {/*<Route exact path='' render={(props) => <App {...props} /> } />*/}
                     </Switch>
                 </div>
@@ -48,17 +57,8 @@ class App extends Component {
 
 
 const mapStateToProps = state => {
-    // const { selectedSubreddit, postsBySubreddit } = state
-    // const {
-    //     isFetching,
-    //     lastUpdated,
-    //     items: posts
-    // } = postsBySubreddit[selectedSubreddit] || {
-    //     isFetching: true,
-    //     items: []
-    // }
-
     return {
+        types : [{id:1,label:"type1"},{id:2,label:"type2"}]
     }
 };
 

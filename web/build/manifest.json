@@ -3,10 +3,11 @@
   "build/app.css": "/build/app.css",
   "build/launcher.js": "/build/launcher.js",
   "build/launcher.css": "/build/launcher.css",
+  "build/test.js": "/build/test.js",
   "build/test-react-router1.js": "/build/test-react-router1.js",
   "build/test-react.js": "/build/test-react.js",
   "build/test-react-router2.js": "/build/test-react-router2.js",
   "build/images/bismarck.jpeg": "/build/images/bismarck.badd1521.jpeg",
-  "build/images/hugo.jpeg": "/build/images/hugo.9465935c.jpeg",
-  "build/images/napoleon3.jpeg": "/build/images/napoleon3.1c072bfc.jpeg"
+  "build/images/napoleon3.jpeg": "/build/images/napoleon3.1c072bfc.jpeg",
+  "build/images/hugo.jpeg": "/build/images/hugo.9465935c.jpeg"
 }

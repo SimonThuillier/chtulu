@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>{% block title %}HistoricaBase | Blank Page 2{% endblock %}</title>
+        <meta
+                content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+                name="viewport">
+        <link rel="stylesheet" href="{{ asset('build/app.css') }}" />
+
+
+
+
+        {% block stylesheets %}
+        {% endblock %}
+    {% endblock %}
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div id="root" class="hold-transition skin-blue sidebar-mini"></div>
+</body>
+<div id="hb-data" hidden>
+    {% block data %}
+        <div data-url="{{ url('crud_get') }}" id="hb-url-crud-get"></div>
+        <div data-url="{{ url('crud_get_one_by_id') }}" id="hb-url-crud-get-one-by-id"></div>
+        <div data-url="{{ url('crud_get_new') }}" id="hb-url-crud-get-new"></div>
+        <div data-url="{{ url('crud_post') }}" id="hb-url-crud-post"></div>
+        {% for wao in waoList() %}
+                <div class="hb-wao-mapping" data-mapping="{{ wao|getMapping() }}" id="hb-mapping-{{ wao|getAbridgedName() }}"></div>
+                <div class="hb-wao-structure" data-structure="{{ wao|getStructure() }}" id="hb-structure-{{ wao|getAbridgedName() }}"></div>
+        {% endfor %}
+        <div data-token="{{ csrf_token("token_id") }}" id="hb-security-token"></div>
+    {% endblock %}
+</div>
+<script src="{{ asset('build/test.js') }}"></script>
+{% block javascript %}
+{% endblock %}
+</html>

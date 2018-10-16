@@ -1,9 +1,7 @@
-import ActionTypes from "../ActionTypes";
-import Dispatcher from "../Dispatcher";
 
 export const GET = 'GET';
 
-export const get = text => ({
+export const getData = text => ({
     type: GET,
     text
 });
