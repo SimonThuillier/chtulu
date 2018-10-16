@@ -1,8 +1,8 @@
 import {ReduceStore} from 'flux/utils';
 import ActionTypes from './ActionTypes';
 import Dispatcher from './Dispatcher';
-import WAOTypes from './WAOTypes';
-import Server from './Server';
+import WAOTypes from './util/WAOs';
+import Server from './util/Server';
 import Immutable from 'immutable';
 
 class ConcreteStore extends ReduceStore {

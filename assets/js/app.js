@@ -35,28 +35,28 @@ require('bootstrap-table/dist/bootstrap-table.js');
 require('icheck');
 
 hb = {util:{},ui:{}};
-hb.util.cmn = require('./hb/util/common.js');
-hb.util.trans = require('./hb/util/translation.js');
-hb.util.date = require('./hb/util/date.js');
-hb.util.symfony = require('./hb/util/symfony.js');
-hb.util.dto = require('./hb/util/dto.js');
-hb.util.geom = require('./hb/util/geometry.js');
-hb.util.HDate = require('./hb/util/HDate.js');
-hb.util.HTimeGrad = require('./hb/util/HTimeGrad.js');
-hb.util.HTimeRange = require('./hb/util/HTimeRange.js');
+hb.util.cmn = require('./util/common.js');
+hb.util.trans = require('./util/translation.js');
+hb.util.date = require('./util/date.js');
+hb.util.symfony = require('./util/symfony.js');
+hb.util.dto = require('./util/dto.js');
+hb.util.geom = require('./util/geometry.js');
+hb.util.HDate = require('./util/HDate.js');
+hb.util.HTimeGrad = require('./util/HTimeGrad.js');
+hb.util.HTimeRange = require('./util/HTimeRange.js');
 //hb.util.server = require('./hb/util/server.js');
 
 
-hb.ui.misc = require('./hb/ui/misc.js');
-hb.ui.FormBuilder = require('./hb/ui/FormBuilder.js');
-hb.ui.SfFormMediator = require('./hb/ui/SfFormMediator.js');
-hb.ui.HDatePicker = require('./hb/ui/HDatePicker.js');
-hb.ui.detailBuilder = require('./hb/ui/detailBuilder.js');
-hb.ui.detailMediator = require('./hb/ui/detailMediator.js');
-hb.ui.HModal = require('./hb/ui/HModal.js');
-hb.ui.HTimeExplorer = require('./hb/ui/HTimeExplorer.js');
-hb.ui.HResourcePicker= require('./hb/ui/HResourcePicker.js');
-hb.ui.manager = require('./hb/ui/manager.js');
+hb.ui.misc = require('./ui/misc.js');
+hb.ui.FormBuilder = require('./ui/FormBuilder.js');
+hb.ui.SfFormMediator = require('./ui/SfFormMediator.js');
+hb.ui.HDatePicker = require('./ui/HDatePicker.js');
+hb.ui.detailBuilder = require('./ui/detailBuilder.js');
+hb.ui.detailMediator = require('./ui/detailMediator.js');
+hb.ui.HModal = require('./ui/HModal.js');
+hb.ui.HTimeExplorer = require('./ui/HTimeExplorer.js');
+hb.ui.HResourcePicker= require('./ui/HResourcePicker.js');
+hb.ui.manager = require('./ui/manager.js');
 
 
 

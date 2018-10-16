@@ -1,6 +1,6 @@
 import { BrowserRouter, Router, Route,NavLink,Switch} from 'react-router-dom';
 import React, {Component} from 'react';
-import server from '../../Server.js';
+import server from '../util/Server.js';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import BootstrapTable from 'react-bootstrap-table-next';
 import Loadable from 'react-loading-overlay';

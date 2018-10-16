@@ -1,4 +1,4 @@
-import {App} from './hb/layout-react';
+import {App} from './layout-react';
 import {Container} from 'flux/utils';
 import Stores from './Stores.js';
 

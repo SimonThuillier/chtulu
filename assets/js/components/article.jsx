@@ -1,8 +1,8 @@
 import React from "react";
 import {Popover,OverlayTrigger,Tooltip,Image,ControlLabel,FormGroup,FormControl} from 'react-bootstrap';
-import server from '../../Server.js';
+import server from '../util/Server.js';
 import Loadable from 'react-loading-overlay';
-import Actions from "../../Actions.js";
+import Actions from "../Actions.js";
 const uuidv4 = require('uuid/v4');
 
 

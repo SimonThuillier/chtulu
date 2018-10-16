@@ -15,6 +15,6 @@ const SearchBag = function(search={},sort='id',order='DESC',offset=0,limit=100){
         offset : offset,
         limit : limit
     }
-}
+};
 
 export default SearchBag;
