@@ -5,6 +5,7 @@ import {
 } from '../actions/async.js'
 
 const selectedSubreddit = (state = 'reactjs', action) => {
+    console.log("reducer selectedSubreddit appelé ?");
   switch (action.type) {
     case SELECT_SUBREDDIT:
       return action.subreddit
@@ -18,6 +19,8 @@ const posts = (state = {
   didInvalidate: false,
   items: []
 }, action) => {
+    console.log("reducer post appelé ?");
+    console.log(action);
   switch (action.type) {
     case INVALIDATE_SUBREDDIT:
       return {
@@ -44,6 +47,8 @@ const posts = (state = {
 }
 
 const postsBySubreddit = (state = { }, action) => {
+    console.log("reducer postsBySubreddit appelé ?");
+    console.log(action.type);
   switch (action.type) {
     case INVALIDATE_SUBREDDIT:
     case RECEIVE_POSTS:

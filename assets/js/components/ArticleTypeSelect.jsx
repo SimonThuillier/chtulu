@@ -6,17 +6,18 @@ class ArticleTypeSelect extends Component {
 
     componentDidMount() {
 
-        /*const { dispatch, getData } = this.props;
-        dispatch(getData("truc"));*/
+        const {dispatch} = this.props;
+        dispatch(getData("truc"));
     }
 
     render(){
-        const { types } = this.props;
+        const { type } = this.props;
+        //const options = [];
 
-        const options =  types.map((option) =>{
+        const options =  typeof type !== 'undefined' && Object.keys(type).map((id) =>{
             return(
-                <option value={option.id}>
-                    {option.label}
+                <option key={type[id].id} value={type[id].id}>
+                    {type[id].label}
                 </option>
             );
         });

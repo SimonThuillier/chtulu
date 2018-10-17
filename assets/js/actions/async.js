@@ -25,7 +25,7 @@ export const receivePosts = (subreddit, json) => ({
   receivedAt: Date.now()
 })
 
-const fetchPosts = subreddit => dispatch => {
+const fetchPosts = subreddit => (dispatch,state) => {
   dispatch(requestPosts(subreddit))
   return fetch(`https://www.reddit.com/r/${subreddit}.json`)
     .then(response => response.json())

@@ -8,31 +8,17 @@ import Page1 from "../components/Page1";
 import Page2 from "../components/Page2";
 import {ArticleTablePage} from "../components/ArticleTablePage";
 
-const renderMergedProps = (component, ...rest) => {
-    const finalProps = Object.assign({}, ...rest);
-    return (
-        React.createElement(component, finalProps)
-    );
-};
-
-const PropsRoute = ({ component, ...rest }) => {
-    return (
-        <Route {...rest} render={routeProps => {
-            return renderMergedProps(component, routeProps, rest);
-        }}/>
-    );
-};
-
-
-
 class App extends Component {
 
     render(){
         const appProps = this.props;
         const tacos = "tacos";
 
-        const routes = [{path:'/page1',component:Page1,exact:true,appProps:appProps}];
-
+        const routes = [
+            {id:1,path:'/page1',component:Page1,exact:true,appProps:appProps},
+            {id:2,path:'/page2',component:Page2,exact:true,appProps:appProps},
+            {id:3,path:'/article-table',component:ArticleTablePage,exact:true,appProps:appProps},
+        ];
 
         return (
             <BrowserRouter tacos={tacos} {...appProps} basename="/test/react-router">
@@ -40,13 +26,9 @@ class App extends Component {
                     <Header {...appProps}/>
                     <SideBar {...appProps}/>
                     <Switch >
-                        {routes.map(({path,component:C,exact,appProps}) =>
-                            <Route exact={exact} path={path} render={(props) => <C {...appProps} {...props}/>}/>
+                        {routes.map(({id,path,component:C,exact,appProps}) =>
+                            <Route key={id} exact={exact} path={path} render={(props) => <C {...appProps} {...props}/>}/>
                         )}
-                        {/*<Route exact={true} path='/page1' render={(props) => <Page1 {...props}/>}/>*/}
-                        {/*<Route exact path='/page2' component={Page2}/>*/}
-                        {/*<Route exact path='/article-table' component={ArticleTablePage}/>*/}
-                        {/*<Route exact path='' render={(props) => <App {...props} /> } />*/}
                     </Switch>
                 </div>
             </BrowserRouter>
@@ -57,9 +39,31 @@ class App extends Component {
 
 
 const mapStateToProps = state => {
-    return {
-        types : [{id:1,label:"type1"},{id:2,label:"type2"}]
-    }
+    console.log("map state to props");
+    console.log(state);
+    const { getData } = state;
+    const truc = getData;
+    // const {
+    //     isFetching,
+    //     lastUpdated,
+    //     items: posts
+    // } = postsBySubreddit[selectedSubreddit] || {
+    //     isFetching: true,
+    //     items: []
+    // }
+    //
+    // return {
+    //     selectedSubreddit,
+    //     posts,
+    //     isFetching,
+    //     lastUpdated
+    // }
+
+
+
+    const {type} = state;
+
+    return truc
 };
 
 export default connect(mapStateToProps)(App)

@@ -71,7 +71,8 @@ class AsyncApp extends Component {
 }
 
 const mapStateToProps = state => {
-  const { selectedSubreddit, postsBySubreddit } = state
+  const { selectedSubreddit, postsBySubreddit } = state;
+  console.log(state);
   const {
     isFetching,
     lastUpdated,

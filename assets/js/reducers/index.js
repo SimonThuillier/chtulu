@@ -6,9 +6,9 @@ import {
 const getData = (state = 'reactjs', action) => {
     switch (action.type) {
         case GET:
-            return [{id:1,label:"1"},{id:2,label:"2"}];
+            return {type:{1:{id:1,label:"1"},2:{id:2,label:"2"}}};
         default:
-            return state
+            return {type:{1:{id:1,label:"1"},2:{id:2,label:"2"}}};
     }
 };
 
