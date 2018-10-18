@@ -1,23 +1,26 @@
 import React,{ Component } from "react";
 import {ControlLabel,FormGroup,FormControl} from 'react-bootstrap';
-import {getData} from '../actions';
+import {getIfNeeded} from '../actions';
 
 class ArticleTypeSelect extends Component {
 
     componentDidMount() {
 
         const {dispatch} = this.props;
-        dispatch(getData("truc"));
+        dispatch(getIfNeeded("articleType"));
     }
 
     render(){
-        const { type } = this.props;
+        const { ArticleType } = this.props;
         //const options = [];
+        console.log(ArticleType);
+        console.log(Array.from(ArticleType.items.values()));
 
-        const options =  typeof type !== 'undefined' && Object.keys(type).map((id) =>{
+
+        const options =  Array.from(ArticleType.items.values()).map((value) =>{
             return(
-                <option key={type[id].id} value={type[id].id}>
-                    {type[id].label}
+                <option key={value.id} value={value.id}>
+                    {value.label}
                 </option>
             );
         });

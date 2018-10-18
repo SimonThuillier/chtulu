@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
- import { getData } from '../actions'
+ import { GET } from '../actions'
 import { BrowserRouter,Route,Switch} from 'react-router-dom';
 import Header from "../components/Header";
 import SideBar from "../components/SideBar";
@@ -41,8 +41,6 @@ class App extends Component {
 const mapStateToProps = state => {
     console.log("map state to props");
     console.log(state);
-    const { getData } = state;
-    const truc = getData;
     // const {
     //     isFetching,
     //     lastUpdated,
@@ -58,12 +56,8 @@ const mapStateToProps = state => {
     //     isFetching,
     //     lastUpdated
     // }
+    return {...state};
 
-
-
-    const {type} = state;
-
-    return truc
 };
 
 export default connect(mapStateToProps)(App)
