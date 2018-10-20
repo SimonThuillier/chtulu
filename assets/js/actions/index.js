@@ -29,16 +29,18 @@ const fetchWithTimeout = function( url,props, timeout=TIMEOUT ) {
 
 
 
-export const get = (waoType,searchBag=null) => ({
+export const get = (waoType,groups,searchBag=null) => ({
     type: GET,
     waoType : waoType,
+    groups : groups,
     searchBag : searchBag || SearchBag()
 });
 
-export const receiveGet = (waoType,searchBag,rows,total,message="Données bien recues du serveur") => {
+export const receiveGet = (waoType,groups,searchBag,rows,total,message="Données bien recues du serveur") => {
     return {
         type: RECEIVE_GET,
         waoType : waoType,
+        groups:groups,
         searchBag : searchBag,
         receivedAt: Date.now(),
         total:total,
@@ -50,9 +52,9 @@ export const errorGet = (waoType,searchBag,message) => {
     console.log(`error Get fetching ${waoType} : ${message}`);
 };
 
-const fetchGet = (waoType,searchBag) => (dispatch,state) => {
+const fetchGet = (waoType,groups=true,searchBag) => (dispatch,state) => {
     dispatch(get(waoType,searchBag));
-    const url = getUrl(URL_GET,getHBProps(waoType,searchBag,true));
+    const url = getUrl(URL_GET,getHBProps(waoType,groups,searchBag));
     console.log("type get url");
 
 
@@ -61,10 +63,10 @@ const fetchGet = (waoType,searchBag) => (dispatch,state) => {
         .then(json => {
             switch (json.status) {
                 case HB_SUCCESS:
-                    dispatch(receiveGet(waoType,searchBag,json.rows,json.total,json.message));
+                    dispatch(receiveGet(waoType,groups,searchBag,json.rows,json.total,json.message));
                     break;
                 case HB_ERROR:
-                    dispatch(errorGet(waoType,searchBag,json.message));
+                    dispatch(errorGet(waoType,groups,searchBag,json.message));
                     break;
                 default:
             }
@@ -121,7 +123,7 @@ const fetchGet = (waoType,searchBag) => (dispatch,state) => {
 
 
 
-const shouldFetchGet = (state, waoType,searchBag) => {
+const shouldFetchGet = (state, waoType,groups,searchBag) => {
     /*const posts = state.postsBySubreddit[subreddit]
     if (!posts) {
         return true
@@ -133,10 +135,10 @@ const shouldFetchGet = (state, waoType,searchBag) => {
     return true;
 };
 
-export const getIfNeeded = (waoType,searchBag) => (dispatch, getState) => {
+export const getIfNeeded = (waoType,groups=true,searchBag) => (dispatch, getState) => {
     searchBag = searchBag || SearchBag();
-    if (shouldFetchGet(getState(), waoType,searchBag)) {
-        return dispatch(fetchGet(waoType,searchBag))
+    if (shouldFetchGet(getState(), waoType,groups,searchBag)) {
+        return dispatch(fetchGet(waoType,groups,searchBag))
     }
 };
 

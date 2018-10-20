@@ -1,15 +1,10 @@
-import Immutable from 'immutable';
+const Imm = require("immutable");
 
 /**
  * @class WAO
  */
 const waoPrototype = {
-    waoType: "rootWao",
-    cacheLength:100,
-    mapping: {},
-    dependencies:{},
     pendingModification:false,
-    finalize : function(groups=true){console.log("vanillaFinalize")},
     getPartial : function(groups = true){
         console.log(this);
         console.log(groups);
@@ -34,6 +29,9 @@ const waoPrototype = {
             }
         });
         return copy;
+    },
+    receiveRecord: function(rec) {
+        return rec;
     }
 };
 
@@ -42,8 +40,6 @@ const defaultPrototypes = {
      * @class Article
      */
     article:{
-        cacheLength:100,
-        dependencies:{detailImageResource:"resourceImage"},
         /**
          * @doc : function aimed to finalize constitution of new HArticle created by parsing JSon
          */
@@ -76,13 +72,24 @@ const defaultPrototypes = {
                     }
                 }
             }
+        },
+        receiveRecord: function(rec){
+            console.log("article receiveRecord");
+            if(rec.has("beginHDate") && rec.get("beginHDate") !== null){
+                rec = rec.set("beginHDate",hb.util.HDate.prototype.parseFromJson(JSON.stringify(rec.get("beginHDate"))));
+            }
+            if(rec.has("endHDate") && rec.get("endHDate") !== null){
+                rec = rec
+                    .set("endHDate",hb.util.HDate.prototype.parseFromJson(JSON.stringify(rec.get("beginHDate"))))
+                    .set("hasEndDate",true);
+            } else{ rec = rec.set("hasEndDate",false)}
+            return rec;
         }
     },
     /**
      * @class ResourceGeometry
      */
     resourceGeometry : {
-        cacheLength:50,
         getPointCoords(){
             if(typeof this.targetGeometry ==='undefined' ||
                 typeof this.targetGeometry.value ==='undefined' ||
@@ -99,22 +106,76 @@ const defaultPrototypes = {
     }
 };
 
-let prototypes = {};
-const mappingDivs = document.getElementsByClassName('hb-wao-mapping');
-
+const mappingDivs = document.getElementsByClassName("hb-wao-mapping");
+const structureDivs = document.getElementsByClassName("hb-wao-structure");
+let protoMap = Imm.Map();
 for (let i = 0; i < mappingDivs.length; ++i) {
     let item = mappingDivs[i];
-    let type = item.getAttribute('id').replace('hb-mapping-','');
-    let concreteDtoPrototype = Object.create(waoPrototype);
-    concreteDtoPrototype.mapping = JSON.parse(item.getAttribute('data-mapping'));
-    concreteDtoPrototype.waoType = type;
-    // concreteDtoPrototype["createNew"] = Immutable.Record({id:null});
-    prototypes[type] = concreteDtoPrototype;
+    let type = item.getAttribute("id").replace("hb-mapping-", "");
+    let mapping = JSON.parse(item.getAttribute("data-mapping"));
+    let prototype = {...waoPrototype};
+    Object.keys(mapping).forEach(key =>{
+        mapping[key].forEach(attribute =>{
+            prototype[attribute] = null;
+        });
+    });
+    prototype = Object.assign(prototype,defaultPrototypes[type] || {});
 
+    let concreteDtoMap = Imm.Map();
+    concreteDtoMap = Imm.Map()
+        .set("mapping",
+            Imm.fromJS(mapping)
+        )
+        .set("waoType", type)
+        .set("recordFactory",
+            Imm.Record(prototype, type)
+        );
+    protoMap = protoMap.set(type, concreteDtoMap);
 }
-Object.keys(prototypes).forEach(function(key,index) {
-    if(defaultPrototypes.hasOwnProperty(key)) Object.assign(prototypes[key],defaultPrototypes[key]);
-    Object.freeze(prototypes[key]);
+
+for (let i = 0; i < structureDivs.length; ++i) {
+    let item = structureDivs[i];
+    let type = item.getAttribute("id").replace("hb-structure-", "");
+    protoMap = protoMap.setIn(
+        [type, "structure"],
+        Imm.fromJS(JSON.parse(item.getAttribute("data-structure")))
+    );
+}
+
+let groups = {};
+protoMap.entrySeq().forEach(entry => {
+    groups[entry[0]] = {};
 });
 
-export default prototypes;
+Object.keys(groups).forEach(waoType => {
+    let mapping = protoMap.getIn([waoType, "mapping"]);
+    let struct = protoMap.getIn([waoType, "structure"]);
+    mapping.entrySeq().forEach(entry => {
+        let groupValue = true;
+        if (struct.hasIn([entry[0]])) {
+            console.log(struct.getIn([entry[0]]));
+            groupValue = struct.getIn([entry[0]]);
+            //protoMap.getIn([struct.getIn([entry[0]]), "mapping"]).toJS();
+        }
+        groups[waoType][entry[0]] = groupValue;
+    });
+});
+Object.keys(groups).forEach(waoType => {
+    let thisWao = groups[waoType];
+    Object.keys(thisWao).forEach(waoGroups => {
+        if (thisWao[waoGroups] !== true) {
+            thisWao[waoGroups] = groups[thisWao[waoGroups]];
+        }
+    });
+});
+
+Object.keys(groups).forEach(waoType => {
+    protoMap = protoMap.setIn([waoType, "groups"], Imm.fromJS(groups[waoType]));
+});
+
+console.log("protoMap");
+console.log(protoMap.toJS());
+console.log("article groups");
+console.log(JSON.stringify(protoMap.getIn(["article","groups"]).toJS()));
+
+export default protoMap;

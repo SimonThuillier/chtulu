@@ -1,6 +1,6 @@
 import { BrowserRouter, Router, Route,NavLink,Switch} from 'react-router-dom';
 import React, {Component} from 'react';
-import server from '../util/ServerDeprecated.js';
+//import server from '../util/ServerDeprecated.js';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import BootstrapTable from 'react-bootstrap-table-next';
 import Loadable from 'react-loading-overlay';
@@ -8,17 +8,14 @@ import {Helmet} from 'react-helmet';
 import {Preview} from './actions.jsx';
 import {Modal,Popover,OverlayTrigger,Tooltip,Button,ButtonToolbar,ToggleButtonGroup,ToggleButton} from 'react-bootstrap';
 import {Article} from "./article";
+import {getIfNeeded} from "../actions";
+import SearchBag from '../util/SearchBag';
 
-const articles = [
-    {id:1,title:"Emile Zola",type:{id:1,label:"Personnage"},beginHDate:"debut",endHDate:"fin"}
-    ];
 
 const columns = [{
     dataField: 'title',
     text: 'Titre',
     formatter: function(cell,row){
-        //console.log(row);
-        let finalValue = cell;
         if(row.detailImageResource &&
             row.detailImageResource.activeVersion){
             let activeVersion = row.detailImageResource.activeVersion;
@@ -35,6 +32,7 @@ const columns = [{
     dataField: 'beginHDate',
     text: 'Début',
     formatter: function(cell){
+        //console.log(cell);
         if(cell === null) return '-';
         return cell.getLabel();
     }
@@ -42,6 +40,7 @@ const columns = [{
     dataField: 'endHDate',
     text: 'Fin',
     formatter: function(cell){
+        //console.log(cell);
         if(cell === null) return '-';
         return cell.getLabel();
     }
@@ -55,16 +54,22 @@ class ArticleTablePage extends React.Component{
     constructor(props) {
         super(props);
         this.state = {
-            rows:[],
-            loading:true,
-            searchBag:server.createSearchBag(null,'id','DESC',0,10),
+            loading:false,
+            searchBag:SearchBag(null,'id','DESC',0,10),
             selected:null,
             activeData:null
         };
     }
 
     componentDidMount(){
-        server.get('article',{minimal:true,date:true,detailImage:true,detailImageUrl:true},this.state.searchBag)
+
+        const {dispatch} = this.props;
+        dispatch(getIfNeeded("article",
+            {minimal:true,date:true,detailImage:true,detailImageUrl:true},
+            this.state.searchBag));
+
+
+        /*server.get('article',{minimal:true,date:true,detailImage:true,detailImageUrl:true},this.state.searchBag)
             .then(data =>{
                 console.log("reception client");
                 data.rows.forEach((item) => this.onRowReception(item));
@@ -75,7 +80,7 @@ class ArticleTablePage extends React.Component{
                     loading:false,
                     activeComponent:'detail',
                 });
-            });
+            });*/
     }
 
     onRowReception(data){
@@ -83,6 +88,8 @@ class ArticleTablePage extends React.Component{
     }
 
     onRowPreview(row,rowIndex){
+        console.log("row selectionnée !");
+        console.log(row);
         console.log(rowIndex);
         this.setState({selected:[row.id],activeData:row,activeComponent:'detail'});
     }
@@ -99,6 +106,11 @@ class ArticleTablePage extends React.Component{
 
 
     render(){
+        const { article } = this.props;
+        /*console.log("articles ?");
+        console.log(article);
+        article.items.forEach((item)=>{console.log(item.toJS())});*/
+
         return(
             <div className="content-wrapper hb-container">
                 <Helmet>
@@ -116,7 +128,7 @@ class ArticleTablePage extends React.Component{
                     >
                     <BootstrapTable
                         keyField='id'
-                        data={ this.state.rows }
+                        data={ Array.from(article.items.values())}
                         selectRow={{
                             hideSelectColumn:true,
                             mode :'radio',
@@ -173,18 +185,4 @@ class ArticleTablePage extends React.Component{
     }
 }
 
-class ArticleTablePage2 extends React.Component{
-
-    constructor(props) {
-        super(props);
-    }
-
-    render(){
-        return(
-            <p>Coucou</p>
-        );
-    }
-}
-
 export {ArticleTablePage};
-export {ArticleTablePage2};

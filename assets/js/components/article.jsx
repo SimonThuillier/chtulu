@@ -1,7 +1,7 @@
 import React from "react";
 import {Popover,OverlayTrigger,Tooltip,Image,ControlLabel,FormGroup,FormControl} from 'react-bootstrap';
-import server from '../util/ServerDeprecated.js';
 import Loadable from 'react-loading-overlay';
+import GroupUtil from '../util/GroupUtil';
 const uuidv4 = require('uuid/v4');
 
 
@@ -52,7 +52,10 @@ export function ArticleDetailAbstract(props){
 
 export function ArticleDetail(props){
     let data = props.data;
-    const availableGroups = (data && data.loadedGroups)?server.intersectGroups('article',props.groups,data.loadedGroups):{};
+    console.log("data de article detail");
+    console.log(data);
+    console.log(data.type);
+    const availableGroups = (data && data.loadedGroups)?GroupUtil.intersect('article',props.groups,data.loadedGroups):{};
 
     return (
         <div>
@@ -76,98 +79,6 @@ export function ArticleDetail(props){
         </div>
     );
 }
-
-
-export function ArticleTypeSelect(props){
-    let uuid = uuidv4();
-    Actions.get(uuid,{dataType:"articleType"});
-
-    console.log(props.articleType.values());
-
-    /*const options =  props.articleType.options.map((option) =>{
-        return(
-            <option value={option.id}>
-                {option.label}
-            </option>
-        );
-    });*/
-    let options = [];
-
-
-    return(
-        <FormGroup validationState={null} controlId="formControlsSelect">
-            <ControlLabel>Type</ControlLabel>
-            <FormControl componentClass="select" placeholder="choisissez un type d'article">
-                {options}
-            </FormControl>
-        </FormGroup>
-    );
-}
-
-
-export class ArticleTypeSelect2 extends React.Component{
-    constructor(props) {
-        console.log(props.articleType);
-        super(props);
-        this.state = {
-            uuid: uuidv4(),
-            options:props.articleType,
-            loading: false,
-            disabled: false,
-            searchBag:server.createSearchBag(null,'label','ASC',0,100)
-        };
-    }
-
-    onDataLoading(){
-        this.setState({
-            loading:true
-        });
-    }
-
-    componentDidMount(){
-        console.log("article type has mounted");
-        Actions.get(this.state.uuid,{dataType:"articleType"});
-
-
-
-
-        server.get('articleType',{minimal:true},this.state.searchBag,this.onDataLoading.bind(this))
-            .then(hResponse =>{
-                console.log("reception types article");
-                console.log(hResponse);
-                /*this.setState({
-                    options:hResponse.data,
-                    loading:false
-                });*/
-            })
-            .catch((error) => {
-                // this.setState({
-                //     loading:false
-                // });
-            });
-    }
-
-    render(){
-        console.log(this.state);
-        const options =  this.state.options.map((option) =>{
-            return(
-                <option value={option.id}>
-                    {option.label}
-                </option>
-            );
-        });
-
-
-        return(
-            <FormGroup validationState={null} controlId="formControlsSelect">
-                <ControlLabel>Type</ControlLabel>
-                <FormControl componentClass="select" placeholder="choisissez un type d'article">
-                    {options}
-                </FormControl>
-            </FormGroup>
-        );
-    }
-};
 
 const formDataTransformer = {
     abstract:function(value){
@@ -203,6 +114,8 @@ export class Article extends React.Component{
             pendingData: (props.data)?Object.create(props.data):null,
         };
         console.log("Article built");
+        console.log(props.data);
+        console.log(this.state.pendingData);
     }
 
     getChangeHandler(attribute){
@@ -229,7 +142,7 @@ export class Article extends React.Component{
     }
 
     componentDidMount(){
-        console.log("Article begin Mount");
+        /*console.log("Article begin Mount");
         server.getOneById('article',this.state.detailGroups,this.state.data.id,this.onDataLoading.bind(this))
             .then(hResponse =>{
                 console.log("reception client Article");
@@ -243,7 +156,7 @@ export class Article extends React.Component{
                 this.setState({
                     loading:false
                 });
-            });
+            });*/
 
     }
 

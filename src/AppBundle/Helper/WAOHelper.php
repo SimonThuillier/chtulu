@@ -139,7 +139,12 @@ class WAOHelper
             }
         }
 
-        return $structure;
+        $simpleStructure= [];
+        foreach($structure as $item){
+            $simpleStructure[$item["name"]] = $item["returnType"];
+        }
+
+        return $simpleStructure;
     }
 
     public function getAbridgedName($className){

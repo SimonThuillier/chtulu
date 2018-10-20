@@ -11,16 +11,14 @@ class ArticleTypeSelect extends Component {
     }
 
     render(){
-        const { ArticleType } = this.props;
-        //const options = [];
-        console.log(ArticleType);
-        console.log(Array.from(ArticleType.items.values()));
+        const { articleType } = this.props;
 
-
-        const options =  Array.from(ArticleType.items.values()).map((value) =>{
+        const options =  Array.from(articleType.items.values()).map((rec) =>{
+            /*console.log(rec);
+            console.log(rec.has("id"));*/
             return(
-                <option key={value.id} value={value.id}>
-                    {value.label}
+                <option key={rec.get("id")} value={rec.get("id")}>
+                    {rec.get("label")}
                 </option>
             );
         });

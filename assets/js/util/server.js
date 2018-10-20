@@ -41,11 +41,27 @@ export const getHTTPProps = function(){
 /**
  * @returns {object}
  */
-export const getHBProps = function(waoType,searchBag,groups){
+export const getHBProps = function(waoType,groups,searchBag){
     return {
         type:waoType,
+        groups:JSON.stringify(groups),
         searchBag:JSON.stringify(searchBag),
-        groups:JSON.stringify(groups)
     };
+};
+
+/**
+ * @param status
+ * @param message
+ * @param data
+ * @param errors
+ * @returns object
+ */
+export const HResponse = function(status=HB_SUCCESS,message="OK",data=null,errors=null){
+    return {
+        status : status,
+        message : message,
+        data : data,
+        errors : errors
+    }
 };
 

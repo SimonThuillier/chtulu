@@ -54,10 +54,10 @@ class WAOExtension extends \Twig_Extension
 
     public function getStructure($className){
         $dtoStructure = $this->waoHelper->getDTOStructure($className);
-        $dtoStructure = array_map(function(array $item){
+        foreach($dtoStructure as $name => $returnType){
+            $dtoStructure[$name] = $this->waoHelper->getAbridgedName($returnType);
+        }
 
-            return [$item["name"] => $this->waoHelper->getAbridgedName($item["returnType"])];
-        },$dtoStructure);
         return json_encode($dtoStructure);
     }
 }

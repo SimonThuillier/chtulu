@@ -155,10 +155,9 @@ class TestController extends Controller
                 "result" => json_encode($waoHelper->getDTOMapping($class))];
 
             $dtoStructure = $waoHelper->getDTOStructure($class);
-            $dtoStructure = array_map(function(array $item) use ($waoHelper){
-
-                return [$item["name"] => $waoHelper->getAbridgedName($item["returnType"])];
-            },$dtoStructure);
+            foreach($dtoStructure as $name => $returnType){
+                $dtoStructure[$name] = $waoHelper->getAbridgedName($returnType);
+            }
             $dtosStructure[] = ["arg"=>$waoHelper->getAbridgedName($class),"result" => json_encode($dtoStructure)];
         }
 
