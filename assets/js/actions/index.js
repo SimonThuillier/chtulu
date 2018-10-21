@@ -1,9 +1,22 @@
 import SearchBag from '../util/SearchBag';
-import {URL_GET,getUrl,getHTTPProps,getHBProps,HB_SUCCESS,HB_ERROR} from '../util/server';
+import {
+    URL_GET,
+    URL_GET_ONE_BY_ID,
+    getUrl,
+    getHTTPProps,
+    getHBProps,
+    HB_SUCCESS,
+    HB_ERROR
+} from '../util/server';
+import { normalize, schema } from 'normalizr';
+import WAOs from '../util/WAOs';
+import GroupUtil from "../util/GroupUtil";
 
 
 export const GET = 'GET';
 export const RECEIVE_GET = 'RECEIVE_GET';
+export const GET_ONE_BY_ID = 'GET_ONE_BY_ID';
+export const RECEIVE_GET_ONE_BY_ID = 'RECEIVE_GET_ONE_BY_ID';
 
 const TIMEOUT = 1000000;
 /**
@@ -36,16 +49,46 @@ export const get = (waoType,groups,searchBag=null) => ({
     searchBag : searchBag || SearchBag()
 });
 
-export const receiveGet = (waoType,groups,searchBag,rows,total,message="Données bien recues du serveur") => {
+
+const subReceiveGet = (waoType,rows) => {
+    const reducer = (accumulator, entity) => {
+        accumulator =accumulator || true;
+        let loadedGroups = entity.loadedGroups || true;
+        return GroupUtil.intersect(waoType,accumulator,loadedGroups);
+    };
+
     return {
+        type: RECEIVE_GET,
+        waoType : waoType,
+        groups:rows.reduce(reducer),
+        searchBag : null,
+        receivedAt: Date.now(),
+        total:-1,
+        waos: rows,
+    }
+};
+
+export const receiveGet = (waoType,groups,searchBag,rows,
+                           total,message="Données bien recues du serveur") => (dispatch,state) => {
+    // let's denormalize our received Data !
+    const normData = normalize(rows,[WAOs.getIn([waoType,"schema"])]);
+    console.log("normalizedData");
+    console.log(normData);
+    Object.keys(normData.entities).forEach((key)=>{
+        if(key !== waoType){
+            dispatch(subReceiveGet(key,Object.values(normData.entities[key])));
+        }
+    });
+
+    return dispatch({
         type: RECEIVE_GET,
         waoType : waoType,
         groups:groups,
         searchBag : searchBag,
         receivedAt: Date.now(),
         total:total,
-        waos: rows,
-    }
+        waos: Object.values(normData.entities[waoType]),
+    });
 };
 
 export const errorGet = (waoType,searchBag,message) => {
@@ -55,8 +98,6 @@ export const errorGet = (waoType,searchBag,message) => {
 const fetchGet = (waoType,groups=true,searchBag) => (dispatch,state) => {
     dispatch(get(waoType,searchBag));
     const url = getUrl(URL_GET,getHBProps(waoType,groups,searchBag));
-    console.log("type get url");
-
 
     return fetch(url,getHTTPProps())
         .then(response => response.json())
@@ -74,55 +115,6 @@ const fetchGet = (waoType,groups=true,searchBag) => (dispatch,state) => {
         )
 };
 
-
-/*get : function(type,groups=true,searchBag=null,onDataLoading=null){
-    return new Promise((resolve,reject) => {
-
-        if(searchBag === null) searchBag = this.createSearchBag();
-        let url = buildGetUrl(urls.crud_get,{
-            type:type,
-            searchBag:JSON.stringify(searchBag),
-            groups:JSON.stringify(groups)
-        });
-        console.log(url);
-
-        let headers = new Headers();
-        headers.append('Content-Type', 'application/json');
-
-        let requestProps = { method: 'GET',
-            headers: new Headers(),
-            credentials:'same-origin',
-            mode: 'same-origin',
-            cache: 'default' };
-
-        if(onDataLoading !== null) onDataLoading.call();
-
-        return fetchWithTimeout(url,requestProps,TIMEOUT)
-            .then(response => {console.log(response);
-                return response.json();})
-            .then(hResponse => {
-                console.log(hResponse);
-                console.log("posted");
-                if(hResponse.status === 'success'){
-                    hResponse.rows = hResponse.rows.map(item => handleResponseObject(type,item) );
-                    watchCache(type);
-                    console.log("cache after get");
-                    console.log(cache);
-                    resolve(hResponse);
-                }
-                else{
-                    reject(new Error(hResponse.message));
-                }
-            })
-            .catch((error) => reject(error))
-            ;
-    });
-}*/
-
-
-
-
-
 const shouldFetchGet = (state, waoType,groups,searchBag) => {
     /*const posts = state.postsBySubreddit[subreddit]
     if (!posts) {
@@ -139,6 +131,68 @@ export const getIfNeeded = (waoType,groups=true,searchBag) => (dispatch, getStat
     searchBag = searchBag || SearchBag();
     if (shouldFetchGet(getState(), waoType,groups,searchBag)) {
         return dispatch(fetchGet(waoType,groups,searchBag))
+    }
+};
+
+// GETONEBYID
+
+
+export const getOneById = (waoType,groups,id) => ({
+    type: GET_ONE_BY_ID,
+    waoType : waoType,
+    groups : groups,
+    id : id
+});
+
+export const receiveGetOneById = (waoType,groups,id,data,message="Données bien recues du serveur") => {
+    return {
+        type: RECEIVE_GET_ONE_BY_ID,
+        waoType : waoType,
+        groups:groups,
+        id : id,
+        receivedAt: Date.now(),
+        wao: data,
+    }
+};
+
+const fetchGetOneById = (waoType,groups=true,id) => (dispatch,state) => {
+    dispatch(getOneById(waoType,id));
+    const url = getUrl(URL_GET_ONE_BY_ID,getHBProps(waoType,groups,id));
+
+    return fetch(url,getHTTPProps())
+        .then(response => response.json())
+        .then(json => {
+                switch (json.status) {
+                    case HB_SUCCESS:
+                        console.log(json);
+                        dispatch(receiveGetOneById(waoType,groups,id,json.data,json.message));
+                        break;
+                    case HB_ERROR:
+                        dispatch(errorGet(waoType,groups,id,json.message));
+                        break;
+                    default:
+                }
+            }
+        )
+};
+
+
+const shouldFetchGetOneById = (state, waoType,groups,id) => {
+    console.log(state);
+    /*const posts = state.postsBySubreddit[subreddit]
+    if (!posts) {
+        return true
+    }
+    if (posts.isFetching) {
+        return false
+    }
+    return posts.didInvalidate*/
+    return true;
+};
+
+export const getOneByIdIfNeeded = (waoType,groups=true,id) => (dispatch, getState) => {
+    if (shouldFetchGetOneById(getState(), waoType,groups,id)) {
+        return dispatch(fetchGetOneById(waoType,groups,id))
     }
 };
 

@@ -3,6 +3,7 @@ import {Popover,OverlayTrigger,Tooltip,Image,ControlLabel,FormGroup,FormControl}
 import Loadable from 'react-loading-overlay';
 import GroupUtil from '../util/GroupUtil';
 const uuidv4 = require('uuid/v4');
+import {getIfNeeded, getOneByIdIfNeeded} from "../actions";
 
 
 export function ArticleDetailMinimal(props){
@@ -142,22 +143,9 @@ export class Article extends React.Component{
     }
 
     componentDidMount(){
-        /*console.log("Article begin Mount");
-        server.getOneById('article',this.state.detailGroups,this.state.data.id,this.onDataLoading.bind(this))
-            .then(hResponse =>{
-                console.log("reception client Article");
-                console.log(hResponse);
-                this.setState({
-                    data:hResponse.data,
-                    loading:false
-                });
-            })
-            .catch((error) => {
-                this.setState({
-                    loading:false
-                });
-            });*/
-
+        console.log("Article begin Mount");
+        const {dispatch} = this.props;
+        dispatch(getOneByIdIfNeeded("article",this.state.detailGroups, this.state.data.id));
     }
 
     render(){

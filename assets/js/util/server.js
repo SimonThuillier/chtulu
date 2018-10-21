@@ -41,12 +41,22 @@ export const getHTTPProps = function(){
 /**
  * @returns {object}
  */
-export const getHBProps = function(waoType,groups,searchBag){
-    return {
-        type:waoType,
-        groups:JSON.stringify(groups),
-        searchBag:JSON.stringify(searchBag),
+export const getHBProps = function(waoType,groups,idOrSearchBag){
+    let props = {
+        type: waoType,
+        groups: JSON.stringify(groups)
     };
+
+    if(typeof idOrSearchBag === 'object' || typeof idOrSearchBag === 'boolean') {
+        props.searchBag = JSON.stringify(idOrSearchBag);
+    }
+    else if (typeof idOrSearchBag === 'number') {
+        props.id = idOrSearchBag
+    }
+    else{
+        throw `Unsupported research criteria ${typeof idOrSearchBag} for idOrSearchBag`;
+    }
+    return props;
 };
 
 /**

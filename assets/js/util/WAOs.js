@@ -1,4 +1,6 @@
 const Imm = require("immutable");
+import { normalize, schema } from 'normalizr';
+
 
 /**
  * @class WAO
@@ -113,6 +115,7 @@ for (let i = 0; i < mappingDivs.length; ++i) {
     let item = mappingDivs[i];
     let type = item.getAttribute("id").replace("hb-mapping-", "");
     let mapping = JSON.parse(item.getAttribute("data-mapping"));
+
     let prototype = {...waoPrototype};
     Object.keys(mapping).forEach(key =>{
         mapping[key].forEach(attribute =>{
@@ -123,6 +126,7 @@ for (let i = 0; i < mappingDivs.length; ++i) {
 
     let concreteDtoMap = Imm.Map();
     concreteDtoMap = Imm.Map()
+        .set("schema",new schema.Entity(type, {},{ idAttribute: 'id' }))
         .set("mapping",
             Imm.fromJS(mapping)
         )
@@ -136,9 +140,15 @@ for (let i = 0; i < mappingDivs.length; ++i) {
 for (let i = 0; i < structureDivs.length; ++i) {
     let item = structureDivs[i];
     let type = item.getAttribute("id").replace("hb-structure-", "");
+    let structure = JSON.parse(item.getAttribute("data-structure"));
+    let normSchema = {};
+    Object.keys(structure).forEach(key =>{
+        normSchema[key] = protoMap.getIn([structure[key], "schema"]);
+    });
+    protoMap.getIn([type, "schema"]).define(normSchema);
     protoMap = protoMap.setIn(
         [type, "structure"],
-        Imm.fromJS(JSON.parse(item.getAttribute("data-structure")))
+        Imm.fromJS(structure)
     );
 }
 

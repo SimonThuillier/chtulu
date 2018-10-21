@@ -10,6 +10,7 @@ import {Modal,Popover,OverlayTrigger,Tooltip,Button,ButtonToolbar,ToggleButtonGr
 import {Article} from "./article";
 import {getIfNeeded} from "../actions";
 import SearchBag from '../util/SearchBag';
+import ArticleType from './ArticleType';
 
 
 const columns = [{
@@ -26,8 +27,11 @@ const columns = [{
         return cell;
     }
 }, {
-    dataField: 'type.label',
-    text: 'Type'
+    dataField: 'type',
+    text: 'Type',
+    formatter: function(cell){
+        return <ArticleType id={cell}/>
+    }
 }, {
     dataField: 'beginHDate',
     text: 'Début',
@@ -158,7 +162,7 @@ class ArticleTablePage extends React.Component{
                             <Modal.Title>{this.state.activeData && this.state.activeData.title}</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            <Article data={this.state.activeData} activeComponent={this.state.activeComponent}/>
+                            <Article {...this.props} data={this.state.activeData} activeComponent={this.state.activeComponent}/>
                         </Modal.Body>
                         <Modal.Footer>
                             <ButtonToolbar>
