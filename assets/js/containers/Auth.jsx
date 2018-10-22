@@ -6,7 +6,7 @@ import Header from "../components/Header";
 import SideBar from "../components/SideBar";
 import Page1 from "../components/Page1";
 import Page2 from "../components/Page2";
-import {ArticleTablePage} from "../components/ArticleTablePage";
+import ArticleTablePage from "../components/ArticleTablePage";
 
 class App extends Component {
 
@@ -56,7 +56,7 @@ const mapStateToProps = state => {
     //     isFetching,
     //     lastUpdated
     // }
-    return {...state};
+    return {};//...state
 
 };
 

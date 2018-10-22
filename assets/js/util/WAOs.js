@@ -108,6 +108,18 @@ const defaultPrototypes = {
     }
 };
 
+const waoAppParam = {
+    getInvalidateDuration : 60,
+    removeCacheOnUnlock : false
+};
+
+const appParams = {
+    articleType : {
+        getInvalidateDuration : 6000,
+        removeCacheOnUnlock : true
+    }
+};
+
 const mappingDivs = document.getElementsByClassName("hb-wao-mapping");
 const structureDivs = document.getElementsByClassName("hb-wao-structure");
 let protoMap = Imm.Map();
@@ -131,6 +143,7 @@ for (let i = 0; i < mappingDivs.length; ++i) {
             Imm.fromJS(mapping)
         )
         .set("waoType", type)
+        .set("appParams", Object.assign({...waoAppParam},appParams[type] || {}))
         .set("recordFactory",
             Imm.Record(prototype, type)
         );

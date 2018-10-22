@@ -13,14 +13,25 @@ const mergeRecords = function(iRec,nRec){
     mRec = mRec.set("loadedGroups",GroupUtil.merge(iLoadedGroups,nLoadedGroups));
     console.log("merged object");
     console.log(mRec.toJS());
+    console.log("equality");
+    console.log(mRec.toJSON() === iRec.toJSON());
     return mRec;
+};
+
+const searchCacheEntry = function(searchBag,ids){
+    return {
+       searchBagKey : JSON.stringify(searchBag),
+       ids : ids,
+       receivedAt : Date.now()
+    }
 };
 
 const concreteWaoType = (waoType) => {
     const initialWaoState = {
         type:waoType,
         total:-1,
-        items:new Map()
+        items:new Map(),
+        searchCache: new Map()
     };
     const WAO = WAOs.getIn([waoType,"recordFactory"]);
 
@@ -35,11 +46,16 @@ const concreteWaoType = (waoType) => {
                 console.log("action receive get");
                 console.log(waoType);
                 console.log(action);
+                let ids = [];
                 action.waos.map(item => {
                     let rec = WAO(item);
                     rec = rec.get("receiveRecord")(rec);
-                    state.items.set(rec.get("id"),rec);
+                    if(state.items.has(+rec.get("id"))) state.items.set(+rec.get("id"),mergeRecords(state.items.get(+rec.get("id")),rec));
+                    else state.items.set(+rec.get("id"),rec);
+                    ids.push(+rec.get("id"));
                 });
+                if(action.searchBag)
+                    state.searchCache.set(JSON.stringify(action.searchBag),searchCacheEntry(action.searchBag,ids));
                 return {
                     ...state
                 };
@@ -49,8 +65,8 @@ const concreteWaoType = (waoType) => {
                 console.log(action);
                 let rec = WAO(action.wao);
                 rec = rec.get("receiveRecord")(rec);
-                if(state.items.has(rec.get("id"))) state.items.set(rec.get("id"),mergeRecords(state.items.get(rec.get("id")),rec));
-                else state.items.set(rec.get("id"),rec);
+                if(state.items.has(+rec.get("id"))) state.items.set(+rec.get("id"),mergeRecords(state.items.get(+rec.get("id")),rec));
+                else state.items.set(+rec.get("id"),rec);
                 return {
                     ...state
                 };
@@ -63,11 +79,33 @@ const concreteWaoType = (waoType) => {
 const getOneByIdSelector = (waoType) => {
     return (state) => {
         const items = state[waoType].items;
-        return (id) => items.get(id);
+        console.log(`${waoType} items`);
+        console.log(items);
+        console.log(items.get(2));
+        return (id) => items.get(+id);
+    }
+};
+const getByIdsSelector = (waoType) => {
+    return (state) => {
+        const items = state[waoType].items;
+        return (ids) => ids.map(id => items.get(+id));
+    }
+};
+const getSelector = (waoType) => {
+    return (state) => {
+        const items = state[waoType].items;
+        const searchCache = state[waoType].searchCache;
+        return (searchBag) => {
+            const searchCacheEntry = searchCache.get(JSON.stringify(searchBag));
+            if(! searchCacheEntry) return [];
+            return searchCacheEntry.ids.map((id)=> items.get(+id));
+        };
     }
 };
 
 let getOneByIdSelectorsToExport = {};
+let getByIdsSelectorsToExport = {};
+let getSelectorsToExport = {};
 
 let waoReducers = {};
 WAOs.entrySeq().forEach(entry => {
@@ -76,10 +114,25 @@ WAOs.entrySeq().forEach(entry => {
         [ getOneByIdSelector(entry[0]) ],
         (item) => item
     );
+    getByIdsSelectorsToExport[entry[0]] = createSelector(
+        [ getByIdsSelector(entry[0]) ],
+        (item) => item
+    );
+    getSelectorsToExport[entry[0]] = createSelector(
+        [ getSelector(entry[0]) ],
+        (item) => item
+    );
 });
 
 export const rootReducer = combineReducers(
     waoReducers);
 
 export const getOneByIdSelectors = getOneByIdSelectorsToExport;
+export const getByIdsSelectors = getByIdsSelectorsToExport;
+export const getSelectors = getSelectorsToExport;
 
+
+export const getOneByIdSelector2 = (state) => {
+        const items = state.items;
+        return (id) => items.get(+id);
+};

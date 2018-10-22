@@ -11,6 +11,8 @@ import {Article} from "./article";
 import {getIfNeeded} from "../actions";
 import SearchBag from '../util/SearchBag';
 import ArticleType from './ArticleType';
+import {connect} from "react-redux";
+import {getSelectors} from "../reducers";
 
 
 const columns = [{
@@ -132,7 +134,7 @@ class ArticleTablePage extends React.Component{
                     >
                     <BootstrapTable
                         keyField='id'
-                        data={ Array.from(article.items.values())}
+                        data={ this.props.selector(this.state.searchBag)}
                         selectRow={{
                             hideSelectColumn:true,
                             mode :'radio',
@@ -189,4 +191,12 @@ class ArticleTablePage extends React.Component{
     }
 }
 
-export {ArticleTablePage};
+const mapStateToProps = state => {
+    console.log("ArticleTablePage map state to props");
+    console.log(state);
+    return {
+        selector: getSelectors["article"](state)
+    }
+};
+
+export default connect(mapStateToProps)(ArticleTablePage);
