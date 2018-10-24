@@ -76,32 +76,23 @@ const concreteWaoType = (waoType) => {
     }
 };
 
-const getOneByIdSelector = (waoType) => {
-    return (state) => {
-        const items = state[waoType].items;
-        console.log(`${waoType} items`);
-        console.log(items);
-        console.log(items.get(2));
-        return (id) => items.get(+id);
+export const getOneByIdSelector = createSelector(
+    [(state) => state.items],
+    (items) => (id) => items.get(+id)
+);
+export const getByIdsSelector = createSelector(
+    [(state) => state.items],
+    (items) => (ids) => ids.map(id => items.get(+id))
+);
+
+export const getSelector = createSelector(
+    [(state) => state.items,(state) => state.searchCache],
+    (items,searchCache) => (searchBag) => {
+        const searchCacheEntry = searchCache.get(JSON.stringify(searchBag));
+        if(! searchCacheEntry) return [];
+        return searchCacheEntry.ids.map((id)=> items.get(+id));
     }
-};
-const getByIdsSelector = (waoType) => {
-    return (state) => {
-        const items = state[waoType].items;
-        return (ids) => ids.map(id => items.get(+id));
-    }
-};
-const getSelector = (waoType) => {
-    return (state) => {
-        const items = state[waoType].items;
-        const searchCache = state[waoType].searchCache;
-        return (searchBag) => {
-            const searchCacheEntry = searchCache.get(JSON.stringify(searchBag));
-            if(! searchCacheEntry) return [];
-            return searchCacheEntry.ids.map((id)=> items.get(+id));
-        };
-    }
-};
+);
 
 let getOneByIdSelectorsToExport = {};
 let getByIdsSelectorsToExport = {};
@@ -110,18 +101,9 @@ let getSelectorsToExport = {};
 let waoReducers = {};
 WAOs.entrySeq().forEach(entry => {
     waoReducers[entry[0]] = concreteWaoType(entry[0]);
-    getOneByIdSelectorsToExport[entry[0]] = createSelector(
-        [ getOneByIdSelector(entry[0]) ],
-        (item) => item
-    );
-    getByIdsSelectorsToExport[entry[0]] = createSelector(
-        [ getByIdsSelector(entry[0]) ],
-        (item) => item
-    );
-    getSelectorsToExport[entry[0]] = createSelector(
-        [ getSelector(entry[0]) ],
-        (item) => item
-    );
+    //getOneByIdSelectorsToExport[entry[0]] = getOneByIdSelector(state[entry[0]]);
+    //getByIdsSelectorsToExport[entry[0]] = getByIdsSelector(state[entry[0]]);
+    //getSelectorsToExport[entry[0]] = getSelector(state[entry[0]]);
 });
 
 export const rootReducer = combineReducers(
@@ -131,8 +113,3 @@ export const getOneByIdSelectors = getOneByIdSelectorsToExport;
 export const getByIdsSelectors = getByIdsSelectorsToExport;
 export const getSelectors = getSelectorsToExport;
 
-
-export const getOneByIdSelector2 = (state) => {
-        const items = state.items;
-        return (id) => items.get(+id);
-};

@@ -12,21 +12,18 @@ import {getIfNeeded} from "../actions";
 import SearchBag from '../util/SearchBag';
 import ArticleType from './ArticleType';
 import {connect} from "react-redux";
-import {getSelectors} from "../reducers";
+import {getSelector} from "../reducers";
+import RImageMini from "./RImageMini"
 
 
 const columns = [{
     dataField: 'title',
     text: 'Titre',
     formatter: function(cell,row){
-        if(row.detailImageResource &&
-            row.detailImageResource.activeVersion){
-            let activeVersion = row.detailImageResource.activeVersion;
-            return (
-                <div>{cell}&nbsp;<img src={activeVersion.urlMini} className="img-circle"/></div>
-            );
-        }
-        return cell;
+        const value = row.detailImageResource;
+        return (
+            value?<div>{cell}&nbsp;<RImageMini id={value}/></div>:cell
+        );
     }
 }, {
     dataField: 'type',
@@ -51,7 +48,7 @@ const columns = [{
         return cell.getLabel();
     }
 }
-    ];
+];
 
 
 
@@ -132,32 +129,32 @@ class ArticleTablePage extends React.Component{
                         color='black'
                         background='rgba(192,192,192,0.4)'
                     >
-                    <BootstrapTable
-                        keyField='id'
-                        data={ this.props.selector(this.state.searchBag)}
-                        selectRow={{
-                            hideSelectColumn:true,
-                            mode :'radio',
-                            style: { backgroundColor: '#c8e6c9' },
-                            selected:this.state.selected,
-                        }}
-                        remote={ {
-                            filter: true,
-                            pagination: false,
-                            sort: true,
-                            cellEdit: true
-                        } }
-                        loading={this.state.loading}
-                        columns={ columns.concat([
-                            {
-                                dataField: 'id',
-                                text: 'Action',
-                                formatter: (cell, row, rowIndex) =>
-                                    (<Preview onClick={() => this.onRowPreview(row,rowIndex)}/>)
-                            }
-                            ])
+                        <BootstrapTable
+                            keyField='id'
+                            data={ this.props.selector(this.state.searchBag)}
+                            selectRow={{
+                                hideSelectColumn:true,
+                                mode :'radio',
+                                style: { backgroundColor: '#c8e6c9' },
+                                selected:this.state.selected,
+                            }}
+                            remote={ {
+                                filter: true,
+                                pagination: false,
+                                sort: true,
+                                cellEdit: true
+                            } }
+                            loading={this.state.loading}
+                            columns={ columns.concat([
+                                {
+                                    dataField: 'id',
+                                    text: 'Action',
+                                    formatter: (cell, row, rowIndex) =>
+                                        (<Preview onClick={() => this.onRowPreview(row,rowIndex)}/>)
                                 }
-                    />
+                            ])
+                            }
+                        />
                     </Loadable>
                     <Modal show={this.state.activeData !== null} onHide={this.handleClose.bind(this)}>
                         <Modal.Header closeButton>
@@ -195,7 +192,7 @@ const mapStateToProps = state => {
     console.log("ArticleTablePage map state to props");
     console.log(state);
     return {
-        selector: getSelectors["article"](state)
+        selector: getSelector(state.article)
     }
 };
 
