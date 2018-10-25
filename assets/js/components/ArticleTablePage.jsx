@@ -12,7 +12,7 @@ import {getIfNeeded} from "../actions";
 import SearchBag from '../util/SearchBag';
 import ArticleType from './ArticleType';
 import {connect} from "react-redux";
-import {getSelector} from "../reducers";
+import { getSelector} from "../reducers";
 import RImageMini from "./RImageMini"
 
 
@@ -60,45 +60,26 @@ class ArticleTablePage extends React.Component{
             loading:false,
             searchBag:SearchBag(null,'id','DESC',0,10),
             selected:null,
-            activeData:null
+            activeId:null
         };
     }
 
     componentDidMount(){
-
         const {dispatch} = this.props;
         dispatch(getIfNeeded("article",
             {minimal:true,date:true,detailImage:true,detailImageUrl:true},
             this.state.searchBag));
-
-
-        /*server.get('article',{minimal:true,date:true,detailImage:true,detailImageUrl:true},this.state.searchBag)
-            .then(data =>{
-                console.log("reception client");
-                data.rows.forEach((item) => this.onRowReception(item));
-                console.log(data);
-                console.log(server.getCache());
-                this.setState({
-                    rows:data.rows,
-                    loading:false,
-                    activeComponent:'detail',
-                });
-            });*/
-    }
-
-    onRowReception(data){
-
     }
 
     onRowPreview(row,rowIndex){
         console.log("row selectionnée !");
         console.log(row);
         console.log(rowIndex);
-        this.setState({selected:[row.id],activeData:row,activeComponent:'detail'});
+        this.setState({selected:[row.id],activeId:row.id,activeComponent:'detail'});
     }
 
     handleClose() {
-        this.setState({ activeData: null });
+        this.setState({ activeId: null });
     }
 
     handleArticleSwitch() {
@@ -109,10 +90,7 @@ class ArticleTablePage extends React.Component{
 
 
     render(){
-        const { article } = this.props;
-        /*console.log("articles ?");
-        console.log(article);
-        article.items.forEach((item)=>{console.log(item.toJS())});*/
+        const items = this.props.selector(this.state.searchBag);
 
         return(
             <div className="content-wrapper hb-container">
@@ -131,7 +109,7 @@ class ArticleTablePage extends React.Component{
                     >
                         <BootstrapTable
                             keyField='id'
-                            data={ this.props.selector(this.state.searchBag)}
+                            data={ items }
                             selectRow={{
                                 hideSelectColumn:true,
                                 mode :'radio',
@@ -156,12 +134,17 @@ class ArticleTablePage extends React.Component{
                             }
                         />
                     </Loadable>
-                    <Modal show={this.state.activeData !== null} onHide={this.handleClose.bind(this)}>
+                    <Modal show={this.state.activeId !== null} onHide={this.handleClose.bind(this)}>
                         <Modal.Header closeButton>
-                            <Modal.Title>{this.state.activeData && this.state.activeData.title}</Modal.Title>
+                            <Modal.Title>
+                                {this.state.activeId && items.find((item)=> item.id === this.state.activeId).title}
+                                </Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            <Article {...this.props} data={this.state.activeData} activeComponent={this.state.activeComponent}/>
+                            <Article
+                                dispatch={this.props.dispatch}
+                                id={this.state.activeId}
+                                     activeComponent={this.state.activeComponent}/>
                         </Modal.Body>
                         <Modal.Footer>
                             <ButtonToolbar>
@@ -189,10 +172,9 @@ class ArticleTablePage extends React.Component{
 }
 
 const mapStateToProps = state => {
-    console.log("ArticleTablePage map state to props");
-    console.log(state);
+    const selector = selector || getSelector(state.article);
     return {
-        selector: getSelector(state.article)
+        selector: selector
     }
 };
 

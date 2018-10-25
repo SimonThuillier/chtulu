@@ -1,87 +1,11 @@
 import React from "react";
 import {Popover,OverlayTrigger,Tooltip,Image,ControlLabel,FormGroup,FormControl} from 'react-bootstrap';
 import Loadable from 'react-loading-overlay';
-import GroupUtil from '../util/GroupUtil';
 const uuidv4 = require('uuid/v4');
-import {getIfNeeded, getOneByIdIfNeeded} from "../actions";
+import { getOneByIdIfNeeded} from "../actions";
+import ArticleDetail from './ArticleDetail';
 
-
-export function ArticleDetailMinimal(props){
-    return(
-        <div className="col-md-6">
-            <div className="container-fluid">
-                <div className="row">
-                    <h5>Type : {props.type ? props.type.label : ''}</h5>
-                    <h5>Date de début : {props.beginHDate ? props.beginHDate.getLabel() : ''}</h5>
-                    <h5>Date de fin : {props.endHDate ? props.endHDate.getLabel() : ''}</h5>
-                </div>
-            </div>
-        </div>
-    )
-}
-
-export function ArticleDetailImage(props){
-    return(
-        <div className="col-md-6">
-            <div className="container-fluid">
-                <Image src={props.url} rounded />
-            </div>
-        </div>
-    )
-}
-
-export function ArticleDetailAbstract(props){
-    const abstract = props.abstract || "";
-    let paragraphKey=0;
-    const paragraphs =  abstract.split("\r\n").map((line) =>{
-        if (line.length === 0) return null;
-        paragraphKey++;
-        return(
-            <p>
-                &nbsp;&nbsp;&nbsp;{line}
-            </p>
-        );
-    });
-    return(
-        <div className="col-md-12">
-            <div className="container-fluid">
-                {paragraphs}
-            </div>
-        </div>
-    )
-}
-
-export function ArticleDetail(props){
-    let data = props.data;
-    console.log("data de article detail");
-    console.log(data);
-    console.log(data.type);
-    const availableGroups = (data && data.loadedGroups)?GroupUtil.intersect('article',props.groups,data.loadedGroups):{};
-
-    return (
-        <div>
-            <div className="row">
-                {availableGroups.hasOwnProperty("minimal") &&
-                <ArticleDetailMinimal type={data.type} beginHDate={data.beginHDate} endHDate={data.endHDate}/>
-                }
-                {availableGroups.hasOwnProperty("detailImageResource") &&
-                data.detailImageResource && data.detailImageResource.activeVersion &&
-                <ArticleDetailImage url={data.detailImageResource.activeVersion.urlDetailThumbnail}/>
-                }
-            </div>
-            <div className="row">
-                <hr/>
-            </div>
-            <div className="row">
-                {availableGroups.hasOwnProperty("abstract") &&
-                <ArticleDetailAbstract abstract={data.abstract}/>
-                }
-            </div>
-        </div>
-    );
-}
-
-const formDataTransformer = {
+/*const formDataTransformer = {
     abstract:function(value){
         return value.replace('<br />',"\n");
     }
@@ -99,33 +23,33 @@ export function ArticleForm(props){
             <input type="submit" value="Submit" />
         </form>
     );
-};
+};*/
 
 export class Article extends React.Component{
     constructor(props) {
         super(props);
         this.state = {
             activeComponent: props.activeComponent||'detail',
-            data: props.data||null,
+            id: props.id||null,
             loading: false,
             detailGroups:props.detailGroups || {"minimal":true,"abstract":true,
                 "detailImageResource":{"activeVersion":{"urlDetailThumbnail":true}}
             },
             formGroups:props.formGroups || {"minimal":true},
-            pendingData: (props.data)?Object.create(props.data):null,
+            //pendingData: (props.data)?Object.create(props.data):null,
         };
         console.log("Article built");
-        console.log(props.data);
-        console.log(this.state.pendingData);
+        //console.log(props.data);
+        //console.log(this.state.pendingData);
     }
 
-    getChangeHandler(attribute){
+    /*getChangeHandler(attribute){
         return function(event){
             this.state.pendingData[attribute] =
                 formDataTransformer[attribute] ? formDataTransformer[attribute](event.target.value):event.target.value;
             this.setState({pendingData:this.state.pendingData});
         }.bind(this)
-    }
+    }*/
 
     onDataLoading(){
         this.setState({
@@ -145,7 +69,7 @@ export class Article extends React.Component{
     componentDidMount(){
         console.log("Article begin Mount");
         const {dispatch} = this.props;
-        dispatch(getOneByIdIfNeeded("article",this.state.detailGroups, this.state.data.id));
+        dispatch(getOneByIdIfNeeded("article",this.state.detailGroups, this.state.id));
     }
 
     render(){
@@ -181,7 +105,7 @@ export class Article extends React.Component{
 
         {/*<hr/>*/}
 
-        const data = this.state.pendingData; //
+        //const data = this.state.pendingData; //
 
         return (
             <Loadable
@@ -192,14 +116,14 @@ export class Article extends React.Component{
                 background='rgba(192,192,192,0.4)'
             >
                 <div hidden={this.state.activeComponent!=='detail'}>
-                    <ArticleDetail data={this.state.pendingData} groups={this.state.detailGroups}/>
+                    <ArticleDetail id={this.state.id} groups={this.state.detailGroups}/>
                 </div>
-                <div hidden={this.state.activeComponent!=='form'}>
+                /*<div hidden={this.state.activeComponent!=='form'}>
                     {this.state.activeComponent==='form' && <ArticleForm
                         data={this.state.pendingData}
                         groups={this.state.formGroups}
                         changeHandler={this.getChangeHandler.bind(this)}/>}
-                </div>
+                </div>*/
             </Loadable>
         );
     }

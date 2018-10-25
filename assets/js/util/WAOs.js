@@ -34,7 +34,8 @@ const waoPrototype = {
     },
     receiveRecord: function(rec) {
         return rec;
-    }
+    },
+    loadedGroups:null
 };
 
 const defaultPrototypes = {

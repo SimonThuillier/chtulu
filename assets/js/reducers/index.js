@@ -30,8 +30,8 @@ const concreteWaoType = (waoType) => {
     const initialWaoState = {
         type:waoType,
         total:-1,
-        items:new Map(),
-        searchCache: new Map()
+        items:Imm.Map(),
+        searchCache: Imm.Map()
     };
     const WAO = WAOs.getIn([waoType,"recordFactory"]);
 
@@ -50,12 +50,14 @@ const concreteWaoType = (waoType) => {
                 action.waos.map(item => {
                     let rec = WAO(item);
                     rec = rec.get("receiveRecord")(rec);
-                    if(state.items.has(+rec.get("id"))) state.items.set(+rec.get("id"),mergeRecords(state.items.get(+rec.get("id")),rec));
-                    else state.items.set(+rec.get("id"),rec);
+                    if(state.items.has(+rec.get("id")))
+                        state.items = state.items.set(+rec.get("id"),mergeRecords(state.items.get(+rec.get("id")),rec));
+                    else
+                        state.items = state.items.set(+rec.get("id"),rec);
                     ids.push(+rec.get("id"));
                 });
                 if(action.searchBag)
-                    state.searchCache.set(JSON.stringify(action.searchBag),searchCacheEntry(action.searchBag,ids));
+                    state.searchCache = state.searchCache.set(JSON.stringify(action.searchBag),searchCacheEntry(action.searchBag,ids));
                 return {
                     ...state
                 };
@@ -65,8 +67,10 @@ const concreteWaoType = (waoType) => {
                 console.log(action);
                 let rec = WAO(action.wao);
                 rec = rec.get("receiveRecord")(rec);
-                if(state.items.has(+rec.get("id"))) state.items.set(+rec.get("id"),mergeRecords(state.items.get(+rec.get("id")),rec));
-                else state.items.set(+rec.get("id"),rec);
+                if(state.items.has(+rec.get("id")))
+                    state.items = state.items.set(+rec.get("id"),mergeRecords(state.items.get(+rec.get("id")),rec));
+                else
+                    state.items = state.items.set(+rec.get("id"),rec);
                 return {
                     ...state
                 };

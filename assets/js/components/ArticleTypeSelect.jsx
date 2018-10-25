@@ -41,17 +41,10 @@ class ArticleTypeSelect extends Component {
     }
 }
 
-const selector = null;
-let i = 0;
-
 const mapStateToProps = (state) => {
-    console.log("map state to props article Select");
     const selector = selector || getSelector(state.articleType);
-    i=i+1;
-    console.log(selector(SearchBag()));
     return {
-        selector: selector,
-        //i:i
+        selector: selector
     }
 };
 
