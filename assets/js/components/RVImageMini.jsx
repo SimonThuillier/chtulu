@@ -11,7 +11,7 @@ const RVImageMini = function(props){
 
 const mapStateToProps = (state) => {
     return {
-        selector: getOneByIdSelector(state.resourceVersion)
+        selector: getOneByIdSelector(state.get("resourceVersion"))
     }
 };
 

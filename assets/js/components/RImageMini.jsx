@@ -12,7 +12,7 @@ const RImageMini = function(props){
 
 const mapStateToProps = (state) => {
     return {
-        selector: getOneByIdSelector(state.resource)
+        selector: getOneByIdSelector(state.get("resource"))
     }
 };
 

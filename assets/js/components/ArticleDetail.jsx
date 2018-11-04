@@ -36,7 +36,7 @@ const ArticleDetail = function(props){
 }
 
 const mapStateToProps = (state) => {
-    const selector = selector || getOneByIdSelector(state.article);
+    const selector = selector || getOneByIdSelector(state.get("article"));
     return {
         selector: selector
     }

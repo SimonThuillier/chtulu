@@ -169,8 +169,8 @@ class Game extends React.Component {
         const player = (this.state.player === 'X')?'O':'X';
         this.setState({
             history: history.concat([{
-                    squares: squares,
-                }]),
+                squares: squares,
+            }]),
             stepNumber:history.length,
             player:player});
     }
@@ -360,11 +360,30 @@ class MyPopup extends React.Component {
                 {this.props.msg}
                 {!this.props.finished ?
                     <MyForm {...this.props}/>
-                :null}
+                    :null}
             </Popup>
-            )
+        )
     }
 }
+
+const resourceGeometry = {
+    getPointCoords(){
+        if(typeof this.targetGeometry ==='undefined' ||
+            typeof this.targetGeometry.value ==='undefined' ||
+            typeof this.targetGeometry.value.type ==='undefined' ||
+            this.targetGeometry.value.type !=='Point') return [0,0];
+        return this.targetGeometry.value.coordinates;
+    },
+    getPointLat(){
+        return this.getPointCoords()[0];
+    },
+    getPointLng(){
+        return this.getPointCoords()[1];
+    }
+};
+
+
+
 
 
 class SimpleExample extends React.Component {
@@ -375,14 +394,15 @@ class SimpleExample extends React.Component {
             lng: -0.09,
             zoom: 6,
             pins:[],
-            loading:0
+            loading:0,
+            idGenerator : hb.util.cmn.getIdGenerator(0,-1)
         };
     }
 
 
 
     componentDidMount(){
-        hb.util.server.get('resourceGeometry',{minimal:true})
+        /*hb.util.server.get('resourceGeometry',{minimal:true})
             .then(data =>{
                 console.log("reception client");
                 data.rows.forEach((item) => this.onPinReception(item));
@@ -390,7 +410,7 @@ class SimpleExample extends React.Component {
                 this.setState({
                     pins:data.rows
                 });
-            });
+            });*/
     }
 
     handleOnDeletePin(key){
@@ -407,32 +427,32 @@ class SimpleExample extends React.Component {
     }
 
     handleOnSavePin(key){
-            return function(formData) {
-                console.log(formData);
-                console.log(key);
-                let pins = this.state.pins.slice(0, this.state.pins.length);
-                let index = pins.findIndex(x => x.id === key);
-                let pin = pins[index];
-                console.log(pin);
+        return function(formData) {
+            console.log(formData);
+            console.log(key);
+            let pins = this.state.pins.slice(0, this.state.pins.length);
+            let index = pins.findIndex(x => x.id === key);
+            let pin = pins[index];
+            console.log(pin);
 
-                hb.util.server.post('resourceGeometry',{minimal:true},pin,formData)
-                    .then(data =>{
-                        console.log("reception client");
-                        console.log(data);
+            /*hb.util.server.post('resourceGeometry',{minimal:true},pin,formData)
+                .then(data =>{
+                    console.log("reception client");
+                    console.log(data);
+                    pins[index] = data;
+                    /*if(index !== data.id){
+                        pins.splice(index,1);
+                        pins[data.id] = data;
+                    }
+                    else{
                         pins[index] = data;
-                        /*if(index !== data.id){
-                            pins.splice(index,1);
-                            pins[data.id] = data;
-                        }
-                        else{
-                            pins[index] = data;
-                        }*/
-                        console.log(pins);
-                        this.setState({
-                            pins:pins
-                        });
+                    }
+                    console.log(pins);
+                    this.setState({
+                        pins:pins
                     });
-            }
+                });*/
+        }
     }
 
     handleOnFinishPin(key){
@@ -448,17 +468,23 @@ class SimpleExample extends React.Component {
     handleClickOnMap(event){
         let latlng = event.latlng;
 
-        hb.util.server.getNew('resourceGeometry')
+        let data = {id:this.state.idGenerator(),
+            targetGeometry:{value:{type:"Point",coordinates:[latlng.lat,latlng.lng]}}};
+        Object.setPrototypeOf(data,resourceGeometry);
+
+        this.onPinReception(data);
+        const pins = this.state.pins.slice(0, this.state.pins.length);
+        console.log(data);
+        this.setState({
+            pins:pins.concat([data])
+        });
+
+        /*hb.util.server.getNew('resourceGeometry',targetGeometry = {},)
             .then(data =>{
                 data.targetGeometry = {};
                 data.targetGeometry.value = {type:"Point",coordinates:[latlng.lat,latlng.lng]};
-                this.onPinReception(data);
-                const pins = this.state.pins.slice(0, this.state.pins.length);
-                console.log(data);
-                this.setState({
-                    pins:pins.concat([data])
-                });
-            });
+
+            });*/
     }
 
     onPinReception(data){
@@ -511,7 +537,7 @@ class SimpleExample extends React.Component {
                              onFinish={this.handleOnFinishPin(pin.id).bind(this)}
                     />
                     {/*<Popup autoClose={false} closeOnClick={false}>*/}
-                        {/*{pin.msg}*/}
+                    {/*{pin.msg}*/}
                     {/*</Popup>*/}
                 </Marker>
             );

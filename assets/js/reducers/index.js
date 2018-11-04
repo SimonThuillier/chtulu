@@ -1,9 +1,11 @@
-import { combineReducers } from 'redux'
+import { combineReducers } from 'redux-immutable'
 import {GET,RECEIVE_GET,GET_ONE_BY_ID,RECEIVE_GET_ONE_BY_ID} from '../actions'
+import {LOAD} from '../actions/form';
 import WAOs from '../util/WAOs'
 import GroupUtil from '../util/GroupUtil';
 const Imm = require("immutable");
 import { createSelector } from 'reselect';
+import { reducer as reduxFormReducer } from "redux-form/immutable";
 
 const mergeRecords = function(iRec,nRec){
     const iLoadedGroups = iRec.get("loadedGroups");
@@ -27,16 +29,17 @@ const searchCacheEntry = function(searchBag,ids){
 };
 
 const concreteWaoType = (waoType) => {
-    const initialWaoState = {
+    const initialWaoState = Imm.Map({
         type:waoType,
         total:-1,
         items:Imm.Map(),
         searchCache: Imm.Map()
-    };
+    });
     const WAO = WAOs.getIn([waoType,"recordFactory"]);
 
     return (state=initialWaoState, action) => {
         if (action.waoType !== waoType) return state;
+        console.log("reducer call");
         switch (action.type) {
             case GET:
                 return state;
@@ -50,30 +53,31 @@ const concreteWaoType = (waoType) => {
                 action.waos.map(item => {
                     let rec = WAO(item);
                     rec = rec.get("receiveRecord")(rec);
-                    if(state.items.has(+rec.get("id")))
-                        state.items = state.items.set(+rec.get("id"),mergeRecords(state.items.get(+rec.get("id")),rec));
+                    if(state.get("items").has(+rec.get("id")))
+                        state = state.set("items",
+                            state.get("items").set(+rec.get("id"),mergeRecords(state.get("items").get(+rec.get("id")),rec)));
                     else
-                        state.items = state.items.set(+rec.get("id"),rec);
+                        state = state.set("items",
+                            state.get("items").set(+rec.get("id"),rec));
                     ids.push(+rec.get("id"));
                 });
                 if(action.searchBag)
-                    state.searchCache = state.searchCache.set(JSON.stringify(action.searchBag),searchCacheEntry(action.searchBag,ids));
-                return {
-                    ...state
-                };
+                    state = state.set("searchCache",
+                        state.get("searchCache").set(JSON.stringify(action.searchBag),searchCacheEntry(action.searchBag,ids)));
+                return state;
             case RECEIVE_GET_ONE_BY_ID:
                 console.log("action receive get one by id");
                 console.log(waoType);
                 console.log(action);
                 let rec = WAO(action.wao);
                 rec = rec.get("receiveRecord")(rec);
-                if(state.items.has(+rec.get("id")))
-                    state.items = state.items.set(+rec.get("id"),mergeRecords(state.items.get(+rec.get("id")),rec));
+                if(state.get("items").has(+rec.get("id")))
+                    state = state.set("items",
+                        state.get("items").set(+rec.get("id"),mergeRecords(state.get("items").get(+rec.get("id")),rec)));
                 else
-                    state.items = state.items.set(+rec.get("id"),rec);
-                return {
-                    ...state
-                };
+                    state = state.set("items",
+                        state.get("items").set(+rec.get("id"),rec));
+                return state;
             default:
                 return state;
         }
@@ -81,16 +85,15 @@ const concreteWaoType = (waoType) => {
 };
 
 export const getOneByIdSelector = createSelector(
-    [(state) => state.items],
+    [(state) => state.get("items")],
     (items) => (id) => items.get(+id)
 );
 export const getByIdsSelector = createSelector(
-    [(state) => state.items],
+    [(state) => state.get("items")],
     (items) => (ids) => ids.map(id => items.get(+id))
 );
-
 export const getSelector = createSelector(
-    [(state) => state.items,(state) => state.searchCache],
+    [(state) => state.get("items"),(state) => state.get("searchCache")],
     (items,searchCache) => (searchBag) => {
         const searchCacheEntry = searchCache.get(JSON.stringify(searchBag));
         if(! searchCacheEntry) return [];
@@ -109,6 +112,22 @@ WAOs.entrySeq().forEach(entry => {
     //getByIdsSelectorsToExport[entry[0]] = getByIdsSelector(state[entry[0]]);
     //getSelectorsToExport[entry[0]] = getSelector(state[entry[0]]);
 });
+
+const formReducer = (state = null, action) => {
+    state = state || Imm.Map();
+    console.log("form reducer called");
+    console.log(action);
+    console.log(action.type === LOAD);
+    switch (action.type) {
+        case LOAD:
+            console.log("set data");
+            return state.set("data",action.data);
+        default:
+            return state;
+    }
+};
+waoReducers.formReducer = formReducer;
+waoReducers.form =  reduxFormReducer;
 
 export const rootReducer = combineReducers(
     waoReducers);

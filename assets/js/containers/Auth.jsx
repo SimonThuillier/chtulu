@@ -39,8 +39,8 @@ class App extends Component {
 
 
 const mapStateToProps = state => {
-    console.log("map state to props");
-    console.log(state);
+    //console.log("map state to props");
+    //console.log(state);
     // const {
     //     isFetching,
     //     lastUpdated,

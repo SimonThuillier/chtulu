@@ -32,7 +32,7 @@ class ArticleTypeSelect extends Component {
 
         return(
             <FormGroup validationState={null} controlId="formControlsSelect">
-                <ControlLabel>Type</ControlLabel>
+                <ControlLabel>Type yolo</ControlLabel>
                 <FormControl componentClass="select" placeholder="choisissez un type d'article">
                     {options}
                 </FormControl>
@@ -42,7 +42,7 @@ class ArticleTypeSelect extends Component {
 }
 
 const mapStateToProps = (state) => {
-    const selector = selector || getSelector(state.articleType);
+    const selector = selector || getSelector(state.get("articleType"));
     return {
         selector: selector
     }

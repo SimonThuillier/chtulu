@@ -70,7 +70,7 @@ const subReceiveGet = (waoType,rows) => {
 
 export const receiveGet = (waoType,groups,searchBag,rows,
                            total,message="Données bien recues du serveur") => (dispatch,state) => {
-    // let's denormalize our received Data !
+    // let's normalize our received Data !
     const normData = normalize(rows,[WAOs.getIn([waoType,"schema"])]);
     console.log("normalizedData");
     console.log(normData);
@@ -145,13 +145,23 @@ export const getOneById = (waoType,groups,id) => ({
 });
 
 export const receiveGetOneById = (waoType,groups,id,data,message="Données bien recues du serveur") => {
+    // let's normalize our received Data !
+    const normData = normalize(data,[WAOs.getIn([waoType,"schema"])]);
+    console.log("normalizedData");
+    console.log(normData);
+    Object.keys(normData.entities).forEach((key)=>{
+        if(key !== waoType){
+            dispatch(subReceiveGet(key,Object.values(normData.entities[key])));
+        }
+    });
+
     return {
         type: RECEIVE_GET_ONE_BY_ID,
         waoType : waoType,
         groups:groups,
         id : id,
         receivedAt: Date.now(),
-        wao: data,
+        wao: Object.values(normData.entities[waoType]),
     }
 };
 

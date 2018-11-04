@@ -7,7 +7,7 @@ import Loadable from 'react-loading-overlay';
 import {Helmet} from 'react-helmet';
 import {Preview} from './actions.jsx';
 import {Modal,Popover,OverlayTrigger,Tooltip,Button,ButtonToolbar,ToggleButtonGroup,ToggleButton} from 'react-bootstrap';
-import {Article} from "./article";
+import {Article} from "./Article";
 import {getIfNeeded} from "../actions";
 import SearchBag from '../util/SearchBag';
 import ArticleType from './ArticleType';
@@ -172,7 +172,7 @@ class ArticleTablePage extends React.Component{
 }
 
 const mapStateToProps = state => {
-    const selector = selector || getSelector(state.article);
+    const selector = selector || getSelector(state.get("article"));
     return {
         selector: selector
     }

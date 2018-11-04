@@ -82,7 +82,7 @@ class GeoController extends Controller
                                             GeoJsonNormalizer $normalizer){
 
         $groups = ['minimal'];
-        $mediator = $mediatorFactory->create(ResourceGeometryDTOMediator::class);
+        $mediator = $mediatorFactory->create(ResourceGeometryDTO::class);
 
         /** @var ResourceGeometryDTO $geoDto */
         $geoDto = $mediator

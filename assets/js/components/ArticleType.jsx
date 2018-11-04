@@ -8,7 +8,7 @@ const ArticleType = function(props){
 };
 
 const mapStateToProps = (state) => {
-    const selector = selector || getOneByIdSelector(state.articleType);
+    const selector = selector || getOneByIdSelector(state.get("articleType"));
     return {
         selector: selector
     }
