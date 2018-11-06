@@ -12,7 +12,7 @@ import { normalize, schema } from 'normalizr';
 import WAOs from '../util/WAOs';
 import GroupUtil from "../util/GroupUtil";
 
-
+export const LOAD_FOR_EDIT = 'LOAD_FOR_EDIT';
 export const GET = 'GET';
 export const RECEIVE_GET = 'RECEIVE_GET';
 export const GET_ONE_BY_ID = 'GET_ONE_BY_ID';
@@ -40,7 +40,17 @@ const fetchWithTimeout = function( url,props, timeout=TIMEOUT ) {
     })
 };
 
+export const loadForEdit = (formUid,waoType,id) => (dispatch,state) => {
+    console.log(`loadForEdit`);
+    console.log(state);
+};
 
+/*export const loadForEdit = (formUid,waoType,id) => ({
+    type: LOAD_FOR_EDIT,
+    formUid:formUid,
+    waoType:waoType,
+    id:id
+});*/
 
 export const get = (waoType,groups,searchBag=null) => ({
     type: GET,
@@ -51,9 +61,13 @@ export const get = (waoType,groups,searchBag=null) => ({
 
 
 const subReceiveGet = (waoType,rows) => {
+    console.log("subreceive get");
+    console.log(rows);
     const reducer = (accumulator, entity) => {
         accumulator =accumulator || true;
         let loadedGroups = entity.loadedGroups || true;
+        console.log(accumulator);
+        console.log(loadedGroups);
         return GroupUtil.intersect(waoType,accumulator,loadedGroups);
     };
 
@@ -144,9 +158,12 @@ export const getOneById = (waoType,groups,id) => ({
     id : id
 });
 
-export const receiveGetOneById = (waoType,groups,id,data,message="Données bien recues du serveur") => {
+export const receiveGetOneById = (waoType,groups,id,data,message="Données bien recues du serveur") =>
+    (dispatch,state) => {
     // let's normalize our received Data !
-    const normData = normalize(data,[WAOs.getIn([waoType,"schema"])]);
+    console.log(`denormalizedData ${waoType} with id ${id}`);
+    console.log(data);
+    const normData = normalize(data,WAOs.getIn([waoType,"schema"]));
     console.log("normalizedData");
     console.log(normData);
     Object.keys(normData.entities).forEach((key)=>{
@@ -155,14 +172,14 @@ export const receiveGetOneById = (waoType,groups,id,data,message="Données bien 
         }
     });
 
-    return {
+    return dispatch({
         type: RECEIVE_GET_ONE_BY_ID,
         waoType : waoType,
         groups:groups,
         id : id,
         receivedAt: Date.now(),
         wao: Object.values(normData.entities[waoType]),
-    }
+    });
 };
 
 const fetchGetOneById = (waoType,groups=true,id) => (dispatch,state) => {

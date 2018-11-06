@@ -1,12 +1,13 @@
 import React from "react";
-import {getOneByIdSelector} from "../reducers";
+import {getPendingSelector,getOneByIdSelector} from "../reducers";
 import { connect } from 'react-redux';
 import GroupUtil from '../util/GroupUtil';
 import {FormGroup,ControlLabel,FormControl,HelpBlock} from 'react-bootstrap';
-import { Field, reduxForm } from 'redux-form/immutable';
+import { Field, reduxForm} from 'redux-form/immutable';
 const Imm = require("immutable");
 import WAOs from '../util/WAOs'
-import {load} from '../actions/form';
+import {loadForEdit} from '../actions';
+const formUid = require('uuid/v4')();
 
 const renderField = ({ input, label, type, meta: { touched, error } }) => {
     //console.log(input);
@@ -31,12 +32,21 @@ const iState = WAO({title :"why ?"});
 
 class ArticleForm extends React.Component{
     componentDidMount() {
-        const {load,dispatch } = this.props;
-        dispatch(load(iState));
+        const {selector,initialize,id  } = this.props;
+        const data = selector(id);
         console.log("component didmount");
-        console.log(this.props.initialValues);
-        //this.props.initialize(this.props.initialValues);
-        console.log(this.props.initialValues);
+        initialize(data);
+    }
+
+    componentDidUpdate(prevProps) {
+        const {load,dispatch,initialize  } = this.props;
+        console.log(`update ${prevProps.id} vs ${this.props.id}`);
+        //initialize(this.props.initialValues);
+        if (prevProps.id !== this.props.id) {
+            const {load,dispatch} = this.props;
+            console.log(`id ${this.props.id} differente de ancienne id ${prevProps.id}`);
+            dispatch(load(this.props.id));
+        }
     }
 
     render(){
@@ -57,6 +67,12 @@ class ArticleForm extends React.Component{
                     component={renderField}
                     label="Titre"
                 />
+                <Field
+                    name="abstract"
+                    type="textarea"
+                    component={renderField}
+                    label="Résumé"
+                />
                 <div>
                     <button type="submit" disabled={submitting}>Submit</button>
                     <button type="button" disabled={pristine || submitting} onClick={reset}>
@@ -66,33 +82,21 @@ class ArticleForm extends React.Component{
             </form>
         );
     }
-
 }
 
-const mapStateToProps = (state) => {
-    const selector = selector || getOneByIdSelector(state.get("article"));
-    return {
-        selector: selector
-    }
-};
-
-//export default connect(mapStateToProps)(ArticleForm);
-
-
 ArticleForm =  reduxForm({
-    form: 'ArticleForm'
+    form: formUid
 })(ArticleForm);
 
 ArticleForm = connect(
     state => {
         console.log("connect");
-        console.log(state.getIn(["formReducer","data"]));
-        return {initialValues: state.getIn(["formReducer","data"])} // pull initial values from account reducer
+        //console.log(state.getIn(["formReducer","data"]));
+        const selector = selector || getOneByIdSelector(state.get("article"));
+        return {selector: selector} // pull initial values from account reducer
     },
-    { load : load}
+    { load : (id) => (loadForEdit(formUid,"article",id))}
 )(ArticleForm);
-
-
 
 
 

@@ -33,9 +33,9 @@ const waoPrototype = {
         return copy;
     },
     receiveRecord: function(rec) {
-        return rec;
+        return (rec.has("loadedGroups")?rec:rec.set("loadedGroups",{minimal:true}));
     },
-    loadedGroups:null
+    loadedGroups:{minimal:true}
 };
 
 const defaultPrototypes = {
@@ -78,15 +78,17 @@ const defaultPrototypes = {
         },
         receiveRecord: function(rec){
             console.log("article receiveRecord");
+            console.log(rec);
             if(rec.has("beginHDate") && rec.get("beginHDate") !== null){
                 rec = rec.set("beginHDate",hb.util.HDate.prototype.parseFromJson(JSON.stringify(rec.get("beginHDate"))));
             }
             if(rec.has("endHDate") && rec.get("endHDate") !== null){
                 rec = rec
-                    .set("endHDate",hb.util.HDate.prototype.parseFromJson(JSON.stringify(rec.get("beginHDate"))))
+                    .set("endHDate",hb.util.HDate.prototype.parseFromJson(JSON.stringify(rec.get("endHDate"))))
                     .set("hasEndDate",true);
             } else{ rec = rec.set("hasEndDate",false)}
-            return rec;
+            return (rec.has("loadedGroups")?rec:rec.set("loadedGroups",{minimal:true}));
+
         }
     },
     /**

@@ -1,6 +1,5 @@
 import { combineReducers } from 'redux-immutable'
-import {GET,RECEIVE_GET,GET_ONE_BY_ID,RECEIVE_GET_ONE_BY_ID} from '../actions'
-import {LOAD} from '../actions/form';
+import {LOAD_FOR_EDIT,GET,RECEIVE_GET,GET_ONE_BY_ID,RECEIVE_GET_ONE_BY_ID} from '../actions'
 import WAOs from '../util/WAOs'
 import GroupUtil from '../util/GroupUtil';
 const Imm = require("immutable");
@@ -33,6 +32,7 @@ const concreteWaoType = (waoType) => {
         type:waoType,
         total:-1,
         items:Imm.Map(),
+        pendingIds:Imm.Map(),
         searchCache: Imm.Map()
     });
     const WAO = WAOs.getIn([waoType,"recordFactory"]);
@@ -41,6 +41,8 @@ const concreteWaoType = (waoType) => {
         if (action.waoType !== waoType) return state;
         console.log("reducer call");
         switch (action.type) {
+            //case LOAD_FOR_EDIT:
+                //return state.set("pendingIds",(state.get("pendingIds").set(action.formUid,+action.id)));
             case GET:
                 return state;
             case GET_ONE_BY_ID:
@@ -51,7 +53,9 @@ const concreteWaoType = (waoType) => {
                 console.log(action);
                 let ids = [];
                 action.waos.map(item => {
+                    console.log(item);
                     let rec = WAO(item);
+                    console.log(rec);
                     rec = rec.get("receiveRecord")(rec);
                     if(state.get("items").has(+rec.get("id")))
                         state = state.set("items",
@@ -100,10 +104,16 @@ export const getSelector = createSelector(
         return searchCacheEntry.ids.map((id)=> items.get(+id));
     }
 );
+export const getPendingSelector = createSelector(
+    [(state) => state.get("items"),(state) => state.get("pendingIds")],
+    (items,pendingIds) => (uid) => (pendingIds.has(uid))?items.get(+pendingIds.get(uid)):null
+);
 
+/*
 let getOneByIdSelectorsToExport = {};
 let getByIdsSelectorsToExport = {};
 let getSelectorsToExport = {};
+*/
 
 let waoReducers = {};
 WAOs.entrySeq().forEach(entry => {
@@ -113,26 +123,22 @@ WAOs.entrySeq().forEach(entry => {
     //getSelectorsToExport[entry[0]] = getSelector(state[entry[0]]);
 });
 
-const formReducer = (state = null, action) => {
-    state = state || Imm.Map();
-    console.log("form reducer called");
-    console.log(action);
-    console.log(action.type === LOAD);
+/*const formReducer = (state = null, action) => {
     switch (action.type) {
         case LOAD:
-            console.log("set data");
+            console.log(`load pending ${action.waoType} of id ${action.id} for form of uid ${action.formUid}`);
             return state.set("data",action.data);
         default:
             return state;
     }
 };
-waoReducers.formReducer = formReducer;
+waoReducers.formReducer = formReducer;*/
 waoReducers.form =  reduxFormReducer;
 
 export const rootReducer = combineReducers(
     waoReducers);
 
-export const getOneByIdSelectors = getOneByIdSelectorsToExport;
+/*export const getOneByIdSelectors = getOneByIdSelectorsToExport;
 export const getByIdsSelectors = getByIdsSelectorsToExport;
-export const getSelectors = getSelectorsToExport;
+export const getSelectors = getSelectorsToExport;*/
 
