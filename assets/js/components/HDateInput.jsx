@@ -1,4 +1,4 @@
-import React from "react";
+import React, {Component} from "react";
 import {getOneByIdSelector, getSelector} from "../reducers";
 import { connect } from 'react-redux'
 import {getComponentClassType} from "../util/formUtil";
@@ -30,41 +30,43 @@ const onChange = (defaultOnChange,fieldName,meta) => (event) => {
     counter = counter+1;
 };
 
-const Test = function(props){
-    return(<Popover id="hdate-widget" title="Choisissez une date">
-        <strong>{props.msg}</strong>
-    </Popover>);
-};
+const widget = React.createElement(HDateWidget,{msg:"lol"});
 
-const HDateInput = function(props){
-    const { input, label, type, meta ,dispatch} = props;
-    console.log("HDate rendered");
-    console.log(input);
-    console.log(meta);
-    const hDateLabel = (input.value && typeof input.value.getLabel !== 'undefined')?input.value.getLabel():input.value;
-    console.log(input.value);
-    console.log(hDateLabel);
+class HDateInput extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+        };
+    }
 
-    const truc = Test({msg:"lol"});
+    render(){
+        const { input, label, type, meta ,dispatch} = this.props;
+        /*console.log("HDate rendered");
+        console.log(input);
+        console.log(meta);*/
+        const hDateLabel = (input.value && typeof input.value.getLabel !== 'undefined')?input.value.getLabel():input.value;
+        /*console.log(input.value);
+        console.log(hDateLabel);*/
 
-    return(
-        <FormGroup validationState={null}>
-            <ControlLabel>{label}</ControlLabel>
-            <OverlayTrigger trigger="focus" placement="bottom" overlay={truc}>
-                <FormControl
-                    {...input}
-                    onFocus={onFocus(input.onFocus)}
-                    onBlur={onBlur(input.onBlur)}
-                    onChange={onChange(input.onChange,input.name,meta)}
-                    value={hDateLabel}
-                    componentClass="input"
-                    type="text"
-                    placeholder={label}>
-                </FormControl>
-            </OverlayTrigger>
-        </FormGroup>
-    );
-};
+        return(
+            <FormGroup validationState={null}>
+                <ControlLabel>{label}</ControlLabel>
+                <OverlayTrigger trigger="focus" placement="bottom" overlay={widget}>
+                    <FormControl
+                        {...input}
+                        onFocus={onFocus(input.onFocus)}
+                        onBlur={onBlur(input.onBlur)}
+                        onChange={onChange(input.onChange,input.name,meta)}
+                        value={hDateLabel}
+                        componentClass="input"
+                        type="text"
+                        placeholder={label}>
+                    </FormControl>
+                </OverlayTrigger>
+            </FormGroup>
+        );
+    }
+}
 
 const mapStateToProps = (state) => {
     return {};

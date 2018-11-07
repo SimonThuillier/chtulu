@@ -185,7 +185,7 @@ const _LOCALES= {
     }
 };
 
-let mod = Object.assign({
+const mod = Object.assign({
         /**
          * @doc returns current locale
          * @return {string}
@@ -211,11 +211,7 @@ let mod = Object.assign({
     _LOCALES[currentLocale]
 );
 
-/**
- * @module hb/util/trans
- * @class hb.util.trans
- */
-module.exports = mod;
+export default mod;
 
 
 

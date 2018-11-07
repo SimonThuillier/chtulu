@@ -22,9 +22,9 @@ require('react-router-dom');
 // import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
 RL = require('react-leaflet');
 
-require('jquery-ui/ui/core.js');
-require('jquery-ui/ui/widget.js');
-require('jquery-ui/ui/widgets/dialog.js');
+//require('jquery-ui/ui/core.js');
+//require('jquery-ui/ui/widget.js');
+//require('jquery-ui/ui/widgets/dialog.js');
 
 require('bootstrap3/dist/js/bootstrap.js');
 require('admin-lte/dist/js/adminlte.js');
@@ -34,7 +34,7 @@ require('fastclick/lib/fastclick.js');
 require('bootstrap-table/dist/bootstrap-table.js');
 require('icheck');
 
-hb = {util:{},ui:{}};
+/*hb = {util:{},ui:{}};
 hb.util.cmn = require('./util/common.js');
 hb.util.trans = require('./util/translation.js');
 hb.util.date = require('./util/date.js');
@@ -71,7 +71,7 @@ $(function() {
 
 console.log(hb.ui.manager.get("hdatepicker"));
 
-console.log(hb);
+console.log(hb);*/
 
 console.log('Hello Webpack Encore');
 

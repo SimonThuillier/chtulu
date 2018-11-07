@@ -53,7 +53,7 @@ class ArticleController extends Controller
     {
         $groups = ['minimal','abstract','date','detailImage'];
 
-        $mediator = $mediatorFactory->create(ArticleDTOMediator::class);
+        $mediator = $mediatorFactory->create(ArticleDTO::class);
         $articleDto = $mediator
             ->mapDTOGroups(array_merge($groups,['url']))
             ->getDTO();
@@ -64,7 +64,7 @@ class ArticleController extends Controller
                 'validation_groups'=>$groups
             ])
             ->getForm();
-
+        ob_clean();
         return $this->render('@AppBundle/Article/edit.html.twig',[
                 "title" => "[Creer] Nouvel article",
                 "articleDTO" =>$encoder->encode($normalizer
@@ -141,7 +141,7 @@ class ArticleController extends Controller
                                ArticleDTONormalizer $normalizer){
         $groups = ['minimal','date','abstract','detailImage'];
 
-        $mediator = $mediatorFactory->create(ArticleDTOMediator::class,$article);
+        $mediator = $mediatorFactory->create(ArticleDTO::class,$article);
         $articleDto = $mediator
             ->mapDTOGroups($groups)
             ->getDTO();

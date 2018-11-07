@@ -4,9 +4,9 @@
  * @requires hb.util.cmn,hb.util.date,hb.util.trans
  */
 
-let util = hb.util;
-let hd = hb.util.date;
-let trans = hb.util.trans;
+import cmn from './common';
+import dateUtil from './date';
+import trans from './translation';
 
 let timeZoneOffset = new Date().getTimezoneOffset();
 //console.log("timeZoneOffset : " + timeZoneOffset);
@@ -14,26 +14,26 @@ let timeZoneOffset = new Date().getTimezoneOffset();
 let _availableTypes = ["1","2","3","4","5","6","7","8"];
 
 let _formatters = {
-    "1":hd.getFormatterFromPattern(trans.FORMAT_STRS["1"]),
-    "2":hd.getFormatterFromPattern(trans.FORMAT_STRS["2"]),
-    "3":hd.getFormatterFromPattern(trans.FORMAT_STRS["3"]),
-    "4":hd.getFormatterFromPattern(trans.FORMAT_STRS["4"]),
-    "5":hd.getFormatterFromPattern(trans.FORMAT_STRS["5"]),
-    "6":hd.getFormatterFromPattern(trans.FORMAT_STRS["6"]),
-    "7":hd.getFormatterFromPattern(trans.FORMAT_STRS["7"]),
-    "8":hd.getFormatterFromPattern(trans.FORMAT_STRS["8"])
+    "1":dateUtil.getFormatterFromPattern(trans.FORMAT_STRS["1"]),
+    "2":dateUtil.getFormatterFromPattern(trans.FORMAT_STRS["2"]),
+    "3":dateUtil.getFormatterFromPattern(trans.FORMAT_STRS["3"]),
+    "4":dateUtil.getFormatterFromPattern(trans.FORMAT_STRS["4"]),
+    "5":dateUtil.getFormatterFromPattern(trans.FORMAT_STRS["5"]),
+    "6":dateUtil.getFormatterFromPattern(trans.FORMAT_STRS["6"]),
+    "7":dateUtil.getFormatterFromPattern(trans.FORMAT_STRS["7"]),
+    "8":dateUtil.getFormatterFromPattern(trans.FORMAT_STRS["8"])
 };
 
-let _intervalFormatter = hd.getFormatterFromPattern(trans.FORMAT_INTERVAL_STR);
+let _intervalFormatter = dateUtil.getFormatterFromPattern(trans.FORMAT_INTERVAL_STR);
 let _canonicalFormatters = {
-    "1":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["1"]),
-    "2":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["2"]),
-    "3":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["3"]),
-    "4":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["4"]),
-    "5":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["5"]),
-    "6":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["6"]),
-    "7":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["7"]),
-    "8":hd.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["8"])
+    "1":dateUtil.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["1"]),
+    "2":dateUtil.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["2"]),
+    "3":dateUtil.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["3"]),
+    "4":dateUtil.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["4"]),
+    "5":dateUtil.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["5"]),
+    "6":dateUtil.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["6"]),
+    "7":dateUtil.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["7"]),
+    "8":dateUtil.getFormatterFromPattern(trans.FORMAT_CANONICAL_STRS["8"])
 };
 /**
  * @doc HDate object constructor
@@ -59,7 +59,7 @@ let _prototype = {
      * @returns {HDate}
      */
     clone : function() {
-        return new util.HDate(this.type,hd.clone(this.beginDate),hd.clone(this.endDate));
+        return new HDate(this.type,dateUtil.clone(this.beginDate),dateUtil.clone(this.endDate));
     },
     /**
      * @doc : determines if two HDates are equals (same types and dates)
@@ -92,7 +92,7 @@ let _prototype = {
             return (formatter(this.beginDate) + ";" + formatter(this.endDate));
         }
         else if(this.type === "4"){
-            return formatter(hd.switchToNextMonth(hd.clone(this.beginDate)));
+            return formatter(dateUtil.switchToNextMonth(dateUtil.clone(this.beginDate)));
         }
         else{
             return formatter(this.beginDate);
@@ -103,7 +103,7 @@ let _prototype = {
      * @returns {int}
      */
     getIntervalSize : function () {
-        return hd.dayDiff(this.endDate,this.beginDate);
+        return dateUtil.dayDiff(this.endDate,this.beginDate);
     },
     /**
      * @doc returns display of the interval for control during user entry
@@ -119,7 +119,7 @@ let _prototype = {
     isExact : function() {
         if(this.beginDate === null || this.endDate === null ||
             typeof this.beginDate === "undefined" || typeof this.endDate === "undefined"){return true;}
-        return (hd.dayDiff(this.endDate,this.beginDate) === 0);
+        return (dateUtil.dayDiff(this.endDate,this.beginDate) === 0);
     },
     /**
      * @doc HDate json parser/creator function : returns the HDate generated from its JSON representation
@@ -159,7 +159,7 @@ let _prototype = {
         }
 
         //console.log("date parsée : " + jsonObj.beginDate);
-        return new util.HDate(jsonObj.type,jsonObj.beginDate,jsonObj.endDate);
+        return new HDate(jsonObj.type,jsonObj.beginDate,jsonObj.endDate);
     },
     /**
      * @doc type setter for HDate
@@ -169,35 +169,35 @@ let _prototype = {
         if(Number.isInteger(type)){type=type.toString();}
         switch(type){
             case "1":
-                this.endDate = hb.util.date.clone(this.beginDate);
+                this.endDate = dateUtil.clone(this.beginDate);
                 break;
             case "2":
-                this.endDate = (this.endDate !== null)?this.endDate:hd.clone(this.beginDate);
-                if(hd.dayDiff(this.endDate,this.beginDate) === 0) hd.addDay(this.endDate,1);
+                this.endDate = (this.endDate !== null)?this.endDate:dateUtil.clone(this.beginDate);
+                if(dateUtil.dayDiff(this.endDate,this.beginDate) === 0) dateUtil.addDay(this.endDate,1);
                 break;
             case "3":
-                hd.rewindToMonthFirst(this.beginDate);
-                this.endDate = hd.addDay(hd.switchToNextMonth(hd.clone(this.beginDate),true),-1);
+                dateUtil.rewindToMonthFirst(this.beginDate);
+                this.endDate = dateUtil.addDay(dateUtil.switchToNextMonth(dateUtil.clone(this.beginDate),true),-1);
                 break;
             case "4":
-                hd.rewindToSeasonFirst(this.beginDate);
-                this.endDate = hd.addDay(hd.switchToNextSeason(hd.clone(this.beginDate),true),-1);
+                dateUtil.rewindToSeasonFirst(this.beginDate);
+                this.endDate = dateUtil.addDay(dateUtil.switchToNextSeason(dateUtil.clone(this.beginDate),true),-1);
                 break;
             case "5":
-                hd.rewindToYearFirst(this.beginDate);
-                this.endDate = hd.addDay(hd.switchToNextYear(hd.clone(this.beginDate),true),-1);
+                dateUtil.rewindToYearFirst(this.beginDate);
+                this.endDate = dateUtil.addDay(dateUtil.switchToNextYear(dateUtil.clone(this.beginDate),true),-1);
                 break;
             case "6":
-                hd.rewindToDecadeFirst(this.beginDate);
-                this.endDate = hd.addDay(hd.switchToNextDecade(hd.clone(this.beginDate),true),-1);
+                dateUtil.rewindToDecadeFirst(this.beginDate);
+                this.endDate = dateUtil.addDay(dateUtil.switchToNextDecade(dateUtil.clone(this.beginDate),true),-1);
                 break;
             case "7":
-                hd.rewindToCenturyFirst(this.beginDate);
-                this.endDate = hd.addDay(hd.switchToNextCentury(hd.clone(this.beginDate),true),-1);
+                dateUtil.rewindToCenturyFirst(this.beginDate);
+                this.endDate = dateUtil.addDay(dateUtil.switchToNextCentury(dateUtil.clone(this.beginDate),true),-1);
                 break;
             case "8":
-                hd.rewindToMillenniumFirst(this.beginDate);
-                this.endDate = hd.addDay(hd.switchToNextMillennium(hd.clone(this.beginDate),true),-1);
+                dateUtil.rewindToMillenniumFirst(this.beginDate);
+                this.endDate = dateUtil.addDay(dateUtil.switchToNextMillennium(dateUtil.clone(this.beginDate),true),-1);
                 break;
             default:break;
         }
@@ -249,7 +249,7 @@ let _prototype = {
             let century = Math.floor(Number(label)/100);
             BC = century < 0;
             let absoluteCentury = BC?Math.abs(century):(century + 1);
-            label = util.cmn.convertArabicToRoman(absoluteCentury) +
+            label = cmn.convertArabicToRoman(absoluteCentury) +
                 trans.FORMAT_CENTURY_NUMBER_SUFFIX(absoluteCentury +"") + " " +
                 trans.FORMAT_CENTURY_LABEL +
                 (BC?(" " + trans.FORMAT_BC_LABEL):"");
@@ -258,7 +258,7 @@ let _prototype = {
             let millennium = Math.floor(Number(label)/1000);
             BC = millennium < 0;
             let absoluteMillennium = BC?Math.abs(millennium):(millennium + 1);
-            label = util.cmn.convertArabicToRoman(absoluteMillennium) +
+            label = cmn.convertArabicToRoman(absoluteMillennium) +
                 trans.FORMAT_CENTURY_NUMBER_SUFFIX(absoluteMillennium +"") + " " +
                 trans.FORMAT_MILLENNIUM_LABEL +
                 (BC?(" " + trans.FORMAT_BC_LABEL):"");
@@ -269,4 +269,4 @@ let _prototype = {
 
 Object.assign(HDate.prototype,_prototype);
 
-module.exports = HDate;
+export default HDate;

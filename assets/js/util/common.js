@@ -2,7 +2,7 @@
  * @package hbase.js
  * @doc common.js : Contains various common utilitary function for hbase
  */
-module.exports =
+const mod =
     {
         /**
          * @doc capitalizes a string
@@ -98,4 +98,6 @@ module.exports =
             });
             return oldText;
         },
-    }
+    };
+
+export default mod;

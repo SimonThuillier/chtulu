@@ -1,6 +1,6 @@
 const Imm = require("immutable");
 import { normalize, schema } from 'normalizr';
-
+import HDate from './HDate';
 
 /**
  * @class WAO
@@ -53,12 +53,12 @@ const defaultPrototypes = {
                 if(this.beginHDate !== null){
                     if(typeof this.beginHDate === "object"){jsonStr = JSON.stringify(this.beginHDate);}
                     else{jsonStr = this.beginHDate;}
-                    this.beginHDate = hb.util.HDate.prototype.parseFromJson(jsonStr);
+                    this.beginHDate = HDate.prototype.parseFromJson(jsonStr);
                 }
                 if(this.hasEndDate && this.endHDate !== null && this.endHDate !== ''){
                     if(typeof this.endHDate === "object"){jsonStr = JSON.stringify(this.endHDate);}
                     else{jsonStr = this.endHDate;}
-                    this.endHDate = hb.util.HDate.prototype.parseFromJson(jsonStr);
+                    this.endHDate = HDate.prototype.parseFromJson(jsonStr);
                 }
                 else{this.endHDate = null;}
             }
@@ -66,7 +66,7 @@ const defaultPrototypes = {
                 if(this.hteRange !== null){
                     if(typeof this.hteRange === "object"){jsonStr = JSON.stringify(this.hteRange);}
                     else{jsonStr = this.hteRange;}
-                    this.hteRange = hb.util.HDate.prototype.parseFromJson(jsonStr);
+                    this.hteRange = HDate.prototype.parseFromJson(jsonStr);
                 }
                 if(this.detailImageResource === "") this.detailImageResource = null;
                 if(this.detailImageResource !== null){
@@ -80,11 +80,11 @@ const defaultPrototypes = {
             console.log("article receiveRecord");
             console.log(rec);
             if(rec.has("beginHDate") && rec.get("beginHDate") !== null){
-                rec = rec.set("beginHDate",hb.util.HDate.prototype.parseFromJson(JSON.stringify(rec.get("beginHDate"))));
+                rec = rec.set("beginHDate",HDate.prototype.parseFromJson(JSON.stringify(rec.get("beginHDate"))));
             }
             if(rec.has("endHDate") && rec.get("endHDate") !== null){
                 rec = rec
-                    .set("endHDate",hb.util.HDate.prototype.parseFromJson(JSON.stringify(rec.get("endHDate"))))
+                    .set("endHDate",HDate.prototype.parseFromJson(JSON.stringify(rec.get("endHDate"))))
                     .set("hasEndDate",true);
             } else{ rec = rec.set("hasEndDate",false)}
             return (rec.has("loadedGroups")?rec:rec.set("loadedGroups",{minimal:true}));
