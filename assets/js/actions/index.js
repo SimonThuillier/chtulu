@@ -18,7 +18,7 @@ export const RECEIVE_GET = 'RECEIVE_GET';
 export const GET_ONE_BY_ID = 'GET_ONE_BY_ID';
 export const RECEIVE_GET_ONE_BY_ID = 'RECEIVE_GET_ONE_BY_ID';
 
-const TIMEOUT = 1000000;
+export const TIMEOUT = 5000;
 /**
  * @param url string
  * @param props object
@@ -178,7 +178,7 @@ export const receiveGetOneById = (waoType,groups,id,data,message="Données bien 
         groups:groups,
         id : id,
         receivedAt: Date.now(),
-        wao: Object.values(normData.entities[waoType]),
+        wao: Object.values(normData.entities[waoType])[0],
     });
 };
 

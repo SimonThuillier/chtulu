@@ -32,7 +32,6 @@ const concreteWaoType = (waoType) => {
         type:waoType,
         total:-1,
         items:Imm.Map(),
-        pendingIds:Imm.Map(),
         searchCache: Imm.Map()
     });
     const WAO = WAOs.getIn([waoType,"recordFactory"]);
@@ -74,6 +73,7 @@ const concreteWaoType = (waoType) => {
                 console.log(waoType);
                 console.log(action);
                 let rec = WAO(action.wao);
+                console.log(rec);
                 rec = rec.get("receiveRecord")(rec);
                 if(state.get("items").has(+rec.get("id")))
                     state = state.set("items",

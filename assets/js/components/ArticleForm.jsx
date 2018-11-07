@@ -1,24 +1,34 @@
 import React from "react";
 import {getPendingSelector,getOneByIdSelector} from "../reducers";
-import { connect } from 'react-redux';
+import { connect} from 'react-redux';
 import GroupUtil from '../util/GroupUtil';
 import {FormGroup,ControlLabel,FormControl,HelpBlock} from 'react-bootstrap';
 import { Field, reduxForm} from 'redux-form/immutable';
 const Imm = require("immutable");
 import WAOs from '../util/WAOs'
-import {loadForEdit} from '../actions';
+import {getOneByIdIfNeeded, loadForEdit,TIMEOUT} from '../actions';
+import SearchBag from "../util/SearchBag";
+import ArticleTypeSelect from "./ArticleTypeSelect";
 const formUid = require('uuid/v4')();
+import {getComponentClassType} from '../util/formUtil';
+import HDateInput from "./HDateInput";
 
-const renderField = ({ input, label, type, meta: { touched, error } }) => {
-    //console.log(input);
+
+const renderField = (props) => {
+    console.log("render field");
+    const { input, label, type, meta: { touched, error } } = props;
+    console.log(props);
     return (
         <FormGroup
             controlId="formBasicText"
-            validationState={'success'}
+            validationState={'initial'}
         >
             <ControlLabel>{label}</ControlLabel>
             <FormControl
-                {...input} type={type} placeholder={label}
+                {...input}
+                componentClass={getComponentClassType(type)}
+                type={type}
+                placeholder={label}
             />
             {touched && error && <span>{error}</span>}
             <FormControl.Feedback />
@@ -31,21 +41,50 @@ const WAO = WAOs.getIn(["article","recordFactory"]);
 const iState = WAO({title :"why ?"});
 
 class ArticleForm extends React.Component{
-    componentDidMount() {
-        const {selector,initialize,id  } = this.props;
+    constructor(props) {
+        super(props);
+        this.state = {
+            shouldReinitialize:false
+        };
+    }
+
+    requestInitialValues(){
+        const {dispatch } = this.props;
+
+        dispatch(getOneByIdIfNeeded("article",
+            this.props.groups,
+            this.props.id));
+        this.setState({shouldReinitialize:true});
+        setTimeout(()=>{
+            this.setState({shouldReinitialize:false});
+        },TIMEOUT);
+    }
+
+    loadInitialValues(){
+        const {selector,initialize,id} = this.props;
         const data = selector(id);
-        console.log("component didmount");
+        console.log("form received data");
+        console.log(data);
         initialize(data);
     }
 
+    componentDidMount() {
+        console.log("component didmount");
+        this.loadInitialValues();
+        this.requestInitialValues();
+    }
+
     componentDidUpdate(prevProps) {
-        const {load,dispatch,initialize  } = this.props;
+
         console.log(`update ${prevProps.id} vs ${this.props.id}`);
         //initialize(this.props.initialValues);
         if (prevProps.id !== this.props.id) {
-            const {load,dispatch} = this.props;
-            console.log(`id ${this.props.id} differente de ancienne id ${prevProps.id}`);
-            dispatch(load(this.props.id));
+            this.loadInitialValues();
+            this.requestInitialValues();
+        }
+        else if (this.state.shouldReinitialize && prevProps.selector !== this.props.selector) {
+            this.loadInitialValues();
+            this.setState({shouldReinitialize:false});
         }
     }
 
@@ -66,6 +105,18 @@ class ArticleForm extends React.Component{
                     type="text"
                     component={renderField}
                     label="Titre"
+                />
+                <Field
+                    name="type"
+                    type="select"
+                    component={ArticleTypeSelect}
+                    label="Type"
+                />
+                <Field
+                    name="beginHDate"
+                    type="text"
+                    component={HDateInput}
+                    label="Date de début"
                 />
                 <Field
                     name="abstract"
@@ -92,7 +143,7 @@ ArticleForm = connect(
     state => {
         console.log("connect");
         //console.log(state.getIn(["formReducer","data"]));
-        const selector = selector || getOneByIdSelector(state.get("article"));
+        const selector = getOneByIdSelector(state.get("article"));
         return {selector: selector} // pull initial values from account reducer
     },
     { load : (id) => (loadForEdit(formUid,"article",id))}

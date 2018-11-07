@@ -4,6 +4,7 @@ import {getIfNeeded} from '../actions';
 import {getSelector} from "../reducers";
 import { connect } from 'react-redux'
 import SearchBag from "../util/SearchBag";
+import {getComponentClassType} from '../util/formUtil';
 
 class ArticleTypeSelect extends Component {
     constructor(props) {
@@ -21,19 +22,24 @@ class ArticleTypeSelect extends Component {
 
     render(){
         console.log("render article Select");
-        const options =  this.props.selector(this.state.searchBag).map((rec) =>{
+        const { input, label, type, meta: { touched, error } ,selector} = this.props;
+        const options =  selector(this.state.searchBag).map((rec) =>{
             return(
                 <option key={rec.get("id")} value={rec.get("id")}>
                     {rec.get("label")}
                 </option>
             );
         });
-        console.log(options);
+        //console.log(options);
 
         return(
             <FormGroup validationState={null} controlId="formControlsSelect">
-                <ControlLabel>Type yolo</ControlLabel>
-                <FormControl componentClass="select" placeholder="choisissez un type d'article">
+                <ControlLabel>{label}</ControlLabel>
+                <FormControl
+                    {...input}
+                    componentClass={getComponentClassType(type)}
+                    type={type}
+                    placeholder={label}>
                     {options}
                 </FormControl>
             </FormGroup>
