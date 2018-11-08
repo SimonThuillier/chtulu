@@ -5,6 +5,7 @@ import {getSelector} from "../reducers";
 import { connect } from 'react-redux'
 import SearchBag from "../util/SearchBag";
 import {getComponentClassType} from '../util/formUtil';
+import HBFormField from './HBFormField';
 
 class ArticleTypeSelect extends Component {
     constructor(props) {
@@ -32,17 +33,19 @@ class ArticleTypeSelect extends Component {
         });
         //console.log(options);
 
+        {/*<FormGroup validationState={null} controlId="formControlsSelect">*/}
+        {/*<ControlLabel>{label}</ControlLabel>*/}
+        {/*<FormControl*/}
+        {/*{...input}*/}
+        {/*componentClass={getComponentClassType(type)}*/}
+        {/*type={type}*/}
+        {/*placeholder={label}>*/}
+        {/*{options}*/}
+        {/*</FormControl>*/}
+        {/*</FormGroup>*/}
+
         return(
-            <FormGroup validationState={null} controlId="formControlsSelect">
-                <ControlLabel>{label}</ControlLabel>
-                <FormControl
-                    {...input}
-                    componentClass={getComponentClassType(type)}
-                    type={type}
-                    placeholder={label}>
-                    {options}
-                </FormControl>
-            </FormGroup>
+            <HBFormField {...this.props} options={options}/>
         );
     }
 }

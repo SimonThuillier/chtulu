@@ -2,7 +2,13 @@ import React from "react";
 import {getPendingSelector,getOneByIdSelector} from "../reducers";
 import { connect} from 'react-redux';
 import GroupUtil from '../util/GroupUtil';
-import {FormGroup,ControlLabel,FormControl,HelpBlock} from 'react-bootstrap';
+import {FormGroup,
+    ControlLabel,
+    FormControl,
+    HelpBlock,
+    Col,
+    Form
+} from 'react-bootstrap';
 import { Field, reduxForm} from 'redux-form/immutable';
 const Imm = require("immutable");
 import WAOs from '../util/WAOs'
@@ -12,29 +18,56 @@ import ArticleTypeSelect from "./ArticleTypeSelect";
 const formUid = require('uuid/v4')();
 import {getComponentClassType} from '../util/formUtil';
 import HDateInput from "./HDateInput";
+import HBFormField from './HBFormField';
 
 
 const renderField = (props) => {
     console.log("render field");
     const { input, label, type, meta: { touched, error } } = props;
+    const size = props.size || 'little';
     console.log(props);
-    return (
-        <FormGroup
-            controlId="formBasicText"
-            validationState={'initial'}
-        >
-            <ControlLabel>{label}</ControlLabel>
-            <FormControl
-                {...input}
-                componentClass={getComponentClassType(type)}
-                type={type}
-                placeholder={label}
-            />
-            {touched && error && <span>{error}</span>}
-            <FormControl.Feedback />
-            <HelpBlock>Validation is based on string length.</HelpBlock>
-        </FormGroup>
-    );
+
+    switch(size){
+        case 'large':
+            return (
+                <FormGroup
+                    controlId="formBasicText"
+                    validationState={'initial'}
+                >
+                    <ControlLabel>{label}</ControlLabel>
+                    <FormControl
+                        {...input}
+                        componentClass={getComponentClassType(type)}
+                        type={type}
+                        placeholder={label}
+                    />
+                    {touched && error && <span>{error}</span>}
+                    <FormControl.Feedback />
+                    <HelpBlock>Validation is based on string length.</HelpBlock>
+                </FormGroup>
+            );
+        default:
+            return (
+                <FormGroup
+                    controlId="formBasicText"
+                    validationState={"initial"}>
+                    <Col sm={3}>
+                        <ControlLabel>{label}</ControlLabel>
+                    </Col>
+                    <Col sm={9}>
+                        <FormControl
+                            {...input}
+                            componentClass={getComponentClassType(type)}
+                            type={type}
+                            placeholder={label}
+                        />
+                        <FormControl.Feedback />
+                    </Col>
+                    {touched && error && <span>{error}</span>}
+                    <HelpBlock>Validation is based on string length.</HelpBlock>
+                </FormGroup>
+            );
+    }
 };
 
 const WAO = WAOs.getIn(["article","recordFactory"]);
@@ -99,16 +132,17 @@ class ArticleForm extends React.Component{
         // const availableGroups = GroupUtil.intersect('article',props.groups,data.loadedGroups);
 
         return (
-            <form onSubmit={handleSubmit}>
+            <Form Horizontal onSubmit={handleSubmit}>
                 <Field
                     name="title"
                     type="text"
-                    component={renderField}
+                    component={HBFormField}
                     label="Titre"
                 />
                 <Field
                     name="type"
                     type="select"
+
                     component={ArticleTypeSelect}
                     label="Type"
                 />
@@ -119,9 +153,16 @@ class ArticleForm extends React.Component{
                     label="Date de début"
                 />
                 <Field
+                    name="endHDate"
+                    type="text"
+                    component={HDateInput}
+                    label="Date de fin"
+                />
+                <Field
                     name="abstract"
                     type="textarea"
-                    component={renderField}
+                    alignment={'vertical'}
+                    component={HBFormField}
                     label="Résumé"
                 />
                 <div>
@@ -130,7 +171,7 @@ class ArticleForm extends React.Component{
                         Clear Values
                     </button>
                 </div>
-            </form>
+            </Form>
         );
     }
 }

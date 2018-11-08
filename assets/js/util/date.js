@@ -74,13 +74,13 @@ const _FORMATTERS = {
      * @param {Date} date
      * @returns {string}
      */
-    "S": function(date){return trans.SEASON_NAMES[hb.util.date.getSeason(date)];},
+    "S": function(date){return trans.SEASON_NAMES[dateUtil.getSeason(date)];},
     /**
      * @doc returns season number (1 winter to 4 fall)
      * @param {Date} date
      * @returns {string}
      */
-    "s": function(date){return (hb.util.date.getSeason(date) +1 );},
+    "s": function(date){return (dateUtil.getSeason(date) +1 );},
     /**
      * @doc returns complete year number
      * @param {Date} date
@@ -233,7 +233,7 @@ const dateUtil = {
      * @returns {boolean}
      */
     equals: function (date1, date2) {
-        return (hb.util.date.dayDiff(date1, date2) === 0);
+        return (this.dayDiff(date1, date2) === 0);
     },
     /**
      * @doc returns the float number of days between two dates
@@ -317,7 +317,7 @@ const dateUtil = {
             month = 11;
         }
         else {
-            let season = hb.util.date.getSeason(date);
+            let season = this.getSeason(date);
             month = season * 3 - 1;
         }
         date.setMonth(month);
@@ -375,7 +375,7 @@ const dateUtil = {
      * @returns {Date}
      */
     switchToNextDay: function (date, force = false, exact = false) {
-        if (force === true) return hb.util.date.addDay(date, 1);
+        if (force === true) return this.addDay(date, 1);
         return date;
     },
     /**
@@ -387,10 +387,10 @@ const dateUtil = {
      * @returns {Date}
      */
     switchToNextWeek: function (date, force = false, exact = false) {
-        if (exact) return hb.util.date.addDay(date, 7);
-        let originDay = hb.util.date.getFrenchDay(date);
+        if (exact) return this.addDay(date, 7);
+        let originDay = this.getFrenchDay(date);
         if (force || originDay !== 0) {
-            hb.util.date.addDay(date, 7 - originDay);
+            this.addDay(date, 7 - originDay);
         }
         return date;
     },
