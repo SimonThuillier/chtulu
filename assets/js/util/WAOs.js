@@ -7,6 +7,7 @@ import HDate from './HDate';
  */
 const waoPrototype = {
     pendingModification:false,
+    initialValues:null,
     getPartial : function(groups = true){
         console.log(this);
         console.log(groups);

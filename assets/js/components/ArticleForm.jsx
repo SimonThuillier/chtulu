@@ -12,70 +12,41 @@ import {FormGroup,
 import { Field, reduxForm} from 'redux-form/immutable';
 const Imm = require("immutable");
 import WAOs from '../util/WAOs'
-import {getOneByIdIfNeeded, loadForEdit,TIMEOUT} from '../actions';
+import {getOneByIdIfNeeded, loadForEdit,submitLocally,TIMEOUT} from '../actions';
 import SearchBag from "../util/SearchBag";
 import ArticleTypeSelect from "./ArticleTypeSelect";
 const formUid = require('uuid/v4')();
 import {getComponentClassType} from '../util/formUtil';
 import HDateInput from "./HDateInput";
 import HBFormField from './HBFormField';
+import {ButtonToolbar,ToggleButtonGroup,ToggleButton} from 'react-bootstrap';
 
 
-const renderField = (props) => {
-    console.log("render field");
-    const { input, label, type, meta: { touched, error } } = props;
-    const size = props.size || 'little';
-    console.log(props);
-
-    switch(size){
-        case 'large':
-            return (
-                <FormGroup
-                    controlId="formBasicText"
-                    validationState={'initial'}
-                >
-                    <ControlLabel>{label}</ControlLabel>
-                    <FormControl
-                        {...input}
-                        componentClass={getComponentClassType(type)}
-                        type={type}
-                        placeholder={label}
-                    />
-                    {touched && error && <span>{error}</span>}
-                    <FormControl.Feedback />
-                    <HelpBlock>Validation is based on string length.</HelpBlock>
-                </FormGroup>
-            );
-        default:
-            return (
-                <FormGroup
-                    controlId="formBasicText"
-                    validationState={"initial"}>
-                    <Col sm={3}>
-                        <ControlLabel>{label}</ControlLabel>
-                    </Col>
-                    <Col sm={9}>
-                        <FormControl
-                            {...input}
-                            componentClass={getComponentClassType(type)}
-                            type={type}
-                            placeholder={label}
-                        />
-                        <FormControl.Feedback />
-                    </Col>
-                    {touched && error && <span>{error}</span>}
-                    <HelpBlock>Validation is based on string length.</HelpBlock>
-                </FormGroup>
-            );
+const validate = values => {
+    const errors = {};
+    if (!values.title) {
+        errors.title = 'Le titre est obligatoire'
+    } else if (values.title.length > 64) {
+        errors.title = `${values.title.length} caractères sur ${64} autorisés`
     }
+    return errors;
 };
 
-const WAO = WAOs.getIn(["article","recordFactory"]);
-const iState = WAO({title :"why ?"});
+const warn = values => {
+    const warnings = {};
+    if (values.title && values.title.length > 55) {
+        warnings.title = `${values.title.length} caractères sur ${64} autorisés`
+    }
+    return warnings;
+};
 
 class ArticleForm extends React.Component{
     constructor(props) {
         super(props);
+
+        this.handleSwitch = this.handleSwitch.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+
         this.state = {
             shouldReinitialize:false
         };
@@ -121,9 +92,50 @@ class ArticleForm extends React.Component{
         }
     }
 
+    handleSubmit(e){
+        if(e){
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        const {pendingForm} = this.props;
+        console.log("submit");
+        console.log(pendingForm);
+        console.log(pendingForm.values);
+    }
+
+    handleSwitch(){
+        console.log("previsualiser depuis form");
+        //console.log(this.props.pendingForm);
+        const {pendingForm} = this.props;
+        const touchedFields = pendingForm.get("fields");
+        const values = pendingForm.get("values");
+
+        console.log(touchedFields);
+        console.log(values);
+
+        let lol = Imm.Map().set("title","lala");
+
+        let touchedValues = values.filter((value,key)=>(touchedFields && touchedFields.has(key)));
+        console.log("touchedValues");
+        console.log(touchedValues);
+
+
+
+        const {anyTouched,submit,dispatch} = this.props;
+
+        if(anyTouched){
+            dispatch(submitLocally("article",touchedValues,this.props.id));
+        }
+
+
+
+
+        this.props.handleSwitch();
+    }
+
     render(){
         console.log("render called");
-        const { handleSubmit, pristine, reset, submitting,load } = this.props;
+        const { onSubmit, pristine, reset, submitting,load } = this.props;
 
         /*const data = props.selector(props.id);
         if (!data) return null;*/
@@ -132,7 +144,7 @@ class ArticleForm extends React.Component{
         // const availableGroups = GroupUtil.intersect('article',props.groups,data.loadedGroups);
 
         return (
-            <Form Horizontal onSubmit={handleSubmit}>
+            <Form Horizontal onSubmit={this.handleSubmit}>
                 <Field
                     name="title"
                     type="text"
@@ -166,6 +178,20 @@ class ArticleForm extends React.Component{
                     label="Résumé"
                 />
                 <div>
+                    <ButtonToolbar>
+                        <ToggleButtonGroup
+                            type={'radio'}
+                            name="options"
+                            defaultValue={'form'}
+                        >
+                            <ToggleButton onClick={this.handleSwitch} value={"detail"}>
+                                Previsualiser
+                            </ToggleButton>
+                            <ToggleButton onClick={e=>{}} value={"form"}>
+                                Editer
+                            </ToggleButton>
+                        </ToggleButtonGroup>
+                    </ButtonToolbar>
                     <button type="submit" disabled={submitting}>Submit</button>
                     <button type="button" disabled={pristine || submitting} onClick={reset}>
                         Clear Values
@@ -177,7 +203,9 @@ class ArticleForm extends React.Component{
 }
 
 ArticleForm =  reduxForm({
-    form: formUid
+    form: formUid,
+    validate,
+    warn
 })(ArticleForm);
 
 ArticleForm = connect(
@@ -185,7 +213,7 @@ ArticleForm = connect(
         console.log("connect");
         //console.log(state.getIn(["formReducer","data"]));
         const selector = getOneByIdSelector(state.get("article"));
-        return {selector: selector} // pull initial values from account reducer
+        return {selector: selector,pendingForm:state.getIn(["form",formUid])} // pull initial values from account reducer
     },
     { load : (id) => (loadForEdit(formUid,"article",id))}
 )(ArticleForm);

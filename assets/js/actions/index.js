@@ -18,6 +18,8 @@ export const RECEIVE_GET = 'RECEIVE_GET';
 export const GET_ONE_BY_ID = 'GET_ONE_BY_ID';
 export const RECEIVE_GET_ONE_BY_ID = 'RECEIVE_GET_ONE_BY_ID';
 
+export const SUBMIT_LOCALLY = 'SUBMIT_LOCALLY';
+
 export const TIMEOUT = 5000;
 /**
  * @param url string
@@ -45,12 +47,13 @@ export const loadForEdit = (formUid,waoType,id) => (dispatch,state) => {
     console.log(state);
 };
 
-/*export const loadForEdit = (formUid,waoType,id) => ({
-    type: LOAD_FOR_EDIT,
-    formUid:formUid,
-    waoType:waoType,
-    id:id
-});*/
+export const submitLocally = (waoType,data,id) => ({
+    type: SUBMIT_LOCALLY,
+    waoType : waoType,
+    data : data,
+    id : id
+});
+
 
 export const get = (waoType,groups,searchBag=null) => ({
     type: GET,
@@ -183,7 +186,7 @@ export const receiveGetOneById = (waoType,groups,id,data,message="Données bien 
 };
 
 const fetchGetOneById = (waoType,groups=true,id) => (dispatch,state) => {
-    dispatch(getOneById(waoType,id));
+    dispatch(getOneById(waoType,groups,id));
     const url = getUrl(URL_GET_ONE_BY_ID,getHBProps(waoType,groups,id));
 
     return fetch(url,getHTTPProps())
@@ -206,6 +209,22 @@ const fetchGetOneById = (waoType,groups=true,id) => (dispatch,state) => {
 
 const shouldFetchGetOneById = (state, waoType,groups,id) => {
     console.log(state);
+    const item = state.getIn([waoType,"items",id]);
+    if(!item || !item.get("loadedGroups")) return true;
+
+    if(item.get("loadedGroups")){
+        console.log("groupes deja charges");
+        console.log(item.get("loadedGroups"));
+        console.log("groupes a charger");
+        console.log(groups);
+        console.log("diff");
+        let diff = GroupUtil.leftDiff(waoType,groups,item.get("loadedGroups"));
+        console.log(diff);
+        if(Object.keys(diff).length < 1) return false;
+    }
+
+
+
     /*const posts = state.postsBySubreddit[subreddit]
     if (!posts) {
         return true

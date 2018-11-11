@@ -5,6 +5,8 @@ const uuidv4 = require('uuid/v4');
 import { getOneByIdIfNeeded} from "../actions";
 import ArticleDetail from './ArticleDetail';
 import ArticleForm from './ArticleForm';
+import {getOneByIdSelector} from "../reducers";
+import {connect} from "react-redux";
 
 /*const formDataTransformer = {
     abstract:function(value){
@@ -26,15 +28,16 @@ export function ArticleForm(props){
     );
 };*/
 
-export class Article extends React.Component{
+class Article extends React.Component{
     constructor(props) {
         super(props);
+        this.handleSwitch = this.handleSwitch.bind(this);
         this.state = {
             activeComponent: props.activeComponent||'detail',
             id: props.id||null,
             loading: false,
             detailGroups:props.detailGroups || {"minimal":true,"abstract":true,
-                "detailImageResource":{"activeVersion":{"urlDetailThumbnail":true}}
+                "detailImage":{"activeVersion":{"urlDetailThumbnail":true}}
             },
             formGroups:props.formGroups || {"minimal":true},
             //pendingData: (props.data)?Object.create(props.data):null,
@@ -58,56 +61,19 @@ export class Article extends React.Component{
         });
     }
 
-    static getDerivedStateFromProps(nextProps, prevState){
-        let toUpdate = {};
-        if(nextProps.activeComponent!==prevState.activeComponent){
-            toUpdate.activeComponent = nextProps.activeComponent;
-        }
-        else return null;
-        return toUpdate;
-    }
-
     componentDidMount(){
         console.log("Article begin Mount");
         const {dispatch} = this.props;
         dispatch(getOneByIdIfNeeded("article",this.state.detailGroups, this.state.id));
     }
 
+
+    handleSwitch() {
+        const newActive = (this.state.activeComponent === 'detail')?'form':'detail';
+        this.setState({ activeComponent:  newActive});
+    }
+
     render(){
-        // const popover = (
-        //     <Popover id="modal-popover" title="popover">
-        //         very popover. such engagement
-        //     </Popover>
-        // );
-        // const tooltip = <Tooltip id="modal-tooltip">wow.</Tooltip>;
-
-        {/*<h4>Text in a modal</h4>*/}
-        {/*<p>*/}
-        {/*Duis mollis, est non commodo luctus, nisi erat porttitor ligula.*/}
-        {/*</p>*/}
-
-        {/*<h4>Popover in a modal</h4>*/}
-        {/*<p>*/}
-        {/*there is a{' '}*/}
-        {/*<OverlayTrigger overlay={popover}>*/}
-        {/*<a href="#popover">popover</a>*/}
-        {/*</OverlayTrigger>{' '}*/}
-        {/*here*/}
-        {/*</p>*/}
-
-        {/*<h4>Tooltips in a modal</h4>*/}
-        {/*<p>*/}
-        {/*there is a{' '}*/}
-        {/*<OverlayTrigger overlay={tooltip}>*/}
-        {/*<a href="#tooltip">tooltip</a>*/}
-        {/*</OverlayTrigger>{' '}*/}
-        {/*here*/}
-        {/*</p>*/}
-
-        {/*<hr/>*/}
-
-        //const data = this.state.pendingData; //
-
         return (
             <Loadable
                 active={this.state.loading}
@@ -116,18 +82,35 @@ export class Article extends React.Component{
                 color='black'
                 background='rgba(192,192,192,0.4)'
             >
+                {this.state.activeComponent==='detail' &&
                 <div hidden={this.state.activeComponent!=='detail'}>
-                    <ArticleDetail id={this.state.id} groups={this.state.detailGroups}/>
-                </div>
+                    <ArticleDetail
+                        id={this.state.id}
+                        groups={this.state.detailGroups}
+                        data={this.props.selector(this.state.id)}
+                        handleSwitch={this.handleSwitch}
+                    />
+                </div>}
+                {this.state.activeComponent==='form' &&
                 <div hidden={this.state.activeComponent!=='form'}>
                     {this.state.activeComponent==='form' &&
                     <ArticleForm
                     id={this.state.id}
                     groups={this.state.formGroups}
+                    handleSwitch={this.handleSwitch}
                     // changeHandler={this.getChangeHandler.bind(this)}
                     />}
-                </div>
+                </div>}
             </Loadable>
         );
     }
 }
+
+const mapStateToProps = (state) => {
+    const selector = selector || getOneByIdSelector(state.get("article"));
+    return {
+        selector: selector
+    }
+};
+
+export default connect(mapStateToProps)(Article);

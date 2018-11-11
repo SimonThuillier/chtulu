@@ -4,6 +4,9 @@ import {FormGroup,
     ControlLabel,
     FormControl,
     HelpBlock,
+    Glyphicon,
+    OverlayTrigger,
+    Tooltip,
     Col
 } from 'react-bootstrap';
 
@@ -17,9 +20,8 @@ const defaultStyles = {
     }
 };
 
-
 const HBFormField = (props) => {
-    const { input, label, type, meta: { touched, error } } = props;
+    const { input, label, type, meta: { touched, error,warning } } = props;
     const alignment = props.alignment || 'horizontal';
     const style = Object.assign(defaultStyles[alignment],props.style || {});
 
@@ -37,7 +39,7 @@ const HBFormField = (props) => {
             return (
                 <FormGroup
                     controlId={(type === 'select')?'formControlsSelect':'formBasicText'}
-                    validationState={'initial'}
+                    validationState={!touched?null:(error?"error":(warning?"warning":"success"))}
                     style={style}
                 >
                     <ControlLabel>{label}</ControlLabel>
@@ -51,14 +53,17 @@ const HBFormField = (props) => {
                     </FormControl>
                     {touched && error && <span>{error}</span>}
                     <FormControl.Feedback />
-                    {/*<HelpBlock>Validation is based on string length.</HelpBlock>*/}
+                    {touched && (error || warning) &&
+                    <HelpBlock>{error|| warning}</HelpBlock>
+                    }
                 </FormGroup>
             );
         default:
             return (
+
                 <FormGroup
                     controlId={(type === 'select')?'formControlsSelect':'formBasicText'}
-                    validationState={"initial"}
+                    validationState={!touched?null:(error?"error":(warning?"warning":"success"))}
                     style={style}
                 >
                     <Col xs={4} sm={3} md={2}>
@@ -74,8 +79,9 @@ const HBFormField = (props) => {
                             {(type === 'select' && props.options)?props.options:null}
                         </FormControl>
                     </Col>
-                    {touched && error && <span>{error}</span>}
-                    {/*<HelpBlock>Validation is based on string length.</HelpBlock>*/}
+                    {touched && (error || warning) &&
+                    <HelpBlock>{error || warning}</HelpBlock>
+                    }
                 </FormGroup>
             );
     }

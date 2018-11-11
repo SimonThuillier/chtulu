@@ -71,7 +71,7 @@ class ResourceDTO extends EntityMutableDTO
      * @Assert\NotBlank()
      * @Assert\NotNull()
      */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }

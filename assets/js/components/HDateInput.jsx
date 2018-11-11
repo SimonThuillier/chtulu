@@ -42,7 +42,15 @@ class HDateInput extends Component {
     }
 
     handleSave(value) {
-        this.setState({ value: value });
+        const {input:{onChange,onBlur}} = this.props;
+
+        console.log("saving hdate");
+        console.log(this.props);
+        console.log(value);
+        onChange(value);
+        onBlur(value);
+
+        //this.setState({ value: value });
     }
 
     handleFocus() {
@@ -68,6 +76,7 @@ class HDateInput extends Component {
 
     render(){
         const { input, label, type, meta ,dispatch} = this.props;
+
         const alignment = this.props.alignment || 'horizontal';
         const style = Object.assign(defaultStyles[alignment],this.props.style || {});
         /*console.log("HDate rendered");

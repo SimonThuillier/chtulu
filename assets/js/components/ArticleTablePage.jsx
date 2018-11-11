@@ -7,7 +7,7 @@ import Loadable from 'react-loading-overlay';
 import {Helmet} from 'react-helmet';
 import {Preview} from './actions.jsx';
 import {Modal,Popover,OverlayTrigger,Tooltip,Button,ButtonToolbar,ToggleButtonGroup,ToggleButton} from 'react-bootstrap';
-import {Article} from "./Article";
+import Article from "./Article";
 import {getIfNeeded} from "../actions";
 import SearchBag from '../util/SearchBag';
 import ArticleType from './ArticleType';
@@ -67,7 +67,7 @@ class ArticleTablePage extends React.Component{
     componentDidMount(){
         const {dispatch} = this.props;
         dispatch(getIfNeeded("article",
-            {minimal:true,date:true,detailImage:true,detailImageUrl:true},
+            {minimal:true,date:true,detailImage:true},
             this.state.searchBag));
     }
 

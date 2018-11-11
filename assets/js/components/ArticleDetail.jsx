@@ -1,17 +1,17 @@
 import React from "react";
 import {getOneByIdSelector} from "../reducers";
-import { connect } from 'react-redux'
 import ArticleDetailMinimal from './ArticleDetailMinimal';
 import ArticleDetailAbstract from './ArticleDetailAbstract';
 import ArticleDetailImage from './ArticleDetailImage';
 import GroupUtil from '../util/GroupUtil';
+import {ButtonToolbar,ToggleButtonGroup,ToggleButton} from 'react-bootstrap';
 
 const ArticleDetail = function(props){
-    const data = props.selector(props.id);
+    const data = props.data;
     if (!data) return null;
 
 
-    const availableGroups = GroupUtil.intersect('article',props.groups,data.loadedGroups);
+    const availableGroups = GroupUtil.intersect('article',props.groups,data.loadedGroups||{});
 
     return (
         <div>
@@ -19,7 +19,7 @@ const ArticleDetail = function(props){
                 {availableGroups.hasOwnProperty("minimal") &&
                 <ArticleDetailMinimal type={data.type} beginHDate={data.beginHDate} endHDate={data.endHDate}/>
                 }
-                {availableGroups.hasOwnProperty("detailImageResource") &&
+                {availableGroups.hasOwnProperty("detailImage") &&
                 <ArticleDetailImage detailImageResource={data.detailImageResource}/>
                 }
             </div>
@@ -31,15 +31,23 @@ const ArticleDetail = function(props){
                 <ArticleDetailAbstract abstract={data.abstract}/>
                 }
             </div>
+            <ButtonToolbar>
+                <ToggleButtonGroup
+                    type={'radio'}
+                    name="options"
+                    defaultValue={'detail'}
+                >
+                    <ToggleButton onClick={e=>{}} value={"detail"}>
+                        Previsualiser
+                    </ToggleButton>
+                    <ToggleButton onClick={props.handleSwitch} value={"form"}>
+                        Editer
+                    </ToggleButton>
+                </ToggleButtonGroup>
+            </ButtonToolbar>
         </div>
     );
-}
-
-const mapStateToProps = (state) => {
-    const selector = selector || getOneByIdSelector(state.get("article"));
-    return {
-        selector: selector
-    }
 };
 
-export default connect(mapStateToProps)(ArticleDetail);
+
+export default ArticleDetail;

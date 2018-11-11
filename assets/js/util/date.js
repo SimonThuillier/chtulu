@@ -177,6 +177,14 @@ const correctYear= function (date, year) {
     return date;
 };
 
+/**
+ * @doc returns the maximum year allowed, eg. current year
+ * @returns {int}
+ */
+const getMaxYear = function() {
+    return (new Date()).getFullYear();
+}
+
 
 
 
@@ -285,7 +293,7 @@ const dateUtil = {
      * @returns {int}
      */
     getMaxYear: function () {
-        return (new Date()).getFullYear();
+        return getMaxYear();
     },
     /**
      * @doc sets the time of a date to 0 and returns it
@@ -619,10 +627,10 @@ const dateUtil = {
             if (month < 1 || month > 12) {
                 errors.push(cmn.multiReplace(trans.PARSING_ERRORS[3], {"<MONTH>": month}));
             }
-            if (year < -10000 || year > module.getMaxYear()) {
+            if (year < -10000 || year > getMaxYear()) {
                 errors.push(cmn.multiReplace(trans.PARSING_ERRORS[4], {
                     "<YEAR>": year,
-                    "<MAX_YEAR>": module.getMaxYear()
+                    "<MAX_YEAR>": getMaxYear()
                 }));
             }
 

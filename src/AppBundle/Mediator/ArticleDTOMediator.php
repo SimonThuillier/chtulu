@@ -39,8 +39,7 @@ class ArticleDTOMediator extends DTOMediator
     public function __construct(ContainerInterface $locator)
     {
         parent::__construct($locator);
-        $this->groups = ['minimal','abstract','date','type','url',
-            'detailImageResource','detailImage','detailImageUrl','subArticles','hteRange'];
+        $this->groups = ['minimal','abstract','date','type','url','detailImage','subArticles','hteRange'];
         $this->dtoClassName = self::DTO_CLASS_NAME;
         $this->entityClassName = self::ENTITY_CLASS_NAME;
     }
@@ -176,45 +175,45 @@ class ArticleDTOMediator extends DTOMediator
         $dto->addMappedGroup('url');
     }
 
-    protected function mapDTODetailImageUrlGroup($mode=DTOMediator::NOTHING_IF_NULL,$subGroups=null){
-        $assetHelper = $this->locator->get(AssetHelper::class);
-        /** @var ArticleDTO $dto */
-        $dto = $this->dto;
-        /** @var Article $article */
-        $article = $this->entity;
-
-        $detailImage = $article->getDetailImage();
-        $detailUrl = null;
-
-        if($detailImage !== null){
-            if($dto->getDetailImageResource() === null){
-                $resourceMediator = $this->locator->get(MediatorFactory::class)
-                    ->create(ResourceDTO::class,$detailImage,null,$mode);
-            }
-            else{
-                $resourceMediator = $dto->getDetailImageResource()->getMediator();
-            }
-            $resourceMediator->mapDTOGroups($subGroups,$mode);
-            $dto->setDetailImageResource($resourceMediator->getDTO());
-            /** @var ResourceDTO $resourceDto */
-            $resourceDto = $resourceMediator->getDTO();
-            if($resourceDto && $resourceDto->getActiveVersion() !== null){
-                $detailUrl = $resourceDto->getActiveVersion()->getUrlDetailThumbnail();
-            }
-        }
-        else{
-            $dto->setDetailImageResource(null);
-        }
-
-        if($detailUrl !== null){
-            $dto->setDetailImageUrl($detailUrl);
-        }
-        else{
-            $dto->setDetailImageUrl($assetHelper->getDefaultImage($this->entity));
-        }
-
-        $dto->addMappedGroup('detailImageResource');
-    }
+//    protected function mapDTODetailImageUrlGroup($mode=DTOMediator::NOTHING_IF_NULL,$subGroups=null){
+//        $assetHelper = $this->locator->get(AssetHelper::class);
+//        /** @var ArticleDTO $dto */
+//        $dto = $this->dto;
+//        /** @var Article $article */
+//        $article = $this->entity;
+//
+//        $detailImage = $article->getDetailImage();
+//        $detailUrl = null;
+//
+//        if($detailImage !== null){
+//            if($dto->getDetailImageResource() === null){
+//                $resourceMediator = $this->locator->get(MediatorFactory::class)
+//                    ->create(ResourceDTO::class,$detailImage,null,$mode);
+//            }
+//            else{
+//                $resourceMediator = $dto->getDetailImageResource()->getMediator();
+//            }
+//            $resourceMediator->mapDTOGroups($subGroups,$mode);
+//            $dto->setDetailImageResource($resourceMediator->getDTO());
+//            /** @var ResourceDTO $resourceDto */
+//            $resourceDto = $resourceMediator->getDTO();
+//            if($resourceDto && $resourceDto->getActiveVersion() !== null){
+//                $detailUrl = $resourceDto->getActiveVersion()->getUrlDetailThumbnail();
+//            }
+//        }
+//        else{
+//            $dto->setDetailImageResource(null);
+//        }
+//
+//        if($detailUrl !== null){
+//            $dto->setDetailImageUrl($detailUrl);
+//        }
+//        else{
+//            $dto->setDetailImageUrl($assetHelper->getDefaultImage($this->entity));
+//        }
+//
+//        $dto->addMappedGroup('detailImageResource');
+//    }
 
     protected function mapDTODetailImageGroup($mode=DTOMediator::NOTHING_IF_NULL,$subGroups=null)
     {

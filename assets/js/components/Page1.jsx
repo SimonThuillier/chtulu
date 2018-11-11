@@ -2,18 +2,24 @@ import React from 'react';
 import ArticleTypeSelect from './ArticleTypeSelect';
 import {connect} from "react-redux";
 import {getOneByIdSelector} from "../reducers";
-import ArticleForm from './ArticleForm';
+import Article from './Article';
 import {Helmet} from 'react-helmet';
 import {getOneByIdIfNeeded} from "../actions";
+import {ButtonToolbar,ToggleButtonGroup,ToggleButton} from 'react-bootstrap';
 
 export class Page1 extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             id: 32,
+            selector:props.selector,
             loading: false,
+            activeComponent:'detail',
+            detailGroups:props.detailGroups || {"minimal":true,"abstract":true,"date":true,
+                "detailImage":{"activeVersion":{"urlDetailThumbnail":true}}
+            },
             formGroups:props.formGroups || {"minimal":true,"abstract":true,"date":true,
-                "detailImageResource":{"activeVersion":{"urlDetailThumbnail":true}}
+                "detailImage":{"activeVersion":{"urlDetailThumbnail":true}}
             },
             //pendingData: (props.data)?Object.create(props.data):null,
         };
@@ -21,12 +27,24 @@ export class Page1 extends React.Component {
 
     componentDidMount(){
         const {dispatch} = this.props;
-        dispatch(getOneByIdIfNeeded("article",
+        /*dispatch(getOneByIdIfNeeded("article",
             this.state.formGroups,
-            this.state.id));
+            this.state.id));*/
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.id !== this.props.id) {
+            this.setState({id:this.props.id});
+        }
+        if (prevProps.selector !== this.props.selector) {
+            this.setState({selector:this.props.selector});
+        }
     }
 
     render(){
+        const {selector,id} = this.state;
+        const data = selector(id);
+
         return (
             <div className="content-wrapper hb-container">
                 <Helmet>
@@ -35,10 +53,14 @@ export class Page1 extends React.Component {
                 <section className="content-header">
                 </section>
                 <section className="content">
-                    <ArticleForm
+                    <h4>{data && data.get("title")}</h4>
+                    <Article
+                        dispatch={this.props.dispatch}
                         id={this.state.id}
-                        groups={this.state.formGroups}
-                    />
+                        activeComponent={this.state.activeComponent}
+                        detailGroups={this.state.detailGroups}
+                        formGroups={this.state.formGroups}
+                        />
 
                 </section>
             </div>

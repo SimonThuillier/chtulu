@@ -110,7 +110,7 @@ let _prototype = {
      * @returns {string}
      */
     getIntervalLabel:function() {
-        return "[" + _intervalFormatter(this.beginDate) + " ; " + _intervalFormatter(this.endDate) + "]";
+        return _intervalFormatter(this.beginDate) + " ; " + _intervalFormatter(this.endDate);
     },
     /**
      * @doc : determine if the HDate is exact ie its begin and endDate are the same (same day)
@@ -202,6 +202,7 @@ let _prototype = {
             default:break;
         }
         this.type = type;
+        return this;
     },
     /**
      * @doc : return display label for this HDate

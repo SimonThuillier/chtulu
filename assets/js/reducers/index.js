@@ -1,5 +1,10 @@
 import { combineReducers } from 'redux-immutable'
-import {LOAD_FOR_EDIT,GET,RECEIVE_GET,GET_ONE_BY_ID,RECEIVE_GET_ONE_BY_ID} from '../actions'
+import {
+    SUBMIT_LOCALLY,
+    GET,
+    RECEIVE_GET,
+    GET_ONE_BY_ID,
+    RECEIVE_GET_ONE_BY_ID} from '../actions'
 import WAOs from '../util/WAOs'
 import GroupUtil from '../util/GroupUtil';
 const Imm = require("immutable");
@@ -44,6 +49,25 @@ const concreteWaoType = (waoType) => {
                 //return state.set("pendingIds",(state.get("pendingIds").set(action.formUid,+action.id)));
             case GET:
                 return state;
+            case SUBMIT_LOCALLY:
+                console.log("submit locally");
+                const oldItem = state.getIn(["items",action.id]);
+                const oldInitialValues = oldItem.get("initialValues") || Imm.Map();
+                let newInitialValues = Imm.Map();
+                action.data.entrySeq().forEach((value,key)=>{
+                    console.log(key);
+                    console.log(value);
+                    if(value[1] && value[1]!==oldItem.get(value[0]))
+                        newInitialValues = newInitialValues.set(value[0],oldItem.get(value[0]));
+                });
+                newInitialValues = oldInitialValues.mergeDeepWith((oldVal,newVal) => newVal || oldVal, newInitialValues);
+                console.log(newInitialValues);
+
+                const newItem = oldItem.
+                mergeDeepWith((oldVal,newVal) => newVal || oldVal, action.data).
+                set("initialValues",newInitialValues);
+                console.log(newItem.toJS());
+                return state.setIn(["items",action.id],newItem);
             case GET_ONE_BY_ID:
                 return state;
             case RECEIVE_GET:
