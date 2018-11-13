@@ -19,6 +19,7 @@ export const GET_ONE_BY_ID = 'GET_ONE_BY_ID';
 export const RECEIVE_GET_ONE_BY_ID = 'RECEIVE_GET_ONE_BY_ID';
 
 export const SUBMIT_LOCALLY = 'SUBMIT_LOCALLY';
+export const RESET = 'RESET';
 
 export const TIMEOUT = 5000;
 /**
@@ -52,6 +53,12 @@ export const submitLocally = (waoType,data,id) => ({
     waoType : waoType,
     data : data,
     id : id
+});
+
+export const reset = (waoType,ids) => ({
+    type: RESET,
+    waoType : waoType,
+    ids : ids
 });
 
 

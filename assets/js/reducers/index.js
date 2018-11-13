@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux-immutable'
 import {
     SUBMIT_LOCALLY,
+    RESET,
     GET,
     RECEIVE_GET,
     GET_ONE_BY_ID,
@@ -51,6 +52,7 @@ const concreteWaoType = (waoType) => {
                 return state;
             case SUBMIT_LOCALLY:
                 console.log("submit locally");
+                console.log(action);
                 const oldItem = state.getIn(["items",action.id]);
                 const oldInitialValues = oldItem.get("initialValues") || Imm.Map();
                 let newInitialValues = Imm.Map();
@@ -64,10 +66,23 @@ const concreteWaoType = (waoType) => {
                 console.log(newInitialValues);
 
                 const newItem = oldItem.
-                mergeDeepWith((oldVal,newVal) => newVal || oldVal, action.data).
+                mergeDeepWith((oldVal,newVal) => newVal, action.data).
                 set("initialValues",newInitialValues);
                 console.log(newItem.toJS());
                 return state.setIn(["items",action.id],newItem);
+            case RESET:
+                console.log("reset");
+                for(let id of action.ids){
+                    if(state.hasIn(["items",id])){
+                        let item = state.getIn(["items",id]);
+                        if(item.get("initialValues") && item.get("initialValues").size>0){
+                            item = item.mergeDeepWith((oldVal,newVal) => newVal, item.get("initialValues"));
+                        }
+                        item = item.set("initialValues",null);
+                        state = state.setIn(["items",id],item);
+                    }
+                }
+                return state;
             case GET_ONE_BY_ID:
                 return state;
             case RECEIVE_GET:
