@@ -6,7 +6,19 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import Loadable from 'react-loading-overlay';
 import {Helmet} from 'react-helmet';
 import {Preview} from './actions.jsx';
-import {Modal,Popover,OverlayTrigger,Tooltip,Button,ButtonToolbar,ToggleButtonGroup,ToggleButton} from 'react-bootstrap';
+import {
+    Modal,
+    Popover,
+    OverlayTrigger,
+    Tooltip,
+    Button,
+    ButtonToolbar,
+    ToggleButtonGroup,
+    ToggleButton,
+    Col,
+    Row,
+    Glyphicon
+} from 'react-bootstrap';
 import Article from "./Article";
 import {getIfNeeded} from "../actions";
 import SearchBag from '../util/SearchBag';
@@ -50,17 +62,64 @@ const columns = [{
 }
 ];
 
+const leftBreadcrumb = (breadcrumb,switcher) => {
+    return ((breadcrumb.prev)?<OverlayTrigger
+        placement="left"
+        overlay={
+            <Tooltip id="prev-tooltip">
+                {breadcrumb.prev.title}
+            </Tooltip>
+        }>
+        <Button onClick={() => {switcher(breadcrumb.prev.id)}}>
+            <Glyphicon glyph="menu-left" />
+        </Button>
+    </OverlayTrigger>:<span>&nbsp;&nbsp;&nbsp;</span>);
+};
+
+const rightBreadcrumb = (breadcrumb,switcher) => {
+    //const id = breadcrumb.next?breadcrumb.next.id:null;
+
+    return ((breadcrumb.next)?<OverlayTrigger
+        placement="right"
+        overlay={
+            <Tooltip id="next-tooltip">
+                {breadcrumb.next.title}
+            </Tooltip>
+        }>
+        <Button onClick={() => {switcher(breadcrumb.next.id)}}>
+            <Glyphicon glyph="menu-right" />
+        </Button>
+    </OverlayTrigger>:<span>&nbsp;&nbsp;&nbsp;</span>);
+};
+
+const rowStyle = (row, rowIndex) => {
+    console.log("row style");
+    console.log(row);
+
+    if(row && row.has("isDirty") && row.get("isDirty")(row)){
+        return {backgroundColor:'#c8e6c9'};
+    }
+
+    return {};
+};
+
 
 
 class ArticleTablePage extends React.Component{
 
     constructor(props) {
         super(props);
+        this.getBreadcrumb = this.getBreadcrumb.bind(this);
+        this.handleClose = this.handleClose.bind(this);
+        this.handleComponentSwitch = this.handleComponentSwitch.bind(this);
+        this.handleArticleSwitch = this.handleArticleSwitch.bind(this);
+
         this.state = {
             loading:false,
             searchBag:SearchBag(null,'id','DESC',0,10),
             selected:null,
-            activeId:null
+            activeId:null,
+            breadcrumb:{prev:null,next:null}
         };
     }
 
@@ -71,26 +130,54 @@ class ArticleTablePage extends React.Component{
             this.state.searchBag));
     }
 
+    getBreadcrumb(id){
+        let breadcrumb = {prev:null,next:null};
+        const items = this.props.selector(this.state.searchBag);
+
+        if(items.length>0){
+            const index = items.findIndex((item)=>{return item.id === id;});
+            breadcrumb = {
+                prev:(index>0)?{id:items[index-1].id,title:items[index-1].title}:null,
+                next:(index<items.length-1)?{id:items[index+1].id,title:items[index+1].title}:null
+            };
+        }
+        return breadcrumb;
+    }
+
     onRowPreview(row,rowIndex){
-        console.log("row selectionnée !");
-        console.log(row);
-        console.log(rowIndex);
-        this.setState({selected:[row.id],activeId:row.id,activeComponent:'detail'});
+
+        this.setState({
+            selected:[row.id],
+            activeId:row.id,
+            activeComponent:'detail',
+            breadcrumb:this.getBreadcrumb(row.id)
+        });
     }
 
     handleClose() {
-        this.setState({ activeId: null });
+        this.setState({
+            activeId: null ,
+            selected: [],
+            breadcrumb:{prev:null,next:null}
+        });
     }
 
-    handleArticleSwitch() {
-        console.log("switch");
+    handleComponentSwitch() {
         this.setState({ activeComponent: (this.state.activeComponent === 'detail')?'form':'detail' });
     }
 
-
+    handleArticleSwitch(id) {
+        this.setState({
+            selected:[id],
+            activeId:id,
+            breadcrumb:this.getBreadcrumb(id)
+        });
+    }
 
     render(){
         const items = this.props.selector(this.state.searchBag);
+        console.log("items");
+        console.log(items);
 
         return(
             <div className="content-wrapper hb-container">
@@ -110,10 +197,11 @@ class ArticleTablePage extends React.Component{
                         <BootstrapTable
                             keyField='id'
                             data={ items }
+                            rowStyle={rowStyle}
                             selectRow={{
                                 hideSelectColumn:true,
                                 mode :'radio',
-                                style: { backgroundColor: '#c8e6c9' },
+                                style: { backgroundColor: 'LightBlue' },
                                 selected:this.state.selected,
                             }}
                             remote={ {
@@ -134,17 +222,27 @@ class ArticleTablePage extends React.Component{
                             }
                         />
                     </Loadable>
-                    <Modal show={this.state.activeId !== null} onHide={this.handleClose.bind(this)}>
-                        <Modal.Header closeButton>
+                    <Modal show={this.state.activeId !== null} onHide={this.handleClose}>
+                        <Modal.Header>
                             <Modal.Title>
-                                {this.state.activeId && items.find((item)=> item.id === this.state.activeId).title}
-                                </Modal.Title>
+                                <Row className="show-grid">
+                                    <Col xs={9} sm={9} md={9}>
+                                        {this.state.activeId && items.find((item)=> item.id === this.state.activeId).title}
+                                    </Col>
+                                    <Col xs={3} sm={3} md={3}>
+                                        {leftBreadcrumb(this.state.breadcrumb,this.handleArticleSwitch)}
+                                        {rightBreadcrumb(this.state.breadcrumb,this.handleArticleSwitch)}
+                                    </Col>
+                                </Row>
+                            </Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
                             <Article
                                 dispatch={this.props.dispatch}
                                 id={this.state.activeId}
-                                     activeComponent={this.state.activeComponent}/>
+                                activeComponent={this.state.activeComponent}
+                                formGroups={{"minimal":true,"date":true,"abstract":true}}
+                            />
                         </Modal.Body>
                         <Modal.Footer>
                             <ButtonToolbar>
@@ -153,15 +251,15 @@ class ArticleTablePage extends React.Component{
                                     name="options"
                                     defaultValue={this.state.activeComponent}
                                 >
-                                    <ToggleButton onClick={this.handleArticleSwitch.bind(this)} value={"detail"}>
+                                    <ToggleButton onClick={this.handleComponentSwitch} value={"detail"}>
                                         Previsualiser
                                     </ToggleButton>
-                                    <ToggleButton onClick={this.handleArticleSwitch.bind(this)} value={"form"}>
+                                    <ToggleButton onClick={this.handleComponentSwitch} value={"form"}>
                                         Editer
                                     </ToggleButton>
                                 </ToggleButtonGroup>
                             </ButtonToolbar>
-                            <Button onClick={this.handleClose.bind(this)}>Fermer</Button>
+                            <Button onClick={this.handleClose}>Fermer</Button>
                         </Modal.Footer>
                     </Modal>
 

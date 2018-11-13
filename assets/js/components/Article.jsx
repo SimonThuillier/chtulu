@@ -12,20 +12,6 @@ import {connect} from "react-redux";
     abstract:function(value){
         return value.replace('<br />',"\n");
     }
-};
-
-export function ArticleForm(props){
-    let data = props.data;
-    return (
-        <form onSubmit={null}>
-            <label>
-                Résumé :
-                <textarea value={data.abstract} onChange={props.changeHandler("abstract")} />
-            </label>
-            <ArticleTypeSelect/>
-            <input type="submit" value="Submit" />
-        </form>
-    );
 };*/
 
 class Article extends React.Component{
@@ -47,14 +33,6 @@ class Article extends React.Component{
         //console.log(this.state.pendingData);
     }
 
-    /*getChangeHandler(attribute){
-        return function(event){
-            this.state.pendingData[attribute] =
-                formDataTransformer[attribute] ? formDataTransformer[attribute](event.target.value):event.target.value;
-            this.setState({pendingData:this.state.pendingData});
-        }.bind(this)
-    }*/
-
     onDataLoading(){
         this.setState({
             loading:true
@@ -71,6 +49,15 @@ class Article extends React.Component{
     handleSwitch() {
         const newActive = (this.state.activeComponent === 'detail')?'form':'detail';
         this.setState({ activeComponent:  newActive});
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.id !== this.props.id) {
+            console.log(`update ${prevProps.id} vs ${this.props.id}`);
+            const {dispatch} = this.props;
+            dispatch(getOneByIdIfNeeded("article",this.state.detailGroups, this.props.id));
+            this.setState({id:this.props.id});
+        }
     }
 
     render(){

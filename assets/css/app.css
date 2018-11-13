@@ -111,6 +111,12 @@ line.hte-grad {
     cursor:ew-resize;
 }
 
+tr.hb-highlight {
+    font-weight: bold;
+    border: 1px solid;
+    border-color: LightSlateGray;
+}
+
 
 input.hts-border-date-input{
     border: 1px solid;

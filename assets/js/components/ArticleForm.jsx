@@ -21,7 +21,8 @@ const formUid = require('uuid/v4')();
 import {getComponentClassType} from '../util/formUtil';
 import HDateInput from "./HDateInput";
 import HBFormField from './HBFormField';
-import {ButtonToolbar,ToggleButtonGroup,ToggleButton,Button,Tooltip} from 'react-bootstrap';
+import {Button,Tooltip} from 'react-bootstrap';
+import Loadable from 'react-loading-overlay';
 import {previewTooltip,submitTooltip,resetTooltip} from './tooltips';
 
 const test =  (state, action) => {
@@ -63,40 +64,52 @@ class ArticleForm extends React.Component{
         super(props);
 
         this.handleSwitch = this.handleSwitch.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
+        this.submit = this.submit.bind(this);
         this.handleReset = this.handleReset.bind(this);
+        this.shouldReinitialize = this.shouldReinitialize.bind(this);
 
         this.state = {
-            shouldReinitialize:false,
-            data:null
+            groups:props.groups || {"minimal":true},
+            data:null,
+            loading:false
         };
     }
 
-    requestInitialValues(){
-        const {dispatch } = this.props;
+    shouldReinitialize(data){
+        if (!data || !data.loadedGroups) return true;
 
-        dispatch(getOneByIdIfNeeded("article",
-            this.props.groups,
-            this.props.id));
-        this.setState({shouldReinitialize:true});
-        setTimeout(()=>{
-            this.setState({shouldReinitialize:false});
-        },TIMEOUT);
+        console.log(data.loadedGroups);
+        console.log(this.state.groups);
+
+        const diff = GroupUtil.leftDiff("article",this.state.groups,data.loadedGroups);
+        console.log("groupes a charger");
+        console.log(diff);
+
+        return (Object.keys(diff).length>0);
     }
 
     loadInitialValues(){
-        const {selector,initialize,id} = this.props;
+        const {selector,initialize,id,dispatch} = this.props;
         const data = selector(id);
+        if(this.shouldReinitialize(data)){
+            dispatch(getOneByIdIfNeeded("article",
+                this.state.groups,
+                this.props.id));
+            console.log("loading form");
+            this.setState({loading:true});
+        }
+        else{
+            console.log("un loading form");
+            this.setState({loading:false});
+        }
         this.setState({data:data});
-        /*console.log("form received data");
-        console.log(data);*/
+        if(!data) return;
         initialize(data.set("pendingModification",true));
     }
 
     componentDidMount() {
         console.log("component didmount");
         this.loadInitialValues();
-        this.requestInitialValues();
     }
 
     componentWillUnmount(){
@@ -104,16 +117,13 @@ class ArticleForm extends React.Component{
     }
 
     componentDidUpdate(prevProps) {
-
         console.log(`update ${prevProps.id} vs ${this.props.id}`);
-        //initialize(this.props.initialValues);
-        if (prevProps.id !== this.props.id) {
-            this.loadInitialValues();
-            this.requestInitialValues();
+        if (prevProps.id !== this.props.id){
+            this.submit(prevProps.id);
         }
-        else if (this.state.shouldReinitialize && prevProps.selector !== this.props.selector) {
+        if (prevProps.id !== this.props.id ||
+            (this.shouldReinitialize(this.state.data) && prevProps.selector !== this.props.selector)) {
             this.loadInitialValues();
-            this.setState({shouldReinitialize:false});
         }
     }
 
@@ -127,45 +137,12 @@ class ArticleForm extends React.Component{
         },20);
     }
 
-    handleSubmit(e){
-        if(e){
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        const {pendingForm} = this.props;
-        console.log("submit");
-        console.log(pendingForm);
-        console.log(pendingForm.values);
-    }
+    submit(id=null){
+        id = id || this.props.id;
 
-    handleSwitch(){
-        console.log("previsualiser depuis form");
-        //console.log(this.props.pendingForm);
         const {pendingForm} = this.props;
         const touchedFields = pendingForm.get("fields");
         const values = pendingForm.get("values");
-
-        /*console.log(touchedFields && touchedFields.valueSeq());
-        touchedFields.keySeq().forEach((k)=>console.log(k));
-        console.log(touchedFields && touchedFields.keySeq().contains("title"));
-
-        console.log(touchedFields && touchedFields.keySeq().has("title"));
-        if(touchedFields && touchedFields.keySeq().has("title")){
-            console.log(touchedFields.keySeq().contains("title"));
-            console.log(touchedFields.keySeq().contains("abstract"));
-            console.log(touchedFields.keySeq().contains("beginHDate"));
-        }
-
-
-        console.log(values);
-
-        let lol = Imm.Map().set("title","lala");
-
-        let touchedValues = values.filter((value,key)=>(touchedFields && touchedFields.has(key)));
-        console.log("touchedValues");
-        console.log(touchedValues);*/
-
-
 
         const {anyTouched,submit,dispatch} = this.props;
         const touchedKeys = touchedFields?touchedFields.keySeq():null;
@@ -177,20 +154,13 @@ class ArticleForm extends React.Component{
                 touchedValues = touchedValues.set(k,values.get(k));
             });
 
-
-            /*values.filter((value,key)=>{
-                console.log(key);
-                console.log(value);
-                console.log(touchedKeys.contains(key));
-                return touchedKeys.contains(key);
-            });*/
             console.log(touchedValues);
-            dispatch(submitLocally("article",touchedValues,this.props.id));
+            dispatch(submitLocally("article",touchedValues,id));
         }
+    }
 
-
-
-
+    handleSwitch(){
+        this.submit();
         this.props.handleSwitch();
     }
 
@@ -198,73 +168,75 @@ class ArticleForm extends React.Component{
         console.log("render called");
         const { onSubmit, pristine, reset, submitting,load,valid } = this.props;
 
-        /*const data = props.selector(props.id);
-        if (!data) return null;*/
-
-
-        // const availableGroups = GroupUtil.intersect('article',props.groups,data.loadedGroups);
-
         return (
-            <Form Horizontal onSubmit={this.handleSubmit}>
-                <Field
-                    name="title"
-                    type="text"
-                    component={HBFormField}
-                    label="Titre"
-                />
-                <Field
-                    name="type"
-                    type="select"
+            <Loadable
+                active={this.state.loading}
+                spinner
+                text='Chargement des données...'
+                color='black'
+                background='rgba(192,192,192,0.4)'
+            >
+                <Form Horizontal onSubmit={(e)=>{}}>
+                    <Field
+                        name="title"
+                        type="text"
+                        component={HBFormField}
+                        label="Titre"
+                    />
+                    <Field
+                        name="type"
+                        type="select"
 
-                    component={ArticleTypeSelect}
-                    label="Type"
-                />
-                <Field
-                    name="beginHDate"
-                    type="text"
-                    component={HDateInput}
-                    label="Date de début"
-                />
-                <Field
-                    name="endHDate"
-                    type="text"
-                    component={HDateInput}
-                    label="Date de fin"
-                />
-                <Field
-                    name="abstract"
-                    type="textarea"
-                    alignment={'vertical'}
-                    component={HBFormField}
-                    label="Résumé"
-                />
-                <div>
-                    <OverlayTrigger placement="bottom" overlay={previewTooltip("votre article")}>
-                        <Button bsStyle="info"
-                                disabled={!valid}
-                                onClick={this.handleSwitch}>
-                            Previsualiser&nbsp;<Glyphicon glyph={valid?"eye-open":"eye-closed"}/>
-                        </Button>
-                    </OverlayTrigger>
-                    &nbsp;
-                    <OverlayTrigger placement="bottom" overlay={submitTooltip("votre article")}>
-                    <Button bsStyle="primary"
-                            disabled={!valid || submitting}
-                            onClick={this.handleSwitch}>
-                        Enregistrer&nbsp;<Glyphicon glyph="upload"/>
-                    </Button>
-                    </OverlayTrigger>
-                    &nbsp;
-                    <OverlayTrigger placement="bottom" overlay={resetTooltip("cet article")}>
-                    <Button bsStyle="warning"
-                            disabled={(pristine || submitting) &&
-                            (this.state.data?(!this.state.data.isDirty(this.state.data)):true)}
-                            onClick={this.handleReset}>
-                        Reinitialiser&nbsp;<Glyphicon glyph="remove"/>
-                    </Button>
-                    </OverlayTrigger>
-                </div>
-            </Form>
+                        component={ArticleTypeSelect}
+                        label="Type"
+                    />
+                    <Field
+                        name="beginHDate"
+                        type="text"
+                        component={HDateInput}
+                        label="Date de début"
+                    />
+                    <Field
+                        name="endHDate"
+                        type="text"
+                        component={HDateInput}
+                        label="Date de fin"
+                    />
+                    <Field
+                        name="abstract"
+                        type="textarea"
+                        alignment={'vertical'}
+                        component={HBFormField}
+                        label="Résumé"
+                    />
+                    <div>
+                        <OverlayTrigger placement="bottom" overlay={previewTooltip("votre article")}>
+                            <Button bsStyle="info"
+                                    disabled={!valid}
+                                    onClick={this.handleSwitch}>
+                                Previsualiser&nbsp;<Glyphicon glyph={valid?"eye-open":"eye-closed"}/>
+                            </Button>
+                        </OverlayTrigger>
+                        &nbsp;
+                        <OverlayTrigger placement="bottom" overlay={submitTooltip("votre article")}>
+                            <Button bsStyle="primary"
+                                    disabled={!valid || submitting}
+                                    onClick={this.handleSwitch}>
+                                Enregistrer&nbsp;<Glyphicon glyph="upload"/>
+                            </Button>
+                        </OverlayTrigger>
+                        &nbsp;
+                        <OverlayTrigger placement="bottom" overlay={resetTooltip("cet article")}>
+                            <Button bsStyle="warning"
+                                    disabled={(pristine || submitting) &&
+                                    (this.state.data?(!this.state.data.isDirty(this.state.data)):true)}
+                                    onClick={this.handleReset}>
+                                Reinitialiser&nbsp;<Glyphicon glyph="remove"/>
+                            </Button>
+                        </OverlayTrigger>
+                    </div>
+                </Form>
+            </Loadable>
         );
     }
 }
