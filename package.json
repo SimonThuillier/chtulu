@@ -22,6 +22,7 @@
     "react-bootstrap": "^0.32.4",
     "react-bootstrap-table-next": "^1.2.0",
     "react-bootstrap-table2-overlay": "^1.0.0",
+    "react-bootstrap-table2-paginator": "^1.0.4",
     "react-dom": "^16.4.2",
     "react-helmet": "^5.2.0",
     "react-leaflet": "^2.0.1",

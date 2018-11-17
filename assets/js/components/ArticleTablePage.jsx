@@ -24,8 +24,9 @@ import {getIfNeeded} from "../actions";
 import SearchBag from '../util/SearchBag';
 import ArticleType from './ArticleType';
 import {connect} from "react-redux";
-import { getSelector} from "../reducers";
-import RImageMini from "./RImageMini"
+import { getSelector,totalSelector2} from "../reducers";
+import RImageMini from "./RImageMini";
+import paginationFactory from 'react-bootstrap-table2-paginator';
 
 
 const columns = [{
@@ -93,8 +94,8 @@ const rightBreadcrumb = (breadcrumb,switcher) => {
 };
 
 const rowStyle = (row, rowIndex) => {
-    console.log("row style");
-    console.log(row);
+    //console.log("row style");
+    //console.log(row);
 
     if(row && row.has("isDirty") && row.get("isDirty")(row)){
         return {backgroundColor:'#c8e6c9'};
@@ -103,31 +104,36 @@ const rowStyle = (row, rowIndex) => {
     return {};
 };
 
-
-
 class ArticleTablePage extends React.Component{
 
     constructor(props) {
+        console.log("tab1 constructor");
         super(props);
         this.getBreadcrumb = this.getBreadcrumb.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this.handleComponentSwitch = this.handleComponentSwitch.bind(this);
         this.handleArticleSwitch = this.handleArticleSwitch.bind(this);
+        this.loadSearchBag = this.loadSearchBag.bind(this);
+        this.onPageChange = this.onPageChange.bind(this);
 
         this.state = {
             loading:false,
             searchBag:SearchBag(null,'id','DESC',0,10),
+            groups:{minimal:true,date:true,detailImage:{minimal:true,activeVersion:{minimal:true,urlMini:true}}},
             selected:null,
             activeId:null,
-            breadcrumb:{prev:null,next:null}
+            breadcrumb:{prev:null,next:null},
+            page:1
         };
     }
 
     componentDidMount(){
+        this.loadSearchBag(this.state.groups,this.state.searchBag);
+    }
+
+    loadSearchBag(groups,searchBag){
         const {dispatch} = this.props;
-        dispatch(getIfNeeded("article",
-            {minimal:true,date:true,detailImage:true},
-            this.state.searchBag));
+        dispatch(getIfNeeded("article",groups,searchBag));
     }
 
     getBreadcrumb(id){
@@ -174,10 +180,38 @@ class ArticleTablePage extends React.Component{
         });
     }
 
+
+    onPageChange(page,sizePerPage){
+        //console.log(`tab1 page voulue : ${page}`);
+        let searchBag = Object.assign({}, this.state.searchBag,{offset:(page-1)*sizePerPage});
+        //searchBag.offset=(+page-1)*sizePerPage;
+        this.loadSearchBag(this.state.groups,searchBag);
+        this.setState({searchBag:searchBag,page:page});
+    }
+
     render(){
-        const items = this.props.selector(this.state.searchBag);
+        let items = this.props.selector(this.state.searchBag);
+        let total = this.props.totalSelector(this.state.searchBag);
+
+        /*if(items.length>0){
+            items[20]=items[0];
+            items[21]=items[0];
+            items[22]=items[0];
+            items[23]=items[0];
+            items[24]=items[0];
+            items[25]=items[0];
+            items[26]=items[0];
+            items[27]=items[0];
+            items[28]=items[0];
+            items[29]=items[0];
+        }*/
+        console.log("searchBag");
+        console.log(this.state.searchBag);
+
         console.log("items");
-        console.log(items);
+        //console.log(items);
+
+        console.log(this.state.page);
 
         return(
             <div className="content-wrapper hb-container">
@@ -198,6 +232,13 @@ class ArticleTablePage extends React.Component{
                             keyField='id'
                             data={ items }
                             rowStyle={rowStyle}
+                            pagination={ paginationFactory({
+                                onPageChange:this.onPageChange,
+                                page:this.state.page,
+                                sizePerPage:10,
+                                totalSize:total,
+
+                            })}
                             selectRow={{
                                 hideSelectColumn:true,
                                 mode :'radio',
@@ -206,7 +247,7 @@ class ArticleTablePage extends React.Component{
                             }}
                             remote={ {
                                 filter: true,
-                                pagination: false,
+                                pagination: true,
                                 sort: true,
                                 cellEdit: true
                             } }
@@ -242,23 +283,11 @@ class ArticleTablePage extends React.Component{
                                 id={this.state.activeId}
                                 activeComponent={this.state.activeComponent}
                                 formGroups={{"minimal":true,"date":true,"abstract":true}}
+                                context={'modal'}
+                                handleSwitch={this.handleComponentSwitch}
                             />
                         </Modal.Body>
                         <Modal.Footer>
-                            <ButtonToolbar>
-                                <ToggleButtonGroup
-                                    type={'radio'}
-                                    name="options"
-                                    defaultValue={this.state.activeComponent}
-                                >
-                                    <ToggleButton onClick={this.handleComponentSwitch} value={"detail"}>
-                                        Previsualiser
-                                    </ToggleButton>
-                                    <ToggleButton onClick={this.handleComponentSwitch} value={"form"}>
-                                        Editer
-                                    </ToggleButton>
-                                </ToggleButtonGroup>
-                            </ButtonToolbar>
                             <Button onClick={this.handleClose}>Fermer</Button>
                         </Modal.Footer>
                     </Modal>
@@ -271,8 +300,10 @@ class ArticleTablePage extends React.Component{
 
 const mapStateToProps = state => {
     const selector = selector || getSelector(state.get("article"));
+    const totalSelector = totalSelector2(state.get("article"));
     return {
-        selector: selector
+        selector: selector,
+        totalSelector:totalSelector
     }
 };
 

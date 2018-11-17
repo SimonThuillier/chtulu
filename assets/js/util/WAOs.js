@@ -81,8 +81,8 @@ const defaultPrototypes = {
             }
         },
         receiveRecord: function(rec){
-            console.log("article receiveRecord");
-            console.log(rec);
+            //console.log("article receiveRecord");
+            //console.log(rec);
             if(rec.has("beginHDate") && rec.get("beginHDate") !== null){
                 rec = rec.set("beginHDate",HDate.prototype.parseFromJson(JSON.stringify(rec.get("beginHDate"))));
             }

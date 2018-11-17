@@ -11,6 +11,7 @@ import {
 import { normalize, schema } from 'normalizr';
 import WAOs from '../util/WAOs';
 import GroupUtil from "../util/GroupUtil";
+import SearchBagUtil from '../util/SearchBagUtil';
 
 export const LOAD_FOR_EDIT = 'LOAD_FOR_EDIT';
 export const GET = 'GET';
@@ -71,13 +72,13 @@ export const get = (waoType,groups,searchBag=null) => ({
 
 
 const subReceiveGet = (waoType,rows) => {
-    console.log("subreceive get");
-    console.log(rows);
+    //console.log("subreceive get");
+    //console.log(rows);
     const reducer = (accumulator, entity) => {
         accumulator =accumulator || true;
         let loadedGroups = entity.loadedGroups || true;
-        console.log(accumulator);
-        console.log(loadedGroups);
+        //console.log(accumulator);
+        //console.log(loadedGroups);
         return GroupUtil.intersect(waoType,accumulator,loadedGroups);
     };
 
@@ -96,8 +97,8 @@ export const receiveGet = (waoType,groups,searchBag,rows,
                            total,message="Données bien recues du serveur") => (dispatch,state) => {
     // let's normalize our received Data !
     const normData = normalize(rows,[WAOs.getIn([waoType,"schema"])]);
-    console.log("normalizedData");
-    console.log(normData);
+    //console.log("normalizedData");
+    //console.log(normData);
     Object.keys(normData.entities).forEach((key)=>{
         if(key !== waoType){
             dispatch(subReceiveGet(key,Object.values(normData.entities[key])));
@@ -140,19 +141,28 @@ const fetchGet = (waoType,groups=true,searchBag) => (dispatch,state) => {
 };
 
 const shouldFetchGet = (state, waoType,groups,searchBag) => {
-    /*const posts = state.postsBySubreddit[subreddit]
-    if (!posts) {
-        return true
+    const searchCacheEntry = state.getIn([waoType,"searchCache",
+        JSON.stringify(SearchBagUtil.getCoreBag(searchBag))]);
+    console.log(`shouldFetchGet 0 `);
+    if(!searchCacheEntry) return true;
+    console.log(`shouldFetchGet 1 `);
+    const indexMap = (searchBag.order===SearchBagUtil.ASC)?searchCacheEntry.indexMap:
+        SearchBagUtil.invertIndexMap(searchCacheEntry.indexMap,searchCacheEntry.total);
+    console.log("indexMap");
+    console.log(indexMap);
+    console.log(searchBag);
+
+    for(let i=searchBag.offset;i<searchBag.offset+searchBag.limit;i++){
+        if(typeof indexMap.get(i) === 'undefined') return true;
     }
-    if (posts.isFetching) {
-        return false
-    }
-    return posts.didInvalidate*/
-    return true;
+    console.log(`shouldFetchGet 3 `);
+    return false;
 };
 
 export const getIfNeeded = (waoType,groups=true,searchBag) => (dispatch, getState) => {
     searchBag = searchBag || SearchBag();
+    console.log(`shouldFetchGet : ${shouldFetchGet(getState(), waoType,groups,searchBag)}`);
+
     if (shouldFetchGet(getState(), waoType,groups,searchBag)) {
         return dispatch(fetchGet(waoType,groups,searchBag))
     }
@@ -215,16 +225,15 @@ const fetchGetOneById = (waoType,groups=true,id) => (dispatch,state) => {
 
 
 const shouldFetchGetOneById = (state, waoType,groups,id) => {
-    console.log(state);
     const item = state.getIn([waoType,"items",id]);
     if(!item || !item.get("loadedGroups")) return true;
 
     if(item.get("loadedGroups")){
-        console.log("groupes deja charges");
+        /*console.log("groupes deja charges");
         console.log(item.get("loadedGroups"));
         console.log("groupes a charger");
         console.log(groups);
-        console.log("diff");
+        console.log("diff");*/
         let diff = GroupUtil.leftDiff(waoType,groups,item.get("loadedGroups"));
         console.log(diff);
         if(Object.keys(diff).length < 1) return false;

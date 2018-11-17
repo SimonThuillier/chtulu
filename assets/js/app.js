@@ -7,6 +7,7 @@ require('icheck/skins/square/blue.css');
 require('jquery-ui/themes/base/all.css');
 require('bootstrap-table/dist/bootstrap-table.css');
 require('leaflet/dist/leaflet.css');
+require('react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css');
 require('../napoleon3.jpeg');
 require('../bismarck.jpeg');
 require('../hugo.jpeg');

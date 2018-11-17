@@ -4,7 +4,7 @@ import ArticleDetailMinimal from './ArticleDetailMinimal';
 import ArticleDetailAbstract from './ArticleDetailAbstract';
 import ArticleDetailImage from './ArticleDetailImage';
 import GroupUtil from '../util/GroupUtil';
-import {ButtonToolbar,ToggleButtonGroup,ToggleButton} from 'react-bootstrap';
+import {Button,Glyphicon} from 'react-bootstrap';
 
 const ArticleDetail = function(props){
     const data = props.data;
@@ -12,6 +12,8 @@ const ArticleDetail = function(props){
 
 
     const availableGroups = GroupUtil.intersect('article',props.groups,data.loadedGroups||{});
+
+    const context = props.context || 'main';
 
     return (
         <div>
@@ -31,20 +33,11 @@ const ArticleDetail = function(props){
                 <ArticleDetailAbstract abstract={data.abstract}/>
                 }
             </div>
-            <ButtonToolbar>
-                <ToggleButtonGroup
-                    type={'radio'}
-                    name="options"
-                    defaultValue={'detail'}
-                >
-                    <ToggleButton onClick={e=>{}} value={"detail"}>
-                        Previsualiser
-                    </ToggleButton>
-                    <ToggleButton onClick={props.handleSwitch} value={"form"}>
-                        Editer
-                    </ToggleButton>
-                </ToggleButtonGroup>
-            </ButtonToolbar>
+            <Button bsStyle="success"
+                    disabled={false}
+                    onClick={props.handleSwitch}>
+                Editer&nbsp;<Glyphicon glyph={context==='modal'?'pencil':'edit'}/>
+            </Button>
         </div>
     );
 };
