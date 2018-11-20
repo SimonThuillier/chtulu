@@ -40,6 +40,15 @@ class ArticleRepository extends EntityRepository
      * @param string $order
      * @return QueryBuilder
      */
+    public function sortByTitle(QueryBuilder $qb,string $order){
+        return $qb->orderBy('o.title',$order);
+    }
+
+    /**
+     * @param QueryBuilder $qb
+     * @param string $order
+     * @return QueryBuilder
+     */
     public function sortByType_label(QueryBuilder $qb,string $order){
         return $qb->join('o.type','t')
         ->orderBy('t.label',$order);

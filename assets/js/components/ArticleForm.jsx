@@ -25,19 +25,6 @@ import {Button,Tooltip} from 'react-bootstrap';
 import Loadable from 'react-loading-overlay';
 import {previewTooltip,submitTooltip,resetTooltip} from './tooltips';
 
-const test =  (state, action) => {
-    switch(action.type){
-        case 'redux-form/UNREGISTERFIELD':
-            console.log("UNREGISTERFIELD lol");
-            console.log(state);
-            return state;
-        default:
-            return state;
-    }
-
-    // return modified state
-};
-
 
 const validate = values => {
     const errors = {};

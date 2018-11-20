@@ -27,6 +27,7 @@ import {connect} from "react-redux";
 import { getSelector,totalSelector2} from "../reducers";
 import RImageMini from "./RImageMini";
 import paginationFactory from 'react-bootstrap-table2-paginator';
+import ArticleFilter from './ArticleFilter';
 
 
 const columns = [{
@@ -37,13 +38,15 @@ const columns = [{
         return (
             value?<div>{cell}&nbsp;<RImageMini id={value}/></div>:cell
         );
-    }
+    },
+    sort:true
 }, {
     dataField: 'type',
     text: 'Type',
     formatter: function(cell){
         return <ArticleType id={cell}/>
-    }
+    },
+    sort: true
 }, {
     dataField: 'beginHDate',
     text: 'Début',
@@ -51,7 +54,8 @@ const columns = [{
         //console.log(cell);
         if(cell === null) return '-';
         return cell.getLabel();
-    }
+    },
+    sort:true
 }, {
     dataField: 'endHDate',
     text: 'Fin',
@@ -59,7 +63,8 @@ const columns = [{
         //console.log(cell);
         if(cell === null) return '-';
         return cell.getLabel();
-    }
+    },
+    sort:true
 }
 ];
 
@@ -191,12 +196,19 @@ class ArticleTablePage extends React.Component{
         console.log("on table change");
         console.log(type);
         console.log(newState);
+        let searchBag = {};
         switch(type){
             case 'pagination':
                 const {page,sizePerPage} = newState;
-                let searchBag = Object.assign({}, this.state.searchBag,{offset:(page-1)*sizePerPage,limit:sizePerPage});
+                searchBag = Object.assign({}, this.state.searchBag,{offset:(page-1)*sizePerPage,limit:sizePerPage});
                 this.loadSearchBag(this.state.groups,searchBag);
                 this.setState({searchBag:searchBag,page:page,sizePerPage:sizePerPage});
+                break;
+            case 'sort':
+                const {sortField,sortOrder} = newState;
+                searchBag = Object.assign({}, this.state.searchBag,{sort:sortField,order:sortOrder.toUpperCase()});
+                this.loadSearchBag(this.state.groups,searchBag);
+                this.setState({searchBag:searchBag});
                 break;
             default:
                 break;
@@ -207,25 +219,11 @@ class ArticleTablePage extends React.Component{
         let items = this.props.selector(this.state.searchBag);
         let total = this.props.totalSelector(this.state.searchBag);
 
-        /*if(items.length>0){
-            items[20]=items[0];
-            items[21]=items[0];
-            items[22]=items[0];
-            items[23]=items[0];
-            items[24]=items[0];
-            items[25]=items[0];
-            items[26]=items[0];
-            items[27]=items[0];
-            items[28]=items[0];
-            items[29]=items[0];
-        }*/
-        console.log("searchBag");
+        /*console.log("searchBag");
         console.log(this.state.searchBag);
-
         console.log("items");
-        //console.log(items);
-
-        console.log(this.state.page);
+        console.log(items);
+        console.log(this.state.page);*/
 
         return(
             <div className="content-wrapper hb-container">
@@ -233,8 +231,13 @@ class ArticleTablePage extends React.Component{
                     <title>Liste des articles</title>
                 </Helmet>
                 <section className="content-header">
+                    <h3>Liste des articles</h3>
                 </section>
-                <section className="content" height="2000px">
+                <section className="content">
+                    <ArticleFilter/>
+                    {/*<div className="row">*/}
+                        {/*<hr/>*/}
+                    {/*</div>*/}
                     <Loadable
                         active={this.state.loading}
                         spinner

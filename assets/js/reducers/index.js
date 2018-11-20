@@ -98,18 +98,6 @@ const concreteWaoType = (waoType) => {
             case GET_ONE_BY_ID:
                 return state;
             case RECEIVE_GET:
-                /*console.log("action receive get");
-                console.log(waoType);
-                console.log(action);*/
-                if(action.searchBag){
-                    var coreBag = SearchBagUtil.getCoreBag(action.searchBag);
-                    var coreBagKey = JSON.stringify(coreBag);
-                    if(!state.hasIn(["searchCache",JSON.stringify(coreBag)])){
-                        state = state.setIn(["searchCache",coreBagKey],SearchCacheEntry(coreBagKey,action.total));
-                    }
-                    var {offset,order} = action.searchBag;
-                    var index = 0;
-                }
                 action.waos.map(item => {
                     //console.log(item);
                     let rec = WAO(item);
@@ -120,19 +108,23 @@ const concreteWaoType = (waoType) => {
                             mergeRecords(state.getIn(["items",+rec.get("id")]),rec));
                     else
                         state = state.setIn(["items",+rec.get("id")],rec);
-
-                    if(action.searchBag){
-                        let indexMap = state.getIn(["searchCache",coreBagKey,"indexMap"]);
-                        let newStackIndex = (order===SearchBagUtil.ASC)?offset+index:action.total-(offset+index)-1;
-                        //console.log(`new stack index : ${newStackIndex}`);
-                        indexMap = indexMap.set(+newStackIndex,+rec.get("id"));
-                        state = state.setIn(["searchCache",coreBagKey,"indexMap"],indexMap);
-                        index = index+1;
-                    }
                 });
-                if(action.searchBag){
+                if(action.searchBag && action.result){
+                    let {offset,order} = action.searchBag;
+                    let coreBag = SearchBagUtil.getCoreBag(action.searchBag);
+                    let coreBagKey = JSON.stringify(coreBag);
+                    if(!state.hasIn(["searchCache",JSON.stringify(coreBag)])){
+                        state = state.setIn(["searchCache",coreBagKey],SearchCacheEntry(coreBagKey,action.total));
+                    }
+                    let indexMap = state.getIn(["searchCache",coreBagKey,"indexMap"]);
+                    for(let i=0;i<action.result.length;i++){
+                        let newStackIndex = (order===SearchBagUtil.ASC)?offset+i:action.total-(offset+i)-1;
+                        indexMap = indexMap.set(+newStackIndex,+action.result[i]);
+                    }
                     let entry = state.getIn(["searchCache",coreBagKey]);
-                    entry = entry.set("total",action.total).
+                    entry = entry.
+                    set("indexMap",indexMap).
+                    set("total",action.total).
                     set("receivedAt",Date.now());
                     state = state.setIn(["searchCache",coreBagKey],entry);
                 }

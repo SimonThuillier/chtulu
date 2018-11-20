@@ -90,6 +90,7 @@ const subReceiveGet = (waoType,rows) => {
         receivedAt: Date.now(),
         total:-1,
         waos: rows,
+        result:null
     }
 };
 
@@ -120,6 +121,7 @@ export const receiveGet = (waoType,groups,searchBag,rows,
         receivedAt: Date.now(),
         total:total,
         waos: Object.values(normData.entities[waoType]),
+        result:normData.result
     });
 };
 
