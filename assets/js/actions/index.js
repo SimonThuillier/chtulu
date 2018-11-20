@@ -97,13 +97,20 @@ export const receiveGet = (waoType,groups,searchBag,rows,
                            total,message="Données bien recues du serveur") => (dispatch,state) => {
     // let's normalize our received Data !
     const normData = normalize(rows,[WAOs.getIn([waoType,"schema"])]);
-    //console.log("normalizedData");
-    //console.log(normData);
+    /*console.log(rows);
+    console.log("normalizedData");
+    console.log(normData);*/
     Object.keys(normData.entities).forEach((key)=>{
         if(key !== waoType){
             dispatch(subReceiveGet(key,Object.values(normData.entities[key])));
         }
     });
+
+    console.log("searchbag - result");
+    console.log(searchBag);
+    console.log(normData.result);
+
+    //console.log(normData.entities[waoType]);
 
     return dispatch({
         type: RECEIVE_GET,
@@ -143,19 +150,20 @@ const fetchGet = (waoType,groups=true,searchBag) => (dispatch,state) => {
 const shouldFetchGet = (state, waoType,groups,searchBag) => {
     const searchCacheEntry = state.getIn([waoType,"searchCache",
         JSON.stringify(SearchBagUtil.getCoreBag(searchBag))]);
-    console.log(`shouldFetchGet 0 `);
+    //console.log(`shouldFetchGet 0 `);
     if(!searchCacheEntry) return true;
-    console.log(`shouldFetchGet 1 `);
-    const indexMap = (searchBag.order===SearchBagUtil.ASC)?searchCacheEntry.indexMap:
-        SearchBagUtil.invertIndexMap(searchCacheEntry.indexMap,searchCacheEntry.total);
-    console.log("indexMap");
+    //console.log(`shouldFetchGet 1 `);
+    let indexMap = searchCacheEntry.get("indexMap");
+    indexMap = (searchBag.order===SearchBagUtil.ASC)?indexMap:
+        SearchBagUtil.invertIndexMap(indexMap,searchCacheEntry.get("total"));
+    /*console.log("indexMap");
     console.log(indexMap);
-    console.log(searchBag);
+    console.log(searchBag);*/
 
     for(let i=searchBag.offset;i<searchBag.offset+searchBag.limit;i++){
         if(typeof indexMap.get(i) === 'undefined') return true;
     }
-    console.log(`shouldFetchGet 3 `);
+    //console.log(`shouldFetchGet 3 `);
     return false;
 };
 

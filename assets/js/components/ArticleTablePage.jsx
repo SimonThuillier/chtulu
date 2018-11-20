@@ -63,6 +63,12 @@ const columns = [{
 }
 ];
 
+const customTotal = (from, to, size) => (
+    <span className="react-bootstrap-table-pagination-total">
+    &nbsp;Lignes { from } à { to } affichées parmi { size } résultats
+  </span>
+);
+
 const leftBreadcrumb = (breadcrumb,switcher) => {
     return ((breadcrumb.prev)?<OverlayTrigger
         placement="left"
@@ -114,16 +120,17 @@ class ArticleTablePage extends React.Component{
         this.handleComponentSwitch = this.handleComponentSwitch.bind(this);
         this.handleArticleSwitch = this.handleArticleSwitch.bind(this);
         this.loadSearchBag = this.loadSearchBag.bind(this);
-        this.onPageChange = this.onPageChange.bind(this);
+        this.onTableChange = this.onTableChange.bind(this);
 
         this.state = {
             loading:false,
-            searchBag:SearchBag(null,'id','DESC',0,10),
+            searchBag:SearchBag({}),
             groups:{minimal:true,date:true,detailImage:{minimal:true,activeVersion:{minimal:true,urlMini:true}}},
             selected:null,
             activeId:null,
             breadcrumb:{prev:null,next:null},
-            page:1
+            page:1,
+            sizePerPage:10
         };
     }
 
@@ -180,13 +187,20 @@ class ArticleTablePage extends React.Component{
         });
     }
 
-
-    onPageChange(page,sizePerPage){
-        //console.log(`tab1 page voulue : ${page}`);
-        let searchBag = Object.assign({}, this.state.searchBag,{offset:(page-1)*sizePerPage});
-        //searchBag.offset=(+page-1)*sizePerPage;
-        this.loadSearchBag(this.state.groups,searchBag);
-        this.setState({searchBag:searchBag,page:page});
+    onTableChange(type,newState){
+        console.log("on table change");
+        console.log(type);
+        console.log(newState);
+        switch(type){
+            case 'pagination':
+                const {page,sizePerPage} = newState;
+                let searchBag = Object.assign({}, this.state.searchBag,{offset:(page-1)*sizePerPage,limit:sizePerPage});
+                this.loadSearchBag(this.state.groups,searchBag);
+                this.setState({searchBag:searchBag,page:page,sizePerPage:sizePerPage});
+                break;
+            default:
+                break;
+        }
     }
 
     render(){
@@ -220,7 +234,7 @@ class ArticleTablePage extends React.Component{
                 </Helmet>
                 <section className="content-header">
                 </section>
-                <section className="content">
+                <section className="content" height="2000px">
                     <Loadable
                         active={this.state.loading}
                         spinner
@@ -233,10 +247,12 @@ class ArticleTablePage extends React.Component{
                             data={ items }
                             rowStyle={rowStyle}
                             pagination={ paginationFactory({
-                                onPageChange:this.onPageChange,
                                 page:this.state.page,
-                                sizePerPage:10,
+                                sizePerPage:this.state.sizePerPage,
                                 totalSize:total,
+                                showTotal:true,
+                                paginationTotalRenderer:customTotal,
+                                withFirstAndLast:true
 
                             })}
                             selectRow={{
@@ -251,6 +267,7 @@ class ArticleTablePage extends React.Component{
                                 sort: true,
                                 cellEdit: true
                             } }
+                            onTableChange={this.onTableChange}
                             loading={this.state.loading}
                             columns={ columns.concat([
                                 {
@@ -291,7 +308,9 @@ class ArticleTablePage extends React.Component{
                             <Button onClick={this.handleClose}>Fermer</Button>
                         </Modal.Footer>
                     </Modal>
-
+                    {/*<div className='innerbox' height="1000px" min-height="1000px"></div>*/}
+                    {/*<svg width="400" height="1000">*/}
+                    {/*</svg>*/}
                 </section>
             </div>
         );

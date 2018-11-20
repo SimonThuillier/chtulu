@@ -1,5 +1,19 @@
 @CHARSET "ISO-8859-1";
 
+div.innerbox{
+
+    width:auto; /* or whatever width you want. */
+    display: inline-block;
+    height:100%;
+    position:fixed;
+    background-color : #00FF00;
+}
+
+section.content {
+    padding-bottom: 60px
+}
+
+
 div.wrapper {
     position:absolute;
     top:0;
@@ -12,8 +26,7 @@ div.wrapper {
 
 div.content-wrapper {
     min-height:100%;
-    height: -moz-available;
-    height: -webkit-fill-available;
+    height: 100%
 }
 
 div.hts-container {

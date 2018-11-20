@@ -1,3 +1,5 @@
+const Imm = require("immutable");
+
 
 const SearchBagUtil = {
     ASC:'ASC',
@@ -10,11 +12,16 @@ const SearchBagUtil = {
         };
     },
     invertIndexMap:function(indexMap,total){
-        let invertedIndexMap = new Map();
+        //console.log("invert map");
+        //console.log(indexMap);
+        //console.log(total);
+        let invertedIndexMap = Imm.Map();
 
         indexMap.forEach((v,k)=>{
-            invertedIndexMap.set(total-k-1,v);
+            //console.log(`v : ${v} , k : ${k}`);
+            invertedIndexMap = invertedIndexMap.set(total-k-1,v);
         });
+
         return invertedIndexMap;
     }
 };
