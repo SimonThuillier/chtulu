@@ -193,6 +193,15 @@ abstract class AbstractEntityMapper
     abstract public function getFindAllQB();
 
     /**
+     * produces a search part of the searchbag complient with repository filter requirements
+     * @param $search
+     * @return mixed
+     */
+    protected function getTransformedSearch($search){
+        return $search;
+    }
+
+    /**
      * @return QueryBuilder
      */
     protected function getCountAllQB(){
@@ -205,7 +214,9 @@ abstract class AbstractEntityMapper
      * @param SearchBag $searchBag
      */
     protected function filterBy(QueryBuilder $qb,SearchBag $searchBag){
-        foreach((array)($searchBag->getSearch()) as $key => $value){
+        $search = $this->getTransformedSearch($searchBag->getSearch());
+
+        foreach((array)($search) as $key => $value){
             $function = 'filterBy' . str_replace('.','_',ucfirst($key));
             if(method_exists($this->repository,$function)){
                 $this->repository->$function($qb,$value);
@@ -239,7 +250,9 @@ abstract class AbstractEntityMapper
         if($searchBag !== null){$this->filterBy($countQb,$searchBag);}
         try{
             return $countQb->getQuery()->getSingleScalarResult();}
-        catch(\Exception $e){return 0;}
+        catch(\Exception $e){
+            return 0;
+        }
     }
 
     /**

@@ -126,6 +126,7 @@ class ArticleTablePage extends React.Component{
         this.handleArticleSwitch = this.handleArticleSwitch.bind(this);
         this.loadSearchBag = this.loadSearchBag.bind(this);
         this.onTableChange = this.onTableChange.bind(this);
+        this.onFilter = this.onFilter.bind(this);
 
         this.state = {
             loading:false,
@@ -192,6 +193,15 @@ class ArticleTablePage extends React.Component{
         });
     }
 
+    onFilter(values){
+        console.log("filter submitted");
+        console.log(values);
+
+        const searchBag = Object.assign({}, this.state.searchBag,{search:values});
+        this.loadSearchBag(this.state.groups,searchBag);
+        this.setState({searchBag:searchBag});
+    }
+
     onTableChange(type,newState){
         console.log("on table change");
         console.log(type);
@@ -234,7 +244,7 @@ class ArticleTablePage extends React.Component{
                     <h3>Liste des articles</h3>
                 </section>
                 <section className="content">
-                    <ArticleFilter/>
+                    <ArticleFilter onSubmit={this.onFilter}/>
                     {/*<div className="row">*/}
                         {/*<hr/>*/}
                     {/*</div>*/}

@@ -240,7 +240,7 @@ ArticleForm = connect(
         console.log("connect");
         //console.log(state.getIn(["formReducer","data"]));
         const selector = getOneByIdSelector(state.get("article"));
-        return {selector: selector,pendingForm:state.getIn(["form",formUid])} // pull initial values from account reducer
+        return {selector: selector,pendingForm:state.getIn(["form",formUid])}
     },
     { }
 )(ArticleForm);

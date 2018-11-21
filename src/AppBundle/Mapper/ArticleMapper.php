@@ -12,6 +12,8 @@ use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\Entity\Article;
 use AppBundle\Factory\ArticleFactory;
 use AppBundle\Factory\FactoryException;
+use AppBundle\Form\DataTransformer\ArticleTypeTransformer;
+use AppBundle\Form\DataTransformer\HDateToStringTransformer;
 use AppBundle\Mediator\NullColleagueException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
@@ -20,21 +22,39 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterface
 {
     /**
+     * @var ArticleTypeTransformer
+     */
+    private $articleTypeTransformer;
+    /**
+     * @var HDateToStringTransformer
+     */
+    private $hDateTransformer;
+
+
+
+
+    /**
      * ArticleMapper constructor.
      *
      * @param ManagerRegistry $doctrine
      * @param ArticleFactory $entityFactory
      * @param LoggerInterface $logger
      * @param TokenStorageInterface $tokenStorage
+     * @param ArticleTypeTransformer $articleTypeTransformer
+     * @param HDateToStringTransformer $hDateTransformer
      */
     public function __construct(
         ManagerRegistry $doctrine,
         TokenStorageInterface $tokenStorage,
         LoggerInterface $logger,
-        ArticleFactory $entityFactory
+        ArticleFactory $entityFactory,
+        ArticleTypeTransformer $articleTypeTransformer,
+        HDateToStringTransformer $hDateTransformer
     )
     {
         $this->entityClassName = Article::class;
+        $this->articleTypeTransformer = $articleTypeTransformer;
+        $this->hDateTransformer = $hDateTransformer;
         parent::__construct(
             $doctrine,
             $tokenStorage,
@@ -118,5 +138,32 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterfac
         return $this->repository->createQueryBuilder('o')
             ->select('o')
             ->orderBy('o.editionDate','DESC');
+    }
+
+    /**
+     * produces a search part of the searchbag complient with repository filter requirements
+     * @param $search
+     * @return mixed
+     */
+    protected function getTransformedSearch($search){
+        if ($search === null || !is_array($search)) return [];
+        $tSearch = [];
+        foreach((array)($search) as $key => $value){
+            switch($key){
+                case 'type':
+                    $tSearch[$key] = $this->articleTypeTransformer->reverseTransform($value);
+                    break;
+                case 'beginHDate':
+                    $tSearch[$key] = $this->hDateTransformer->reverseTransform($value);
+                    break;
+                case 'endHDate':
+                    $tSearch[$key] = $this->hDateTransformer->reverseTransform($value);
+                    break;
+                default :
+                    $tSearch[$key] = $value;
+                    break;
+            }
+        }
+        return $tSearch;
     }
 }

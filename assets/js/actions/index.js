@@ -120,7 +120,7 @@ export const receiveGet = (waoType,groups,searchBag,rows,
         searchBag : searchBag,
         receivedAt: Date.now(),
         total:total,
-        waos: Object.values(normData.entities[waoType]),
+        waos: normData.entities[waoType]?Object.values(normData.entities[waoType]):[],
         result:normData.result
     });
 };

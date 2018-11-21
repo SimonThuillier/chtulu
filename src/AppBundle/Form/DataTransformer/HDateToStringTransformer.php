@@ -47,12 +47,13 @@ class HDateToStringTransformer implements DataTransformerInterface
     }
 
     /**
-     * @param  string $payload
+     * @param  string|array $payload
      * @return HDate|null
      * @throws TransformationFailedException
      */
     public function reverseTransform($payload)
     {
+        if (is_array($payload)) $payload = json_encode($payload);
         if (null === $payload || $payload === "") return null;
         try{
             if(is_string($payload)) $object = $this->serializer->deserialize($payload,null,'json');

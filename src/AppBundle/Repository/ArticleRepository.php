@@ -46,6 +46,20 @@ class ArticleRepository extends EntityRepository
 
     /**
      * @param QueryBuilder $qb
+     * @param string|null $keyword
+     * @return QueryBuilder
+     */
+    public function filterByKeyword(QueryBuilder $qb,?string $keyword){
+        if($keyword === null || $keyword === "") return $qb;
+        return $qb->andWhere('(
+        o.title LIKE \'%' . lcfirst($keyword) . '%\' 
+        OR o.title LIKE \'%' . ucfirst($keyword) . '%\' 
+        OR o.abstract LIKE \'%' . lcfirst($keyword) . '%\'
+        OR o.abstract LIKE \'%' . ucfirst($keyword) . '%\')');
+    }
+
+    /**
+     * @param QueryBuilder $qb
      * @param string $order
      * @return QueryBuilder
      */

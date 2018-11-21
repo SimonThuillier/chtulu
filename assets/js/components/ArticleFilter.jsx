@@ -49,104 +49,22 @@ class ArticleFilter extends React.Component{
     constructor(props) {
         super(props);
 
-        this.handleSwitch = this.handleSwitch.bind(this);
-        this.submit = this.submit.bind(this);
-        this.handleReset = this.handleReset.bind(this);
-        this.shouldReinitialize = this.shouldReinitialize.bind(this);
+        this.getCurrentFilter = this.getCurrentFilter.bind(this);
 
         this.state = {
             data:null,
-            fields:props.fields || ["title","type"]
+            fields:props.fields || ["keyword","type","beginHDate","endHDate"],
+            lastFilterKey:"{}"
         };
     }
 
-    shouldReinitialize(data){
-        if (!data || !data.loadedGroups) return true;
+    componentDidMount() {}
 
-        console.log(data.loadedGroups);
-        console.log(this.state.groups);
-
-        const diff = GroupUtil.leftDiff("article",this.state.groups,data.loadedGroups);
-        console.log("groupes a charger");
-        console.log(diff);
-
-        return (Object.keys(diff).length>0);
-    }
-
-    loadInitialValues(){
-        const {selector,initialize,id,dispatch} = this.props;
-        const data = selector(id);
-        if(this.shouldReinitialize(data)){
-            dispatch(getOneByIdIfNeeded("article",
-                this.state.groups,
-                this.props.id));
-            console.log("loading form");
-            this.setState({loading:true});
-        }
-        else{
-            console.log("un loading form");
-            this.setState({loading:false});
-        }
-        this.setState({data:data});
-        if(!data) return;
-        initialize(data.set("pendingModification",true));
-    }
-
-    componentDidMount() {
-        console.log("component didmount");
-        //this.loadInitialValues();
-    }
-
-    componentWillUnmount(){
-        console.log("article form unmount");
-    }
-
-    componentDidUpdate(prevProps) {
-        console.log(`update ${prevProps.id} vs ${this.props.id}`);
-        if (prevProps.id !== this.props.id){
-            this.submit(prevProps.id);
-        }
-        if (prevProps.id !== this.props.id ||
-            (this.shouldReinitialize(this.state.data) && prevProps.selector !== this.props.selector)) {
-            this.loadInitialValues();
-        }
-    }
-
-    handleReset(){
-        const { reset,dispatch,id} = this.props;
-        //reset();
-        dispatch(stateReset("article",[id]));
-        setTimeout(() => {
-            this.loadInitialValues();
-            reset();
-        },20);
-    }
-
-    submit(id=null){
-        id = id || this.props.id;
-
+    getCurrentFilter(){
         const {pendingForm} = this.props;
-        const touchedFields = pendingForm.get("fields");
         const values = pendingForm.get("values");
-
-        const {anyTouched,submit,dispatch} = this.props;
-        const touchedKeys = touchedFields?touchedFields.keySeq():null;
-        if(anyTouched || touchedKeys){
-            touchedKeys.forEach((k)=>console.log(k));
-            console.log(values);
-            let touchedValues = Imm.Map();
-            touchedKeys.forEach((k)=>{
-                touchedValues = touchedValues.set(k,values.get(k));
-            });
-
-            console.log(touchedValues);
-            dispatch(submitLocally("article",touchedValues,id));
-        }
-    }
-
-    handleSwitch(){
-        this.submit();
-        this.props.handleSwitch();
+        if(!values) return {};
+        return values.toJS();
     }
 
     render(){
@@ -154,15 +72,16 @@ class ArticleFilter extends React.Component{
         const { onSubmit, pristine, reset, submitting,load,valid } = this.props;
 
         return (
-            <Form Horizontal onSubmit={(e)=>{}}>
+            <Form Horizontal>
                 <Row className="show-grid">
-                    {this.state.fields.includes("title") &&
+                    {this.state.fields.includes("keyword") &&
                     <Col md={3}>
                         <Field
-                            name="title"
+                            name="keyword"
                             type="text"
                             component={HBFormField}
-                            label="Titre"
+                            label=""
+                            placeholder="Rechercher"
                         />
                     </Col>}
                     {this.state.fields.includes("type") &&
@@ -170,8 +89,8 @@ class ArticleFilter extends React.Component{
                         <Field
                             name="type"
                             type="select"
-
                             component={ArticleTypeSelect}
+                            required={false}
                             label="Type"
                         />
                     </Col>}
@@ -181,7 +100,16 @@ class ArticleFilter extends React.Component{
                             name="beginHDate"
                             type="text"
                             component={HDateInput}
-                            label="Date de début"
+                            label="Début"
+                        />
+                    </Col>}
+                    {this.state.fields.includes("endHDate") &&
+                    <Col md={3}>
+                        <Field
+                            name="endHDate"
+                            type="text"
+                            component={HDateInput}
+                            label="Fin"
                         />
                     </Col>}
                         <Col md={3} style={{
@@ -190,13 +118,24 @@ class ArticleFilter extends React.Component{
                         }}>
                             <Button bsStyle="primary"
                                     disabled={false}
-                                    onClick={this.handleSwitch}>
+                                    onClick={()=>{
+                                        const lastFilter = this.getCurrentFilter();
+                                        this.setState({lastFilterKey:JSON.stringify(lastFilter)});
+                                        onSubmit(lastFilter);
+                                    }}
+                                    >
                                 Filtrer&nbsp;<Glyphicon glyph="filter"/>
                             </Button>
                             &nbsp;
                             <Button bsStyle="warning"
                                     disabled={false}
-                                    onClick={this.handleReset}>
+                                    onClick={()=>{
+                                        if(this.state.lastFilterKey !== "{}"){
+                                            onSubmit({});
+                                            this.setState({lastFilterKey:"{}"});
+                                        }
+                                        reset();
+                                    }}>
                                 Effacer&nbsp;<Glyphicon glyph="erase"/>
                             </Button>
                         </Col>
@@ -212,6 +151,13 @@ ArticleFilter =  reduxForm({
     validate:validate,
     warn:warn
 })(ArticleFilter);
+
+ArticleFilter = connect(
+    state => {
+        return {pendingForm:state.getIn(["form",formUid])}
+    },
+    { }
+)(ArticleFilter);
 
 
 export default ArticleFilter;
