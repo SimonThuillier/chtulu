@@ -1,6 +1,6 @@
 import React,{ Component } from "react";
 import {getIfNeeded} from '../actions';
-import {getSelector} from "../reducers";
+import {getSelector} from "../selectors";
 import { connect } from 'react-redux'
 import SearchBag from "../util/SearchBag";
 import HBFormField from './HBFormField';

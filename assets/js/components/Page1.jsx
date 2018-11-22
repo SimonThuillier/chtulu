@@ -1,7 +1,7 @@
 import React from 'react';
 import ArticleTypeSelect from './ArticleTypeSelect';
 import {connect} from "react-redux";
-import {getOneByIdSelector} from "../reducers";
+import {getOneByIdSelector} from "../selectors";
 import Article from './Article';
 import {Helmet} from 'react-helmet';
 import {getOneByIdIfNeeded} from "../actions";
@@ -14,13 +14,11 @@ export class Page1 extends React.Component {
             id: 32,
             selector:props.selector,
             loading: false,
-            activeComponent:'detail',
+            activeComponent:'form',
             detailGroups:props.detailGroups || {"minimal":true,"abstract":true,"date":true,
                 "detailImage":{"activeVersion":{"urlDetailThumbnail":true}}
             },
-            formGroups:props.formGroups || {"minimal":true,"abstract":true,"date":true,
-                "detailImage":{"activeVersion":{"urlDetailThumbnail":true}}
-            },
+            formGroups:props.formGroups || {"minimal":true,"abstract":true,"date":true},
             //pendingData: (props.data)?Object.create(props.data):null,
         };
     }

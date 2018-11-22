@@ -1,5 +1,5 @@
 import React from "react";
-import {getOneByIdSelector} from "../reducers";
+import {getOneByIdSelector} from "../selectors";
 import ArticleDetailMinimal from './ArticleDetailMinimal';
 import ArticleDetailAbstract from './ArticleDetailAbstract';
 import ArticleDetailImage from './ArticleDetailImage';
@@ -19,7 +19,11 @@ const ArticleDetail = function(props){
         <div>
             <div className="row">
                 {availableGroups.hasOwnProperty("minimal") &&
-                <ArticleDetailMinimal type={data.type} beginHDate={data.beginHDate} endHDate={data.endHDate}/>
+                <ArticleDetailMinimal
+                    type={data.type}
+                    beginHDate={data.beginHDate}
+                    endHDate={data.endHDate}
+                    hasEndDate={data.hasEndDate}/>
                 }
                 {availableGroups.hasOwnProperty("detailImage") &&
                 <ArticleDetailImage detailImageResource={data.detailImageResource}/>

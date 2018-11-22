@@ -1,6 +1,5 @@
 import { BrowserRouter, Router, Route,NavLink,Switch} from 'react-router-dom';
 import React, {Component} from 'react';
-//import server from '../util/ServerDeprecated.js';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import BootstrapTable from 'react-bootstrap-table-next';
 import Loadable from 'react-loading-overlay';
@@ -8,13 +7,9 @@ import {Helmet} from 'react-helmet';
 import {Preview} from './actions.jsx';
 import {
     Modal,
-    Popover,
     OverlayTrigger,
     Tooltip,
     Button,
-    ButtonToolbar,
-    ToggleButtonGroup,
-    ToggleButton,
     Col,
     Row,
     Glyphicon
@@ -24,7 +19,7 @@ import {getIfNeeded} from "../actions";
 import SearchBag from '../util/SearchBag';
 import ArticleType from './ArticleType';
 import {connect} from "react-redux";
-import { getSelector,totalSelector2} from "../reducers";
+import { getSelector,totalSelector2} from "../selectors";
 import RImageMini from "./RImageMini";
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import ArticleFilter from './ArticleFilter';

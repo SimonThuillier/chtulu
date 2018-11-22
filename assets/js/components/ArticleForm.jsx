@@ -1,5 +1,5 @@
 import React from "react";
-import {getPendingSelector,getOneByIdSelector} from "../reducers";
+import {getPendingSelector,getOneByIdSelector} from "../selectors";
 import { connect} from 'react-redux';
 import GroupUtil from '../util/GroupUtil';
 import {FormGroup,
@@ -14,7 +14,7 @@ import {FormGroup,
 import { Field, reduxForm} from 'redux-form/immutable';
 const Imm = require("immutable");
 import WAOs from '../util/WAOs'
-import {getOneByIdIfNeeded, loadForEdit,submitLocally,reset as stateReset,TIMEOUT} from '../actions';
+import {getOneByIdIfNeeded,submitLocally,postOne,reset as stateReset,TIMEOUT} from '../actions';
 import SearchBag from "../util/SearchBag";
 import ArticleTypeSelect from "./ArticleTypeSelect";
 const formUid = require('uuid/v4')();
@@ -52,13 +52,15 @@ class ArticleForm extends React.Component{
 
         this.handleSwitch = this.handleSwitch.bind(this);
         this.submit = this.submit.bind(this);
+        this.handleServerSubmit = this.handleServerSubmit.bind(this);
         this.handleReset = this.handleReset.bind(this);
         this.shouldReinitialize = this.shouldReinitialize.bind(this);
 
         this.state = {
             groups:props.groups || {"minimal":true},
             data:null,
-            loading:false
+            loading:false,
+            clickCount:0
         };
     }
 
@@ -90,6 +92,8 @@ class ArticleForm extends React.Component{
             this.setState({loading:false});
         }
         this.setState({data:data});
+        console.log("initialData");
+        console.log(data);
         if(!data) return;
         initialize(data.set("pendingModification",true));
     }
@@ -130,8 +134,13 @@ class ArticleForm extends React.Component{
         const {pendingForm} = this.props;
         const touchedFields = pendingForm.get("fields");
         const values = pendingForm.get("values");
+        const {anyTouched,dispatch} = this.props;
 
-        const {anyTouched,submit,dispatch} = this.props;
+        console.log("touched fields");
+        console.log(touchedFields);
+        console.log("any touched");
+        console.log(anyTouched);
+
         const touchedKeys = touchedFields?touchedFields.keySeq():null;
         if(anyTouched || touchedKeys){
             touchedKeys.forEach((k)=>console.log(k));
@@ -146,6 +155,14 @@ class ArticleForm extends React.Component{
         }
     }
 
+    handleServerSubmit(){
+        const {anyTouched,dispatch,id} = this.props;
+        this.submit();
+        setTimeout(()=>{
+            dispatch(postOne("article",this.state.groups,id));
+        },10);
+    }
+
     handleSwitch(){
         this.submit();
         this.props.handleSwitch();
@@ -153,7 +170,13 @@ class ArticleForm extends React.Component{
 
     render(){
         console.log("render called");
-        const { onSubmit, pristine, reset, submitting,load,valid } = this.props;
+        const { onSubmit, reset, submitting,load,valid,pendingForm } = this.props;
+        let pristine = (this.state.clickCount>0)?false:this.props.pristine;
+        const {groups} = this.state;
+        console.log("render form");
+        console.log(pendingForm && pendingForm.getIn(["values","hasEndDate"]));
+        const hasEndDate = (pendingForm && pendingForm.hasIn(["values","hasEndDate"]))?
+            pendingForm.getIn(["values","hasEndDate"]):true;
 
         return (
             <Loadable
@@ -164,38 +187,52 @@ class ArticleForm extends React.Component{
                 background='rgba(192,192,192,0.4)'
             >
                 <Form Horizontal onSubmit={(e)=>{}}>
+                    {typeof groups.minimal !== 'undefined' &&
                     <Field
                         name="title"
                         type="text"
                         component={HBFormField}
                         label="Titre"
-                    />
+                    />}
+                    {typeof groups.minimal !== 'undefined' &&
                     <Field
                         name="type"
                         type="select"
 
                         component={ArticleTypeSelect}
                         label="Type"
-                    />
+                    />}
+                    {typeof groups.date !== 'undefined' &&
                     <Field
                         name="beginHDate"
                         type="text"
                         component={HDateInput}
                         label="Date de début"
-                    />
+                    />}
+                    {typeof groups.date !== 'undefined' &&
+                    <Field
+                        name="hasEndDate"
+                        component={HBFormField}
+                        type="checkbox"
+                        label="A une fin ?"
+                        //if(hasEndDate) pendingForm.setIn(["values","endHDate"],null);
+                        onChange={()=>{console.log("extraChange")}}
+                    />}
+                    {typeof groups.date !== 'undefined' && (hasEndDate) &&
                     <Field
                         name="endHDate"
                         type="text"
                         component={HDateInput}
                         label="Date de fin"
-                    />
+                    />}
+                    {typeof groups.abstract!== 'undefined' &&
                     <Field
                         name="abstract"
                         type="textarea"
                         alignment={'vertical'}
                         component={HBFormField}
                         label="Résumé"
-                    />
+                    />}
                     <div>
                         <OverlayTrigger placement="bottom" overlay={previewTooltip("votre article")}>
                             <Button bsStyle="info"
@@ -208,7 +245,7 @@ class ArticleForm extends React.Component{
                         <OverlayTrigger placement="bottom" overlay={submitTooltip("votre article")}>
                             <Button bsStyle="primary"
                                     disabled={!valid || submitting}
-                                    onClick={this.handleSwitch}>
+                                    onClick={this.handleServerSubmit}>
                                 Enregistrer&nbsp;<Glyphicon glyph="upload"/>
                             </Button>
                         </OverlayTrigger>

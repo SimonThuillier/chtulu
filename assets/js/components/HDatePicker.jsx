@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {getOneByIdSelector, getSelector} from "../reducers";
+import {getOneByIdSelector, getSelector} from "../selectors";
 import { connect } from 'react-redux'
 import {getComponentClassType} from "../util/formUtil";
 import { change as reduxFormChange} from 'redux-form/immutable';

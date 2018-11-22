@@ -75,3 +75,22 @@ export const HResponse = function(status=HB_SUCCESS,message="OK",data=null,error
     }
 };
 
+const DataToPostPrototype = {
+    add : function(waoType,id,data){
+        const {waos} = this;
+        if (! waos[waoType]) waos[waoType] = {};
+        waos[waoType][id] = data;
+        return this;
+    }
+};
+
+/**
+ * standard data for posting to server
+ * @constructor
+ */
+export const DataToPost = function(){
+    return Object.setPrototypeOf({
+        waos:{}
+    },DataToPostPrototype);
+};
+

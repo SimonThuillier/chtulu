@@ -4,9 +4,7 @@ import {FormGroup,
     ControlLabel,
     FormControl,
     HelpBlock,
-    Glyphicon,
-    OverlayTrigger,
-    Tooltip,
+    Checkbox,
     Col
 } from 'react-bootstrap';
 
@@ -21,7 +19,7 @@ const defaultStyles = {
 };
 
 const HBFormField = (props) => {
-    const { input, label,placeholder, type, meta: { touched, error,warning } } = props;
+    const { input, label,placeholder, type, meta: { touched, error,warning },onChange } = props;
     const alignment = props.alignment || 'horizontal';
     const style = Object.assign(defaultStyles[alignment],props.style || {});
 
@@ -30,7 +28,24 @@ const HBFormField = (props) => {
     if(props.onFocus) extraProps.onFocus=props.onFocus;
     if(props.onBlur) extraProps.onBlur=props.onBlur;
     if(props.value) extraProps.value=props.value;*/
-
+    let checkbox = null;
+    if(type === 'checkbox'){
+        console.log("render checkbox");
+        console.log(props);
+        checkbox = React.createElement('input',{
+            type: 'checkbox',
+            checked: input.checked,
+            onChange:(event)=>{
+                console.log("change of checkbox value");
+                console.log(event);
+                console.log(extraOnChange);
+                if(onChange) onChange();
+                input.onChange(event);
+                input.onFocus(event);
+                input.onBlur(event);
+            }
+        });
+    }
     /*console.log("render field");
     console.log(props);*/
 
@@ -70,6 +85,7 @@ const HBFormField = (props) => {
                         <ControlLabel>{label}</ControlLabel>
                     </Col>
                     <Col xs={8} sm={9} md={10}>
+                        {type !== 'checkbox' &&
                         <FormControl
                             {...input}
                             componentClass={getComponentClassType(type)}
@@ -78,6 +94,10 @@ const HBFormField = (props) => {
                         >
                             {(type === 'select' && props.options)?props.options:null}
                         </FormControl>
+                        }
+                        {type === 'checkbox' &&
+                            checkbox
+                        }
                     </Col>
                     {touched && (error || warning) &&
                     <HelpBlock>{error || warning}</HelpBlock>

@@ -1,5 +1,5 @@
 import React from "react";
-import {getPendingSelector,getOneByIdSelector} from "../reducers";
+import {getPendingSelector,getOneByIdSelector} from "../selectors";
 import { connect} from 'react-redux';
 import GroupUtil from '../util/GroupUtil';
 import {FormGroup,

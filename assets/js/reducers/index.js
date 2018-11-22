@@ -148,80 +148,15 @@ const concreteWaoType = (waoType) => {
     }
 };
 
-export const getOneByIdSelector = createSelector(
-    [(state) => state.get("items")],
-    (items) => (id) => items.get(+id)
-);
-export const getByIdsSelector = createSelector(
-    [(state) => state.get("items")],
-    (items) => (ids) => ids.map(id => items.get(+id))
-);
-export const getSelector = createSelector(
-    [(state) => state.get("items"),(state) => state.get("searchCache")],
-    (items,searchCache) => (searchBag) => {
-        const searchCacheEntry = searchCache.get(JSON.stringify(SearchBagUtil.getCoreBag(searchBag)));
-        const {offset,limit} = searchBag;
-        if(! searchCacheEntry) return [];
-        let indexMap = searchCacheEntry.get("indexMap");
-        indexMap = (searchBag.order===SearchBagUtil.ASC)?indexMap:
-            SearchBagUtil.invertIndexMap(indexMap,searchCacheEntry.get("total"));
-        //console.log("proto new GetSelector");
-        let selectedEntries = [];
-        indexMap.forEach((v,k)=>{
-            //console.log(`k : ${k}, v : ${v}`);
-            if(k>=offset && k<(offset+limit)) selectedEntries.push(v);
-        });
-        //console.log(selectedEntries);
 
-        return selectedEntries.map((id)=> items.get(+id));
-    }
-);
-export const totalSelector2 = createSelector(
-    [(state) => state.get("items"),(state) => state.get("searchCache")],
-    (items,searchCache) => (searchBag) => {
-        const searchCacheEntry = searchCache.get(JSON.stringify(SearchBagUtil.getCoreBag(searchBag)));
-        if(! searchCacheEntry) return -1;
-        return searchCacheEntry.get("total");
-    }
-);
-
-
-
-export const getPendingSelector = createSelector(
-    [(state) => state.get("items"),(state) => state.get("pendingIds")],
-    (items,pendingIds) => (uid) => (pendingIds.has(uid))?items.get(+pendingIds.get(uid)):null
-);
-
-/*
-let getOneByIdSelectorsToExport = {};
-let getByIdsSelectorsToExport = {};
-let getSelectorsToExport = {};
-*/
 
 let waoReducers = {};
 WAOs.entrySeq().forEach(entry => {
     waoReducers[entry[0]] = concreteWaoType(entry[0]);
-    //getOneByIdSelectorsToExport[entry[0]] = getOneByIdSelector(state[entry[0]]);
-    //getByIdsSelectorsToExport[entry[0]] = getByIdsSelector(state[entry[0]]);
-    //getSelectorsToExport[entry[0]] = getSelector(state[entry[0]]);
 });
 
-/*const formReducer = (state = null, action) => {
-    switch (action.type) {
-        case LOAD:
-            console.log(`load pending ${action.waoType} of id ${action.id} for form of uid ${action.formUid}`);
-            return state.set("data",action.data);
-        default:
-            return state;
-    }
-};
-waoReducers.formReducer = formReducer;*/
 waoReducers.form =  reduxFormReducer;
 
 export const rootReducer = combineReducers(
     waoReducers);
-
-/*export const getOneByIdSelectors = getOneByIdSelectorsToExport;
-export const getByIdsSelectors = getByIdsSelectorsToExport;
-export const getSelectors = getSelectorsToExport;*/
 

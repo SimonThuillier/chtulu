@@ -5,22 +5,28 @@ import {
     getUrl,
     getHTTPProps,
     getHBProps,
+    DataToPost,
     HB_SUCCESS,
     HB_ERROR
 } from '../util/server';
-import { normalize, schema } from 'normalizr';
+import { normalize,denormalize, schema } from 'normalizr';
 import WAOs from '../util/WAOs';
+import {getDataToPost} from '../util/WAOUtil';
 import GroupUtil from "../util/GroupUtil";
 import SearchBagUtil from '../util/SearchBagUtil';
+import {entitiesSelector} from '../selectors';
 
-export const LOAD_FOR_EDIT = 'LOAD_FOR_EDIT';
+// data reception actions
 export const GET = 'GET';
 export const RECEIVE_GET = 'RECEIVE_GET';
 export const GET_ONE_BY_ID = 'GET_ONE_BY_ID';
 export const RECEIVE_GET_ONE_BY_ID = 'RECEIVE_GET_ONE_BY_ID';
-
+// form actions
 export const SUBMIT_LOCALLY = 'SUBMIT_LOCALLY';
 export const RESET = 'RESET';
+// submission to server actions
+export const POST_ONE = 'POST_ONE';
+export const POST_ALL = 'POST_ALL';
 
 export const TIMEOUT = 5000;
 /**
@@ -44,9 +50,32 @@ const fetchWithTimeout = function( url,props, timeout=TIMEOUT ) {
     })
 };
 
-export const loadForEdit = (formUid,waoType,id) => (dispatch,state) => {
-    console.log(`loadForEdit`);
-    console.log(state);
+
+export const postOne = (waoType,groups=true,id) => (dispatch,getState) => {
+    const state = getState();
+    let entities = entitiesSelector(state);
+    //entities = {articleType:{'2':{id:2,label:"lol"}},resource:{}};
+    console.log("entities");
+    console.log(entities);
+    console.log("schema");
+    console.log(WAOs.getIn([waoType,"schema"]));
+    let normData = state.getIn([waoType,"items",+id]);
+    console.log(`denormData to send ${id}`);
+    console.log(normData);
+    console.log(`normData to send ${id}`);
+    //normData.type=2;
+    normData = denormalize(normData,WAOs.getIn([waoType,"schema"]),entities);
+    normData = normData.toJS();
+    console.log(normData);
+    console.log("groups to send");
+    console.log(groups);
+    normData = getDataToPost(waoType,normData,groups);
+    console.log(`partial normData to send ${id}`);
+    console.log(normData);
+
+    let dataToPost = DataToPost().add(waoType,id,normData);
+    console.log(`dataToPost`);
+    console.log(dataToPost);
 };
 
 export const submitLocally = (waoType,data,id) => ({
@@ -98,9 +127,9 @@ export const receiveGet = (waoType,groups,searchBag,rows,
                            total,message="Données bien recues du serveur") => (dispatch,state) => {
     // let's normalize our received Data !
     const normData = normalize(rows,[WAOs.getIn([waoType,"schema"])]);
-    /*console.log(rows);
+    console.log(rows);
     console.log("normalizedData");
-    console.log(normData);*/
+    console.log(normData);
     Object.keys(normData.entities).forEach((key)=>{
         if(key !== waoType){
             dispatch(subReceiveGet(key,Object.values(normData.entities[key])));
@@ -267,4 +296,7 @@ export const getOneByIdIfNeeded = (waoType,groups=true,id) => (dispatch, getStat
         return dispatch(fetchGetOneById(waoType,groups,id))
     }
 };
+
+
+
 

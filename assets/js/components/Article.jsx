@@ -5,7 +5,7 @@ const uuidv4 = require('uuid/v4');
 import { getOneByIdIfNeeded} from "../actions";
 import ArticleDetail from './ArticleDetail';
 import ArticleForm from './ArticleForm';
-import {getOneByIdSelector} from "../reducers";
+import {getOneByIdSelector} from "../selectors";
 import {connect} from "react-redux";
 
 /*const formDataTransformer = {

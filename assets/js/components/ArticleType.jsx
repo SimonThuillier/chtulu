@@ -1,5 +1,5 @@
 import React from "react";
-import {getOneByIdSelector} from "../reducers";
+import {getOneByIdSelector} from "../selectors";
 import { connect } from 'react-redux'
 
 const ArticleType = function(props){
