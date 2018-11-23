@@ -4,9 +4,9 @@ import {FormGroup,
     ControlLabel,
     FormControl,
     HelpBlock,
-    Checkbox,
     Col
 } from 'react-bootstrap';
+import {Checkbox} from 'react-icheck/lib';
 
 const defaultStyles = {
     horizontal:{
@@ -19,35 +19,15 @@ const defaultStyles = {
 };
 
 const HBFormField = (props) => {
-    const { input, label,placeholder, type, meta: { touched, error,warning },onChange } = props;
+    const { input, label,placeholder, type, meta: {touched,error,warning},onChange } = props;
     const alignment = props.alignment || 'horizontal';
     const style = Object.assign(defaultStyles[alignment],props.style || {});
 
     const extraProps = {};
-    /*if(props.ref) extraProps.ref=props.ref;
-    if(props.onFocus) extraProps.onFocus=props.onFocus;
-    if(props.onBlur) extraProps.onBlur=props.onBlur;
-    if(props.value) extraProps.value=props.value;*/
-    let checkbox = null;
-    if(type === 'checkbox'){
-        console.log("render checkbox");
-        console.log(props);
-        checkbox = React.createElement('input',{
-            type: 'checkbox',
-            checked: input.checked,
-            onChange:(event)=>{
-                console.log("change of checkbox value");
-                console.log(event);
-                console.log(extraOnChange);
-                if(onChange) onChange();
-                input.onChange(event);
-                input.onFocus(event);
-                input.onBlur(event);
-            }
-        });
-    }
-    /*console.log("render field");
-    console.log(props);*/
+    console.log("render field");
+    console.log(props);
+
+
 
     switch(alignment){
         case 'vertical':
@@ -58,6 +38,7 @@ const HBFormField = (props) => {
                     style={style}
                 >
                     <ControlLabel>{label}</ControlLabel>
+                    {type !== 'checkbox' &&
                     <FormControl
                         {...input}
                         componentClass={getComponentClassType(type)}
@@ -66,6 +47,10 @@ const HBFormField = (props) => {
                     >
                         {(type === 'select' && props.options)?props.options:null}
                     </FormControl>
+                    }
+                    {type === 'checkbox' &&
+                    checkbox
+                    }
                     {touched && error && <span>{error}</span>}
                     <FormControl.Feedback />
                     {touched && (error || warning) &&
@@ -96,7 +81,19 @@ const HBFormField = (props) => {
                         </FormControl>
                         }
                         {type === 'checkbox' &&
-                            checkbox
+                        <Checkbox
+                            checkboxClass="icheckbox_square-blue"
+                            increaseArea="20%"
+                            checked= {input.checked}
+                            onChange={(event)=>{
+                            console.log("change of checkbox value");
+                            console.log(event);
+                            if(onChange) onChange();
+                            input.onChange(!input.checked);
+                            //input.onFocus(event);
+                            //input.onBlur(event);
+                        }}
+                            />
                         }
                     </Col>
                     {touched && (error || warning) &&

@@ -71,10 +71,10 @@ const concreteWaoType = (waoType) => {
                 action.data.entrySeq().forEach((value,key)=>{
                     console.log(key);
                     console.log(value);
-                    if(value[1] && value[1]!==oldItem.get(value[0]))
+                    if(value[1]!==oldItem.get(value[0]))
                         newInitialValues = newInitialValues.set(value[0],oldItem.get(value[0]));
                 });
-                newInitialValues = oldInitialValues.mergeDeepWith((oldVal,newVal) => newVal || oldVal, newInitialValues);
+                newInitialValues = oldInitialValues.mergeDeepWith((oldVal,newVal) => newVal, newInitialValues);
                 console.log(newInitialValues);
 
                 const newItem = oldItem.

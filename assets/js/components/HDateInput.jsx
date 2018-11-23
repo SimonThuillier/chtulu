@@ -3,7 +3,7 @@ import {getOneByIdSelector, getSelector} from "../selectors";
 import { connect } from 'react-redux'
 import {getComponentClassType} from "../util/formUtil";
 import { change as reduxFormChange} from 'redux-form/immutable';
-import {ControlLabel,FormGroup,FormControl,Overlay,Col} from 'react-bootstrap';
+import {ControlLabel,FormGroup,FormControl,Overlay,Col,HelpBlock} from 'react-bootstrap';
 import HDatePicker from './HDatePicker';
 
 const defaultStyles = {
@@ -75,7 +75,7 @@ class HDateInput extends Component {
 
 
     render(){
-        const { input, label, type, meta ,dispatch} = this.props;
+        const { input, label, type,  meta: {touched,error,warning} ,dispatch} = this.props;
 
         const alignment = this.props.alignment || 'horizontal';
         const style = Object.assign(defaultStyles[alignment],this.props.style || {});
@@ -89,7 +89,9 @@ class HDateInput extends Component {
         switch(alignment){
             case 'vertical':
                 return (
-                    <FormGroup validationState={null} style={style} >
+                    <FormGroup
+                        validationState={!touched?null:(error?"error":(warning?"warning":"success"))}
+                        style={style} >
                         <ControlLabel>{label}</ControlLabel>
                         <FormControl
                             ref='target'
@@ -119,25 +121,29 @@ class HDateInput extends Component {
                                 onSave={this.handleSave}
                             />
                         </Overlay>
+                        {touched && (error || warning) &&
+                        <HelpBlock>{error|| warning}</HelpBlock>
+                        }
                     </FormGroup>
                 );
             default:
                 return (
-                    <FormGroup validationState={null} style={style} >
+                    <FormGroup
+                        validationState={!touched?null:(error?"error":(warning?"warning":"success"))}
+                        style={style} >
                         <Col sm={3} md={2}>
-                        <ControlLabel>{label}</ControlLabel>
+                            <ControlLabel>{label}</ControlLabel>
                         </Col>
                         <Col sm={9} md={10}>
-                        <FormControl
-                            ref='target'
-                            value={hDateLabel}
-                            componentClass="input"
-                            onFocus={this.handleFocus}
-                            onBlur={this.handleBlur}
-                            type="text"
-                            placeholder={label}>
-                        </FormControl>
-
+                            <FormControl
+                                ref='target'
+                                value={hDateLabel}
+                                componentClass="input"
+                                onFocus={this.handleFocus}
+                                onBlur={this.handleBlur}
+                                type="text"
+                                placeholder={label}>
+                            </FormControl>
                         </Col>
                         <Overlay
                             rootClose={true}
@@ -161,6 +167,9 @@ class HDateInput extends Component {
                                 onSave={this.handleSave}
                             />
                         </Overlay>
+                        {touched && (error || warning) &&
+                        <HelpBlock>{error || warning}</HelpBlock>
+                        }
                     </FormGroup>
                 );
         }

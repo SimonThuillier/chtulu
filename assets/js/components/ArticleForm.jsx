@@ -2,7 +2,8 @@ import React from "react";
 import {getPendingSelector,getOneByIdSelector} from "../selectors";
 import { connect} from 'react-redux';
 import GroupUtil from '../util/GroupUtil';
-import {FormGroup,
+import {
+    FormGroup,
     ControlLabel,
     FormControl,
     HelpBlock,
@@ -11,7 +12,8 @@ import {FormGroup,
     Glyphicon,
     OverlayTrigger
 } from 'react-bootstrap';
-import { Field, reduxForm} from 'redux-form/immutable';
+import { Field, reduxForm,change as formChange,
+    blur as formBlur,focus as formFocus,touch as formTouch,untouch as formUntouch} from 'redux-form/immutable';
 const Imm = require("immutable");
 import WAOs from '../util/WAOs'
 import {getOneByIdIfNeeded,submitLocally,postOne,reset as stateReset,TIMEOUT} from '../actions';
@@ -34,6 +36,12 @@ const validate = values => {
         errors.title = 'Le titre est obligatoire'
     } else if (values.title.length > 64) {
         errors.title = `${values.title.length} caractères sur ${64} autorisés`
+    }
+    if (!values.beginHDate) {
+        errors.beginHDate = 'La date de début est obligatoire'
+    }
+    if (values.hasEndDate && !values.endHDate) {
+        errors.endHDate = 'Renseignez une date de fin ou décochez "A une fin ?"'
     }
     return errors;
 };
@@ -170,7 +178,7 @@ class ArticleForm extends React.Component{
 
     render(){
         console.log("render called");
-        const { onSubmit, reset, submitting,load,valid,pendingForm } = this.props;
+        const { onSubmit, reset, submitting,load,valid,pendingForm,dispatch} = this.props;
         let pristine = (this.state.clickCount>0)?false:this.props.pristine;
         const {groups} = this.state;
         console.log("render form");
@@ -198,7 +206,6 @@ class ArticleForm extends React.Component{
                     <Field
                         name="type"
                         type="select"
-
                         component={ArticleTypeSelect}
                         label="Type"
                     />}
@@ -216,7 +223,17 @@ class ArticleForm extends React.Component{
                         type="checkbox"
                         label="A une fin ?"
                         //if(hasEndDate) pendingForm.setIn(["values","endHDate"],null);
-                        onChange={()=>{console.log("extraChange")}}
+                        onChange={()=>{
+                            dispatch(formChange(formUid, 'endHDate', null));
+                            dispatch(formTouch(formUid, 'hasEndDate','endHDate'));
+                            console.log(`hasEndDate : ${hasEndDate}`);
+                            if(!hasEndDate){
+                                setTimeout(()=>{
+                                dispatch(formChange(formUid, 'endHDate', null));
+                                dispatch(formTouch(formUid, ['endHDate']));
+                            },5);
+                            }
+                        }}
                     />}
                     {typeof groups.date !== 'undefined' && (hasEndDate) &&
                     <Field
@@ -250,7 +267,13 @@ class ArticleForm extends React.Component{
                             </Button>
                         </OverlayTrigger>
                         &nbsp;
-                        <OverlayTrigger placement="bottom" overlay={resetTooltip("cet article")}>
+                        <OverlayTrigger placement="bottom"
+                                        overlay={resetTooltip("cet article")}
+                                        ref={(ov) => {
+                                            this.overlayTrigger = ov;
+                                        }}
+                                        onClick={() => {this.overlayTrigger.handleDelayedHide()} }
+                        >
                             <Button bsStyle="warning"
                                     disabled={(pristine || submitting) &&
                                     (this.state.data?(!this.state.data.isDirty(this.state.data)):true)}
