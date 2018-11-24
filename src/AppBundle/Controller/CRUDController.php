@@ -2,10 +2,13 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\DTO\ArticleDTO;
 use AppBundle\DTO\EntityMutableDTO;
+use AppBundle\Entity\DTOMutableEntity;
 use AppBundle\Factory\DTOFactory;
 use AppBundle\Factory\MediatorFactory;
 use AppBundle\Helper\ListHelper;
+use AppBundle\Helper\RequestHelper;
 use AppBundle\Helper\WAOHelper;
 use AppBundle\Mapper\EntityMapper;
 use AppBundle\Mediator\DTOMediator;
@@ -194,6 +197,7 @@ class CRUDController extends Controller
 
     /**
      * @param Request $request
+     * @param RequestHelper $requestHelper
      * @param WAOHelper $waoHelper
      * @param TraceableValidator $validator
      * @param FormFactory $formFactory
@@ -209,6 +213,7 @@ class CRUDController extends Controller
      * @return JsonResponse
      */
     public function postAction(Request $request,
+                               RequestHelper $requestHelper,
                                WAOHelper $waoHelper,
                                TraceableValidator $validator,
                                FormFactory $formFactory,
@@ -217,47 +222,73 @@ class CRUDController extends Controller
                                DTONormalizer $normalizer,
                                JsonEncoder $encoder){
 
-        if (0 === strpos($request->headers->get('Content-Type'), 'application/json')) {
-            $data = json_decode($request->getContent(), true);
-            $request->request->replace(is_array($data) ? $data : array());
-        }
-        else die;
-        $request->get("test");
         $hResponse = new HJsonResponse();
 
         try{
-        if(! $request->query->has("type")) throw new \Exception("Type parameter is mandatory");
+            $handledRequest = $requestHelper->handlePostRequest($request);
+            if(!$this->isCsrfTokenValid('token_id', $handledRequest["_token"]))
+                throw new \Exception("Invalid token : would you hack history ?");
+            $hResponse->setSenderKey($handledRequest["senderKey"]);
 
-        $dtoClassName = $waoHelper->guessClassName($request->query->get("type"));
-        if(! $waoHelper->isDTO($dtoClassName))
-            throw new \Exception($request->query->has("type") . " is not a known DTO");
+            $backData = [];
+            $actionCount = 0;
 
-        $entity = null;
-        $id = intval($request->query->get("id"));
-        if($id > 1 ) $entity = $mapper->find($dtoClassName,$id);
+            foreach($handledRequest["waos"] as $waoType => $waoData){
+                $dtoClassName = $waoHelper->guessClassName($waoType);
+                $backData[$waoType] = [];
 
-        $mediator = $mediatorFactory->create($dtoClassName,$entity);
-        $postedGroups = $data["postedGroups"];
+                foreach($waoData as $id=>$data){
+                    $entity = null;
+                    $id = intval($id);
+                    if($id > 0 ) $entity = $mapper->find($dtoClassName,$id);
+                    $mediator = $mediatorFactory->create($dtoClassName,$entity);
+                    $postedGroups = $data["postedGroups"];
+                    $mediator->mapDTOGroups($postedGroups);
+                    /** @var EntityMutableDTO $dto */
+                    $dto=$mediator->getDTO();
 
-        $form = $formFactory->createBuilder($waoHelper->getFormClassName($dtoClassName),$mediator->getDTO(),[
-            'validation_groups'=>$postedGroups])
-            ->getForm();
+                    $form = $formFactory->createBuilder($waoHelper->getFormClassName($dtoClassName),$dto,[
+                        'validation_groups'=>$postedGroups])
+                        ->getForm();
 
-        $form->submit($data);
-        /** @var EntityMutableDTO $dto */
-        $dto=$mediator->getDTO();
-        $errors = $validator->validate($dto,null,$postedGroups);
-        if (! $form->isValid() || count($errors)>0)
-        {
-            throw new \Exception("Le formulaire contient des erreurs à corriger avant creation");
-        }
-        $mapper->addOrEdit($dto);
-        $returnGroups = ArrayUtil::filter($dto->getReturnGroups(),$postedGroups);
-        $mediator->mapDTOGroups($returnGroups,DTOMediator::NOTHING_IF_NULL);
+                    $form->submit($data);
+                    $errors = $validator->validate($dto,null,$postedGroups);
+                    $err = $form->getErrors(true);
+                    if (! $form->isValid() || count($errors)>0)
+                    {
+                        throw new \Exception("Le formulaire contient des erreurs à corriger avant creation");
+                    }
+                    $mapperCommands = $mediator->returnDataToEntity();
+                    $newEntities=[];
+                    $mapper->executeCommands($mapperCommands,true,$newEntities);
+                    // at this step data is well injected to the database, now get the backData
+                    // let's begin with the newly created objects
+                    /** @var DTOMutableEntity $newEntity */
+                    /** @var EntityMutableDTO $newEntityDto */
+                    foreach ($newEntities as $newEntity){
+                        $newEntityDto = $newEntity->getMediator()->getDTO();
+                        $backGroups = $newEntityDto->getReturnGroups();
+                        $newEntity->getMediator()->resetChangedProperties()
+                            ->mapDTOGroups($backGroups);
+                        $newEntityDto->setBackGroups($backGroups);
+
+                        $newEntityWaoType = $waoHelper->getAbridgedName($newEntity->getMediator()->getDtoClassName());
+                        if(!array_key_exists($newEntityWaoType,$backData)) $backData[$newEntityWaoType] = [];
+                        $backData[$newEntityWaoType][$newEntityDto->getId()] = $normalizer->normalize($newEntityDto,$backGroups);
+                    }
+                    // then the main core object
+                    $backGroups = ArrayUtil::filter($dto->getReturnGroups(),$postedGroups);
+                    $mediator->mapDTOGroups($backGroups,DTOMediator::NOTHING_IF_NULL);
+                    $dto->setBackGroups($backGroups);
+                    $backData[$waoType][$dto->getId()] = $normalizer->normalize($dto,$backGroups);
+                    $actionCount++;
+                }
+            }
 
         $hResponse
-            ->setData($normalizer->normalize($dto,$returnGroups))
-            ->setMessage("Données enregistrées");
+            ->setData(json_encode($backData))
+            ->setMessage($actionCount===1?"Les données ont été enregistrées"
+                :"Toutes vos modifications ont été sauvegardées");
         }
         catch(\Exception $e){
             $hResponse->setStatus(HJsonResponse::ERROR)

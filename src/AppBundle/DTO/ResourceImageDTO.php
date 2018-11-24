@@ -18,14 +18,6 @@ class ResourceImageDTO extends ResourceVersionDTO
     protected $file;
 
     /**
-     * @return array
-     * @Groups({"minimal"})
-     */
-    public function getLoadedGroups(){
-        return $this->groups;
-    }
-
-    /**
      * @return UploadedFile|null
      * @Groups({"file"})
      * @Assert\NotBlank()

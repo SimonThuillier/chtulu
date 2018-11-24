@@ -22,10 +22,14 @@ use AppBundle\Mediator\NullColleagueException;
 use AppBundle\Utils\SearchBag;
 use Doctrine\ORM\Mapping\Entity;
 use Psr\Container\ContainerInterface;
+use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\DependencyInjection\ServiceSubscriberInterface;
 
 class EntityMapper implements ServiceSubscriberInterface
 {
+    /** @var ManagerRegistry */
+    protected $doctrine;
     /** @var ContainerInterface */
     private $locator;
     /** @var WAOHelper */
@@ -35,14 +39,18 @@ class EntityMapper implements ServiceSubscriberInterface
 
     /**
      * EntityMapper constructor.
+     * @param ManagerRegistry $doctrine
      * @param ContainerInterface $locator
      * @param WAOHelper $waoHelper
      * @param SimpleEntityMapper $simpleEntityMapper
      */
-    public function __construct(ContainerInterface $locator,
-                                WAOHelper $waoHelper,
-                                SimpleEntityMapper $simpleEntityMapper)
+    public function __construct(
+        ManagerRegistry $doctrine,
+        ContainerInterface $locator,
+        WAOHelper $waoHelper,
+        SimpleEntityMapper $simpleEntityMapper)
     {
+        $this->doctrine = $doctrine;
         $this->locator = $locator;
         $this->waoHelper = $waoHelper;
         $this->simpleEntityMapper = $simpleEntityMapper;
@@ -66,7 +74,7 @@ class EntityMapper implements ServiceSubscriberInterface
      * @param string $dtoClassName
      * @return EntityMapperInterface
      * @throws InvalidCallerException
-     *
+     * @throws ServiceNotFoundException
      */
     private function getMapperFromDtoClassName(string $dtoClassName){
         if($this->locator->has($dtoClassName)){
@@ -77,6 +85,42 @@ class EntityMapper implements ServiceSubscriberInterface
         else{
             throw new InvalidCallerException("Mapper isn't configured for class " . $dtoClassName);
         }
+    }
+
+    /**
+     * given commands from mediators execute them beginning with adds
+     * @param array $mapperCommands
+     * @param bool $commitEdits
+     * @param array $newEntities
+     * @return integer
+     * @throws FactoryException
+     * @throws InvalidCallerException
+     * @throws NullColleagueException
+     * @throws EntityMapperException
+     */
+    public function executeCommands(array $mapperCommands,bool $commitEdits=true,array &$newEntities=[]){
+        $actionCount = 0;
+        $addCommands = array_reverse(array_filter(array_values($mapperCommands),function($action){
+            return $action["action"] === "add";
+        }));
+        foreach($addCommands as $key=>$action){
+            $newEntities[] = $this->add($action["dto"],true);
+            $actionCount++;
+        }
+
+        $editCommands = array_reverse(array_filter(array_values($mapperCommands),function($action){
+            return $action["action"] === "edit";
+        }));
+        foreach($editCommands as $key=>$action){
+            $this->edit($action["dto"],true);
+            $actionCount++;
+        }
+
+        return $actionCount;
+    }
+
+    public function commit(){
+        $this->doctrine->getManager()->flush();
     }
 
     /**
@@ -95,38 +139,16 @@ class EntityMapper implements ServiceSubscriberInterface
 
     /**
      * @param EntityMutableDTO $dto
-     * @param null $id
      * @param bool $commit
      * @return Entity
      * @throws InvalidCallerException
      * @throws NullColleagueException
      * @throws EntityMapperException
      */
-    public function edit(EntityMutableDTO $dto, $id = null, $commit = true)
+    public function edit(EntityMutableDTO $dto,$commit = true)
     {
         $mapper = $this->getMapperFromDtoClassName(get_class($dto));
-        return $mapper->edit($dto,$id,$commit);
-    }
-
-    /**
-     * @param EntityMutableDTO $dto
-     * @param null $id
-     * @param bool $commit
-     * @return Entity
-     * @throws InvalidCallerException
-     * @throws NullColleagueException
-     * @throws EntityMapperException
-     * @throws FactoryException
-     */
-    public function addOrEdit(EntityMutableDTO $dto, $id = null, $commit = true)
-    {
-        $mapper = $this->getMapperFromDtoClassName(get_class($dto));
-        if($dto->getId() < 1){
-            return $mapper->add($dto,$commit);
-        }
-        else{
-            return $mapper->edit($dto,$dto->getId(),$commit);
-        }
+        return $mapper->edit($dto,$commit);
     }
 
     /**

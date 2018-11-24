@@ -34,12 +34,11 @@ class ArticleDTOType extends AbstractType
         //var_dump($options['validation_groups']);
          $groups = $options['validation_groups'];
         if($groups === null || $groups ===[]) {
-            $groups = ['minimal','abstract','date','detailImage','hteRange'];
+            $groups = ['minimal'];
         }
         $groups = array_unique($groups);
 
-        foreach($options['validation_groups'] as $group){
-            if($group === 'url') continue;
+        foreach($options['validation_groups'] as $group=>$subGroup){
             $function = 'build' . ucfirst($group) . 'Group';
             if(method_exists($this,$function)){
                 $this->$function($builder,$options);
@@ -50,92 +49,35 @@ class ArticleDTOType extends AbstractType
     private function buildMinimalGroup(FormBuilderInterface $builder, array $options){
 
         $builder
-            ->add('title', TextType::class, array(
-                'label' => 'Titre',
-                'required' => true,
-                'attr' => array(
-                    'class' => 'hb-hmaxlength',
-                    'maxlength' => 60,
-                    'size'=>60
-                ),
-                'label_attr' => array(
-                    'placeholder' => 'Titre',
-                    'class' => 'hb-group-minimal'
-                )
-            ))
-            ->add('type', EntityType::class, array(
-                'label' => "Type ",
-                'class' => ArticleType::class,
-                'query_builder' => function (ArticleTypeRepository $er) {
-                    //return $er->getFindAllQB();
-                    $blop = $er->getFindAllQB();
-                    $blop->orderBy("o.label",$this->test);
-                    return $blop;
-                },
-                'required' => true,
-                'empty_data' => 'Selectionnez un type d\'article',
-                'label_attr' => array('class' => 'hb-group-minimal')
-            ));
+            ->add('id', TextType::class)
+            ->add('title', TextType::class)
+            ->add('type', SimpleEntityType::class, array('data_class' => ArticleType::class)
+            );
     }
 
     private function buildAbstractGroup(FormBuilderInterface $builder, array $options){
 
         $builder
-        ->add('abstract', TextareaType::class, array(
-            'label' => "Resumé ",
-            'label_attr' => array('class' => 'hb-group-abstract'),
-            'required'=>false,
-            'attr' => array(
-                'class' => 'hb-hmaxlength hb-text',
-                'resize' => 'vertical',
-                'maxlength' => 2000
-            )
-        ));
+        ->add('abstract', TextareaType::class);
     }
 
     private function buildDateGroup(FormBuilderInterface $builder, array $options){
 
         $builder
-            ->add('beginHDate', HDateType::class, array(
-                'label' => 'Date de début',
-                'label_attr' => array('class' => 'hb-group-date'),
-                'required' => true
-            ))
-            ->add('hasEndDate', CheckboxType::class, array(
-                'label' => "A une date de fin",
-                'required' => false,
-                'attr' => array(
-                    'class' => 'checkbox icheck hb-activer',
-                    'style' => 'display:inline',
-                    'data-target' => 'endHDate',
-                    'hb-default-required' => true
-                ),
-                'label_attr' => array('class' => 'hb-group-date')
-            ))
-            ->add('endHDate', HDateType::class, array(
-                'label' => 'Date de fin',
-                'label_attr' => array('class' => 'hb-group-date'),
-                'required' => true
-            ));
+            ->add('beginHDate', HDateType::class)
+            ->add('hasEndDate', CheckboxType::class)
+            ->add('endHDate', HDateType::class);
     }
 
     private function buildDetailImageGroup(FormBuilderInterface $builder, array $options){
         $builder
-            ->add('detailImageResource', HImageType::class, array(
-                'label' => 'Image de présentation',
-                'label_attr' => array('class' => 'hb-group-detailImage'),
-                'required' => false
-            ));
+            ->add('detailImageResource', HImageType::class);
     }
 
     private function buildHteRangeGroup(FormBuilderInterface $builder, array $options){
 
         $builder
-            ->add('hteRange', HTimeExplorerType::class, array(
-                'required' => false,
-                'label' => '',
-                'label_attr' => array('class' => 'hb-group-hteRange')
-            ));
+            ->add('hteRange', HTimeExplorerType::class);
     }
 
 
@@ -143,9 +85,7 @@ class ArticleDTOType extends AbstractType
     private function buildLinkGroup(FormBuilderInterface $builder, array $options){
 
         $builder
-            ->add('y', TextType::class, array(
-                'attr' => array('hidden' => true)
-            ));
+            ->add('y', TextType::class);
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -153,7 +93,7 @@ class ArticleDTOType extends AbstractType
         $resolver->setDefaults(array(
             'data_class' => ArticleDTO::class,
             'allow_extra_fields' => true,
-            'attr' => array('class'=>'hb-form')
+            'csrf_protection' => false
         ));
     }
 }

@@ -12,7 +12,7 @@ use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\Entity\Article;
 use AppBundle\Factory\ArticleFactory;
 use AppBundle\Factory\FactoryException;
-use AppBundle\Form\DataTransformer\ArticleTypeTransformer;
+use AppBundle\Form\DataTransformer\AbstractSimpleEntityTransformer;
 use AppBundle\Form\DataTransformer\HDateToStringTransformer;
 use AppBundle\Mediator\NullColleagueException;
 use Psr\Log\LoggerInterface;
@@ -22,7 +22,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterface
 {
     /**
-     * @var ArticleTypeTransformer
+     * @var AbstractSimpleEntityTransformer
      */
     private $articleTypeTransformer;
     /**
@@ -40,7 +40,7 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterfac
      * @param ArticleFactory $entityFactory
      * @param LoggerInterface $logger
      * @param TokenStorageInterface $tokenStorage
-     * @param ArticleTypeTransformer $articleTypeTransformer
+     * @param AbstractSimpleEntityTransformer $articleTypeTransformer
      * @param HDateToStringTransformer $hDateTransformer
      */
     public function __construct(
@@ -48,7 +48,7 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterfac
         TokenStorageInterface $tokenStorage,
         LoggerInterface $logger,
         ArticleFactory $entityFactory,
-        ArticleTypeTransformer $articleTypeTransformer,
+        AbstractSimpleEntityTransformer $articleTypeTransformer,
         HDateToStringTransformer $hDateTransformer
     )
     {
@@ -88,17 +88,16 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterfac
 
     /**
      * @param EntityMutableDTO $dto
-     * @param integer|null $id
      * @param boolean $commit
      * @return Article
      * @throws EntityMapperException
      * @throws NullColleagueException
      */
-    public function edit(EntityMutableDTO $dto,$id=null,$commit=true)
+    public function edit(EntityMutableDTO $dto,$commit=true)
     {
-        $this->checkEdit($dto,$id);
+        $this->checkEdit($dto);
         /** @var Article $article */
-        $article = $this->defaultEdit($dto,$id);
+        $article = $this->defaultEdit($dto);
         $article
             ->setEditionDate(new \DateTime())
             ->setEditionUser($this->getUser());

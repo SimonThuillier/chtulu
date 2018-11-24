@@ -103,7 +103,11 @@ class ArticleForm extends React.Component{
         console.log("initialData");
         console.log(data);
         if(!data) return;
+        console.log(data.has("initialValues"));
         initialize(data.set("pendingModification",true));
+        if(data.get("initialValues")){
+            dispatch(formTouch(formUid, ...data.get("initialValues").keySeq().toJS()));
+        }
     }
 
     componentDidMount() {
@@ -229,9 +233,9 @@ class ArticleForm extends React.Component{
                             console.log(`hasEndDate : ${hasEndDate}`);
                             if(!hasEndDate){
                                 setTimeout(()=>{
-                                dispatch(formChange(formUid, 'endHDate', null));
-                                dispatch(formTouch(formUid, ['endHDate']));
-                            },5);
+                                    dispatch(formChange(formUid, 'endHDate', null));
+                                    dispatch(formTouch(formUid, 'endHDate'));
+                                },5);
                             }
                         }}
                     />}

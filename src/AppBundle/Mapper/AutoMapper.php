@@ -6,6 +6,7 @@ namespace AppBundle\Mapper;
  * @author belze (sthuillier1988@gmail.com)
  * Helper class with static methods allowing to automatically map data between objects
  * efficient to fast prototyping but to use cautiously through !
+ * @deprecated
  */
 class AutoMapper
 {

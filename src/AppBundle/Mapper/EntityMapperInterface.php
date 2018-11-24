@@ -58,14 +58,13 @@ interface EntityMapperInterface
 
     /**
      * @param EntityMutableDTO $dto
-     * @param int|null $id
      * @param boolean $commit
      * @return Entity
      * @throws EntityMapperException
      * @throws NullColleagueException
      * @throws InvalidCallerException
      */
-    public function edit(EntityMutableDTO $dto,$id=null,$commit=true);
+    public function edit(EntityMutableDTO $dto,$commit=true);
 
     /**
      * @param int $id

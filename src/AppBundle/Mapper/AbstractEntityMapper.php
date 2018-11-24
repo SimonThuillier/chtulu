@@ -105,16 +105,16 @@ abstract class AbstractEntityMapper
 
     /**
      * @param EntityMutableDTO $dto
-     * @param integer|null $id
      * @throws EntityMapperException
      */
-    protected function checkEdit(EntityMutableDTO $dto,$id=null)
+    protected function checkEdit(EntityMutableDTO $dto)
     {
         if($dto->getMediator() === null){
             throw new EntityMapperException("Mapper's mediator must be set to edit an entity");
         }
         $entity = $dto->getMediator()->getEntity();
-        if($id !==null){$entity = $this->find($id);}
+        if($entity === null) $entity = $this->find($dto->getId());
+
         if($entity === null || $entity->getId() == 0){
             throw new EntityMapperException("Entity is either null or non persisted : please consider add instead of edit");
         }
@@ -122,18 +122,15 @@ abstract class AbstractEntityMapper
 
     /**
      * @param EntityMutableDTO $dto
-     * @param int|null $id
      * @return Entity
      * @throws EntityMapperException
      * @throws NullColleagueException
      */
-    protected function defaultEdit(EntityMutableDTO $dto,$id=null)
+    protected function defaultEdit(EntityMutableDTO $dto)
     {
         $entity = $dto->getMediator()->getEntity();
-        if($id !== null){
-            $entity = $this->find($id);
-            $dto->getMediator()->setEntity($entity);
-        }
+        if($entity === null) $entity = $this->find($dto->getId());
+
         $dto->getMediator()->returnDataToEntity();
         return $entity;
     }

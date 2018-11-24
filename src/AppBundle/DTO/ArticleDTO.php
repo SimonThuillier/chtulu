@@ -21,8 +21,6 @@ use AppBundle\Validator as HbAssert;
  */
 class ArticleDTO extends EntityMutableDTO
 {
-    /** @var integer */
-    protected $id;
     /** @var string */
     protected $title;
     /** @var ArticleType */
@@ -54,33 +52,6 @@ class ArticleDTO extends EntityMutableDTO
     public function __construct()
     {
         parent::__construct();
-    }
-
-    /**
-     * @return array
-     * @Groups({"minimal"})
-     */
-    public function getLoadedGroups(){
-        return $this->groups;
-    }
-
-    /**
-     * @return int
-     * @Groups({"minimal"})
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * @param int
-     * @return self
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-        return $this;
     }
 
     /**
@@ -303,11 +274,6 @@ class ArticleDTO extends EntityMutableDTO
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('hteRange');
         return $this;
     }
-
-
-
-
-
 
 
 }

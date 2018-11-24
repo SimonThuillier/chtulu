@@ -1,10 +1,13 @@
+const SECURITY_TOKEN = document.getElementById('hb-security-token').getAttribute('data-token');
+document.getElementById('hb-security-token').remove(); // to prevent visualisation of token
 
 export const URL_GET = document.getElementById('hb-url-crud-get').getAttribute('data-url');
 export const URL_GET_ONE_BY_ID = document.getElementById('hb-url-crud-get-one-by-id').getAttribute('data-url');
 export const URL_GET_NEW = document.getElementById('hb-url-crud-get-new').getAttribute('data-url');
 export const URL_POST = document.getElementById('hb-url-crud-post').getAttribute('data-url');
 
-export const SECURITY_TOKEN = document.getElementById('hb-security-token').getAttribute('data-token');
+export const HTTP_GET='GET';
+export const HTTP_POST='POST';
 
 export const HB_SUCCESS="success";
 export const HB_INFO="info";
@@ -29,10 +32,13 @@ export const getUrl = function(url,params=null){
 /**
  * @returns {object}
  */
-export const getHTTPProps = function(){
+export const getHTTPProps = function(method=HTTP_GET){
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+
     return {
-        method: 'GET',
-        headers: (new Headers()).append('Content-Type', 'application/json'),
+        method: method,
+        headers: headers,
         credentials:'same-origin',
         mode: 'same-origin',
         cache: 'default'
@@ -90,6 +96,8 @@ const DataToPostPrototype = {
  */
 export const DataToPost = function(){
     return Object.setPrototypeOf({
+        _token:SECURITY_TOKEN,
+        senderKey:null,
         waos:{}
     },DataToPostPrototype);
 };

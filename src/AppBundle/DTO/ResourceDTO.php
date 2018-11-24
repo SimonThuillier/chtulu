@@ -15,8 +15,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class ResourceDTO extends EntityMutableDTO
 {
-    /** @var integer */
-    protected $id;
     /** @var string */
     protected $name;
     /** @var ResourceType */
@@ -26,8 +24,6 @@ class ResourceDTO extends EntityMutableDTO
     /** @var array */
     protected $versions;
     /** @var array */
-    //protected $lol=["a","b"];
-
 
     /**
      * ArticleDTO constructor.
@@ -36,33 +32,6 @@ class ResourceDTO extends EntityMutableDTO
     {
         parent::__construct();
         $this->versions = [];
-    }
-
-    /**
-     * @return array
-     * @Groups({"minimal"})
-     */
-    public function getLoadedGroups(){
-        return $this->groups;
-    }
-
-    /**
-     * @return int
-     * @Groups({"minimal"})
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * @param int
-     * @return self
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-        return $this;
     }
 
     /**

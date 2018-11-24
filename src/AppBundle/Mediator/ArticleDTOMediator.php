@@ -290,7 +290,7 @@ class ArticleDTOMediator extends DTOMediator
         $dto->addMappedGroup('hteRange');
     }
 
-    protected function mediateBeginHDate(){
+    protected function mediateBeginHDate($mapperCommands){
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
         /** @var Article $article */
@@ -311,9 +311,11 @@ class ArticleDTOMediator extends DTOMediator
                 ->setBeginDateMaxIndex(null)
                 ->setBeginDateLabel(null);
         }
+
+        return $mapperCommands;
     }
 
-    protected function mediateEndHDate(){
+    protected function mediateEndHDate($mapperCommands){
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
         /** @var Article $article */
@@ -334,9 +336,11 @@ class ArticleDTOMediator extends DTOMediator
                 ->setEndDateMaxIndex(null)
                 ->setEndDateLabel(null);
         }
+
+        return $mapperCommands;
     }
 
-    protected function mediateHteRange(){
+    protected function mediateHteRange($mapperCommands){
         $hDateNormalizer = $this->locator->get(HDateNormalizer::class);
         $encoder = $this->locator->get('serializer.encoder.json');
 
@@ -349,7 +353,7 @@ class ArticleDTOMediator extends DTOMediator
             $hDateNormalizer->normalize($dto->gethteRange()),'json'):null);
     }
 
-    protected function mediateDetailImageResource(){
+    protected function mediateDetailImageResource($mapperCommands){
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
         /** @var Article $article */
@@ -358,5 +362,7 @@ class ArticleDTOMediator extends DTOMediator
         $article->setDetailImage(
             $dto->getDetailImageResource()?
                 $dto->getDetailImageResource()->getMediator()->getEntity():null);
+
+        return $mapperCommands;
     }
 }

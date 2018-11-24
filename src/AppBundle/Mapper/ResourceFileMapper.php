@@ -64,17 +64,16 @@ class ResourceFileMapper extends AbstractEntityMapper implements EntityMapperInt
 
     /**
      * @param EntityMutableDTO $dto
-     * @param integer|null $id
      * @param boolean $commit
      * @return ResourceFile
      * @throws EntityMapperException
      * @throws NullColleagueException
      */
-    public function edit(EntityMutableDTO $dto,$id=null,$commit=true)
+    public function edit(EntityMutableDTO $dto,$commit=true)
     {
-        $this->checkEdit($dto,$id);
+        $this->checkEdit($dto);
         /** @var ResourceFile $file */
-        $file = $this->defaultEdit($dto,$id);
+        $file = $this->defaultEdit($dto);
 
         if($commit) $this->getManager()->flush();
         return $file;

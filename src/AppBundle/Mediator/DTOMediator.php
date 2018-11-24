@@ -204,34 +204,43 @@ abstract class DTOMediator implements ServiceSubscriberInterface
     /**
      * this function returns data of mediator DTO to it's entity
      * it's protected so that only the colleague mapper of the mediator can call it
+     * @param array $mapperCommands
      * @var string $password
      * @return array
      * @throws NullColleagueException
      */
-    public function returnDataToEntity(){
+    public function returnDataToEntity($mapperCommands=[]){
         if($this->dto === null) throw new NullColleagueException("DTO must be specified to return data");
         if($this->entity === null) throw new NullColleagueException("Entity must be specified to receive data");
         $propertiesToReturn = array_unique($this->changedProperties);
-        $returnedProperties = [];
+        if(count($propertiesToReturn) < 1) return $mapperCommands;
+
+        $id = intval($this->dto->getId());
+        $mapperCommands[$this->dtoClassName . ":" . $id] = ["action"=>($id>0?"edit":"add"),"dto"=>$this->dto];
 
         foreach($propertiesToReturn as $property){
-            $mediatorFunction = 'mediate' . ucfirst($property);
-            $dtoFunction = 'get' . ucfirst($property);
-            $entityFunction = 'set' . ucfirst($property);
-
-            if(method_exists ($this,$mediatorFunction)){
-                $this->$mediatorFunction();
-                $returnedProperties[] = $property;
-            }
-            else if(method_exists($this->dto,$dtoFunction) && method_exists($this->entity,$entityFunction)){
-                $this->entity->$entityFunction($this->dto->$dtoFunction());
-                $returnedProperties[] = $property;
-            }
+            $mapperCommands = $this->mediate($property,$mapperCommands);
         }
         $this->resetChangedProperties();
-        return $returnedProperties;
+        return $mapperCommands;
     }
 
+    /**
+     * @param string $property
+     * @param array $mapperCommands
+     * @return array
+     */
+    protected function mediate(string $property, array $mapperCommands=[]){
+        $mediatorFunction = 'mediate' . ucfirst($property);
+        $dtoFunction = 'get' . ucfirst($property);
+        $entityFunction = 'set' . ucfirst($property);
 
-
+        if(method_exists ($this,$mediatorFunction)){
+            $mapperCommands = $this->$mediatorFunction($mapperCommands);
+        }
+        else if(method_exists($this->dto,$dtoFunction) && method_exists($this->entity,$entityFunction)){
+            $this->entity->$entityFunction($this->dto->$dtoFunction());
+        }
+        return $mapperCommands;
+    }
 }

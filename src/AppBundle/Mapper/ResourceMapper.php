@@ -97,17 +97,16 @@ class ResourceMapper extends AbstractEntityMapper implements EntityMapperInterfa
 
     /**
      * @param EntityMutableDTO $dto
-     * @param integer|null $id
      * @param boolean $commit
      * @return HResource
      * @throws EntityMapperException
      * @throws NullColleagueException
      */
-    public function edit(EntityMutableDTO $dto,$id=null,$commit=true)
+    public function edit(EntityMutableDTO $dto,$commit=true)
     {
-        $this->checkEdit($dto,$id);
+        $this->checkEdit($dto);
         /** @var HResource $resource */
-        $resource = $this->defaultEdit($dto,$id);
+        $resource = $this->defaultEdit($dto);
 
         if($commit) $this->getManager()->flush();
         return $resource;

@@ -16,8 +16,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class ResourceGeometryDTO extends EntityMutableDTO
 {
-    /** @var integer */
-    protected $id;
     /** @var Geometry */
     protected $targetGeometry;
     /** @var string */
@@ -27,40 +25,12 @@ class ResourceGeometryDTO extends EntityMutableDTO
     /** @var UrlBag */
     protected $urlBag;
 
-
     /**
      * ResourceGeometryDTO constructor.
      */
     public function __construct()
     {
         parent::__construct();
-    }
-
-    /**
-     * @return array
-     * @Groups({"minimal"})
-     */
-    public function getLoadedGroups(){
-        return $this->groups;
-    }
-
-    /**
-     * @return int
-     * @Groups({"minimal"})
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * @param int
-     * @return self
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-        return $this;
     }
 
     /**

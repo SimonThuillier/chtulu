@@ -5,20 +5,62 @@ namespace AppBundle\DTO;
 use Symfony\Component\Serializer\Annotation\Groups;
 use AppBundle\Mediator\DTOMediator;
 
-abstract class EntityMutableDTO {
-
+abstract class EntityMutableDTO
+{
+    /** @var integer */
+    protected $oldId=0;
+    /** @var integer */
+    protected $id=0;
     /** @var DTOMediator */
     protected $mediator;
     /** @var array */
     protected $groups;
-
-    public function getId(){
-        return 0;
-    }
+    /** @var array */
+    protected $backGroups;
 
     public function __construct()
     {
         $this->groups = [];
+        $this->backGroups = [];
+    }
+
+    /**
+     * @return array
+     * @Groups({"minimal"})
+     */
+    public function getLoadedGroups(){
+        return $this->groups;
+    }
+
+    /**
+     * @return int
+     * @Groups({"minimal"})
+     */
+    public function getOldId()
+    {
+        return $this->oldId;
+    }
+
+    /**
+     * @return int
+     * @Groups({"minimal"})
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param int
+     * @return self
+     */
+    public function setId($id)
+    {
+        if(intval($id) !== intval($this->id)){
+            $this->oldId = $this->id;
+            $this->id = $id;
+        }
+        return $this;
     }
 
     /**
@@ -52,11 +94,6 @@ abstract class EntityMutableDTO {
 
     /**
      * @return array
-     */
-    public abstract function getLoadedGroups();
-
-    /**
-     * @return array
      * @groups({"groups"})
      */
     public function getGroups(){
@@ -64,11 +101,28 @@ abstract class EntityMutableDTO {
     }
 
     /**
+     * @return array
+     * @groups({"minimal"})
+     */
+    public function getBackGroups(){
+        return $this->backGroups;
+    }
+
+    /**
+     * @param array
+     * @return self
+     */
+    public function setBackGroups(?array $backGroups){
+        $this->backGroups = $backGroups;
+        return $this;
+    }
+
+    /**
      * when a post is done on a DTO we send back minimal groups to get the new id
      * @return array
      */
     public function getReturnGroups(){
-        return [];
+        return ["minimal"];
     }
 
 }

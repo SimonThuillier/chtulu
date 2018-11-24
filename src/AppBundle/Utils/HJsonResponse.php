@@ -25,6 +25,8 @@ class HJsonResponse
     private $status;
     /** @var string|null */
     private $message;
+    /** @var string|null */
+    private $senderKey;
     /** @var mixed|null */
     private $data;
     /** @var mixed|null */
@@ -34,11 +36,15 @@ class HJsonResponse
      * HJsonResponse constructor.
      * @param string $status
      * @param null|string $message
+     * @param null|string $senderKey
      */
-    public function __construct(string $status=self::SUCCESS, ?string $message='l\'action a bien été effectuée')
+    public function __construct(string $status=self::SUCCESS,
+                                ?string $message='l\'action a bien été effectuée',
+                                ?string $senderKey=null)
     {
         $this->status = $status;
         $this->message = $message;
+        $this->senderKey = $senderKey;
     }
 
     /**
@@ -74,6 +80,24 @@ class HJsonResponse
     public function setMessage(?string $message): HJsonResponse
     {
         $this->message = $message;
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getSenderKey(): ?string
+    {
+        return $this->senderKey;
+    }
+
+    /**
+     * @param null|string $senderKey
+     * @return HJsonResponse
+     */
+    public function setSenderKey(?string $senderKey): HJsonResponse
+    {
+        $this->senderKey = $senderKey;
         return $this;
     }
 
@@ -117,6 +141,7 @@ class HJsonResponse
         return [
             "status" => $hResponse->getStatus(),
             "message" => $hResponse->getMessage(),
+            "senderKey" => $hResponse->getSenderKey(),
             "data" => $hResponse->getData(),
             "errors" =>$hResponse->getErrors()
         ];

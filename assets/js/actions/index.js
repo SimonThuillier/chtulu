@@ -1,5 +1,6 @@
 import SearchBag from '../util/SearchBag';
 import {
+    HTTP_POST,
     URL_GET,
     URL_GET_ONE_BY_ID,
     getUrl,
@@ -7,7 +8,9 @@ import {
     getHBProps,
     DataToPost,
     HB_SUCCESS,
-    HB_ERROR
+    HB_ERROR,
+    URL_POST,
+    SECURITY_TOKEN
 } from '../util/server';
 import { normalize,denormalize, schema } from 'normalizr';
 import WAOs from '../util/WAOs';
@@ -76,6 +79,33 @@ export const postOne = (waoType,groups=true,id) => (dispatch,getState) => {
     let dataToPost = DataToPost().add(waoType,id,normData);
     console.log(`dataToPost`);
     console.log(dataToPost);
+
+    const url = getUrl(URL_POST);
+    let httpProps = getHTTPProps(HTTP_POST);
+    httpProps.body = JSON.stringify(dataToPost);
+
+    console.log(httpProps);
+
+    return fetch(url,httpProps)
+        .then(response => console.log(response))
+        //.then(response => response.json())
+        // .then(json => {
+        //     console.log("post returned !");
+        //     console.log(json)
+        //
+        //         // switch (json.status) {
+        //         //     case HB_SUCCESS:
+        //         //         dispatch(receiveGet(waoType,groups,searchBag,json.rows,json.total,json.message));
+        //         //         break;
+        //         //     case HB_ERROR:
+        //         //         dispatch(errorGet(waoType,groups,searchBag,json.message));
+        //         //         break;
+        //         //     default:
+        //         // }
+        //     }
+        // )
+
+
 };
 
 export const submitLocally = (waoType,data,id) => ({
