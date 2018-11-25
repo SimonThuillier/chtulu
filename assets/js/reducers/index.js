@@ -1,11 +1,19 @@
 import { combineReducers } from 'redux-immutable'
 import {
+    NOTIFY,
+    DISCARD,
     SUBMIT_LOCALLY,
     RESET,
-    GET,
     RECEIVE_GET,
-    GET_ONE_BY_ID,
-    RECEIVE_GET_ONE_BY_ID} from '../actions'
+    RECEIVE_GET_ONE_BY_ID
+} from '../actions';
+import {
+    LOADING,
+    SUBMITTING,
+    LOADING_COMPLETED,
+    SUBMITTING_COMPLETED
+} from '../util/notifications';
+
 import WAOs from '../util/WAOs';
 import GroupUtil from '../util/GroupUtil';
 import SearchBagUtil from '../util/SearchBagUtil';
@@ -13,9 +21,86 @@ const Imm = require("immutable");
 import { createSelector } from 'reselect';
 import { reducer as reduxFormReducer } from "redux-form/immutable";
 
+
+// app reducer
+const initialAppState = Imm.Map({
+    user:null,
+    entitiesToPost:Imm.Map(),
+    notifications: Imm.Map()
+});
+
+const appReducer = (state=initialAppState, action) =>{
+    const {notifType,senderKey,senderParam,status} = action;
+    switch (action.type) {
+        case NOTIFY:
+            let notification=null;
+            switch(notifType){
+                case LOADING :
+                    notification = Imm.Map({
+                        notifType : notifType,
+                        senderKey : senderKey,
+                        senderParam : senderParam || 'DEFAULT',
+                        status:status,
+                        receivedAt : Date.now(),
+                    });
+                    state = state.setIn(["notifications",senderKey,senderParam || 'DEFAULT',notifType],notification);
+                    return state;
+                case SUBMITTING :
+                    notification = Imm.Map({
+                        notifType : notifType,
+                        senderKey : senderKey,
+                        senderParam : senderParam || 'DEFAULT',
+                        status:status,
+                        receivedAt : Date.now(),
+                    });
+                    state = state.setIn(["notifications",senderKey,senderParam || 'DEFAULT',notifType],notification);
+                    return state;
+                case LOADING_COMPLETED :
+                    notification = Imm.Map({
+                        notifType : notifType,
+                        senderKey : senderKey,
+                        senderParam : senderParam || 'DEFAULT',
+                        status:status,
+                        receivedAt : Date.now(),
+                    });
+                    state = state.removeIn(["notifications",senderKey,senderParam || 'DEFAULT',LOADING]);
+                    state = state.setIn(["notifications",senderKey,senderParam || 'DEFAULT',notifType],notification);
+                    return state;
+                case SUBMITTING_COMPLETED :
+                    notification = Imm.Map({
+                        notifType : notifType,
+                        senderKey : senderKey,
+                        senderParam : senderParam || 'DEFAULT',
+                        status:status,
+                        receivedAt : Date.now(),
+                        discardedAt:null
+                    });
+                    state = state.removeIn(["notifications",senderKey,senderParam || 'DEFAULT',SUBMITTING]);
+                    state = state.setIn(["notifications",senderKey,senderParam || 'DEFAULT',notifType],notification);
+                    return state;
+                default :
+                    return state;
+            }
+        case DISCARD:
+            if(state.hasIn(["notifications",senderKey,senderParam || 'DEFAULT',notifType])){
+                state = state.setIn(["notifications",senderKey,senderParam || 'DEFAULT',notifType,"discardedAt"],Date.now());
+            }
+            return state;
+        default:
+            return state;
+    }
+};
+
+
+
+// waos reducers
 const mergeRecords = function(iRec,nRec){
     const iLoadedGroups = iRec.get("loadedGroups");
     const nLoadedGroups = nRec.get("loadedGroups");
+    const nPostedGroups = nRec.get("postedGroups");
+
+    console.log("merging records");
+    console.log(nPostedGroups);
 
     let mRec = iRec.mergeDeepWith((oldVal,newVal) => newVal || oldVal, nRec);
     mRec = mRec.set("loadedGroups",GroupUtil.merge(iLoadedGroups,nLoadedGroups));
@@ -25,6 +110,7 @@ const mergeRecords = function(iRec,nRec){
     console.log(mRec.toJSON() === iRec.toJSON());
     return mRec;
 };
+
 
 /**
  * object representing a given cache entry
@@ -58,10 +144,6 @@ const concreteWaoType = (waoType) => {
         if (action.waoType !== waoType) return state;
         console.log("reducer call");
         switch (action.type) {
-            //case LOAD_FOR_EDIT:
-            //return state.set("pendingIds",(state.get("pendingIds").set(action.formUid,+action.id)));
-            case GET:
-                return state;
             case SUBMIT_LOCALLY:
                 console.log("submit locally");
                 console.log(action);
@@ -94,8 +176,6 @@ const concreteWaoType = (waoType) => {
                         state = state.setIn(["items",+id],item);
                     }
                 }
-                return state;
-            case GET_ONE_BY_ID:
                 return state;
             case RECEIVE_GET:
                 action.waos.map(item => {
@@ -130,11 +210,10 @@ const concreteWaoType = (waoType) => {
                 }
                 return state;
             case RECEIVE_GET_ONE_BY_ID:
-                //console.log("action receive get one by id");
-                //console.log(waoType);
-                //console.log(action);
+                console.log("action receive get one by id");
+                console.log(action);
                 let rec = WAO(action.wao);
-                //console.log(rec);
+                console.log(rec);
                 rec = rec.get("receiveRecord")(rec);
                 if(state.hasIn(["items",+rec.get("id")]))
                     state = state.setIn(["items",+rec.get("id")],
@@ -148,13 +227,12 @@ const concreteWaoType = (waoType) => {
     }
 };
 
-
-
 let waoReducers = {};
 WAOs.entrySeq().forEach(entry => {
     waoReducers[entry[0]] = concreteWaoType(entry[0]);
 });
 
+waoReducers.app =  appReducer;
 waoReducers.form =  reduxFormReducer;
 
 export const rootReducer = combineReducers(

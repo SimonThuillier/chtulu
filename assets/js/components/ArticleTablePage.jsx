@@ -17,12 +17,15 @@ import {
 import Article from "./Article";
 import {getIfNeeded} from "../actions";
 import SearchBag from '../util/SearchBag';
+import SearchBagUtil from '../util/SearchBagUtil';
 import ArticleType from './ArticleType';
 import {connect} from "react-redux";
-import { getSelector,totalSelector2} from "../selectors";
+import {getNotificationsSelector, getSelector, totalSelector2} from "../selectors";
 import RImageMini from "./RImageMini";
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import ArticleFilter from './ArticleFilter';
+import {LOADING,COLORS} from "../util/notifications";
+const componentUid = require('uuid/v4')();
 
 
 const columns = [{
@@ -100,20 +103,15 @@ const rightBreadcrumb = (breadcrumb,switcher) => {
 };
 
 const rowStyle = (row, rowIndex) => {
-    //console.log("row style");
-    //console.log(row);
-
     if(row && row.has("isDirty") && row.get("isDirty")(row)){
-        return {backgroundColor:'#c8e6c9'};
+        return {backgroundColor:COLORS.DIRTY};
     }
-
     return {};
 };
 
 class ArticleTablePage extends React.Component{
 
     constructor(props) {
-        console.log("tab1 constructor");
         super(props);
         this.getBreadcrumb = this.getBreadcrumb.bind(this);
         this.handleClose = this.handleClose.bind(this);
@@ -141,7 +139,7 @@ class ArticleTablePage extends React.Component{
 
     loadSearchBag(groups,searchBag){
         const {dispatch} = this.props;
-        dispatch(getIfNeeded("article",groups,searchBag));
+        dispatch(getIfNeeded("article",groups,searchBag,componentUid));
     }
 
     getBreadcrumb(id){
@@ -223,12 +221,10 @@ class ArticleTablePage extends React.Component{
     render(){
         let items = this.props.selector(this.state.searchBag);
         let total = this.props.totalSelector(this.state.searchBag);
+        const notifications = this.props.notificationsSelector(componentUid);
 
-        /*console.log("searchBag");
-        console.log(this.state.searchBag);
-        console.log("items");
-        console.log(items);
-        console.log(this.state.page);*/
+        const coreBagKey = JSON.stringify(SearchBagUtil.getCoreBag(this.state.searchBag));
+        const loading = (notifications && notifications.hasIn([coreBagKey || 'DEFAULT',LOADING]))||false;
 
         return(
             <div className="content-wrapper hb-container">
@@ -239,17 +235,14 @@ class ArticleTablePage extends React.Component{
                     <h3>Liste des articles</h3>
                 </section>
                 <section className="content">
-                    <ArticleFilter onSubmit={this.onFilter}/>
-                    {/*<div className="row">*/}
-                        {/*<hr/>*/}
-                    {/*</div>*/}
                     <Loadable
-                        active={this.state.loading}
+                        active={loading}
                         spinner
-                        text='Chargement des données...'
-                        color='black'
-                        background='rgba(192,192,192,0.4)'
+                        text='Chargement des données ...'
+                        color={COLORS.LOADING}
+                        background={COLORS.LOADING_BACKGROUND}
                     >
+                        <ArticleFilter onSubmit={this.onFilter}/>
                         <BootstrapTable
                             keyField='id'
                             data={ items }
@@ -266,7 +259,7 @@ class ArticleTablePage extends React.Component{
                             selectRow={{
                                 hideSelectColumn:true,
                                 mode :'radio',
-                                style: { backgroundColor: 'LightBlue' },
+                                style: { backgroundColor: COLORS.TABLE_SELECTED },
                                 selected:this.state.selected,
                             }}
                             remote={ {
@@ -328,9 +321,11 @@ class ArticleTablePage extends React.Component{
 const mapStateToProps = state => {
     const selector = selector || getSelector(state.get("article"));
     const totalSelector = totalSelector2(state.get("article"));
+    const notificationsSelector = getNotificationsSelector(state.get("app"));
     return {
         selector: selector,
-        totalSelector:totalSelector
+        totalSelector:totalSelector,
+        notificationsSelector : notificationsSelector
     }
 };
 

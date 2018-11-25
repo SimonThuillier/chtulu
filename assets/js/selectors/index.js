@@ -3,6 +3,10 @@ import SearchBagUtil from "../util/SearchBagUtil";
 import WAOs from "../util/WAOs";
 const Imm = require("immutable");
 
+export const getNotificationsSelector = createSelector(
+    [(state) => state.get("notifications")],
+    (notifications) => (senderKey) => notifications.get(senderKey)
+);
 
 export const getOneByIdSelector = createSelector(
     [(state) => state.get("items")],

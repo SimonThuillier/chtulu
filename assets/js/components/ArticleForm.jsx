@@ -1,13 +1,9 @@
 import React from "react";
-import {getPendingSelector,getOneByIdSelector} from "../selectors";
+import {getPendingSelector, getOneByIdSelector, getNotificationsSelector} from "../selectors";
 import { connect} from 'react-redux';
 import GroupUtil from '../util/GroupUtil';
 import {
-    FormGroup,
-    ControlLabel,
-    FormControl,
-    HelpBlock,
-    Col,
+    Alert,
     Form,
     Glyphicon,
     OverlayTrigger
@@ -15,18 +11,16 @@ import {
 import { Field, reduxForm,change as formChange,
     blur as formBlur,focus as formFocus,touch as formTouch,untouch as formUntouch} from 'redux-form/immutable';
 const Imm = require("immutable");
-import WAOs from '../util/WAOs'
-import {getOneByIdIfNeeded,submitLocally,postOne,reset as stateReset,TIMEOUT} from '../actions';
-import SearchBag from "../util/SearchBag";
+import {getOneByIdIfNeeded,submitLocally,postOne,reset as stateReset,TIMEOUT,discard} from '../actions';
 import ArticleTypeSelect from "./ArticleTypeSelect";
-const formUid = require('uuid/v4')();
-import {getComponentClassType} from '../util/formUtil';
+const componentUid = require('uuid/v4')();
 import HDateInput from "./HDateInput";
 import HBFormField from './HBFormField';
 import {Button,Tooltip} from 'react-bootstrap';
 import Loadable from 'react-loading-overlay';
 import {previewTooltip,submitTooltip,resetTooltip} from './tooltips';
-
+import {LOADING,SUBMITTING,SUBMITTING_COMPLETED,COLORS} from '../util/notifications';
+import {HB_SUCCESS} from "../util/server";
 
 const validate = values => {
     const errors = {};
@@ -54,6 +48,18 @@ const warn = values => {
     return warnings;
 };
 
+const notificationAlert = (notification,dispatch) =>{
+    const status = notification.get("status");
+    const notifType = notification.get("notifType");
+    const senderKey = notification.get("senderKey");
+    const senderParam = notification.get("senderParam");
+    const message = (status === HB_SUCCESS)?"L'article a bien été enregistré":"Erreur ! ";
+
+    return (<Alert bsStyle={status} onDismiss={()=>{dispatch(discard(notifType,senderKey,senderParam))}}>
+        <p>{message}</p>
+    </Alert>);
+};
+
 class ArticleForm extends React.Component{
     constructor(props) {
         super(props);
@@ -67,7 +73,6 @@ class ArticleForm extends React.Component{
         this.state = {
             groups:props.groups || {"minimal":true},
             data:null,
-            loading:false,
             clickCount:0
         };
     }
@@ -91,7 +96,8 @@ class ArticleForm extends React.Component{
         if(this.shouldReinitialize(data)){
             dispatch(getOneByIdIfNeeded("article",
                 this.state.groups,
-                this.props.id));
+                this.props.id,
+                componentUid));
             console.log("loading form");
             this.setState({loading:true});
         }
@@ -106,7 +112,7 @@ class ArticleForm extends React.Component{
         console.log(data.has("initialValues"));
         initialize(data.set("pendingModification",true));
         if(data.get("initialValues")){
-            dispatch(formTouch(formUid, ...data.get("initialValues").keySeq().toJS()));
+            dispatch(formTouch(componentUid, ...data.get("initialValues").keySeq().toJS()));
         }
     }
 
@@ -171,8 +177,8 @@ class ArticleForm extends React.Component{
         const {anyTouched,dispatch,id} = this.props;
         this.submit();
         setTimeout(()=>{
-            dispatch(postOne("article",this.state.groups,id));
-        },10);
+            dispatch(postOne("article",this.state.groups,id,componentUid));
+        },5);
     }
 
     handleSwitch(){
@@ -182,7 +188,7 @@ class ArticleForm extends React.Component{
 
     render(){
         console.log("render called");
-        const { onSubmit, reset, submitting,load,valid,pendingForm,dispatch} = this.props;
+        const { onSubmit, reset, load,valid,pendingForm,dispatch,notificationsSelector} = this.props;
         let pristine = (this.state.clickCount>0)?false:this.props.pristine;
         const {groups} = this.state;
         console.log("render form");
@@ -190,14 +196,23 @@ class ArticleForm extends React.Component{
         const hasEndDate = (pendingForm && pendingForm.hasIn(["values","hasEndDate"]))?
             pendingForm.getIn(["values","hasEndDate"]):true;
 
+        const notifications = notificationsSelector(componentUid);
+        const loading = (notifications && notifications.hasIn([(this.state.data && this.state.data.id) || 'DEFAULT',LOADING]))||false;
+        const submitting = (notifications && notifications.hasIn([(this.state.data && this.state.data.id) || 'DEFAULT',SUBMITTING]))||false;
+
+        let submittingCompleted = (notifications && notifications.
+        getIn([(this.state.data && this.state.data.id) || 'DEFAULT',SUBMITTING_COMPLETED]))||null;
+        submittingCompleted = (submittingCompleted && !submittingCompleted.get("discardedAt"))?submittingCompleted:null;
+
         return (
             <Loadable
-                active={this.state.loading}
+                active={loading || submitting}
                 spinner
-                text='Chargement des données...'
-                color='black'
-                background='rgba(192,192,192,0.4)'
+                text={loading?"Chargement de l'article ...":"Enregistrement de l'article ..."}
+                color={loading?COLORS.LOADING:COLORS.SUBMITTING}
+                background={COLORS.LOADING_BACKGROUND}
             >
+                {submittingCompleted && notificationAlert(submittingCompleted,dispatch)}
                 <Form Horizontal onSubmit={(e)=>{}}>
                     {typeof groups.minimal !== 'undefined' &&
                     <Field
@@ -228,13 +243,13 @@ class ArticleForm extends React.Component{
                         label="A une fin ?"
                         //if(hasEndDate) pendingForm.setIn(["values","endHDate"],null);
                         onChange={()=>{
-                            dispatch(formChange(formUid, 'endHDate', null));
-                            dispatch(formTouch(formUid, 'hasEndDate','endHDate'));
+                            dispatch(formChange(componentUid, 'endHDate', null));
+                            dispatch(formTouch(componentUid, 'hasEndDate','endHDate'));
                             console.log(`hasEndDate : ${hasEndDate}`);
                             if(!hasEndDate){
                                 setTimeout(()=>{
-                                    dispatch(formChange(formUid, 'endHDate', null));
-                                    dispatch(formTouch(formUid, 'endHDate'));
+                                    dispatch(formChange(componentUid, 'endHDate', null));
+                                    dispatch(formTouch(componentUid, 'endHDate'));
                                 },5);
                             }
                         }}
@@ -263,8 +278,14 @@ class ArticleForm extends React.Component{
                             </Button>
                         </OverlayTrigger>
                         &nbsp;
-                        <OverlayTrigger placement="bottom" overlay={submitTooltip("votre article")}>
-                            <Button bsStyle="primary"
+                        <OverlayTrigger placement="bottom"
+                                        overlay={submitTooltip("votre article")}
+                                        ref={(ov) => {
+                                            this.saveOverlayTrigger = ov;
+                                        }}
+                                        onClick={() => {this.saveOverlayTrigger.handleDelayedHide()} }
+                        >
+                            <Button bsStyle="success"
                                     disabled={!valid || submitting}
                                     onClick={this.handleServerSubmit}>
                                 Enregistrer&nbsp;<Glyphicon glyph="upload"/>
@@ -293,7 +314,7 @@ class ArticleForm extends React.Component{
 }
 
 ArticleForm =  reduxForm({
-    form: formUid,
+    form: componentUid,
     destroyOnUnmount:false,
     validate:validate,
     warn:warn
@@ -301,10 +322,13 @@ ArticleForm =  reduxForm({
 
 ArticleForm = connect(
     state => {
-        console.log("connect");
-        //console.log(state.getIn(["formReducer","data"]));
         const selector = getOneByIdSelector(state.get("article"));
-        return {selector: selector,pendingForm:state.getIn(["form",formUid])}
+        const notificationsSelector = getNotificationsSelector(state.get("app"));
+        return {
+            selector: selector,
+            pendingForm:state.getIn(["form",componentUid]),
+            notificationsSelector : notificationsSelector
+        }
     },
     { }
 )(ArticleForm);

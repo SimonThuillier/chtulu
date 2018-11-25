@@ -18,7 +18,11 @@ import {getDataToPost} from '../util/WAOUtil';
 import GroupUtil from "../util/GroupUtil";
 import SearchBagUtil from '../util/SearchBagUtil';
 import {entitiesSelector} from '../selectors';
+import {LOADING,LOADING_COMPLETED,SUBMITTING,SUBMITTING_COMPLETED} from '../util/notifications';
 
+// notifications actions
+export const NOTIFY = 'NOTIFY';
+export const DISCARD = 'DISCARD';
 // data reception actions
 export const GET = 'GET';
 export const RECEIVE_GET = 'RECEIVE_GET';
@@ -32,6 +36,23 @@ export const POST_ONE = 'POST_ONE';
 export const POST_ALL = 'POST_ALL';
 
 export const TIMEOUT = 5000;
+
+
+export const notify = (notifType,senderKey=null,senderParam=null,status=HB_SUCCESS) => ({
+    type: NOTIFY,
+    notifType : notifType,
+    senderKey : senderKey || 'HBAPP',
+    senderParam: senderParam,
+    status:status
+});
+
+export const discard = (notifType,senderKey=null,senderParam=null) => ({
+    type: DISCARD,
+    notifType : notifType,
+    senderKey : senderKey || 'HBAPP',
+    senderParam: senderParam
+});
+
 /**
  * @param url string
  * @param props object
@@ -54,27 +75,27 @@ const fetchWithTimeout = function( url,props, timeout=TIMEOUT ) {
 };
 
 
-export const postOne = (waoType,groups=true,id) => (dispatch,getState) => {
+export const postOne = (waoType,groups=true,id,senderKey) => (dispatch,getState) => {
     const state = getState();
     let entities = entitiesSelector(state);
     //entities = {articleType:{'2':{id:2,label:"lol"}},resource:{}};
-    console.log("entities");
+    /*console.log("entities");
     console.log(entities);
     console.log("schema");
-    console.log(WAOs.getIn([waoType,"schema"]));
+    console.log(WAOs.getIn([waoType,"schema"]));*/
     let normData = state.getIn([waoType,"items",+id]);
-    console.log(`denormData to send ${id}`);
+    /*console.log(`denormData to send ${id}`);
     console.log(normData);
-    console.log(`normData to send ${id}`);
+    console.log(`normData to send ${id}`);*/
     //normData.type=2;
     normData = denormalize(normData,WAOs.getIn([waoType,"schema"]),entities);
     normData = normData.toJS();
-    console.log(normData);
+    /*console.log(normData);
     console.log("groups to send");
-    console.log(groups);
+    console.log(groups);*/
     normData = getDataToPost(waoType,normData,groups);
-    console.log(`partial normData to send ${id}`);
-    console.log(normData);
+    /*console.log(`partial normData to send ${id}`);
+    console.log(normData);*/
 
     let dataToPost = DataToPost().add(waoType,id,normData);
     console.log(`dataToPost`);
@@ -84,26 +105,50 @@ export const postOne = (waoType,groups=true,id) => (dispatch,getState) => {
     let httpProps = getHTTPProps(HTTP_POST);
     httpProps.body = JSON.stringify(dataToPost);
 
-    console.log(httpProps);
+    //console.log(httpProps);
+
+    dispatch(notify(SUBMITTING,senderKey || 'HBAPP',id));
 
     return fetch(url,httpProps)
-        .then(response => console.log(response))
-        //.then(response => response.json())
-        // .then(json => {
-        //     console.log("post returned !");
-        //     console.log(json)
-        //
-        //         // switch (json.status) {
-        //         //     case HB_SUCCESS:
-        //         //         dispatch(receiveGet(waoType,groups,searchBag,json.rows,json.total,json.message));
-        //         //         break;
-        //         //     case HB_ERROR:
-        //         //         dispatch(errorGet(waoType,groups,searchBag,json.message));
-        //         //         break;
-        //         //     default:
-        //         // }
-        //     }
-        // )
+        .then(response => response.json())
+        .then(json => {
+            console.log("post returned !");
+            json.data = JSON.parse(json.data);
+            console.log(json);
+                switch (json.status) {
+                    case HB_SUCCESS:
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey || 'HBAPP',id,HB_SUCCESS));
+                        handlePostBackData(json.data,dispatch);
+                        //dispatch(receiveGet(waoType,groups,searchBag,json.rows,json.total,json.message));
+                        break;
+                    case HB_ERROR:
+                        //dispatch(errorGet(waoType,groups,searchBag,json.message));
+                        break;
+                    default:
+                }
+            }
+        )
+};
+
+const handlePostBackData = (backData,dispatch) =>{
+    Object.keys(backData).forEach((waoType)=>{
+        Object.keys(backData[waoType]).forEach((id)=>{
+            let object = backData[waoType][id];
+            let groups = object.backGroups;
+            let postedGroups = object.loadedGroups;
+            object.loadedGroups = groups;
+            object.postedGroups = postedGroups;
+
+
+            //receiveGetOneById = (waoType,groups,id,data,message="Données bien recues du serveur")
+            console.log("redispatched object after post");
+            console.log(object);
+            dispatch(receiveGetOneById(waoType,groups,id,object,"Données bien enregistrées sur le serveur"));
+
+
+        });
+
+    });
 
 
 };
@@ -188,8 +233,11 @@ export const errorGet = (waoType,searchBag,message) => {
     console.log(`error Get fetching ${waoType} : ${message}`);
 };
 
-const fetchGet = (waoType,groups=true,searchBag) => (dispatch,state) => {
-    dispatch(get(waoType,searchBag));
+const fetchGet = (waoType,groups=true,searchBag,senderKey) => (dispatch,state) => {
+    const coreBagKey = JSON.stringify(SearchBagUtil.getCoreBag(searchBag));
+
+    dispatch(notify(LOADING,senderKey || 'HBAPP',coreBagKey));
+
     const url = getUrl(URL_GET,getHBProps(waoType,groups,searchBag));
 
     return fetch(url,getHTTPProps())
@@ -197,6 +245,7 @@ const fetchGet = (waoType,groups=true,searchBag) => (dispatch,state) => {
         .then(json => {
             switch (json.status) {
                 case HB_SUCCESS:
+                    dispatch(notify(LOADING_COMPLETED,senderKey,coreBagKey,HB_SUCCESS));
                     dispatch(receiveGet(waoType,groups,searchBag,json.rows,json.total,json.message));
                     break;
                 case HB_ERROR:
@@ -208,7 +257,7 @@ const fetchGet = (waoType,groups=true,searchBag) => (dispatch,state) => {
         )
 };
 
-const shouldFetchGet = (state, waoType,groups,searchBag) => {
+const shouldFetchGet = (state, waoType,groups,searchBag,senderKey=null) => {
     const searchCacheEntry = state.getIn([waoType,"searchCache",
         JSON.stringify(SearchBagUtil.getCoreBag(searchBag))]);
     //console.log(`shouldFetchGet 0 `);
@@ -228,24 +277,24 @@ const shouldFetchGet = (state, waoType,groups,searchBag) => {
     return false;
 };
 
-export const getIfNeeded = (waoType,groups=true,searchBag) => (dispatch, getState) => {
+export const getIfNeeded = (waoType,groups=true,searchBag,senderKey=null) => (dispatch, getState) => {
     searchBag = searchBag || SearchBag();
-    console.log(`shouldFetchGet : ${shouldFetchGet(getState(), waoType,groups,searchBag)}`);
+    console.log(`shouldFetchGet : ${shouldFetchGet(getState(), waoType,groups,searchBag,senderKey)}`);
 
-    if (shouldFetchGet(getState(), waoType,groups,searchBag)) {
-        return dispatch(fetchGet(waoType,groups,searchBag))
+    if (shouldFetchGet(getState(), waoType,groups,searchBag,senderKey)) {
+        return dispatch(fetchGet(waoType,groups,searchBag,senderKey))
     }
 };
 
 // GETONEBYID
 
 
-export const getOneById = (waoType,groups,id) => ({
-    type: GET_ONE_BY_ID,
-    waoType : waoType,
-    groups : groups,
-    id : id
-});
+// export const getOneById = (waoType,groups,id) => ({
+//     type: GET_ONE_BY_ID,
+//     waoType : waoType,
+//     groups : groups,
+//     id : id
+// });
 
 export const receiveGetOneById = (waoType,groups,id,data,message="Données bien recues du serveur") =>
     (dispatch,state) => {
@@ -271,8 +320,8 @@ export const receiveGetOneById = (waoType,groups,id,data,message="Données bien 
     });
 };
 
-const fetchGetOneById = (waoType,groups=true,id) => (dispatch,state) => {
-    dispatch(getOneById(waoType,groups,id));
+const fetchGetOneById = (waoType,groups=true,id,senderKey) => (dispatch,state) => {
+    dispatch(notify(LOADING,senderKey,id));
     const url = getUrl(URL_GET_ONE_BY_ID,getHBProps(waoType,groups,id));
 
     return fetch(url,getHTTPProps())
@@ -281,6 +330,7 @@ const fetchGetOneById = (waoType,groups=true,id) => (dispatch,state) => {
                 switch (json.status) {
                     case HB_SUCCESS:
                         console.log(json);
+                        dispatch(notify(LOADING_COMPLETED,senderKey,id,HB_SUCCESS));
                         dispatch(receiveGetOneById(waoType,groups,id,json.data,json.message));
                         break;
                     case HB_ERROR:
@@ -293,7 +343,9 @@ const fetchGetOneById = (waoType,groups=true,id) => (dispatch,state) => {
 };
 
 
-const shouldFetchGetOneById = (state, waoType,groups,id) => {
+const shouldFetchGetOneById = (state, waoType,groups,id,senderKey=null) => {
+    if(state.hasIn(["app","notifications",senderKey || 'HBAPP',id || 'DEFAULT',LOADING])) return false;
+
     const item = state.getIn([waoType,"items",id]);
     if(!item || !item.get("loadedGroups")) return true;
 
@@ -321,9 +373,9 @@ const shouldFetchGetOneById = (state, waoType,groups,id) => {
     return true;
 };
 
-export const getOneByIdIfNeeded = (waoType,groups=true,id) => (dispatch, getState) => {
-    if (shouldFetchGetOneById(getState(), waoType,groups,id)) {
-        return dispatch(fetchGetOneById(waoType,groups,id))
+export const getOneByIdIfNeeded = (waoType,groups=true,id,senderKey=null) => (dispatch, getState) => {
+    if (shouldFetchGetOneById(getState(), waoType,groups,id,senderKey)) {
+        return dispatch(fetchGetOneById(waoType,groups,id,senderKey))
     }
 };
 

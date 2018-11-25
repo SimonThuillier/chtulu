@@ -93,6 +93,7 @@ abstract class EntityMutableDTO
     }
 
     /**
+     * @deprecated
      * @return array
      * @groups({"groups"})
      */
