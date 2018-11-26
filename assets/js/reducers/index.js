@@ -3,7 +3,10 @@ import {
     NOTIFY,
     DISCARD,
     SUBMIT_LOCALLY,
+    ADD_PENDING,
+    REMOVE_PENDING,
     RESET,
+    RESET_ALL_PENDING,
     RECEIVE_GET,
     RECEIVE_GET_ONE_BY_ID
 } from '../actions';
@@ -15,10 +18,10 @@ import {
 } from '../util/notifications';
 
 import WAOs from '../util/WAOs';
+import {getAllPropertiesInGroups} from '../util/WAOUtil';
 import GroupUtil from '../util/GroupUtil';
 import SearchBagUtil from '../util/SearchBagUtil';
 const Imm = require("immutable");
-import { createSelector } from 'reselect';
 import { reducer as reduxFormReducer } from "redux-form/immutable";
 
 
@@ -30,7 +33,7 @@ const initialAppState = Imm.Map({
 });
 
 const appReducer = (state=initialAppState, action) =>{
-    const {notifType,senderKey,senderParam,status} = action;
+    const {notifType,senderKey,senderParam,status,waoType,groups,id} = action;
     switch (action.type) {
         case NOTIFY:
             let notification=null;
@@ -86,6 +89,30 @@ const appReducer = (state=initialAppState, action) =>{
                 state = state.setIn(["notifications",senderKey,senderParam || 'DEFAULT',notifType,"discardedAt"],Date.now());
             }
             return state;
+        case ADD_PENDING:
+            if(state.hasIn(["entitiesToPost",waoType,+id])){
+                state = state.setIn(["entitiesToPost",waoType,+id],GroupUtil.merge(state.getIn(["entitiesToPost",waoType,+id]),groups));
+            }
+            else{
+                state = state.setIn(["entitiesToPost",waoType,+id],groups);
+            }
+            return state;
+        case REMOVE_PENDING:
+            console.log("remove pending");
+            console.log(action);
+            if(state.hasIn(["entitiesToPost",waoType,+id])){
+                let pendingGroups = state.getIn(["entitiesToPost",waoType,+id]);
+                console.log("pending groups");
+                console.log(pendingGroups);
+                console.log("groups to remove from pending");
+                console.log(groups);
+                let remainingGroups = GroupUtil.leftDiff(waoType,pendingGroups,groups);
+                console.log("remaining pending groups");
+                console.log(remainingGroups);
+                if(Object.keys(remainingGroups).length < 1) state = state.removeIn(["entitiesToPost",waoType,+id]);
+                else state = state.setIn(["entitiesToPost",waoType,+id],remainingGroups);
+            }
+            return state;
         default:
             return state;
     }
@@ -93,21 +120,39 @@ const appReducer = (state=initialAppState, action) =>{
 
 
 
+
 // waos reducers
-const mergeRecords = function(iRec,nRec){
+const mergeRecords = function(iRec,nRec,waoType){
     const iLoadedGroups = iRec.get("loadedGroups");
     const nLoadedGroups = nRec.get("loadedGroups");
     const nPostedGroups = nRec.get("postedGroups");
 
+    let newInitialValues = iRec.get("initialValues");
+    if(nPostedGroups && iRec.get("initialValues") ){
+        //console.log("postedGroups");
+        //console.log(nPostedGroups);
+        let postedProperties = getAllPropertiesInGroups(waoType,Object.keys(nPostedGroups));
+        //console.log("postedProperties");
+        //console.log(postedProperties );
+
+        postedProperties.forEach((property)=>{
+            newInitialValues = newInitialValues.remove(property);
+        });
+        //console.log("newInitialValues");
+        //console.log(newInitialValues.toJS());
+    }
+
     console.log("merging records");
-    console.log(nPostedGroups);
 
     let mRec = iRec.mergeDeepWith((oldVal,newVal) => newVal || oldVal, nRec);
-    mRec = mRec.set("loadedGroups",GroupUtil.merge(iLoadedGroups,nLoadedGroups));
+    mRec = mRec.
+    set("loadedGroups",GroupUtil.merge(iLoadedGroups,nLoadedGroups)).
+    set("initialValues",newInitialValues).
+    set("postedGroups",null);
     console.log("merged object");
     console.log(mRec.toJS());
-    console.log("equality");
-    console.log(mRec.toJSON() === iRec.toJSON());
+    /*console.log("equality");
+    console.log(mRec.toJSON() === iRec.toJSON());*/
     return mRec;
 };
 
@@ -185,7 +230,7 @@ const concreteWaoType = (waoType) => {
                     rec = rec.get("receiveRecord")(rec);
                     if(state.hasIn(["items",+rec.get("id")]))
                         state = state.setIn(["items",+rec.get("id")],
-                            mergeRecords(state.getIn(["items",+rec.get("id")]),rec));
+                            mergeRecords(state.getIn(["items",+rec.get("id")]),rec,waoType));
                     else
                         state = state.setIn(["items",+rec.get("id")],rec);
                 });
@@ -217,7 +262,7 @@ const concreteWaoType = (waoType) => {
                 rec = rec.get("receiveRecord")(rec);
                 if(state.hasIn(["items",+rec.get("id")]))
                     state = state.setIn(["items",+rec.get("id")],
-                        mergeRecords(state.getIn(["items",+rec.get("id")]),rec));
+                        mergeRecords(state.getIn(["items",+rec.get("id")]),rec,waoType));
                 else
                     state = state.setIn(["items",+rec.get("id")],rec);
                 return state;

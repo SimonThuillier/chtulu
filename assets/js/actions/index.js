@@ -17,7 +17,7 @@ import WAOs from '../util/WAOs';
 import {getDataToPost} from '../util/WAOUtil';
 import GroupUtil from "../util/GroupUtil";
 import SearchBagUtil from '../util/SearchBagUtil';
-import {entitiesSelector} from '../selectors';
+import {entitiesSelector,getPendingTotalSelector} from '../selectors';
 import {LOADING,LOADING_COMPLETED,SUBMITTING,SUBMITTING_COMPLETED} from '../util/notifications';
 
 // notifications actions
@@ -31,6 +31,9 @@ export const RECEIVE_GET_ONE_BY_ID = 'RECEIVE_GET_ONE_BY_ID';
 // form actions
 export const SUBMIT_LOCALLY = 'SUBMIT_LOCALLY';
 export const RESET = 'RESET';
+export const ADD_PENDING = 'ADD_PENDING';
+export const REMOVE_PENDING = 'REMOVE_PENDING';
+export const RESET_ALL_PENDING = 'RESET_ALL_PENDING';
 // submission to server actions
 export const POST_ONE = 'POST_ONE';
 export const POST_ALL = 'POST_ALL';
@@ -130,6 +133,59 @@ export const postOne = (waoType,groups=true,id,senderKey) => (dispatch,getState)
         )
 };
 
+export const postAll = (senderKey=null) => (dispatch,getState) => {
+    const state = getState();
+    const pendingTotalSelector = getPendingTotalSelector(state.get("app"));
+    if(pendingTotalSelector()<1) return;
+
+    let entities = entitiesSelector(state);
+    let dataToPost = DataToPost();//.add(waoType,id,normData);
+    state.getIn(["app","entitiesToPost"]).entrySeq().forEach((entry)=>{
+        let waoType = entry[0];
+        let items = entry[1];
+        items.entrySeq().forEach((entry)=>{
+            let id = entry[0];
+            let groups = entry[1];
+            let normData = state.getIn([waoType,"items",+id]);
+            normData = denormalize(normData,WAOs.getIn([waoType,"schema"]),entities);
+            normData = normData.toJS();
+            normData = getDataToPost(waoType,normData,groups);
+            dataToPost.add(waoType,id,normData);
+        });
+    });
+
+    console.log(`dataToPost ALL !`);
+    console.log(dataToPost);
+
+    const url = getUrl(URL_POST);
+    let httpProps = getHTTPProps(HTTP_POST);
+    httpProps.body = JSON.stringify(dataToPost);
+
+    dispatch(notify(SUBMITTING,senderKey || 'HBAPP',null));
+
+    return fetch(url,httpProps)
+        .then(response => response.json())
+        .then(json => {
+                console.log("post returned !");
+                json.data = JSON.parse(json.data);
+                console.log(json);
+                switch (json.status) {
+                    case HB_SUCCESS:
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey || 'HBAPP',null,HB_SUCCESS));
+                        handlePostBackData(json.data,dispatch);
+                        //dispatch(receiveGet(waoType,groups,searchBag,json.rows,json.total,json.message));
+                        break;
+                    case HB_ERROR:
+                        //dispatch(errorGet(waoType,groups,searchBag,json.message));
+                        break;
+                    default:
+                }
+            }
+        )
+};
+
+
+
 const handlePostBackData = (backData,dispatch) =>{
     Object.keys(backData).forEach((waoType)=>{
         Object.keys(backData[waoType]).forEach((id)=>{
@@ -138,33 +194,52 @@ const handlePostBackData = (backData,dispatch) =>{
             let postedGroups = object.loadedGroups;
             object.loadedGroups = groups;
             object.postedGroups = postedGroups;
-
-
             //receiveGetOneById = (waoType,groups,id,data,message="Données bien recues du serveur")
             console.log("redispatched object after post");
             console.log(object);
+            dispatch(removePending(waoType,id,postedGroups));
             dispatch(receiveGetOneById(waoType,groups,id,object,"Données bien enregistrées sur le serveur"));
-
-
         });
-
     });
-
-
 };
 
-export const submitLocally = (waoType,data,id) => ({
-    type: SUBMIT_LOCALLY,
-    waoType : waoType,
-    data : data,
-    id : id
-});
+export const addPending = (waoType,id,groups) => ({
+        type: ADD_PENDING,
+        waoType: waoType,
+        groups: groups,
+        id: id
+    }
+);
 
-export const reset = (waoType,ids) => ({
-    type: RESET,
-    waoType : waoType,
-    ids : ids
-});
+export const removePending = (waoType,id,groups) => ({
+        type: REMOVE_PENDING,
+        waoType: waoType,
+        groups: groups,
+        id: id
+    }
+);
+
+export const submitLocally = (waoType,data,id,groups) => (dispatch,state) => {
+    dispatch(addPending(waoType,id,groups));
+    return dispatch({
+        type: SUBMIT_LOCALLY,
+        waoType: waoType,
+        data: data,
+        id: id
+    });
+};
+
+export const reset = (waoType,ids,groups) => (dispatch,state) =>{
+    ids.forEach((id)=>{
+        dispatch(removePending(waoType,id,groups));
+    });
+
+    return dispatch({
+            type: RESET,
+            waoType : waoType,
+            ids : ids
+        });
+};
 
 
 export const get = (waoType,groups,searchBag=null) => ({
@@ -287,8 +362,6 @@ export const getIfNeeded = (waoType,groups=true,searchBag,senderKey=null) => (di
 };
 
 // GETONEBYID
-
-
 // export const getOneById = (waoType,groups,id) => ({
 //     type: GET_ONE_BY_ID,
 //     waoType : waoType,

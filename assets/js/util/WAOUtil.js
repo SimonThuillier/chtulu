@@ -8,6 +8,24 @@ const getAllGroupsFromMapping = function(mapping){
     return groups;
 };
 
+/**
+ * @param waoType string
+ * @param groups array
+ * @returns array
+ */
+export const getAllPropertiesInGroups = function(waoType,groups){
+    let properties = [];
+    const mapping = WAOs.getIn([waoType,"mapping"]).toJS();
+    if (!mapping) throw new Error("No metadata (schema or mapping) found for " + waoType + " WAO");
+
+    Object.keys(mapping).forEach((group)=>{
+        if(groups.includes(group)){
+            properties= properties.concat(mapping[group]);
+        }
+    });
+    return properties;
+};
+
 export const getDataToPost = function(waoType,object,groups = true){
     const mapping = WAOs.getIn([waoType,"mapping"]).toJS();
     const schema = WAOs.getIn([waoType,"schema"]).schema;

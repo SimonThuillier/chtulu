@@ -8,6 +8,19 @@ export const getNotificationsSelector = createSelector(
     (notifications) => (senderKey) => notifications.get(senderKey)
 );
 
+export const getPendingTotalSelector = createSelector(
+    [(state) => state.get("entitiesToPost")],
+    (entitiesToPost) => () => {
+        let count = 0;
+        entitiesToPost.valueSeq().forEach((v)=>{
+            console.log("counting entities to post");
+            console.log(v);
+            count = count + v.size;
+        });
+        return count;
+    }
+);
+
 export const getOneByIdSelector = createSelector(
     [(state) => state.get("items")],
     (items) => (id) => items.get(+id)

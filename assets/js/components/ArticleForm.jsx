@@ -21,6 +21,7 @@ import Loadable from 'react-loading-overlay';
 import {previewTooltip,submitTooltip,resetTooltip} from './tooltips';
 import {LOADING,SUBMITTING,SUBMITTING_COMPLETED,COLORS} from '../util/notifications';
 import {HB_SUCCESS} from "../util/server";
+import {getAllPropertiesInGroups} from '../util/WAOUtil';
 
 const validate = values => {
     const errors = {};
@@ -134,12 +135,22 @@ class ArticleForm extends React.Component{
             (this.shouldReinitialize(this.state.data) && prevProps.selector !== this.props.selector)) {
             this.loadInitialValues();
         }
+        if (prevProps.notificationsSelector !== this.props.notificationsSelector) {
+            const notifications = this.props.notificationsSelector(componentUid);
+            let submittingCompleted = (notifications && notifications.
+            getIn([(this.state.data && this.state.data.id) || 'DEFAULT',SUBMITTING_COMPLETED]))||null;
+            submittingCompleted = (submittingCompleted && !submittingCompleted.get("discardedAt"))?submittingCompleted:null;
+            console.log("submittingCompleted : untouching form");
+            if(submittingCompleted){
+                this.props.dispatch(formUntouch(componentUid, ...getAllPropertiesInGroups('article',Object.keys(this.state.groups))));
+            }
+        }
     }
 
     handleReset(){
         const { reset,dispatch,id} = this.props;
         //reset();
-        dispatch(stateReset("article",[id]));
+        dispatch(stateReset("article",[id],this.state.groups));
         setTimeout(() => {
             this.loadInitialValues();
             reset();
@@ -154,22 +165,23 @@ class ArticleForm extends React.Component{
         const values = pendingForm.get("values");
         const {anyTouched,dispatch} = this.props;
 
+        const touchedKeys = touchedFields?touchedFields.keySeq():null;
         console.log("touched fields");
         console.log(touchedFields);
+        console.log("touched keys");
+        console.log(touchedKeys);
         console.log("any touched");
         console.log(anyTouched);
-
-        const touchedKeys = touchedFields?touchedFields.keySeq():null;
-        if(anyTouched || touchedKeys){
-            touchedKeys.forEach((k)=>console.log(k));
-            console.log(values);
+        if(anyTouched && touchedKeys){
+            /*touchedKeys.forEach((k)=>console.log(k));
+            console.log(values);*/
             let touchedValues = Imm.Map();
             touchedKeys.forEach((k)=>{
                 touchedValues = touchedValues.set(k,values.get(k));
             });
 
             console.log(touchedValues);
-            dispatch(submitLocally("article",touchedValues,id));
+            dispatch(submitLocally("article",touchedValues,id,this.state.groups));
         }
     }
 

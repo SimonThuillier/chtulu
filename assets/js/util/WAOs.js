@@ -39,7 +39,9 @@ const waoPrototype = {
     receiveRecord: function(rec) {
         return (rec.has("loadedGroups")?rec:rec.set("loadedGroups",{minimal:true}));
     },
-    loadedGroups:{minimal:true}
+    oldId:0,
+    loadedGroups:{minimal:true},
+    postedGroups:{},
 };
 
 const defaultPrototypes = {

@@ -123,7 +123,7 @@ abstract class EntityMutableDTO
      * @return array
      */
     public function getReturnGroups(){
-        return ["minimal"];
+        return ["minimal"=>true];
     }
 
 }

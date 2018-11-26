@@ -8,17 +8,17 @@ export const previewTooltip = (what) => (
     </Tooltip>
 );
 
-export const submitTooltip = (what) => (
+export const submitTooltip = (what=null) => (
     <Tooltip id="preview-tooltip">
-        Sauvegarder {what} vers le site.
+        Sauvegarder {what?what:'toutes vos modifications'} vers le site.
         Un petit temps d'envoi est à prevoir ;)
     </Tooltip>
 );
 
-export const resetTooltip = (what) => (
+export const resetTooltip = (what=null) => (
     <Tooltip id="preview-tooltip">
-        Retablir {what} depuis les dernieres données enregistrées.
-        <strong>Attention : vos modifications sur {what} seront effacées !</strong>
+        {what?`Retablir ${what} depuis les dernieres données enregistrées.`:`Reinitialiser aux dernieres données enregistrées.`}
+        <strong>{what?`Attention : vos modifications sur ${what} seront effacées !`:`Toutes vos modifications non enregistrées seront effacées !`}</strong>
         Je vous ai prevenu.
     </Tooltip>
 );

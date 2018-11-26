@@ -278,6 +278,7 @@ class CRUDController extends Controller
                         $backData[$newEntityWaoType][$newEntityDto->getId()] = $normalizer->normalize($newEntityDto,$backGroups);
                     }
                     // then the main core object
+                    $truc = $dto->getReturnGroups();
                     $backGroups = ArrayUtil::filter($dto->getReturnGroups(),$postedGroups);
                     $mediator->mapDTOGroups($backGroups,DTOMediator::NOTHING_IF_NULL);
                     $dto->setBackGroups($backGroups);

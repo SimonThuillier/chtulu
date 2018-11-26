@@ -1,6 +1,10 @@
 import React from 'react';
+import {PostAllButton,ResetAllButton} from "./PostAllWidget";
+
 
 const Header = (props) => {
+    console.log("header's pending data");
+    console.log(props.pendingData);
     return (
         <header className="main-header">
             <a href="#" className="logo">
@@ -16,6 +20,16 @@ const Header = (props) => {
                 </a>
                 <div className="navbar-custom-menu">
                     <ul className="nav navbar-nav">
+                        {props.pendingData &&
+                        <li className="dropdown messages-menu" style={{paddingTop: 10,paddingRight: 40}}>
+                            <PostAllButton {...props}/>
+                        </li>
+                        }
+                        {props.pendingData &&
+                        <li className="dropdown messages-menu" style={{paddingTop: 10,paddingRight: 40}}>
+                            <ResetAllButton {...props}/>
+                        </li>
+                        }
                         <li className="dropdown messages-menu">
                             <a href="#" className="dropdown-toggle" data-toggle="dropdown">
                                 <i className="fa fa-envelope-o"></i>

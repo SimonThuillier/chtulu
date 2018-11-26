@@ -39,7 +39,8 @@ class ArrayUtil
             }
             elseif(is_string($k)) {
                 if(in_array($k,$sourceArray)){
-                    $returnArray[] = $k;
+                    $returnArray[$k] = $sourceArray[$k];
+                    //$returnArray[] = $k;
                 }
                 elseif(array_key_exists($k,$sourceArray)){
                     if(is_array($sourceArray[$k]) && is_array($filterArray[$k])){

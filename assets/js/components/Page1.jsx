@@ -49,6 +49,7 @@ export class Page1 extends React.Component {
                     <title>Page1</title>
                 </Helmet>
                 <section className="content-header">
+                    {this.props.mainNotification}
                 </section>
                 <section className="content">
                     <h4>{data && data.get("title")}</h4>
