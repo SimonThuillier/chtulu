@@ -11,7 +11,7 @@ export class Page1 extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            id: 32,
+            id: null,
             selector:props.selector,
             loading: false,
             activeComponent:'form',

@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
- import { GET } from '../actions'
 import { BrowserRouter,Route,Switch} from 'react-router-dom';
 import Header from "../components/Header";
 import SideBar from "../components/SideBar";
@@ -8,7 +7,7 @@ import Page1 from "../components/Page1";
 import Page2 from "../components/Page2";
 import ArticleTablePage from "../components/ArticleTablePage";
 import {getNotificationsSelector, getOneByIdSelector, getPendingTotalSelector} from "../selectors";
-import {postAll} from "../actions";
+import {postAll,resetAll} from "../actions";
 import {COLORS, SUBMITTING, SUBMITTING_COMPLETED} from "../util/notifications";
 import Loadable from 'react-loading-overlay';
 import MainNotification from '../components/MainNotification';
@@ -17,6 +16,7 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.onPostAll = this.onPostAll.bind(this);
+        this.onResetAll = this.onResetAll.bind(this);
     }
 
     onPostAll(){
@@ -24,6 +24,13 @@ class App extends Component {
         const notifications = notificationsSelector('HBAPP');
         const submitting = (notifications && notifications.hasIn(['DEFAULT',SUBMITTING]))||false;
         if(!submitting) dispatch(postAll());
+    }
+
+    onResetAll(){
+        const {dispatch,notificationsSelector} = this.props;
+        const notifications = notificationsSelector('HBAPP');
+        const submitting = (notifications && notifications.hasIn(['DEFAULT',SUBMITTING]))||false;
+        if(!submitting) dispatch(resetAll());
     }
 
 
@@ -70,7 +77,12 @@ class App extends Component {
                         color={COLORS.SUBMITTING}
                         background={COLORS.LOADING_BACKGROUND}
                     >
-                    <Header {...appProps} pendingData={pendingTotal>0} onPostAll={this.onPostAll}/>
+                    <Header
+                        {...appProps}
+                        pendingData={pendingTotal>0}
+                        onPostAll={this.onPostAll}
+                        onResetAll={this.onResetAll}
+                    />
                     <SideBar {...appProps}/>
                     <Switch >
                         {routes.map(({id,path,component:C,exact,appProps}) =>

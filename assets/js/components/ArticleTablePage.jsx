@@ -1,4 +1,3 @@
-import { BrowserRouter, Router, Route,NavLink,Switch} from 'react-router-dom';
 import React, {Component} from 'react';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import BootstrapTable from 'react-bootstrap-table-next';
@@ -20,7 +19,7 @@ import SearchBag from '../util/SearchBag';
 import SearchBagUtil from '../util/SearchBagUtil';
 import ArticleType from './ArticleType';
 import {connect} from "react-redux";
-import {getNotificationsSelector, getSelector, totalSelector2} from "../selectors";
+import {getNotificationsSelector, getSelector, totalSelector2,getNextNewIdSelector} from "../selectors";
 import RImageMini from "./RImageMini";
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import ArticleFilter from './ArticleFilter';
@@ -121,6 +120,8 @@ class ArticleTablePage extends React.Component{
         this.onTableChange = this.onTableChange.bind(this);
         this.onFilter = this.onFilter.bind(this);
 
+        this.onNewArticle = this.onNewArticle.bind(this);
+
         this.state = {
             loading:false,
             searchBag:SearchBag({}),
@@ -154,6 +155,17 @@ class ArticleTablePage extends React.Component{
             };
         }
         return breadcrumb;
+    }
+
+    onNewArticle(){
+        console.log('vous voulez un nouvel article ?');
+        const {nextNewIdSelector} = this.props;
+        this.setState({
+            selected:[],
+            activeId:nextNewIdSelector(),
+            activeComponent:'form',
+            breadcrumb:null
+        });
     }
 
     onRowPreview(row,rowIndex){
@@ -231,17 +243,25 @@ class ArticleTablePage extends React.Component{
                 <Helmet>
                     <title>Liste des articles</title>
                 </Helmet>
-                <section className="content-header">
-                    <h3>Liste des articles</h3>
-                </section>
-                <section className="content">
-                    <Loadable
-                        active={loading}
-                        spinner
-                        text='Chargement des données ...'
-                        color={COLORS.LOADING}
-                        background={COLORS.LOADING_BACKGROUND}
-                    >
+                <Loadable
+                    active={loading}
+                    spinner
+                    text='Chargement des données ...'
+                    color={COLORS.LOADING}
+                    background={COLORS.LOADING_BACKGROUND}
+                >
+                    <section className="content-header">
+                        <Row>
+                            <Col md={4}>
+                                <h3>Liste des articles&nbsp;&nbsp;&nbsp;
+                                    <Button bsStyle="success" onClick={this.onNewArticle}>
+                                        Ajouter&nbsp;<Glyphicon glyph="plus" />
+                                    </Button>
+                                </h3>
+                            </Col>
+                        </Row>
+                    </section>
+                    <section className="content">
                         <ArticleFilter onSubmit={this.onFilter}/>
                         <BootstrapTable
                             keyField='id'
@@ -280,39 +300,42 @@ class ArticleTablePage extends React.Component{
                             ])
                             }
                         />
-                    </Loadable>
-                    <Modal show={this.state.activeId !== null} onHide={this.handleClose}>
-                        <Modal.Header>
-                            <Modal.Title>
-                                <Row className="show-grid">
-                                    <Col xs={9} sm={9} md={9}>
-                                        {this.state.activeId && items.find((item)=> item.id === this.state.activeId).title}
-                                    </Col>
-                                    <Col xs={3} sm={3} md={3}>
-                                        {leftBreadcrumb(this.state.breadcrumb,this.handleArticleSwitch)}
-                                        {rightBreadcrumb(this.state.breadcrumb,this.handleArticleSwitch)}
-                                    </Col>
-                                </Row>
-                            </Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body>
-                            <Article
-                                dispatch={this.props.dispatch}
-                                id={this.state.activeId}
-                                activeComponent={this.state.activeComponent}
-                                formGroups={{"minimal":true,"date":true,"abstract":true}}
-                                context={'modal'}
-                                handleSwitch={this.handleComponentSwitch}
-                            />
-                        </Modal.Body>
-                        <Modal.Footer>
-                            <Button onClick={this.handleClose}>Fermer</Button>
-                        </Modal.Footer>
-                    </Modal>
-                    {/*<div className='innerbox' height="1000px" min-height="1000px"></div>*/}
-                    {/*<svg width="400" height="1000">*/}
-                    {/*</svg>*/}
-                </section>
+
+                        <Modal show={this.state.activeId !== null} onHide={this.handleClose}>
+                            <Modal.Header>
+                                <Modal.Title>
+                                    <Row className="show-grid">
+                                        <Col xs={9} sm={9} md={9}>
+                                            {this.state.activeId &&
+                                            items.find((item)=> item.id === this.state.activeId) &&
+                                            items.find((item)=> item.id === this.state.activeId).title}
+                                        </Col>
+                                        <Col xs={3} sm={3} md={3}>
+                                            {this.state.breadcrumb && leftBreadcrumb(this.state.breadcrumb,this.handleArticleSwitch)}
+                                            {this.state.breadcrumb && rightBreadcrumb(this.state.breadcrumb,this.handleArticleSwitch)}
+                                        </Col>
+                                    </Row>
+                                </Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <Article
+                                    dispatch={this.props.dispatch}
+                                    id={this.state.activeId}
+                                    activeComponent={this.state.activeComponent}
+                                    formGroups={{"minimal":true,"date":true,"abstract":true}}
+                                    context={'modal'}
+                                    handleSwitch={this.handleComponentSwitch}
+                                />
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button onClick={this.handleClose}>Fermer</Button>
+                            </Modal.Footer>
+                        </Modal>
+                        {/*<div className='innerbox' height="1000px" min-height="1000px"></div>*/}
+                        {/*<svg width="400" height="1000">*/}
+                        {/*</svg>*/}
+                    </section>
+                </Loadable>
             </div>
         );
     }
@@ -320,10 +343,12 @@ class ArticleTablePage extends React.Component{
 
 const mapStateToProps = state => {
     const selector = selector || getSelector(state.get("article"));
+    const nextNewIdSelector = getNextNewIdSelector(state.get("article"));
     const totalSelector = totalSelector2(state.get("article"));
     const notificationsSelector = getNotificationsSelector(state.get("app"));
     return {
         selector: selector,
+        nextNewIdSelector: nextNewIdSelector,
         totalSelector:totalSelector,
         notificationsSelector : notificationsSelector
     }

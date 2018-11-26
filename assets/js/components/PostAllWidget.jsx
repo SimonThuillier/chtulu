@@ -1,6 +1,5 @@
 import React from "react";
-import {Row,Col,Glyphicon,
-    OverlayTrigger,Button} from 'react-bootstrap';
+import {Glyphicon,OverlayTrigger,Button} from 'react-bootstrap';
 import {resetTooltip, submitTooltip} from "./tooltips";
 
 const mock = {};
@@ -32,7 +31,7 @@ export function ResetAllButton(props){
                         onClick={() => {mock.resetOverlayTrigger.handleDelayedHide()} }
         >
             <Button bsStyle="warning"
-                    onClick={()=>{}}>
+                    onClick={props.onResetAll}>
                 Reinitialiser&nbsp;<Glyphicon glyph="remove"/>
             </Button>
         </OverlayTrigger>

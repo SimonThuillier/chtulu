@@ -3,8 +3,8 @@ import {PostAllButton,ResetAllButton} from "./PostAllWidget";
 
 
 const Header = (props) => {
-    console.log("header's pending data");
-    console.log(props.pendingData);
+    /*console.log("header's pending data");
+    console.log(props.pendingData);*/
     return (
         <header className="main-header">
             <a href="#" className="logo">

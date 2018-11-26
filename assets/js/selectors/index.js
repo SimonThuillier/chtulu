@@ -21,6 +21,11 @@ export const getPendingTotalSelector = createSelector(
     }
 );
 
+export const getNextNewIdSelector = createSelector(
+    [(state) => state.get("nextNewId")],
+    (nextNewId) => () => nextNewId
+);
+
 export const getOneByIdSelector = createSelector(
     [(state) => state.get("items")],
     (items) => (id) => items.get(+id)

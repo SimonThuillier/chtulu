@@ -39,8 +39,7 @@ class ArrayUtil
             }
             elseif(is_string($k)) {
                 if(in_array($k,$sourceArray)){
-                    $returnArray[$k] = $sourceArray[$k];
-                    //$returnArray[] = $k;
+                    $returnArray[] = $k;
                 }
                 elseif(array_key_exists($k,$sourceArray)){
                     if(is_array($sourceArray[$k]) && is_array($filterArray[$k])){
@@ -49,6 +48,24 @@ class ArrayUtil
                     else{
                         $returnArray[$k] = $sourceArray[$k];
                     }
+                }
+            }
+        }
+        return $returnArray;
+    }
+
+    public static function normalizeGroups(array $sourceArray){
+        $returnArray = [];
+        foreach($sourceArray as $k => $v){
+            if(is_numeric($k)){
+                $returnArray[$v] = true;
+            }
+            elseif(is_string($k)) {
+                if(is_array($v)){
+                    $returnArray[$k] = self::normalizeGroups($v);
+                }
+                else{
+                    $returnArray[$k] = $v;
                 }
             }
         }

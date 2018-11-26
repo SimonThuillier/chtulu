@@ -9,8 +9,7 @@ import {
     DataToPost,
     HB_SUCCESS,
     HB_ERROR,
-    URL_POST,
-    SECURITY_TOKEN
+    URL_POST
 } from '../util/server';
 import { normalize,denormalize, schema } from 'normalizr';
 import WAOs from '../util/WAOs';
@@ -28,6 +27,9 @@ export const GET = 'GET';
 export const RECEIVE_GET = 'RECEIVE_GET';
 export const GET_ONE_BY_ID = 'GET_ONE_BY_ID';
 export const RECEIVE_GET_ONE_BY_ID = 'RECEIVE_GET_ONE_BY_ID';
+// data creation and removal
+export const CREATE_NEW = 'CREATE_NEW';
+export const DELETE = 'DELETE';
 // form actions
 export const SUBMIT_LOCALLY = 'SUBMIT_LOCALLY';
 export const RESET = 'RESET';
@@ -241,6 +243,46 @@ export const reset = (waoType,ids,groups) => (dispatch,state) =>{
         });
 };
 
+export const resetAll = (waoType,ids,groups) => (dispatch,getState) =>{
+    const state = getState();
+    const pendingTotalSelector = getPendingTotalSelector(state.get("app"));
+    if(pendingTotalSelector()<1) return;
+
+    let entities = entitiesSelector(state);
+    let dataToPost = DataToPost();//.add(waoType,id,normData);
+    state.getIn(["app","entitiesToPost"]).entrySeq().forEach((entry)=>{
+        let waoType = entry[0];
+        let items = entry[1];
+        items.entrySeq().forEach((entry)=>{
+            let id = entry[0];
+            let groups = entry[1];
+            dispatch(removePending(waoType,id,groups));
+            let normData = state.getIn([waoType,"items",+id]);
+            normData = denormalize(normData,WAOs.getIn([waoType,"schema"]),entities);
+            normData = normData.toJS();
+            normData = getDataToPost(waoType,normData,groups);
+            dataToPost.add(waoType,id,normData);
+        });
+    });
+
+    // effectively remove all pending data recursively
+    /*console.log("data to reset");
+    console.log(dataToPost);*/
+
+    Object.keys(dataToPost.waos).forEach((waoType)=>{
+        const normData = normalize(dataToPost.waos[waoType],[WAOs.getIn([waoType,"schema"])]);
+        /*console.log("renormalized data");
+        console.log(normData);*/
+        Object.keys(normData.entities).forEach((normWaoType)=>{
+            dispatch({
+                type: RESET,
+                waoType : normWaoType,
+                ids : Object.keys(normData.entities[normWaoType])
+            });
+        });
+    });
+};
+
 
 export const get = (waoType,groups,searchBag=null) => ({
     type: GET,
@@ -361,14 +403,6 @@ export const getIfNeeded = (waoType,groups=true,searchBag,senderKey=null) => (di
     }
 };
 
-// GETONEBYID
-// export const getOneById = (waoType,groups,id) => ({
-//     type: GET_ONE_BY_ID,
-//     waoType : waoType,
-//     groups : groups,
-//     id : id
-// });
-
 export const receiveGetOneById = (waoType,groups,id,data,message="Données bien recues du serveur") =>
     (dispatch,state) => {
     // let's normalize our received Data !
@@ -447,6 +481,7 @@ const shouldFetchGetOneById = (state, waoType,groups,id,senderKey=null) => {
 };
 
 export const getOneByIdIfNeeded = (waoType,groups=true,id,senderKey=null) => (dispatch, getState) => {
+    if (id===null) return;
     if (shouldFetchGetOneById(getState(), waoType,groups,id,senderKey)) {
         return dispatch(fetchGetOneById(waoType,groups,id,senderKey))
     }

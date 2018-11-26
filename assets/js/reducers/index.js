@@ -180,6 +180,8 @@ const concreteWaoType = (waoType) => {
     const initialWaoState = Imm.Map({
         type:waoType,
         total:-1,
+        nextNewId:-1,
+        newItem:null,
         items:Imm.Map(),
         searchCache: Imm.Map()
     });
