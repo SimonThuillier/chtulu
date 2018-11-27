@@ -27,6 +27,30 @@ class RequestHelper
     }
 
     /**
+     * check if get new request is valid and returns the data
+     * @param Request $request
+     * @return array
+     * @throws \Exception
+     */
+    public function handleGetNewRequest(Request $request)
+    {
+        $result = ["waoType"=>null];
+
+        if (0 !== strpos($request->headers->get('Content-Type'), 'application/json')) {
+            throw new \Exception("Request Content-Type must be application/json for GetNew request");
+        }
+
+        if(! $request->query->has("type")) throw new \Exception("Type parameter is mandatory for Get New request");
+        $dtoClassName = $this->waoHelper->guessClassName($request->query->get("type"));
+        if(! $this->waoHelper->isDTO($dtoClassName))
+            throw new \Exception($request->query->has("type") . " is not a known DTO");
+
+        $result["waoType"] = $request->query->get("type");
+
+        return $result;
+    }
+
+    /**
      * check if post request is valid and returns the data
      * @param Request $request
      * @return array

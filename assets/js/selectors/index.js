@@ -25,6 +25,16 @@ export const getNextNewIdSelector = createSelector(
     [(state) => state.get("nextNewId")],
     (nextNewId) => () => nextNewId
 );
+export const getBabiesSelector = createSelector(
+    [(state) => state.get("babyItemIds"),(state) => state.get("items")],
+    (babyItemIds,items) => () => {
+        let babies = [];
+        babyItemIds.keySeq().forEach((k)=>{
+            babies.push(items.get(+k));
+        });
+        return babies;
+    }
+);
 
 export const getOneByIdSelector = createSelector(
     [(state) => state.get("items")],

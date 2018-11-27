@@ -19,11 +19,13 @@ import SearchBag from '../util/SearchBag';
 import SearchBagUtil from '../util/SearchBagUtil';
 import ArticleType from './ArticleType';
 import {connect} from "react-redux";
-import {getNotificationsSelector, getSelector, totalSelector2,getNextNewIdSelector} from "../selectors";
+import {getNotificationsSelector, getSelector, totalSelector2,getNextNewIdSelector,getBabiesSelector} from "../selectors";
 import RImageMini from "./RImageMini";
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import ArticleFilter from './ArticleFilter';
-import {LOADING,COLORS} from "../util/notifications";
+import {LOADING, COLORS, SUBMITTING_COMPLETED} from "../util/notifications";
+import {untouch as formUntouch} from "redux-form/immutable";
+import {getAllPropertiesInGroups} from "../util/WAOUtil";
 const componentUid = require('uuid/v4')();
 
 
@@ -65,9 +67,9 @@ const columns = [{
 }
 ];
 
-const customTotal = (from, to, size) => (
+const customTotal = (babiesCount) => (from, to, size) => (
     <span className="react-bootstrap-table-pagination-total">
-    &nbsp;Lignes { from } à { to } affichées parmi { size } résultats
+    &nbsp;Lignes { from } à { to } affichées parmi { size } résultats{babiesCount>0?` + ${babiesCount} article(s) ajouté(s)`:''}
   </span>
 );
 
@@ -136,6 +138,13 @@ class ArticleTablePage extends React.Component{
 
     componentDidMount(){
         this.loadSearchBag(this.state.groups,this.state.searchBag);
+    }
+
+    componentDidUpdate(prevProps) {
+        // when babies are submitted all indexes are erased to ensure coherence between server and client so we have to reload
+        if (prevProps.babiesSelector !== this.props.babiesSelector) {
+            this.loadSearchBag(this.state.groups,this.state.searchBag);
+        }
     }
 
     loadSearchBag(groups,searchBag){
@@ -231,7 +240,11 @@ class ArticleTablePage extends React.Component{
     }
 
     render(){
-        let items = this.props.selector(this.state.searchBag);
+        const {selector,babiesSelector,totalSelector,notificationsSelector} = this.props;
+        const babies = babiesSelector();
+        const babiesCount = babies.length;
+
+        let items = babies.concat(selector(this.state.searchBag));
         let total = this.props.totalSelector(this.state.searchBag);
         const notifications = this.props.notificationsSelector(componentUid);
 
@@ -272,7 +285,7 @@ class ArticleTablePage extends React.Component{
                                 sizePerPage:this.state.sizePerPage,
                                 totalSize:total,
                                 showTotal:true,
-                                paginationTotalRenderer:customTotal,
+                                paginationTotalRenderer:customTotal(babiesCount),
                                 withFirstAndLast:true
 
                             })}
@@ -306,9 +319,9 @@ class ArticleTablePage extends React.Component{
                                 <Modal.Title>
                                     <Row className="show-grid">
                                         <Col xs={9} sm={9} md={9}>
-                                            {this.state.activeId &&
+                                            {(this.state.activeId &&
                                             items.find((item)=> item.id === this.state.activeId) &&
-                                            items.find((item)=> item.id === this.state.activeId).title}
+                                            items.find((item)=> item.id === this.state.activeId).title) || 'Nouvel article'}
                                         </Col>
                                         <Col xs={3} sm={3} md={3}>
                                             {this.state.breadcrumb && leftBreadcrumb(this.state.breadcrumb,this.handleArticleSwitch)}
@@ -343,11 +356,13 @@ class ArticleTablePage extends React.Component{
 
 const mapStateToProps = state => {
     const selector = selector || getSelector(state.get("article"));
+    const babiesSelector = getBabiesSelector(state.get("article"));
     const nextNewIdSelector = getNextNewIdSelector(state.get("article"));
     const totalSelector = totalSelector2(state.get("article"));
     const notificationsSelector = getNotificationsSelector(state.get("app"));
     return {
         selector: selector,
+        babiesSelector:babiesSelector,
         nextNewIdSelector: nextNewIdSelector,
         totalSelector:totalSelector,
         notificationsSelector : notificationsSelector

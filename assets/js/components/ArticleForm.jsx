@@ -304,20 +304,26 @@ class ArticleForm extends React.Component{
                             </Button>
                         </OverlayTrigger>
                         &nbsp;
-                        <OverlayTrigger placement="bottom"
-                                        overlay={resetTooltip("cet article")}
-                                        ref={(ov) => {
-                                            this.overlayTrigger = ov;
-                                        }}
-                                        onClick={() => {this.overlayTrigger.handleDelayedHide()} }
-                        >
-                            <Button bsStyle="warning"
-                                    disabled={(pristine || submitting) &&
-                                    (this.state.data?(!this.state.data.isDirty(this.state.data)):true)}
-                                    onClick={this.handleReset}>
-                                Reinitialiser&nbsp;<Glyphicon glyph="remove"/>
-                            </Button>
-                        </OverlayTrigger>
+                        {
+                            this.state.id>0 &&
+
+                            <OverlayTrigger placement="bottom"
+                                            overlay={resetTooltip("cet article")}
+                                            ref={(ov) => {
+                                                this.overlayTrigger = ov;
+                                            }}
+                                            onClick={() => {this.overlayTrigger.handleDelayedHide()} }
+                            >
+
+                                <Button bsStyle="warning"
+                                        disabled={(pristine || submitting) &&
+                                        (this.state.data?(!this.state.data.isDirty(this.state.data)):true)}
+                                        onClick={this.handleReset}>
+                                    Reinitialiser&nbsp;<Glyphicon glyph="remove"/>
+                                </Button>
+
+                            </OverlayTrigger>
+                        }
                     </div>
                 </Form>
             </Loadable>

@@ -3,6 +3,7 @@ import {
     HTTP_POST,
     URL_GET,
     URL_GET_ONE_BY_ID,
+    URL_GET_NEW,
     getUrl,
     getHTTPProps,
     getHBProps,
@@ -25,6 +26,7 @@ export const DISCARD = 'DISCARD';
 // data reception actions
 export const GET = 'GET';
 export const RECEIVE_GET = 'RECEIVE_GET';
+export const RECEIVE_NEW = 'RECEIVE_NEW';
 export const GET_ONE_BY_ID = 'GET_ONE_BY_ID';
 export const RECEIVE_GET_ONE_BY_ID = 'RECEIVE_GET_ONE_BY_ID';
 // data creation and removal
@@ -127,6 +129,7 @@ export const postOne = (waoType,groups=true,id,senderKey) => (dispatch,getState)
                         //dispatch(receiveGet(waoType,groups,searchBag,json.rows,json.total,json.message));
                         break;
                     case HB_ERROR:
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey || 'HBAPP',id,HB_ERROR));
                         //dispatch(errorGet(waoType,groups,searchBag,json.message));
                         break;
                     default:
@@ -441,6 +444,7 @@ const fetchGetOneById = (waoType,groups=true,id,senderKey) => (dispatch,state) =
                         dispatch(receiveGetOneById(waoType,groups,id,json.data,json.message));
                         break;
                     case HB_ERROR:
+                        dispatch(notify(LOADING_COMPLETED,senderKey,id,HB_ERROR));
                         dispatch(errorGet(waoType,groups,id,json.message));
                         break;
                     default:
@@ -482,10 +486,73 @@ const shouldFetchGetOneById = (state, waoType,groups,id,senderKey=null) => {
 
 export const getOneByIdIfNeeded = (waoType,groups=true,id,senderKey=null) => (dispatch, getState) => {
     if (id===null) return;
-    if (shouldFetchGetOneById(getState(), waoType,groups,id,senderKey)) {
+    // new case
+    if(+id<0){
+        if(shouldFetchNew(getState(),waoType)){
+            console.log(`should fetch new ${waoType}`);
+            dispatch(fetchNew(waoType,id,senderKey));
+        }
+        else {
+            setTimeout(()=>{
+                if (!getState().hasIn(["article","items",+id])){
+                    dispatch(createNew(waoType));
+                }
+            },5);
+        }
+    }
+    // standard case
+    else if (shouldFetchGetOneById(getState(), waoType,groups,id,senderKey)) {
         return dispatch(fetchGetOneById(waoType,groups,id,senderKey))
     }
 };
+
+const shouldFetchNew = (state,waoType) => {
+    if (state.hasIn(["app","notifications",waoType,'DEFAULT'])) return false;
+    return ! state.getIn([waoType,"newItem"]);
+};
+
+const fetchNew = (waoType,id,senderKey) => (dispatch) => {
+    const url = getUrl(URL_GET_NEW,getHBProps(waoType,null,0));
+    dispatch(notify(LOADING,waoType,null));
+    dispatch(notify(LOADING,senderKey,id));
+    return fetch(url,getHTTPProps())
+        .then(response => response.json())
+        .then(json => {
+                switch (json.status) {
+                    case HB_SUCCESS:
+                        setTimeout(()=>{
+                            dispatch(notify(LOADING_COMPLETED,senderKey,id,HB_SUCCESS));
+                            dispatch(notify(LOADING_COMPLETED,waoType,null,HB_SUCCESS));
+                            dispatch(createNew(waoType));
+                        },10);
+                        console.log(json);
+                        dispatch(receiveNew(waoType,json.data));
+                        break;
+                    case HB_ERROR:
+                        setTimeout(()=>{
+                            dispatch(notify(LOADING_COMPLETED,senderKey,id,HB_ERROR));
+                            dispatch(notify(LOADING_COMPLETED,waoType,null,HB_ERROR));
+                        },10);
+                        dispatch(errorGet(waoType,null,0,json.message));
+                        break;
+                    default:
+                }
+            }
+        )
+};
+
+const receiveNew = (waoType,data) => ({
+    type:RECEIVE_NEW,
+    waoType : waoType,
+    receivedAt: Date.now(),
+    wao: data
+});
+
+const createNew = (waoType) => ({
+    type:CREATE_NEW,
+    waoType : waoType,
+    receivedAt: Date.now()
+});
 
 
 

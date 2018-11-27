@@ -160,6 +160,7 @@ class CRUDController extends Controller
 
     /**
      * @param Request $request
+     * @param RequestHelper $requestHelper
      * @param WAOHelper $waoHelper
      * @param MediatorFactory $mediatorFactory
      * @param DTONormalizer $normalizer
@@ -169,17 +170,15 @@ class CRUDController extends Controller
      * @return JsonResponse
      */
     public function getNewAction(Request $request,
+                                 RequestHelper $requestHelper,
                                  WAOHelper $waoHelper,
                                  MediatorFactory $mediatorFactory,
                                  DTONormalizer $normalizer)
     {
         $hResponse = new HJsonResponse();
-        //sleep(2000);
         try{
-            if(! $request->query->has("type")) throw new \Exception("Type parameter is mandatory");
-            $dtoClassName = $waoHelper->guessClassName($request->query->get("type"));
-            if(! $waoHelper->isDTO($dtoClassName))
-                throw new \Exception($request->query->has("type") . " is not a known DTO");
+            $handledRequest = $requestHelper->handleGetNewRequest($request);
+            $dtoClassName = $waoHelper->guessClassName($handledRequest["waoType"]);
             $mediator = $mediatorFactory->create($dtoClassName);
             $mediator->mapDTOGroups();
 
