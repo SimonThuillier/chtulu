@@ -365,11 +365,12 @@ const fetchGet = (waoType,groups=true,searchBag,senderKey) => (dispatch,state) =
         .then(json => {
             switch (json.status) {
                 case HB_SUCCESS:
-                    dispatch(notify(LOADING_COMPLETED,senderKey,coreBagKey,HB_SUCCESS));
                     dispatch(receiveGet(waoType,groups,searchBag,json.rows,json.total,json.message));
+                    dispatch(notify(LOADING_COMPLETED,senderKey,coreBagKey,HB_SUCCESS));
                     break;
                 case HB_ERROR:
                     dispatch(errorGet(waoType,groups,searchBag,json.message));
+                    dispatch(notify(LOADING_COMPLETED,senderKey,coreBagKey,HB_ERROR));
                     break;
                 default:
             }
@@ -378,6 +379,9 @@ const fetchGet = (waoType,groups=true,searchBag,senderKey) => (dispatch,state) =
 };
 
 const shouldFetchGet = (state, waoType,groups,searchBag,senderKey=null) => {
+    const coreBagKey = JSON.stringify(SearchBagUtil.getCoreBag(searchBag));
+    if (state.hasIn(["app","notifications",senderKey,coreBagKey,LOADING])) return false;
+
     const searchCacheEntry = state.getIn([waoType,"searchCache",
         JSON.stringify(SearchBagUtil.getCoreBag(searchBag))]);
     //console.log(`shouldFetchGet 0 `);
