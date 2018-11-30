@@ -53,14 +53,12 @@ export const getSelector = createSelector(
         let indexMap = searchCacheEntry.get("indexMap");
         indexMap = (searchBag.order===SearchBagUtil.ASC)?indexMap:
             SearchBagUtil.invertIndexMap(indexMap,searchCacheEntry.get("total"));
-        //console.log("proto new GetSelector");
         let selectedEntries = [];
-        indexMap.forEach((v,k)=>{
-            //console.log(`k : ${k}, v : ${v}`);
-            if(k>=offset && k<(offset+limit)) selectedEntries.push(v);
-        });
-        //console.log(selectedEntries);
 
+        indexMap.forEach((v,k)=>{
+            console.log(`k : ${k}, v : ${v}`);
+            if(k>=offset && k<(offset+limit)) selectedEntries[k] = +v;
+        });
         return selectedEntries.map((id)=> items.get(+id));
     }
 );
@@ -85,8 +83,8 @@ export const entitiesSelector = createSelector(
         WAOs.entrySeq().forEach(entry => {
                 entities[entry[0]]= {};
                 state.getIn([entry[0],"items"]).forEach((v,k)=>{
-                    console.log(v);
-                    console.log(k);
+                    /*console.log(v);
+                    console.log(k);*/
                     entities[entry[0]][k] = v;
                 });
             }

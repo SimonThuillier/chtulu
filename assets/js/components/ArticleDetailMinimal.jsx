@@ -9,7 +9,7 @@ export default function ArticleDetailMinimal(props){
                     <h5>Type : {props.type ? <ArticleType id={props.type}/> : ''}</h5>
                     <h5>Date de début : {props.beginHDate ? props.beginHDate.getLabel() : ''}</h5>
                     <h5>Date de fin : {props.endHDate ? props.endHDate.getLabel() : ''}</h5>
-                    <h5>A une fin ? : {props.hasEndDate ? 'Oui' : 'Non'}</h5>
+                    {/*<h5>A une fin ? : {props.hasEndDate ? 'Oui' : 'Non'}</h5>*/}
                 </div>
             </div>
         </div>

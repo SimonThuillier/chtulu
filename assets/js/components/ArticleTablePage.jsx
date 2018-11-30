@@ -245,6 +245,8 @@ class ArticleTablePage extends React.Component{
         const babiesCount = babies.length;
 
         let items = babies.concat(selector(this.state.searchBag));
+        /*console.log("items");
+        console.log(items);*/
         let total = this.props.totalSelector(this.state.searchBag);
         const notifications = this.props.notificationsSelector(componentUid);
 

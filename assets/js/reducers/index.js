@@ -267,10 +267,13 @@ const concreteWaoType = (waoType) => {
                         state = state.setIn(["searchCache",coreBagKey],SearchCacheEntry(coreBagKey,action.total));
                     }
                     let indexMap = state.getIn(["searchCache",coreBagKey,"indexMap"]);
+                    console.log("receive get");
+                    console.log(action);
                     for(let i=0;i<action.result.length;i++){
                         let newStackIndex = (order===SearchBagUtil.ASC)?offset+i:action.total-(offset+i)-1;
                         indexMap = indexMap.set(+newStackIndex,+action.result[i]);
                     }
+                    // indexMap = indexMap.sortBy((v,k)=>+k,(a,b)=>a>b?1:a<b?-1:0); TODO : check if it can work
                     let entry = state.getIn(["searchCache",coreBagKey]);
                     entry = entry.
                     set("indexMap",indexMap).
