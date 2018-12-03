@@ -61,8 +61,8 @@ class ResourceGeometryDTOMediator extends DTOMediator
             ->setId($geo->getId())
             ->setTargetGeometry(new Geometry($geo->getTargetGeometry()))
             ->setZoomGeometry($geo->getZoomGeometry())
-            ->setComment($geo->getComment())
-            ->addMappedGroup('minimal');
+            ->setComment($geo->getComment());
+            //->addMappedGroup('minimal');
     }
 
 

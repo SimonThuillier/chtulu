@@ -236,7 +236,7 @@ export const submitLocally = (waoType,data,id,groups) => (dispatch,state) => {
 
 export const reset = (waoType,ids,groups) => (dispatch,state) =>{
     ids.forEach((id)=>{
-        dispatch(removePending(waoType,id,groups));
+        setTimeout(()=>dispatch(removePending(waoType,id,groups)),10);
     });
 
     return dispatch({
@@ -244,6 +244,17 @@ export const reset = (waoType,ids,groups) => (dispatch,state) =>{
             waoType : waoType,
             ids : ids
         });
+};
+
+export const deleteLocally = (waoType,ids) => (dispatch,state) => {
+    ids.forEach((id)=>{
+        dispatch(addPending(waoType,id,'minimal'));
+    });
+    return dispatch({
+        type: DELETE,
+        waoType: waoType,
+        ids: ids
+    });
 };
 
 export const resetAll = (waoType,ids,groups) => (dispatch,getState) =>{

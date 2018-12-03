@@ -85,7 +85,7 @@ class Article extends React.Component{
                     id={this.state.id}
                     groups={this.state.formGroups}
                     handleSwitch={this.handleSwitch}
-                    // changeHandler={this.getChangeHandler.bind(this)}
+                    onNothing={this.props.onNothing}
                     />}
                 </div>}
             </Loadable>

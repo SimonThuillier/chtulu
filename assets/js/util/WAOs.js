@@ -8,8 +8,12 @@ import HDate from './HDate';
 const waoPrototype = {
     pendingModification:false,
     initialValues:null,
+    toRemove:false,
     isDirty : function(rec){
         return (rec.initialValues && rec.initialValues.size>0);
+    },
+    isNew : function(rec){
+        return (+rec.get("id") < 0);
     },
     getPartial : function(groups = true){
         console.log(this);

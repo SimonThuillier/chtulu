@@ -57,8 +57,8 @@ class ResourceVersionDTOMediator extends DTOMediator
         $dto
             ->setId($version->getId())
             ->setNumber($version->getNumber())
-            ->setType(($version->getFile())?$version->getFile()->getType():null)
-            ->addMappedGroup('minimal');
+            ->setType(($version->getFile())?$version->getFile()->getType():null);
+            //->addMappedGroup('minimal');
     }
 
     protected function mediateFile(){

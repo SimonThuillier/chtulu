@@ -11,14 +11,14 @@ import {
 import { Field, reduxForm,change as formChange,
     blur as formBlur,focus as formFocus,touch as formTouch,untouch as formUntouch} from 'redux-form/immutable';
 const Imm = require("immutable");
-import {getOneByIdIfNeeded,submitLocally,postOne,reset as stateReset,TIMEOUT,discard} from '../actions';
+import {getOneByIdIfNeeded,submitLocally,postOne,reset as stateReset,TIMEOUT,discard,deleteLocally} from '../actions';
 import ArticleTypeSelect from "./ArticleTypeSelect";
 const componentUid = require('uuid/v4')();
 import HDateInput from "./HDateInput";
 import HBFormField from './HBFormField';
-import {Button,Tooltip} from 'react-bootstrap';
+import {Button,Tooltip,Row,Col} from 'react-bootstrap';
 import Loadable from 'react-loading-overlay';
-import {previewTooltip,submitTooltip,resetTooltip} from './tooltips';
+import {previewTooltip,submitTooltip,resetTooltip,deleteTooltip} from './tooltips';
 import {LOADING,SUBMITTING,SUBMITTING_COMPLETED,COLORS} from '../util/notifications';
 import {HB_SUCCESS} from "../util/server";
 import {getAllPropertiesInGroups} from '../util/WAOUtil';
@@ -69,6 +69,7 @@ class ArticleForm extends React.Component{
         this.submit = this.submit.bind(this);
         this.handleServerSubmit = this.handleServerSubmit.bind(this);
         this.handleReset = this.handleReset.bind(this);
+        this.handleDelete = this.handleDelete.bind(this);
         this.shouldReinitialize = this.shouldReinitialize.bind(this);
 
         this.state = {
@@ -131,10 +132,15 @@ class ArticleForm extends React.Component{
         if (prevProps.id !== this.props.id){
             this.submit(prevProps.id);
         }
+
         if (prevProps.id !== this.props.id ||
             (this.shouldReinitialize(this.state.data) && prevProps.selector !== this.props.selector)) {
             this.loadInitialValues();
         }
+        else if (this.props.selector(this.props.id) !== this.state.data) {
+            this.setState({data:this.props.selector(this.props.id)});
+        }
+
         if (prevProps.notificationsSelector !== this.props.notificationsSelector) {
             const notifications = this.props.notificationsSelector(componentUid);
             let submittingCompleted = (notifications && notifications.
@@ -148,13 +154,30 @@ class ArticleForm extends React.Component{
     }
 
     handleReset(){
-        const { reset,dispatch,id} = this.props;
+        const { reset,dispatch,id,onNothing} = this.props;
         //reset();
-        dispatch(stateReset("article",[id],this.state.groups));
-        setTimeout(() => {
+        dispatch(stateReset("article",[id],(this.state.data && this.state.data.get("toDelete"))?'minimal':this.state.groups));
+        if(+id>0){
+            setTimeout(() => {
+                this.loadInitialValues();
+                reset();
+            },20);
+        }
+        else{
+            onNothing();
+        }
+    }
+
+    handleDelete(){
+        const {dispatch,id} = this.props;
+        dispatch(deleteLocally("article",[id]));
+        console.log("delete");
+
+
+        /*setTimeout(() => {
             this.loadInitialValues();
             reset();
-        },20);
+        },20);*/
     }
 
     submit(id=null){
@@ -281,50 +304,70 @@ class ArticleForm extends React.Component{
                         component={HBFormField}
                         label="Résumé"
                     />}
-                    <div>
-                        <OverlayTrigger placement="bottom" overlay={previewTooltip("votre article")}>
-                            <Button bsStyle="info"
-                                    disabled={!valid}
-                                    onClick={this.handleSwitch}>
-                                Previsualiser&nbsp;<Glyphicon glyph={valid?"eye-open":"eye-closed"}/>
-                            </Button>
-                        </OverlayTrigger>
-                        &nbsp;
-                        <OverlayTrigger placement="bottom"
-                                        overlay={submitTooltip("votre article")}
-                                        ref={(ov) => {
-                                            this.saveOverlayTrigger = ov;
-                                        }}
-                                        onClick={() => {this.saveOverlayTrigger.handleDelayedHide()} }
-                        >
-                            <Button bsStyle="success"
-                                    disabled={!valid || submitting}
-                                    onClick={this.handleServerSubmit}>
-                                Enregistrer&nbsp;<Glyphicon glyph="upload"/>
-                            </Button>
-                        </OverlayTrigger>
-                        &nbsp;
-                        {
-                            this.state.id>0 &&
-
+                    <Row>
+                        <Col md={9}>
+                            <OverlayTrigger placement="bottom" overlay={previewTooltip("votre article")}>
+                                <Button bsStyle="info"
+                                        disabled={!valid}
+                                        onClick={this.handleSwitch}>
+                                    Previsualiser&nbsp;<Glyphicon glyph={valid?"eye-open":"eye-closed"}/>
+                                </Button>
+                            </OverlayTrigger>
+                            &nbsp;
+                            <OverlayTrigger placement="bottom"
+                                            overlay={submitTooltip("votre article")}
+                                            ref={(ov) => {
+                                                this.saveOverlayTrigger = ov;
+                                            }}
+                                            onClick={() => {this.saveOverlayTrigger.handleDelayedHide()} }
+                            >
+                                <Button bsStyle={(this.state.data && this.state.data.get("toDelete"))?"warning":"success"}
+                                        disabled={!valid || submitting}
+                                        onClick={this.handleServerSubmit}>
+                                    {(this.state.data && this.state.data.get("toDelete"))?"Valider suppr.":"Enregistrer"}
+                                    &nbsp;<Glyphicon glyph="upload"/>
+                                </Button>
+                            </OverlayTrigger>
+                            &nbsp;
                             <OverlayTrigger placement="bottom"
                                             overlay={resetTooltip("cet article")}
                                             ref={(ov) => {
-                                                this.overlayTrigger = ov;
+                                                this.resetOverlayTrigger = ov;
                                             }}
-                                            onClick={() => {this.overlayTrigger.handleDelayedHide()} }
+                                            onClick={() => {this.resetOverlayTrigger.handleDelayedHide()} }
                             >
-
-                                <Button bsStyle="warning"
+                                <Button bsStyle={(this.state.data && this.state.data.get("toDelete"))?"default":"warning"}
                                         disabled={(pristine || submitting) &&
                                         (this.state.data?(!this.state.data.isDirty(this.state.data)):true)}
                                         onClick={this.handleReset}>
-                                    Reinitialiser&nbsp;<Glyphicon glyph="remove"/>
+                                    {(this.state.data && this.state.data.isNew(this.state.data))?'Annuler ajout':
+                                        (this.state.data && this.state.data.get("toDelete"))?'Annuler suppr.':
+                                            'Reinitialiser'}
+                                    &nbsp;<Glyphicon
+                                    glyph={(this.state.data && this.state.data.get("toDelete"))?"hand-left":"erase"}
+                                />
                                 </Button>
-
                             </OverlayTrigger>
-                        }
-                    </div>
+                        </Col>
+                        <Col md={3}>
+                            {!(this.state.data && this.state.data.isNew(this.state.data)) &&
+                            !(this.state.data && this.state.data.get("toDelete")) &&
+                            <OverlayTrigger placement="bottom"
+                                            overlay={deleteTooltip("cet article")}
+                                            ref={(ov) => {
+                                                this.deleteOverlayTrigger = ov;
+                                            }}
+                                            onClick={() => {this.deleteOverlayTrigger.handleDelayedHide()} }
+                            >
+                                <Button bsStyle="danger"
+                                        disabled={false}
+                                        onClick={this.handleDelete}>
+                                    Supprimer&nbsp;<Glyphicon glyph="remove"/>
+                                </Button>
+                            </OverlayTrigger>
+                            }
+                        </Col>
+                    </Row>
                 </Form>
             </Loadable>
         );

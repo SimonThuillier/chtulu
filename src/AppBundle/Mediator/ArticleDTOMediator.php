@@ -39,7 +39,7 @@ class ArticleDTOMediator extends DTOMediator
     public function __construct(ContainerInterface $locator)
     {
         parent::__construct($locator);
-        $this->groups = ['minimal','abstract','date','type','url','detailImage','subArticles','hteRange'];
+        $this->groups = ['minimal','abstract','date','type','detailImage','subArticles','hteRange'];
         $this->dtoClassName = self::DTO_CLASS_NAME;
         $this->entityClassName = self::ENTITY_CLASS_NAME;
     }
@@ -68,8 +68,8 @@ class ArticleDTOMediator extends DTOMediator
         $dto
             ->setId($article->getId())
             ->setTitle($article->getTitle())
-            ->setType($article->getType())
-            ->addMappedGroup('minimal');
+            ->setType($article->getType());
+            //->addMappedGroup('minimal');
         // ensure mapped children are loaded
         $article->getType()->getLabel();
     }
@@ -81,8 +81,8 @@ class ArticleDTOMediator extends DTOMediator
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
         $dto
-            ->setAbstract($article->getAbstract())
-            ->addMappedGroup('abstract');
+            ->setAbstract($article->getAbstract());
+            //->addMappedGroup('abstract');
     }
 
     /**
@@ -132,88 +132,9 @@ class ArticleDTOMediator extends DTOMediator
         $dto
             ->setBeginHDate($beginHDate)
             ->setEndHDate($endHDate)
-            ->setHasEndDate($hasEndDate)
-            ->addMappedGroup('date');
+            ->setHasEndDate($hasEndDate);
+            //->addMappedGroup('date');
     }
-
-    protected function mapDTOUrlGroup()
-    {
-        if ($this->dto->getId() <1) return $this->mapDTOUrlGroupForNewEntity();
-
-        /** @var Article $article */
-        $article = $this->entity;
-        /** @var ArticleDTO $dto */
-        $dto = $this->dto;
-
-        $router = $this->locator->get('router');
-
-        $postUrl = $dto->getId()>0?$router->generate("article_post_edit",["article"=>$article])
-            :$router->generate("article_post_create");
-
-        if ($dto->getUrlBag() === null){$dto->setUrlBag(new UrlBag());}
-        $dto->getUrlBag()
-            ->setView($router->generate("article_view",["article"=>$article]))
-            ->setEdit($router->generate("article_edit",["article"=>$article]))
-            ->setPost($postUrl)
-            ->setInfo($router->generate("article_getdata",["article"=>$article]))
-            ->setDelete($router->generate("article_delete",["article"=>$article]))
-            ->setCancel($router->generate("article_cancel",["article"=>$article]));
-
-        $dto->addMappedGroup('url');
-    }
-
-    protected function mapDTOUrlGroupForNewEntity()
-    {
-        $router = $this->locator->get('router');
-        /** @var ArticleDTO $dto */
-        $dto = $this->dto;
-
-        if ($dto->getUrlBag() === null){$dto->setUrlBag(new UrlBag());}
-        $dto->getUrlBag()
-            ->setPost($router->generate("article_post_create"));
-
-        $dto->addMappedGroup('url');
-    }
-
-//    protected function mapDTODetailImageUrlGroup($mode=DTOMediator::NOTHING_IF_NULL,$subGroups=null){
-//        $assetHelper = $this->locator->get(AssetHelper::class);
-//        /** @var ArticleDTO $dto */
-//        $dto = $this->dto;
-//        /** @var Article $article */
-//        $article = $this->entity;
-//
-//        $detailImage = $article->getDetailImage();
-//        $detailUrl = null;
-//
-//        if($detailImage !== null){
-//            if($dto->getDetailImageResource() === null){
-//                $resourceMediator = $this->locator->get(MediatorFactory::class)
-//                    ->create(ResourceDTO::class,$detailImage,null,$mode);
-//            }
-//            else{
-//                $resourceMediator = $dto->getDetailImageResource()->getMediator();
-//            }
-//            $resourceMediator->mapDTOGroups($subGroups,$mode);
-//            $dto->setDetailImageResource($resourceMediator->getDTO());
-//            /** @var ResourceDTO $resourceDto */
-//            $resourceDto = $resourceMediator->getDTO();
-//            if($resourceDto && $resourceDto->getActiveVersion() !== null){
-//                $detailUrl = $resourceDto->getActiveVersion()->getUrlDetailThumbnail();
-//            }
-//        }
-//        else{
-//            $dto->setDetailImageResource(null);
-//        }
-//
-//        if($detailUrl !== null){
-//            $dto->setDetailImageUrl($detailUrl);
-//        }
-//        else{
-//            $dto->setDetailImageUrl($assetHelper->getDefaultImage($this->entity));
-//        }
-//
-//        $dto->addMappedGroup('detailImageResource');
-//    }
 
     protected function mapDTODetailImageGroup($mode=DTOMediator::NOTHING_IF_NULL,$subGroups=null)
     {
@@ -236,24 +157,11 @@ class ArticleDTOMediator extends DTOMediator
             }
             $resourceMediator->mapDTOGroups($subGroups,$mode);
             $dto->setDetailImageResource($resourceMediator->getDTO());
-            /** @var ResourceDTO $resourceDto */
-            $resourceDto = $resourceMediator->getDTO();
-            if($resourceDto && $resourceDto->getActiveVersion() !== null){
-                $detailUrl = $resourceDto->getActiveVersion()->getUrlDetailThumbnail();
-            }
         }
         else{
             $dto->setDetailImageResource(null);
         }
-
-        if($detailUrl !== null){
-            $dto->setDetailImageUrl($detailUrl);
-        }
-        else{
-            $dto->setDetailImageUrl($assetHelper->getDefaultImage($this->entity));
-        }
-
-        $dto->addMappedGroup('detailImage');
+        //$dto->addMappedGroup('detailImage');
     }
 
     protected function mapDTOSubArticlesGroup()
@@ -287,7 +195,7 @@ class ArticleDTOMediator extends DTOMediator
             if($endHDate !== null) $hteRange->setEndDate($endHDate->getEndDate());
         }
         // TODO : complete when sub-article management is completed
-        $dto->addMappedGroup('hteRange');
+        //$dto->addMappedGroup('hteRange');
     }
 
     protected function mediateBeginHDate($mapperCommands){

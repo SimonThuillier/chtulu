@@ -17,9 +17,12 @@ abstract class EntityMutableDTO
     protected $groups;
     /** @var array */
     protected $backGroups;
+    /** @var boolean */
+    protected $toDelete=false;
 
     public function __construct()
     {
+        $this->toDelete=false;
         $this->groups = [];
         $this->backGroups = [];
     }
@@ -60,6 +63,25 @@ abstract class EntityMutableDTO
             $this->oldId = $this->id;
             $this->id = $id;
         }
+        return $this;
+    }
+
+    /**
+     * @return bool
+     * @Groups({"minimal"})
+     */
+    public function getToDelete(): bool
+    {
+        return $this->toDelete;
+    }
+
+    /**
+     * @param bool $toDelete
+     * @return EntityMutableDTO
+     */
+    public function setToDelete(bool $toDelete): EntityMutableDTO
+    {
+        $this->toDelete = $toDelete;
         return $this;
     }
 

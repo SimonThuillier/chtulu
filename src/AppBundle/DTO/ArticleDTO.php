@@ -34,13 +34,9 @@ class ArticleDTO extends EntityMutableDTO
     /** @var boolean */
     protected $hasEndDate;
     /** @var mixed */
-    protected $detailImageUrl;
-    /** @var mixed */
     protected $detailImageResource;
     /** @var DTOMediator */
     protected $mediator;
-    /** @var UrlBag */
-    protected $urlBag;
     /** @var array */
     protected $subArticles;
     /** @var HDate */
@@ -177,28 +173,8 @@ class ArticleDTO extends EntityMutableDTO
     }
 
     /**
-     * @return mixed|null
-     * @Groups({"detailImage","detailImageUrl"})
-     */
-    public function getDetailImageUrl()
-    {
-        //var_dump($this->detailImage);
-        return $this->detailImageUrl;
-    }
-
-    /**
-     * @param string $detailImageUrl
-     * @return self
-     */
-    public function setDetailImageUrl($detailImageUrl)
-    {
-        $this->detailImageUrl = $detailImageUrl;
-        return $this;
-    }
-
-    /**
      * @return ResourceDTO|null
-     * @Groups({"detailImage","detailImageResource"})
+     * @Groups({"detailImage"})
      */
     public function getDetailImageResource() : ?ResourceDTO
     {
@@ -214,25 +190,6 @@ class ArticleDTO extends EntityMutableDTO
     {
         $this->detailImageResource = $resource;
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('detailImageResource');
-        return $this;
-    }
-
-    /**
-     * @return UrlBag
-     * @Groups({"readUrl","editUrl","adminUrl","url"})
-     */
-    public function getUrlBag()
-    {
-        return $this->urlBag;
-    }
-
-    /**
-     * @param UrlBag $urlBag
-     * @return ArticleDTO
-     */
-    public function setUrlBag($urlBag): ArticleDTO
-    {
-        $this->urlBag = $urlBag;
         return $this;
     }
 

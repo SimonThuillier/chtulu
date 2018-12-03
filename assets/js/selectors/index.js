@@ -13,8 +13,8 @@ export const getPendingTotalSelector = createSelector(
     (entitiesToPost) => () => {
         let count = 0;
         entitiesToPost.valueSeq().forEach((v)=>{
-            console.log("counting entities to post");
-            console.log(v);
+            /*console.log("counting entities to post");
+            console.log(v);*/
             count = count + v.size;
         });
         return count;
@@ -30,7 +30,7 @@ export const getBabiesSelector = createSelector(
     (babyItemIds,items) => () => {
         let babies = [];
         babyItemIds.keySeq().forEach((k)=>{
-            babies.push(items.get(+k));
+            if(items.has(+k) || false) babies.push(items.get(+k));
         });
         return babies;
     }
@@ -42,7 +42,7 @@ export const getOneByIdSelector = createSelector(
 );
 export const getByIdsSelector = createSelector(
     [(state) => state.get("items")],
-    (items) => (ids) => ids.map(id => items.get(+id))
+    (items) => (ids) => ids.map(id => items.get(+id)).filter((v,k)=>v || false)
 );
 export const getSelector = createSelector(
     [(state) => state.get("items"),(state) => state.get("searchCache")],
@@ -56,10 +56,10 @@ export const getSelector = createSelector(
         let selectedEntries = [];
 
         indexMap.forEach((v,k)=>{
-            console.log(`k : ${k}, v : ${v}`);
+            // console.log(`k : ${k}, v : ${v}`);
             if(k>=offset && k<(offset+limit)) selectedEntries[k] = +v;
         });
-        return selectedEntries.map((id)=> items.get(+id));
+        return selectedEntries.map((id)=> items.get(+id)).filter((v,k)=>v || false);
     }
 );
 export const totalSelector2 = createSelector(

@@ -148,6 +148,7 @@ abstract class DTOMediator implements ServiceSubscriberInterface
                 throw new NotAvailableGroupException("Group " . $group . " doesn't support subGroups in DTOMediator " . self::class . $e->getMessage());
             }
         }
+        $this->getDTO()->addMappedGroup(lcfirst($group));
         return $this;
     }
 

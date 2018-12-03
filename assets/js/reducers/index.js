@@ -135,24 +135,31 @@ const mergeRecords = function(iRec,nRec,waoType){
     let mRec = iRec;
 
     console.log("merging records");
+
+    let loadedProperties = getAllPropertiesInGroups(waoType,Object.keys(nLoadedGroups));
+    loadedProperties.forEach((property)=>{mRec = mRec.set(property,nRec.get(property));});
+    mRec = mRec.set("loadedGroups",GroupUtil.merge(iLoadedGroups,nLoadedGroups));
+
     if(nPostedGroups && iRec.get("initialValues") ){
         //console.log("postedGroups");
         //console.log(nPostedGroups);
         let postedProperties = getAllPropertiesInGroups(waoType,Object.keys(nPostedGroups));
-        let loadedProperties = getAllPropertiesInGroups(waoType,Object.keys(nLoadedGroups));
         //console.log("postedProperties");
         //console.log(postedProperties );
 
-        postedProperties.forEach((property)=>{newInitialValues = newInitialValues.remove(property);});
-        loadedProperties.forEach((property)=>{mRec = mRec.set(property,nRec.get(property));});
+        postedProperties.forEach((property)=>{
+            newInitialValues = newInitialValues.remove(property);
+        });
+
+        mRec = mRec.
+        set("initialValues",newInitialValues).
+        set("postedGroups",null);
+
         //console.log("newInitialValues");
         //console.log(newInitialValues.toJS());
     }
 
-    mRec = mRec.
-    set("loadedGroups",GroupUtil.merge(iLoadedGroups,nLoadedGroups)).
-    set("initialValues",newInitialValues).
-    set("postedGroups",null);
+
     console.log("merged object");
     console.log(mRec.toJS());
     /*console.log("equality");
@@ -220,6 +227,7 @@ const concreteWaoType = (waoType) => {
         console.log("reducer call");
         switch (action.type) {
             case SUBMIT_LOCALLY:
+                if(!state.hasIn(["items",+action.id])) return state;
                 console.log("submit locally");
                 console.log(action);
                 const oldItem = state.getIn(["items",+action.id]);
@@ -240,16 +248,34 @@ const concreteWaoType = (waoType) => {
                 console.log(newItem.toJS());
                 return state.setIn(["items",+action.id],newItem);
             case RESET:
-                console.log("reset");
                 for(let id of action.ids){
                     if(state.hasIn(["items",+id])){
                         let item = state.getIn(["items",+id]);
-                        if(item.get("initialValues") && item.get("initialValues").size>0){
-                            item = item.mergeDeepWith((oldVal,newVal) => newVal, item.get("initialValues"));
+                        if(+id < 0){
+                            // deleting newly created elements
+                            state = state.removeIn(["items",+id]);
                         }
-                        let newInitialValues = item.hasIn("initialValues",null);
-                        item = item.set("initialValues",null);
-                        state = state.setIn(["items",+id],item);
+                        else{
+                            // nominal case
+                            if(item.get("initialValues") && item.get("initialValues").size>0){
+                                item = item.mergeDeepWith((oldVal,newVal) => newVal, item.get("initialValues"));
+                            }
+                            //let newInitialValues = item.hasIn("initialValues",null);
+                            item = item.set("initialValues",null);
+                            state = state.setIn(["items",+id],item);
+                        }
+
+                    }
+                }
+                return state;
+            case DELETE:
+                for(let id of action.ids){
+                    if(state.hasIn(["items",+id])){
+                        let newInitialValues = state.getIn(["items",+id,"initialValues"]) || Imm.Map();
+                        newInitialValues = newInitialValues.set("toDelete",false);
+                        state = state.
+                        setIn(["items",+id,"toDelete"],true).
+                        setIn(["items",+id,"initialValues"],newInitialValues);
                     }
                 }
                 return state;

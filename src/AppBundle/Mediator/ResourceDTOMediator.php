@@ -61,8 +61,8 @@ class ResourceDTOMediator extends DTOMediator
         $dto
             ->setId($resource->getId())
             ->setType($resource->getType())
-            ->setName($resource->getName())
-            ->addMappedGroup('minimal');
+            ->setName($resource->getName());
+            //->addMappedGroup('minimal');
 
         // ensure mapped children are loaded
         $resource->getType()->getLabel();
@@ -101,8 +101,8 @@ class ResourceDTOMediator extends DTOMediator
             $dto->setActiveVersion(null);
         }
 
-        $dto->addMappedGroup('activeImage');
-        $dto->addMappedGroup('activeVersion');
+        //$dto->addMappedGroup('activeImage');
+        //$dto->addMappedGroup('activeVersion');
     }
 
     /**
@@ -137,7 +137,7 @@ class ResourceDTOMediator extends DTOMediator
             $dto->setActiveVersion(null);
         }
 
-        $dto->addMappedGroup('activeVersion');
+        //$dto->addMappedGroup('activeVersion');
     }
 
     protected function mapDTOVersionsGroup($mode=DTOMediator::NOTHING_IF_NULL,$subGroups=null){
@@ -146,6 +146,6 @@ class ResourceDTOMediator extends DTOMediator
 
         // TODO : to implement
 
-        $dto->addMappedGroup('versions');
+        //$dto->addMappedGroup('versions');
     }
 }

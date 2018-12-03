@@ -3,7 +3,7 @@ import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import BootstrapTable from 'react-bootstrap-table-next';
 import Loadable from 'react-loading-overlay';
 import {Helmet} from 'react-helmet';
-import {Preview} from './actions.jsx';
+import {Edit,Submit,Reset,Delete,CancelDelete,CancelAdd} from './actions';
 import {
     Modal,
     OverlayTrigger,
@@ -14,7 +14,7 @@ import {
     Glyphicon
 } from 'react-bootstrap';
 import Article from "./Article";
-import {getIfNeeded} from "../actions";
+import {deleteLocally, getIfNeeded, postOne, reset as stateReset} from "../actions";
 import SearchBag from '../util/SearchBag';
 import SearchBagUtil from '../util/SearchBagUtil';
 import ArticleType from './ArticleType';
@@ -29,13 +29,19 @@ import {getAllPropertiesInGroups} from "../util/WAOUtil";
 const componentUid = require('uuid/v4')();
 
 
-const columns = [{
+const columns = (dispatch,onSelection) => [{
     dataField: 'title',
     text: 'Titre',
-    formatter: function(cell,row){
+    formatter: function(cell,row,rowIndex){
         const value = row.detailImageResource;
         return (
-            value?<div>{cell}&nbsp;<RImageMini id={value}/></div>:cell
+            <div><Button onClick={()=>{onSelection(row,rowIndex)}}
+                         bsStyle="link">
+                {cell}
+            </Button>
+                &nbsp;
+                {value?<RImageMini id={value}/>:''}
+            </div>
         );
     },
     sort:true
@@ -64,8 +70,48 @@ const columns = [{
         return cell.getLabel();
     },
     sort:true
+},{
+    dataField: 'initialValues',
+    text: 'Actions',
+    formatter: (cell, row, rowIndex) => {
+        const toDelete = (row && row.has("toDelete") && row.get("toDelete"));
+        const isNew = !toDelete && (row && row.has("isNew") && row.get("isNew")(row));
+        const isDirty = !toDelete && !isNew && (row.has("isDirty") && row.get("isDirty")(row));
+
+        console.log(`actions formatter id ${row.get("id")} : toDelete:${toDelete}, isNew:${isNew}, isDirty:${isDirty} `);
+
+        return (
+            <div>
+                {!toDelete?
+                    <Edit onClick={() => onSelection(row,rowIndex,'form')}/>:''}
+                &nbsp;&nbsp;
+                {toDelete || isNew || isDirty ?
+                    <Submit onClick={() => dispatch(postOne("article",null,row.get("id"),componentUid))}/>:''}
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                {!toDelete && !isNew && isDirty ?
+                    <Reset onClick={() =>dispatch(stateReset("article",[row.get("id")],null))}/>:''}
+                {toDelete ?
+                    <CancelDelete onClick={() =>dispatch(stateReset("article",[row.get("id")],null))}/>:''}
+                {isNew ?
+                    <CancelAdd onClick={() =>dispatch(stateReset("article",[row.get("id")],null))}/>:''}
+                &nbsp;&nbsp;
+                {(!toDelete && !isNew)
+                    ?
+                    <Delete onClick={() => dispatch(deleteLocally("article",[row.get("id")]))}/>:''}
+            </div>);
+    }
 }
 ];
+
+// if(row && row.has("toDelete") && row.get("toDelete")){
+//     return {backgroundColor:COLORS.DELETED};
+// }
+// else if(row && row.has("isNew") && row.get("isNew")(row)){
+//     return {backgroundColor:COLORS.NEW};
+// }
+// else if(row && row.has("isDirty") && row.get("isDirty")(row)){
+//     return {backgroundColor:COLORS.DIRTY};
+// }
 
 const customTotal = (babiesCount) => (from, to, size) => (
     <span className="react-bootstrap-table-pagination-total">
@@ -104,7 +150,13 @@ const rightBreadcrumb = (breadcrumb,switcher) => {
 };
 
 const rowStyle = (row, rowIndex) => {
-    if(row && row.has("isDirty") && row.get("isDirty")(row)){
+    if(row && row.has("toDelete") && row.get("toDelete")){
+        return {backgroundColor:COLORS.DELETED};
+    }
+    else if(row && row.has("isNew") && row.get("isNew")(row)){
+        return {backgroundColor:COLORS.NEW};
+    }
+    else if(row && row.has("isDirty") && row.get("isDirty")(row)){
         return {backgroundColor:COLORS.DIRTY};
     }
     return {};
@@ -123,6 +175,8 @@ class ArticleTablePage extends React.Component{
         this.onFilter = this.onFilter.bind(this);
 
         this.onNewArticle = this.onNewArticle.bind(this);
+
+        this.onRowSelection = this.onRowSelection.bind(this);
 
         this.state = {
             loading:false,
@@ -177,12 +231,12 @@ class ArticleTablePage extends React.Component{
         });
     }
 
-    onRowPreview(row,rowIndex){
+    onRowSelection(row,rowIndex,activeComponent='detail'){
 
         this.setState({
             selected:[row.id],
             activeId:row.id,
-            activeComponent:'detail',
+            activeComponent:activeComponent,
             breadcrumb:this.getBreadcrumb(row.id)
         });
     }
@@ -240,13 +294,13 @@ class ArticleTablePage extends React.Component{
     }
 
     render(){
-        const {selector,babiesSelector,totalSelector,notificationsSelector} = this.props;
+        const {selector,babiesSelector,totalSelector,notificationsSelector,dispatch} = this.props;
         const babies = babiesSelector();
         const babiesCount = babies.length;
 
         let items = babies.concat(selector(this.state.searchBag));
-        /*console.log("items");
-        console.log(items);*/
+        console.log("items");
+        console.log(items);
         let total = this.props.totalSelector(this.state.searchBag);
         const notifications = this.props.notificationsSelector(componentUid);
 
@@ -305,15 +359,7 @@ class ArticleTablePage extends React.Component{
                             } }
                             onTableChange={this.onTableChange}
                             loading={this.state.loading}
-                            columns={ columns.concat([
-                                {
-                                    dataField: 'id',
-                                    text: 'Action',
-                                    formatter: (cell, row, rowIndex) =>
-                                        (<Preview onClick={() => this.onRowPreview(row,rowIndex)}/>)
-                                }
-                            ])
-                            }
+                            columns={columns(dispatch,this.onRowSelection)}
                         />
 
                         <Modal show={this.state.activeId !== null} onHide={this.handleClose}>
@@ -322,8 +368,8 @@ class ArticleTablePage extends React.Component{
                                     <Row className="show-grid">
                                         <Col xs={9} sm={9} md={9}>
                                             {(this.state.activeId &&
-                                            items.find((item)=> item.id === this.state.activeId) &&
-                                            items.find((item)=> item.id === this.state.activeId).title) || 'Nouvel article'}
+                                                items.find((item)=> item.id === this.state.activeId) &&
+                                                items.find((item)=> item.id === this.state.activeId).title) || 'Nouvel article'}
                                         </Col>
                                         <Col xs={3} sm={3} md={3}>
                                             {this.state.breadcrumb && leftBreadcrumb(this.state.breadcrumb,this.handleArticleSwitch)}
@@ -340,6 +386,7 @@ class ArticleTablePage extends React.Component{
                                     formGroups={{"minimal":true,"date":true,"abstract":true}}
                                     context={'modal'}
                                     handleSwitch={this.handleComponentSwitch}
+                                    onNothing={this.handleClose}
                                 />
                             </Modal.Body>
                             <Modal.Footer>
