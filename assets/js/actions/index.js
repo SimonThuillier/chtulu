@@ -208,7 +208,7 @@ const handlePostBackData = (backData,dispatch) =>{
             //receiveGetOneById = (waoType,groups,id,data,message="Données bien recues du serveur")
             console.log("redispatched object after post");
             console.log(object);
-            dispatch(removePending(waoType,id,object.toDelete?null:postedGroups));
+            dispatch(removePending(waoType,+object.oldId<0?+object.oldId:+id,object.toDelete?null:postedGroups));
             dispatch(receiveGetOneById(waoType,groups,id,object,"Données bien enregistrées sur le serveur"));
         });
     });

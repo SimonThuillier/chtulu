@@ -32,7 +32,7 @@ export function ResetAllButton(props){
         >
             <Button bsStyle="warning"
                     onClick={props.onResetAll}>
-                Reinitialiser&nbsp;<Glyphicon glyph="remove"/>
+                Reinitialiser&nbsp;<Glyphicon glyph="erase"/>
             </Button>
         </OverlayTrigger>
     );

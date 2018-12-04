@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
+import { Link } from "react-router-dom";
 import BootstrapTable from 'react-bootstrap-table-next';
 import Loadable from 'react-loading-overlay';
 import {Helmet} from 'react-helmet';
@@ -43,6 +44,7 @@ const columns = (dispatch,onSelection,notificationsSelector) => [{
         const value = row.detailImageResource;
         return (
             <div><Button onClick={()=>{onSelection(row,rowIndex)}}
+                         title={"Previsualiser l'article"}
                          bsStyle="link">
                 {cell}
             </Button>
@@ -337,6 +339,10 @@ class ArticleTablePage extends React.Component{
         const coreBagKey = JSON.stringify(SearchBagUtil.getCoreBag(this.state.searchBag));
         const loading = (notifications && notifications.hasIn([coreBagKey || 'DEFAULT',LOADING]))||false;
 
+        const activeArticleTitle = ((items.find((item)=> item.id === this.state.activeId) &&
+            items.find((item)=> item.id === this.state.activeId).title)) || 'Nouvel article';
+        const alreadyCreatedArticle = this.state.activeId > 0;
+
         return(
             <div className="content-wrapper hb-container">
                 <Helmet>
@@ -397,9 +403,16 @@ class ArticleTablePage extends React.Component{
                                 <Modal.Title>
                                     <Row className="show-grid">
                                         <Col xs={9} sm={9} md={9}>
-                                            {(this.state.activeId &&
-                                                items.find((item)=> item.id === this.state.activeId) &&
-                                                items.find((item)=> item.id === this.state.activeId).title) || 'Nouvel article'}
+                                            {alreadyCreatedArticle?
+                                                <Link
+                                                to={'/page1'}
+                                                className={'btn btn-link'}
+                                                title={"Page principale de l'article"}
+                                                >
+                                                    {activeArticleTitle}
+                                                </Link>
+                                            :
+                                            activeArticleTitle}
                                         </Col>
                                         <Col xs={3} sm={3} md={3}>
                                             {this.state.breadcrumb && leftBreadcrumb(this.state.breadcrumb,this.handleArticleSwitch)}
