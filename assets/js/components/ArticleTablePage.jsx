@@ -19,17 +19,24 @@ import SearchBag from '../util/SearchBag';
 import SearchBagUtil from '../util/SearchBagUtil';
 import ArticleType from './ArticleType';
 import {connect} from "react-redux";
-import {getNotificationsSelector, getSelector, totalSelector2,getNextNewIdSelector,getBabiesSelector} from "../selectors";
+import {
+    getNotificationsSelector,
+    getSelector,
+    totalSelector2,
+    getNextNewIdSelector,
+    getBabiesSelector,
+    getNewlyCreatedIdSelector
+} from "../selectors";
 import RImageMini from "./RImageMini";
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import ArticleFilter from './ArticleFilter';
-import {LOADING, COLORS, SUBMITTING_COMPLETED} from "../util/notifications";
+import {LOADING,SUBMITTING, COLORS, SUBMITTING_COMPLETED} from "../util/notifications";
 import {untouch as formUntouch} from "redux-form/immutable";
 import {getAllPropertiesInGroups} from "../util/WAOUtil";
 const componentUid = require('uuid/v4')();
 
 
-const columns = (dispatch,onSelection) => [{
+const columns = (dispatch,onSelection,notificationsSelector) => [{
     dataField: 'title',
     text: 'Titre',
     formatter: function(cell,row,rowIndex){
@@ -73,32 +80,44 @@ const columns = (dispatch,onSelection) => [{
 },{
     dataField: 'initialValues',
     text: 'Actions',
-    formatter: (cell, row, rowIndex) => {
+    formatExtraData:notificationsSelector,
+    formatter: (cell, row, rowIndex,notificationsSelector) => {
         const toDelete = (row && row.has("toDelete") && row.get("toDelete"));
         const isNew = !toDelete && (row && row.has("isNew") && row.get("isNew")(row));
         const isDirty = !toDelete && !isNew && (row.has("isDirty") && row.get("isDirty")(row));
 
         console.log(`actions formatter id ${row.get("id")} : toDelete:${toDelete}, isNew:${isNew}, isDirty:${isDirty} `);
+        const actionUid = componentUid+'#' + row.get("id");
+        const notifications = notificationsSelector(actionUid);
+        const submitting = (notifications && notifications.hasIn([+row.get("id"),SUBMITTING]))||false;
 
         return (
-            <div>
-                {!toDelete?
-                    <Edit onClick={() => onSelection(row,rowIndex,'form')}/>:''}
-                &nbsp;&nbsp;
-                {toDelete || isNew || isDirty ?
-                    <Submit onClick={() => dispatch(postOne("article",null,row.get("id"),componentUid))}/>:''}
-                &nbsp;&nbsp;&nbsp;&nbsp;
-                {!toDelete && !isNew && isDirty ?
-                    <Reset onClick={() =>dispatch(stateReset("article",[row.get("id")],null))}/>:''}
-                {toDelete ?
-                    <CancelDelete onClick={() =>dispatch(stateReset("article",[row.get("id")],null))}/>:''}
-                {isNew ?
-                    <CancelAdd onClick={() =>dispatch(stateReset("article",[row.get("id")],null))}/>:''}
-                &nbsp;&nbsp;
-                {(!toDelete && !isNew)
-                    ?
-                    <Delete onClick={() => dispatch(deleteLocally("article",[row.get("id")]))}/>:''}
-            </div>);
+            <Loadable
+                active={submitting}
+                animate
+                text='Enregistrement ...'
+                color={COLORS.SUBMITTING}
+                background={COLORS.LOADING_BACKGROUND}
+            >
+                <div>
+                    {!toDelete?
+                        <Edit onClick={() => onSelection(row,rowIndex,'form')}/>:''}
+                    &nbsp;&nbsp;
+                    {toDelete || isNew || isDirty ?
+                        <Submit onClick={() => dispatch(postOne("article",null,row.get("id"),actionUid))}/>:''}
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    {!toDelete && !isNew && isDirty ?
+                        <Reset onClick={() =>dispatch(stateReset("article",[row.get("id")],null))}/>:''}
+                    {toDelete ?
+                        <CancelDelete onClick={() =>dispatch(stateReset("article",[row.get("id")],null))}/>:''}
+                    {isNew ?
+                        <CancelAdd onClick={() =>dispatch(stateReset("article",[row.get("id")],null))}/>:''}
+                    &nbsp;&nbsp;
+                    {(!toDelete && !isNew)
+                        ?
+                        <Delete onClick={() => dispatch(deleteLocally("article",[row.get("id")]))}/>:''}
+                </div>
+            </Loadable>);
     }
 }
 ];
@@ -195,8 +214,19 @@ class ArticleTablePage extends React.Component{
     }
 
     componentDidUpdate(prevProps) {
+        console.log("articleTablePage");
+        console.log(prevProps.selector !== this.props.selector);
         // when babies are submitted all indexes are erased to ensure coherence between server and client so we have to reload
-        if (prevProps.babiesSelector !== this.props.babiesSelector) {
+        if (this.state.activeId && this.state.activeId<0 &&
+            prevProps.newlyCreatedIdSelector !== this.props.newlyCreatedIdSelector
+        && this.props.newlyCreatedIdSelector(this.state.activeId)) {
+            this.setState({activeId:this.props.newlyCreatedIdSelector(this.state.activeId)});
+            this.loadSearchBag(this.state.groups,this.state.searchBag);
+        }
+        else if (prevProps.babiesSelector !== this.props.babiesSelector) {
+            this.loadSearchBag(this.state.groups,this.state.searchBag);
+        }
+        else if (prevProps.selector !== this.props.selector && this.props.selector(this.state.searchBag).length<1) {
             this.loadSearchBag(this.state.groups,this.state.searchBag);
         }
     }
@@ -301,8 +331,8 @@ class ArticleTablePage extends React.Component{
         let items = babies.concat(selector(this.state.searchBag));
         console.log("items");
         console.log(items);
-        let total = this.props.totalSelector(this.state.searchBag);
-        const notifications = this.props.notificationsSelector(componentUid);
+        let total = totalSelector(this.state.searchBag);
+        const notifications = notificationsSelector(componentUid);
 
         const coreBagKey = JSON.stringify(SearchBagUtil.getCoreBag(this.state.searchBag));
         const loading = (notifications && notifications.hasIn([coreBagKey || 'DEFAULT',LOADING]))||false;
@@ -359,7 +389,7 @@ class ArticleTablePage extends React.Component{
                             } }
                             onTableChange={this.onTableChange}
                             loading={this.state.loading}
-                            columns={columns(dispatch,this.onRowSelection)}
+                            columns={columns(dispatch,this.onRowSelection,notificationsSelector)}
                         />
 
                         <Modal show={this.state.activeId !== null} onHide={this.handleClose}>
@@ -390,7 +420,22 @@ class ArticleTablePage extends React.Component{
                                 />
                             </Modal.Body>
                             <Modal.Footer>
-                                <Button onClick={this.handleClose}>Fermer</Button>
+                                <Row>
+                                    <Col md={2}>
+                                        {
+                                            this.state.activeComponent==='form' &&
+                                            <Button bsStyle="success" onClick={this.onNewArticle}>
+                                                Ajouter&nbsp;<Glyphicon glyph="plus" />
+                                            </Button>
+                                        }
+                                    </Col>
+                                    <Col md={8}>
+
+                                    </Col>
+                                    <Col md={2}>
+                                        <Button onClick={this.handleClose}>Fermer</Button>
+                                    </Col>
+                                </Row>
                             </Modal.Footer>
                         </Modal>
                         {/*<div className='innerbox' height="1000px" min-height="1000px"></div>*/}
@@ -408,12 +453,14 @@ const mapStateToProps = state => {
     const babiesSelector = getBabiesSelector(state.get("article"));
     const nextNewIdSelector = getNextNewIdSelector(state.get("article"));
     const totalSelector = totalSelector2(state.get("article"));
+    const newlyCreatedIdSelector = getNewlyCreatedIdSelector(state.get("article"));
     const notificationsSelector = getNotificationsSelector(state.get("app"));
     return {
         selector: selector,
         babiesSelector:babiesSelector,
         nextNewIdSelector: nextNewIdSelector,
         totalSelector:totalSelector,
+        newlyCreatedIdSelector:newlyCreatedIdSelector,
         notificationsSelector : notificationsSelector
     }
 };

@@ -27,6 +27,10 @@ export const getAllPropertiesInGroups = function(waoType,groups){
 };
 
 export const getDataToPost = function(waoType,object,groups = true){
+    if (!object) return null;
+    console.log(`getDataToPost : ${waoType}`);
+    console.log(groups);
+    console.log(object);
     const mapping = WAOs.getIn([waoType,"mapping"]).toJS();
     const schema = WAOs.getIn([waoType,"schema"]).schema;
 
@@ -37,7 +41,8 @@ export const getDataToPost = function(waoType,object,groups = true){
 
     let keys = {};
 
-
+    console.log(groups);
+    console.log(object);
     console.log(mapping);
     console.log(schema);
 

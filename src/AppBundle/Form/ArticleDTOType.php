@@ -50,6 +50,7 @@ class ArticleDTOType extends AbstractType
 
         $builder
             ->add('id', TextType::class)
+            ->add('toDelete', CheckboxType::class)
             ->add('title', TextType::class)
             ->add('type', SimpleEntityType::class, array('data_class' => ArticleType::class)
             );

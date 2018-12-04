@@ -110,11 +110,16 @@ const appReducer = (state=initialAppState, action) =>{
                 console.log(pendingGroups);
                 console.log("groups to remove from pending");
                 console.log(groups);
-                let remainingGroups = GroupUtil.leftDiff(waoType,pendingGroups,groups);
-                console.log("remaining pending groups");
-                console.log(remainingGroups);
-                if(Object.keys(remainingGroups).length < 1) state = state.removeIn(["entitiesToPost",waoType,+id]);
-                else state = state.setIn(["entitiesToPost",waoType,+id],remainingGroups);
+                if(!groups){
+                    state = state.removeIn(["entitiesToPost",waoType,+id]);
+                }
+                else{
+                    let remainingGroups = GroupUtil.leftDiff(waoType,pendingGroups,groups);
+                    console.log("remaining pending groups");
+                    console.log(remainingGroups);
+                    if(Object.keys(remainingGroups).length < 1) state = state.removeIn(["entitiesToPost",waoType,+id]);
+                    else state = state.setIn(["entitiesToPost",waoType,+id],remainingGroups);
+                }
             }
             return state;
         default:
@@ -192,12 +197,18 @@ const updateOnRecordReception = function(state,rec){
     rec = rec.get("receiveRecord")(rec);
     let oldId = (+rec.get("oldId"))<0?+rec.get("oldId"):+rec.get("id");
     // case new item submitted : its definitive id has been attributed by the server
-    if((+rec.get("id")) !== oldId)
+    if(rec.get("toDelete")===true){
+        state = state.
+        removeIn(["items",+rec.get("id")]).
+        set("searchCache",Imm.Map());
+    }
+    else if((+rec.get("id")) !== oldId)
         state = state.
         setIn(["items",+rec.get("id")],
             mergeRecords(state.getIn(["items",+oldId]),rec.set("oldId",0).remove("initialValues"),waoType)).
         removeIn(["items",oldId]).
         removeIn(["babyItemIds",oldId]).
+        setIn(["createdItemIds",oldId],+rec.get("id")).
         set("searchCache",Imm.Map());
     else if(state.hasIn(["items",+rec.get("id")]))
         state = state.setIn(["items",+rec.get("id")],
@@ -216,6 +227,7 @@ const concreteWaoType = (waoType) => {
         nextNewId:-1,
         newItem:null,
         babyItemIds:Imm.Map(),
+        createdItemIds:Imm.Map(),
         items:Imm.Map(),
         searchCache: Imm.Map()
     });

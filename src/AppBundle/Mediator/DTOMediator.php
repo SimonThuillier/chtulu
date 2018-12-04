@@ -217,11 +217,15 @@ abstract class DTOMediator implements ServiceSubscriberInterface
         if(count($propertiesToReturn) < 1) return $mapperCommands;
 
         $id = intval($this->dto->getId());
-        $mapperCommands[$this->dtoClassName . ":" . $id] = ["action"=>($id>0?"edit":"add"),"dto"=>$this->dto];
+        $toDelete = $this->dto->getToDelete();
+        $mapperCommands[$this->dtoClassName . ":" . $id] = ["action"=>($toDelete?"delete":($id>0?"edit":"add")),"dto"=>$this->dto];
 
-        foreach($propertiesToReturn as $property){
-            $mapperCommands = $this->mediate($property,$mapperCommands);
+        if(!$toDelete){
+            foreach($propertiesToReturn as $property){
+                $mapperCommands = $this->mediate($property,$mapperCommands);
+            }
         }
+
         $this->resetChangedProperties();
         return $mapperCommands;
     }

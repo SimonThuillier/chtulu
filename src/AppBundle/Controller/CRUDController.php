@@ -278,6 +278,7 @@ class CRUDController extends Controller
                     }
                     // then the main core object
                     $truc = $dto->getReturnGroups();
+                    if($dto->getToDelete()) $postedGroups = ["minimal"=>true];
                     $backGroups = ArrayUtil::normalizeGroups(ArrayUtil::filter($dto->getReturnGroups(),$postedGroups));
                     $mediator->mapDTOGroups($backGroups,DTOMediator::NOTHING_IF_NULL);
                     $dto->setBackGroups($backGroups);

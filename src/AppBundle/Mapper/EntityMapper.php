@@ -116,6 +116,14 @@ class EntityMapper implements ServiceSubscriberInterface
             $actionCount++;
         }
 
+        $deleteCommands = array_reverse(array_filter(array_values($mapperCommands),function($action){
+            return $action["action"] === "delete";
+        }));
+        foreach($deleteCommands as $key=>$action){
+            $this->delete($action["dto"],true);
+            $actionCount++;
+        }
+
         return $actionCount;
     }
 
@@ -241,16 +249,16 @@ class EntityMapper implements ServiceSubscriberInterface
     }
 
     /**
-     * @param string $dtoClassName
-     * @param int $id
+     * @param EntityMutableDTO $dto
      * @param bool $commit
      * @throws InvalidCallerException
      * @throws EntityMapperException
      */
-    public function delete(string $dtoClassName,int $id, $commit = true)
+    public function delete(EntityMutableDTO $dto, $commit = true)
     {
+        $dtoClassName=get_class($dto);
         $mapper = $this->getMapperFromDtoClassName($dtoClassName);
-        $mapper->delete($id,$commit);
+        $mapper->delete($dto->getId(),$commit);
     }
 
 

@@ -36,6 +36,15 @@ export const getBabiesSelector = createSelector(
     }
 );
 
+export const getNewlyCreatedIdSelector = createSelector(
+    [(state) => state.get("createdItemIds")],
+    (createdItemIds) => (id) => {
+
+        if(createdItemIds.has(+id)) return createdItemIds.get(+id);
+        return null;
+    }
+);
+
 export const getOneByIdSelector = createSelector(
     [(state) => state.get("items")],
     (items) => (id) => items.get(+id)

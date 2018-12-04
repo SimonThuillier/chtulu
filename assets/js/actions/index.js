@@ -83,6 +83,9 @@ const fetchWithTimeout = function( url,props, timeout=TIMEOUT ) {
 
 
 export const postOne = (waoType,groups=true,id,senderKey) => (dispatch,getState) => {
+    console.log("postOne");
+
+
     const state = getState();
     let entities = entitiesSelector(state);
     //entities = {articleType:{'2':{id:2,label:"lol"}},resource:{}};
@@ -91,15 +94,18 @@ export const postOne = (waoType,groups=true,id,senderKey) => (dispatch,getState)
     console.log("schema");
     console.log(WAOs.getIn([waoType,"schema"]));*/
     let normData = state.getIn([waoType,"items",+id]);
-    /*console.log(`denormData to send ${id}`);
+    console.log(`denormData to send ${id}`);
     console.log(normData);
-    console.log(`normData to send ${id}`);*/
+    console.log(`normData to send ${id}`);
     //normData.type=2;
     normData = denormalize(normData,WAOs.getIn([waoType,"schema"]),entities);
     normData = normData.toJS();
     /*console.log(normData);
     console.log("groups to send");
     console.log(groups);*/
+    if(!groups){
+        groups = state.getIn(["app","entitiesToPost",waoType,+id]) || true;
+    }
     normData = getDataToPost(waoType,normData,groups);
     /*console.log(`partial normData to send ${id}`);
     console.log(normData);*/
@@ -202,7 +208,7 @@ const handlePostBackData = (backData,dispatch) =>{
             //receiveGetOneById = (waoType,groups,id,data,message="Données bien recues du serveur")
             console.log("redispatched object after post");
             console.log(object);
-            dispatch(removePending(waoType,id,postedGroups));
+            dispatch(removePending(waoType,id,object.toDelete?null:postedGroups));
             dispatch(receiveGetOneById(waoType,groups,id,object,"Données bien enregistrées sur le serveur"));
         });
     });
@@ -248,7 +254,8 @@ export const reset = (waoType,ids,groups) => (dispatch,state) =>{
 
 export const deleteLocally = (waoType,ids) => (dispatch,state) => {
     ids.forEach((id)=>{
-        dispatch(addPending(waoType,id,'minimal'));
+        if(+id> 0 ) dispatch(addPending(waoType,id,'minimal'));
+        else dispatch(removePending(waoType,id,null));
     });
     return dispatch({
         type: DELETE,
@@ -509,7 +516,7 @@ export const getOneByIdIfNeeded = (waoType,groups=true,id,senderKey=null) => (di
         }
         else {
             setTimeout(()=>{
-                if (!getState().hasIn(["article","items",+id])){
+                if (!getState().hasIn(["article","items",+id]) && !getState().hasIn(["article","createdItemIds",+id])){
                     dispatch(createNew(waoType));
                 }
             },5);
