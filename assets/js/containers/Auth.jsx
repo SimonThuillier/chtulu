@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { BrowserRouter,Route,Switch} from 'react-router-dom';
 import Header from "../components/Header";
 import SideBar from "../components/SideBar";
-import Page1 from "../components/Page1";
+import ArticlePage from "../components/ArticlePage";
 import Page2 from "../components/Page2";
 import ArticleTablePage from "../components/ArticleTablePage";
 import {getNotificationsSelector, getOneByIdSelector, getPendingTotalSelector} from "../selectors";
@@ -37,7 +37,7 @@ class App extends Component {
     render(){
         const {notificationsSelector,pendingTotalSelector} = this.props;
         let appProps = this.props;
-        const tacos = "tacos";
+        console.log(appProps);
 
         let pendingTotal = pendingTotalSelector();
         console.log("pendingTotal");
@@ -55,13 +55,18 @@ class App extends Component {
         const mainNotification = React.createElement(MainNotification);
 
         const routes = [
-            {id:1,path:'/page1',component:Page1,exact:true,appProps:appProps,mainNotification:mainNotification},
-            {id:2,path:'/page2',component:Page2,exact:true,appProps:appProps},
-            {id:3,path:'/article-table',component:ArticleTablePage,exact:true,appProps:appProps},
+            {id:4,path:'/article',component:ArticlePage,exact:true,appProps:appProps,mainNotification:mainNotification},
+            {id:5,path:"/article/:id",component:ArticlePage,exact:true,appProps:appProps,mainNotification:mainNotification},
+            {id:6,path:'/article/:id/:actionParam',component:ArticlePage,exact:true,appProps:appProps,mainNotification:mainNotification},
+            {id:7,path:'/article-table',component:ArticleTablePage,exact:true,appProps:appProps},
+            //{id:8,path:'/page2',component:Page2,exact:true,appProps:appProps},
+            {id:9,path:'/page2',component:ArticlePage,exact:true,
+                appProps:{...appProps,id:32,activeComponent:'form'},
+                mainNotification:mainNotification},
         ];
 
         return (
-            <BrowserRouter tacos={tacos} {...appProps} basename="/test/react-router">
+            <BrowserRouter {...appProps} basename="/test/react-router">
                 {/*<Loadable*/}
                     {/*active={submitting}*/}
                     {/*spinner*/}
@@ -85,7 +90,7 @@ class App extends Component {
                     />
                     <SideBar {...appProps}/>
                     <Switch >
-                        {routes.map(({id,path,component:C,exact,appProps}) =>
+                        {routes.map(({id,path,component:C,appProps,exact}) =>
                             <Route key={id} exact={exact} path={path} render={(props) => <C {...appProps} {...props}/>}/>
                         )}
                     </Switch>

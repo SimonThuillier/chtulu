@@ -18,9 +18,7 @@ import {LOADING,COLORS} from '../util/notifications';
 class Article extends React.Component{
     constructor(props) {
         super(props);
-        this.handleSwitch = this.handleSwitch.bind(this);
         this.state = {
-            activeComponent: props.activeComponent||'detail',
             id: props.id||null,
             loading: false,
             detailGroups:props.detailGroups || {"minimal":true,"abstract":true,
@@ -37,12 +35,6 @@ class Article extends React.Component{
         dispatch(getOneByIdIfNeeded("article",this.state.detailGroups, this.state.id,componentUid));
     }
 
-
-    handleSwitch() {
-        const newActive = (this.state.activeComponent === 'detail')?'form':'detail';
-        this.setState({ activeComponent:  newActive});
-    }
-
     componentDidUpdate(prevProps) {
         if (prevProps.id !== this.props.id) {
             console.log(`update ${prevProps.id} vs ${this.props.id}`);
@@ -53,7 +45,7 @@ class Article extends React.Component{
     }
 
     render(){
-        const {selector,notificationsSelector} = this.props;
+        const {selector,notificationsSelector,activeComponent,handleSwitch} = this.props;
         const notifications = notificationsSelector(componentUid);
         const loading = (notifications && notifications.hasIn([this.state.id || 'DEFAULT',LOADING]))||false;
         //,this.state.id || 'DEFAULT',LOADING]);
@@ -69,22 +61,22 @@ class Article extends React.Component{
                 color={COLORS.LOADING}
                 background={COLORS.LOADING_BACKGROUND}
             >
-                {this.state.activeComponent==='detail' &&
-                <div hidden={this.state.activeComponent!=='detail'}>
+                {activeComponent==='detail' &&
+                <div hidden={activeComponent!=='detail'}>
                     <ArticleDetail
                         id={this.state.id}
                         groups={this.state.detailGroups}
                         data={selector(this.state.id)}
-                        handleSwitch={this.handleSwitch}
+                        handleSwitch={handleSwitch}
                     />
                 </div>}
-                {this.state.activeComponent==='form' &&
-                <div hidden={this.state.activeComponent!=='form'}>
-                    {this.state.activeComponent==='form' &&
+                {activeComponent==='form' &&
+                <div hidden={activeComponent!=='form'}>
+                    {activeComponent==='form' &&
                     <ArticleForm
                     id={this.state.id}
                     groups={this.state.formGroups}
-                    handleSwitch={this.handleSwitch}
+                    handleSwitch={handleSwitch}
                     onNothing={this.props.onNothing}
                     />}
                 </div>}

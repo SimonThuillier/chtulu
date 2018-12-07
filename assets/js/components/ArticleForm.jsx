@@ -15,6 +15,7 @@ import {getOneByIdIfNeeded,submitLocally,postOne,reset as stateReset,TIMEOUT,dis
 import ArticleTypeSelect from "./ArticleTypeSelect";
 const componentUid = require('uuid/v4')();
 import HDateInput from "./HDateInput";
+import ImageInput from "./ImageInput";
 import HBFormField from './HBFormField';
 import {Button,Tooltip,Row,Col} from 'react-bootstrap';
 import Loadable from 'react-loading-overlay';
@@ -124,7 +125,7 @@ class ArticleForm extends React.Component{
     }
 
     componentWillUnmount(){
-        console.log("article form unmount");
+        this.submit(this.props.id);
     }
 
     componentDidUpdate(prevProps) {
@@ -218,7 +219,7 @@ class ArticleForm extends React.Component{
 
     handleSwitch(){
         this.submit();
-        this.props.handleSwitch();
+        this.props.handleSwitch('detail');
     }
 
     render(){
@@ -248,7 +249,7 @@ class ArticleForm extends React.Component{
                 background={COLORS.LOADING_BACKGROUND}
             >
                 {submittingCompleted && notificationAlert(submittingCompleted,dispatch)}
-                <Form Horizontal onSubmit={(e)=>{}}>
+                <Form onSubmit={(e)=>{}}>
                     {typeof groups.minimal !== 'undefined' &&
                     <Field
                         name="title"
@@ -295,6 +296,13 @@ class ArticleForm extends React.Component{
                         type="text"
                         component={HDateInput}
                         label="Date de fin"
+                    />}
+                    {typeof groups.detailImage !== 'undefined' &&
+                    <Field
+                        name="detailImage"
+                        type="text"
+                        component={ImageInput}
+                        label="Image de presentation"
                     />}
                     {typeof groups.abstract!== 'undefined' &&
                     <Field

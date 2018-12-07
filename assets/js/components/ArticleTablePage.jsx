@@ -207,7 +207,8 @@ class ArticleTablePage extends React.Component{
             activeId:null,
             breadcrumb:{prev:null,next:null},
             page:1,
-            sizePerPage:10
+            sizePerPage:10,
+            activeComponent: 'detail',
         };
     }
 
@@ -281,8 +282,8 @@ class ArticleTablePage extends React.Component{
         });
     }
 
-    handleComponentSwitch() {
-        this.setState({ activeComponent: (this.state.activeComponent === 'detail')?'form':'detail' });
+    handleComponentSwitch(activeComponent='detail') {
+        this.setState({ activeComponent: activeComponent });
     }
 
     handleArticleSwitch(id) {
@@ -405,7 +406,7 @@ class ArticleTablePage extends React.Component{
                                         <Col xs={9} sm={9} md={9}>
                                             {alreadyCreatedArticle?
                                                 <Link
-                                                to={'/page1'}
+                                                to={`/article/${this.state.activeId}${this.state.activeComponent==='form'?'/edit':''}`}
                                                 className={'btn btn-link'}
                                                 title={"Page principale de l'article"}
                                                 >

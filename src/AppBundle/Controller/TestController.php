@@ -186,6 +186,19 @@ class TestController extends Controller
     }
 
     /**
+     * @Route("/react-router/article/{id}/{actionParam}",
+     *     name="test_article_page",
+     *     requirements={"id"="\d*"},
+     *     defaults={"id"=null,"actionParam"=null}
+     *     )
+     * @throws \Exception
+     */
+    public function articlePageAction(Request $request)
+    {
+        return $this->render("@AppBundle/Test/reactRouter.html.twig",[]);
+    }
+
+    /**
      * @Route("/redux", name="test_redux")
      * @throws \Exception
      * @Template()

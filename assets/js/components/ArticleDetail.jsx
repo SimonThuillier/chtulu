@@ -39,7 +39,7 @@ const ArticleDetail = function(props){
             </div>
             <Button bsStyle="primary"
                     disabled={false}
-                    onClick={props.handleSwitch}>
+                    onClick={()=>{props.handleSwitch('form')}}>
                 Editer&nbsp;<Glyphicon glyph={context==='modal'?'pencil':'edit'}/>
             </Button>
         </div>

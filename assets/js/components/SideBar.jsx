@@ -37,7 +37,7 @@ const SideBar = (props) => {
                     </a>
                         <ul className="treeview-menu">
                             <li>
-                                <NavLink to='/page1' activeClassName='hurray'>
+                                <NavLink to='/article/' activeClassName='hurray'>
                                     <i className="fa fa-plus"></i>
                                     Creer article
                                 </NavLink>
