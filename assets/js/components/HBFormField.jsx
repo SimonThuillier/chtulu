@@ -24,8 +24,8 @@ const HBFormField = (props) => {
     const style = Object.assign(defaultStyles[alignment],props.style || {});
 
     const extraProps = {};
-    console.log("render field");
-    console.log(props);
+    //console.log("render field");
+    //console.log(props);
 
 
 

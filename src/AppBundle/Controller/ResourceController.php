@@ -37,16 +37,21 @@ class ResourceController extends Controller
      * @param MediatorFactory $mediatorFactory
      * @param ResourceMapper $mapper
      * @param ResourceDTONormalizer $normalizer
-     * @Route("/post-upload-image",name="resource_post_upload_image")
+     * @Route("/upload-resource",name="resource_upload")
      * @Method({"POST"})
      * @throws \Exception
      * @return JsonResponse
      */
-    public function postUploadImageAction(Request $request,
+    public function uploadResourceAction(Request $request,
                                           MediatorFactory $mediatorFactory,
                                           ResourceMapper $mapper,
                                           ResourceDTONormalizer $normalizer)
     {
+        $hResponse = new HJsonResponse();
+        return new JsonResponse(HJsonResponse::normalize($hResponse));
+
+
+
         $groups = ['minimal','activeImage'=>['minimal']];
 
         $mediator = $mediatorFactory->create(ResourceDTOMediator::class);

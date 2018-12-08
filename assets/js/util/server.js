@@ -5,6 +5,7 @@ export const URL_GET = document.getElementById('hb-url-crud-get').getAttribute('
 export const URL_GET_ONE_BY_ID = document.getElementById('hb-url-crud-get-one-by-id').getAttribute('data-url');
 export const URL_GET_NEW = document.getElementById('hb-url-crud-get-new').getAttribute('data-url');
 export const URL_POST = document.getElementById('hb-url-crud-post').getAttribute('data-url');
+export const URL_UPLOAD = document.getElementById('hb-url-resource-upload').getAttribute('data-url');
 
 export const HTTP_GET='GET';
 export const HTTP_POST='POST';
@@ -14,6 +15,9 @@ export const HB_INFO="info";
 export const HB_WARNING="warning";
 export const HB_ERROR="error";
 export const HB_CONFIRM="confirm";
+
+export const RESOURCE_IMAGE={id:1,label:"Image"};
+export const RESOURCE_TEXT={id:2,label:"Texte"};
 
 /**
  * @param url string
@@ -44,6 +48,23 @@ export const getHTTPProps = function(method=HTTP_GET){
         cache: 'default'
     };
 };
+/**
+ * @returns {object}
+ */
+export const getHTTPUploadProps = function(contentType){
+    let headers = new Headers();
+    headers.append('Content-Type', contentType);
+
+    return {
+        method: HTTP_POST,
+        headers: headers,
+        credentials:'same-origin',
+        mode: 'same-origin',
+        cache: 'default'
+    };
+};
+
+
 /**
  * @returns {object}
  */

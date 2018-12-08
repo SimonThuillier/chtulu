@@ -4,8 +4,10 @@ import {
     URL_GET,
     URL_GET_ONE_BY_ID,
     URL_GET_NEW,
+    URL_UPLOAD,
     getUrl,
     getHTTPProps,
+    getHTTPUploadProps,
     getHBProps,
     DataToPost,
     HB_SUCCESS,
@@ -80,6 +82,45 @@ const fetchWithTimeout = function( url,props, timeout=TIMEOUT ) {
         ).finally( () => clearTimeout(timer) );
     })
 };
+
+export const uploadResource = (file,name,contentType,resourceType,senderKey,resourceId=null) => (dispatch,getState) => {
+    console.log("upload resource");
+
+    let dataToPost = DataToPost();
+    console.log(`dataToPost`);
+    console.log(dataToPost);
+
+    const url = getUrl(URL_UPLOAD);
+    let httpProps = getHTTPUploadProps(contentType);
+    httpProps.body = file;
+
+    //console.log(httpProps);
+
+    dispatch(notify(SUBMITTING,senderKey,0));
+
+    return fetch(url,httpProps)
+        .then(response => response.json())
+        .then(json => {
+                console.log("post returned !");
+                json.data = JSON.parse(json.data);
+                console.log(json);
+                switch (json.status) {
+                    case HB_SUCCESS:
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey || 'HBAPP',0,HB_SUCCESS));
+                        handlePostBackData(json.data,dispatch);
+                        //dispatch(receiveGet(waoType,groups,searchBag,json.rows,json.total,json.message));
+                        break;
+                    case HB_ERROR:
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey || 'HBAPP',0,HB_ERROR));
+                        //dispatch(errorGet(waoType,groups,searchBag,json.message));
+                        break;
+                    default:
+                }
+            }
+        )
+};
+
+
 
 
 export const postOne = (waoType,groups=true,id,senderKey) => (dispatch,getState) => {

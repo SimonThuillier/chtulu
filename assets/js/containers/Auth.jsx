@@ -4,7 +4,7 @@ import { BrowserRouter,Route,Switch} from 'react-router-dom';
 import Header from "../components/Header";
 import SideBar from "../components/SideBar";
 import ArticlePage from "../components/ArticlePage";
-import Page2 from "../components/Page2";
+import Page3 from "../components/Page3";
 import ArticleTablePage from "../components/ArticleTablePage";
 import {getNotificationsSelector, getOneByIdSelector, getPendingTotalSelector} from "../selectors";
 import {postAll,resetAll} from "../actions";
@@ -63,6 +63,7 @@ class App extends Component {
             {id:9,path:'/page2',component:ArticlePage,exact:true,
                 appProps:{...appProps,id:32,activeComponent:'form'},
                 mainNotification:mainNotification},
+            {id:10,path:'/page3',component:Page3,exact:true, appProps:appProps, mainNotification:mainNotification},
         ];
 
         return (

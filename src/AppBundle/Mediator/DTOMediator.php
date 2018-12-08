@@ -12,6 +12,7 @@ namespace AppBundle\Mediator;
 use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\Entity\DTOMutableEntity;
 use AppBundle\Factory\MediatorFactory;
+use AppBundle\Utils\ArrayUtil;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\ServiceSubscriberInterface;
 
@@ -161,10 +162,11 @@ abstract class DTOMediator implements ServiceSubscriberInterface
      * @return self
      */
     public function mapDTOGroups(?array $groups=null,$mode = self::CREATE_IF_NULL){
-        if ($groups === null) $groups = $this->getAvailableGroups();
+        if ($groups === null) $groups = ArrayUtil::normalizeGroups($this->getAvailableGroups());
         if(!array_key_exists("minimal",$groups) || !array_search("minimal",$groups)){
             $groups = array_merge(["minimal"=>true],$groups);
         }
+        $truc = $groups;
         foreach($groups as $k => $v){
             if(is_numeric($k)) $this->mapDTOGroup($v,$mode);
             elseif(is_string($k) && is_bool($v)) $this->mapDTOGroup($k,$mode);

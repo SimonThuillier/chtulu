@@ -1,8 +1,6 @@
 import React, {Component} from "react";
 import {getOneByIdSelector, getSelector} from "../selectors";
 import { connect } from 'react-redux'
-import {getComponentClassType} from "../util/formUtil";
-import { change as reduxFormChange} from 'redux-form/immutable';
 import {
     Alert,
     Button,
@@ -17,9 +15,8 @@ import {
     Panel,
     PanelGroup
 } from 'react-bootstrap';
-import dateUtil from '../util/date';
-import trans from '../util/translation';
-import HDate from '../util/HDate';
+import FileUploadForm from './FileUploadForm';
+
 
 const defaultStyle = {
     position: "absolute",
@@ -57,8 +54,8 @@ class ResourcePicker extends Component {
     }
 
     componentDidMount(){
-       console.log("component did mount");
-       console.log(this.state.value);
+        console.log("component did mount");
+        console.log(this.state.value);
         this.setState({});
     }
 
@@ -78,7 +75,7 @@ class ResourcePicker extends Component {
                 style={this.state.style}
                 className={className}
                 onFocus={onFocus}
-                onBlur={onBlur}
+                onBlur={()=>{}}
                 onClick={onFocus}
                 onMouseDown={onFocus}
             >
@@ -96,7 +93,9 @@ class ResourcePicker extends Component {
                             <Panel.Heading>
                                 <Panel.Title toggle>Chargez une image depuis votre ordinateur</Panel.Title>
                             </Panel.Heading>
-                            <Panel.Body collapsible>Panel content 1</Panel.Body>
+                            <Panel.Body collapsible>
+                                <FileUploadForm/>
+                            </Panel.Body>
                         </Panel>
                         <Panel eventKey="remoteFile">
                             <Panel.Heading>
