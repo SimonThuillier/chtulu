@@ -1,10 +1,14 @@
 import React, {Component} from "react";
-import {getOneByIdSelector, getSelector} from "../selectors";
+import {getNotificationsSelector, getOneByIdSelector, getSelector} from "../selectors";
 import { connect } from 'react-redux'
 import {getComponentClassType} from "../util/formUtil";
-import { change as reduxFormChange} from 'redux-form/immutable';
+import {change as reduxFormChange, untouch as formUntouch} from 'redux-form/immutable';
 import {ControlLabel,FormGroup,FormControl,Overlay,Col,HelpBlock,Button} from 'react-bootstrap';
 import ResourcePicker from './ResourcePicker';
+import {getOneByIdIfNeeded} from "../actions";
+import RImageMini from './RImageMini';
+import {SUBMITTING_COMPLETED} from "../util/notifications";
+import {getAllPropertiesInGroups} from "../util/WAOUtil";
 
 const defaultStyles = {
     horizontal:{
@@ -29,8 +33,30 @@ class ImageInput extends Component {
 
         this.state = {
             show: false,
-            value: ""
+            render:0,
         };
+    }
+
+    componentDidMount() {
+        console.log("image input didmount");
+        const {selector,value} = this.props;
+        if(value){
+            dispatch(getOneByIdIfNeeded("resource",
+                {minimal:true,activeVersion:{urlMini:true}},
+                this.props.id));
+        }
+    }
+
+    componentDidUpdate(prevProps) {
+        if (this.props.value && this.props.value !== prevProps.value) {
+            dispatch(getOneByIdIfNeeded("resource",
+                {minimal:true,activeVersion:{urlMini:true}},
+                this.props.id));
+        }
+        if (this.props.versionSelector !== prevProps.versionSelector) {
+            this.setState({render:this.state.render++});
+        }
+
     }
 
     handleClose() {
@@ -44,7 +70,7 @@ class ImageInput extends Component {
     handleSave(value) {
         const {input:{onChange,onBlur}} = this.props;
 
-        console.log("saving hdate");
+        console.log("saving image");
         console.log(this.props);
         console.log(value);
         onChange(value);
@@ -72,19 +98,21 @@ class ImageInput extends Component {
         }, 15);
     }
 
-
-
     render(){
-        const { input, label, type,  meta: {touched,error,warning} ,dispatch} = this.props;
+        const { input, label, type,  meta: {touched,error,warning} ,dispatch,selector,value} = this.props;
+        console.log("render image input");
+        console.log(input);
+        let id = input.value;
+        console.log(input.value);
 
         const alignment = this.props.alignment || 'horizontal';
         const style = Object.assign(defaultStyles[alignment],this.props.style || {});
-        /*console.log("HDate rendered");
-        console.log(input);
-        console.log(meta);*/
-        const hDateLabel = "ImageInput";
-        /*console.log(input.value);
-        console.log(hDateLabel);*/
+
+        let resourceLabel = "Choisissez une image";
+        if(id){
+            const resource = selector(+id);
+            resourceLabel = resource.get("name");
+        }
 
         switch(alignment){
             case 'vertical':
@@ -96,7 +124,10 @@ class ImageInput extends Component {
                         <Button
                             ref='target'
                             onClick={this.handleFocus}
-                        >{hDateLabel}</Button>
+                        >{resourceLabel}&nbsp;<RImageMini id={id}/>
+
+                        </Button>
+                        <RImageMini id={id} force={this.state.render}/>
                         <Overlay
                             rootClose={true}
                             show={this.state.show}
@@ -133,7 +164,7 @@ class ImageInput extends Component {
                             <Button
                                 ref='target'
                                 onClick={this.handleFocus}
-                            >{hDateLabel}</Button>
+                            >{resourceLabel}&nbsp;<RImageMini id={id}/></Button>
                         </Col>
                         <Overlay
                             rootClose={true}
@@ -167,7 +198,12 @@ class ImageInput extends Component {
 }
 
 const mapStateToProps = (state) => {
-    return {};
+    const selector = getOneByIdSelector(state.get("resource"));
+    const versionSelector = getOneByIdSelector(state.get("resourceVersion"));
+    return {
+        selector: selector,
+        versionSelector:versionSelector
+    }
 };
 
 export default connect(mapStateToProps)(ImageInput);

@@ -84,6 +84,7 @@ class FileUploadForm extends React.Component{
 
         this.onFileSelection=this.onFileSelection.bind(this);
         this.onUpload=this.onUpload.bind(this);
+        this.setResource=this.setResource.bind(this);
 
         this.state = {
             id:null,
@@ -130,6 +131,14 @@ class FileUploadForm extends React.Component{
         dispatch(uploadResource(file,name,type,RESOURCE_IMAGE,componentUid,null));
     }
 
+    setResource(resourceId){
+        const {onResourceSet} = this.props;
+        this.setState({id:+resourceId});
+        if(onResourceSet){
+            onResourceSet(+resourceId);
+        }
+    }
+
     componentDidUpdate(prevProps) {
         if (prevProps.notificationsSelector !== this.props.notificationsSelector) {
             const notifications = this.props.notificationsSelector(componentUid);
@@ -138,6 +147,11 @@ class FileUploadForm extends React.Component{
             submittingCompleted = (submittingCompleted && !submittingCompleted.get("discardedAt"))?submittingCompleted:null;
             console.log("submittingCompleted : untouching form");
             if(submittingCompleted){
+                console.log("extraData");
+                console.log(submittingCompleted.get("extraData"));
+                if(submittingCompleted.get("extraData") && submittingCompleted.get("extraData").resourceId){
+                    this.setResource(submittingCompleted.get("extraData").resourceId);
+                }
                 this.props.dispatch(formUntouch(componentUid,['file','name','type','size']));
             }
         }

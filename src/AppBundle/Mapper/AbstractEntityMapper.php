@@ -79,7 +79,8 @@ abstract class AbstractEntityMapper
         if($dto->getMediator() === null){
             throw new EntityMapperException("Dto's mediator must be set to add an entity");
         }
-        if($dto->getMediator()->getEntity() !== null && $dto->getMediator()->getEntity()->getId()>0){
+        $id = $dto->getMediator()->getEntity()->getId();
+        if($id !== null && $id>0){
             throw new EntityMapperException("Mediator's entity already exists; please consider editing it instead");
         }
     }

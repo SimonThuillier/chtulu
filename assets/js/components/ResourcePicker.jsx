@@ -38,14 +38,15 @@ class ResourcePicker extends Component {
 
         this.handlePanelSelect = this.handlePanelSelect.bind(this);
         this.onChange = this.onChange.bind(this);
+        this.onResourceSet = this.onResourceSet.bind(this);
         this.isValid = this.isValid.bind(this);
         this.state = {
-            value: props.initialValue,
             style: Object.assign(props.style, defaultStyle),
             currentType:1,
             currentInput:"",
             errors:[],
-            activePanelKey:'localFile'
+            activePanelKey:'localFile',
+            id:props.initialValue
         };
     }
 
@@ -57,6 +58,11 @@ class ResourcePicker extends Component {
         console.log("component did mount");
         console.log(this.state.value);
         this.setState({});
+    }
+
+    onResourceSet(resourceId){
+        this.setState({id:+resourceId});
+        console.log(`ResourcePicker set : ${resourceId}`);
     }
 
     onChange(e) {
@@ -94,7 +100,9 @@ class ResourcePicker extends Component {
                                 <Panel.Title toggle>Chargez une image depuis votre ordinateur</Panel.Title>
                             </Panel.Heading>
                             <Panel.Body collapsible>
-                                <FileUploadForm/>
+                                <FileUploadForm
+                                onResourceSet = {this.onResourceSet}
+                                />
                             </Panel.Body>
                         </Panel>
                         <Panel eventKey="remoteFile">
@@ -113,7 +121,7 @@ class ResourcePicker extends Component {
                                 disabled={!this.isValid()}
                                 align={"center"}
                                 onClick={() => {
-                                    onSave(this.state.value);
+                                    onSave(this.state.id);
                                     onClose();
                                 }}
                             >

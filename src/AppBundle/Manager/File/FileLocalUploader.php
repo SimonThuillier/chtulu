@@ -46,7 +46,9 @@ private $root;
             throw new \Exception("Impossible to create storage path " . $path);
         }
         $fileName = md5(uniqid()).'.'.$file->guessExtension();
-        $file->move($path, $fileName);
+        $tempFilePath = $file->getPathname();
+        copy($tempFilePath,$path . $fileName);
+        unlink($tempFilePath);
         return $path . $fileName;
     }
 

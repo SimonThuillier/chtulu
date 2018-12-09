@@ -220,7 +220,6 @@ abstract class DTOMediator implements ServiceSubscriberInterface
 
         $id = intval($this->dto->getId());
         $toDelete = $this->dto->getToDelete();
-        $mapperCommands[$this->dtoClassName . ":" . $id] = ["action"=>($toDelete?"delete":($id>0?"edit":"add")),"dto"=>$this->dto];
 
         if(!$toDelete){
             foreach($propertiesToReturn as $property){
@@ -229,6 +228,7 @@ abstract class DTOMediator implements ServiceSubscriberInterface
         }
 
         $this->resetChangedProperties();
+        $mapperCommands[$this->dtoClassName . ":" . $id] = ["action"=>($toDelete?"delete":($id>0?"edit":"add")),"dto"=>$this->dto];
         return $mapperCommands;
     }
 

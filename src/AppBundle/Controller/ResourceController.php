@@ -6,14 +6,19 @@ use AppBundle\DTO\ResourceDTO;
 use AppBundle\DTO\ResourceImageDTO;
 use AppBundle\DTO\ResourceVersionDTO;
 use AppBundle\Entity\HResource;
+use AppBundle\Entity\ResourceType;
 use AppBundle\Entity\ResourceVersion;
 use AppBundle\Factory\DTOFactory;
 use AppBundle\Factory\EntityFactory;
 use AppBundle\Factory\MediatorFactory;
 use AppBundle\Form\HFileUploadType;
+use AppBundle\Helper\RequestHelper;
+use AppBundle\Helper\WAOHelper;
 use AppBundle\Manager\File\FileRouter;
+use AppBundle\Mapper\EntityMapper;
 use AppBundle\Mapper\ResourceMapper;
 use AppBundle\Mediator\ResourceDTOMediator;
+use AppBundle\Serializer\DTONormalizer;
 use AppBundle\Serializer\GeoJsonNormalizer;
 use AppBundle\Serializer\ResourceDTONormalizer;
 use AppBundle\Utils\HJsonResponse;
@@ -21,9 +26,11 @@ use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Symfony\Component\Form\FormFactory;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Component\Validator\Validator\TraceableValidator;
 
 /**
  *
@@ -34,63 +41,99 @@ class ResourceController extends Controller
 {
     /**
      * @param Request $request
+     * @param RequestHelper $requestHelper
+     * @param WAOHelper $waoHelper
+     * @param TraceableValidator $validator
+     * @param FormFactory $formFactory
+     * @param EntityMapper $mapper
      * @param MediatorFactory $mediatorFactory
-     * @param ResourceMapper $mapper
-     * @param ResourceDTONormalizer $normalizer
+     * @param DTONormalizer $normalizer
      * @Route("/upload-resource",name="resource_upload")
      * @Method({"POST"})
      * @throws \Exception
      * @return JsonResponse
      */
     public function uploadResourceAction(Request $request,
-                                          MediatorFactory $mediatorFactory,
-                                          ResourceMapper $mapper,
-                                          ResourceDTONormalizer $normalizer)
+                                         RequestHelper $requestHelper,
+                                         WAOHelper $waoHelper,
+                                         TraceableValidator $validator,
+                                         FormFactory $formFactory,
+                                         EntityMapper $mapper,
+                                         MediatorFactory $mediatorFactory,
+                                         DTONormalizer $normalizer)
     {
         $hResponse = new HJsonResponse();
-        return new JsonResponse(HJsonResponse::normalize($hResponse));
 
-
-
-        $groups = ['minimal','activeImage'=>['minimal']];
-
-        $mediator = $mediatorFactory->create(ResourceDTOMediator::class);
-
-        /** @var ResourceDTO $resourceDto */
-        $resourceDto = $mediator
-            ->mapDTOGroups(array_merge($groups,[]))
-            ->getDTO();
-        /** @var ResourceVersionDTO $versionDto */
-        $versionDto = $resourceDto->getActiveVersion()->setName(null);
-
-        $form = $this->get('form.factory')
-            ->createBuilder(HFileUploadType::class,$versionDto)
-            ->getForm();
-
-        $mediator->resetChangedProperties();
-        $hResponse = new HJsonResponse();
-        $errors=[];
         try{
-            $form->handleRequest($request);
-            $versionDto->setName($request->get('name'));
-            $resourceDto->setName($request->get('name'));
-            $errors = $this->get('validator')->validate($versionDto);
-            if (! $form->isValid() || count($errors)>0)
-            {
-                throw new \Exception("Le formulaire contient des erreurs à corriger avant chargement");
-            }
-            $mapper->add($resourceDto);
+            $handledRequest = $requestHelper->handleUploadRequest($request);
+            if(!$this->isCsrfTokenValid('token_id', $handledRequest["_token"]))
+                throw new \Exception("Invalid token : would you hack history ?");
 
-            $mediator->mapDTOGroups(["minimal",'activeImage'=>['minimal',"urlMini","urlDetailThumbnail"]]);
-            $hResponse->setMessage("Le fichier a bien été chargé")
-                ->setData($normalizer->normalize($resourceDto,['minimal',"activeVersion"=>["urlMini","minimal","urlDetailThumbnail"]
-                    ]))
-            ->setStatus(HJsonResponse::SUCCESS);
+            $resource= null;
+            if($handledRequest["resourceId"] !== null){
+                $resource = $mapper->find(ResourceDTO::class,$handledRequest["resourceId"]);
+                if(!$resource) throw new \Exception("No resource found with id '". $handledRequest["resourceId"] ."'");
+            }
+            $resourceMediator = $mediatorFactory->create(ResourceDTO::class,$resource);
+            $groups = ['minimal'=>true,'activeVersion'=>['minimal'=>true,'file'=>true]];
+            $resourceMediator->mapDTOGroups($groups);
+
+            // if we upload for an existing resource we create a new version
+            /** @var ResourceDTO $resource */
+            $resource = $resourceMediator->getDTO();
+            if($resource->getId()>0){
+                $newActiveVersion = $mediatorFactory
+                    ->create(ResourceVersionDTO::class)
+                    ->mapDTOGroups(['minimal'=>true,'file'=>true])
+                    ->getDTO();
+                $resource->setActiveVersion($newActiveVersion);
+            }
+            else{
+                $resource->setName($handledRequest["name"]);
+            }
+
+            $version = $resource->getActiveVersion();
+            $version->setName($handledRequest["name"]);
+            $version->setFile($handledRequest["file"]);
+
+            //$form = $formFactory->createBuilder(HFileUploadType::class,$version)->getForm();
+            //$form->handleRequest($request);
+
+            switch($handledRequest["resourceType"]->getId()){
+                case ResourceType::IMAGE:
+                    // TODO : see for better file validation later
+                    /*$image = (new ResourceImageDTO())->setFile($version->getFile());
+                    $errors = $this->get('validator')->validate($image);
+                    if (count($errors)>0)
+                    {
+                        throw new \Exception($errors[0]->getMessage());
+                    }*/
+                    break;
+                default:
+                    break;
+            }
+            $mapperCommands = $resourceMediator->returnDataToEntity();
+            $mapper->executeCommands($mapperCommands);
+
+
+            $backGroups = ['minimal'=>true,'activeVersion'=>['minimal'=>true,'urlMini'=>true,'urlDetailThumbnail'=>true]];
+            $resourceMediator->mapDTOGroups($backGroups);
+            $waoType = $waoHelper->getAbridgedName(ResourceDTO::class);
+            $resourceId = $resource->getId();
+            $serialization = $normalizer->normalize($resource,$backGroups);
+            $truc = "lol";
+
+            $backData = [$waoType =>
+                [$resourceId=>$serialization]
+            ];
+
+            $hResponse
+                ->setData(json_encode($backData))
+                ->setMessage("Le fichier a bien été chargé");
         }
         catch(\Exception $e){
             $hResponse->setStatus(HJsonResponse::ERROR)
-                ->setMessage($e->getMessage())
-                ->setErrors(HJsonResponse::normalizeFormErrors($errors));
+                ->setMessage($e->getMessage());
         }
 
         return new JsonResponse(HJsonResponse::normalize($hResponse));

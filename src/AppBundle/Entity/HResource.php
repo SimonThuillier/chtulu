@@ -194,8 +194,7 @@ class HResource extends DTOMutableEntity
      */
     public function getVersions(): ArrayCollection
     {
-        return $this->versions;
+        return ($this->versions)?$this->versions:new ArrayCollection();
     }
-
 
 }

@@ -37,7 +37,7 @@ const initialAppState = Imm.Map({
 });
 
 const appReducer = (state=initialAppState, action) =>{
-    const {notifType,senderKey,senderParam,status,waoType,groups,id} = action;
+    const {notifType,senderKey,senderParam,status,waoType,groups,id,extraData} = action;
     switch (action.type) {
         case NOTIFY:
             let notification=null;
@@ -80,7 +80,8 @@ const appReducer = (state=initialAppState, action) =>{
                         senderParam : senderParam || 'DEFAULT',
                         status:status,
                         receivedAt : Date.now(),
-                        discardedAt:null
+                        discardedAt:null,
+                        extraData:extraData
                     });
                     state = state.removeIn(["notifications",senderKey,senderParam || 'DEFAULT',SUBMITTING]);
                     state = state.setIn(["notifications",senderKey,senderParam || 'DEFAULT',notifType],notification);

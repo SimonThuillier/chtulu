@@ -299,7 +299,7 @@ class ArticleForm extends React.Component{
                     />}
                     {typeof groups.detailImage !== 'undefined' &&
                     <Field
-                        name="detailImage"
+                        name="detailImageResource"
                         type="text"
                         component={ImageInput}
                         label="Image de presentation"

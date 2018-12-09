@@ -47,12 +47,13 @@ export const POST_ALL = 'POST_ALL';
 export const TIMEOUT = 5000;
 
 
-export const notify = (notifType,senderKey=null,senderParam=null,status=HB_SUCCESS) => ({
+export const notify = (notifType,senderKey=null,senderParam=null,status=HB_SUCCESS,extraData=null) => ({
     type: NOTIFY,
     notifType : notifType,
     senderKey : senderKey || 'HBAPP',
     senderParam: senderParam,
-    status:status
+    status:status,
+    extraData:extraData
 });
 
 export const discard = (notifType,senderKey=null,senderParam=null) => ({
@@ -90,7 +91,15 @@ export const uploadResource = (file,name,contentType,resourceType,senderKey,reso
     console.log(`dataToPost`);
     console.log(dataToPost);
 
-    const url = getUrl(URL_UPLOAD);
+
+    const url = getUrl(URL_UPLOAD,{
+        name:name,
+        contentType:contentType,
+        resourceType:resourceType.id,
+        resourceId:resourceId,
+        senderKey:senderKey,
+        _token:DataToPost()._token
+    });
     let httpProps = getHTTPUploadProps(contentType);
     httpProps.body = file;
 
@@ -106,7 +115,11 @@ export const uploadResource = (file,name,contentType,resourceType,senderKey,reso
                 console.log(json);
                 switch (json.status) {
                     case HB_SUCCESS:
-                        dispatch(notify(SUBMITTING_COMPLETED,senderKey || 'HBAPP',0,HB_SUCCESS));
+                        console.log(json.data);
+                        // not canonical but fast to to
+                        // todo : improve later
+                        const resourceId = Object.keys(json.data.resource)[0];
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey || 'HBAPP',0,HB_SUCCESS,{resourceId:+resourceId}));
                         handlePostBackData(json.data,dispatch);
                         //dispatch(receiveGet(waoType,groups,searchBag,json.rows,json.total,json.message));
                         break;

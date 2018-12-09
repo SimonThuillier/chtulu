@@ -24,15 +24,10 @@ class HFileUploadType extends AbstractType
 
         $builder
             ->add('file', FileType::class, array(
-                'label' => 'Fichier à charger',
                 'required' => true
             ))
             ->add('name', TextType::class, array(
-                'label' => 'Nom du fichier',
-                'required' => true,
-                'attr' => array(
-                    'maxlength' => 100
-                )
+                'required' => true
             ));
     }
 
@@ -40,10 +35,8 @@ class HFileUploadType extends AbstractType
     {
         $resolver->setDefaults(array(
             'data_class' => ResourceVersionDTO::class,
-            'attr' => array(
-                'target' => 'resource_post_upload_resource',
-            ),
-            'allow_extra_fields' => true
+            'allow_extra_fields' => true,
+            'csrf_protection' => false
         ));
     }
 }

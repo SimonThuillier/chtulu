@@ -65,7 +65,7 @@ class ResourceVersionDTOMediator extends DTOMediator
     {
     }
 
-    protected function mediateFile(){
+    protected function mediateFile($mapperCommands){
         /** @var ResourceVersionDTO $dto */
         $dto = $this->dto;
         if($dto->getFile() === null){return;}
@@ -78,9 +78,17 @@ class ResourceVersionDTOMediator extends DTOMediator
         }
         $resourceFile = $version->getFile();
 
-        $resourceFile->setType($dto->getFile()->guessExtension())
-            ->setMimeType($dto->getFile()->getMimeType())
-            ->setSize($dto->getFile()->getSize());
+        $truc = $dto->getFile();
+        try{
+            $resourceFile->setType($dto->getFile()->guessExtension())
+                ->setMimeType($dto->getFile()->getMimeType())
+                ->setSize($dto->getFile()->getSize());
+        }
+        catch(\Exception $e){
+            $machin ='lol';
+        }
+
+        return $mapperCommands;
     }
 
     protected function mapDTOUrlDetailThumbnailGroup(){

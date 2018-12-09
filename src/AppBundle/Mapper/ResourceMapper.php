@@ -65,15 +65,9 @@ class ResourceMapper extends AbstractEntityMapper implements EntityMapperInterfa
         $this->checkAdd($dto);
 
         /** @var ResourceDTO $dto */
-        /** @var ResourceVersion $version */
-        $version = $this->versionMapper->add($dto->getActiveVersion(),false);
 
         /** @var HResource $resource */
         $resource = $this->defaultAdd($dto);
-
-        $version
-            ->setResource($resource)
-            ->setNumber(1);
 
         $resource->setEditionDate(new \DateTime())
             ->setEditionUser($this->getUser());
