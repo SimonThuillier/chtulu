@@ -382,7 +382,14 @@ const resourceGeometry = {
     }
 };
 
-
+const getIdGenerator =  function (begin=0,step=1) {
+    let id = begin;
+    return function () {
+        let toReturn = id;
+        id = id + step;
+        return toReturn;
+    };
+};
 
 
 
@@ -395,7 +402,7 @@ class SimpleExample extends React.Component {
             zoom: 6,
             pins:[],
             loading:0,
-            idGenerator : hb.util.cmn.getIdGenerator(0,-1)
+            idGenerator : getIdGenerator(0,-1)
         };
     }
 
@@ -553,13 +560,13 @@ class SimpleExample extends React.Component {
                     minZoom={0}
                     maxZoom={32}
                 />
-                <TileLayer
-                    attribution=''
-                    url='http://localhost:8000/tiles/{z}/{x}/{y}.png'
-                    opacity={0.85}
-                    minZoom={0}
-                    maxZoom={8}
-                />
+                {/*<TileLayer*/}
+                    {/*attribution=''*/}
+                    {/*url='http://localhost:8000/tiles/{z}/{x}/{y}.png'*/}
+                    {/*opacity={0.85}*/}
+                    {/*minZoom={0}*/}
+                    {/*maxZoom={8}*/}
+                {/*/>*/}
                 {markers}
             </Map>
         );
