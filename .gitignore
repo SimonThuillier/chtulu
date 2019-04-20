@@ -51,3 +51,4 @@ web/build/
 
 bin/\.web-server-pid
 yarn.lock
+xdebug\.log

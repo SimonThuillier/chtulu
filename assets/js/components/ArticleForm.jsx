@@ -23,6 +23,7 @@ import {previewTooltip,submitTooltip,resetTooltip,deleteTooltip} from './tooltip
 import {LOADING,SUBMITTING,SUBMITTING_COMPLETED,COLORS} from '../util/notifications';
 import {HB_SUCCESS} from "../util/server";
 import {getAllPropertiesInGroups} from '../util/WAOUtil';
+import withContainer from './withContainer';
 
 const validate = values => {
     const errors = {};
@@ -268,7 +269,7 @@ class ArticleForm extends React.Component{
                     <Field
                         name="beginHDate"
                         type="text"
-                        component={HDateInput}
+                        component={withContainer(HDateInput,this.props.container||null)}
                         label="Date de début"
                     />}
                     {typeof groups.date !== 'undefined' &&
@@ -294,7 +295,7 @@ class ArticleForm extends React.Component{
                     <Field
                         name="endHDate"
                         type="text"
-                        component={HDateInput}
+                        component={withContainer(HDateInput,this.props.container||null)}
                         label="Date de fin"
                     />}
                     {typeof groups.detailImage !== 'undefined' &&

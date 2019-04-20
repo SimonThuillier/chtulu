@@ -74,6 +74,7 @@ class Article extends React.Component{
                 <div hidden={activeComponent!=='form'}>
                     {activeComponent==='form' &&
                     <ArticleForm
+                    container={this.props.container || null}
                     id={this.state.id}
                     groups={this.state.formGroups}
                     handleSwitch={handleSwitch}

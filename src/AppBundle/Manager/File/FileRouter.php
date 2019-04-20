@@ -51,13 +51,20 @@ class FileRouter
             '-' .$version->getNumber() .
             (($file->getType() && $file->getType() !== "")? '.' . $file->getType():"");
 
-        $route = $this->cacheResolver->
-        resolve($wantedPath,$filter);
+        try{
+            $route = $this->cacheResolver->
+            resolve($wantedPath,$filter);
+            $binary = $this->loader->find($version->getFile());
+            if($filter && $filter !== "") $binary = $this->filterManager->applyFilter($binary,$filter);
 
-        $binary = $this->loader->find($version->getFile());
-        if($filter && $filter !== "") $binary = $this->filterManager->applyFilter($binary,$filter);
+            $this->cacheResolver->store($binary,$wantedPath,$filter);
+        }
+        catch(\Exception $e){
+            var_dump($e);
+        }
 
-        $this->cacheResolver->store($binary,$wantedPath,$filter);
+
+
 
         return $route;
     }

@@ -40,7 +40,6 @@ class TestController extends Controller
     {
         /** @var Session $session */
         $session = $this->get('session');
-
         $credentials = $this->getParameter('hb_credentials');
         //var_dump($credentials);
 
@@ -51,8 +50,8 @@ class TestController extends Controller
         $subArray = [];
         $lol2 = ArrayUtil::flatten($lol,$subArray);
 
-        var_dump($lol2);
-        var_dump($subArray);
+        //var_dump($lol2);
+        //var_dump($subArray);
 
 
         // replace this example code with whatever you need

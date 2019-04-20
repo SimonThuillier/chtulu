@@ -199,6 +199,8 @@ class ArticleTablePage extends React.Component{
 
         this.onRowSelection = this.onRowSelection.bind(this);
 
+        this.modalRef = null;
+
         this.state = {
             loading:false,
             searchBag:SearchBag({}),
@@ -422,8 +424,9 @@ class ArticleTablePage extends React.Component{
                                     </Row>
                                 </Modal.Title>
                             </Modal.Header>
-                            <Modal.Body>
+                            <Modal.Body ref={input => (this.modalRef = input)}>
                                 <Article
+                                    container={this.modalRef}
                                     dispatch={this.props.dispatch}
                                     id={this.state.activeId}
                                     activeComponent={this.state.activeComponent}

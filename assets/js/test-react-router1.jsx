@@ -36,7 +36,6 @@ function Page2(props) {
 
 ReactDOM.render(React.createElement(App, null), document.getElementById('root'));
 
-let newArticle = null;
 
 hb.util.server.getNew('article').catch(error => console.log(error)).then(data =>{
     data.finalize();

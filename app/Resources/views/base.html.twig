@@ -1,3 +1,5 @@
+{#DEPRECATED#}
+
 <!DOCTYPE html>
 <html>
 
@@ -38,7 +40,7 @@
 <body class="hold-transition skin-blue sidebar-mini">
 {% block body%}
     <!-- Site wrapper -->
-    <div class="wrapper">
+    <div id="root" class="wrapper">
 
         <header class="main-header">
             {% block header %}
@@ -71,10 +73,10 @@
                                             <li>
                                                 <!-- start message --> <a href="#">
                                                     <div class="pull-left">
-                                                        {% image '@AppBundle/Resources/third-party/AdminLTE/img/user2-160x160.jpg' %}
-                                                            <img src="{{ asset_url }}" class="img-circle"
-                                                                 alt="User Image" />
-                                                        {% endimage %}
+                                                        {#{% image '@AppBundle/Resources/third-party/AdminLTE/img/user2-160x160.jpg' %}#}
+                                                            {#<img src="{{ asset_url }}" class="img-circle"#}
+                                                                 {#alt="User Image" />#}
+                                                        {#{% endimage %}#}
                                                     </div>
                                                     <h4>
                                                         Support Team <small><i class="fa fa-clock-o"></i> 5
@@ -136,18 +138,21 @@
                                 </ul></li>
                             <!-- User Account: style can be found in dropdown.less -->
                             <li class="dropdown user user-menu"><a href="#"
-                                                                   class="dropdown-toggle" data-toggle="dropdown"> {% image '@AppBundle/Resources/third-party/AdminLTE/img/user2-160x160.jpg' %}
-                                        <img src="{{ asset_url }}" class="user-image" alt="User Image" />
-                                    {% endimage %} <span class="hidden-xs"> {% if app.user is not null %}
+                                                                   class="dropdown-toggle" data-toggle="dropdown">
+                                    {#{% image '@AppBundle/Resources/third-party/AdminLTE/img/user2-160x160.jpg' %}#}
+                                        {#<img src="{{ asset_url }}" class="user-image" alt="User Image" />#}
+                                    {#{% endimage %}#}
+                                    <span class="hidden-xs"> {% if app.user is not null %}
                                             {{ app.user.getUsername() }} {% else %} Invité {% endif %}
 
 							</span>
                                 </a>
                                 <ul class="dropdown-menu">
                                     <!-- User image -->
-                                    <li class="user-header">{% image '@AppBundle/Resources/third-party/AdminLTE/img/user2-160x160.jpg' %}
-                                            <img src="{{ asset_url }}" class="img-circle" alt="User Image">
-                                        {% endimage %}
+                                    <li class="user-header">
+                                        {#{% image '@AppBundle/Resources/third-party/AdminLTE/img/user2-160x160.jpg' %}#}
+                                            {#<img src="{{ asset_url }}" class="img-circle" alt="User Image">#}
+                                        {#{% endimage %}#}
 
                                         <p>
                                             {% if app.user is not null %}
@@ -201,9 +206,9 @@
                     <!-- Sidebar user panel -->
                     <div class="user-panel">
                         <div class="pull-left image">
-                            {% image '@AppBundle/Resources/third-party/AdminLTE/img/user2-160x160.jpg' %}
-                                <img src="{{ asset_url }}" class="img-circle" alt="User Image" />
-                            {% endimage %}
+                            {#{% image '@AppBundle/Resources/third-party/AdminLTE/img/user2-160x160.jpg' %}#}
+                                {#<img src="{{ asset_url }}" class="img-circle" alt="User Image" />#}
+                            {#{% endimage %}#}
                         </div>
                         <div class="pull-left info">
                             <p>

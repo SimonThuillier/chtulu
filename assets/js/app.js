@@ -4,7 +4,6 @@ require('admin-lte/dist/css/AdminLTE.min.css');
 require('admin-lte/dist/css/skins/skin-blue.min.css');
 require('font-awesome/css/font-awesome.css');
 require('icheck/skins/square/blue.css');
-require('jquery-ui/themes/base/all.css');
 require('bootstrap-table/dist/bootstrap-table.css');
 require('leaflet/dist/leaflet.css');
 require('react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css');
