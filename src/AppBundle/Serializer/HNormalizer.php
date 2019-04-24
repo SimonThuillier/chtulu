@@ -70,6 +70,20 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
      * @param string $class
      * @param null $format
      * @param array $context
+     * @return array
+     * @throws InvalidArgumentException
+     */
+    protected function defaultDenormalize($data, $class, $format = null, array $context = array())
+    {
+        $denormalization = $this->serializer->denormalize($data, $class, $format,$context);
+        return $denormalization;
+    }
+
+    /**
+     * @param mixed $data
+     * @param string $class
+     * @param null $format
+     * @param array $context
      * @return mixed
      */
     abstract public function denormalize($data, $class, $format = null, array $context = array());

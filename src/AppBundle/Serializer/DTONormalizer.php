@@ -43,6 +43,7 @@ class DTONormalizer extends HNormalizer
             $ResourceGeometryDTONormalizer,
             new HGetSetMethodNormalizer($classMetadataFactory),
             new ObjectNormalizer($classMetadataFactory)
+
         );
 
         parent::__construct($normalizers);
@@ -84,7 +85,8 @@ class DTONormalizer extends HNormalizer
      */
     public function denormalize($data, $class, $format = null, array $context = array())
     {
-        // TODO : implements ?
-        return $data;
+        // let's do it !
+        $denormalization = $this->serializer->denormalize($data, $class,$format,$context);
+        return $denormalization;
     }
 }

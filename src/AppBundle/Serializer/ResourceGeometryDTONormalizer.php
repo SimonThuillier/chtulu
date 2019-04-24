@@ -54,7 +54,7 @@ class ResourceGeometryDTONormalizer extends HNormalizer
 
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return true;
+        return false;
     }
 
     /**

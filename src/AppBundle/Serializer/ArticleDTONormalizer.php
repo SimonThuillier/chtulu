@@ -51,7 +51,7 @@ class ArticleDTONormalizer extends HNormalizer
 
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return true;
+        return $type != null && $type === ArticleDTO::class;
     }
 
     /**
@@ -78,7 +78,7 @@ class ArticleDTONormalizer extends HNormalizer
      */
     public function denormalize($data, $class, $format = null, array $context = array())
     {
-        // TODO : implements ?
-        return $data;
+        $denormalization = parent::defaultDenormalize($data, $class, $format,$context);
+        return $denormalization;
     }
 }

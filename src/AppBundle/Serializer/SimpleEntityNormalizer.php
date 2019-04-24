@@ -47,6 +47,7 @@ class SimpleEntityNormalizer implements NormalizerInterface
 
     public function supportsDenormalization($data, $type, $format = null)
     {
+        $test='truc';
         return false;
     }
 

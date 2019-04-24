@@ -48,7 +48,7 @@ class ResourceDTONormalizer extends HNormalizer implements NormalizerInterface
 
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return true;
+        return false;
     }
 
     /**

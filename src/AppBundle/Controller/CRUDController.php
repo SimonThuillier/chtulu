@@ -246,6 +246,11 @@ class CRUDController extends Controller
                     /** @var EntityMutableDTO $dto */
                     $dto=$mediator->getDTO();
 
+                    $dto = $normalizer->denormalize($data,$dtoClassName,null,array("existingDto"=>$dto));
+
+
+                    throw new \Exception("zut ! wip ;)");
+
                     $form = $formFactory->createBuilder($waoHelper->getFormClassName($dtoClassName),$dto,[
                         'validation_groups'=>$postedGroups])
                         ->getForm();
@@ -253,6 +258,11 @@ class CRUDController extends Controller
                     $form->submit($data);
                     $errors = $validator->validate($dto,null,$postedGroups);
                     $err = $form->getErrors(true);
+                    foreach($err as $oneErr){
+                        $truc = $oneErr->getMessage();
+                        $truc = $oneErr->getOrigin()->getData();
+                        $truc='lol';
+                    }
                     if (! $form->isValid() || count($errors)>0)
                     {
                         throw new \Exception("Le formulaire contient des erreurs à corriger avant creation");
