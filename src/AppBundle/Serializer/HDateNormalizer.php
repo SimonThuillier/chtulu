@@ -1,6 +1,7 @@
 <?php
 namespace AppBundle\Serializer;
 
+use AppBundle\Helper\WAOHelper;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
@@ -20,10 +21,11 @@ class HDateNormalizer extends HNormalizer
     /**
      * @param ManagerRegistry $doctrine
      * @param HDateFactory $mainFactory
+     * @param WAOHelper $waoHelper
      */
-    public function __construct(ManagerRegistry $doctrine, HDateFactory $mainFactory)
+    public function __construct(ManagerRegistry $doctrine, HDateFactory $mainFactory,WAOHelper $waoHelper)
     {
-        parent::__construct([]);
+        parent::__construct([],$waoHelper);
         $this->doctrine = $doctrine;
         $this->mainFactory = $mainFactory;
     }
@@ -35,7 +37,7 @@ class HDateNormalizer extends HNormalizer
 
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return isset($data['beginDate']) && isset($data['endDate']) && isset($data['type']);
+        return $type === Hdate::class || (isset($data['beginDate']) && isset($data['endDate']) && isset($data['type']));
     }
 
     /**

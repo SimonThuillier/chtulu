@@ -10,6 +10,7 @@ namespace AppBundle\Serializer;
 
 use AppBundle\DTO\ResourceImageDTO;
 use AppBundle\DTO\ResourceVersionDTO;
+use AppBundle\Helper\WAOHelper;
 use AppBundle\Mediator\NotAvailableGroupException;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
@@ -24,8 +25,9 @@ class ResourceVersionDTONormalizer extends HNormalizer implements NormalizerInte
 {
     /**
      * @param ManagerRegistry $doctrine
+     * @param WAOHelper $waoHelper
      */
-    public function __construct(ManagerRegistry $doctrine)
+    public function __construct(ManagerRegistry $doctrine,WAOHelper $waoHelper)
     {
 
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
@@ -33,7 +35,7 @@ class ResourceVersionDTONormalizer extends HNormalizer implements NormalizerInte
             //new PropertyNormalizer($classMetadataFactory),
             new HGetSetMethodNormalizer($classMetadataFactory),
             new ObjectNormalizer());
-        parent::__construct($normalizers);
+        parent::__construct($normalizers,$waoHelper);
         /*$this->subGroupables = [
             "lol"=>($this)];*/
     }

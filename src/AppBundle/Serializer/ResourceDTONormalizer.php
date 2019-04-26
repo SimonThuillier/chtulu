@@ -9,6 +9,7 @@
 namespace AppBundle\Serializer;
 
 use AppBundle\DTO\ResourceDTO;
+use AppBundle\Helper\WAOHelper;
 use AppBundle\Mediator\NotAvailableGroupException;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
@@ -24,9 +25,11 @@ class ResourceDTONormalizer extends HNormalizer implements NormalizerInterface
     /**
      * @param ManagerRegistry $doctrine
      * @param ResourceVersionDTONormalizer $versionDtoNormalizer
+     * @param WAOHelper $waoHelper
      */
     public function __construct(ManagerRegistry $doctrine,
-                                ResourceVersionDTONormalizer $versionDtoNormalizer)
+                                ResourceVersionDTONormalizer $versionDtoNormalizer,
+                                WAOHelper $waoHelper)
     {
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
@@ -34,7 +37,7 @@ class ResourceDTONormalizer extends HNormalizer implements NormalizerInterface
             //new PropertyNormalizer($classMetadataFactory),
             new HGetSetMethodNormalizer($classMetadataFactory),
             new ObjectNormalizer());
-        parent::__construct($normalizers);
+        parent::__construct($normalizers,$waoHelper);
        /* $this->subGroupables = ["activeVersion"=>($this->versionDtoNormalizer),
             "lol"=>($this->versionDtoNormalizer),
             "lol2"=>($this->versionDtoNormalizer)
@@ -48,7 +51,7 @@ class ResourceDTONormalizer extends HNormalizer implements NormalizerInterface
 
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return false;
+        return $type===ResourceDTO::class;
     }
 
     /**

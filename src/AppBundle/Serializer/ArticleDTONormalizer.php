@@ -10,6 +10,7 @@ namespace AppBundle\Serializer;
 
 
 use AppBundle\DTO\ArticleDTO;
+use AppBundle\Helper\WAOHelper;
 use AppBundle\Mediator\NotAvailableGroupException;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
@@ -26,11 +27,13 @@ class ArticleDTONormalizer extends HNormalizer
      * @param HDateNormalizer $hDateSerializer
      * @param SimpleEntityNormalizer $simpleEntityNormalizer
      * @param ResourceDTONormalizer $resourceDTONormalizer
+     * @param WAOHelper $waoHelper
      */
     public function __construct(ManagerRegistry $doctrine,
                                 HDateNormalizer $hDateSerializer,
                                 SimpleEntityNormalizer $simpleEntityNormalizer,
-                                ResourceDTONormalizer $resourceDTONormalizer)
+                                ResourceDTONormalizer $resourceDTONormalizer,
+                                WAOHelper $waoHelper)
     {
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
@@ -41,7 +44,7 @@ class ArticleDTONormalizer extends HNormalizer
             new ObjectNormalizer($classMetadataFactory)
         );
 
-        parent::__construct($normalizers);
+        parent::__construct($normalizers,$waoHelper);
     }
 
     public function supportsNormalization($data, $format = null)

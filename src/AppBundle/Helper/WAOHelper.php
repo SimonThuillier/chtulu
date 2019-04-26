@@ -103,7 +103,7 @@ class WAOHelper
         return $mapping;
     }
 
-    public function getDTOStructure(string $className)
+    public function getDTOStructure(string $className,bool $onlyDto=true)
     {
         $dtoReflectionClass = new \ReflectionClass($className);
         $getters = array_filter($dtoReflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC),
@@ -134,7 +134,7 @@ class WAOHelper
                 if(strpos($returnType,"DTO") !== false) $returnType =  self::DTO_NS . $returnType;
                 else $returnType = self::ENTITY_NS . $returnType;
             }
-            if(in_array($returnType,$waoClassNames)){
+            if(!$onlyDto || in_array($returnType,$waoClassNames)){
                 $structure[] = ["name"=>lcfirst(substr($item->name,3)),"returnType" => $returnType];
             }
         }

@@ -246,7 +246,7 @@ class CRUDController extends Controller
                     /** @var EntityMutableDTO $dto */
                     $dto=$mediator->getDTO();
 
-                    $dto = $normalizer->denormalize($data,$dtoClassName,null,array("existingDto"=>$dto));
+                    $dto = $normalizer->denormalize($data,$dtoClassName,null,array("existingDto"=>$dto,"groups"=>$postedGroups));
 
 
                     throw new \Exception("zut ! wip ;)");

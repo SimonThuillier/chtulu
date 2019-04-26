@@ -11,12 +11,14 @@ namespace AppBundle\Serializer;
 
 use AppBundle\Helper\WAOHelper;
 use Doctrine\Common\Annotations\AnnotationReader;
+use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 
-class SimpleEntityNormalizer implements NormalizerInterface
+class SimpleEntityNormalizer implements NormalizerInterface,DenormalizerInterface
 {
     /**
      * @var WAOHelper
@@ -26,15 +28,19 @@ class SimpleEntityNormalizer implements NormalizerInterface
      * @var HGetSetMethodNormalizer
      */
     private $normalizer;
+    /** @var ManagerRegistry $doctrine */
+    private $doctrine;
 
     /**
      * handles simple entities which are always normalized the same way
      * MediatorNormalizer constructor.
      * @param WAOHelper $waoHelper
+     * @param ManagerRegistry $doctrine
      */
-    public function __construct(WAOHelper $waoHelper)
+    public function __construct(WAOHelper $waoHelper,ManagerRegistry $doctrine)
     {
         $this->waoHelper = $waoHelper;
+        $this->doctrine = $doctrine;
 
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $this->normalizer = new HGetSetMethodNormalizer($classMetadataFactory);
@@ -47,8 +53,8 @@ class SimpleEntityNormalizer implements NormalizerInterface
 
     public function supportsDenormalization($data, $type, $format = null)
     {
-        $test='truc';
-        return false;
+        $entityClassNames = $this->waoHelper->getSimpleEntityClassNames();
+        return in_array($type,$entityClassNames);
     }
 
     /**
@@ -64,6 +70,9 @@ class SimpleEntityNormalizer implements NormalizerInterface
      */
     public function denormalize($data, $class, $format = null, array $context = array())
     {
-        return $data;
+        if (null === $data || $data === "") return null;
+        if(is_array($data)) $data = $data["id"];
+
+        return $this->doctrine->getRepository($class)->find(intval($data));
     }
 }

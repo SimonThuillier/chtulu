@@ -9,6 +9,7 @@
 namespace AppBundle\Serializer;
 
 use AppBundle\DTO\EntityMutableDTO;
+use AppBundle\Helper\WAOHelper;
 use AppBundle\Mediator\NotAvailableGroupException;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
@@ -28,12 +29,14 @@ class DTONormalizer extends HNormalizer
      * @param SimpleEntityNormalizer $simpleEntityNormalizer
      * @param ResourceDTONormalizer $resourceDTONormalizer
      * @param ResourceGeometryDTONormalizer $ResourceGeometryDTONormalizer
+     * @param WAOHelper $waoHelper
      */
     public function __construct(ManagerRegistry $doctrine,
                                 ArticleDTONormalizer $articleDTONormalizer,
                                 SimpleEntityNormalizer $simpleEntityNormalizer,
                                 ResourceDTONormalizer $resourceDTONormalizer,
-                                ResourceGeometryDTONormalizer $ResourceGeometryDTONormalizer)
+                                ResourceGeometryDTONormalizer $ResourceGeometryDTONormalizer,
+                                WAOHelper $waoHelper)
     {
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
@@ -46,7 +49,7 @@ class DTONormalizer extends HNormalizer
 
         );
 
-        parent::__construct($normalizers);
+        parent::__construct($normalizers,$waoHelper);
     }
 
     public function supportsNormalization($data, $format = null)

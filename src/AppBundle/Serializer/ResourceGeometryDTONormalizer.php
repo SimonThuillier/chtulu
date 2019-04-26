@@ -11,6 +11,7 @@ namespace AppBundle\Serializer;
 
 use AppBundle\DTO\ArticleDTO;
 use AppBundle\DTO\ResourceGeometryDTO;
+use AppBundle\Helper\WAOHelper;
 use AppBundle\Mediator\NotAvailableGroupException;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
@@ -28,12 +29,14 @@ class ResourceGeometryDTONormalizer extends HNormalizer
      * @param SimpleEntityNormalizer $simpleEntityNormalizer
      * @param GeoJsonNormalizer $geoJsonNormalizer
      * @param ResourceDTONormalizer $resourceDTONormalizer
+     * @param WAOHelper $waoHelper
      */
     public function __construct(ManagerRegistry $doctrine,
                                 HDateNormalizer $hDateSerializer,
                                 SimpleEntityNormalizer $simpleEntityNormalizer,
                                 GeoJsonNormalizer $geoJsonNormalizer,
-                                ResourceDTONormalizer $resourceDTONormalizer)
+                                ResourceDTONormalizer $resourceDTONormalizer,
+                                WAOHelper $waoHelper)
     {
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
@@ -44,7 +47,7 @@ class ResourceGeometryDTONormalizer extends HNormalizer
             new HGetSetMethodNormalizer($classMetadataFactory),
             new ObjectNormalizer());
 
-        parent::__construct($normalizers);
+        parent::__construct($normalizers,$waoHelper);
     }
 
     public function supportsNormalization($data, $format = null)

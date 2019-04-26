@@ -1,6 +1,7 @@
 <?php
 namespace AppBundle\Serializer;
 
+use AppBundle\Helper\WAOHelper;
 use AppBundle\Utils\Geometry;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
@@ -16,9 +17,13 @@ class GeoJsonNormalizer extends HNormalizer
     private $allowedTypes;
     const MAX_DEPTH=4;
 
-    public function __construct()
+    /**
+     * GeoJsonNormalizer constructor.
+     * @param WAOHelper $waoHelper
+     */
+    public function __construct(WAOHelper $waoHelper)
     {
-        parent::__construct([]);
+        parent::__construct([],$waoHelper);
 
         $this->allowedTypes = ["POINT","POLYGON","LINESTRING","GEOMETRYCOLLECTION","MULTILINESTRING","MULTIPOLYGON"];
 

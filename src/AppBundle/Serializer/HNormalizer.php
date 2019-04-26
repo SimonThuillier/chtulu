@@ -8,6 +8,7 @@
 
 namespace AppBundle\Serializer;
 
+use AppBundle\Helper\WAOHelper;
 use AppBundle\Mediator\NotAvailableGroupException;
 use AppBundle\Utils\ArrayUtil;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
@@ -21,15 +22,19 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
     protected $serializer;
     /** @var array */
     protected $subGroupables;
+    /** @var WAOHelper */
+    protected $waoHelper;
 
     /**
      * JsonSerializer constructor.
      * @param array $normalizers
+     * @param WAOHelper $waoHelper
      */
-    public function __construct(array $normalizers)
+    public function __construct(array $normalizers,WAOHelper $waoHelper)
     {
         $normalizers = array_merge([new MediatorNormalizer()],$normalizers);
         $this->serializer = new Serializer($normalizers,[]);
+        $this->waoHelper = $waoHelper;
         //$this->subGroupables = [];
     }
 
@@ -75,6 +80,36 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
      */
     protected function defaultDenormalize($data, $class, $format = null, array $context = array())
     {
+
+        $structure = $this->waoHelper->getDTOStructure($class,false);
+        $mapping = $this->waoHelper->getDTOMapping($class);
+
+        $groups = array_key_exists('groups',$context)?$context['groups']:null;
+
+        // let's determine the properties to consider
+        $properties = [];
+        foreach($mapping as $groupName=>$groupProperties){
+            $groupProperties = $groupProperties;
+            foreach($groupProperties as $property){
+                $properties[$property] = ($groups !== null)?(array_key_exists($groupName,$groups)?$groups[$groupName]:false):true;
+            }
+        }
+
+        $preDenormalizedData = [];
+        foreach($data as $property=>$value){
+            if(array_key_exists($property,$properties) && $properties[$property]){
+                if(array_key_exists($property,$structure)){
+                    $value = $this->serializer->denormalize($value, $structure[$property]);
+                }
+                $preDenormalizedData[$property] = $value;
+            }
+        }
+
+
+
+
+
+
         $denormalization = $this->serializer->denormalize($data, $class, $format,$context);
         return $denormalization;
     }
