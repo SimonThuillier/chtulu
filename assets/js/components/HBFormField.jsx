@@ -24,10 +24,10 @@ const HBFormField = (props) => {
     const style = Object.assign(defaultStyles[alignment],props.style || {});
 
     const extraProps = {};
-    //console.log("render field");
+    console.log("render field");
     //console.log(props);
 
-
+return 'lol';
 
     switch(alignment){
         case 'vertical':

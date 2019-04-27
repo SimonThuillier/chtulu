@@ -306,7 +306,7 @@ class ArticleForm extends React.Component{
                     <Field
                         name="detailImageResource"
                         type="text"
-                        component={ImageInput}
+                        component={withContainer(ImageInput,this.props.container||null)}
                         label="Image de presentation"
                     />}
                     {typeof groups.abstract!== 'undefined' &&

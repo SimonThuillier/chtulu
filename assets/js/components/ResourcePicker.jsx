@@ -24,9 +24,10 @@ const defaultStyle = {
     boxShadow: "0 5px 10px rgba(0, 0, 0, 0.2)",
     border: "1px solid #CCC",
     borderRadius: 3,
-    marginLeft: 110,
-    marginTop: -30,
-    zIndex:2000,
+    marginLeft: 0,
+    marginTop: -0,
+    minWidth: 350,
+    zIndex: 2000
 
     //padding: 5
     //width: "500px"
@@ -35,13 +36,13 @@ const defaultStyle = {
 class ResourcePicker extends Component {
     constructor(props) {
         super(props);
-
+        console.log("resource picker construct");
         this.handlePanelSelect = this.handlePanelSelect.bind(this);
         this.onChange = this.onChange.bind(this);
         this.onResourceSet = this.onResourceSet.bind(this);
         this.isValid = this.isValid.bind(this);
         this.state = {
-            style: Object.assign(props.style, defaultStyle),
+            style: Object.assign(props.style || {}, defaultStyle),
             currentType:1,
             currentInput:"",
             errors:[],
@@ -55,9 +56,9 @@ class ResourcePicker extends Component {
     }
 
     componentDidMount(){
-        console.log("component did mount");
+        console.log("resource picker did mount");
         console.log(this.state.value);
-        this.setState({});
+        //this.setState({});
     }
 
     onResourceSet(resourceId){
@@ -74,21 +75,20 @@ class ResourcePicker extends Component {
     }
 
     render(){
-        const { className, onBlur, onFocus, onClose, onSave } = this.props;
+        const { className, onClose, onSave } = this.props;
 
         return(
             <Panel
                 style={this.state.style}
                 className={className}
-                onFocus={onFocus}
-                onBlur={()=>{}}
-                onClick={onFocus}
-                onMouseDown={onFocus}
             >
                 <Panel.Heading align="center">
                     Choisissez une Image <Glyphicon glyph="picture" />
                 </Panel.Heading>
                 <Panel.Body>
+                    <FileUploadForm
+                        onResourceSet = {this.onResourceSet}
+                    />
                     <PanelGroup
                         accordion
                         id="resource-accordion-choice"
@@ -100,9 +100,7 @@ class ResourcePicker extends Component {
                                 <Panel.Title toggle>Chargez une image depuis votre ordinateur</Panel.Title>
                             </Panel.Heading>
                             <Panel.Body collapsible>
-                                <FileUploadForm
-                                onResourceSet = {this.onResourceSet}
-                                />
+
                             </Panel.Body>
                         </Panel>
                         <Panel eventKey="remoteFile">

@@ -433,7 +433,7 @@ class ArticleTablePage extends React.Component{
                                     dispatch={this.props.dispatch}
                                     id={this.state.activeId}
                                     activeComponent={this.state.activeComponent}
-                                    formGroups={{"minimal":true,"date":true,"abstract":true}}
+                                    formGroups={{"minimal":true,"date":true,"abstract":true,"detailImage":true}}
                                     context={'modal'}
                                     handleSwitch={this.handleComponentSwitch}
                                     onNothing={this.handleClose}

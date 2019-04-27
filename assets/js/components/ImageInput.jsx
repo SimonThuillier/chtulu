@@ -3,7 +3,7 @@ import {getNotificationsSelector, getOneByIdSelector, getSelector} from "../sele
 import { connect } from 'react-redux'
 import {getComponentClassType} from "../util/formUtil";
 import {change as reduxFormChange, untouch as formUntouch} from 'redux-form/immutable';
-import {ControlLabel,FormGroup,FormControl,Overlay,Col,HelpBlock,Button} from 'react-bootstrap';
+import {ControlLabel,FormGroup,FormControl,Overlay,Col,HelpBlock,Button,OverlayTrigger,Popover} from 'react-bootstrap';
 import ResourcePicker from './ResourcePicker';
 import {getOneByIdIfNeeded} from "../actions";
 import RImageMini from './RImageMini';
@@ -25,15 +25,12 @@ class ImageInput extends Component {
     constructor(props) {
         super(props);
 
-        this.handleFocus = this.handleFocus.bind(this);
-        this.handleBlur = this.handleBlur.bind(this);
         this.handleSave = this.handleSave.bind(this);
         this.handleClose = this.handleClose.bind(this);
-        this.focusCounter = 0;
+
+        this.inputRef = null;
 
         this.state = {
-            show: false,
-            render:0,
         };
     }
 
@@ -41,17 +38,17 @@ class ImageInput extends Component {
         console.log("image input didmount");
         const {selector,value} = this.props;
         if(value){
-            dispatch(getOneByIdIfNeeded("resource",
+            /*dispatch(getOneByIdIfNeeded("resource",
                 {minimal:true,activeVersion:{urlMini:true}},
-                this.props.id));
+                this.props.id));*/
         }
     }
 
     componentDidUpdate(prevProps) {
         if (this.props.value && this.props.value !== prevProps.value) {
-            dispatch(getOneByIdIfNeeded("resource",
+            /*dispatch(getOneByIdIfNeeded("resource",
                 {minimal:true,activeVersion:{urlMini:true}},
-                this.props.id));
+                this.props.id));*/
         }
         if (this.props.versionSelector !== prevProps.versionSelector) {
             this.setState({render:this.state.render++});
@@ -60,42 +57,15 @@ class ImageInput extends Component {
     }
 
     handleClose() {
-        setTimeout(() => {
-            this.focusCounter = 0;
-            console.log(`onClose ${this.focusCounter}`);
-            this.setState({ show: false });
-        }, 20);
+        this.inputRef.click();
     }
 
     handleSave(value) {
-        const {input:{onChange,onBlur}} = this.props;
-
-        console.log("saving image");
-        console.log(this.props);
-        console.log(value);
+        const {
+            input: { onChange, onBlur }
+        } = this.props;
         onChange(value);
         onBlur(value);
-
-        //this.setState({ value: value });
-    }
-
-    handleFocus() {
-        this.focusCounter = this.focusCounter + 1;
-        console.log(`onFocus ${this.focusCounter}`);
-        this.setState({ show: true });
-    }
-
-    handleBlur() {
-        const counter = this.focusCounter + 0;
-        console.log(`onBlur ${counter}`);
-        setTimeout(() => {
-            console.log(
-                `timedOut bluer oldCounter ${counter} vs ${this.focusCounter}`
-            );
-            if (this.focusCounter === counter) {
-                this.setState({ show: false });
-            }
-        }, 15);
     }
 
     render(){
@@ -161,33 +131,27 @@ class ImageInput extends Component {
                             <ControlLabel>{label}</ControlLabel>
                         </Col>
                         <Col sm={9} md={10}>
-                            <Button
-                                ref='target'
-                                onClick={this.handleFocus}
-                            >{resourceLabel}&nbsp;<RImageMini id={id}/></Button>
+                            <OverlayTrigger
+                                trigger="click"
+                                placement="left"
+                                rootClose={true}
+                                container={this.props.container || null}
+                                rootCloseEvent={'click'}
+                                overlay={
+                                    <Popover id="popover-contained" arrowProps={null}>
+                                        <ResourcePicker
+                                            initialValue={input.value}
+                                            onClose={this.handleClose}
+                                            onSave={this.handleSave}
+                                        />
+                                    </Popover>
+                                }
+                            >
+                                <div ref={input => (this.inputRef = input)}>
+                                    <Button>{resourceLabel}&nbsp;<RImageMini id={id}/></Button>
+                                </div>
+                            </OverlayTrigger>
                         </Col>
-                        <Overlay
-                            rootClose={true}
-                            show={this.state.show}
-                            onHide={() => this.setState({ show: false })}
-                            placement="left"
-                            container={this}
-                            target={() => {
-                                console.log(this.refs);
-                                console.log(ReactDOM.findDOMNode(this.refs.target));
-                                return ReactDOM.findDOMNode(this.refs.target);
-                            }}
-                        >
-
-                            <ResourcePicker
-                                className="lol"
-                                initialValue={input.value}
-                                onFocus={this.handleFocus}
-                                onBlur={this.handleBlur}
-                                onClose={this.handleClose}
-                                onSave={this.handleSave}
-                            />
-                        </Overlay>
                         {touched && (error || warning) &&
                         <HelpBlock>{error || warning}</HelpBlock>
                         }

@@ -197,7 +197,7 @@ class HDatePicker extends Component {
     }
 
     render() {
-        const { className, onBlur, onFocus, onClose, onSave } = this.props;
+        const { className, onClose, onSave } = this.props;
         const options = Object.entries(trans.PARSING_TYPE_LABELS).map(
             ([key, value]) => {
                 return (

@@ -99,8 +99,8 @@ class FileUploadForm extends React.Component{
         this.setState({
             id:id,
             extraData:initialExtraData});
-        dispatch(getOneByIdIfNeeded("resourceVersion",{minimal:true,file:true}, id,componentUid));
-        initialize(initialExtraData);
+        //dispatch(getOneByIdIfNeeded("resourceVersion",{minimal:true,file:true}, id,componentUid));
+        //initialize(initialExtraData);
     }
 
     componentDidMount() {
@@ -140,7 +140,7 @@ class FileUploadForm extends React.Component{
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.notificationsSelector !== this.props.notificationsSelector) {
+        /*if (prevProps.notificationsSelector !== this.props.notificationsSelector) {
             const notifications = this.props.notificationsSelector(componentUid);
             let submittingCompleted = (notifications && notifications.
             getIn([(this.state.data && this.state.data.id) || 'DEFAULT',SUBMITTING_COMPLETED]))||null;
@@ -154,11 +154,11 @@ class FileUploadForm extends React.Component{
                 }
                 this.props.dispatch(formUntouch(componentUid,['file','name','type','size']));
             }
-        }
+        }*/
     }
 
     render(){
-        console.log("render called");
+        console.log("begin fileUploadFormRender");
         const { onSubmit, reset, load,valid,pendingForm,dispatch,notificationsSelector} = this.props;
 
 
@@ -169,7 +169,7 @@ class FileUploadForm extends React.Component{
         let submittingCompleted = (notifications && notifications.
         getIn([(this.state.data && this.state.data.id) || 'DEFAULT',SUBMITTING_COMPLETED]))||null;
         submittingCompleted = (submittingCompleted && !submittingCompleted.get("discardedAt"))?submittingCompleted:null;
-
+        console.log("begin fileUploadFormRender : 1");
         return (
             <Loadable
                 active={submitting}
@@ -180,49 +180,42 @@ class FileUploadForm extends React.Component{
             >
                 {submittingCompleted && notificationAlert(submittingCompleted,dispatch)}
                 <Form onSubmit={(e)=>{}}>
-                    <Field
-                        name="file"
-                        type="file"
-                        component={HBFormField}
-                        label="Image à charger"
-                        onChange={this.onFileSelection}
-                        onBlur={(e)=>{e.preventDefault()}}
-                    />
-                    {/*<Row>*/}
-                        {/*<FormGroup controlId="formImage"*/}
-                                   {/*validationState={null}>*/}
-                            {/*<Col sm={3}>*/}
-                                {/*<ControlLabel>Image à charger</ControlLabel>*/}
-                            {/*</Col>*/}
-                            {/*<Col sm={9}>*/}
-                                {/*<input*/}
-                                    {/*name={"file"}*/}
-                                    {/*type="file"*/}
-                                    {/*onChange={this.onFileSelection}*/}
-                                {/*/>*/}
-                            {/*</Col>*/}
-                        {/*</FormGroup>*/}
-                    {/*</Row>*/}
-                    <Field
-                        name="name"
+                    <div>Pourquoi ?</div>
+                    {/*<Field*/}
+                        {/*name="file"*/}
+                        {/*type="file"*/}
+                        {/*component={HBFormField}*/}
+                        {/*label="Image à charger"*/}
+                        {/*onChange={this.onFileSelection}*/}
+                        {/*onBlur={(e)=>{e.preventDefault()}}*/}
+                    {/*/>*/}
+                    {/*<Field*/}
+                        {/*name="name"*/}
+                        {/*type="text"*/}
+                        {/*component={HBFormField}*/}
+                        {/*label="Nom de l'image"*/}
+                    {/*/>*/}
+                    <FormControl
+                        componentClass="input"
+                        autoComplete="off"
+                        value={"test"}
                         type="text"
-                        component={HBFormField}
-                        label="Nom de l'image"
+                        placeholder="date"
                     />
-                    <div hidden>
-                        <Field
-                            name="type"
-                            type="text"
-                            component={HBFormField}
-                            label="Type du fichier"
-                        />
-                        <Field
-                            name="size"
-                            type="text"
-                            component={HBFormField}
-                            label="Taille du fichier"
-                        />
-                    </div>
+                    {/*<div hidden>*/}
+                        {/*<Field*/}
+                            {/*name="type"*/}
+                            {/*type="text"*/}
+                            {/*component={HBFormField}*/}
+                            {/*label="Type du fichier"*/}
+                        {/*/>*/}
+                        {/*<Field*/}
+                            {/*name="size"*/}
+                            {/*type="text"*/}
+                            {/*component={HBFormField}*/}
+                            {/*label="Taille du fichier"*/}
+                        {/*/>*/}
+                    {/*</div>*/}
                     <hr/>
                     <Row>
                         <Col md={9}>
@@ -241,9 +234,9 @@ class FileUploadForm extends React.Component{
                         </Col>
                     </Row>
                 </Form>
-                <iframe id={`${componentUid}`}>
+                {/*<iframe id={`${componentUid}`}>*/}
 
-                </iframe>
+                {/*</iframe>*/}
             </Loadable>
         );
     }

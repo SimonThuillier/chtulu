@@ -103,25 +103,34 @@ class HDateInput extends Component {
                                 <HelpBlock>{error || warning}</HelpBlock>
                             )}
                         </FormGroup>
-                        <Overlay
-                            rootClose={true}
-                            show={this.state.show}
-                            //onHide={() => this.setState({ show: false })}
+                        <OverlayTrigger
+                            trigger="click"
                             placement="left"
-                            container={this}
-                            target={() => {
-                                return ReactDOM.findDOMNode(this.refs.target);
-                            }}
+                            rootClose={true}
+                            container={this.props.container || null}
+                            rootCloseEvent={'click'}
+                            overlay={
+                                <Popover id="popover-contained" arrowProps={null}>
+                                    <HDatePicker
+                                        initialValue={input.value}
+                                        onClose={dateInput.handleClose}
+                                        onSave={dateInput.handleSave}
+                                    />
+                                </Popover>
+                            }
                         >
-                            <HDatePicker
-                                className="lol"
-                                initialValue={input.value}
-                                onFocus={this.handleFocus}
-                                onBlur={this.handleBlur}
-                                onClose={this.handleClose}
-                                onSave={this.handleSave}
-                            />
-                        </Overlay>
+                            <div ref={input => (this.inputRef = input)}>
+                                <FormControl
+                                    value={hDateLabel}
+                                    componentClass="input"
+                                    //onFocus={this.handleFocus}
+                                    //onBlur={this.handle}
+                                    type="text"
+                                    style={{ textAlign: "inherit" }}
+                                    placeholder={placeholder}
+                                />
+                            </div>
+                        </OverlayTrigger>
                     </div>
                 );
             default:
