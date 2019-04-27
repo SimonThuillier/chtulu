@@ -75,7 +75,7 @@ class ResourceVersionDTONormalizer extends HNormalizer implements NormalizerInte
      */
     public function denormalize($data, $class, $format = null, array $context = array())
     {
-        // TODO : implements ?
-        return $data;
+        $denormalization = parent::defaultDenormalize($data, $class, $format,$context);
+        return $denormalization;
     }
 }

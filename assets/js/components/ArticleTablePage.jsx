@@ -171,6 +171,9 @@ const rightBreadcrumb = (breadcrumb,switcher) => {
 };
 
 const rowStyle = (row, rowIndex) => {
+    if(row && row.has("hasErrors") && row.get("hasErrors")(row)){
+        return {backgroundColor:COLORS.ERROR};
+    }
     if(row && row.has("toDelete") && row.get("toDelete")){
         return {backgroundColor:COLORS.DELETED};
     }

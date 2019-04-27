@@ -34,7 +34,7 @@ const HBFormField = (props) => {
             return (
                 <FormGroup
                     controlId={(type === 'select')?'formControlsSelect':'formBasicText'}
-                    validationState={!touched?null:(error?"error":(warning?"warning":"success"))}
+                    validationState={error?"error":(warning?"warning":"success")}
                     style={style}
                 >
                     <ControlLabel>{label}</ControlLabel>
@@ -53,7 +53,7 @@ const HBFormField = (props) => {
                     }
                     {touched && error && <span>{error}</span>}
                     <FormControl.Feedback />
-                    {touched && (error || warning) &&
+                    {(error || warning) &&
                     <HelpBlock>{error|| warning}</HelpBlock>
                     }
                 </FormGroup>
@@ -63,7 +63,7 @@ const HBFormField = (props) => {
 
                 <FormGroup
                     controlId={(type === 'select')?'formControlsSelect':'formBasicText'}
-                    validationState={!touched?null:(error?"error":(warning?"warning":"success"))}
+                    validationState={error?"error":(warning?"warning":"success")}
                     style={style}
                 >
                     <Col xs={4} sm={3} md={2}>
@@ -95,10 +95,10 @@ const HBFormField = (props) => {
                         }}
                             />
                         }
+                        {(error || warning) &&
+                        <HelpBlock>{error || warning}</HelpBlock>
+                        }
                     </Col>
-                    {touched && (error || warning) &&
-                    <HelpBlock>{error || warning}</HelpBlock>
-                    }
                 </FormGroup>
             );
     }

@@ -37,7 +37,7 @@ const initialAppState = Imm.Map({
 });
 
 const appReducer = (state=initialAppState, action) =>{
-    const {notifType,senderKey,senderParam,status,waoType,groups,id,extraData} = action;
+    const {notifType,senderKey,senderParam,status,waoType,groups,id,extraData,message,errors} = action;
     switch (action.type) {
         case NOTIFY:
             let notification=null;
@@ -81,7 +81,9 @@ const appReducer = (state=initialAppState, action) =>{
                         status:status,
                         receivedAt : Date.now(),
                         discardedAt:null,
-                        extraData:extraData
+                        extraData:extraData,
+                        message:message,
+                        errors:errors
                     });
                     state = state.removeIn(["notifications",senderKey,senderParam || 'DEFAULT',SUBMITTING]);
                     state = state.setIn(["notifications",senderKey,senderParam || 'DEFAULT',notifType],notification);
@@ -95,6 +97,9 @@ const appReducer = (state=initialAppState, action) =>{
             }
             return state;
         case ADD_PENDING:
+            if(id === null || +id===0){
+                return state;
+            }
             if(state.hasIn(["entitiesToPost",waoType,+id])){
                 state = state.setIn(["entitiesToPost",waoType,+id],GroupUtil.merge(state.getIn(["entitiesToPost",waoType,+id]),groups));
             }
@@ -240,7 +245,7 @@ const concreteWaoType = (waoType) => {
         console.log("reducer call");
         switch (action.type) {
             case SUBMIT_LOCALLY:
-                if(!state.hasIn(["items",+action.id])) return state;
+                if(action.id === null || !state.hasIn(["items",+action.id])) return state;
                 console.log("submit locally");
                 console.log(action);
                 const oldItem = state.getIn(["items",+action.id]);

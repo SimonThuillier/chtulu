@@ -24,6 +24,7 @@ use Symfony\Component\Form\FormFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\TraceableValidator;
 
 /**
@@ -222,15 +223,15 @@ class CRUDController extends Controller
                                JsonEncoder $encoder){
 
         $hResponse = new HJsonResponse();
+        $transformedErrors = [];
+        $backData = [];
+        $actionCount = 0;
 
         try{
             $handledRequest = $requestHelper->handlePostRequest($request);
             if(!$this->isCsrfTokenValid('token_id', $handledRequest["_token"]))
                 throw new \Exception("Invalid token : would you hack history ?");
             $hResponse->setSenderKey($handledRequest["senderKey"]);
-
-            $backData = [];
-            $actionCount = 0;
 
             foreach($handledRequest["waos"] as $waoType => $waoData){
                 $dtoClassName = $waoHelper->guessClassName($waoType);
@@ -246,26 +247,28 @@ class CRUDController extends Controller
                     /** @var EntityMutableDTO $dto */
                     $dto=$mediator->getDTO();
 
+                    $objectName = strtoupper($waoType) . 'OF_ID_' . $dto->getId();
+
                     $dto = $normalizer->denormalize($data,$dtoClassName,null,array("existingDto"=>$dto,"groups"=>$postedGroups));
 
+                    $objectName = method_exists($dto,'getTitle')?$waoType . ' ' . $dto->getTitle():$objectName;
+                    $objectName = method_exists($dto,'getName')?$waoType . ' ' . $dto->getName():$objectName;
 
-                    throw new \Exception("zut ! wip ;)");
 
-                    $form = $formFactory->createBuilder($waoHelper->getFormClassName($dtoClassName),$dto,[
-                        'validation_groups'=>$postedGroups])
-                        ->getForm();
-
-                    $form->submit($data);
-                    $errors = $validator->validate($dto,null,$postedGroups);
-                    $err = $form->getErrors(true);
-                    foreach($err as $oneErr){
-                        $truc = $oneErr->getMessage();
-                        $truc = $oneErr->getOrigin()->getData();
-                        $truc='lol';
-                    }
-                    if (! $form->isValid() || count($errors)>0)
+                    $errors = $validator->validate($dto,null,array_keys($postedGroups));
+                    $dto->setErrors([]);
+                    if (count($errors)>0)
                     {
-                        throw new \Exception("Le formulaire contient des erreurs à corriger avant creation");
+                        $objectError = [];
+                        /** @var ConstraintViolation $error */
+                        foreach($errors as $error){
+                            $objectError[$error->getPropertyPath()] = $error->getMessage();
+                        }
+                        $dto->setErrors($objectError);
+                        $transformedErrors[$objectName]=$objectError;
+                        $dto->setBackGroups(['minimal'=>true]);
+                        $backData[$waoType][$dto->getId()] = $normalizer->normalize($dto,['minimal'=>true]);
+                        continue;
                     }
                     $mapperCommands = $mediator->returnDataToEntity();
                     $newEntities=[];
@@ -287,7 +290,6 @@ class CRUDController extends Controller
                         $backData[$newEntityWaoType][$newEntityDto->getId()] = $normalizer->normalize($newEntityDto,$backGroups);
                     }
                     // then the main core object
-                    $truc = $dto->getReturnGroups();
                     if($dto->getToDelete()) $postedGroups = ["minimal"=>true];
                     $backGroups = ArrayUtil::normalizeGroups(ArrayUtil::filter($dto->getReturnGroups(),$postedGroups));
                     if(!$dto->getToDelete()) $mediator->mapDTOGroups($backGroups,DTOMediator::NOTHING_IF_NULL);
@@ -297,6 +299,21 @@ class CRUDController extends Controller
                 }
             }
 
+            if(count($transformedErrors)>0){
+                $errorMessage = "Les données que vous voulez sauvegarder contiennent des erreurs";
+                if($actionCount>1){
+                    $errorMessage .= " : \n";
+                    foreach($transformedErrors as $objectName => $objectErrors){
+                        $errorMessage .= ("--" . $objectName . " : \n");
+                        foreach($objectErrors as $property=>$propertyError){
+                            $errorMessage .= ("*" . $propertyError . " : \n");
+                        }
+                    }
+                }
+                throw new \Exception($errorMessage);
+            }
+
+
         $hResponse
             ->setData(json_encode($backData))
             ->setMessage($actionCount===1?"Les données ont été enregistrées"
@@ -304,7 +321,9 @@ class CRUDController extends Controller
         }
         catch(\Exception $e){
             $hResponse->setStatus(HJsonResponse::ERROR)
-                ->setMessage($e->getMessage());
+                ->setMessage($e->getMessage())
+                ->setErrors($transformedErrors)
+                ->setData(json_encode($backData));
         }
         ob_clean();
         return new JsonResponse(HJsonResponse::normalize($hResponse));

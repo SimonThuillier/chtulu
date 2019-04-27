@@ -10,6 +10,7 @@ import {
 } from 'react-bootstrap';
 import { Field, reduxForm,change as formChange,
     blur as formBlur,focus as formFocus,touch as formTouch,untouch as formUntouch} from 'redux-form/immutable';
+import { stopSubmit} from 'redux-form';
 const Imm = require("immutable");
 import {getOneByIdIfNeeded,submitLocally,postOne,reset as stateReset,TIMEOUT,discard,deleteLocally} from '../actions';
 import ArticleTypeSelect from "./ArticleTypeSelect";
@@ -56,7 +57,7 @@ const notificationAlert = (notification,dispatch) =>{
     const notifType = notification.get("notifType");
     const senderKey = notification.get("senderKey");
     const senderParam = notification.get("senderParam");
-    const message = (status === HB_SUCCESS)?"L'article a bien été enregistré":"Erreur ! ";
+    const message = (status === HB_SUCCESS)?"L'article a bien été enregistré":notification.get("message");
 
     return (<Alert bsStyle={status} onDismiss={()=>{dispatch(discard(notifType,senderKey,senderParam))}}>
         <p>{message}</p>
@@ -117,6 +118,9 @@ class ArticleForm extends React.Component{
         initialize(data.set("pendingModification",true));
         if(data.get("initialValues")){
             dispatch(formTouch(componentUid, ...data.get("initialValues").keySeq().toJS()));
+        }
+        if(data.get("hasErrors")(data)){
+            dispatch(stopSubmit(componentUid,data.get("errors")));
         }
     }
 

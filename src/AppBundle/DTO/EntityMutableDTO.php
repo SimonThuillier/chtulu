@@ -19,12 +19,15 @@ abstract class EntityMutableDTO
     protected $backGroups;
     /** @var boolean */
     protected $toDelete=false;
+    /** @var array */
+    protected $errors;
 
     public function __construct()
     {
         $this->toDelete=false;
         $this->groups = [];
         $this->backGroups = [];
+        $this->errors = [];
     }
 
     /**
@@ -148,4 +151,22 @@ abstract class EntityMutableDTO
         return ["minimal"=>true];
     }
 
+    /**
+     * @return array
+     * @groups({"minimal"})
+     */
+    public function getErrors(): array
+    {
+        return $this->errors;
+    }
+
+    /**
+     * @param array $errors
+     * @return self
+     */
+    public function setErrors(array $errors)
+    {
+        $this->errors = $errors;
+        return $this;
+    }
 }

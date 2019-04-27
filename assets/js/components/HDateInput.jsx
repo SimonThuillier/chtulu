@@ -75,14 +75,12 @@ class HDateInput extends Component {
         let dateInput = this;
 
         switch (alignment) {
-            case "verticallol":
+            case "vertical":
                 return (
                     <div>
                         <FormGroup
                             validationState={
-                                !touched
-                                    ? null
-                                    : error
+                                error
                                     ? "error"
                                     : warning
                                         ? "warning"
@@ -130,9 +128,7 @@ class HDateInput extends Component {
                 return (
                     <FormGroup
                         validationState={
-                            !touched
-                                ? null
-                                : error
+                            error
                                 ? "error"
                                 : warning
                                     ? "warning"
@@ -174,11 +170,10 @@ class HDateInput extends Component {
                                     />
                                 </div>
                             </OverlayTrigger>
+                            {(error || warning) && (
+                                <HelpBlock>{error || warning}</HelpBlock>
+                            )}
                         </Col>
-
-                        {touched && (error || warning) && (
-                            <HelpBlock>{error || warning}</HelpBlock>
-                        )}
                     </FormGroup>
                 );
         }

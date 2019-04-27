@@ -15,6 +15,11 @@ const waoPrototype = {
     isNew : function(rec){
         return (+rec.get("id") < 0);
     },
+    hasErrors : function(rec){
+        console.log('motherfucker');
+        console.log(rec.get("errors"));
+        return (typeof rec.get("errors") === 'object' &&  Object.entries(rec.get("errors")).length>0);
+    },
     getPartial : function(groups = true){
         console.log(this);
         console.log(groups);

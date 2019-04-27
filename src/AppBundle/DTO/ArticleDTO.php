@@ -116,7 +116,7 @@ class ArticleDTO extends EntityMutableDTO
      * @return HDate
      * @Groups({"date"})
      */
-    public function getBeginHDate()
+    public function getBeginHDate():?HDate
     {
         return $this->beginHDate;
     }
@@ -125,7 +125,7 @@ class ArticleDTO extends EntityMutableDTO
      * @param HDate $hDate
      * @return self
      */
-   public function setBeginHDate($hDate)
+   public function setBeginHDate(?HDate $hDate)
     {
         $this->beginHDate=$hDate;
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('beginHDate');
@@ -136,7 +136,7 @@ class ArticleDTO extends EntityMutableDTO
      * @return HDate
      * @Groups({"date"})
      */
-    public function getEndHDate()
+    public function getEndHDate():?HDate
     {
         return $this->endHDate;
     }
@@ -145,7 +145,7 @@ class ArticleDTO extends EntityMutableDTO
      * @param HDate $hDate
      * @return self
      */
-    public function setEndHDate($hDate)
+    public function setEndHDate(?HDate $hDate)
     {
         $this->endHDate = $hDate;
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('endHDate');

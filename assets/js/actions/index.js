@@ -21,6 +21,7 @@ import GroupUtil from "../util/GroupUtil";
 import SearchBagUtil from '../util/SearchBagUtil';
 import {entitiesSelector,getPendingTotalSelector} from '../selectors';
 import {LOADING,LOADING_COMPLETED,SUBMITTING,SUBMITTING_COMPLETED} from '../util/notifications';
+import {startSubmit,stopSubmit} from 'redux-form';
 
 // notifications actions
 export const NOTIFY = 'NOTIFY';
@@ -47,13 +48,21 @@ export const POST_ALL = 'POST_ALL';
 export const TIMEOUT = 5000;
 
 
-export const notify = (notifType,senderKey=null,senderParam=null,status=HB_SUCCESS,extraData=null) => ({
+export const notify = (notifType,
+                       senderKey=null,
+                       senderParam=null,
+                       status=HB_SUCCESS,
+                       extraData=null,
+                       message='',
+                       errors=null) => ({
     type: NOTIFY,
     notifType : notifType,
     senderKey : senderKey || 'HBAPP',
     senderParam: senderParam,
     status:status,
-    extraData:extraData
+    extraData:extraData,
+    message:message,
+    errors:errors
 });
 
 export const discard = (notifType,senderKey=null,senderParam=null) => ({
@@ -148,6 +157,8 @@ export const postOne = (waoType,groups=true,id,senderKey) => (dispatch,getState)
     console.log("schema");
     console.log(WAOs.getIn([waoType,"schema"]));*/
     let normData = state.getIn([waoType,"items",+id]);
+    console.log(senderKey);
+    console.log('lol2');
     console.log(`denormData to send ${id}`);
     console.log(normData);
     console.log(`normData to send ${id}`);
@@ -174,23 +185,37 @@ export const postOne = (waoType,groups=true,id,senderKey) => (dispatch,getState)
 
     //console.log(httpProps);
 
+    //dispatch(startAsyncValidation(senderKey));
+    dispatch(startSubmit(senderKey));
     dispatch(notify(SUBMITTING,senderKey || 'HBAPP',id));
 
     return fetch(url,httpProps)
         .then(response => response.json())
+        .catch(exception => {
+            dispatch(notify(SUBMITTING_COMPLETED,senderKey || 'HBAPP',id,HB_ERROR,null,"Le serveur est tombé en erreur :(",null));
+            }
+        )
         .then(json => {
             console.log("post returned !");
-            json.data = JSON.parse(json.data);
             console.log(json);
+            json.data = JSON.parse(json.data);
                 switch (json.status) {
                     case HB_SUCCESS:
                         dispatch(notify(SUBMITTING_COMPLETED,senderKey || 'HBAPP',id,HB_SUCCESS));
+                        dispatch(stopSubmit(senderKey,null));
                         handlePostBackData(json.data,dispatch);
                         //dispatch(receiveGet(waoType,groups,searchBag,json.rows,json.total,json.message));
                         break;
                     case HB_ERROR:
-                        dispatch(notify(SUBMITTING_COMPLETED,senderKey || 'HBAPP',id,HB_ERROR));
+                        console.log("retour en erreur : ");
+                        console.log(json.errors);
+                        //json.errors = JSON.parse(json.errors);
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey || 'HBAPP',id,HB_ERROR,null,json.message,json.errors));
                         //dispatch(errorGet(waoType,groups,searchBag,json.message));
+                        //dispatch(stopSubmit(senderKey,json.errors));
+                        let thisError = json.errors[Object.keys(json.errors)[0]];
+                        dispatch(stopSubmit(senderKey,thisError));
+                        handlePostBackData(json.data,dispatch);
                         break;
                     default:
                 }
@@ -212,6 +237,8 @@ export const postAll = (senderKey=null) => (dispatch,getState) => {
             let id = entry[0];
             let groups = entry[1];
             let normData = state.getIn([waoType,"items",+id]);
+            console.log(`post all : ${waoType} , ${id} `);
+            console.log(normData);
             normData = denormalize(normData,WAOs.getIn([waoType,"schema"]),entities);
             normData = normData.toJS();
             normData = getDataToPost(waoType,normData,groups);
@@ -230,6 +257,10 @@ export const postAll = (senderKey=null) => (dispatch,getState) => {
 
     return fetch(url,httpProps)
         .then(response => response.json())
+        .catch(exception => {
+                dispatch(notify(SUBMITTING_COMPLETED,senderKey || 'HBAPP',id,HB_ERROR,null,"Le serveur est tombé en erreur :(",null));
+            }
+        )
         .then(json => {
                 console.log("post returned !");
                 json.data = JSON.parse(json.data);
@@ -241,7 +272,11 @@ export const postAll = (senderKey=null) => (dispatch,getState) => {
                         //dispatch(receiveGet(waoType,groups,searchBag,json.rows,json.total,json.message));
                         break;
                     case HB_ERROR:
-                        //dispatch(errorGet(waoType,groups,searchBag,json.message));
+                        console.log("retour en erreur : ");
+                        console.log(json.errors);
+                        //json.errors = JSON.parse(json.errors);
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey || 'HBAPP',null,HB_ERROR,null,json.message,json.errors));
+                        handlePostBackData(json.data,dispatch);
                         break;
                     default:
                 }

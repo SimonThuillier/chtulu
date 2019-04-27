@@ -8,6 +8,7 @@ export const SUBMITTING_COMPLETED = 'SUBMITTING_COMPLETED';
 export const COLORS = {
     LOADING:"#0000FF",
     LOADING_BACKGROUND:'rgba(192,192,192,0.4)',
+    ERROR: '#dda79a',
     DIRTY: '#c8e6c9',
     NEW: '#b0d0b0',
     DELETED: '#A9A9A9',

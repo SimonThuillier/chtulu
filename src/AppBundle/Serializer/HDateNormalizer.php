@@ -37,7 +37,9 @@ class HDateNormalizer extends HNormalizer
 
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return $type === Hdate::class || (isset($data['beginDate']) && isset($data['endDate']) && isset($data['type']));
+        return $type === Hdate::class ||
+            (is_array($data) && isset($data['beginDate']) && isset($data['endDate']) && isset($data['type']))
+            || (is_object($data) && get_class($data) === HDate::class);
     }
 
     /**
@@ -73,6 +75,8 @@ class HDateNormalizer extends HNormalizer
      */
     public function denormalize($data, $class, $format = null, array $context = array())
     {
+        if ($data === null) return null;
+        if(is_object($data)) return $data;
         try{
             $data["beginDate"] = DateHelper::createFromJson($data["beginDate"]);
             $data["endDate"] = DateHelper::createFromJson($data["endDate"]);

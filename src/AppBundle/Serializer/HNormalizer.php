@@ -89,12 +89,12 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
         // let's determine the properties to consider
         $properties = [];
         foreach($mapping as $groupName=>$groupProperties){
-            $groupProperties = $groupProperties;
             foreach($groupProperties as $property){
                 $properties[$property] = ($groups !== null)?(array_key_exists($groupName,$groups)?$groups[$groupName]:false):true;
             }
         }
 
+        // make the array of properties to consider and transform them
         $preDenormalizedData = [];
         foreach($data as $property=>$value){
             if(array_key_exists($property,$properties) && $properties[$property]){
@@ -105,12 +105,25 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
             }
         }
 
+        if(array_key_exists('existingDto',$context)){
+            $denormalization = $context['existingDto'];
+            foreach($preDenormalizedData as $property=>$value){
+                $function = 'set' . ucfirst($property);
+                if(method_exists($denormalization,$function)){
+                    $denormalization->$function($value);
+                }
+            }
+        }
+        else{
+            $denormalization = $this->serializer->denormalize($data, $class, $format,$context);
+        }
 
 
 
 
 
-        $denormalization = $this->serializer->denormalize($data, $class, $format,$context);
+
+
         return $denormalization;
     }
 
