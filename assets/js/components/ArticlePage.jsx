@@ -19,7 +19,7 @@ export class ArticlePage extends React.Component {
             id: +props.id||+props.match.params.id,
             activeComponent:props.activeComponent||(props.match.params.actionParam==='edit'?'form':'detail'),
             detailGroups:props.detailGroups || {"minimal":true,"abstract":true,"date":true,
-                "detailImage":{"activeVersion":{"urlDetailThumbnail":true}}
+                "detailImage":{"activeVersion":true}
             },
             formGroups:props.formGroups || {"minimal":true,"abstract":true,"date":true,"detailImage":true},
             //pendingData: (props.data)?Object.create(props.data):null,

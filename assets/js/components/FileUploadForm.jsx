@@ -7,7 +7,7 @@ import { Field, reduxForm,change as formChange,
 const Imm = require("immutable");
 import {getOneByIdIfNeeded,uploadResource,TIMEOUT,discard} from '../actions';
 import ArticleTypeSelect from "./ArticleTypeSelect";
-const componentUid = require('uuid/v4')();
+//const componentUid = require('uuid/v4')();
 import HDateInput from "./HDateInput";
 import ImageInput from "./ImageInput";
 import HBFormField from './HBFormField';
@@ -82,6 +82,8 @@ class FileUploadForm extends React.Component{
     constructor(props) {
         super(props);
 
+        console.log('building fileUploadForm');
+
         this.onFileSelection=this.onFileSelection.bind(this);
         this.onUpload=this.onUpload.bind(this);
         this.setResource=this.setResource.bind(this);
@@ -104,8 +106,8 @@ class FileUploadForm extends React.Component{
     }
 
     componentDidMount() {
-        console.log("component didmount");
-        this.loadInitialValues();
+        console.log('mounting fileUploadForm');
+        //this.loadInitialValues();
     }
 
     componentWillUnmount(){
@@ -113,7 +115,7 @@ class FileUploadForm extends React.Component{
     }
 
     onFileSelection(e){
-        const {dispatch,initialize} = this.props;
+        const {dispatch,initialize,componentUid} = this.props;
         e.preventDefault();
         console.log("fichier choisi");
         const file = e.target.files[0] || null;
@@ -126,9 +128,9 @@ class FileUploadForm extends React.Component{
     }
 
     onUpload(){
-        const {dispatch} = this.props;
+        const {dispatch,form} = this.props;
         const {file,extraData:{name,type}} = this.state;
-        dispatch(uploadResource(file,name,type,RESOURCE_IMAGE,componentUid,null));
+        dispatch(uploadResource(file,name,type,RESOURCE_IMAGE,form,null));
     }
 
     setResource(resourceId){
@@ -159,10 +161,10 @@ class FileUploadForm extends React.Component{
 
     render(){
         console.log("begin fileUploadFormRender");
-        const { onSubmit, reset, load,valid,pendingForm,dispatch,notificationsSelector} = this.props;
+        const { onSubmit, reset, load,valid,pendingForm,dispatch,notificationsSelector,form} = this.props;
 
 
-        const notifications = notificationsSelector(componentUid);
+        const notifications = notificationsSelector(form);
         const noFile = !this.state.extraData || !this.state.extraData.type;
         const submitting = (notifications && notifications.hasIn([(this.state.data && this.state.data.id) || 'DEFAULT',SUBMITTING]))||false;
 
@@ -190,18 +192,18 @@ class FileUploadForm extends React.Component{
                         {/*onBlur={(e)=>{e.preventDefault()}}*/}
                     {/*/>*/}
                     {/*<Field*/}
-                        {/*name="name"*/}
+                        {/*name="lolilol"*/}
                         {/*type="text"*/}
-                        {/*component={HBFormField}*/}
+                        {/*component={(value)=>{return "lolilol";}}*/}
                         {/*label="Nom de l'image"*/}
                     {/*/>*/}
-                    <FormControl
-                        componentClass="input"
-                        autoComplete="off"
-                        value={"test"}
-                        type="text"
-                        placeholder="date"
-                    />
+                    {/*<FormControl*/}
+                        {/*componentClass="input"*/}
+                        {/*autoComplete="off"*/}
+                        {/*value={"test"}*/}
+                        {/*type="text"*/}
+                        {/*placeholder="date"*/}
+                    {/*/>*/}
                     {/*<div hidden>*/}
                         {/*<Field*/}
                             {/*name="type"*/}
@@ -216,24 +218,25 @@ class FileUploadForm extends React.Component{
                             {/*label="Taille du fichier"*/}
                         {/*/>*/}
                     {/*</div>*/}
-                    <hr/>
-                    <Row>
-                        <Col md={9}>
-                                <Button bsStyle={"success"}
-                                        disabled={noFile || !valid || submitting}
-                                        onClick={this.onUpload}>
-                                    Charger&nbsp;<Glyphicon glyph="upload"/>
-                                </Button>
-                        </Col>
-                        <Col md={3}>
-                                <Button bsStyle="default"
-                                        disabled={false}
-                                        onClick={null}>
-                                    Annuler&nbsp;<Glyphicon glyph="hand-left"/>
-                                </Button>
-                        </Col>
-                    </Row>
+
                 </Form>
+                <hr/>
+                <Row>
+                    <Col xs={3} sm={3} md={5}>
+                        <Button bsStyle={"success"}
+                                disabled={noFile || !valid || submitting}
+                                onClick={this.onUpload}>
+                            Charger&nbsp;<Glyphicon glyph="upload"/>
+                        </Button>
+                    </Col>
+                    <Col xs={3} sm={3} md={3}>
+                        <Button bsStyle="default"
+                                disabled={false}
+                                onClick={null}>
+                            Annuler&nbsp;<Glyphicon glyph="hand-left"/>
+                        </Button>
+                    </Col>
+                </Row>
                 {/*<iframe id={`${componentUid}`}>*/}
 
                 {/*</iframe>*/}
@@ -242,11 +245,6 @@ class FileUploadForm extends React.Component{
     }
 }
 
-FileUploadForm =  reduxForm({
-    form: componentUid,
-    destroyOnUnmount:false,
-    validate:validate
-})(FileUploadForm);
 
 FileUploadForm = connect(
     state => {
@@ -255,14 +253,42 @@ FileUploadForm = connect(
         const nextNewIdSelector = getNextNewIdSelector(state.get("resourceVersion"));
         return {
             selector: selector,
-            pendingForm:state.getIn(["form",componentUid]),
+            pendingForm:state.getIn(["form"]),
             notificationsSelector : notificationsSelector,
             nextNewIdSelector:nextNewIdSelector
         }
-    },
-    { }
+    }
 )(FileUploadForm);
 
-
+FileUploadForm =  reduxForm({
+    form: require('uuid/v4')(),
+    destroyOnUnmount:true,
+    validate:validate
+})(FileUploadForm);
 
 export default FileUploadForm;
+
+// export default ()=>{
+//     const componentUid = require('uuid/v4')();
+//
+//     let component = connect(
+//         state => {
+//             const selector = getOneByIdSelector(state.get("resourceVersion"));
+//             const notificationsSelector = getNotificationsSelector(state.get("app"));
+//             const nextNewIdSelector = getNextNewIdSelector(state.get("resourceVersion"));
+//             return {
+//                 componentUid : componentUid,
+//                 selector: selector,
+//                 pendingForm:state.getIn(["form",componentUid]),
+//                 notificationsSelector : notificationsSelector,
+//                 nextNewIdSelector:nextNewIdSelector
+//             }
+//         }
+//     )(FileUploadForm);
+//
+//     return reduxForm({
+//         form: componentUid,
+//         destroyOnUnmount:true,
+//         validate:validate
+//     })(component);
+// };

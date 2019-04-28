@@ -36,7 +36,7 @@ class ImageInput extends Component {
 
     componentDidMount() {
         console.log("image input didmount");
-        const {selector,value} = this.props;
+        const {value} = this.props;
         if(value){
             /*dispatch(getOneByIdIfNeeded("resource",
                 {minimal:true,activeVersion:{urlMini:true}},
@@ -51,7 +51,7 @@ class ImageInput extends Component {
                 this.props.id));*/
         }
         if (this.props.versionSelector !== prevProps.versionSelector) {
-            this.setState({render:this.state.render++});
+            //this.setState({render:this.state.render++});
         }
 
     }
@@ -69,6 +69,7 @@ class ImageInput extends Component {
     }
 
     render(){
+
         const { input, label, type,  meta: {touched,error,warning} ,dispatch,selector,value} = this.props;
         console.log("render image input");
         console.log(input);
@@ -84,6 +85,8 @@ class ImageInput extends Component {
             resourceLabel = resource.get("name");
         }
 
+
+
         switch(alignment){
             case 'vertical':
                 return (
@@ -98,25 +101,25 @@ class ImageInput extends Component {
 
                         </Button>
                         <RImageMini id={id} force={this.state.render}/>
-                        <Overlay
-                            rootClose={true}
-                            show={this.state.show}
-                            onHide={() => this.setState({ show: false })}
-                            placement="left"
-                            container={this}
-                            target={() => {
-                                return ReactDOM.findDOMNode(this.refs.target);
-                            }}
-                        >
-                            <ResourcePicker
-                                className="lol"
-                                initialValue={input.value}
-                                onFocus={this.handleFocus}
-                                onBlur={this.handleBlur}
-                                onClose={this.handleClose}
-                                onSave={this.handleSave}
-                            />
-                        </Overlay>
+                        {/*<Overlay*/}
+                            {/*rootClose={true}*/}
+                            {/*show={this.state.show}*/}
+                            {/*onHide={() => this.setState({ show: false })}*/}
+                            {/*placement="left"*/}
+                            {/*container={this}*/}
+                            {/*target={() => {*/}
+                                {/*return ReactDOM.findDOMNode(this.refs.target);*/}
+                            {/*}}*/}
+                        {/*>*/}
+                            {/*<ResourcePicker*/}
+                                {/*className="lol"*/}
+                                {/*initialValue={input.value}*/}
+                                {/*onFocus={this.handleFocus}*/}
+                                {/*onBlur={this.handleBlur}*/}
+                                {/*onClose={this.handleClose}*/}
+                                {/*onSave={this.handleSave}*/}
+                            {/*/>*/}
+                        {/*</Overlay>*/}
                         {touched && (error || warning) &&
                         <HelpBlock>{error|| warning}</HelpBlock>
                         }
@@ -138,7 +141,7 @@ class ImageInput extends Component {
                                 container={this.props.container || null}
                                 rootCloseEvent={'click'}
                                 overlay={
-                                    <Popover id="popover-contained" arrowProps={null}>
+                                    <Popover id="popover-contained">
                                         <ResourcePicker
                                             initialValue={input.value}
                                             onClose={this.handleClose}
@@ -148,7 +151,9 @@ class ImageInput extends Component {
                                 }
                             >
                                 <div ref={input => (this.inputRef = input)}>
-                                    <Button>{resourceLabel}&nbsp;<RImageMini id={id}/></Button>
+                                    <Button>{resourceLabel}&nbsp;
+                                        <RImageMini id={id}/>
+                                    </Button>
                                 </div>
                             </OverlayTrigger>
                         </Col>
@@ -160,6 +165,8 @@ class ImageInput extends Component {
         }
     }
 }
+
+//export default ImageInput;
 
 const mapStateToProps = (state) => {
     const selector = getOneByIdSelector(state.get("resource"));

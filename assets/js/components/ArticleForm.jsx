@@ -73,48 +73,40 @@ class ArticleForm extends React.Component{
         this.handleServerSubmit = this.handleServerSubmit.bind(this);
         this.handleReset = this.handleReset.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
-        this.shouldReinitialize = this.shouldReinitialize.bind(this);
+        this.shouldLoadData = this.shouldLoadData.bind(this);
 
         this.state = {
             groups:props.groups || {"minimal":true},
             data:null,
-            clickCount:0
+            resource:null,
+            resourceVersion:null
         };
+        
+        this.loadingArticleId = null;
     }
 
-    shouldReinitialize(data){
+    shouldLoadData(data){
         if (!data || !data.loadedGroups) return true;
-
-        console.log(data.loadedGroups);
-        console.log(this.state.groups);
-
+        
         const diff = GroupUtil.leftDiff("article",this.state.groups,data.loadedGroups);
         console.log("groupes a charger");
+        console.log(data.loadedGroups);
+        console.log(this.state.groups);
         console.log(diff);
 
         return (Object.keys(diff).length>0);
     }
 
-    loadInitialValues(){
+    initializeFormData(){
         const {selector,initialize,id,dispatch} = this.props;
+
         const data = selector(id);
-        if(this.shouldReinitialize(data)){
-            dispatch(getOneByIdIfNeeded("article",
-                this.state.groups,
-                this.props.id,
-                componentUid));
-            console.log("loading form");
-            this.setState({loading:true});
-        }
-        else{
-            console.log("un loading form");
-            this.setState({loading:false});
-        }
+
         this.setState({data:data});
-        console.log("initialData");
-        console.log(data);
-        if(!data) return;
-        console.log(data.has("initialValues"));
+        //console.log("initialData");
+        //console.log(data);
+        if(!data) return null;
+        //console.log(data.has("initialValues"));
         initialize(data.set("pendingModification",true));
         if(data.get("initialValues")){
             dispatch(formTouch(componentUid, ...data.get("initialValues").keySeq().toJS()));
@@ -122,29 +114,40 @@ class ArticleForm extends React.Component{
         if(data.get("hasErrors")(data)){
             dispatch(stopSubmit(componentUid,data.get("errors")));
         }
+
+        return data;
     }
 
     componentDidMount() {
         console.log("component didmount");
-        this.loadInitialValues();
-    }
-
-    componentWillUnmount(){
-        this.submit(this.props.id);
+        this.initializeFormData();
     }
 
     componentDidUpdate(prevProps) {
         console.log(`update ${prevProps.id} vs ${this.props.id}`);
+        if(this.props.id === null){return}
+        let data = this.state.data;
+
         if (prevProps.id !== this.props.id){
             this.submit(prevProps.id);
+            data = this.props.selector(this.props.id);
+        }
+        if (this.loadingArticleId !== data.id && this.shouldLoadData(data)) {
+            this.props.dispatch(getOneByIdIfNeeded("article",
+                this.state.groups,
+                this.props.id,
+                componentUid));
+            console.log("<br>loading data</br>");
+            this.loadingArticleId = data.id;
+        }
+        if (this.props.selector(data.id) !== prevProps.selector(data.id)) {
+            data = this.props.selector(this.props.id);
+            console.log("reception de nouvelles données");
+            console.log(data);
         }
 
-        if (prevProps.id !== this.props.id ||
-            (this.shouldReinitialize(this.state.data) && prevProps.selector !== this.props.selector)) {
-            this.loadInitialValues();
-        }
-        else if (this.props.selector(this.props.id) !== this.state.data) {
-            this.setState({data:this.props.selector(this.props.id)});
+        if(data !== this.state.data){
+            this.initializeFormData();
         }
 
         if (prevProps.notificationsSelector !== this.props.notificationsSelector) {
@@ -165,7 +168,7 @@ class ArticleForm extends React.Component{
         dispatch(stateReset("article",[id],(this.state.data && this.state.data.get("toDelete"))?'minimal':this.state.groups));
         if(+id>0){
             setTimeout(() => {
-                this.loadInitialValues();
+                this.initializeFormData();
                 reset();
             },20);
         }
@@ -177,11 +180,11 @@ class ArticleForm extends React.Component{
     handleDelete(){
         const {dispatch,id} = this.props;
         dispatch(deleteLocally("article",[id]));
-        console.log("delete");
+        //console.log("delete");
 
 
         /*setTimeout(() => {
-            this.loadInitialValues();
+            this.initializeFormData();
             reset();
         },20);*/
     }
@@ -195,12 +198,12 @@ class ArticleForm extends React.Component{
         const {anyTouched,dispatch} = this.props;
 
         const touchedKeys = touchedFields?touchedFields.keySeq():null;
-        console.log("touched fields");
+        /*console.log("touched fields");
         console.log(touchedFields);
         console.log("touched keys");
         console.log(touchedKeys);
         console.log("any touched");
-        console.log(anyTouched);
+        console.log(anyTouched);*/
         if(anyTouched && touchedKeys){
             /*touchedKeys.forEach((k)=>console.log(k));
             console.log(values);*/
@@ -209,9 +212,13 @@ class ArticleForm extends React.Component{
                 touchedValues = touchedValues.set(k,values.get(k));
             });
 
-            console.log(touchedValues);
+            //console.log(touchedValues);
             dispatch(submitLocally("article",touchedValues,id,this.state.groups));
         }
+    }
+
+    componentWillUnmount(){
+        this.submit(this.props.id);
     }
 
     handleServerSubmit(){
@@ -228,12 +235,11 @@ class ArticleForm extends React.Component{
     }
 
     render(){
-        console.log("render called");
-        const { onSubmit, reset, load,valid,pendingForm,dispatch,notificationsSelector} = this.props;
-        let pristine = (this.state.clickCount>0)?false:this.props.pristine;
+        //console.log("render called");
+        const { onSubmit, reset, load,valid,pendingForm,dispatch,notificationsSelector,pristine} = this.props;
         const {groups} = this.state;
-        console.log("render form");
-        console.log(pendingForm && pendingForm.getIn(["values","hasEndDate"]));
+        //console.log("render form");
+        //console.log(pendingForm && pendingForm.getIn(["values","hasEndDate"]));
         const hasEndDate = (pendingForm && pendingForm.hasIn(["values","hasEndDate"]))?
             pendingForm.getIn(["values","hasEndDate"]):true;
 
@@ -387,12 +393,7 @@ class ArticleForm extends React.Component{
     }
 }
 
-ArticleForm =  reduxForm({
-    form: componentUid,
-    destroyOnUnmount:false,
-    validate:validate,
-    warn:warn
-})(ArticleForm);
+
 
 ArticleForm = connect(
     state => {
@@ -406,6 +407,13 @@ ArticleForm = connect(
     },
     { }
 )(ArticleForm);
+
+ArticleForm =  reduxForm({
+    form: componentUid,
+    destroyOnUnmount:false,
+    validate:validate,
+    warn:warn
+})(ArticleForm);
 
 
 

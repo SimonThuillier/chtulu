@@ -25,9 +25,6 @@ const HBFormField = (props) => {
 
     const extraProps = {};
     console.log("render field");
-    //console.log(props);
-
-return 'lol';
 
     switch(alignment){
         case 'vertical':

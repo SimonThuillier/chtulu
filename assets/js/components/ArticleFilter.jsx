@@ -145,12 +145,7 @@ class ArticleFilter extends React.Component{
     }
 }
 
-ArticleFilter =  reduxForm({
-    form: formUid,
-    destroyOnUnmount:false,
-    validate:validate,
-    warn:warn
-})(ArticleFilter);
+
 
 ArticleFilter = connect(
     state => {
@@ -159,5 +154,11 @@ ArticleFilter = connect(
     { }
 )(ArticleFilter);
 
+ArticleFilter =  reduxForm({
+    form: formUid,
+    destroyOnUnmount:false,
+    validate:validate,
+    warn:warn
+})(ArticleFilter);
 
 export default ArticleFilter;

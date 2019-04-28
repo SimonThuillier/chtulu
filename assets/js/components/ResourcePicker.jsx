@@ -86,9 +86,6 @@ class ResourcePicker extends Component {
                     Choisissez une Image <Glyphicon glyph="picture" />
                 </Panel.Heading>
                 <Panel.Body>
-                    <FileUploadForm
-                        onResourceSet = {this.onResourceSet}
-                    />
                     <PanelGroup
                         accordion
                         id="resource-accordion-choice"
@@ -100,7 +97,9 @@ class ResourcePicker extends Component {
                                 <Panel.Title toggle>Chargez une image depuis votre ordinateur</Panel.Title>
                             </Panel.Heading>
                             <Panel.Body collapsible>
-
+                                <FileUploadForm
+                                    onResourceSet = {this.onResourceSet}
+                                />
                             </Panel.Body>
                         </Panel>
                         <Panel eventKey="remoteFile">
