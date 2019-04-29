@@ -2,7 +2,7 @@
 namespace AppBundle\Factory;
 
 use AppBundle\Entity\ResourceGeometry;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class ResourceGeometryFactory extends AbstractEntityFactory

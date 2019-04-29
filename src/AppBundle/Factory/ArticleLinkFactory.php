@@ -2,7 +2,7 @@
 namespace AppBundle\Factory;
 
 use AppBundle\Entity\ArticleLink;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class ArticleLinkFactory extends AbstractEntityFactory

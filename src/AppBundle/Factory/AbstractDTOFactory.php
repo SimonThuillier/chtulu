@@ -3,7 +3,7 @@
 namespace AppBundle\Factory;
 
 use AppBundle\DTO\EntityMutableDTO;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 abstract class AbstractDTOFactory

@@ -4,7 +4,7 @@ namespace AppBundle\Factory;
 
 use AppBundle\Entity\HResource;
 use AppBundle\Entity\ResourceType;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class ResourceFactory extends AbstractEntityFactory

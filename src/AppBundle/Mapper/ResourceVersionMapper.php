@@ -17,7 +17,7 @@ use AppBundle\Factory\ResourceVersionFactory;
 use AppBundle\Manager\File\FileUploader;
 use AppBundle\Mediator\NullColleagueException;
 use Psr\Log\LoggerInterface;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class ResourceVersionMapper extends AbstractEntityMapper implements EntityMapperInterface

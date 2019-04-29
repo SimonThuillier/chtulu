@@ -14,10 +14,10 @@ use AppBundle\Factory\MediatorFactory;
 use AppBundle\Mediator\NotAvailableGroupException;
 use AppBundle\Mediator\ResourceDTOMediator;
 use AppBundle\Serializer\ResourceDTONormalizer;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Encoder\EncoderInterface;
 
 
 /**
@@ -28,7 +28,7 @@ class HImageTransformer implements DataTransformerInterface
 {
     /** @var ResourceDTONormalizer $normalizer */
     private $normalizer;
-    /** @var JsonEncoder $encoder */
+    /** @var EncoderInterface; $encoder */
     private $encoder;
     /** @var ManagerRegistry $doctrine */
     private $doctrine;
@@ -36,7 +36,7 @@ class HImageTransformer implements DataTransformerInterface
     private $mediatorFactory;
 
     public function __construct(ResourceDTONormalizer $normalizer,
-                                JsonEncoder $encoder,
+                                EncoderInterface $encoder,
                                 ManagerRegistry $doctrine,
                                 MediatorFactory $mediatorFactory)
     {

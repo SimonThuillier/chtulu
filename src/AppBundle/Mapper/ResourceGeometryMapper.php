@@ -15,7 +15,7 @@ use AppBundle\Factory\FactoryException;
 use AppBundle\Factory\ResourceGeometryFactory;
 use AppBundle\Mediator\NullColleagueException;
 use Psr\Log\LoggerInterface;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class ResourceGeometryMapper extends AbstractEntityMapper implements EntityMapperInterface

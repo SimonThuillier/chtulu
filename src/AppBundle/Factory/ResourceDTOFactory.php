@@ -2,7 +2,7 @@
 namespace AppBundle\Factory;
 
 use AppBundle\DTO\ResourceDTO;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class ResourceDTOFactory extends AbstractDTOFactory

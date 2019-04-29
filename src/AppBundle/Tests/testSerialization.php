@@ -4,7 +4,7 @@ use AppBundle\Entity\DateType;
 use AppBundle\Helper\DateHelper;
 use AppBundle\Utils\HDate;
 use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Encoder\EncoderInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 require ('../../../vendor/symfony/symfony/src/Symfony/Component/Serializer/SerializerInterface.php');
@@ -37,7 +37,7 @@ require ('../../../vendor/symfony/symfony/src/Symfony/Component/Serializer/Encod
 require ('../../../vendor/symfony/symfony/src/Symfony/Component/Serializer/Encoder/ChainDecoder.php');
 require ('../../../vendor/symfony/symfony/src/Symfony/Component/Serializer/Encoder/JsonDecode.php');
 require ('../../../vendor/symfony/symfony/src/Symfony/Component/Serializer/Encoder/JsonEncode.php');
-require ('../../../vendor/symfony/symfony/src/Symfony/Component/Serializer/Encoder/JsonEncoder.php');
+require ('../../../vendor/symfony/symfony/src/Symfony/Component/Serializer/Encoder/EncoderInterface;.php');
 
 require ('../../../vendor/symfony/symfony/src/Symfony/Component/Serializer/Normalizer/ObjectNormalizer.php');
 
@@ -65,7 +65,7 @@ echo "\r\n";
 
 $payload= '{"beginDate":"-000056-08-31T22:00:00.000Z","endDate":"-000056-09-29T22:00:00.000Z","type":"3"}';
 
-$encoders = array(new JsonEncoder());
+$encoders = array(new EncoderInterface;());
 $normalizers = array(new ObjectNormalizer());
 $serializer = new Serializer($normalizers,$encoders);
 $array = [];

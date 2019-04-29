@@ -12,7 +12,7 @@ use AppBundle\Serializer\GeoJsonNormalizer;
 use AppBundle\Utils\Geometry;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Encoder\EncoderInterface;
 use Symfony\Component\Serializer\Serializer;
 
 
@@ -23,7 +23,7 @@ class GeoJsonTransformer implements DataTransformerInterface
      */
     private $serializer;
 
-    public function __construct(GeoJsonNormalizer $normalizer,JsonEncoder $encoder)
+    public function __construct(GeoJsonNormalizer $normalizer,EncoderInterface $encoder)
     {
         $this->serializer = new Serializer([$normalizer],[$encoder]);
     }

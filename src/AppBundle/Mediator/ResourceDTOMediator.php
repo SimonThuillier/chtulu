@@ -18,7 +18,7 @@ use AppBundle\Factory\EntityFactory;
 use AppBundle\Factory\MediatorFactory;
 use AppBundle\Factory\ResourceVersionDTOFactory;
 use AppBundle\Utils\ArrayUtil;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Psr\Container\ContainerInterface;
 
 

@@ -22,7 +22,7 @@ use AppBundle\Mediator\NullColleagueException;
 use AppBundle\Utils\SearchBag;
 use Doctrine\ORM\Mapping\Entity;
 use Psr\Container\ContainerInterface;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\DependencyInjection\ServiceSubscriberInterface;
 

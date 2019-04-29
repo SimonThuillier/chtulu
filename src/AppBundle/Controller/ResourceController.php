@@ -8,8 +8,6 @@ use AppBundle\DTO\ResourceVersionDTO;
 use AppBundle\Entity\HResource;
 use AppBundle\Entity\ResourceType;
 use AppBundle\Entity\ResourceVersion;
-use AppBundle\Factory\DTOFactory;
-use AppBundle\Factory\EntityFactory;
 use AppBundle\Factory\MediatorFactory;
 use AppBundle\Form\HFileUploadType;
 use AppBundle\Helper\RequestHelper;
@@ -22,15 +20,14 @@ use AppBundle\Serializer\DTONormalizer;
 use AppBundle\Serializer\GeoJsonNormalizer;
 use AppBundle\Serializer\ResourceDTONormalizer;
 use AppBundle\Utils\HJsonResponse;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Symfony\Component\Form\FormFactory;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Symfony\Component\Validator\Validator\TraceableValidator;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  *
@@ -43,8 +40,7 @@ class ResourceController extends Controller
      * @param Request $request
      * @param RequestHelper $requestHelper
      * @param WAOHelper $waoHelper
-     * @param TraceableValidator $validator
-     * @param FormFactory $formFactory
+     * @param ValidatorInterface $validator
      * @param EntityMapper $mapper
      * @param MediatorFactory $mediatorFactory
      * @param DTONormalizer $normalizer
@@ -56,8 +52,7 @@ class ResourceController extends Controller
     public function uploadResourceAction(Request $request,
                                          RequestHelper $requestHelper,
                                          WAOHelper $waoHelper,
-                                         TraceableValidator $validator,
-                                         FormFactory $formFactory,
+                                         ValidatorInterface $validator,
                                          EntityMapper $mapper,
                                          MediatorFactory $mediatorFactory,
                                          DTONormalizer $normalizer)

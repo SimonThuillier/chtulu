@@ -4,7 +4,8 @@ namespace AppBundle\Factory;
 use AppBundle\DTO\ArticleDTO;
 use AppBundle\Entity\DateType;
 use AppBundle\Utils\HDate;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+//use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class ArticleDTOFactory extends AbstractDTOFactory

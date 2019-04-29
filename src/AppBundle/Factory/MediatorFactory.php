@@ -24,13 +24,10 @@ use AppBundle\Mediator\ResourceGeometryDTOMediator;
 use AppBundle\Mediator\ResourceVersionDTOMediator;
 use AppBundle\Serializer\HDateNormalizer;
 use Psr\Container\ContainerInterface;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
-use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
-use Symfony\Component\DependencyInjection\ServiceLocator;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\ServiceSubscriberInterface;
-use Symfony\Component\Routing\Router;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Serializer\Encoder\EncoderInterface;
 
 class MediatorFactory implements ServiceSubscriberInterface
 {
@@ -62,8 +59,8 @@ class MediatorFactory implements ServiceSubscriberInterface
             AssetHelper::class,
             MediatorFactory::class,
             FileRouter::class,
-            'serializer.encoder.json' => JsonEncoder::class,
-            'router' => Router::class,
+            'serializer.encoder.json' => EncoderInterface::class,
+            'router' => RouterInterface::class,
             'doctrine' => ManagerRegistry::class
         ];
     }

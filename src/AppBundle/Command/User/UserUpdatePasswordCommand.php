@@ -9,25 +9,21 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use AppBundle\Manager\UserManager;
-use Doctrine\ORM\EntityManager;
-use AppBundle\Entity as HE;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\Validator\ConstraintViolationList;
-use Symfony\Component\Validator\ConstraintViolationInterface;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use AppBundle\Entity\User;
 
 class UserUpdatePasswordCommand extends ContainerAwareCommand
 {
     private $manager;
-    private $em;
+    private $doctrine;
     private $validator;
     /** HE\User $user */
     private $user;
     
-    public function __construct(UserManager $manager,EntityManager $em)
+    public function __construct(UserManager $manager,ManagerRegistry $doctrine)
     {
         parent::__construct();
-        $this->em = $em;
+        $this->doctrine = $doctrine;
         $this->manager = $manager;
     }
     
@@ -76,7 +72,7 @@ class UserUpdatePasswordCommand extends ContainerAwareCommand
     {
         try{
             $this->manager->encodePassword($this->user);
-            $this->em->flush();
+            $this->doctrine->getManager()->flush();
             $output->writeln('--- User password succesfully updated ! ---');
         }
         catch(\Exception $e){

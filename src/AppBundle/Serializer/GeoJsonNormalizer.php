@@ -3,7 +3,7 @@ namespace AppBundle\Serializer;
 
 use AppBundle\Helper\WAOHelper;
 use AppBundle\Utils\Geometry;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;

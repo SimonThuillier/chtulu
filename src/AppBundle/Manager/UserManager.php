@@ -1,7 +1,7 @@
 <?php
 namespace AppBundle\Manager;
 
-use Doctrine\ORM\EntityManager;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use AppBundle\Entity\User;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -14,14 +14,14 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
  */
 class UserManager
 {
-    /** EntityManager $em */
-    private $em;
+    /** ManagerRegistry $em */
+    private $doctrine;
     private $validator;
     private $encoder;
     
-    public function __construct(EntityManager $em,ValidatorInterface $validator,UserPasswordEncoderInterface $encoder)
+    public function __construct(ManagerRegistry $doctrine,ValidatorInterface $validator,UserPasswordEncoderInterface $encoder)
     {
-        $this->em = $em;
+        $this->doctrine = $doctrine;
         $this->validator = $validator;
         $this->encoder = $encoder;
     }

@@ -10,25 +10,27 @@ namespace AppBundle\Mapper;
 
 use AppBundle\DTO\EntityMutableDTO;
 use AppBundle\Entity\Article;
+use AppBundle\Entity\ArticleType;
 use AppBundle\Factory\ArticleFactory;
 use AppBundle\Factory\FactoryException;
-use AppBundle\Form\DataTransformer\AbstractSimpleEntityTransformer;
-use AppBundle\Form\DataTransformer\HDateToStringTransformer;
 use AppBundle\Mediator\NullColleagueException;
+use AppBundle\Serializer\HDateNormalizer;
+use AppBundle\Serializer\SimpleEntityNormalizer;
+use AppBundle\Utils\HDate;
 use Psr\Log\LoggerInterface;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterface
 {
     /**
-     * @var AbstractSimpleEntityTransformer
+     * @var SimpleEntityNormalizer
      */
-    private $articleTypeTransformer;
+    private $simpleEntityNormalizer;
     /**
-     * @var HDateToStringTransformer
+     * @var HDateNormalizer
      */
-    private $hDateTransformer;
+    private $hDateNormalizer;
 
 
 
@@ -40,21 +42,21 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterfac
      * @param ArticleFactory $entityFactory
      * @param LoggerInterface $logger
      * @param TokenStorageInterface $tokenStorage
-     * @param AbstractSimpleEntityTransformer $articleTypeTransformer
-     * @param HDateToStringTransformer $hDateTransformer
+     * @param SimpleEntityNormalizer $simpleEntityNormalizer
+     * @param HDateNormalizer $hDateNormalizer
      */
     public function __construct(
         ManagerRegistry $doctrine,
         TokenStorageInterface $tokenStorage,
         LoggerInterface $logger,
         ArticleFactory $entityFactory,
-        AbstractSimpleEntityTransformer $articleTypeTransformer,
-        HDateToStringTransformer $hDateTransformer
+        SimpleEntityNormalizer $simpleEntityNormalizer,
+        HDateNormalizer $hDateNormalizer
     )
     {
         $this->entityClassName = Article::class;
-        $this->articleTypeTransformer = $articleTypeTransformer;
-        $this->hDateTransformer = $hDateTransformer;
+        $this->simpleEntityNormalizer = $simpleEntityNormalizer;
+        $this->hDateNormalizer = $hDateNormalizer;
         parent::__construct(
             $doctrine,
             $tokenStorage,
@@ -150,13 +152,13 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterfac
         foreach((array)($search) as $key => $value){
             switch($key){
                 case 'type':
-                    $tSearch[$key] = $this->articleTypeTransformer->reverseTransform($value);
+                    $tSearch[$key] = $this->simpleEntityNormalizer->denormalize($value,ArticleType::class);
                     break;
                 case 'beginHDate':
-                    $tSearch[$key] = $this->hDateTransformer->reverseTransform($value);
+                    $tSearch[$key] = $this->hDateNormalizer->denormalize($value,HDate::class);
                     break;
                 case 'endHDate':
-                    $tSearch[$key] = $this->hDateTransformer->reverseTransform($value);
+                    $tSearch[$key] = $this->hDateNormalizer->denormalize($value,HDate::class);
                     break;
                 default :
                     $tSearch[$key] = $value;

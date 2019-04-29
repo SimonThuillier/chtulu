@@ -18,14 +18,13 @@ use AppBundle\Utils\HJsonResponse;
 use AppBundle\Utils\SearchBag;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\Form\FormFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Encoder\EncoderInterface;
 use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\Validator\TraceableValidator;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  *
@@ -199,12 +198,11 @@ class CRUDController extends Controller
      * @param Request $request
      * @param RequestHelper $requestHelper
      * @param WAOHelper $waoHelper
-     * @param TraceableValidator $validator
-     * @param FormFactory $formFactory
+     * @param ValidatorInterface $validator
      * @param EntityMapper $mapper
      * @param MediatorFactory $mediatorFactory
      * @param DTONormalizer $normalizer
-     * @param JsonEncoder $encoder
+     * @param EncoderInterface; $encoder
      * @Route("/post",name="crud_post")
      * @Method({"GET","POST"})
      * @throws \Exception
@@ -215,12 +213,11 @@ class CRUDController extends Controller
     public function postAction(Request $request,
                                RequestHelper $requestHelper,
                                WAOHelper $waoHelper,
-                               TraceableValidator $validator,
-                               FormFactory $formFactory,
+                               ValidatorInterface $validator,
                                EntityMapper $mapper,
                                MediatorFactory $mediatorFactory,
                                DTONormalizer $normalizer,
-                               JsonEncoder $encoder){
+                               EncoderInterface $encoder){
 
         $hResponse = new HJsonResponse();
         $transformedErrors = [];

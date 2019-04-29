@@ -20,11 +20,11 @@ use AppBundle\Manager\File\FileRouter;
 use AppBundle\Serializer\HDateNormalizer;
 use AppBundle\Utils\HDate;
 use AppBundle\Utils\UrlBag;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Routing\Generator\UrlGenerator;
-use Symfony\Component\Routing\Router;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Serializer\Encoder\EncoderInterface;
 use Symfony\Component\Validator\Constraints\DateTime;
 
 class ArticleDTOMediator extends DTOMediator
@@ -53,8 +53,8 @@ class ArticleDTOMediator extends DTOMediator
             HDateNormalizer::class,
             AssetHelper::class,
             MediatorFactory::class,
-            'serializer.encoder.json' => JsonEncoder::class,
-            'router' => Router::class,
+            'serializer.encoder.json' => EncoderInterface::class,
+            'router' => RouterInterface::class,
             'doctrine' => ManagerRegistry::class
         ];
     }

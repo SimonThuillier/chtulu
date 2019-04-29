@@ -9,13 +9,16 @@
 namespace AppBundle\Twig;
 
 use AppBundle\Helper\WAOHelper;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFunction;
+use Twig\TwigFilter;
 
 /**
  * Twig functions and filters to communicate Web Access Objects metadata, intended for use by front-end code
  * Class WAOExtension
  * @package AppBundle\Twig
  */
-class WAOExtension extends \Twig_Extension
+class WAOExtension extends AbstractExtension
 {
     /**
      * @var \AppBundle\Helper\WAOHelper
@@ -31,16 +34,16 @@ class WAOExtension extends \Twig_Extension
     public function getFunctions()
     {
         return array(
-            new \Twig_Function('waoList', array($this->waoHelper, 'getWAOClassNames')),
+            new TwigFunction('waoList', array($this->waoHelper, 'getWAOClassNames')),
         );
     }
 
     public function getFilters()
     {
         return array(
-            new \Twig_SimpleFilter('getMapping', array($this, 'getMapping')),
-            new \Twig_SimpleFilter('getStructure', array($this, 'getStructure')),
-            new \Twig_SimpleFilter('getAbridgedName', array($this->waoHelper, 'getAbridgedName'))
+            new TwigFilter('getMapping', array($this, 'getMapping')),
+            new TwigFilter('getStructure', array($this, 'getStructure')),
+            new TwigFilter('getAbridgedName', array($this->waoHelper, 'getAbridgedName'))
         );
     }
 

@@ -9,7 +9,7 @@
 namespace AppBundle\Helper;
 
 use AppBundle\Entity\ResourceType;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 

@@ -3,7 +3,7 @@ namespace AppBundle\Factory;
 
 use AppBundle\Entity\Article;
 use AppBundle\Entity\ArticleType;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class ArticleFactory extends AbstractEntityFactory
