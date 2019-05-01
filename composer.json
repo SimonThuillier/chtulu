@@ -1,61 +1,65 @@
 {
-	"name" : "symfony/framework-standard-edition",
-	"license" : "MIT",
+	"name" : "belze88/hbase",
+	"license" : "proprietary",
 	"type" : "project",
-	"description" : "The \"Symfony Standard Edition\" distribution",
+	"description" : "HBase project",
 	"minimum-stability": "beta",
-	"autoload" : {
-		"psr-4" : {
-			"" : "src/"
+	"config" : {
+		"platform" : {
+			"php" : "7.2.17"
 		},
-		"classmap" : [
-			"app/AppKernel.php",
-			"app/AppCache.php"
-		]
+		"preferred-install": {
+			"*": "dist"
+		},
+		"sort-packages": true
 	},
-	"autoload-dev" : {
-		"psr-4" : {
-			"Tests\\" : "tests/"
+	"autoload": {
+		"psr-4": {
+			"App\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"App\\Tests\\": "tests/"
 		}
 	},
 	"require" : {
-		"php" : "7.2.*",
-		"symfony/symfony" : "^4.2",
-		"symfony/monolog-bundle": "^3.3",
-		"symfony/polyfill-apcu": "^1.11",
-		"symfony/swiftmailer-bundle": "^3.2",
-		"sensio/framework-extra-bundle": "^5.3",
-		"doctrine/doctrine-bundle": "^1.10",
-		"doctrine/orm": "^2.6",
+		"php": "7.2.*",
+		"ext-ctype": "*",
+		"ext-iconv": "*",
+		"jsor/doctrine-postgis": "^1.7",
 		"liip/imagine-bundle": "^2.1",
-		"jsor/doctrine-postgis": "^1.7"
+		"sensio/framework-extra-bundle": "^5.3",
+		"symfony/console": "4.2.*",
+		"symfony/flex": "^1.1",
+		"symfony/maker-bundle": "^1.11",
+		"symfony/monolog-bundle": "^3.3",
+		"symfony/orm-pack": "^1.0",
+		"symfony/polyfill-apcu": "^1.11",
+		"symfony/security-bundle": "4.2.*",
+		"symfony/swiftmailer-bundle": "^3.2",
+		"symfony/symfony": "^4.2",
+		"symfony/validator": "4.2.*"
 	},
 	"require-dev" : {
 		"symfony/phpunit-bridge" : "^4.2.7"
 	},
-	"scripts" : {
-		"post-install-cmd" : [
+	"scripts": {
+		"auto-scripts": {
+			"cache:clear": "symfony-cmd",
+			"assets:install %PUBLIC_DIR%": "symfony-cmd"
+		},
+		"post-install-cmd": [
+			"@auto-scripts"
 		],
-		"post-update-cmd" : [
+		"post-update-cmd": [
+			"@auto-scripts"
 		]
 	},
-	"config" : {
-		"platform" : {
-			"php" : "7.2.16"
-		}
-	},
-	"extra" : {
-		"symfony-app-dir" : "app",
-		"symfony-bin-dir" : "bin",
-		"symfony-var-dir" : "var",
-		"symfony-web-dir" : "web",
-		"symfony-tests-dir" : "tests",
-		"symfony-assets-install" : "relative",
-		"incenteev-parameters" : {
-			"file" : "app/config/parameters.yml"
-		},
-		"branch-alias" : {
-			"dev-master" : "3.3-dev"
+	"extra": {
+		"symfony": {
+			"allow-contrib": false,
+			"require": "4.2.*"
 		}
 	}
 }
