@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -15,7 +16,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @UniqueEntity(fields="username", message="Username {{ value }} is already used. Please choose another.")
  * @UniqueEntity(fields="email", message="Email {{ value }} is already used. Please choose another.")
  */
-class User implements \Serializable
+class User implements UserInterface,\Serializable
 {
     /**
      * @var int

@@ -17,9 +17,9 @@ use App\Utils\ArrayUtil;
 use App\Utils\HJsonResponse;
 use App\Utils\SearchBag;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Common\Persistence\ManagerRegistry;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\Encoder\EncoderInterface;
@@ -31,7 +31,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @author belze
  *         @Route("/crud")
  */
-class CRUDController extends Controller
+class CRUDController extends AbstractController
 {
     const MEDIATOR_NS = 'App\\Mediator\\';
     const FORM_NS = 'App\\Form\\';

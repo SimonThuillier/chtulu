@@ -21,8 +21,8 @@ use App\Serializer\GeoJsonNormalizer;
 use App\Serializer\ResourceDTONormalizer;
 use App\Utils\HJsonResponse;
 use Doctrine\Common\Persistence\ManagerRegistry;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,7 +34,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @author belze
  *         @Route("/resource")
  */
-class ResourceController extends Controller
+class ResourceController extends AbstractController
 {
     /**
      * @param Request $request

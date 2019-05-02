@@ -1,8 +1,8 @@
 <?php
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 /**
  * @Route("")
  */
-class SecurityController extends Controller
+class SecurityController extends AbstractController
 {
 
     /**
@@ -33,7 +33,7 @@ class SecurityController extends Controller
                 ->getUser());
         }
 
-        return $this->render('AppBundle:Security:login.html.twig', array(
+        return $this->render('@HB/Security/login.html.twig', array(
             'last_username' => $lastUsername,
             'error' => $error
         ));

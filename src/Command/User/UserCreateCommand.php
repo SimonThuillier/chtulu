@@ -3,9 +3,9 @@
 namespace App\Command\User;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Helper\QuestionHelper;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Question\Question;
 use App\Manager\UserManager;
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -31,7 +31,7 @@ class UserCreateCommand extends ContainerAwareCommand
         $this
             ->setName('hbase:user:create')
             ->setDescription('Create new user for HBase application')
-            ->addArgument('username', InputInterface::OPTIONAL, 'The username of the user.','')
+            ->addArgument('username', InputArgument::OPTIONAL, 'The username of the user.','')
             ->addArgument('email', InputArgument::OPTIONAL, 'Email of the user.','');
     }
     

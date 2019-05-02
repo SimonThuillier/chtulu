@@ -10,8 +10,8 @@ use App\Mapper\ResourceGeometryMapper;
 use App\Mediator\ResourceGeometryDTOMediator;
 use App\Serializer\GeoJsonNormalizer;
 use App\Utils\Geometry;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
  * @package App\Controller
  * @Route("/geo")
  */
-class GeoController extends Controller
+class GeoController extends AbstractController
 {
     /**
      * @Route("/test", name="geo_testpage")

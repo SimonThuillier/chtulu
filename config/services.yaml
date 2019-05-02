@@ -3,6 +3,11 @@
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+
+imports:
+    - { resource: parameters.yaml }
+
+
 parameters:
 
 services:
@@ -35,8 +40,21 @@ services:
         tags:
             - { name: "liip_imagine.binary.loader", loader: local }
 
+    liip_imagine.filter.configuration:
+        alias: "Liip\\ImagineBundle\\Imagine\\Filter\\FilterConfiguration"
+
+    #liip_imagine.filter.manager:
+    #    alias: 'Liip\ImagineBundle\Imagine\Filter\FilterManager'
+    #    public: false
+
+    Liip\ImagineBundle\Binary\MimeTypeGuesserInterface:
+        alias: 'liip_imagine.binary.mime_type_guesser'
+    Imagine\Image\ImagineInterface:
+        alias: 'liip_imagine.gmagick'
+
+    Liip\ImagineBundle\Imagine\Filter\FilterConfiguration:
+
     Liip\ImagineBundle\Imagine\Filter\FilterManager:
-        public: false
 
     Jsor\Doctrine\PostGIS\Event\ORMSchemaEventSubscriber:
             tags:

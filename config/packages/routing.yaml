@@ -1,4 +1,13 @@
 framework:
     router:
+        enabled: false
         strict_requirements: ~
         utf8: true
+
+sensio_framework_extra:
+    request:     { converters: true, auto_convert: true }
+    view:        { annotations: true }
+    cache:       { annotations: true }
+    security:    { annotations: true }
+    psr_message: { enabled: false }
+

@@ -11,6 +11,11 @@ security:
                 property: email
 
     firewalls:
+        main:
+            provider: app_user_provider
+            pattern: ^/
+            http_basic:
+                realm: Secured Area
         # disables authentication for assets and the profiler, adapt it according to your needs
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
