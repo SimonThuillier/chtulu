@@ -52,3 +52,9 @@ web/build/
 bin/\.web-server-pid
 yarn.lock
 xdebug\.log
+
+config/parameters\.yaml
+
+config/credentials\.yaml
+
+config/hresources\.yaml
