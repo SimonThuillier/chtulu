@@ -10,4 +10,3 @@ sensio_framework_extra:
     cache:       { annotations: true }
     security:    { annotations: true }
     psr_message: { enabled: false }
-

@@ -41,10 +41,13 @@
 		"symfony/swiftmailer-bundle": "^3.2",
 		"symfony/symfony": "^4.2",
 		"symfony/twig-bundle": "4.2.*",
-		"symfony/validator": "4.2.*"
+		"symfony/validator": "4.2.*",
+		"symfony/webpack-encore-bundle": "^1.5"
 	},
 	"require-dev" : {
-		"symfony/phpunit-bridge" : "^4.2.7"
+		"symfony/phpunit-bridge": "^4.2.7",
+		"symfony/profiler-pack": "^1.0",
+		"symfony/web-server-bundle": "4.2.*"
 	},
 	"scripts": {
 		"auto-scripts": {

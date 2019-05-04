@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import { Link } from "react-router-dom";
 import BootstrapTable from 'react-bootstrap-table-next';
 import Loadable from 'react-loading-overlay';
