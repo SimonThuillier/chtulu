@@ -67,7 +67,7 @@ class App extends Component {
         ];
 
         return (
-            <BrowserRouter {...appProps} basename="/test/react-router">
+            <BrowserRouter {...appProps} basename="/app/">
                 {/*<Loadable*/}
                     {/*active={submitting}*/}
                     {/*spinner*/}

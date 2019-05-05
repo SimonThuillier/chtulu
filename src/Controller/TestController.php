@@ -93,37 +93,4 @@ class TestController extends AbstractController
             "simpleEntitiesMapping"=>$simpleEntitiesMapping
         );
     }
-
-    /**
-     * @Route("/react-router/{sub}", name="test_react_router",requirements={"page"="\w+"})
-     * @throws \Exception
-     * @Template()
-     */
-    public function reactRouterAction(Request $request)
-    {
-        return array();
-    }
-
-    /**
-     * @Route("/react-router/article/{id}/{actionParam}",
-     *     name="test_article_page",
-     *     requirements={"id"="\d*"},
-     *     defaults={"id"=null,"actionParam"=null}
-     *     )
-     * @throws \Exception
-     */
-    public function articlePageAction(Request $request)
-    {
-        return $this->render("@AppBundle/Test/reactRouter.html.twig",[]);
-    }
-
-    /**
-     * @Route("/redux", name="test_redux")
-     * @throws \Exception
-     * @Template()
-     */
-    public function testReduxAction(Request $request)
-    {
-        return array();
-    }
 }

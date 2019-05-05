@@ -7,8 +7,8 @@ Encore
     .setOutputPath('./public/build/')
     .setPublicPath('/build')
     .addEntry('app', './assets/js/app.js')
+    .addEntry('auth', './assets/js/auth.jsx')
     /*.addEntry('test-react', './assets/js/test-react.jsx')
-    .addEntry('launcher', './assets/js/auth.jsx')
     .addEntry('test', './assets/js/async-index.js')
     .addEntry('test-react-router1', './assets/js/test-react-router1.jsx')
     .addEntry('test-react-router2', './assets/js/test-react-router2.jsx')*/

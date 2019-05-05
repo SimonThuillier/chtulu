@@ -17,7 +17,10 @@ use Symfony\Component\Validator\Constraints\Date;
 class DefaultController extends AbstractController
 {
     /**
-     * @Route("/", name="homepage")
+     * main controller for loading the spa
+     * TODO : check for auth and no-auth redirecting
+     * @Route("/app/{sub}", name="homepage",requirements={"page"="\w+"})
+     * @throws \Exception
      * @Template()
      */
     public function indexAction(Request $request)

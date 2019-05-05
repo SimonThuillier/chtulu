@@ -33,11 +33,10 @@ class FileRouter
      * @param ContainerInterface $container
      */
     public function __construct(ContainerInterface $container,
-                                LocalDataLoader $loader,
-                                FilterManager $filterManager)
+                                LocalDataLoader $loader)
     {
         $this->loader = $loader;
-        $this->filterManager = $filterManager;
+        $this->filterManager = $container->get('liip_imagine.filter.manager');
         $this->cacheResolver = $container->get('liip_imagine.cache.resolver.local');
     }
 
@@ -55,6 +54,7 @@ class FileRouter
             $route = $this->cacheResolver->
             resolve($wantedPath,$filter);
             $binary = $this->loader->find($version->getFile());
+            $filters = $this->filterManager->getFilterConfiguration()->all();
             if($filter && $filter !== "") $binary = $this->filterManager->applyFilter($binary,$filter);
 
             $this->cacheResolver->store($binary,$wantedPath,$filter);

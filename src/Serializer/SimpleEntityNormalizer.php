@@ -71,6 +71,7 @@ class SimpleEntityNormalizer implements NormalizerInterface,DenormalizerInterfac
     public function denormalize($data, $class, $format = null, array $context = array())
     {
         if (null === $data || $data === "") return null;
+        if (is_object($data) && $data->getId() == 0) return null;
         if(is_array($data)) $data = $data["id"];
 
         return $this->doctrine->getRepository($class)->find(intval($data));

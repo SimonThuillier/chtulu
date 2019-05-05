@@ -6,6 +6,7 @@
 
 imports:
     - { resource: parameters.yaml }
+    - { resource: hresources.yaml }
 
 
 parameters:
@@ -40,8 +41,8 @@ services:
         tags:
             - { name: "liip_imagine.binary.loader", loader: local }
 
-    liip_imagine.filter.configuration:
-        alias: "Liip\\ImagineBundle\\Imagine\\Filter\\FilterConfiguration"
+#    liip_imagine.filter.configuration:
+#        alias: "Liip\\ImagineBundle\\Imagine\\Filter\\FilterConfiguration"
 
     #liip_imagine.filter.manager:
     #    alias: 'Liip\ImagineBundle\Imagine\Filter\FilterManager'
@@ -52,9 +53,9 @@ services:
     Imagine\Image\ImagineInterface:
         alias: 'liip_imagine.gmagick'
 
-    Liip\ImagineBundle\Imagine\Filter\FilterConfiguration:
-
-    Liip\ImagineBundle\Imagine\Filter\FilterManager:
+#    Liip\ImagineBundle\Imagine\Filter\FilterConfiguration:
+#
+#    Liip\ImagineBundle\Imagine\Filter\FilterManager:
 
     Jsor\Doctrine\PostGIS\Event\ORMSchemaEventSubscriber:
             tags:

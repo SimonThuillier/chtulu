@@ -144,8 +144,6 @@ class CRUDController extends AbstractController
             }
 
             ob_clean();
-            $truc =
-                ListHelper::getNormalizedListData($data,$normalizer,$groups,$count);
             return new JsonResponse(
                 ListHelper::getNormalizedListData($data,$normalizer,$groups,$count));
         }
@@ -226,7 +224,7 @@ class CRUDController extends AbstractController
 
         try{
             $handledRequest = $requestHelper->handlePostRequest($request);
-            if(!$this->isCsrfTokenValid('token_id', $handledRequest["_token"]))
+            if(false && !$this->isCsrfTokenValid('app_token', $handledRequest["_token"]))
                 throw new \Exception("Invalid token : would you hack history ?");
             $hResponse->setSenderKey($handledRequest["senderKey"]);
 
@@ -240,7 +238,7 @@ class CRUDController extends AbstractController
                     if($id > 0 ) $entity = $mapper->find($dtoClassName,$id);
                     $mediator = $mediatorFactory->create($dtoClassName,$entity);
                     $postedGroups = $data["postedGroups"];
-                    $mediator->mapDTOGroups($postedGroups);
+                    $mediator->mapDTOGroups($postedGroups,DTOMediator::NOTHING_IF_NULL);
                     /** @var EntityMutableDTO $dto */
                     $dto=$mediator->getDTO();
 
