@@ -16,6 +16,7 @@ import {
   PORTRAIT,
   LANDSCAPE
 } from "../util/geometry";
+import cmn from "../util/common";
 
 const styles = {
   width: "100%",
@@ -53,9 +54,13 @@ const PosedCircle = posed.circle({
   }
 });
 
+
+
 const HistoProxy = (function() {
+  const yGenerator = cmn.getIdGenerator(10,10);
   function HistoProxy(article) {
     this.article = article;
+    this.y = yGenerator();
   }
 
   HistoProxy.prototype = {
@@ -66,10 +71,10 @@ const HistoProxy = (function() {
       return this.article.beginHDate;
     },
     get currentY() {
-      return this.article.y;
+      return this.y;
     },
     set currentY(y) {
-      this.article.y = y;
+      //this.article.y = y;
     }
   };
   return HistoProxy;
@@ -134,7 +139,7 @@ export default class Panel extends React.Component {
     };
 
     let articleProxies = new Map();
-    articles
+      (articles || [])
       .filter(article => true)
       .forEach(article => {
         articleProxies.set(article.id, new HistoProxy(article, 40));
@@ -233,9 +238,10 @@ export default class Panel extends React.Component {
     // liste des articles
     let articleProxies = null;
     if (articles !== prevProps.articles) {
-      //console.log("diff articvle");
+      console.log("diff article dans le panel");
+      console.log(articles);
       articleProxies = new Map();
-      articles
+        (articles || [])
         .filter(article => true)
         .forEach(article => {
           articleProxies.set(article.id, new HistoProxy(article, 40));

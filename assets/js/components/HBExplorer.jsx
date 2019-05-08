@@ -2,9 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { distance, vectorDiff, LEFT, RIGHT, VERTICAL } from "../util/geometry";
 
-import { connect } from "react-redux";
 import debounce from "debounce";
-import { Button, Glyphicon, Form } from "react-bootstrap";
+import { Button, Glyphicon } from "react-bootstrap";
 import HBExplorerDateInput from "./HBExplorerDateInput";
 
 import MeasureAndRender from "./MeasureAndRender";
@@ -16,8 +15,6 @@ import MapHandlerIcon from "./MapHandlerIcon.jsx";
 import HDate from "../util/HDate";
 import dU from "../util/date";
 
-import { tween, easing } from "popmotion";
-import styler from "stylefire";
 import cmn from "../util/common";
 
 const explorerUid = require("uuid/v4")();
@@ -67,38 +64,38 @@ const getIntegratedSpeed = (acceleration, time) => {
 };
 
 const getInvisibles = (articles, hInterval) => {
-  // articles non visibles
-  let leftInvisibles = 0;
-  let rightInvisibles = 0;
-  let verticalInvisibles = 0;
-  let minDate = hInterval.getMiddleDate();
-  let maxDate = hInterval.getMiddleDate();
-  articles.forEach(article => {
-    if (article.beginHDate.beginDate < hInterval.beginDate)
-      leftInvisibles = leftInvisibles + 1;
-    if (article.beginHDate.endDate > hInterval.endDate)
-      rightInvisibles = rightInvisibles + 1;
+    // articles non visibles
+    let leftInvisibles = 0;
+    let rightInvisibles = 0;
+    let verticalInvisibles = 0;
+    let minDate = hInterval.getMiddleDate();
+    let maxDate = hInterval.getMiddleDate();
+    (articles || []).forEach(article => {
+        if (article.beginHDate.beginDate < hInterval.beginDate)
+            leftInvisibles = leftInvisibles + 1;
+        if (article.beginHDate.endDate > hInterval.endDate)
+            rightInvisibles = rightInvisibles + 1;
 
-    minDate =
-      minDate !== null
-        ? new Date(
-            Math.min(minDate.getTime(), article.beginHDate.beginDate.getTime())
-          )
-        : dU.clone(article.beginHDate.beginDate);
+        minDate =
+            minDate !== null
+                ? new Date(
+                Math.min(minDate.getTime(), article.beginHDate.beginDate.getTime())
+                )
+                : dU.clone(article.beginHDate.beginDate);
 
-    maxDate =
-      maxDate !== null
-        ? new Date(
-            Math.max(maxDate.getTime(), article.beginHDate.endDate.getTime())
-          )
-        : dU.clone(article.beginHDate.endDate);
-  });
+        maxDate =
+            maxDate !== null
+                ? new Date(
+                Math.max(maxDate.getTime(), article.beginHDate.endDate.getTime())
+                )
+                : dU.clone(article.beginHDate.endDate);
+    });
 
-  let invisibles = {};
-  invisibles[LEFT] = { number: leftInvisibles, minDate: minDate };
-  invisibles[RIGHT] = { number: rightInvisibles, maxDate: maxDate };
+    let invisibles = {};
+    invisibles[LEFT] = { number: leftInvisibles, minDate: minDate };
+    invisibles[RIGHT] = { number: rightInvisibles, maxDate: maxDate };
 
-  return invisibles;
+    return invisibles;
 };
 
 class HBExplorer extends React.Component {
@@ -151,12 +148,6 @@ class HBExplorer extends React.Component {
     );
     this.onTimeZoomingEnd = this.onTimeZoomingEnd.bind(this);
 
-    const articles = new Array({
-      id: _idGenerator(),
-      beginHDate: new HDate("1", new Date(1998, 2, 1)),
-      y: 20
-    });
-
     this.state = {
       /* current time interval of the explorer : 
       must Always be not null and valid 
@@ -193,15 +184,12 @@ class HBExplorer extends React.Component {
       /**
        * articles
        */
-      articles: articles,
       invisibles: {
         LEFT: { number: 0, minDate: null },
         RIGHT: { number: 0, minDate: null }
       }
     };
 
-    console.log(typeof articles);
-    console.log(Array.isArray(articles));
   }
 
   setHInterval(hInterval) {
@@ -210,7 +198,7 @@ class HBExplorer extends React.Component {
   }
 
   addArticle(date, y) {
-    let articles = this.state.articles.slice();
+    /*let articles = this.state.articles.slice();
     //console.log(Array.isArray(articles));
     const id = _idGenerator();
     const newArticle = { id: id, beginHDate: new HDate("1", date), y: y };
@@ -219,7 +207,7 @@ class HBExplorer extends React.Component {
 
     articles.push(newArticle);
 
-    this.setState({ articles: articles });
+    this.setState({ articles: articles });*/
   }
 
   onTimeZoomingBegin(e, sense = -1) {
@@ -273,7 +261,7 @@ class HBExplorer extends React.Component {
           newHInterval.beginDate
         } - ${newHInterval.getMiddleDate()} - ${newHInterval.endDate}`
       );
-      const invisibles = getInvisibles(this.state.articles, newHInterval);
+      const invisibles = getInvisibles(this.props.articles, newHInterval);
       this.setState({
         hInterval: newHInterval,
         invisibles: invisibles
@@ -297,7 +285,7 @@ class HBExplorer extends React.Component {
   }
 
   componentDidMount() {
-    const invisibles = getInvisibles(this.state.articles, this.state.hInterval);
+    const invisibles = getInvisibles(this.props.articles, this.state.hInterval);
 
     this.setState({
       panelToResize: ReactDOM.findDOMNode(this.panelRef),
@@ -314,7 +302,14 @@ class HBExplorer extends React.Component {
     window.removeEventListener("mouseup", this.onResizingEnd);
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
+      if (!prevProps.hInterval.equals(this.props.hInterval)) {
+          const invisibles = getInvisibles(this.props.articles, this.props.hInterval);
+          this.setState({
+              hInterval: this.props.hInterval,
+              invisibles: invisibles
+          });
+      }
     //console.log(this.timeAreaRef.current.getBoundingClientRect().top);
     //console.log(this.timeAreaRef.current.getBoundingClientRect().bottom);
   }
@@ -468,7 +463,7 @@ class HBExplorer extends React.Component {
         .setType("2")
         .addDay(addedDays);
       //console.log(newHInterval);
-      const invisibles = getInvisibles(this.state.articles, newHInterval);
+      const invisibles = getInvisibles(this.props.articles, newHInterval);
       this.setState({
         hInterval: newHInterval,
         invisibles: invisibles
@@ -714,7 +709,7 @@ class HBExplorer extends React.Component {
                     key={"hg-time-panel"}
                     bounds={bounds}
                     path={path}
-                    articles={this.state.articles}
+                    articles={this.props.articles}
                     addArticle={this.addArticle}
                     setInvisibles={this.setInvisibles}
                     hInterval={this.state.hInterval}
@@ -754,8 +749,4 @@ class HBExplorer extends React.Component {
   }
 }
 
-const mapStateToProps = state => {
-  return {};
-};
-
-export default connect(mapStateToProps)(HBExplorer);
+export default HBExplorer;

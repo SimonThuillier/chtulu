@@ -6,7 +6,7 @@ import {
     totalSelector2
 } from "../selectors/index";
 import {Helmet} from 'react-helmet';
-import HBExplorer from "../components/HBExplorer.jsx";
+import HBExplorerProxy from "../components/HBExplorerProxy.jsx";
 import HDate from "../util/HDate";
 
 export class ExplorerPage extends React.Component {
@@ -40,8 +40,7 @@ export class ExplorerPage extends React.Component {
                 </section>
                 <section className="content">
                     <div>
-                        <HBExplorer
-                            hInterval={new HDate("2", new Date(1988, 2, 1), new Date(2018, 2, 25))}
+                        <HBExplorerProxy
                         />
                     </div>
                 </section>

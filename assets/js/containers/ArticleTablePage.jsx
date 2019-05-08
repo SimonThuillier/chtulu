@@ -204,7 +204,6 @@ class ArticleTablePage extends React.Component{
         this.modalRef = null;
 
         this.state = {
-            loading:false,
             searchBag:SearchBag({}),
             groups:{minimal:true,date:true,detailImage:{minimal:true,activeVersion:{minimal:true,urlMini:true}}},
             selected:null,
@@ -399,7 +398,7 @@ class ArticleTablePage extends React.Component{
                                 cellEdit: true
                             } }
                             onTableChange={this.onTableChange}
-                            loading={this.state.loading}
+                            loading={loading}
                             columns={columns(dispatch,this.onRowSelection,notificationsSelector)}
                         />
 
