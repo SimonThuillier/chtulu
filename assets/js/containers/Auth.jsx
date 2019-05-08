@@ -3,10 +3,11 @@ import { connect } from 'react-redux'
 import { BrowserRouter,Route,Switch} from 'react-router-dom';
 import Header from "../components/Header";
 import SideBar from "../components/SideBar";
-import ArticlePage from "../components/ArticlePage";
-import Page3 from "../components/Page3";
-import ArticleTablePage from "../components/ArticleTablePage";
-import {getNotificationsSelector, getOneByIdSelector, getPendingTotalSelector} from "../selectors";
+import ExplorerPage from "./ExplorerPage";
+import ArticlePage from "./ArticlePage";
+import Page3 from "./Page3";
+import ArticleTablePage from "./ArticleTablePage";
+import {getNotificationsSelector, getPendingTotalSelector} from "../selectors";
 import {postAll,resetAll} from "../actions";
 import {COLORS, SUBMITTING, SUBMITTING_COMPLETED} from "../util/notifications";
 import Loadable from 'react-loading-overlay';
@@ -55,6 +56,7 @@ class App extends Component {
         const mainNotification = React.createElement(MainNotification);
 
         const routes = [
+            {id:3,path:'/explorer',component:ExplorerPage,exact:true,appProps:appProps,mainNotification:mainNotification},
             {id:4,path:'/article',component:ArticlePage,exact:true,appProps:appProps,mainNotification:mainNotification},
             {id:5,path:"/article/:id",component:ArticlePage,exact:true,appProps:appProps,mainNotification:mainNotification},
             {id:6,path:'/article/:id/:actionParam',component:ArticlePage,exact:true,appProps:appProps,mainNotification:mainNotification},
@@ -67,7 +69,7 @@ class App extends Component {
         ];
 
         return (
-            <BrowserRouter {...appProps} basename="/test/react-router">
+            <BrowserRouter {...appProps} basename="/app/">
                 {/*<Loadable*/}
                     {/*active={submitting}*/}
                     {/*spinner*/}

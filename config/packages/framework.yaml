@@ -1,0 +1,75 @@
+framework:
+    secret: '%env(APP_SECRET)%'
+    default_locale: en
+    csrf_protection: true
+    #http_method_override: true
+
+    # Enables session support. Note that the session will ONLY be started if you read or write from it.
+    # Remove or comment this section to explicitly disable session support.
+    session:
+        handler_id: ~
+        cookie_secure: auto
+        cookie_samesite: lax
+
+    #esi: true
+    #fragments: true
+    php_errors:
+        log: true
+
+    # annotation configuration
+    annotations:
+        enabled:              true
+        cache:                php_array
+        file_cache_dir:       '%kernel.cache_dir%/annotations'
+        debug:                true
+
+    # assets configuration
+    assets:
+        enabled:              true
+        version_strategy:     null
+        version:              null
+        version_format:       '%%s?%%s'
+        json_manifest_path:   null
+        base_path:            ''
+        #base_urls:            []
+        packages:
+
+            # Prototype
+            name:
+                version_strategy:     null
+                version:              ~
+                version_format:       null
+                json_manifest_path:   null
+                base_path:            ''
+                #base_urls:            []
+
+    # form configuration TODO : delete later
+    form:
+        enabled:              true
+        csrf_protection:
+            enabled:              false
+            field_name:           _token
+
+    # serializer configuration
+    serializer:
+        enabled:              true
+        enable_annotations:   true
+        name_converter:       ~
+        circular_reference_handler: ~
+        max_depth_handler:    ~
+        mapping:
+            paths:                []
+
+    # validation configuration
+    validation:
+        enabled:              true
+        cache:                ~
+        enable_annotations:   false
+        static_method:
+
+            # Default:
+            - loadValidatorMetadata
+        translation_domain:   validators
+        email_validation_mode: "loose"
+        mapping:
+            paths:                []

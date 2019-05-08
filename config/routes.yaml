@@ -1,0 +1,15 @@
+controllers:
+    resource: ../src/Controller/
+    type: annotation
+
+_wdt:
+    resource: "@WebProfilerBundle/Resources/config/routing/wdt.xml"
+    prefix:   /_wdt
+    type: xml
+_profiler:
+    resource: "@WebProfilerBundle/Resources/config/routing/profiler.xml"
+    prefix:   /_profiler
+    type: xml
+
+_liip_imagine:
+    resource: "@LiipImagineBundle/Resources/config/routing.yaml"

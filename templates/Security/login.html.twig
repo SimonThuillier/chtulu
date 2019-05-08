@@ -1,0 +1,74 @@
+{% extends "@HB/base.html.twig" %}
+
+{% block javascript %}
+<script type="text/javascript">
+function validateLogin(){
+	console.log("tentative login");
+	document.getElementById("login-form").submit(); 
+}
+
+
+$(function () {
+    $('input').iCheck({
+      checkboxClass: 'icheckbox_square-blue',
+      radioClass: 'iradio_square-blue',
+      increaseArea: '20%' // optional
+    });
+  });
+</script>
+{% endblock %}
+
+{% block title %}
+Connectez-vous à HistoricaBase
+{% endblock %}
+
+{%  block content %}
+<div class="login-box">
+	<div class="login-logo">
+		<a href="../../index2.html"><b>Historica</b>Base</a>
+	</div>
+	<!-- /.login-logo -->
+	<div class="login-box-body">
+		<p class="login-box-msg">Connectez-vous</p>
+		{% if error %}
+    <div><p style="color: red">{{ error.messageKey|trans(error.messageData, 'security')}}<p></div>
+{% endif %}
+
+		<form id="login-form" action="{{ path('login') }}" method="post">
+			<div class="form-group has-feedback">
+				<input type="user" id="username" name="_username" class="form-control" value="{{ last_username }}"
+					placeholder="Nom d'utilisateur"><span
+					class="ion-person form-control-feedback"></span>
+			</div>
+			<div class="form-group has-feedback">
+				<input type="password" id="password" name="_password" class="form-control"
+					placeholder="Mot de passe"> <span
+					class="glyphicon glyphicon-lock form-control-feedback"></span>
+			</div>
+			<div class="row">
+				<div class="col-xs-6">
+					<div class="checkbox icheck">
+						<label> <input type="checkbox"> Se souvenir de moi
+						</label>
+					</div>
+				</div>
+				<!-- /.col -->
+				<div class="col-xs-6">
+					<button type="submit" id="login-submit" class="btn btn-primary btn-block btn-flat">Se
+						connecter</button>
+				</div>
+				<!-- /.col -->
+			</div>
+		</form>
+
+		<a href="#">J'ai oublié mon mot de passe</a><br> <a
+			href="register.html" class="text-center">S'inscrire à
+			HistoricaBase</a>
+
+	</div>
+	<!-- /.login-box-body -->
+</div>
+<!-- /.login-box -->
+{% endblock %}
+
+

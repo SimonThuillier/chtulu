@@ -29,12 +29,20 @@ const SideBar = (props) => {
                 </form>
                 <ul className="sidebar-menu" data-widget="tree">
                     <li className="header">MENU</li>
-                    <li className="treeview"><a href="#"> <i
-                        className="fa fa-pencil"></i> <span>Ecrire</span> <span
-                        className="pull-right-container"> <i
-                        className="fa fa-angle-left pull-right"></i>
+                    <li>
+                        <NavLink to='/explorer' activeClassName='hurray'>
+                            <i className="fa fa-eye"/>
+                            Explorateur
+                        </NavLink>
+                    </li>
+                    <li className="treeview">
+                        <a href="#">
+                        <i className="fa fa-pencil"/>
+                        <span>Ecrire</span>
+                        <span className="pull-right-container">
+                            <i className="fa fa-angle-left pull-right"/>
 						</span>
-                    </a>
+                        </a>
                         <ul className="treeview-menu">
                             <li>
                                 <NavLink to='/article/' activeClassName='hurray'>
