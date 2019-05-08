@@ -1,4 +1,4 @@
-import FileUploadForm from './FileUploadForm';
+import FileUploadForm from '../components/FileUploadForm';
 
 
 

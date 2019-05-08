@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from "react-redux";
-import {getNewlyCreatedIdSelector, getNextNewIdSelector, getOneByIdSelector} from "../selectors";
-import Article from './Article';
+import {getNewlyCreatedIdSelector, getNextNewIdSelector, getOneByIdSelector} from "../selectors/index";
+import Article from '../components/Article';
 import {Helmet} from 'react-helmet';
 
 export class ArticlePage extends React.Component {

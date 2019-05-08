@@ -95,13 +95,13 @@ class ArticleDTONormalizer extends HNormalizer
      */
     public function denormalize($data, $class, $format = null, array $context = array())
     {
-        if(is_array($data) && array_key_exists('detailImageResource',$data)){
+        /*if(is_array($data) && array_key_exists('detailImageResource',$data)){
             $resourceEntity = $this->doctrine->
             getRepository(HResource::class)->find(intval($data['detailImageResource']['id']));
             $mediator = $this->mediatorFactory->create(ResourceDTO::class,$resourceEntity);
             $mediator->mapDTOGroups(['minimal'=>true]);
             $data['detailImageResource'] = $mediator->getDTO();
-        }
+        }*/
 
 
         $denormalization = parent::defaultDenormalize($data, $class, $format,$context);

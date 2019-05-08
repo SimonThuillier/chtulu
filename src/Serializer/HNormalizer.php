@@ -80,6 +80,7 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
      */
     protected function defaultDenormalize($data, $class, $format = null, array $context = array())
     {
+        if ($data===null) return null;
 
         $structure = $this->waoHelper->getDTOStructure($class,false);
         $mapping = $this->waoHelper->getDTOMapping($class);

@@ -128,6 +128,11 @@ class ArticleForm extends React.Component{
         if(this.props.id === null){return}
         let data = this.state.data;
 
+        if(data === null || typeof data === 'undefined' ){
+            //this.initializeFormData();
+            return;
+        }
+
         if (prevProps.id !== this.props.id){
             this.submit(prevProps.id);
             data = this.props.selector(this.props.id);

@@ -72,7 +72,7 @@ class ArticleFilter extends React.Component{
         const { onSubmit, pristine, reset, submitting,load,valid } = this.props;
 
         return (
-            <Form Horizontal>
+            <Form>
                 <Row className="show-grid">
                     {this.state.fields.includes("keyword") &&
                     <Col md={3}>

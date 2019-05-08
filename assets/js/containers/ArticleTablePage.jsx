@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import BootstrapTable from 'react-bootstrap-table-next';
 import Loadable from 'react-loading-overlay';
 import {Helmet} from 'react-helmet';
-import {Edit,Submit,Reset,Delete,CancelDelete,CancelAdd} from './actions';
+import {Edit,Submit,Reset,Delete,CancelDelete,CancelAdd} from '../components/actions';
 import {
     Modal,
     OverlayTrigger,
@@ -13,11 +13,11 @@ import {
     Row,
     Glyphicon
 } from 'react-bootstrap';
-import Article from "./Article";
-import {deleteLocally, getIfNeeded, postOne, reset as stateReset} from "../actions";
+import Article from "../components/Article";
+import {deleteLocally, getIfNeeded, postOne, reset as stateReset} from "../actions/index";
 import SearchBag from '../util/SearchBag';
 import SearchBagUtil from '../util/SearchBagUtil';
-import ArticleType from './ArticleType';
+import ArticleType from '../components/ArticleType';
 import {connect} from "react-redux";
 import {
     getNotificationsSelector,
@@ -26,10 +26,10 @@ import {
     getNextNewIdSelector,
     getBabiesSelector,
     getNewlyCreatedIdSelector
-} from "../selectors";
-import RImageMini from "./RImageMini";
+} from "../selectors/index";
+import RImageMini from "../components/RImageMini";
 import paginationFactory from 'react-bootstrap-table2-paginator';
-import ArticleFilter from './ArticleFilter';
+import ArticleFilter from '../components/ArticleFilter';
 import {LOADING,SUBMITTING, COLORS, SUBMITTING_COMPLETED} from "../util/notifications";
 import {untouch as formUntouch} from "redux-form/immutable";
 import {getAllPropertiesInGroups} from "../util/WAOUtil";
