@@ -1,9 +1,9 @@
-/**
- * Measure's the element's bounding box and then renders children
- */
 import React from "react";
 import debounce from "debounce";
 
+/**
+ * HoC that Measures the element's bounding box and then renders children
+ */
 class MeasureAndRender extends React.Component {
   constructor(props) {
     super(props);

@@ -8,7 +8,7 @@ import HBExplorerDateInput from "./HBExplorerDateInput";
 
 import MeasureAndRender from "./MeasureAndRender";
 import TimeArrow from "./TimeArrow.jsx";
-import Panel from "./Panel.jsx";
+import HBExplorerPanel from "./HBExplorerPanel.jsx";
 import MapContainer from "./MapContainer.jsx";
 import MapHandlerIcon from "./MapHandlerIcon.jsx";
 
@@ -705,7 +705,7 @@ class HBExplorer extends React.Component {
                 //console.log(path);
 
                 return [
-                  <Panel
+                  <HBExplorerPanel
                     key={"hg-time-panel"}
                     bounds={bounds}
                     path={path}

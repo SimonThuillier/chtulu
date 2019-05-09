@@ -5,6 +5,7 @@ import { tween, easing } from "popmotion";
 import styler from "stylefire";
 import posed, { PoseGroup } from "react-pose";
 import dU from "../util/date";
+import HBExplorerPanelArticle from './HBExplorerPanelArticle';
 import HDate from "../util/HDate";
 import debounce from "debounce";
 import {
@@ -28,6 +29,31 @@ const animationParams = {
   startingDuration: 1500, // real ms
   exitingDuration: 400 // real ms,
 };
+
+const PosedPanelArticle = posed(HBExplorerPanelArticle)({
+    enter: {
+        x1: props => {
+            props.x1;
+        },
+        x2: props => {
+            props.x2;
+        },
+        fillOpacity: 1,
+        delay: 0,
+        duration: animationParams.startingDuration
+    },
+    exit: {
+        x1: props => {
+            props.x1;
+        },
+        x2: props => {
+            props.x2;
+        },
+        fillOpacity: 0,
+        delay: 0,
+        duration: animationParams.exitingDuration
+    }
+});
 
 const PosedCircle = posed.circle({
   enter: {
@@ -70,6 +96,12 @@ const HistoProxy = (function() {
     get beginHDate() {
       return this.article.beginHDate;
     },
+    get endHDate() {
+          return this.article.endHDate;
+    },
+    get title() {
+          return this.article.title;
+    },
     get currentY() {
       return this.y;
     },
@@ -95,7 +127,7 @@ const ArticleRef = (function() {
   return ArticleRef;
 })();
 
-export default class Panel extends React.Component {
+export default class HBExplorerPanel extends React.Component {
   constructor(props) {
     super(props);
 
@@ -141,6 +173,7 @@ export default class Panel extends React.Component {
     let articleProxies = new Map();
       (articles || [])
       .filter(article => true)
+      .sort( (a, b) =>{return a.beginHDate.beginDate >= b.beginHDate.beginDate;})
       .forEach(article => {
         articleProxies.set(article.id, new HistoProxy(article, 40));
       });
@@ -243,6 +276,7 @@ export default class Panel extends React.Component {
       articleProxies = new Map();
         (articles || [])
         .filter(article => true)
+        .sort( (a, b) =>{return a.beginHDate.beginDate.getTime() >= b.beginHDate.beginDate.getTime();})
         .forEach(article => {
           articleProxies.set(article.id, new HistoProxy(article, 40));
         });
@@ -414,11 +448,7 @@ export default class Panel extends React.Component {
     console.log(articles);
     console.log(arrayOfArticlesToDisplay);*/
 
-    const articleCircles = arrayOfArticlesToDisplay.map(([id, a]) => {
-      const x = timeScale(a.beginHDate.beginDate);
-      const y = a.currentY;
-      return (
-        <PosedCircle
+    /*<PosedCircle
           key={`histo-article-circle-${a.id}`}
           id={`histo-article-circle-${a.id}`}
           cx={x}
@@ -429,8 +459,18 @@ export default class Panel extends React.Component {
             fill: "rgb(0,0,0)",
             strokeOpacity: 0,
             strokeWidth: 0
-          }}
-          ref={node => {
+          }}*/
+
+    const articleCircles = arrayOfArticlesToDisplay.map(([id, a]) => {
+      /*const x = timeScale(a.beginHDate.beginDate);
+      const y = a.currentY;*/
+      return (
+        <HBExplorerPanelArticle
+          key={`histo-article-${a.id}`}
+          article={a}
+          timeScale={timeScale}
+          originY={this.state.originY}
+          /*ref={node => {
             if (
               typeof this.articleRefs.get(a.id) === "undefined" ||
               !this.articleRefs.get(a.id).circleRef
@@ -443,13 +483,9 @@ export default class Panel extends React.Component {
               } else newRef = this.articleRefs.get(a.id);
               newRef.circleRef = node;
               newRef.circleStyler = styler(node);
-              newRef.observer = new IntersectionObserver(() => {
-                console.log(`j'observe un truc pour l'article ${a.id}`);
-              }, this.observerOptions);
-              newRef.observer.observe(node);
               if (hasMadeNewRef) this.articleRefs.set(a.id, newRef);
             }
-          }}
+          }}*/
         />
       );
     });
