@@ -11,6 +11,7 @@ import debounce from "debounce";
 import {
   distance,
   vectorDiff,
+  nodesCollide,
   LEFT,
   RIGHT,
   VERTICAL,
@@ -87,6 +88,7 @@ const HistoProxy = (function() {
   function HistoProxy(article) {
     this.article = article;
     this.y = yGenerator();
+    this.deltaY=0;
   }
 
   HistoProxy.prototype = {
@@ -102,12 +104,12 @@ const HistoProxy = (function() {
     get title() {
           return this.article.title;
     },
-    get currentY() {
-      return this.y;
-    },
-    set currentY(y) {
-      //this.article.y = y;
-    }
+      get currentY() {
+          return this.y + this.deltaY;
+      },
+      set currentY(y) {
+          //this.article.y = y;
+      }
   };
   return HistoProxy;
 })();
@@ -136,12 +138,16 @@ export default class HBExplorerPanel extends React.Component {
     //this.animate = this.animate.bind(this);
     //this.collectGarbage = this.collectGarbage.bind(this);
     this.onPanelMoveBegin = this.onPanelMoveBegin.bind(this);
-    this.onPanelMove = this.onPanelMove.bind(this);
+    this.onPanelMove = debounce(this.onPanelMove.bind(this),10);
     this.onPanelMoveEnd = this.onPanelMoveEnd.bind(this);
 
     this.animate = this.animate.bind(this);
 
+    this.addBox = this.addBox.bind(this);
+
     this.articleRefs = new Map();
+
+    this.boxRefs = new Map();
 
     this.state = {
       timeScale: null,
@@ -189,6 +195,7 @@ export default class HBExplorerPanel extends React.Component {
       rootMargin: "0px",
       threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     };
+    console.clear();
   }
 
   getTimeScale(hInterval, bounds) {
@@ -278,7 +285,7 @@ export default class HBExplorerPanel extends React.Component {
         .filter(article => true)
         .sort( (a, b) =>{return a.beginHDate.beginDate.getTime() >= b.beginHDate.beginDate.getTime();})
         .forEach(article => {
-          articleProxies.set(article.id, new HistoProxy(article, 40));
+          articleProxies.set(article.id, new HistoProxy(article));
         });
       this.setState({ articles: articleProxies });
       //console.log(articleProxies);
@@ -315,6 +322,7 @@ export default class HBExplorerPanel extends React.Component {
       this.setState({ timeScale: timeScale });
     }
     this.runAnimationIfNeeded(timeScale);
+    this.manageCollisions();
   }
 
   /*shouldComponentUpdate(prevProps, prevState) {
@@ -434,6 +442,81 @@ export default class HBExplorerPanel extends React.Component {
     }
   }
 
+  addBox(boxRef,article){
+     const sameBoxAsBefore = (this.boxRefs.has(+article.id) && this.boxRefs.get(+article.id).boxRef===boxRef);
+      if(sameBoxAsBefore) return;
+      console.log(`addBox form article ${article.title},same as before : ${sameBoxAsBefore}`);
+     console.log(boxRef);
+     const nodeBox = boxRef.getBBox();
+     console.log(nodeBox);
+
+     this.boxRefs.set(+article.id,
+         {
+         boxRef:boxRef,
+         y:article.y,
+             title:article.title,
+         isTested:false,
+         collisions:{},
+         }
+     );
+  }
+
+  manageCollisions(){
+      if(this.boxRefs.size < 2) return;
+
+      console.clear();
+      console.log(`check collisions among ${this.boxRefs.size} elements`);
+      //console.log(this.boxRefs);
+
+      // first let's compute an index array of id/y, and set isTested of each value to 0
+      let checkIndex = [];
+      this.boxRefs.forEach((v,k) =>{
+            v.isTested = false;
+            v.collisions = {};
+            v.deltaY = 0;
+            checkIndex.push([k,v.y]);
+          }
+      );
+      // then sort it from upper to lower y
+      checkIndex.sort((a,b)=>{return a[1]>=b[1]?1:-1});
+      //console.log(checkIndex);
+      // let's then use this index to iterate on boxRefs
+      let collisionCount=0;
+      let comeBackCount=0;
+      for (let i=0;i<checkIndex.length-1;i++){
+          let upperId = checkIndex[i][0];
+          let upperBoxRef = this.boxRefs.get(upperId);
+          upperBoxRef.isTested = true;
+          //console.log(upperBoxRef.boxRef.x.baseVal.value);
+          for (let j=i+1;j<checkIndex.length-1;j++){
+              let lowerId = checkIndex[j][0];
+              let lowerBoxRef = this.boxRefs.get(lowerId);
+              let collision = nodesCollide(upperBoxRef.boxRef,lowerBoxRef.boxRef);
+
+              if(!lowerBoxRef.isTested && collision > 0){
+                  console.log(`${upperBoxRef.title} on ${lowerBoxRef.title}, collision ${collision}`);
+                  lowerBoxRef.collisions[upperId] = collision + upperBoxRef.deltaY;
+                  lowerBoxRef.deltaY = collision + upperBoxRef.deltaY;
+                  collisionCount+=1;
+              }
+
+          }
+      }
+
+
+
+      if(collisionCount>0){
+        let articleProxies = new Map(this.state.articles);
+        articleProxies.forEach((v,k) =>{
+                v.deltaY = this.boxRefs.get(k).deltaY;
+            }
+        );
+        console.log(articleProxies);
+        this.setState({articles:articleProxies});
+      }
+
+  }
+
   render() {
     const bounds = this.props.bounds;
     const strokeSize = 1;
@@ -470,6 +553,7 @@ export default class HBExplorerPanel extends React.Component {
           article={a}
           timeScale={timeScale}
           originY={this.state.originY}
+          addBox={this.addBox}
           /*ref={node => {
             if (
               typeof this.articleRefs.get(a.id) === "undefined" ||
