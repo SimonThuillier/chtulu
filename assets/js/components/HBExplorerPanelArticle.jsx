@@ -47,10 +47,22 @@ const textStyle = {
 class HBExplorerPanelArticle extends React.Component {
     constructor(props) {
         super(props);
+
+        this.handleOnClick = this.handleOnClick.bind(this);
+    }
+
+    handleOnClick (e){
+        const {selectArticle,article,onPanelMoveEnd} = this.props;
+        e.preventDefault();
+        e.stopPropagation();
+
+        selectArticle([article.id]);
+        onPanelMoveEnd(e);
+
     }
 
     render() {
-        const {article,timeScale,originY,addBox} = this.props;
+        const {article,timeScale,originY,addBox,selected} = this.props;
 
         const x = timeScale(article.beginHDate.beginDate);
         const endX = timeScale(article.endHDate?article.endHDate.endDate:new Date());
@@ -62,6 +74,9 @@ class HBExplorerPanelArticle extends React.Component {
 
         const y = article.currentY - originY;
 
+        let thisTextStyle = {};
+        Object.assign(thisTextStyle,textStyle);
+        if(selected) thisTextStyle.stroke='#0000FF';
 
         return (
             <svg
@@ -81,12 +96,33 @@ class HBExplorerPanelArticle extends React.Component {
                         <image x="0" y="0" href="http://localhost:8000/media/cache/mini/246-clement-1.jpeg"/>
                     </pattern>
                 </defs>
-                <rect fill="black" x={xMargin}  y={viewportHeight/8} width={Math.max(endX-x,1)} height={viewportHeight/4} rx={2} ry={2}/>
-                <text textAnchor="start" x={xMargin+viewportHeight/2}  y={viewportHeight-2} style={textStyle}>
+                <rect
+                    fill={selected?"blue":"black"}
+                    x={xMargin}
+                    y={viewportHeight/8}
+                    width={Math.max(endX-x,1)}
+                    height={viewportHeight/4}
+                    rx={2}
+                    ry={2}
+                    onClick={this.handleOnClick}
+                />
+                <text
+                    textAnchor="start"
+                    x={xMargin+viewportHeight/2}
+                    y={viewportHeight-2}
+                    style={thisTextStyle}
+                    onClick={this.handleOnClick}
+                >
                     {article.title}
                 </text>
 
-                <circle cx={xMargin} cy={viewportHeight/2} r="13" fill="url(#article-image)"/>
+                <circle
+                    cx={xMargin}
+                    cy={viewportHeight/2}
+                    r="13"
+                    fill="url(#article-image)"
+                    onClick={this.handleOnClick}
+                />
 
             </svg>
 

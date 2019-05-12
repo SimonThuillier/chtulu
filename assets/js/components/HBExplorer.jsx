@@ -115,7 +115,7 @@ class HBExplorer extends React.Component {
     this.timeFirstTravelDuration = 250;
 
     // function to add an article
-    this.addArticle = this.addArticle.bind(this);
+    //this.addArticle = this.addArticle.bind(this);
     // hInterval setter to provide for children that need it (timeArrow)
     this.setHInterval = this.setHInterval.bind(this);
 
@@ -147,6 +147,8 @@ class HBExplorer extends React.Component {
       Math.floor(0.9 * this.timeTravellingPeriod)
     );
     this.onTimeZoomingEnd = this.onTimeZoomingEnd.bind(this);
+
+    this.selectArticle = this.selectArticle.bind(this);
 
     this.state = {
       /* current time interval of the explorer : 
@@ -187,7 +189,9 @@ class HBExplorer extends React.Component {
       invisibles: {
         LEFT: { number: 0, minDate: null },
         RIGHT: { number: 0, minDate: null }
-      }
+      },
+        // array of id of selected articles
+      selected:[]
     };
 
   }
@@ -197,17 +201,9 @@ class HBExplorer extends React.Component {
     this.setState({ hInterval: hInterval, invisibles: invisibles });
   }
 
-  addArticle(date, y) {
-    /*let articles = this.state.articles.slice();
-    //console.log(Array.isArray(articles));
-    const id = _idGenerator();
-    const newArticle = { id: id, beginHDate: new HDate("1", date), y: y };
-
-    //console.log(articles);
-
-    articles.push(newArticle);
-
-    this.setState({ articles: articles });*/
+  selectArticle(ids) {
+      if(ids===null) ids=[];
+    this.setState({selected:ids});
   }
 
   onTimeZoomingBegin(e, sense = -1) {
@@ -710,7 +706,9 @@ class HBExplorer extends React.Component {
                     bounds={bounds}
                     path={path}
                     articles={this.props.articles}
-                    addArticle={this.addArticle}
+                    selectArticle={this.selectArticle}
+                    selected={this.state.selected}
+                    //addArticle={this.addArticle}
                     setInvisibles={this.setInvisibles}
                     hInterval={this.state.hInterval}
                     setHInterval={this.setHInterval}
