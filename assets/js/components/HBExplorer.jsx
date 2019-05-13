@@ -506,7 +506,7 @@ class HBExplorer extends React.Component {
             this.timeArrowRef = node;
           }}
         >
-          <div style={{ position: "relative", height: "65px" }}>
+          <div style={{ position: "relative", height: "75px" }}>
             {
               <MeasureAndRender
                 stretch={true}

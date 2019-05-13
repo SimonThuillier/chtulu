@@ -250,7 +250,7 @@ div.hb-modal-z9{
     resize: vertical;
     width: auto;
     border: 1px solid black;
-    grid-template-rows: 40px 38px 65px 38px auto 30px;
+    grid-template-rows: 40px 38px 75px 38px auto 30px;
     grid-template-columns: 100%;
     position: "relative";
 }
