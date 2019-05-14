@@ -6,17 +6,12 @@ import styler from "stylefire";
 import posed, { PoseGroup } from "react-pose";
 import date from "../util/date";
 import HDate from "../util/HDate";
+import TimeArrowCursor from "./TimeArrowCursor";
 
 const styles = {
     fill: "LightBlue",
     strokeWidth: 1,
     zIndex: 10
-};
-
-const cursorStyle = {
-    fill: "DarkSlateGray",
-    strokeWidth: 2,
-    zIndex: 20
 };
 
 const animationParams = {
@@ -366,7 +361,7 @@ export default class TimeArrow extends React.Component {
     }
 
     render() {
-        const bounds = this.props.bounds;
+        const {bounds,marginWidth,cursorRate,isCursorActive,setCursorRate,toggleCursor} = this.props;
         /*console.log("time arrow bounds");
         console.log(bounds.width);
         console.log(bounds.height);*/
@@ -381,7 +376,6 @@ export default class TimeArrow extends React.Component {
         const arrowPeekWidth = 35;
 
         const bottomHeight = 10;// for the cursor
-        //{ stroke, className, bounds} = props;
         const path = `M${stroke},${(height - bottomHeight -arrowHeight) / 2} 
       L${width - stroke - arrowPeekWidth},${(height - bottomHeight - arrowHeight) / 2}
       L${width - stroke - arrowPeekWidth},${(height - bottomHeight -arrowPeekHeight) / 2}
@@ -389,16 +383,6 @@ export default class TimeArrow extends React.Component {
       L${width - stroke - arrowPeekWidth},${(height - bottomHeight + arrowPeekHeight) / 2}
       L${width - stroke - arrowPeekWidth},${(height - bottomHeight + arrowHeight) / 2}
       L${stroke},${(height - bottomHeight + arrowHeight) / 2} 
-      Z`;
-
-        const cursorMaxWidth=24;
-        const cursorMinWidth=6;
-        const cursorHeight=20;
-
-        const cursorPath = `M${(width - stroke)/2-cursorMaxWidth/2},${height} 
-      L${(width - stroke)/2-cursorMinWidth/2},${height - cursorHeight}
-      L${(width - stroke)/2+cursorMinWidth/2},${height - cursorHeight}
-      L${(width - stroke)/2+cursorMaxWidth/2},${height} 
       Z`;
 
         let currentStyle = { ...styles };
@@ -619,11 +603,15 @@ export default class TimeArrow extends React.Component {
                     <PoseGroup>{gradLines}</PoseGroup>
                     <PoseGroup>{gradLegends}</PoseGroup>
                 </g>
-                <path
-                    style={cursorStyle}
-                    vectorEffect="non-scaling-stroke"
-                    d={cursorPath}
-                    stroke="Yellow"
+                <TimeArrowCursor
+                    key={'time-arrow-cursor'}
+                    cursorRate = {cursorRate}
+                    isCursorActive={isCursorActive}
+                    setCursorRate={setCursorRate}
+                    toggleCursor={toggleCursor}
+                    width = {width}
+                    height = {height}
+                    marginWidth = {marginWidth}
                 />
             </svg>
         );

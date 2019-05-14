@@ -625,6 +625,14 @@ export default class HBExplorerPanel extends React.Component {
           />
           <PoseGroup>{articleCircles}</PoseGroup>
         </g>
+          <path id="arc"
+                d="M 30 100 A 70 70 0 1 1 30 100"
+                style={{
+                    stroke:"#13710c",
+                    strokeWidth:"8px",
+                    fill:"none"
+                }}
+          />
       </svg>
     );
   }

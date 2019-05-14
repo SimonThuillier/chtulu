@@ -148,6 +148,9 @@ class HBExplorer extends React.Component {
     );
     this.onTimeZoomingEnd = this.onTimeZoomingEnd.bind(this);
 
+    this.setCursorRate = this.setCursorRate.bind(this);
+    this.toggleCursor = this.toggleCursor.bind(this);
+
     this.selectArticle = this.selectArticle.bind(this);
 
     this.state = {
@@ -191,9 +194,19 @@ class HBExplorer extends React.Component {
         RIGHT: { number: 0, minDate: null }
       },
         // array of id of selected articles
-      selected:[]
+      selected:[],
+      cursorRate:0.25,
+      isCursorActive:false
     };
 
+  }
+
+  toggleCursor(){
+      this.setState({isCursorActive:!this.state.isCursorActive});
+  }
+
+  setCursorRate(rate){
+      this.setState({cursorRate:rate});
   }
 
   setHInterval(hInterval) {
@@ -528,6 +541,9 @@ class HBExplorer extends React.Component {
                         this.timeTravellingPeriod * 1.2
                       )}
                       hInterval={this.state.hInterval}
+                      cursorRate={this.state.cursorRate}
+                      setCursorRate={this.setCursorRate}
+                      toggleCursor={this.toggleCursor}
                     />
                   );
                 }}
@@ -714,6 +730,8 @@ class HBExplorer extends React.Component {
                     setHInterval={this.setHInterval}
                     animationPeriod={this.timeTravellingPeriod}
                     marginWidth={10}
+                    cursorRate={this.state.cursorRate}
+                    isCursorActive={this.state.isCursorActive}
                   />,
                   <MapContainer
                     key={"hg-map-container"}
