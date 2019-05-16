@@ -1,4 +1,6 @@
 import React from "react";
+import ProgressionCircle from "./ProgressionCircle";
+import HDate from "../util/HDate";
 
 const textStyle = {
     fontFamily: "Arial, sans-serif",
@@ -62,12 +64,26 @@ class HBExplorerPanelArticle extends React.Component {
     }
 
     render() {
-        const {article,timeScale,originY,addBox,selected} = this.props;
+        const {article,timeScale,originY,addBox,selected,cursorDate} = this.props;
+
+        const articleHDate = new HDate("2",
+            article.beginHDate.beginDate,
+            (article.endHDate && article.endHDate.endDate)||new Date());
+
+        const currentProgression = articleHDate.getRateOfDate(cursorDate);
+
+        /*console.log(`${article.title} , prog : ${currentProgression}`);
+        console.log(cursorDate);
+        console.log(articleHDate);*/
 
         const x = timeScale(article.beginHDate.beginDate);
         const endX = timeScale(article.endHDate?article.endHDate.endDate:new Date());
 
-        const xMargin = 13;
+        const {max,min} = Math;
+        let deltaX = min(max(-x,0),endX) + 15;
+        deltaX=0;
+
+        const xMargin = 18;
         const viewportHeight = 30;
 
         let viewportWidth = Math.max(endX-x + 2*xMargin,(article.title.length)*15);
@@ -93,7 +109,7 @@ class HBExplorerPanelArticle extends React.Component {
                 xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <pattern id="article-image" x="0" y="0" patternUnits="userSpaceOnUse" height="30" width="30">
-                        <image x="0" y="0" href="http://localhost:8000/media/cache/mini/246-clement-1.jpeg"/>
+                        <image x={deltaX} y="0" href="http://localhost:8000/media/cache/mini/246-clement-1.jpeg"/>
                     </pattern>
                 </defs>
                 <rect
@@ -108,7 +124,7 @@ class HBExplorerPanelArticle extends React.Component {
                 />
                 <text
                     textAnchor="start"
-                    x={xMargin+viewportHeight/2}
+                    x={deltaX + xMargin+viewportHeight/2}
                     y={viewportHeight-2}
                     style={thisTextStyle}
                     onClick={this.handleOnClick}
@@ -117,16 +133,20 @@ class HBExplorerPanelArticle extends React.Component {
                 </text>
 
                 <circle
-                    cx={xMargin}
+                    cx={deltaX + xMargin}
                     cy={viewportHeight/2}
                     r="13"
                     fill="url(#article-image)"
                     onClick={this.handleOnClick}
                 />
-
+                <ProgressionCircle
+                    key={`histo-article-progcircle-${article.id}`}
+                    staticRate={0.125}
+                    rate={currentProgression}
+                    cx={deltaX + xMargin}
+                    cy={viewportHeight/2}
+                    r={13}/>
             </svg>
-
-
         );
     }
 }

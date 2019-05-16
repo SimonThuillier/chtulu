@@ -582,6 +582,7 @@ export default class HBExplorerPanel extends React.Component {
           selected={this.props.selected.includes(+a.id)}
           onPanelMoveEnd={this.onPanelMoveEnd} // to prevent some panel events when action on an article is performed
           selectArticle={this.props.selectArticle}
+          cursorDate = {this.props.cursorDate}
           article={a}
           timeScale={timeScale}
           originY={this.state.originY}

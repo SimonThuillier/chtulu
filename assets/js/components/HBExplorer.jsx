@@ -496,7 +496,8 @@ class HBExplorer extends React.Component {
   }
 
   render() {
-    const { invisibles } = this.state;
+    const { invisibles,hInterval,cursorRate } = this.state;
+    const cursorDate = (hInterval!==null && cursorRate!==null)?hInterval.getBarycenterDate(cursorRate):null;
 
     return (
       <div
@@ -510,7 +511,7 @@ class HBExplorer extends React.Component {
         <div className="hg-date-input">
           <HBExplorerDateInput
             setHInterval={this.setHInterval}
-            input={this.state.hInterval}
+            input={hInterval}
           />
         </div>
         <div
@@ -540,7 +541,7 @@ class HBExplorer extends React.Component {
                       animationPeriod={Math.ceil(
                         this.timeTravellingPeriod * 1.2
                       )}
-                      hInterval={this.state.hInterval}
+                      hInterval={hInterval}
                       cursorRate={this.state.cursorRate}
                       setCursorRate={this.setCursorRate}
                       toggleCursor={this.toggleCursor}
@@ -554,7 +555,7 @@ class HBExplorer extends React.Component {
         <div className="hg-time-arrow-menu">
           <Button
             onClick={e => {
-              let newHInterval = this.state.hInterval.clone();
+              let newHInterval = hInterval.clone();
               const leftMargin = Math.max(
                 Math.ceil(
                   dU.dayDiff(
@@ -568,7 +569,7 @@ class HBExplorer extends React.Component {
               newHInterval = new HDate(
                 "2",
                 dU.addDay(dU.clone(invisibles[LEFT].minDate), -leftMargin),
-                dU.clone(this.state.hInterval.endDate)
+                dU.clone(hInterval.endDate)
               );
               this.setHInterval(newHInterval);
             }}
@@ -589,7 +590,7 @@ class HBExplorer extends React.Component {
           <span>
             <Button
               onClick={e => {
-                let newHInterval = this.state.hInterval.clone();
+                let newHInterval = hInterval.clone();
                 newHInterval = newHInterval
                   .setType("2")
                   .addDay(-Math.floor(newHInterval.getIntervalSize() / 2));
@@ -636,7 +637,7 @@ class HBExplorer extends React.Component {
             </Button>
             <Button
               onClick={e => {
-                let newHInterval = this.state.hInterval.clone();
+                let newHInterval = hInterval.clone();
                 newHInterval = newHInterval
                   .setType("2")
                   .addDay(Math.floor(newHInterval.getIntervalSize() / 2));
@@ -648,7 +649,7 @@ class HBExplorer extends React.Component {
           </span>
           <Button
             onClick={e => {
-              let newHInterval = this.state.hInterval.clone();
+              let newHInterval = hInterval.clone();
               const rightMargin = Math.max(
                 Math.ceil(
                   dU.dayDiff(
@@ -661,7 +662,7 @@ class HBExplorer extends React.Component {
 
               newHInterval = new HDate(
                 "2",
-                dU.clone(this.state.hInterval.beginDate),
+                dU.clone(hInterval.beginDate),
                 dU.addDay(dU.clone(invisibles[RIGHT].maxDate), rightMargin)
               );
               this.setHInterval(newHInterval);
@@ -726,11 +727,12 @@ class HBExplorer extends React.Component {
                     selected={this.state.selected}
                     //addArticle={this.addArticle}
                     setInvisibles={this.setInvisibles}
-                    hInterval={this.state.hInterval}
+                    hInterval={hInterval}
                     setHInterval={this.setHInterval}
                     animationPeriod={this.timeTravellingPeriod}
                     marginWidth={10}
                     cursorRate={this.state.cursorRate}
+                    cursorDate = {cursorDate}
                     isCursorActive={this.state.isCursorActive}
                   />,
                   <MapContainer

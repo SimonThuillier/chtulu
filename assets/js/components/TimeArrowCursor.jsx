@@ -41,12 +41,11 @@ class TimeArrowCursor extends React.Component {
 
 
     onCursorDragBegin(e) {
-        console.log("on cursor drag begin");
         if (!this.state.isDraggingCursor) {
             e.preventDefault();
             e.stopPropagation();
             window.addEventListener("mouseup", this.onCursorDragEnd);
-            console.log("onCursorDragBegin");
+            //console.log("onCursorDragBegin");
             const initialPosition = { x: e.clientX, y: e.clientY };
             const {cursorRate,width,marginWidth} = this.props;
             this.setState({
@@ -76,17 +75,16 @@ class TimeArrowCursor extends React.Component {
 
         const newCursorRate = min(max(initialCursorRate + relativeDelta,0),1);
 
-        console.log(`onCursorDrag : ${deltaX} , ${relativeDelta} , ${newCursorRate}`);
+        //console.log(`onCursorDrag : ${deltaX} , ${relativeDelta} , ${newCursorRate}`);
         setCursorRate(newCursorRate);
     }
 
     onCursorDragEnd(e) {
-        console.log("on cursor drag end");
         if (this.state.isDraggingCursor) {
             e.preventDefault();
             e.stopPropagation();
             window.removeEventListener("mousemove", this.onCursorDrag);
-            console.log("onCursorDragEnd");
+            //console.log("onCursorDragEnd");
             window.removeEventListener("mouseup", this.onCursorDragEnd);
             this.setState({
                 isDraggingCursor: false,

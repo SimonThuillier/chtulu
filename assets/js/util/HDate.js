@@ -110,6 +110,24 @@ let _prototype = {
         Math.floor(intervalSize / 2)
       );
   },
+  getBarycenterDate: function(rate) {
+      const intervalSize = this.getIntervalSize() + 1;
+      if (rate >= 1) return dateUtil.clone(this.endDate || new Date());
+      if (rate <= 0) return dateUtil.clone(this.beginDate);
+      return dateUtil.addDay(
+                dateUtil.clone(this.beginDate),
+                Math.floor(intervalSize*rate)
+      );
+  },
+  getRateOfDate : function(date) {
+      const {max,min} = Math;
+      const beginTime = this.beginDate.getTime();
+      const endTime = (this.endDate || new Date()).getTime();
+
+      const dateTime = date.getTime();
+      if((endTime - beginTime)<1000) return dateTime>=beginTime;
+      return max(min((dateTime - beginTime)/(endTime - beginTime),1),0);
+  }  ,
   multiply: function(factor) {
     const { clone, addDay } = dateUtil;
     const newIntervalSize = Math.floor(factor * (this.getIntervalSize() + 1));
