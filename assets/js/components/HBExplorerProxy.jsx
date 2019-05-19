@@ -119,6 +119,7 @@ class HBExplorerProxy extends React.Component {
                 <HBExplorer
                     articles={ items }
                     hInterval={this.props.hInterval || getHIntervalFromArticles(items) || defaultHInterval}
+                    dispatch={dispatch}
                 />
             </Loadable>
         );

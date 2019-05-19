@@ -361,7 +361,7 @@ export default class TimeArrow extends React.Component {
     }
 
     render() {
-        const {bounds,marginWidth,cursorRate,isCursorActive,setCursorRate,toggleCursor} = this.props;
+        const {bounds,marginWidth,cursorRate,cursorDate,isCursorActive,setCursorRate,toggleCursor} = this.props;
         /*console.log("time arrow bounds");
         console.log(bounds.width);
         console.log(bounds.height);*/
@@ -605,6 +605,7 @@ export default class TimeArrow extends React.Component {
                 </g>
                 <TimeArrowCursor
                     key={'time-arrow-cursor'}
+                    cursorDate = {cursorDate}
                     cursorRate = {cursorRate}
                     isCursorActive={isCursorActive}
                     setCursorRate={setCursorRate}

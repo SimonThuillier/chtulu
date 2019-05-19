@@ -40,9 +40,9 @@ export default class MapContainer extends React.Component {
       currentStyle.height = bounds.height;
     } else {
       currentStyle.left = bounds.width - side;
-      currentStyle.top = bounds.height - side;
+      currentStyle.top = bounds.height - 10- side;
       currentStyle.width = side;
-      currentStyle.height = side;
+      currentStyle.height = side -10 ;
     }
 
     return (

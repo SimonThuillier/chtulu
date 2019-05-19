@@ -35,9 +35,9 @@ export class ExplorerPage extends React.Component {
                 <Helmet>
                     <title>Explorateur</title>
                 </Helmet>
-                <section className="content-header">
-                    <h4>Explorateur</h4>
-                </section>
+                {/*<section className="content-header">*/}
+                    {/*<h4>Explorateur</h4>*/}
+                {/*</section>*/}
                 <section className="content">
                     <div>
                         <HBExplorerProxy

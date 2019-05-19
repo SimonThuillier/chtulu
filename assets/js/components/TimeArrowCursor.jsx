@@ -2,6 +2,18 @@ import React from "react";
 import { scaleTime } from "d3-scale";
 const Radium = require('radium').default; // CHANGED: Must add `.default`
 const { Style } = require('radium');
+import dateUtil from "../util/date";
+import trans from "../util/translation";
+
+const dateFormatter = dateUtil.getFormatterFromPattern(trans.FORMAT_STRS["1"]);
+
+const textStyle = {
+    fontFamily: "Times new roman",
+    fontSize  : 14,
+    fontWeight:"lighter",
+    stroke     : "#000000",
+    fill       : "#000000"
+};
 
 const cursorStyle = {
     fill: "DarkSlateGray",
@@ -95,7 +107,10 @@ class TimeArrowCursor extends React.Component {
 
     render() {
         const {isDraggingCursor} = this.state;
-        const {cursorRate,width,height,marginWidth,onMouseDown,onMouseUp} = this.props;
+        const {cursorRate,cursorDate,width,height,marginWidth,onMouseDown,onMouseUp} = this.props;
+
+        const cursorDateLabel = dateFormatter(cursorDate);
+        //console.log(`cursorDate : ${cursorDateLabel}`);
 
         const cursorMaxWidth=24;
         const cursorMinWidth=6;
@@ -111,14 +126,28 @@ class TimeArrowCursor extends React.Component {
         Object.assign(style,cursorStyle);
         if(isDraggingCursor) style.stroke="Yellow";*/
 
+        const labelX = (cursorRate<0.5)?((width - marginWidth)*cursorRate+cursorMaxWidth/2+3):
+            ((width - marginWidth)*cursorRate-cursorMaxWidth/2-3-cursorDateLabel.length*7);
+
         return (
-            <path
-                className={isDraggingCursor?'active':null}
-                onMouseDown={this.onCursorDragBegin}
-                style={cursorStyle}
-                vectorEffect="non-scaling-stroke"
-                d={cursorPath}
-            />
+            <g>
+                <text
+                    textAnchor="start"
+                    x={labelX}
+                    y={height-cursorHeight/2+3}
+                    style={textStyle}
+                >
+                    {cursorDateLabel}
+                </text>
+                <path
+                    className={isDraggingCursor?'active':null}
+                    onMouseDown={this.onCursorDragBegin}
+                    style={cursorStyle}
+                    vectorEffect="non-scaling-stroke"
+                    d={cursorPath}
+                />
+            </g>
+
         );
     }
 }

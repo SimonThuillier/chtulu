@@ -7,10 +7,13 @@ import { Button, Glyphicon } from "react-bootstrap";
 import HBExplorerDateInput from "./HBExplorerDateInput";
 
 import MeasureAndRender from "./MeasureAndRender";
+import CSSVariableApplicator from "./CSSVariableApplicator";
 import TimeArrow from "./TimeArrow.jsx";
 import HBExplorerPanel from "./HBExplorerPanel.jsx";
 import MapContainer from "./MapContainer.jsx";
 import MapHandlerIcon from "./MapHandlerIcon.jsx";
+
+import Article from "./Article.jsx";
 
 import HDate from "../util/HDate";
 import dU from "../util/date";
@@ -26,41 +29,41 @@ let _idGenerator = cmn.getIdGenerator();
  * hInterval to avoid HBexplorer errors
  */
 const getConstrainedHInterval = hInterval => {
-  // minimum length constraint
-  if (hInterval.getIntervalSize() < 3) {
-    hInterval = new HDate(
-      "2",
-      dU.addDay(dU.clone(hInterval.endDate), -3),
-      hInterval.endDate
-    );
-  }
-  // max limit to now
-  const maxDate = dU.stripHours(new Date());
-  if (hInterval.endDate > maxDate) {
-    hInterval = new HDate(
-      "2",
-      dU.addDay(dU.clone(maxDate), -hInterval.getIntervalSize()),
-      dU.clone(maxDate)
-    );
-  }
-  // min limit
-  const minDate = dU.stripHours(new Date(-9999, 0, 1, 0, 0, 0, 0));
-  if (hInterval.beginDate < minDate) {
-    hInterval = new HDate(
-      "2",
-      dU.clone(minDate),
-      dU.addDay(dU.clone(minDate), +hInterval.getIntervalSize())
-    );
-  }
-  //console.log(hInterval.endDate);
-  return hInterval;
+    // minimum length constraint
+    if (hInterval.getIntervalSize() < 3) {
+        hInterval = new HDate(
+            "2",
+            dU.addDay(dU.clone(hInterval.endDate), -3),
+            hInterval.endDate
+        );
+    }
+    // max limit to now
+    const maxDate = dU.stripHours(new Date());
+    if (hInterval.endDate > maxDate) {
+        hInterval = new HDate(
+            "2",
+            dU.addDay(dU.clone(maxDate), -hInterval.getIntervalSize()),
+            dU.clone(maxDate)
+        );
+    }
+    // min limit
+    const minDate = dU.stripHours(new Date(-9999, 0, 1, 0, 0, 0, 0));
+    if (hInterval.beginDate < minDate) {
+        hInterval = new HDate(
+            "2",
+            dU.clone(minDate),
+            dU.addDay(dU.clone(minDate), +hInterval.getIntervalSize())
+        );
+    }
+    //console.log(hInterval.endDate);
+    return hInterval;
 };
 
 // for both ongoing translating and zooming speed increase with time speed = acceleration^elapsedTime
 // this function returns the resulting integration
 const getIntegratedSpeed = (acceleration, time) => {
-  const { exp, log, floor } = Math;
-  return (1 / log(acceleration)) * (exp(time * log(acceleration)) - 1);
+    const { exp, log, floor } = Math;
+    return (1 / log(acceleration)) * (exp(time * log(acceleration)) - 1);
 };
 
 const getInvisibles = (articles, hInterval) => {
@@ -99,672 +102,831 @@ const getInvisibles = (articles, hInterval) => {
 };
 
 class HBExplorer extends React.Component {
-  constructor(props) {
-    super(props);
-    // global component resizing parameters
-    this.resizingDelay = 5;
-    // in ms
-    this.timeTravellingPeriod = 20;
-    /* proportion of hInterval travelled by second */
-    this.timeTravellingPace = 0.1;
-    /* proportion of initial hInterval zoomed by second */
-    this.timeZoomingPace = 1.075;
-    this.timeZoomingTurbo = 1.5;
-    this.timeTravellingAcceleration = 1.4; // by second
-    this.timeFirstTravelDuration = 250;
-    this.timeFirstTravelDuration = 250;
+    constructor(props) {
+        super(props);
+        // global component resizing parameters
+        this.resizingDelay = 5;
+        // in ms
+        this.timeTravellingPeriod = 20;
+        /* proportion of hInterval travelled by second */
+        this.timeTravellingPace = 0.1;
+        /* proportion of initial hInterval zoomed by second */
+        this.timeZoomingPace = 1.075;
+        this.timeZoomingTurbo = 1.5;
+        this.timeTravellingAcceleration = 1.4; // by second
+        this.timeFirstTravelDuration = 250;
+        this.timeFirstTravelDuration = 250;
 
-    // function to add an article
-    //this.addArticle = this.addArticle.bind(this);
-    // hInterval setter to provide for children that need it (timeArrow)
-    this.setHInterval = this.setHInterval.bind(this);
+        // function to add an article
+        //this.addArticle = this.addArticle.bind(this);
+        // hInterval setter to provide for children that need it (timeArrow)
+        this.setHInterval = this.setHInterval.bind(this);
 
-    // global component resizing functions
-    this.onResizingBegin = this.onResizingBegin.bind(this);
-    this.onWindowResize = debounce(
-      this.onWindowResize.bind(this),
-      this.resizingDelay
-    );
-    this.onResizingEnd = this.onResizingEnd.bind(this);
+        // shared vars for resizing functions
+        this.beginMousePosition = { x: 0, y: 0 };
 
-    // map display and resizing functions
-    this.onMapDragBegin = this.onMapDragBegin.bind(this);
-    this.onMapDrag = debounce(this.onMapDrag.bind(this), this.resizingDelay);
-    this.onMapDragEnd = this.onMapDragEnd.bind(this);
+        // global component resizing functions
+        this.onResizingBegin = this.onResizingBegin.bind(this);
+        this.onWindowResize = debounce(
+            this.onWindowResize.bind(this),
+            this.resizingDelay
+        );
+        this.onResizingEnd = this.onResizingEnd.bind(this);
 
-    // ### time travel functions
-    this.onTimeTravelBegin = this.onTimeTravelBegin.bind(this);
-    this.onTimeTravel = debounce(
-      this.onTimeTravel.bind(this),
-      Math.floor(0.9 * this.timeTravellingPeriod)
-    );
-    this.onTimeTravelEnd = this.onTimeTravelEnd.bind(this);
+        // content area resizing functions
+        this.onContentAreaResizingBegin = this.onContentAreaResizingBegin.bind(this);
+        this.onContentAreaResize = debounce(
+            this.onContentAreaResize.bind(this),
+            this.resizingDelay
+        );
+        this.onContentAreaResizingEnd = this.onContentAreaResizingEnd.bind(this);
 
-    // ### time zooming functions
-    this.onTimeZoomingBegin = this.onTimeZoomingBegin.bind(this);
-    this.onTimeZooming = debounce(
-      this.onTimeZooming.bind(this),
-      Math.floor(0.9 * this.timeTravellingPeriod)
-    );
-    this.onTimeZoomingEnd = this.onTimeZoomingEnd.bind(this);
+        // map display and resizing functions
+        this.onMapDragBegin = this.onMapDragBegin.bind(this);
+        this.onMapDrag = debounce(this.onMapDrag.bind(this), this.resizingDelay);
+        this.onMapDragEnd = this.onMapDragEnd.bind(this);
 
-    this.setCursorRate = this.setCursorRate.bind(this);
-    this.toggleCursor = this.toggleCursor.bind(this);
+        // ### time travel functions
+        this.onTimeTravelBegin = this.onTimeTravelBegin.bind(this);
+        this.onTimeTravel = debounce(
+            this.onTimeTravel.bind(this),
+            Math.floor(0.9 * this.timeTravellingPeriod)
+        );
+        this.onTimeTravelEnd = this.onTimeTravelEnd.bind(this);
 
-    this.selectArticle = this.selectArticle.bind(this);
+        // ### time zooming functions
+        this.onTimeZoomingBegin = this.onTimeZoomingBegin.bind(this);
+        this.onTimeZooming = debounce(
+            this.onTimeZooming.bind(this),
+            Math.floor(0.9 * this.timeTravellingPeriod)
+        );
+        this.onTimeZoomingEnd = this.onTimeZoomingEnd.bind(this);
 
-    this.state = {
-      /* current time interval of the explorer : 
-      must Always be not null and valid 
-      */
-      hInterval: getConstrainedHInterval(props.hInterval),
-      // ### global component resizing
-      timeArrowToResize: null,
-      panelToResize: null,
-      isResizing: false,
-      // ### map display and resizing
-      mapFullMode: false,
-      mapSide: 100,
-      isDraggingMap: false,
-      initialDragMapPosition: null,
-      initialMapSide: null,
-      // ### time travel parameters
-      /* 0 means time travel is inactive
-         -1 that it's going backward
-         1 that it's going forward
-      */
-      isTimeTravelling: 0,
-      /* 0 means time zoom is inactive
-         -1 that it's expanding the area (un-zoom)
-         1 that it's narrowing the area (zoom, magnification)
-      */
-      isTimeZooming: 0,
-      /* in ms : must be reinitialized to 0 on each travel end */
-      timeTravelBeginTime: 0,
-      initialTimeTravelHInterval: null,
-      /* offset of time Travel as fraction of day,
-      usefull when travelling on small hInterval (a week for instance)
-      */
-      timeTravelOffset: 0,
-      /**
-       * articles
-       */
-      invisibles: {
-        LEFT: { number: 0, minDate: null },
-        RIGHT: { number: 0, minDate: null }
-      },
-        // array of id of selected articles
-      selected:[],
-      cursorRate:0.25,
-      isCursorActive:false
-    };
+        this.setCursorRate = this.setCursorRate.bind(this);
+        this.toggleCursor = this.toggleCursor.bind(this);
 
-  }
+        this.selectArticle = this.selectArticle.bind(this);
 
-  toggleCursor(){
-      this.setState({isCursorActive:!this.state.isCursorActive});
-  }
+        this.state = {
+            /* current time interval of the explorer :
+            must Always be not null and valid
+            */
+            hInterval: getConstrainedHInterval(props.hInterval),
+            // ### global component resizing
+            frameSizes: new Map().set("contentArea.height", 20),
+            timeArrowToResize: null,
+            panelToResize: null,
+            isResizing: false,
+            // ### map display and resizing
+            mapFullMode: false,
+            mapSide: 100,
+            isDraggingMap: false,
+            initialDragMapPosition: null,
+            initialMapSide: null,
+            // ### time travel parameters
+            /* 0 means time travel is inactive
+               -1 that it's going backward
+               1 that it's going forward
+            */
+            isTimeTravelling: 0,
+            /* 0 means time zoom is inactive
+               -1 that it's expanding the area (un-zoom)
+               1 that it's narrowing the area (zoom, magnification)
+            */
+            isTimeZooming: 0,
+            /* in ms : must be reinitialized to 0 on each travel end */
+            timeTravelBeginTime: 0,
+            initialTimeTravelHInterval: null,
+            /* offset of time Travel as fraction of day,
+            usefull when travelling on small hInterval (a week for instance)
+            */
+            timeTravelOffset: 0,
+            /**
+             * articles
+             */
+            invisibles: {
+                LEFT: { number: 0, minDate: null },
+                RIGHT: { number: 0, minDate: null }
+            },
+            // array of id of selected articles
+            selected:[],
+            // time cursor
+            cursorRate:0.25,
+            isCursorActive:false,
+            // article display parameter
+            displayContent: false,
+            displayedArticles:new Map()
+        };
 
-  setCursorRate(rate){
-      this.setState({cursorRate:rate});
-  }
-
-  setHInterval(hInterval) {
-    const invisibles = getInvisibles(this.state.articles, hInterval);
-    this.setState({ hInterval: hInterval, invisibles: invisibles });
-  }
-
-  selectArticle(ids) {
-      if(ids===null) ids=[];
-    this.setState({selected:ids});
-  }
-
-  onTimeZoomingBegin(e, sense = -1) {
-    if (this.state.isTimeZooming === 0) {
-      e.preventDefault();
-      e.stopPropagation();
-      window.addEventListener("mouseup", this.onTimeZoomingEnd);
-      console.log("beginning of the time zooming ...");
-      this.setState({
-        isTimeZooming: sense,
-        timeTravelBeginTime: new Date().getTime(),
-        initialTimeTravelInterval: this.state.hInterval.clone()
-      });
-      this.onTimeZooming();
     }
-  }
-  /* 0 means time zoom is inactive
-         -1 that it's expanding the area (un-zoom)
-         1 that it's narrowing the area (zoom, magnification)
-      */
-  onTimeZooming() {
-    const {
-      isTimeZooming,
-      timeTravelBeginTime,
-      initialTimeTravelInterval
-    } = this.state;
-    if (isTimeZooming !== 0) {
-      const currentTime = new Date().getTime();
 
-      const rawFactor =
-        1 +
-        this.timeZoomingPace *
-          getIntegratedSpeed(
-            this.timeTravellingAcceleration,
-            (currentTime - timeTravelBeginTime) / 1000
-          );
-
-      let zoomFactor = +isTimeZooming > 0 ? 1 / rawFactor : rawFactor;
-      zoomFactor = Math.pow(zoomFactor, this.timeZoomingTurbo);
-      //console.log(rawFactor);
-      /*console.log(
-        `initial Interval : ${initialTimeTravelInterval.getIntervalSize()}`
-      );
-      console.log(`time zooming factor ! : ${zoomFactor}`);*/
-      let newHInterval = initialTimeTravelInterval
-        .clone()
-        .setType("2")
-        .multiply(zoomFactor);
-      console.log(
-        `final Interval : ${
-          newHInterval.beginDate
-        } - ${newHInterval.getMiddleDate()} - ${newHInterval.endDate}`
-      );
-      const invisibles = getInvisibles(this.props.articles, newHInterval);
-      this.setState({
-        hInterval: newHInterval,
-        invisibles: invisibles
-      });
-      setTimeout(this.onTimeZooming, this.timeTravellingPeriod);
+    toggleCursor(){
+        this.setState({isCursorActive:!this.state.isCursorActive});
     }
-  }
 
-  onTimeZoomingEnd(e) {
-    if (this.isTimeZooming !== 0) {
-      e.preventDefault();
-      e.stopPropagation();
-      window.removeEventListener("mouseup", this.onTimeZoomingEnd);
-      console.log("end of the time zooming.");
-      this.setState({
-        isTimeZooming: 0,
-        timeTravelBeginTime: -1,
-        initialTimeTravelInterval: null
-      });
+    setCursorRate(rate){
+        this.setState({cursorRate:rate});
     }
-  }
 
-  componentDidMount() {
-    const invisibles = getInvisibles(this.props.articles, this.state.hInterval);
-
-    this.setState({
-      panelToResize: ReactDOM.findDOMNode(this.panelRef),
-      timeArrowToResize: ReactDOM.findDOMNode(this.timeArrowRef),
-      invisibles: invisibles
-    });
-    const hgContainer = document.getElementById("hg-container");
-    hgContainer.addEventListener("mousedown", this.onResizingBegin);
-    window.addEventListener("mouseup", this.onResizingEnd);
-  }
-
-  componentWillUnmount() {
-    // stop listening to window mouseup
-    window.removeEventListener("mouseup", this.onResizingEnd);
-  }
-
-  componentDidUpdate(prevProps) {
-      if (!prevProps.hInterval.equals(this.props.hInterval)) {
-          const invisibles = getInvisibles(this.props.articles, this.props.hInterval);
-          this.setState({
-              hInterval: this.props.hInterval,
-              invisibles: invisibles
-          });
-      }
-    //console.log(this.timeAreaRef.current.getBoundingClientRect().top);
-    //console.log(this.timeAreaRef.current.getBoundingClientRect().bottom);
-  }
-
-  onResizingBegin(e) {
-    if (!this.state.isResizing) {
-      //console.log(e.target);
-      //console.log(this.gridRef.getBoundingClientRect());
-      const rect = this.gridRef.getBoundingClientRect(); //e.target.getBoundingClientRect();
-      const corner = { x: rect.right, y: rect.bottom };
-      const mousePosition = { x: e.clientX, y: e.clientY };
-      const dist = distance(corner, mousePosition);
-      if (dist < 23) {
-        //e.preventDefault();
-        e.stopPropagation();
-        this.setState({ isResizing: true });
-        window.addEventListener("mousemove", this.onWindowResize);
-        console.log("resizing activé !");
-      }
+    setHInterval(hInterval) {
+        const invisibles = getInvisibles(this.state.articles, hInterval);
+        this.setState({ hInterval: hInterval, invisibles: invisibles });
     }
-  }
 
-  onWindowResize() {
-    this.timeArrowMeasureRef.setState({
-      measurement: this.state.timeArrowToResize.getBoundingClientRect()
-    });
-    console.log("onWindowResize");
-    const panelMeasurement = this.state.panelToResize.getBoundingClientRect();
-    //console.log(node);
-    this.panelMeasureRef.setState({
-      measurement: panelMeasurement
-    });
+    selectArticle(ids) {
+        if(ids===null) ids=[];
+        const {displayedArticles} = this.state;
 
-    const bounds = panelMeasurement;
-    console.log(bounds.width);
-    console.log(bounds.height);
-    const newMapSide = Math.min(
-      this.state.mapSide,
-      bounds.width,
-      bounds.height
-    );
-    //console.log("newMapSide");
-    //console.log(newMapSide);
-    if (newMapSide !== this.state.mapSide) {
-      this.setState({ mapSide: newMapSide });
+        let newDisplayedArticles = new Map(displayedArticles);
+        ids.forEach((id)=>{newDisplayedArticles.set(+id,{selectionDate:new Date(),isOpen:true})});
+
+        this.setState({selected:ids,displayedArticles:newDisplayedArticles});
     }
-  }
 
-  onResizingEnd(e) {
-    if (this.state.isResizing) {
-      window.removeEventListener("mousemove", this.onWindowResize);
-      this.setState({ isResizing: false });
-      console.log("resizing terminé !");
-      setTimeout(this.onWindowResize, 2 * this.resizingDelay);
+    onTimeZoomingBegin(e, sense = -1) {
+        if (this.state.isTimeZooming === 0) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.addEventListener("mouseup", this.onTimeZoomingEnd);
+            console.log("beginning of the time zooming ...");
+            this.setState({
+                isTimeZooming: sense,
+                timeTravelBeginTime: new Date().getTime(),
+                initialTimeTravelInterval: this.state.hInterval.clone()
+            });
+            this.onTimeZooming();
+        }
     }
-  }
+    /* 0 means time zoom is inactive
+           -1 that it's expanding the area (un-zoom)
+           1 that it's narrowing the area (zoom, magnification)
+        */
+    onTimeZooming() {
+        const {
+            isTimeZooming,
+            timeTravelBeginTime,
+            initialTimeTravelInterval
+        } = this.state;
+        if (isTimeZooming !== 0) {
+            const currentTime = new Date().getTime();
 
-  onMapDragBegin(e) {
-    console.log("on map drag begin");
-    if (!this.state.isDraggingMap) {
-      e.preventDefault();
-      e.stopPropagation();
-      window.addEventListener("mouseup", this.onMapDragEnd);
-      console.log("onMapDragBegin");
-      const initialPosition = { x: e.clientX, y: e.clientY };
-      this.setState({
-        isDraggingMap: true,
-        initialDragMapPosition: initialPosition,
-        initialMapSide: this.state.mapSide
-      });
-      window.addEventListener("mousemove", this.onMapDrag);
+            const rawFactor =
+                1 +
+                this.timeZoomingPace *
+                getIntegratedSpeed(
+                    this.timeTravellingAcceleration,
+                    (currentTime - timeTravelBeginTime) / 1000
+                );
+
+            let zoomFactor = +isTimeZooming > 0 ? 1 / rawFactor : rawFactor;
+            zoomFactor = Math.pow(zoomFactor, this.timeZoomingTurbo);
+            //console.log(rawFactor);
+            /*console.log(
+              `initial Interval : ${initialTimeTravelInterval.getIntervalSize()}`
+            );
+            console.log(`time zooming factor ! : ${zoomFactor}`);*/
+            let newHInterval = initialTimeTravelInterval
+                .clone()
+                .setType("2")
+                .multiply(zoomFactor);
+            console.log(
+                `final Interval : ${
+                    newHInterval.beginDate
+                    } - ${newHInterval.getMiddleDate()} - ${newHInterval.endDate}`
+            );
+            const invisibles = getInvisibles(this.props.articles, newHInterval);
+            this.setState({
+                hInterval: newHInterval,
+                invisibles: invisibles
+            });
+            setTimeout(this.onTimeZooming, this.timeTravellingPeriod);
+        }
     }
-  }
 
-  onMapDrag(e) {
-    console.log("onMapDrag");
-    e.preventDefault();
-    e.stopPropagation();
-    const position = { x: e.clientX, y: e.clientY };
-    // positions are inverted due to our UX pattern
-    const delta = vectorDiff(position, this.state.initialDragMapPosition);
-    const maxDelta = Math.max(delta.x, delta.y);
-    //console.log(maxDelta);
-    let newSide = Math.max(this.state.initialMapSide + maxDelta, 1);
-
-    const bounds = this.state.panelToResize.getBoundingClientRect();
-    newSide = Math.min(newSide, bounds.width, bounds.height);
-    this.setState({ mapSide: newSide });
-  }
-
-  onMapDragEnd(e) {
-    console.log("on map drag end");
-    if (this.state.isDraggingMap) {
-      e.preventDefault();
-      e.stopPropagation();
-      window.removeEventListener("mousemove", this.onMapDrag);
-      console.log("onMapDragEnd");
-      window.removeEventListener("mouseup", this.onMapDragEnd);
-      this.setState({
-        isDraggingMap: false,
-        initialDragMapPosition: null,
-        initialMapSide: null
-      });
-      setTimeout(e => this.onMapDrag, 2 * this.resizingDelay);
+    onTimeZoomingEnd(e) {
+        if (this.isTimeZooming !== 0) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.removeEventListener("mouseup", this.onTimeZoomingEnd);
+            console.log("end of the time zooming.");
+            this.setState({
+                isTimeZooming: 0,
+                timeTravelBeginTime: -1,
+                initialTimeTravelInterval: null
+            });
+        }
     }
-  }
 
-  onTimeTravelBegin(e, sense = -1) {
-    if (this.state.isTimeTravelling === 0) {
-      e.preventDefault();
-      e.stopPropagation();
-      window.addEventListener("mouseup", this.onTimeTravelEnd);
-      console.log("beginning of the time travel ...");
-      //const startDelay = 5;
-      this.setState({
-        isTimeTravelling: sense,
-        timeTravelBeginTime: new Date().getTime(),
-        initialTimeTravelInterval: this.state.hInterval.clone()
-      });
-      this.onTimeTravel();
-      //setTimeout(, startDelay);
+    componentDidMount() {
+        const invisibles = getInvisibles(this.props.articles, this.state.hInterval);
+
+        this.setState({
+            panelToResize: ReactDOM.findDOMNode(this.panelRef),
+            timeArrowToResize: ReactDOM.findDOMNode(this.timeArrowRef),
+            invisibles: invisibles
+        });
+        const hgContainer = document.getElementById("hg-container");
+        hgContainer.addEventListener("mousedown", this.onResizingBegin);
+        window.addEventListener("mouseup", this.onResizingEnd);
+
+        const hgContentArea = document.getElementById("hg-content-area");
+        hgContentArea.addEventListener(
+            "mousedown",
+            this.onContentAreaResizingBegin
+        );
+        hgContentArea.addEventListener("mouseup", this.onContentAreaResizingEnd);
     }
-  }
 
-  onTimeTravel() {
-    const {
-      isTimeTravelling,
-      timeTravelBeginTime,
-      initialTimeTravelInterval
-    } = this.state;
-    if (isTimeTravelling !== 0) {
-      const currentTime = new Date().getTime();
-
-      const addedDays = Math.floor(
-        +isTimeTravelling *
-          initialTimeTravelInterval.getIntervalSize() *
-          this.timeTravellingPace *
-          getIntegratedSpeed(
-            this.timeTravellingAcceleration,
-            (currentTime - timeTravelBeginTime) / 1000
-          )
-      );
-      /*console.log(
-        `currentAnimationTime : ${(currentTime - timeTravelBeginTime) /
-          1000}, addedDays : ${addedDays}`
-      );*/
-      //console.log(`time travelling ! : ${duration} ms`);
-      //console.log(hInterval);
-      let newHInterval = initialTimeTravelInterval
-        .clone()
-        .setType("2")
-        .addDay(addedDays);
-      //console.log(newHInterval);
-      const invisibles = getInvisibles(this.props.articles, newHInterval);
-      this.setState({
-        hInterval: newHInterval,
-        invisibles: invisibles
-      });
-      setTimeout(this.onTimeTravel, 0.9 * this.timeTravellingPeriod);
+    componentWillUnmount() {
+        // stop listening to window mouseup
+        window.removeEventListener("mouseup", this.onResizingEnd);
     }
-  }
 
-  onTimeTravelEnd(e) {
-    if (this.isTimeTravelling !== 0) {
-      e.preventDefault();
-      e.stopPropagation();
-      window.removeEventListener("mouseup", this.onTimeTravelEnd);
-      console.log("end of the time travel.");
-      this.setState({
-        isTimeTravelling: 0,
-        timeTravelBeginTime: -1,
-        initialTimeTravelInterval: null
-      });
+    componentDidUpdate(prevProps) {
+        if (!prevProps.hInterval.equals(this.props.hInterval)) {
+            const invisibles = getInvisibles(this.props.articles, this.props.hInterval);
+            this.setState({
+                hInterval: this.props.hInterval,
+                invisibles: invisibles
+            });
+        }
+        //console.log(this.timeAreaRef.current.getBoundingClientRect().top);
+        //console.log(this.timeAreaRef.current.getBoundingClientRect().bottom);
     }
-  }
 
-  render() {
-    const { invisibles,hInterval,cursorRate } = this.state;
-    const cursorDate = (hInterval!==null && cursorRate!==null)?hInterval.getBarycenterDate(cursorRate):null;
-
-    return (
-      <div
-        className="hg-container"
-        id="hg-container"
-        ref={node => {
-          this.gridRef = node;
-        }}
-      >
-        <div className="hg-header">header</div>
-        <div className="hg-date-input">
-          <HBExplorerDateInput
-            setHInterval={this.setHInterval}
-            input={hInterval}
-          />
-        </div>
-        <div
-          className="hg-time-arrow"
-          ref={node => {
-            this.timeArrowRef = node;
-          }}
-        >
-          <div style={{ position: "relative", height: "75px" }}>
-            {
-              <MeasureAndRender
-                stretch={true}
-                debounce={1}
-                onWindowResize={this.onWindowResize}
-                ref={node => {
-                  this.timeArrowMeasureRef = node;
-                }}
-              >
-                {bounds => {
-                  //console.log("test");
-
-                  return (
-                    <TimeArrow
-                      setHInterval={this.setHInterval}
-                      marginWidth={10}
-                      bounds={bounds}
-                      animationPeriod={Math.ceil(
-                        this.timeTravellingPeriod * 1.2
-                      )}
-                      hInterval={hInterval}
-                      cursorRate={this.state.cursorRate}
-                      setCursorRate={this.setCursorRate}
-                      toggleCursor={this.toggleCursor}
-                    />
-                  );
-                }}
-              </MeasureAndRender>
+    onResizingBegin(e) {
+        if (!this.state.isResizing) {
+            //console.log(e.target);
+            //console.log(this.gridRef.getBoundingClientRect());
+            const rect = this.gridRef.getBoundingClientRect(); //e.target.getBoundingClientRect();
+            const corner = { x: rect.right, y: rect.bottom };
+            const mousePosition = { x: e.clientX, y: e.clientY };
+            const dist = distance(corner, mousePosition);
+            if (dist < 23) {
+                //e.preventDefault();
+                e.stopPropagation();
+                this.setState({ isResizing: true });
+                window.addEventListener("mousemove", this.onWindowResize);
+                console.log("resizing activé !");
             }
-          </div>
-        </div>
-        <div className="hg-time-arrow-menu">
-          <Button
-            onClick={e => {
-              let newHInterval = hInterval.clone();
-              const leftMargin = Math.max(
-                Math.ceil(
-                  dU.dayDiff(
-                    invisibles[RIGHT].maxDate,
-                    invisibles[LEFT].minDate
-                  ) * 0.05
-                ),
-                3
-              );
+        }
+    }
 
-              newHInterval = new HDate(
-                "2",
-                dU.addDay(dU.clone(invisibles[LEFT].minDate), -leftMargin),
-                dU.clone(hInterval.endDate)
-              );
-              this.setHInterval(newHInterval);
-            }}
-          >
-            {invisibles[LEFT].number > 0 ? (
-              <span>
+    onWindowResize() {
+        this.timeArrowMeasureRef.setState({
+            measurement: this.state.timeArrowToResize.getBoundingClientRect()
+        });
+        console.log("onWindowResize");
+        const panelMeasurement = this.state.panelToResize.getBoundingClientRect();
+        //console.log(node);
+        this.panelMeasureRef.setState({
+            measurement: panelMeasurement
+        });
+
+        const bounds = panelMeasurement;
+        console.log(bounds.width);
+        console.log(bounds.height);
+        const newMapSide = Math.min(
+            this.state.mapSide,
+            bounds.width,
+            bounds.height
+        );
+        //console.log("newMapSide");
+        //console.log(newMapSide);
+        if (newMapSide !== this.state.mapSide) {
+            this.setState({ mapSide: newMapSide });
+        }
+    }
+
+    onResizingEnd(e) {
+        if (this.state.isResizing) {
+            window.removeEventListener("mousemove", this.onWindowResize);
+            this.setState({ isResizing: false });
+            console.log("resizing terminé !");
+            setTimeout(this.onWindowResize, 2 * this.resizingDelay);
+        }
+    }
+
+
+    onContentAreaResizingBegin(e) {
+        if (!this.state.isResizing) {
+            //console.log(e.target);
+            //console.log(this.gridRef.getBoundingClientRect());
+            const rect = this.contentAreaRef.getBoundingClientRect(); //e.target.getBoundingClientRect();
+            const corner = { x: rect.right, y: rect.bottom };
+            const mousePosition = { x: e.clientX, y: e.clientY };
+            const dist = distance(corner, mousePosition);
+            if (dist < 23) {
+                //e.preventDefault();
+                e.stopPropagation();
+                this.setState({ isResizing: true });
+                window.addEventListener("mousemove", this.onContentAreaResize);
+                this.beginMousePosition = mousePosition;
+                this.beginFrameSizes = new Map(this.state.frameSizes);
+                this.beginContentAreaHeight = console.log(
+                    "resizing content area activé !"
+                );
+            }
+        }
+    }
+
+    onContentAreaResize(e) {
+        console.log("onContentAreaResize");
+        const mousePosition = { x: e.clientX, y: e.clientY };
+        const deltaY = mousePosition.y - this.beginMousePosition.y;
+        console.log(
+            `newY ${mousePosition.y} vs oldY ${
+                this.beginMousePosition.y
+                }, delta ${deltaY}`
+        );
+
+        let newFrameSizes = new Map(this.state.frameSizes);
+        newFrameSizes.set(
+            "contentArea.height",
+            this.beginFrameSizes.get("contentArea.height") + deltaY
+        );
+
+        this.setState({ frameSizes: newFrameSizes });
+    }
+
+    onContentAreaResizingEnd(e) {
+        if (this.state.isResizing) {
+            window.removeEventListener("mousemove", this.onContentAreaResize);
+            this.setState({ isResizing: false });
+            console.log("resizing content area terminé !");
+            setTimeout(this.ContentAreaResize, 2 * this.resizingDelay);
+        }
+    }
+
+    onMapDragBegin(e) {
+        console.log("on map drag begin");
+        if (!this.state.isDraggingMap) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.addEventListener("mouseup", this.onMapDragEnd);
+            console.log("onMapDragBegin");
+            const initialPosition = { x: e.clientX, y: e.clientY };
+            this.setState({
+                isDraggingMap: true,
+                initialDragMapPosition: initialPosition,
+                initialMapSide: this.state.mapSide
+            });
+            window.addEventListener("mousemove", this.onMapDrag);
+        }
+    }
+
+    onMapDrag(e) {
+        console.log("onMapDrag");
+        e.preventDefault();
+        e.stopPropagation();
+        const position = { x: e.clientX, y: e.clientY };
+        // positions are inverted due to our UX pattern
+        const delta = vectorDiff(position, this.state.initialDragMapPosition);
+        const maxDelta = Math.max(delta.x, delta.y);
+        //console.log(maxDelta);
+        let newSide = Math.max(this.state.initialMapSide + maxDelta, 1);
+
+        const bounds = this.state.panelToResize.getBoundingClientRect();
+        newSide = Math.min(newSide, bounds.width, bounds.height);
+        this.setState({ mapSide: newSide });
+    }
+
+    onMapDragEnd(e) {
+        console.log("on map drag end");
+        if (this.state.isDraggingMap) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.removeEventListener("mousemove", this.onMapDrag);
+            console.log("onMapDragEnd");
+            window.removeEventListener("mouseup", this.onMapDragEnd);
+            this.setState({
+                isDraggingMap: false,
+                initialDragMapPosition: null,
+                initialMapSide: null
+            });
+            setTimeout(e => this.onMapDrag, 2 * this.resizingDelay);
+        }
+    }
+
+    onTimeTravelBegin(e, sense = -1) {
+        if (this.state.isTimeTravelling === 0) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.addEventListener("mouseup", this.onTimeTravelEnd);
+            console.log("beginning of the time travel ...");
+            //const startDelay = 5;
+            this.setState({
+                isTimeTravelling: sense,
+                timeTravelBeginTime: new Date().getTime(),
+                initialTimeTravelInterval: this.state.hInterval.clone()
+            });
+            this.onTimeTravel();
+            //setTimeout(, startDelay);
+        }
+    }
+
+    onTimeTravel() {
+        const {
+            isTimeTravelling,
+            timeTravelBeginTime,
+            initialTimeTravelInterval
+        } = this.state;
+        if (isTimeTravelling !== 0) {
+            const currentTime = new Date().getTime();
+
+            const addedDays = Math.floor(
+                +isTimeTravelling *
+                initialTimeTravelInterval.getIntervalSize() *
+                this.timeTravellingPace *
+                getIntegratedSpeed(
+                    this.timeTravellingAcceleration,
+                    (currentTime - timeTravelBeginTime) / 1000
+                )
+            );
+            /*console.log(
+              `currentAnimationTime : ${(currentTime - timeTravelBeginTime) /
+                1000}, addedDays : ${addedDays}`
+            );*/
+            //console.log(`time travelling ! : ${duration} ms`);
+            //console.log(hInterval);
+            let newHInterval = initialTimeTravelInterval
+                .clone()
+                .setType("2")
+                .addDay(addedDays);
+            //console.log(newHInterval);
+            const invisibles = getInvisibles(this.props.articles, newHInterval);
+            this.setState({
+                hInterval: newHInterval,
+                invisibles: invisibles
+            });
+            setTimeout(this.onTimeTravel, 0.9 * this.timeTravellingPeriod);
+        }
+    }
+
+    onTimeTravelEnd(e) {
+        if (this.isTimeTravelling !== 0) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.removeEventListener("mouseup", this.onTimeTravelEnd);
+            console.log("end of the time travel.");
+            this.setState({
+                isTimeTravelling: 0,
+                timeTravelBeginTime: -1,
+                initialTimeTravelInterval: null
+            });
+        }
+    }
+
+    render() {
+        const { invisibles,hInterval,cursorRate,displayedArticles } = this.state;
+        const {dispatch} = this.props;
+        const cursorDate = (hInterval!==null && cursorRate!==null)?hInterval.getBarycenterDate(cursorRate):null;
+
+        //console.log(Array.from(displayedArticles));
+
+        const articlesToDisplay = Array.from(displayedArticles).
+        filter(([id,value])=>{
+            return value.isOpen;
+        }).
+        sort((a,b)=>{
+            const aSelectionDate = a[1].selectionDate;
+            const bSelectionDate = b[1].selectionDate;
+            return (aSelectionDate.getTime() - bSelectionDate.getTime());
+        });
+
+        console.log(articlesToDisplay);
+
+        const articlePanels = articlesToDisplay.map(([id,value])=>{
+            return (
+                <div className="hg-content-panel"
+                    key={`hg-container-article-panel-${id}`}
+                     id={`hg-container-article-panel-${id}`}
+                >
+                    <Article
+                        dispatch={dispatch}
+                        id={id}
+                        activeComponent={'detail'}
+                        detailGroups={{"minimal":true,"date":true,"abstract":true,"detailImage":true}}
+                        formGroups={{"minimal":true,"date":true,"abstract":true,"detailImage":true}}
+                        handleSwitch={null}
+                        onNothing={null}
+                    />
+                </div>
+
+                );
+
+
+        });
+
+
+        return (
+            <div
+                className="hg-container"
+                id="hg-container"
+                ref={node => {
+                    this.gridRef = node;
+                }}
+            >
+                <CSSVariableApplicator
+                    variables={{
+                        "--content-area-height": `
+                            ${this.state.displayContent
+                            ? this.state.frameSizes.get("contentArea.height")
+                            : 0
+                            }px`
+                    }}
+                />
+
+                <div className="hg-header">header</div>
+                <div className="hg-date-input">
+                    <HBExplorerDateInput
+                        setHInterval={this.setHInterval}
+                        input={hInterval}
+                    />
+                </div>
+                <div
+                    className="hg-time-arrow"
+                    ref={node => {
+                        this.timeArrowRef = node;
+                    }}
+                >
+                    <div style={{ position: "relative", height: "75px" }}>
+                        {
+                            <MeasureAndRender
+                                stretch={true}
+                                debounce={1}
+                                onWindowResize={this.onWindowResize}
+                                ref={node => {
+                                    this.timeArrowMeasureRef = node;
+                                }}
+                            >
+                                {bounds => {
+                                    //console.log("test");
+
+                                    return (
+                                        <TimeArrow
+                                            setHInterval={this.setHInterval}
+                                            marginWidth={10}
+                                            bounds={bounds}
+                                            animationPeriod={Math.ceil(
+                                                this.timeTravellingPeriod * 1.2
+                                            )}
+                                            hInterval={hInterval}
+                                            cursorRate={this.state.cursorRate}
+                                            cursorDate = {cursorDate}
+                                            setCursorRate={this.setCursorRate}
+                                            toggleCursor={this.toggleCursor}
+                                        />
+                                    );
+                                }}
+                            </MeasureAndRender>
+                        }
+                    </div>
+                </div>
+                <div className="hg-time-arrow-menu">
+                    <Button
+                        onClick={e => {
+                            let newHInterval = hInterval.clone();
+                            const leftMargin = Math.max(
+                                Math.ceil(
+                                    dU.dayDiff(
+                                        invisibles[RIGHT].maxDate,
+                                        invisibles[LEFT].minDate
+                                    ) * 0.05
+                                ),
+                                3
+                            );
+
+                            newHInterval = new HDate(
+                                "2",
+                                dU.addDay(dU.clone(invisibles[LEFT].minDate), -leftMargin),
+                                dU.clone(hInterval.endDate)
+                            );
+                            this.setHInterval(newHInterval);
+                        }}
+                    >
+                        {invisibles[LEFT].number > 0 ? (
+                            <span>
                 <Glyphicon glyph="arrow-left" />
                 <Glyphicon glyph="object-align-left" />
               </span>
-            ) : (
-              <span>
+                        ) : (
+                            <span>
                 <Glyphicon glyph="object-align-left" />
                 <Glyphicon glyph="arrow-right" />
               </span>
-            )}
-            {invisibles[LEFT].number > 0 ? `(${invisibles[LEFT].number})` : ""}
-          </Button>
-          <span>
+                        )}
+                        {invisibles[LEFT].number > 0 ? `(${invisibles[LEFT].number})` : ""}
+                    </Button>
+                    <span>
             <Button
-              onClick={e => {
-                let newHInterval = hInterval.clone();
-                newHInterval = newHInterval
-                  .setType("2")
-                  .addDay(-Math.floor(newHInterval.getIntervalSize() / 2));
-                this.setHInterval(newHInterval);
-              }}
+                onClick={e => {
+                    let newHInterval = hInterval.clone();
+                    newHInterval = newHInterval
+                        .setType("2")
+                        .addDay(-Math.floor(newHInterval.getIntervalSize() / 2));
+                    this.setHInterval(newHInterval);
+                }}
             >
               <Glyphicon glyph="backward" />
             </Button>
             <Button
-              onMouseDown={e => {
-                this.onTimeTravelBegin(e, -1);
-              }}
-              onMouseUp={this.onTimeTravelEnd}
+                onMouseDown={e => {
+                    this.onTimeTravelBegin(e, -1);
+                }}
+                onMouseUp={this.onTimeTravelEnd}
             >
               <Glyphicon glyph="arrow-left" />
             </Button>
           </span>
-          <span>
+                    <span>
             <Button
-              onMouseDown={e => {
-                this.onTimeZoomingBegin(e, -1);
-              }}
-              onMouseUp={this.onTimeZoomingEnd}
+                onMouseDown={e => {
+                    this.onTimeZoomingBegin(e, -1);
+                }}
+                onMouseUp={this.onTimeZoomingEnd}
             >
               <Glyphicon glyph="zoom-out" />
             </Button>
             <Button
-              onMouseDown={e => {
-                this.onTimeZoomingBegin(e, 1);
-              }}
-              onMouseUp={this.onTimeZoomingEnd}
+                onMouseDown={e => {
+                    this.onTimeZoomingBegin(e, 1);
+                }}
+                onMouseUp={this.onTimeZoomingEnd}
             >
               <Glyphicon glyph="zoom-in" />
             </Button>
           </span>
-          <span>
+                    <span>
             <Button
-              onMouseDown={e => {
-                this.onTimeTravelBegin(e, 1);
-              }}
-              onMouseUp={this.onTimeTravelEnd}
+                onMouseDown={e => {
+                    this.onTimeTravelBegin(e, 1);
+                }}
+                onMouseUp={this.onTimeTravelEnd}
             >
               <Glyphicon glyph="arrow-right" />
             </Button>
             <Button
-              onClick={e => {
-                let newHInterval = hInterval.clone();
-                newHInterval = newHInterval
-                  .setType("2")
-                  .addDay(Math.floor(newHInterval.getIntervalSize() / 2));
-                this.setState({ hInterval: newHInterval });
-              }}
+                onClick={e => {
+                    let newHInterval = hInterval.clone();
+                    newHInterval = newHInterval
+                        .setType("2")
+                        .addDay(Math.floor(newHInterval.getIntervalSize() / 2));
+                    this.setState({ hInterval: newHInterval });
+                }}
             >
               <Glyphicon glyph="forward" />
             </Button>
           </span>
-          <Button
-            onClick={e => {
-              let newHInterval = hInterval.clone();
-              const rightMargin = Math.max(
-                Math.ceil(
-                  dU.dayDiff(
-                    invisibles[RIGHT].maxDate,
-                    invisibles[LEFT].minDate
-                  ) * 0.05
-                ),
-                3
-              );
+                    <span>
+             <Button
+                 onClick={() => {
+                     this.setState({
+                         displayContent: !this.state.displayContent
+                     });
+                 }}
+             >
+              {this.state.displayContent ? (
+                  <Glyphicon glyph="eye-close" />
+              ) : (
+                  <Glyphicon glyph="eye-open" />
+              )}
+            </Button>
+            <Button
+                onClick={e => {
+                    let newHInterval = hInterval.clone();
+                    const rightMargin = Math.max(
+                        Math.ceil(
+                            dU.dayDiff(
+                                invisibles[RIGHT].maxDate,
+                                invisibles[LEFT].minDate
+                            ) * 0.05
+                        ),
+                        3
+                    );
 
-              newHInterval = new HDate(
-                "2",
-                dU.clone(hInterval.beginDate),
-                dU.addDay(dU.clone(invisibles[RIGHT].maxDate), rightMargin)
-              );
-              this.setHInterval(newHInterval);
-            }}
-          >
-            {invisibles[RIGHT].number > 0 ? (
-              <span>
+                    newHInterval = new HDate(
+                        "2",
+                        dU.clone(hInterval.beginDate),
+                        dU.addDay(dU.clone(invisibles[RIGHT].maxDate), rightMargin)
+                    );
+                    this.setHInterval(newHInterval);
+                }}
+            >
+                {invisibles[RIGHT].number > 0 ? (
+                    <span>
                 <Glyphicon glyph="object-align-right" />
                 <Glyphicon glyph="arrow-right" />
               </span>
-            ) : (
-              <span>
+                ) : (
+                    <span>
                 <Glyphicon glyph="arrow-left" />
                 <Glyphicon glyph="object-align-right" />
               </span>
-            )}
-            {invisibles[RIGHT].number > 0
-              ? `(${invisibles[RIGHT].number})`
-              : ""}
-          </Button>
-        </div>
-        <div
-          className="hg-time-area"
-          ref={node => {
-            this.panelRef = node;
-          }}
-        >
-          <div
-            style={{
-              position: "relative",
-              resize: "vertical",
-              overflow: "none",
-              minHeight: "200px"
-            }}
-          >
-            <MeasureAndRender
-              stretch={true}
-              debounce={1}
-              onWindowResize={this.onWindowResize}
-              ref={node => {
-                this.panelMeasureRef = node;
-              }}
-            >
-              {bounds => {
-                //console.log("test2");
-                const stroke = 1;
-                //{ stroke, className, bounds} = props;
-                const path = `M${stroke},${stroke} 
-      L${bounds.width - stroke},${stroke}
-      L${bounds.width - stroke},${bounds.height - stroke}
-      L${stroke},${bounds.height - stroke} 
-      Z`;
-                //console.log(path);
+                )}
+                {invisibles[RIGHT].number > 0
+                    ? `(${invisibles[RIGHT].number})`
+                    : ""}
+            </Button>
+          </span>
 
-                return [
-                  <HBExplorerPanel
-                    key={"hg-time-panel"}
-                    bounds={bounds}
-                    path={path}
-                    articles={this.props.articles}
-                    selectArticle={this.selectArticle}
-                    selected={this.state.selected}
-                    //addArticle={this.addArticle}
-                    setInvisibles={this.setInvisibles}
-                    hInterval={hInterval}
-                    setHInterval={this.setHInterval}
-                    animationPeriod={this.timeTravellingPeriod}
-                    marginWidth={10}
-                    cursorRate={this.state.cursorRate}
-                    cursorDate = {cursorDate}
-                    isCursorActive={this.state.isCursorActive}
-                  />,
-                  <MapContainer
-                    key={"hg-map-container"}
-                    id={"hg-map-container"}
-                    bounds={bounds}
-                    isResizing={this.state.isDraggingMap}
-                    side={this.state.mapSide}
-                    fullMode={this.state.mapFullMode}
-                  />,
-                  <MapHandlerIcon
-                    key={"hg-map-handler-icon"}
-                    bounds={bounds}
-                    side={this.state.mapSide}
-                    fullMode={this.state.mapFullMode}
-                    onDragBegin={this.onMapDragBegin}
-                    onDragEnd={this.onMapDragEnd}
-                  />
-                ];
-              }}
-            </MeasureAndRender>
-          </div>
-        </div>
-        <div className="hg-footer" id="hg-footer">
-          <Button>
-            <Glyphicon glyph="object-align-bottom" />
-            <Glyphicon glyph="arrow-down" />
-          </Button>
-        </div>
-      </div>
-    );
-  }
+                </div>
+                <div
+                    hidden={!this.state.displayContent}
+                    className="hg-content-area"
+                    id="hg-content-area"
+                    ref={node => {
+                        this.contentAreaRef = node;
+                    }}
+                >
+                    <div
+                        hidden={!this.state.displayContent}
+                        className="hg-content-container"
+                    >
+                        {articlePanels}
+                    </div>
+                </div>
+                <div
+                    className="hg-time-area"
+                    ref={node => {
+                        this.panelRef = node;
+                    }}
+                >
+                    <div
+                        style={{
+                            position: "relative",
+                            resize: "vertical",
+                            overflow: "none",
+                            minHeight: "200px"
+                        }}
+                    >
+                        <MeasureAndRender
+                            stretch={true}
+                            debounce={1}
+                            onWindowResize={this.onWindowResize}
+                            ref={node => {
+                                this.panelMeasureRef = node;
+                            }}
+                        >
+                            {bounds => {
+                                //console.log("test2");
+                                const stroke = 1;
+                                //{ stroke, className, bounds} = props;
+                                const path = `M${stroke},${stroke}
+      L${bounds.width - stroke},${stroke}
+      L${bounds.width - stroke},${bounds.height - 10 - stroke}
+      L${stroke},${bounds.height - 10 - stroke}
+      Z`;
+                                //console.log(path);
+
+                                return [
+                                    <HBExplorerPanel
+                                        key={"hg-time-panel"}
+                                        bounds={bounds}
+                                        path={path}
+                                        articles={this.props.articles}
+                                        selectArticle={this.selectArticle}
+                                        selected={this.state.selected}
+                                        //addArticle={this.addArticle}
+                                        setInvisibles={this.setInvisibles}
+                                        hInterval={hInterval}
+                                        setHInterval={this.setHInterval}
+                                        animationPeriod={this.timeTravellingPeriod}
+                                        marginWidth={10}
+                                        cursorRate={this.state.cursorRate}
+                                        cursorDate = {cursorDate}
+                                        isCursorActive={this.state.isCursorActive}
+                                    />,
+                                    <MapContainer
+                                        key={"hg-map-container"}
+                                        id={"hg-map-container"}
+                                        bounds={bounds}
+                                        isResizing={this.state.isDraggingMap}
+                                        side={this.state.mapSide}
+                                        fullMode={this.state.mapFullMode}
+                                    />,
+                                    <MapHandlerIcon
+                                        key={"hg-map-handler-icon"}
+                                        bounds={bounds}
+                                        side={this.state.mapSide}
+                                        fullMode={this.state.mapFullMode}
+                                        onDragBegin={this.onMapDragBegin}
+                                        onDragEnd={this.onMapDragEnd}
+                                    />
+                                ];
+                            }}
+                        </MeasureAndRender>
+                    </div>
+                </div>
+                <div className="hg-footer" id="hg-footer">
+                    <Button>
+                        <Glyphicon glyph="object-align-bottom" />
+                        <Glyphicon glyph="arrow-down" />
+                    </Button>
+                </div>
+            </div>
+        );
+    }
 }
 
 export default HBExplorer;
