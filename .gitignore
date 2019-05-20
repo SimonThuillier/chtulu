@@ -69,3 +69,5 @@ yarn-error.log
 composer\.lock
 
 symfony\.lock
+
+\.web-server-pid
