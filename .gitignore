@@ -64,3 +64,9 @@ config/hresources\.yaml
 npm-debug.log
 yarn-error.log
 ###< symfony/webpack-encore-bundle ###
+
+composer\.lock
+
+symfony\.lock
+
+\.web-server-pid
