@@ -87,8 +87,10 @@ const HistoProxy = (function() {
   const yGenerator = cmn.getIdGenerator(10,5);
   function HistoProxy(article) {
     this.article = article;
-    this.y = yGenerator();
+    //this.y = yGenerator();
+      this.y= 10;
     this.deltaY=0;
+    console.log("genere articleproxy");
   }
 
   HistoProxy.prototype = {
@@ -183,7 +185,7 @@ export default class HBExplorerPanel extends React.Component {
       .filter(article => true)
       .sort( (a, b) =>{return a.beginHDate.beginDate >= b.beginHDate.beginDate;})
       .forEach(article => {
-        articleProxies.set(article.id, new HistoProxy(article, 40));
+        articleProxies.set(+article.id, new HistoProxy(article, 40));
       });
 
     this.setState({
@@ -287,7 +289,7 @@ export default class HBExplorerPanel extends React.Component {
         .filter(article => true)
         .sort( (a, b) =>{return a.beginHDate.beginDate.getTime() >= b.beginHDate.beginDate.getTime();})
         .forEach(article => {
-          articleProxies.set(article.id, new HistoProxy(article));
+          articleProxies.set(+article.id, this.state.articles.get(+article.id) || new HistoProxy(article));
         });
       this.setState({ articles: articleProxies });
       //console.log(articleProxies);
@@ -549,7 +551,7 @@ export default class HBExplorerPanel extends React.Component {
   render() {
     const bounds = this.props.bounds;
     const strokeSize = 1;
-    const { timeScale, articles } = this.state;
+    const { timeScale, articles,originY } = this.state;
 
     const arrayOfArticlesToDisplay = Array.from(this.state.articles).filter(
       ([id, a]) => {
@@ -585,7 +587,7 @@ export default class HBExplorerPanel extends React.Component {
           cursorDate = {this.props.cursorDate}
           article={a}
           timeScale={timeScale}
-          originY={this.state.originY}
+          originY={originY}
           addBox={this.addBox}
           /*ref={node => {
             if (

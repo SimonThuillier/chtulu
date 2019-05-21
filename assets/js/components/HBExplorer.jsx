@@ -126,12 +126,12 @@ class HBExplorer extends React.Component {
         this.beginMousePosition = { x: 0, y: 0 };
 
         // global component resizing functions
-        this.onResizingBegin = this.onResizingBegin.bind(this);
+        /*this.onResizingBegin = this.onResizingBegin.bind(this);
         this.onWindowResize = debounce(
             this.onWindowResize.bind(this),
             this.resizingDelay
         );
-        this.onResizingEnd = this.onResizingEnd.bind(this);
+        this.onResizingEnd = this.onResizingEnd.bind(this);*/
 
         // content area resizing functions
         this.onContentAreaResizingBegin = this.onContentAreaResizingBegin.bind(this);
@@ -140,6 +140,14 @@ class HBExplorer extends React.Component {
             this.resizingDelay
         );
         this.onContentAreaResizingEnd = this.onContentAreaResizingEnd.bind(this);
+
+        // panel area resizing functions
+        this.onPanelAreaResizingBegin = this.onPanelAreaResizingBegin.bind(this);
+        this.onPanelAreaResize = debounce(
+            this.onPanelAreaResize.bind(this),
+            this.resizingDelay
+        );
+        this.onPanelAreaResizingEnd = this.onPanelAreaResizingEnd.bind(this);
 
         // map display and resizing functions
         this.onMapDragBegin = this.onMapDragBegin.bind(this);
@@ -172,8 +180,9 @@ class HBExplorer extends React.Component {
             must Always be not null and valid
             */
             hInterval: getConstrainedHInterval(props.hInterval),
+            hasSelfUpdatedHInterval:false, // if true blocks the update by props (TODO : think it again later)
             // ### global component resizing
-            frameSizes: new Map().set("contentArea.height", 20),
+            frameSizes: new Map().set("contentArea.height", 40).set("panelArea.height", 250),
             timeArrowToResize: null,
             panelToResize: null,
             isResizing: false,
@@ -230,7 +239,7 @@ class HBExplorer extends React.Component {
 
     setHInterval(hInterval) {
         const invisibles = getInvisibles(this.state.articles, hInterval);
-        this.setState({ hInterval: hInterval, invisibles: invisibles });
+        this.setState({ hInterval: hInterval, invisibles: invisibles,hasSelfUpdatedHInterval:true });
     }
 
     selectArticle(ids) {
@@ -325,25 +334,30 @@ class HBExplorer extends React.Component {
             timeArrowToResize: ReactDOM.findDOMNode(this.timeArrowRef),
             invisibles: invisibles
         });
-        const hgContainer = document.getElementById("hg-container");
+        /*const hgContainer = document.getElementById("hg-container");
         hgContainer.addEventListener("mousedown", this.onResizingBegin);
-        window.addEventListener("mouseup", this.onResizingEnd);
+        window.addEventListener("mouseup", this.onResizingEnd);*/
 
         const hgContentArea = document.getElementById("hg-content-area");
         hgContentArea.addEventListener(
             "mousedown",
             this.onContentAreaResizingBegin
         );
-        hgContentArea.addEventListener("mouseup", this.onContentAreaResizingEnd);
+
+        const hgPanelArea = document.getElementById("hg-panel-area");
+        hgPanelArea.addEventListener(
+            "mousedown",
+            this.onPanelAreaResizingBegin
+        );
     }
 
     componentWillUnmount() {
         // stop listening to window mouseup
-        window.removeEventListener("mouseup", this.onResizingEnd);
+        //window.removeEventListener("mouseup", this.onResizingEnd);
     }
 
     componentDidUpdate(prevProps) {
-        if (!prevProps.hInterval.equals(this.props.hInterval)) {
+        if (!this.state.hasSelfUpdatedHInterval && !prevProps.hInterval.equals(this.props.hInterval)) {
             const invisibles = getInvisibles(this.props.articles, this.props.hInterval);
             this.setState({
                 hInterval: this.props.hInterval,
@@ -354,11 +368,9 @@ class HBExplorer extends React.Component {
         //console.log(this.timeAreaRef.current.getBoundingClientRect().bottom);
     }
 
-    onResizingBegin(e) {
+    onPanelAreaResizingBegin(e) {
         if (!this.state.isResizing) {
-            //console.log(e.target);
-            //console.log(this.gridRef.getBoundingClientRect());
-            const rect = this.gridRef.getBoundingClientRect(); //e.target.getBoundingClientRect();
+            const rect = this.panelAreaRef.getBoundingClientRect(); //e.target.getBoundingClientRect();
             const corner = { x: rect.right, y: rect.bottom };
             const mousePosition = { x: e.clientX, y: e.clientY };
             const dist = distance(corner, mousePosition);
@@ -366,17 +378,54 @@ class HBExplorer extends React.Component {
                 //e.preventDefault();
                 e.stopPropagation();
                 this.setState({ isResizing: true });
-                window.addEventListener("mousemove", this.onWindowResize);
-                console.log("resizing activé !");
+                window.addEventListener("mousemove", this.onPanelAreaResize);
+                window.addEventListener("mouseup", this.onPanelAreaResizingEnd);
+                this.beginMousePosition = mousePosition;
+                this.beginFrameSizes = new Map(this.state.frameSizes);
+                console.log(
+                    "resizing panel area activé !"
+                );
             }
         }
     }
 
+    onPanelAreaResize(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        console.log("onPanelAreaResize");
+        console.log(this.panelAreaRef.getBoundingClientRect());
+        const mousePosition = { x: e.clientX, y: e.clientY };
+        const deltaY = mousePosition.y - this.beginMousePosition.y;
+        console.log(
+            `newY ${mousePosition.y} vs oldY ${
+                this.beginMousePosition.y
+                }, delta ${deltaY}`
+        );
+
+        let newFrameSizes = new Map(this.state.frameSizes);
+        newFrameSizes.set(
+            "panelArea.height",
+            Math.max(this.beginFrameSizes.get("panelArea.height") + deltaY,30)
+        );
+
+        this.setState({ frameSizes: newFrameSizes });
+    }
+
+    onPanelAreaResizingEnd(e) {
+        if (this.state.isResizing) {
+            window.removeEventListener("mousemove", this.onPanelAreaResize);
+            window.removeEventListener("mouseup", this.onPanelAreaResizingEnd);
+            this.setState({ isResizing: false });
+            console.log("resizing panel area terminé !");
+            setTimeout(()=>{this.onPanelAreaResize(e);}, 2 * this.resizingDelay);
+        }
+    }
+
     onWindowResize() {
+        console.log("onWindowResize");
         this.timeArrowMeasureRef.setState({
             measurement: this.state.timeArrowToResize.getBoundingClientRect()
         });
-        console.log("onWindowResize");
         const panelMeasurement = this.state.panelToResize.getBoundingClientRect();
         //console.log(node);
         this.panelMeasureRef.setState({
@@ -421,9 +470,10 @@ class HBExplorer extends React.Component {
                 e.stopPropagation();
                 this.setState({ isResizing: true });
                 window.addEventListener("mousemove", this.onContentAreaResize);
+                window.addEventListener("mouseup", this.onContentAreaResizingEnd);
                 this.beginMousePosition = mousePosition;
                 this.beginFrameSizes = new Map(this.state.frameSizes);
-                this.beginContentAreaHeight = console.log(
+                console.log(
                     "resizing content area activé !"
                 );
             }
@@ -432,6 +482,7 @@ class HBExplorer extends React.Component {
 
     onContentAreaResize(e) {
         console.log("onContentAreaResize");
+        console.log(this.contentAreaRef.getBoundingClientRect());
         const mousePosition = { x: e.clientX, y: e.clientY };
         const deltaY = mousePosition.y - this.beginMousePosition.y;
         console.log(
@@ -443,7 +494,7 @@ class HBExplorer extends React.Component {
         let newFrameSizes = new Map(this.state.frameSizes);
         newFrameSizes.set(
             "contentArea.height",
-            this.beginFrameSizes.get("contentArea.height") + deltaY
+            Math.max(this.beginFrameSizes.get("contentArea.height") + deltaY,30)
         );
 
         this.setState({ frameSizes: newFrameSizes });
@@ -452,9 +503,10 @@ class HBExplorer extends React.Component {
     onContentAreaResizingEnd(e) {
         if (this.state.isResizing) {
             window.removeEventListener("mousemove", this.onContentAreaResize);
+            window.removeEventListener("mouseup", this.onContentAreaResizingEnd);
             this.setState({ isResizing: false });
             console.log("resizing content area terminé !");
-            setTimeout(this.ContentAreaResize, 2 * this.resizingDelay);
+            setTimeout(()=>{this.onContentAreaResize(e);}, 2 * this.resizingDelay);
         }
     }
 
@@ -594,7 +646,7 @@ class HBExplorer extends React.Component {
             return (aSelectionDate.getTime() - bSelectionDate.getTime());
         });
 
-        console.log(articlesToDisplay);
+        // console.log(articlesToDisplay);
 
         const articlePanels = articlesToDisplay.map(([id,value])=>{
             return (
@@ -633,7 +685,9 @@ class HBExplorer extends React.Component {
                             ${this.state.displayContent
                             ? this.state.frameSizes.get("contentArea.height")
                             : 0
-                            }px`
+                            }px`,
+                        "--panel-area-height": `
+                            ${this.state.frameSizes.get("panelArea.height")}px`
                     }}
                 />
 
@@ -655,6 +709,7 @@ class HBExplorer extends React.Component {
                             <MeasureAndRender
                                 stretch={true}
                                 debounce={1}
+
                                 onWindowResize={this.onWindowResize}
                                 ref={node => {
                                     this.timeArrowMeasureRef = node;
@@ -853,20 +908,27 @@ class HBExplorer extends React.Component {
                     }}
                 >
                     <div
+                        className="hg-panel-area"
+                        id="hg-panel-area"
                         style={{
                             position: "relative",
                             resize: "vertical",
                             overflow: "none",
-                            minHeight: "200px"
+                            minHeight: `${this.state.frameSizes.get("panelArea.height")}px`,
+                        }}
+                        ref={node => {
+                            this.panelAreaRef = node;
                         }}
                     >
                         <MeasureAndRender
                             stretch={true}
                             debounce={1}
-                            onWindowResize={this.onWindowResize}
-                            ref={node => {
+                            onWindowResize={this.onPanelAreaResize}
+                            updaterVar={this.state.frameSizes.get("contentArea.height")+
+                            this.state.frameSizes.get("panelArea.height")}
+                            /*ref={node => {
                                 this.panelMeasureRef = node;
-                            }}
+                            }}*/
                         >
                             {bounds => {
                                 //console.log("test2");

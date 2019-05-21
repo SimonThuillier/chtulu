@@ -247,10 +247,10 @@ div.hb-modal-z9{
 .hg-container {
     display: grid;
     overflow: auto;
-    resize: vertical;
+    resize: both;
     width: auto;
     border: 1px solid black;
-    grid-template-rows: 40px 38px 75px 38px var(--content-area-height) auto 30px;
+    grid-template-rows: 40px 38px 75px 38px var(--content-area-height) var(--panel-area-height) 30px;
     grid-template-columns: 100%;
     position: "relative";
 }
@@ -284,13 +284,14 @@ div.hb-modal-z9{
 
 .hg-content-area {
     grid-row-end: -3;
+    min-height: 30px;
     resize: vertical;
 }
 
 .hg-content-container {
-    height: 100%;
+    height : var(--content-area-height);
     margin: 0;
-    padding: 3px;
+    padding: 5px;
     border: 2px solid rgb(40, 23, 190);
     display: flex;
     justify-content: flex-start;
@@ -299,6 +300,11 @@ div.hb-modal-z9{
 
 .hg-content-panel {
     border: 2px solid rgb(236, 13, 13);
+    overflow-x:hidden;
+    overflow-y:auto;
+    display:block;
+    height:100%;
+    max-height : var(--content-area-height);
 }
 
 .hg-time-area {
