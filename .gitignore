@@ -15,39 +15,38 @@ app/config/parameters.yml
 !var/sessions/.gitkeep
 !var/SymfonyRequirements.php
 /vendor/
-/web/bundles/
-web/js/*
-web/css/*
-/web/js/*
-/web/css/*
+public/js/*
+public/css/*
+/public/js/*
+/public/css/*
 .idea/*
 
 \.idea/
 
-web/js/
+public/js/
 
 app/config/hresources\.yml
 
-web/media/*
+public/media/*
 
 hresources/*
 
-web/geo/
+public/geo/
 
-web/tiles/
-web/tiles/*
-web/tiles/*/*
-web/tiles/*/*/*
-web/tiles/*/*/*/*
+public/tiles/
+public/tiles/*
+public/tiles/*/*
+public/tiles/*/*/*
+public/tiles/*/*/*/*
 node_modules/
 node_modules/*
 package-lock\.json
 
-web/build/fonts/
+public/build/fonts/
 
-web/build/images/
+public/build/images/
 
-web/build/
+public/build/
 
 bin/\.web-server-pid
 yarn.lock

@@ -276,3 +276,15 @@ export const nodesCollide = function (node1,node2,margin=0,returnType=VERTICAL) 
             (vCollide>0?hCollide:null)
     );
 };
+
+/** @doc determine if two DOMRects are equals or not, based on their properties
+ * @param {DOMRect} rect1
+ * @param {DOMRect} rect2
+ * @returns {Boolean} */
+export const domRectEquals = function (rect1,rect2){
+    const {x1,y1,width1,height1,top1,right1,bottom1,left1} = rect1;
+    const {x2,y2,width2,height2,top2,right2,bottom2,left2} = rect2;
+
+    return x1===x2 && y1===y2 && width1===width2 && height1===height2 &&
+        top1===top2 && right1===right2 && bottom1===bottom2 && left1===left2;
+};
