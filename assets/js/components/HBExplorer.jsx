@@ -423,16 +423,8 @@ class HBExplorer extends React.Component {
 
     onWindowResize() {
         console.log("onWindowResize");
-        this.timeArrowMeasureRef.setState({
-            measurement: this.state.timeArrowToResize.getBoundingClientRect()
-        });
-        const panelMeasurement = this.state.panelToResize.getBoundingClientRect();
-        //console.log(node);
-        this.panelMeasureRef.setState({
-            measurement: panelMeasurement
-        });
 
-        const bounds = panelMeasurement;
+        const bounds = this.state.panelToResize.getBoundingClientRect();
         console.log(bounds.width);
         console.log(bounds.height);
         const newMapSide = Math.min(
@@ -666,10 +658,7 @@ class HBExplorer extends React.Component {
                 </div>
 
                 );
-
-
         });
-
 
         return (
             <div
@@ -716,8 +705,6 @@ class HBExplorer extends React.Component {
                                 }}
                             >
                                 {bounds => {
-                                    //console.log("test");
-
                                     return (
                                         <TimeArrow
                                             setHInterval={this.setHInterval}

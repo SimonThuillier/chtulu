@@ -1,5 +1,4 @@
 import React from "react";
-import {domRectEquals} from "../util/geometry";
 
 /**
  * HoC that Measures the element's bounding box and then renders children within
