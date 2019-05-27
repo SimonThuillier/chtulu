@@ -98,6 +98,14 @@ const mod =
             });
             return oldText;
         },
+        /**
+         * @doc cancel all selection on page to prevent undisered selection (while resizing for example)
+         * @return void
+         */
+        cancelSelection : function(){
+            if (window.getSelection) {window.getSelection().removeAllRanges();}
+            else if (document.selection) {document.selection.empty();}
+        }
     };
 
 export default mod;

@@ -14,6 +14,7 @@ import MapContainer from "./MapContainer.jsx";
 import MapHandlerIcon from "./MapHandlerIcon.jsx";
 
 import Article from "./Article.jsx";
+import HBExplorerMenu from "./HBExplorerMenu";
 
 import HDate from "../util/HDate";
 import dU from "../util/date";
@@ -175,6 +176,8 @@ class HBExplorer extends React.Component {
 
         this.selectArticle = this.selectArticle.bind(this);
 
+        this.toggleContent = this.toggleContent.bind(this);
+
         this.state = {
             /* current time interval of the explorer :
             must Always be not null and valid
@@ -235,6 +238,12 @@ class HBExplorer extends React.Component {
 
     setCursorRate(rate){
         this.setState({cursorRate:rate});
+    }
+
+    toggleContent(){
+        this.setState({
+            displayContent: !this.state.displayContent
+        });
     }
 
     setHInterval(hInterval) {
@@ -408,6 +417,7 @@ class HBExplorer extends React.Component {
             Math.max(this.beginFrameSizes.get("panelArea.height") + deltaY,30)
         );
 
+        cmn.cancelSelection();
         this.setState({ frameSizes: newFrameSizes });
     }
 
@@ -489,6 +499,7 @@ class HBExplorer extends React.Component {
             Math.max(this.beginFrameSizes.get("contentArea.height") + deltaY,30)
         );
 
+        cmn.cancelSelection();
         this.setState({ frameSizes: newFrameSizes });
     }
 
@@ -622,8 +633,9 @@ class HBExplorer extends React.Component {
     }
 
     render() {
-        const { invisibles,hInterval,cursorRate,displayedArticles } = this.state;
-        const {dispatch} = this.props;
+        const { invisibles,hInterval,cursorRate,isCursorActive,mapSide,mapFullMode,isDraggingMap,
+            frameSizes,displayContent,selected,displayedArticles } = this.state;
+        const {dispatch,articles} = this.props;
         const cursorDate = (hInterval!==null && cursorRate!==null)?hInterval.getBarycenterDate(cursorRate):null;
 
         //console.log(Array.from(displayedArticles));
@@ -671,15 +683,14 @@ class HBExplorer extends React.Component {
                 <CSSVariableApplicator
                     variables={{
                         "--content-area-height": `
-                            ${this.state.displayContent
-                            ? this.state.frameSizes.get("contentArea.height")
+                            ${displayContent
+                            ? frameSizes.get("contentArea.height")
                             : 0
                             }px`,
                         "--panel-area-height": `
-                            ${this.state.frameSizes.get("panelArea.height")}px`
+                            ${frameSizes.get("panelArea.height")}px`
                     }}
                 />
-
                 <div className="hg-header">header</div>
                 <div className="hg-date-input">
                     <HBExplorerDateInput
@@ -714,7 +725,7 @@ class HBExplorer extends React.Component {
                                                 this.timeTravellingPeriod * 1.2
                                             )}
                                             hInterval={hInterval}
-                                            cursorRate={this.state.cursorRate}
+                                            cursorRate={cursorRate}
                                             cursorDate = {cursorDate}
                                             setCursorRate={this.setCursorRate}
                                             toggleCursor={this.toggleCursor}
@@ -725,156 +736,18 @@ class HBExplorer extends React.Component {
                         }
                     </div>
                 </div>
-                <div className="hg-time-arrow-menu">
-                    <Button
-                        onClick={e => {
-                            let newHInterval = hInterval.clone();
-                            const leftMargin = Math.max(
-                                Math.ceil(
-                                    dU.dayDiff(
-                                        invisibles[RIGHT].maxDate,
-                                        invisibles[LEFT].minDate
-                                    ) * 0.05
-                                ),
-                                3
-                            );
-
-                            newHInterval = new HDate(
-                                "2",
-                                dU.addDay(dU.clone(invisibles[LEFT].minDate), -leftMargin),
-                                dU.clone(hInterval.endDate)
-                            );
-                            this.setHInterval(newHInterval);
-                        }}
-                    >
-                        {invisibles[LEFT].number > 0 ? (
-                            <span>
-                <Glyphicon glyph="arrow-left" />
-                <Glyphicon glyph="object-align-left" />
-              </span>
-                        ) : (
-                            <span>
-                <Glyphicon glyph="object-align-left" />
-                <Glyphicon glyph="arrow-right" />
-              </span>
-                        )}
-                        {invisibles[LEFT].number > 0 ? `(${invisibles[LEFT].number})` : ""}
-                    </Button>
-                    <span>
-            <Button
-                onClick={e => {
-                    let newHInterval = hInterval.clone();
-                    newHInterval = newHInterval
-                        .setType("2")
-                        .addDay(-Math.floor(newHInterval.getIntervalSize() / 2));
-                    this.setHInterval(newHInterval);
-                }}
-            >
-              <Glyphicon glyph="backward" />
-            </Button>
-            <Button
-                onMouseDown={e => {
-                    this.onTimeTravelBegin(e, -1);
-                }}
-                onMouseUp={this.onTimeTravelEnd}
-            >
-              <Glyphicon glyph="arrow-left" />
-            </Button>
-          </span>
-                    <span>
-            <Button
-                onMouseDown={e => {
-                    this.onTimeZoomingBegin(e, -1);
-                }}
-                onMouseUp={this.onTimeZoomingEnd}
-            >
-              <Glyphicon glyph="zoom-out" />
-            </Button>
-            <Button
-                onMouseDown={e => {
-                    this.onTimeZoomingBegin(e, 1);
-                }}
-                onMouseUp={this.onTimeZoomingEnd}
-            >
-              <Glyphicon glyph="zoom-in" />
-            </Button>
-          </span>
-                    <span>
-            <Button
-                onMouseDown={e => {
-                    this.onTimeTravelBegin(e, 1);
-                }}
-                onMouseUp={this.onTimeTravelEnd}
-            >
-              <Glyphicon glyph="arrow-right" />
-            </Button>
-            <Button
-                onClick={e => {
-                    let newHInterval = hInterval.clone();
-                    newHInterval = newHInterval
-                        .setType("2")
-                        .addDay(Math.floor(newHInterval.getIntervalSize() / 2));
-                    this.setState({ hInterval: newHInterval });
-                }}
-            >
-              <Glyphicon glyph="forward" />
-            </Button>
-          </span>
-                    <span>
-             <Button
-                 onClick={() => {
-                     this.setState({
-                         displayContent: !this.state.displayContent
-                     });
-                 }}
-             >
-              {this.state.displayContent ? (
-                  <Glyphicon glyph="eye-close" />
-              ) : (
-                  <Glyphicon glyph="eye-open" />
-              )}
-            </Button>
-            <Button
-                onClick={e => {
-                    let newHInterval = hInterval.clone();
-                    const rightMargin = Math.max(
-                        Math.ceil(
-                            dU.dayDiff(
-                                invisibles[RIGHT].maxDate,
-                                invisibles[LEFT].minDate
-                            ) * 0.05
-                        ),
-                        3
-                    );
-
-                    newHInterval = new HDate(
-                        "2",
-                        dU.clone(hInterval.beginDate),
-                        dU.addDay(dU.clone(invisibles[RIGHT].maxDate), rightMargin)
-                    );
-                    this.setHInterval(newHInterval);
-                }}
-            >
-                {invisibles[RIGHT].number > 0 ? (
-                    <span>
-                <Glyphicon glyph="object-align-right" />
-                <Glyphicon glyph="arrow-right" />
-              </span>
-                ) : (
-                    <span>
-                <Glyphicon glyph="arrow-left" />
-                <Glyphicon glyph="object-align-right" />
-              </span>
-                )}
-                {invisibles[RIGHT].number > 0
-                    ? `(${invisibles[RIGHT].number})`
-                    : ""}
-            </Button>
-          </span>
-
-                </div>
+                <HBExplorerMenu
+                    hInterval = {hInterval}
+                    setHInterval = {this.setHInterval}
+                    invisibles = {invisibles}
+                    onTimeTravelBegin = {this.onTimeTravelBegin}
+                    onTimeTravelEnd = {this.onTimeTravelEnd}
+                    onTimeZoomingBegin={this.onTimeZoomingEnd}
+                    toggleContent = {this.toggleContent}
+                    displayContent = {displayContent}
+                />
                 <div
-                    hidden={!this.state.displayContent}
+                    hidden={!displayContent}
                     className="hg-content-area"
                     id="hg-content-area"
                     ref={node => {
@@ -882,7 +755,7 @@ class HBExplorer extends React.Component {
                     }}
                 >
                     <div
-                        hidden={!this.state.displayContent}
+                        hidden={!displayContent}
                         className="hg-content-container"
                     >
                         {articlePanels}
@@ -901,7 +774,7 @@ class HBExplorer extends React.Component {
                             position: "relative",
                             resize: "vertical",
                             overflow: "none",
-                            minHeight: `${this.state.frameSizes.get("panelArea.height")}px`,
+                            minHeight: `${frameSizes.get("panelArea.height")}px`,
                         }}
                         ref={node => {
                             this.panelAreaRef = node;
@@ -911,8 +784,8 @@ class HBExplorer extends React.Component {
                             stretch={true}
                             debounce={1}
                             onWindowResize={this.onPanelAreaResize}
-                            updaterVar={this.state.frameSizes.get("contentArea.height")+
-                            this.state.frameSizes.get("panelArea.height")}
+                            updaterVar={frameSizes.get("contentArea.height")+
+                            frameSizes.get("panelArea.height")}
                             /*ref={node => {
                                 this.panelMeasureRef = node;
                             }}*/
@@ -933,32 +806,32 @@ class HBExplorer extends React.Component {
                                         key={"hg-time-panel"}
                                         bounds={bounds}
                                         path={path}
-                                        articles={this.props.articles}
+                                        articles={articles}
                                         selectArticle={this.selectArticle}
-                                        selected={this.state.selected}
+                                        selected={selected}
                                         //addArticle={this.addArticle}
                                         setInvisibles={this.setInvisibles}
                                         hInterval={hInterval}
                                         setHInterval={this.setHInterval}
                                         animationPeriod={this.timeTravellingPeriod}
                                         marginWidth={10}
-                                        cursorRate={this.state.cursorRate}
+                                        cursorRate={cursorRate}
                                         cursorDate = {cursorDate}
-                                        isCursorActive={this.state.isCursorActive}
+                                        isCursorActive={isCursorActive}
                                     />,
                                     <MapContainer
                                         key={"hg-map-container"}
                                         id={"hg-map-container"}
                                         bounds={bounds}
-                                        isResizing={this.state.isDraggingMap}
-                                        side={this.state.mapSide}
-                                        fullMode={this.state.mapFullMode}
+                                        isResizing={isDraggingMap}
+                                        side={mapSide}
+                                        fullMode={mapFullMode}
                                     />,
                                     <MapHandlerIcon
                                         key={"hg-map-handler-icon"}
                                         bounds={bounds}
-                                        side={this.state.mapSide}
-                                        fullMode={this.state.mapFullMode}
+                                        side={mapSide}
+                                        fullMode={mapFullMode}
                                         onDragBegin={this.onMapDragBegin}
                                         onDragEnd={this.onMapDragEnd}
                                     />
