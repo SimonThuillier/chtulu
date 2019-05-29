@@ -199,7 +199,7 @@ export default class HBExplorerPanel extends React.Component {
       rootMargin: "0px",
       threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     };
-    console.clear();
+    //console.clear();
   }
 
   getTimeScale(hInterval, bounds) {
@@ -282,8 +282,8 @@ export default class HBExplorerPanel extends React.Component {
     // liste des articles
     let articleProxies = null;
     if (articles !== prevProps.articles) {
-      console.log("diff article dans le panel");
-      console.log(articles);
+      //console.log("diff article dans le panel");
+      //console.log(articles);
       articleProxies = new Map();
         (articles || [])
         .filter(article => true)
@@ -346,7 +346,7 @@ export default class HBExplorerPanel extends React.Component {
   }*/
 
   onPanelMoveBegin(e) {
-    console.log("on panel move begin");
+    //console.log("on panel move begin");
     if (!this.state.isMovingPanel) {
       e.preventDefault();
       e.stopPropagation();
@@ -449,10 +449,10 @@ export default class HBExplorerPanel extends React.Component {
   addBox(boxRef,article){
      const sameBoxAsBefore = (this.boxRefs.has(+article.id) && this.boxRefs.get(+article.id).boxRef===boxRef);
       if(sameBoxAsBefore) return;
-      console.log(`addBox form article ${article.title},same as before : ${sameBoxAsBefore}`);
-     console.log(boxRef);
+      //console.log(`addBox form article ${article.title},same as before : ${sameBoxAsBefore}`);
+     //console.log(boxRef);
      const nodeBox = boxRef.getBBox();
-     console.log(nodeBox);
+     //console.log(nodeBox);
 
      this.boxRefs.set(+article.id,
          {

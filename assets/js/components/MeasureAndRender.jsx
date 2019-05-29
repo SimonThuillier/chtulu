@@ -33,7 +33,7 @@ class MeasureAndRender extends React.Component {
       const {updaterVar=null} = this.props;
       const {updaterVar:oldUpdaterVar=null} = prevProps;
 
-        console.log(`measureAndRender ${updaterVar} vs ${oldUpdaterVar}`);
+      // console.log(`measureAndRender ${updaterVar} vs ${oldUpdaterVar}`);
       if(this.state.hasMeasured && oldUpdaterVar !==null && updaterVar !== oldUpdaterVar){
           this.setState({measurement:this.el.getBoundingClientRect()});
       }

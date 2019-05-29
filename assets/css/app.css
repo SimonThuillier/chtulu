@@ -291,7 +291,7 @@ div.hb-modal-z9{
 .hg-content-container {
     height : var(--content-area-height);
     margin: 0;
-    padding: 5px;
+    padding: 2px;
     border: 2px solid rgb(40, 23, 190);
     display: flex;
     justify-content: flex-start;
@@ -300,6 +300,7 @@ div.hb-modal-z9{
 
 .hg-content-panel {
     border: 2px solid rgb(236, 13, 13);
+    margin:2px;
     overflow-x:hidden;
     overflow-y:auto;
     display:block;

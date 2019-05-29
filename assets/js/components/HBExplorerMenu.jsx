@@ -158,11 +158,5 @@ export default (props) => {
 
         </div>
     );
-
-
-
-
-
-
 };
 

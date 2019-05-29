@@ -10,6 +10,7 @@ import MeasureAndRender from "./MeasureAndRender";
 import CSSVariableApplicator from "./CSSVariableApplicator";
 import TimeArrow from "./TimeArrow.jsx";
 import HBExplorerPanel from "./HBExplorerPanel.jsx";
+import HBExplorerContentHistory from "./HBExplorerContentHistory.jsx";
 import MapContainer from "./MapContainer.jsx";
 import MapHandlerIcon from "./MapHandlerIcon.jsx";
 
@@ -134,6 +135,9 @@ class HBExplorer extends React.Component {
         );
         this.onResizingEnd = this.onResizingEnd.bind(this);*/
 
+        // global width resizing function
+        this.onWidthResize = this.onWidthResize.bind(this);
+
         // content area resizing functions
         this.onContentAreaResizingBegin = this.onContentAreaResizingBegin.bind(this);
         this.onContentAreaResize = debounce(
@@ -185,7 +189,7 @@ class HBExplorer extends React.Component {
             hInterval: getConstrainedHInterval(props.hInterval),
             hasSelfUpdatedHInterval:false, // if true blocks the update by props (TODO : think it again later)
             // ### global component resizing
-            frameSizes: new Map().set("contentArea.height", 40).set("panelArea.height", 250),
+            frameSizes: new Map().set("contentArea.height", 200).set("panelArea.height", 250).set("explorer.width", 500),
             timeArrowToResize: null,
             panelToResize: null,
             isResizing: false,
@@ -227,7 +231,8 @@ class HBExplorer extends React.Component {
             isCursorActive:false,
             // article display parameter
             displayContent: false,
-            displayedArticles:new Map()
+            displayedArticles:new Map(),
+            displayContentHistory: true,
         };
 
     }
@@ -256,9 +261,15 @@ class HBExplorer extends React.Component {
         const {displayedArticles} = this.state;
 
         let newDisplayedArticles = new Map(displayedArticles);
+
+        newDisplayedArticles.forEach((article,id)=>{
+            article.isOpen= false;
+        });
+
+
         ids.forEach((id)=>{newDisplayedArticles.set(+id,{selectionDate:new Date(),isOpen:true})});
 
-        this.setState({selected:ids,displayedArticles:newDisplayedArticles});
+        this.setState({selected:ids,displayedArticles:newDisplayedArticles,displayContent:true});
     }
 
     onTimeZoomingBegin(e, sense = -1) {
@@ -307,11 +318,11 @@ class HBExplorer extends React.Component {
                 .clone()
                 .setType("2")
                 .multiply(zoomFactor);
-            console.log(
+            /*console.log(
                 `final Interval : ${
                     newHInterval.beginDate
                     } - ${newHInterval.getMiddleDate()} - ${newHInterval.endDate}`
-            );
+            );*/
             const invisibles = getInvisibles(this.props.articles, newHInterval);
             this.setState({
                 hInterval: newHInterval,
@@ -358,9 +369,25 @@ class HBExplorer extends React.Component {
             "mousedown",
             this.onPanelAreaResizingBegin
         );
+
+        window.addEventListener('resize',this.onWidthResize);
+    }
+
+    onWidthResize(){
+        const explorerRect = this.gridRef.getBoundingClientRect();
+        console.log(`resized explorer width : ${explorerRect.width}`);
+
+        let newFrameSizes = new Map(this.state.frameSizes);
+        newFrameSizes.set(
+            "explorer.width",
+            Math.max(explorerRect.width,100)
+        );
+
+        this.setState({ frameSizes: newFrameSizes });
     }
 
     componentWillUnmount() {
+        window.removeEventListener('resize',this.onWidthResize);
         // stop listening to window mouseup
         //window.removeEventListener("mouseup", this.onResizingEnd);
     }
@@ -634,7 +661,7 @@ class HBExplorer extends React.Component {
 
     render() {
         const { invisibles,hInterval,cursorRate,isCursorActive,mapSide,mapFullMode,isDraggingMap,
-            frameSizes,displayContent,selected,displayedArticles } = this.state;
+            frameSizes,displayContent,selected,displayedArticles,displayContentHistory } = this.state;
         const {dispatch,articles} = this.props;
         const cursorDate = (hInterval!==null && cursorRate!==null)?hInterval.getBarycenterDate(cursorRate):null;
 
@@ -709,8 +736,9 @@ class HBExplorer extends React.Component {
                             <MeasureAndRender
                                 stretch={true}
                                 debounce={1}
+                                updaterVar={frameSizes.get("explorer.width")}
 
-                                onWindowResize={this.onWindowResize}
+                                //onWindowResize={this.onWindowResize}
                                 ref={node => {
                                     this.timeArrowMeasureRef = node;
                                 }}
@@ -742,7 +770,8 @@ class HBExplorer extends React.Component {
                     invisibles = {invisibles}
                     onTimeTravelBegin = {this.onTimeTravelBegin}
                     onTimeTravelEnd = {this.onTimeTravelEnd}
-                    onTimeZoomingBegin={this.onTimeZoomingEnd}
+                    onTimeZoomingBegin={this.onTimeZoomingBegin}
+                    onTimeZoomingEnd={this.onTimeZoomingEnd}
                     toggleContent = {this.toggleContent}
                     displayContent = {displayContent}
                 />
@@ -758,6 +787,17 @@ class HBExplorer extends React.Component {
                         hidden={!displayContent}
                         className="hg-content-container"
                     >
+                        <div
+                            hidden={!displayContentHistory}
+                            className="hg-content-panel"
+                            key={`hg-container-history`}
+                            id={`hg-container-history`}
+                        >
+                            <HBExplorerContentHistory
+                                displayedArticles = {displayedArticles}
+
+                            />
+                        </div>
                         {articlePanels}
                     </div>
                 </div>
@@ -785,7 +825,7 @@ class HBExplorer extends React.Component {
                             debounce={1}
                             onWindowResize={this.onPanelAreaResize}
                             updaterVar={frameSizes.get("contentArea.height")+
-                            frameSizes.get("panelArea.height")}
+                            frameSizes.get("panelArea.height")+frameSizes.get("explorer.width")}
                             /*ref={node => {
                                 this.panelMeasureRef = node;
                             }}*/
