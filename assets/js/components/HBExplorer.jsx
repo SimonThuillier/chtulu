@@ -14,6 +14,8 @@ import HBExplorerContentHistory from "./HBExplorerContentHistory.jsx";
 import MapContainer from "./MapContainer.jsx";
 import MapHandlerIcon from "./MapHandlerIcon.jsx";
 
+import ArticleTitle from "./ArticleTitle";
+import ArticleType from "./ArticleType";
 import Article from "./Article.jsx";
 import HBExplorerMenu from "./HBExplorerMenu";
 
@@ -179,6 +181,8 @@ class HBExplorer extends React.Component {
         this.toggleCursor = this.toggleCursor.bind(this);
 
         this.selectArticle = this.selectArticle.bind(this);
+        this.closeArticle = this.closeArticle.bind(this);
+        this.toggleActiveComponent = this.toggleActiveComponent.bind(this);
 
         this.toggleContent = this.toggleContent.bind(this);
 
@@ -267,9 +271,40 @@ class HBExplorer extends React.Component {
         });
 
 
-        ids.forEach((id)=>{newDisplayedArticles.set(+id,{selectionDate:new Date(),isOpen:true})});
+        ids.forEach((id)=>{newDisplayedArticles.set(+id,{selectionDate:new Date(),isOpen:true,activeComponent:'detail'})});
 
         this.setState({selected:ids,displayedArticles:newDisplayedArticles,displayContent:true});
+    }
+
+    closeArticle(ids) {
+        if(ids===null) return;
+        const {displayedArticles,selected} = this.state;
+
+        let newSelectedIds = Array.from(selected);
+        newSelectedIds = newSelectedIds.filter(id => !ids.includes(+id));
+
+        let newDisplayedArticles = new Map(displayedArticles);
+
+        newDisplayedArticles.forEach((article,id)=>{
+            if(ids.includes(+id)){
+                article.isOpen= false;
+            }
+        });
+
+        this.setState({selected:newSelectedIds,displayedArticles:newDisplayedArticles});
+    }
+
+    toggleActiveComponent(ids){
+        const {displayedArticles} = this.state;
+
+        let newDisplayedArticles = new Map(displayedArticles);
+
+        newDisplayedArticles.forEach((article,id)=>{
+            if(ids.includes(+id)){
+                article.activeComponent= article.activeComponent==='detail'?'form':'detail';
+            }
+        });
+        this.setState({displayedArticles:newDisplayedArticles});
     }
 
     onTimeZoomingBegin(e, sense = -1) {
@@ -441,7 +476,7 @@ class HBExplorer extends React.Component {
         let newFrameSizes = new Map(this.state.frameSizes);
         newFrameSizes.set(
             "panelArea.height",
-            Math.max(this.beginFrameSizes.get("panelArea.height") + deltaY,30)
+            Math.max(this.beginFrameSizes.get("panelArea.height") + deltaY,35)
         );
 
         cmn.cancelSelection();
@@ -523,7 +558,7 @@ class HBExplorer extends React.Component {
         let newFrameSizes = new Map(this.state.frameSizes);
         newFrameSizes.set(
             "contentArea.height",
-            Math.max(this.beginFrameSizes.get("contentArea.height") + deltaY,30)
+            Math.max(this.beginFrameSizes.get("contentArea.height") + deltaY,35)
         );
 
         cmn.cancelSelection();
@@ -681,19 +716,42 @@ class HBExplorer extends React.Component {
 
         const articlePanels = articlesToDisplay.map(([id,value])=>{
             return (
-                <div className="hg-content-panel"
+                <div className="panel panel-default hg-content-panel"
                     key={`hg-container-article-panel-${id}`}
                      id={`hg-container-article-panel-${id}`}
                 >
-                    <Article
-                        dispatch={dispatch}
-                        id={id}
-                        activeComponent={'detail'}
-                        detailGroups={{"minimal":true,"date":true,"abstract":true,"detailImage":true}}
-                        formGroups={{"minimal":true,"date":true,"abstract":true,"detailImage":true}}
-                        handleSwitch={null}
-                        onNothing={null}
-                    />
+
+                    <div className="hg-content-panel-heading">
+                        <span><h4><ArticleType articleId={id}/></h4></span>
+                        <span><h4><ArticleTitle id={id}/></h4></span>
+                        <span>
+                            <Button bsStyle="primary"
+                                    disabled={false}
+                                    onClick={()=>{this.toggleActiveComponent([id])}}>
+                               <Glyphicon glyph={value.activeComponent==='detail'?'edit':'eye-open'}/>
+                            </Button>
+                            <Button bsStyle="default"
+                                    disabled={false}
+                                    onClick={()=>{this.closeArticle([id])}}>
+                               <Glyphicon glyph={'remove'}/>
+                            </Button>
+                        </span>
+                    </div>
+
+                    <div className="panel-body">
+                        <Article
+                            dispatch={dispatch}
+                            id={id}
+                            activeComponent={value.activeComponent}
+                            detailGroups={{"minimal":true,"date":true,"abstract":true,"detailImage":true}}
+                            formGroups={{"minimal":true,"date":true,"abstract":true,"detailImage":true}}
+                            handleSwitch={null}
+                            onNothing={null}
+                        />
+                    </div>
+                    <div className="panel-footer hg-content-panel-footer">
+
+                    </div>
                 </div>
 
                 );
@@ -794,6 +852,7 @@ class HBExplorer extends React.Component {
                             id={`hg-container-history`}
                         >
                             <HBExplorerContentHistory
+                                selectArticle = {this.selectArticle}
                                 displayedArticles = {displayedArticles}
 
                             />

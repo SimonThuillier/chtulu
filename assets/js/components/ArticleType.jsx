@@ -3,14 +3,22 @@ import {getOneByIdSelector} from "../selectors";
 import { connect } from 'react-redux'
 
 const ArticleType = function(props){
-    const type = props.selector(props.id);
-    return( type?type.get("label"):null);
+    let {id=null,articleId=null,articleSelector,articleTypeSelector} = props;
+
+    if(id ===null){
+        id = articleSelector(articleId).type;
+    }
+
+    const type = articleTypeSelector(id);
+    return( <p>{type?type.get("label"):null}</p>);
 };
 
 const mapStateToProps = (state) => {
-    const selector = selector || getOneByIdSelector(state.get("articleType"));
+    const articleSelector = getOneByIdSelector(state.get("article"));
+    const articleTypeSelector = getOneByIdSelector(state.get("articleType"));
     return {
-        selector: selector
+        articleSelector:articleSelector,
+        articleTypeSelector: articleTypeSelector
     }
 };
 

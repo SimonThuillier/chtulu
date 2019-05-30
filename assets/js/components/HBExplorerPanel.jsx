@@ -97,6 +97,10 @@ const HistoProxy = (function() {
     get id() {
       return this.article.id;
     },
+    setArticle(article){
+        this.article = article;
+        return this;
+    },
     get beginHDate() {
       return this.article.beginHDate;
     },
@@ -282,14 +286,15 @@ export default class HBExplorerPanel extends React.Component {
     // liste des articles
     let articleProxies = null;
     if (articles !== prevProps.articles) {
-      //console.log("diff article dans le panel");
-      //console.log(articles);
+      console.log("diff article dans le panel");
+      console.log(articles);
       articleProxies = new Map();
         (articles || [])
         .filter(article => true)
         .sort( (a, b) =>{return a.beginHDate.beginDate.getTime() >= b.beginHDate.beginDate.getTime();})
         .forEach(article => {
-          articleProxies.set(+article.id, this.state.articles.get(+article.id) || new HistoProxy(article));
+          articleProxies.set(+article.id, this.state.articles.has(+article.id)?
+              this.state.articles.get(+article.id).setArticle(article):new HistoProxy(article));
         });
       this.setState({ articles: articleProxies });
       //console.log(articleProxies);

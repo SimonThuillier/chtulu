@@ -37,11 +37,12 @@ const ArticleDetail = function(props){
                 <ArticleDetailAbstract abstract={data.abstract}/>
                 }
             </div>
-            <Button bsStyle="primary"
-                    disabled={false}
-                    onClick={()=>{props.handleSwitch('form')}}>
-                Editer&nbsp;<Glyphicon glyph={context==='modal'?'pencil':'edit'}/>
-            </Button>
+            <br/>
+            {/*<Button bsStyle="primary"*/}
+                    {/*disabled={false}*/}
+                    {/*onClick={()=>{props.handleSwitch('form')}}>*/}
+                {/*Editer&nbsp;<Glyphicon glyph={context==='modal'?'pencil':'edit'}/>*/}
+            {/*</Button>*/}
         </div>
     );
 };
