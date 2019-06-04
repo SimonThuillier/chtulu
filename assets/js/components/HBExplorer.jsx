@@ -234,11 +234,12 @@ class HBExplorer extends React.Component {
             cursorRate:0.25,
             isCursorActive:false,
             // article display parameter
-            displayContent: false,
-            displayedArticles:new Map(),
+            mainArticleId:props.mainArticleId||null,
+            displayContent: !!(props.mainArticleId),
+            displayedArticles:(props.mainArticleId !==null)?new Map():
+                new Map().set(+props.mainArticleId,{selectionDate:new Date(),isOpen:true,activeComponent:'form'}),
             displayContentHistory: true,
         };
-
     }
 
     toggleCursor(){
