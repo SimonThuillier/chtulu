@@ -9,6 +9,7 @@ import {getOneByIdIfNeeded} from "../actions";
 import RImageMini from './RImageMini';
 import {SUBMITTING_COMPLETED} from "../util/notifications";
 import {getAllPropertiesInGroups} from "../util/WAOUtil";
+import FileUploadForm2 from './FileUploadForm2';
 
 const defaultStyles = {
     horizontal:{
@@ -165,8 +166,6 @@ class ImageInput extends Component {
         }
     }
 }
-
-//export default ImageInput;
 
 const mapStateToProps = (state) => {
     const selector = getOneByIdSelector(state.get("resource"));

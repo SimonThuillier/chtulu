@@ -26,7 +26,7 @@ const defaultStyle = {
     borderRadius: 3,
     marginLeft: 0,
     marginTop: -0,
-    minWidth: 350,
+    minWidth: 450,
     zIndex: 2000
 
     //padding: 5

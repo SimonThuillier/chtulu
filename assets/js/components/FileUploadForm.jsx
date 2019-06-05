@@ -1,59 +1,44 @@
 import React from "react";
-import {getPendingSelector, getOneByIdSelector, getNotificationsSelector, getNextNewIdSelector} from "../selectors";
+import {getOneByIdSelector, getNotificationsSelector, getNextNewIdSelector} from "../selectors";
 import { connect} from 'react-redux';
-import GroupUtil from '../util/GroupUtil';
-import { Field, reduxForm,change as formChange,
-    blur as formBlur,focus as formFocus,touch as formTouch,untouch as formUntouch} from 'redux-form/immutable';
-const Imm = require("immutable");
-import {getOneByIdIfNeeded,uploadResource,TIMEOUT,discard} from '../actions';
+import {uploadResource,discard} from '../actions';
 import ArticleTypeSelect from "./ArticleTypeSelect";
-//const componentUid = require('uuid/v4')();
-import HDateInput from "./HDateInput";
-import ImageInput from "./ImageInput";
-import HBFormField from './HBFormField';
+const componentUid = require('uuid/v4')();
 import {
     Button,
     Tooltip,
     Alert,
     FormControl,
+    HelpBlock,
     FormGroup,
     ControlLabel,
     Row,
     Col,
     Glyphicon,
-    Form
+    Form,
 } from 'react-bootstrap';
 import Loadable from 'react-loading-overlay';
 import {previewTooltip,submitTooltip,resetTooltip,deleteTooltip} from './tooltips';
 import {LOADING,SUBMITTING,SUBMITTING_COMPLETED,COLORS} from '../util/notifications';
 import {HB_SUCCESS,RESOURCE_IMAGE,RESOURCE_TEXT} from "../util/server";
-import {getAllPropertiesInGroups} from '../util/WAOUtil';
 
-const validate = values => {
-    /*console.log("validate called");
-    console.log(values);*/
-    const {name,type,size} = values.toJS();
-    /*console.log(name);
-    console.log(type);
-    console.log(size);*/
+const validate = (file,finalName) => {
+    let errors= {file:null,finalName:null};
 
-    /*console.log("1");*/
-    if(!type) return {};
-    /*console.log("2");
-    console.log(type.split('/')[0].toLowerCase());*/
+    if(!file) return errors;
+
+    const {type,size} = file;
     if(type.split('/')[0].toLowerCase() !== 'image'){
-        return {file:"Le fichier choisi n'est pas une image"}
+        errors.file="Le fichier choisi n'est pas une image";
     }
-    //console.log("3");
-    if(+size>20000000){
-        return {name:"La taille maximale autorisée est de 20 MO"}
+    else if(+size>20000000){
+        errors.file="La taille maximale autorisée est de 20 MO";
     }
-    //console.log("4");
-    if(! name || name.length<1){
-        return {name:"le nom du fichier ne doit pas être vide"}
+
+    if(! finalName || finalName.length<1){
+        errors.finalName="le nom du fichier ne doit pas être vide";
     }
-    //console.log("5");
-    return {};
+    return errors;
 };
 
 const fileExtensionPattern = new RegExp("^(.+)\\.([^\\.]+)$");
@@ -64,7 +49,6 @@ const getUnextendedFileName = fileName => {
     }
     return fileName;
 };
-const initialExtraData = {name:null,type:null,size:null};
 
 const notificationAlert = (notification,dispatch) =>{
     const status = notification.get("status");
@@ -90,19 +74,15 @@ class FileUploadForm extends React.Component{
 
         this.state = {
             id:null,
-            extraData:null,
-            file:null
+            file:null,
+            finalName:null,
         };
     }
 
     loadInitialValues(){
-        const {nextNewIdSelector,dispatch,initialize} = this.props;
+        const {nextNewIdSelector} = this.props;
         const id = nextNewIdSelector();
-        this.setState({
-            id:id,
-            extraData:initialExtraData});
-        //dispatch(getOneByIdIfNeeded("resourceVersion",{minimal:true,file:true}, id,componentUid));
-        //initialize(initialExtraData);
+        this.setState({id:id});
     }
 
     componentDidMount() {
@@ -115,22 +95,18 @@ class FileUploadForm extends React.Component{
     }
 
     onFileSelection(e){
-        const {dispatch,initialize,componentUid} = this.props;
         e.preventDefault();
-        console.log("fichier choisi");
         const file = e.target.files[0] || null;
+        console.log("fichier choisi");
         console.log(file);
-        let extraData = initialExtraData;
-        if(file) extraData = {name:getUnextendedFileName(file.name),type:file.type,size:file.size};
-        this.setState({extraData:extraData,file:file});
-        initialize(extraData);
-        dispatch(formTouch(componentUid,['file']));
+        this.setState({file:file,finalName:getUnextendedFileName(file.name)});
     }
 
-    onUpload(){
-        const {dispatch,form} = this.props;
-        const {file,extraData:{name,type}} = this.state;
-        dispatch(uploadResource(file,name,type,RESOURCE_IMAGE,form,null));
+    onUpload(e){
+        const {dispatch} = this.props;
+        const {file,finalName} = this.state;
+        console.clear();
+        dispatch(uploadResource(file,finalName,file.type,RESOURCE_IMAGE,componentUid,null));
     }
 
     setResource(resourceId){
@@ -160,18 +136,26 @@ class FileUploadForm extends React.Component{
     }
 
     render(){
-        console.log("begin fileUploadFormRender");
-        const { onSubmit, reset, load,valid,pendingForm,dispatch,notificationsSelector,form} = this.props;
+        const {dispatch,notificationsSelector} = this.props;
+        const {id,file,finalName} = this.state;
+        const hasFile = !!file;
+        const errors = validate(file,finalName);
+        const valid = hasFile && errors.file === null && errors.finalName===null;
+        /*console.clear();
+        console.log(hasFile);
+        console.log(errors);
+        console.log(file);
+        console.log(valid);*/
 
 
-        const notifications = notificationsSelector(form);
-        const noFile = !this.state.extraData || !this.state.extraData.type;
-        const submitting = (notifications && notifications.hasIn([(this.state.data && this.state.data.id) || 'DEFAULT',SUBMITTING]))||false;
+        const notifications = notificationsSelector(componentUid);
+
+        const submitting = (notifications && notifications.hasIn([(id) || 'DEFAULT',SUBMITTING]))||false;
 
         let submittingCompleted = (notifications && notifications.
-        getIn([(this.state.data && this.state.data.id) || 'DEFAULT',SUBMITTING_COMPLETED]))||null;
+        getIn([(id) || 'DEFAULT',SUBMITTING_COMPLETED]))||null;
         submittingCompleted = (submittingCompleted && !submittingCompleted.get("discardedAt"))?submittingCompleted:null;
-        console.log("begin fileUploadFormRender : 1");
+        // console.log("begin fileUploadFormRender : 1");
         return (
             <Loadable
                 active={submitting}
@@ -181,50 +165,49 @@ class FileUploadForm extends React.Component{
                 background={COLORS.LOADING_BACKGROUND}
             >
                 {submittingCompleted && notificationAlert(submittingCompleted,dispatch)}
-                <Form onSubmit={(e)=>{}}>
-                    <div>Pourquoi ?</div>
-                    {/*<Field*/}
-                        {/*name="file"*/}
-                        {/*type="file"*/}
-                        {/*component={HBFormField}*/}
-                        {/*label="Image à charger"*/}
-                        {/*onChange={this.onFileSelection}*/}
-                        {/*onBlur={(e)=>{e.preventDefault()}}*/}
-                    {/*/>*/}
-                    {/*<Field*/}
-                        {/*name="lolilol"*/}
-                        {/*type="text"*/}
-                        {/*component={(value)=>{return "lolilol";}}*/}
-                        {/*label="Nom de l'image"*/}
-                    {/*/>*/}
-                    {/*<FormControl*/}
-                        {/*componentClass="input"*/}
-                        {/*autoComplete="off"*/}
-                        {/*value={"test"}*/}
-                        {/*type="text"*/}
-                        {/*placeholder="date"*/}
-                    {/*/>*/}
-                    {/*<div hidden>*/}
-                        {/*<Field*/}
-                            {/*name="type"*/}
-                            {/*type="text"*/}
-                            {/*component={HBFormField}*/}
-                            {/*label="Type du fichier"*/}
-                        {/*/>*/}
-                        {/*<Field*/}
-                            {/*name="size"*/}
-                            {/*type="text"*/}
-                            {/*component={HBFormField}*/}
-                            {/*label="Taille du fichier"*/}
-                        {/*/>*/}
-                    {/*</div>*/}
-
+                <Form horizontal onSubmit={(e)=>{}}>
+                    <FormGroup
+                        controlId="file"
+                        validationState={hasFile?((errors.file === null)?`success`:`error`):``}
+                    >
+                        <Col sm={3}/>
+                        <Col sm={9}>
+                            <Button
+                                className={'btn-file'}
+                                componentClass={ControlLabel}
+                                bsStyle={hasFile?((errors.file === null)?`success`:`danger`):`default`}
+                                style={{color:hasFile?(`white`):`black`}}
+                            >
+                                <input type="file" onChange={this.onFileSelection}/>
+                                    {hasFile?(file.name):`Chargez une image`}
+                            </Button>
+                            {(hasFile && errors.file !== null) && <HelpBlock>{errors.file}</HelpBlock>}
+                        </Col>
+                    </FormGroup>
+                    <FormGroup
+                        controlId="fileName"
+                        validationState={hasFile?((errors.finalName === null)?`success`:`error`):``}
+                    >
+                        <Col componentClass={ControlLabel} sm={3}>
+                            <ControlLabel>Nom final</ControlLabel>
+                        </Col>
+                        <Col sm={9}>
+                            <FormControl
+                                type="text"
+                                required={true}
+                                value={finalName}
+                                readOnly={!hasFile}
+                                onChange={(e)=>{this.setState({finalName: e.target.value})}}
+                            />
+                            {(hasFile && errors.finalName !== null) && <HelpBlock>{errors.finalName}</HelpBlock>}
+                        </Col>
+                    </FormGroup>
                 </Form>
                 <hr/>
                 <Row>
                     <Col xs={3} sm={3} md={5}>
                         <Button bsStyle={"success"}
-                                disabled={noFile || !valid || submitting}
+                                disabled={!hasFile || !valid || submitting}
                                 onClick={this.onUpload}>
                             Charger&nbsp;<Glyphicon glyph="upload"/>
                         </Button>
@@ -232,63 +215,25 @@ class FileUploadForm extends React.Component{
                     <Col xs={3} sm={3} md={3}>
                         <Button bsStyle="default"
                                 disabled={false}
-                                onClick={null}>
+                                onClick={(e)=>{this.setState({file:null,finalName: null})}}>
                             Annuler&nbsp;<Glyphicon glyph="hand-left"/>
                         </Button>
                     </Col>
                 </Row>
-                {/*<iframe id={`${componentUid}`}>*/}
-
-                {/*</iframe>*/}
             </Loadable>
         );
     }
 }
 
+const mapStateToProps = (state) => {
+    const selector = getOneByIdSelector(state.get("resourceVersion"));
+    const notificationsSelector = getNotificationsSelector(state.get("app"));
+    const nextNewIdSelector = getNextNewIdSelector(state.get("resourceVersion"));
+    return {
+        selector: selector,
+        notificationsSelector : notificationsSelector,
+        nextNewIdSelector:nextNewIdSelector
+    };
+};
 
-FileUploadForm = connect(
-    state => {
-        const selector = getOneByIdSelector(state.get("resourceVersion"));
-        const notificationsSelector = getNotificationsSelector(state.get("app"));
-        const nextNewIdSelector = getNextNewIdSelector(state.get("resourceVersion"));
-        return {
-            selector: selector,
-            pendingForm:state.getIn(["form"]),
-            notificationsSelector : notificationsSelector,
-            nextNewIdSelector:nextNewIdSelector
-        }
-    }
-)(FileUploadForm);
-
-FileUploadForm =  reduxForm({
-    form: require('uuid/v4')(),
-    destroyOnUnmount:true,
-    validate:validate
-})(FileUploadForm);
-
-export default FileUploadForm;
-
-// export default ()=>{
-//     const componentUid = require('uuid/v4')();
-//
-//     let component = connect(
-//         state => {
-//             const selector = getOneByIdSelector(state.get("resourceVersion"));
-//             const notificationsSelector = getNotificationsSelector(state.get("app"));
-//             const nextNewIdSelector = getNextNewIdSelector(state.get("resourceVersion"));
-//             return {
-//                 componentUid : componentUid,
-//                 selector: selector,
-//                 pendingForm:state.getIn(["form",componentUid]),
-//                 notificationsSelector : notificationsSelector,
-//                 nextNewIdSelector:nextNewIdSelector
-//             }
-//         }
-//     )(FileUploadForm);
-//
-//     return reduxForm({
-//         form: componentUid,
-//         destroyOnUnmount:true,
-//         validate:validate
-//     })(component);
-// };
+export default connect(mapStateToProps)(FileUploadForm);
