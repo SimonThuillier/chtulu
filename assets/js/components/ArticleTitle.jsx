@@ -9,6 +9,12 @@ const ArticleTitle = (props) => {
 
     const {id,selector} = props;
     const article = selector(+id);
+
+    if(typeof article === 'undefined' || !article)return (
+        <p>Chargement ...</p>
+    );
+
+
     let value = (article && article.title) || "Nouvel article";
 
     if(article.beginHDate){

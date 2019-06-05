@@ -47,6 +47,9 @@ export const POST_ALL = 'POST_ALL';
 
 export const TIMEOUT = 5000;
 
+// MAP to hold the various get called made and prevent double calls
+const pendingAPICalls = new Map();
+
 
 export const notify = (notifType,
                        senderKey=null,
@@ -541,13 +544,26 @@ export const receiveGetOneById = (waoType,groups,id,data,message="Données bien 
     });
 };
 
+const APICallKey = (callType,waoType,groups=true,id=null,searchBag=null) =>{
+    switch (callType){
+        case 'getOneById' :
+            return `${waoType}_${id}_${JSON.stringify(groups)}`;
+            break;
+        default :
+            return 'NA';
+            break;
+    }
+};
+
 const fetchGetOneById = (waoType,groups=true,id,senderKey) => (dispatch,state) => {
+    pendingAPICalls.set(APICallKey('getOneById',waoType,groups,id),new Date());
     dispatch(notify(LOADING,senderKey,id));
     const url = getUrl(URL_GET_ONE_BY_ID,getHBProps(waoType,groups,id));
 
     return fetch(url,getHTTPProps())
         .then(response => response.json())
         .then(json => {
+            pendingAPICalls.delete(APICallKey('getOneById',waoType,groups,id));
                 switch (json.status) {
                     case HB_SUCCESS:
                         console.log(json);
@@ -566,6 +582,7 @@ const fetchGetOneById = (waoType,groups=true,id,senderKey) => (dispatch,state) =
 
 
 const shouldFetchGetOneById = (state, waoType,groups,id,senderKey=null) => {
+    if(pendingAPICalls.has(APICallKey('getOneById',waoType,groups,id))) return false;
     if(state.hasIn(["app","notifications",senderKey || 'HBAPP',id || 'DEFAULT',LOADING])) return false;
 
     const item = state.getIn([waoType,"items",id]);

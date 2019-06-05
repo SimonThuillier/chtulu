@@ -6,10 +6,14 @@ const ArticleType = function(props){
     let {id=null,articleId=null,articleSelector,articleTypeSelector} = props;
 
     if(id ===null){
-        id = articleSelector(articleId).type;
+        const article = articleSelector(articleId);
+        if(typeof article ==='undefined' || !article) return null;
+        id = article.type;
     }
 
     const type = articleTypeSelector(id);
+    if(typeof type ==='undefined' || !type) return null;
+
     return( <p>{type?type.get("label"):null}</p>);
 };
 

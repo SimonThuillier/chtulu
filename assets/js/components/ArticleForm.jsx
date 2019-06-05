@@ -128,24 +128,24 @@ class ArticleForm extends React.Component{
         if(this.props.id === null){return}
         let data = this.state.data;
 
-        if(data === null || typeof data === 'undefined' ){
-            //this.initializeFormData();
-            return;
-        }
-
         if (prevProps.id !== this.props.id){
             this.submit(prevProps.id);
             data = this.props.selector(this.props.id);
         }
-        if (this.loadingArticleId !== data.id && this.shouldLoadData(data)) {
+        /*if(data === null || typeof data === 'undefined' ){
+            //this.initializeFormData();
+            return;
+        }*/
+
+        if (this.loadingArticleId !== this.props.id && this.shouldLoadData(data)) {
             this.props.dispatch(getOneByIdIfNeeded("article",
                 this.state.groups,
                 this.props.id,
                 componentUid));
             console.log("<br>loading data</br>");
-            this.loadingArticleId = data.id;
+            this.loadingArticleId = this.props.id;
         }
-        if (this.props.selector(data.id) !== prevProps.selector(data.id)) {
+        if (this.props.selector(this.props.id) !== prevProps.selector(this.props.id)) {
             data = this.props.selector(this.props.id);
             console.log("reception de nouvelles données");
             console.log(data);
@@ -158,7 +158,7 @@ class ArticleForm extends React.Component{
         if (prevProps.notificationsSelector !== this.props.notificationsSelector) {
             const notifications = this.props.notificationsSelector(componentUid);
             let submittingCompleted = (notifications && notifications.
-            getIn([(this.state.data && this.state.data.id) || 'DEFAULT',SUBMITTING_COMPLETED]))||null;
+            getIn([(this.state.data && this.props.id) || 'DEFAULT',SUBMITTING_COMPLETED]))||null;
             submittingCompleted = (submittingCompleted && !submittingCompleted.get("discardedAt"))?submittingCompleted:null;
             console.log("submittingCompleted : untouching form");
             if(submittingCompleted){

@@ -193,7 +193,7 @@ class HBExplorer extends React.Component {
             hInterval: getConstrainedHInterval(props.hInterval),
             hasSelfUpdatedHInterval:false, // if true blocks the update by props (TODO : think it again later)
             // ### global component resizing
-            frameSizes: new Map().set("contentArea.height", 200).set("panelArea.height", 250).set("explorer.width", 500),
+            frameSizes: new Map().set("contentArea.height", 500).set("panelArea.height", 250).set("explorer.width", 500),
             timeArrowToResize: null,
             panelToResize: null,
             isResizing: false,
@@ -236,10 +236,13 @@ class HBExplorer extends React.Component {
             // article display parameter
             mainArticleId:props.mainArticleId||null,
             displayContent: !!(props.mainArticleId),
-            displayedArticles:(props.mainArticleId !==null)?new Map():
-                new Map().set(+props.mainArticleId,{selectionDate:new Date(),isOpen:true,activeComponent:'form'}),
+            displayedArticles:new Map(),
             displayContentHistory: true,
         };
+
+        if(props.mainArticleId !==null){
+            this.state.displayedArticles.set(+props.mainArticleId,{selectionDate:new Date(),isOpen:true,activeComponent:'form'})
+        }
     }
 
     toggleCursor(){
@@ -702,6 +705,8 @@ class HBExplorer extends React.Component {
         const cursorDate = (hInterval!==null && cursorRate!==null)?hInterval.getBarycenterDate(cursorRate):null;
 
         //console.log(Array.from(displayedArticles));
+
+        console.log(displayedArticles);
 
         const articlesToDisplay = Array.from(displayedArticles).
         filter(([id,value])=>{

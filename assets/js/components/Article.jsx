@@ -21,25 +21,26 @@ class Article extends React.Component{
         this.state = {
             id: props.id||null,
             loading: false,
-            detailGroups:props.detailGroups || {"minimal":true,"abstract":true,
-                "detailImage":{"activeVersion":{"urlDetailThumbnail":true}}
-            },
-            formGroups:props.formGroups || {"minimal":true},
+            groups: {
+                detail : props.detailGroups || {"minimal":true,"date":true,"abstract":true,"detailImage":true},
+                form : props.formGroups ||
+                {"minimal":true,"date":true,"abstract":true,"detailImage":true}
+            }
         };
         console.log("Article built");
     }
 
     componentDidMount(){
         console.log("Article begin Mount");
-        const {dispatch} = this.props;
-        dispatch(getOneByIdIfNeeded("article",this.state.detailGroups, this.state.id,componentUid));
+        const {activeComponent,dispatch} = this.props;
+        dispatch(getOneByIdIfNeeded("article",this.state.groups[activeComponent], this.state.id,componentUid));
     }
 
     componentDidUpdate(prevProps) {
         if (prevProps.id !== this.props.id) {
             console.log(`update ${prevProps.id} vs ${this.props.id}`);
-            const {dispatch} = this.props;
-            dispatch(getOneByIdIfNeeded("article",this.state.detailGroups, this.props.id,componentUid));
+            const {activeComponent,dispatch} = this.props;
+            dispatch(getOneByIdIfNeeded("article",this.state.groups[activeComponent], this.props.id,componentUid));
             this.setState({id:this.props.id});
         }
     }
@@ -65,7 +66,7 @@ class Article extends React.Component{
                 <div hidden={activeComponent!=='detail'}>
                     <ArticleDetail
                         id={this.state.id}
-                        groups={this.state.detailGroups}
+                        groups={this.state.groups[activeComponent]}
                         data={selector(this.state.id)}
                         handleSwitch={handleSwitch}
                     />
@@ -76,7 +77,7 @@ class Article extends React.Component{
                     <ArticleForm
                     container={this.props.container || null}
                     id={this.state.id}
-                    groups={this.state.formGroups}
+                    groups={this.state.groups[activeComponent]}
                     handleSwitch={handleSwitch}
                     onNothing={this.props.onNothing}
                     />}

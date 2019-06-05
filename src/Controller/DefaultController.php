@@ -19,7 +19,7 @@ class DefaultController extends AbstractController
     /**
      * main controller for loading the spa
      * TODO : check for auth and no-auth redirecting
-     * @Route("/app/{sub}", name="homepage",requirements={"page"="\w+"})
+     * @Route("/app/{page}", name="homepage",requirements={"page"=".+"})
      * @throws \Exception
      * @Template()
      */

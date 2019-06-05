@@ -27,9 +27,10 @@ const getHIntervalFromArticles = (articles) => {
     let minDate=null;
     let maxDate = null;
 
-    let articleMinDate = null;
-    let articleMaxDate = null;
+    let articleMinDate = new Date(-4000, 1, 1);
+    let articleMaxDate = new Date();
 
+    console.log(articles);
     (articles || []).forEach(article => {
         articleMinDate = (article.beginHDate && article.beginHDate.beginDate) || new Date(-4000, 1, 1);
         articleMaxDate = (article.endHDate && article.endHDate.endDate) || new Date();
@@ -76,7 +77,7 @@ class HBExplorerProxy extends React.Component {
 
     componentDidMount(){
         const {searchBag} = this.state;
-        const {mainArticleId,dispatch} = this.props;
+        const {mainArticleId=null,dispatch} = this.props;
         if(mainArticleId !== null){
             loadMainArticle(mainArticleId,dispatch);
         }
@@ -87,7 +88,7 @@ class HBExplorerProxy extends React.Component {
 
     componentDidUpdate(prevProps) {
         console.log("update HBExplorerProxy");
-        const {mainArticleId,selector,getOneBydIdSelector,dispatch} = this.props;
+        const {mainArticleId=null,selector,getOneBydIdSelector,dispatch} = this.props;
 
         // mainArticle mode
         if(mainArticleId !== null){
@@ -110,7 +111,7 @@ class HBExplorerProxy extends React.Component {
     }
 
     render() {
-        const {mainArticleId,selector,getOneBydIdSelector,babiesSelector,totalSelector,notificationsSelector,dispatch} = this.props;
+        const {mainArticleId=null,selector,getOneByIdSelector,babiesSelector,totalSelector,notificationsSelector,dispatch} = this.props;
         const {searchBag} = this.state;
 
         const babies = babiesSelector();
@@ -121,7 +122,8 @@ class HBExplorerProxy extends React.Component {
 
         // mainArticle mode
         if(mainArticleId !== null) {
-            items = babies.concat([getOneBydIdSelector(+mainArticleId)]);
+            items = babies.concat([getOneByIdSelector(+mainArticleId)]).
+            filter((a)=>{return typeof a !== 'undefined' && a !== null;});
             loading = (notifications && notifications.hasIn([mainArticleId || 'DEFAULT',LOADING]))||false;
         }
         // default mode
@@ -142,6 +144,7 @@ class HBExplorerProxy extends React.Component {
                 background={COLORS.LOADING_BACKGROUND}
             >
                 <HBExplorer
+                    mainArticleId={mainArticleId }
                     articles={items}
                     hInterval={this.props.hInterval || getHIntervalFromArticles(items) || defaultHInterval}
                     dispatch={dispatch}
@@ -153,21 +156,14 @@ class HBExplorerProxy extends React.Component {
 }
 
 const mapStateToProps = state => {
-    const getOneByIdSelector = getOneByIdSelector || getOneByIdSelector(state.get("article"));
-    const selector = selector || getSelector(state.get("article"));
-    const babiesSelector = getBabiesSelector(state.get("article"));
-    const nextNewIdSelector = getNextNewIdSelector(state.get("article"));
-    const totalSelector = totalSelector2(state.get("article"));
-    const newlyCreatedIdSelector = getNewlyCreatedIdSelector(state.get("article"));
-    const notificationsSelector = getNotificationsSelector(state.get("app"));
     return {
-        getOneByIdSelector: getOneByIdSelector,
-        selector: selector,
-        babiesSelector:babiesSelector,
-        nextNewIdSelector: nextNewIdSelector,
-        totalSelector:totalSelector,
-        newlyCreatedIdSelector:newlyCreatedIdSelector,
-        notificationsSelector : notificationsSelector
+        getOneByIdSelector: getOneByIdSelector(state.get("article")),
+        selector: getSelector(state.get("article")),
+        babiesSelector:getBabiesSelector(state.get("article")),
+        nextNewIdSelector: getNextNewIdSelector(state.get("article")),
+        totalSelector:totalSelector2(state.get("article")),
+        newlyCreatedIdSelector:getNewlyCreatedIdSelector(state.get("article")),
+        notificationsSelector : getNotificationsSelector(state.get("app"))
     }
 };
 

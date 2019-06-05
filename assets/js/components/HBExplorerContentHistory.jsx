@@ -21,6 +21,7 @@ const HBExplorerContentHistory = (props) => {
     })
         .map(([id,v])=>{
             const article = selector(+id);
+            if(typeof article ==='undefined' || !article) return null;
             const value = article.detailImageResource;
 
             return (

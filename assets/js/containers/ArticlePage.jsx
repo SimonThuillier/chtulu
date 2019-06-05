@@ -1,19 +1,16 @@
 import React from 'react';
 import {connect} from "react-redux";
 import {getNewlyCreatedIdSelector, getNextNewIdSelector, getOneByIdSelector} from "../selectors/index";
-import Article from '../components/Article';
 import {Helmet} from 'react-helmet';
+import ArticleTitle from "../components/ArticleTitle";
+import HBExplorerProxy from "../components/HBExplorerProxy.jsx";
 
 export class ArticlePage extends React.Component {
     constructor(props) {
         super(props);
 
-        console.log("building articlePage");
         console.log(props);
         console.log(props.match.params.id);
-
-        this.handleComponentSwitch = this.handleComponentSwitch.bind(this);
-
 
         this.state = {
             id: +props.id||+props.match.params.id,
@@ -42,10 +39,6 @@ export class ArticlePage extends React.Component {
         }
     }
 
-    handleComponentSwitch(activeComponent='detail') {
-        this.setState({ activeComponent: activeComponent });
-    }
-
     render(){
         const {id} = this.state;
         const {selector} = this.props;
@@ -59,16 +52,14 @@ export class ArticlePage extends React.Component {
                     <title>{articleTitle}</title>
                 </Helmet>
                 <section className="content-header">
-                    <h4>{articleTitle}</h4>
+                    <h4><ArticleTitle id={+id}/></h4>
                 </section>
                 <section className="content">
-                    <Article
-                        id={this.state.id}
-                        activeComponent={this.state.activeComponent}
-                        detailGroups={this.state.detailGroups}
-                        formGroups={this.state.formGroups}
-                        handleSwitch={this.handleComponentSwitch}
+                    <div>
+                        <HBExplorerProxy
+                            mainArticleId={+id}
                         />
+                    </div>
                 </section>
             </div>
         )
