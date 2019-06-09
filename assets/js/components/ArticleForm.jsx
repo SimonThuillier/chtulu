@@ -18,13 +18,15 @@ const componentUid = require('uuid/v4')();
 import HDateInput from "./HDateInput";
 import ImageInput from "./ImageInput";
 import HBFormField from './HBFormField';
-import {Button,Tooltip,Row,Col} from 'react-bootstrap';
+import {Button,Tooltip,Row,Col,Popover,Overlay} from 'react-bootstrap';
 import Loadable from 'react-loading-overlay';
 import {previewTooltip,submitTooltip,resetTooltip,deleteTooltip} from './tooltips';
 import {LOADING,SUBMITTING,SUBMITTING_COMPLETED,COLORS} from '../util/notifications';
 import {HB_SUCCESS} from "../util/server";
 import {getAllPropertiesInGroups} from '../util/WAOUtil';
 import withContainer from './withContainer';
+import withExtraProps from './withExtraProps';
+import ResourcePicker from './ResourcePicker';
 
 const validate = values => {
     const errors = {};
@@ -64,6 +66,14 @@ const notificationAlert = (notification,dispatch) =>{
     </Alert>);
 };
 
+
+
+
+
+
+
+
+
 class ArticleForm extends React.Component{
     constructor(props) {
         super(props);
@@ -75,14 +85,51 @@ class ArticleForm extends React.Component{
         this.handleDelete = this.handleDelete.bind(this);
         this.shouldLoadData = this.shouldLoadData.bind(this);
 
+        this.toggleResourcePickerShow = this.toggleResourcePickerShow.bind(this);
+        this.setResourcePickerTarget = this.setResourcePickerTarget.bind(this);
+        this.setResourcePickerComponent = this.setResourcePickerComponent.bind(this);
+
+        console.log(props);
+
         this.state = {
             groups:props.groups || {"minimal":true},
             data:null,
             resource:null,
-            resourceVersion:null
+            resourceVersion:null,
+            resourcePickerConfig:{target:null,show:false,component:null}
         };
         
         this.loadingArticleId = null;
+
+        console.log("instanciate article form");
+    }
+
+    toggleResourcePickerShow(){
+        const {resourcePickerConfig} = this.state;
+        this.setState({resourcePickerConfig: {
+                target:resourcePickerConfig.target,
+                show:!resourcePickerConfig.show,
+                component:resourcePickerConfig.component
+        }});
+    }
+
+    setResourcePickerTarget(target){
+        const {resourcePickerConfig} = this.state;
+        if(resourcePickerConfig.target !== null) return;
+        this.setState({resourcePickerConfig:{
+                target:target,
+                show:resourcePickerConfig.show,
+                component:resourcePickerConfig.component
+        }});
+    }
+
+    setResourcePickerComponent(component){
+        const {resourcePickerConfig} = this.state;
+        this.setState({resourcePickerConfig:{
+                target:resourcePickerConfig.target,
+                show:resourcePickerConfig.show,
+                component:component
+            }});
     }
 
     shouldLoadData(data){
@@ -240,7 +287,7 @@ class ArticleForm extends React.Component{
     }
 
     render(){
-        //console.log("render called");
+        console.log("render article form");
         const { onSubmit, reset, load,valid,pendingForm,dispatch,notificationsSelector,pristine} = this.props;
         const {groups} = this.state;
         //console.log("render form");
@@ -315,9 +362,16 @@ class ArticleForm extends React.Component{
                     />}
                     {typeof groups.detailImage !== 'undefined' &&
                     <Field
+                        ref={target => this.setResourcePickerTarget(target)}
+                        key={`image-input-${componentUid}`}
                         name="detailImageResource"
                         type="text"
-                        component={withContainer(ImageInput,this.props.container||null)}
+                        component={withExtraProps(ImageInput,{
+                            container:this.props.container||null,
+                            setResourcePickerTarget:this.setResourcePickerTarget,
+                            toggleResourcePickerShow:this.toggleResourcePickerShow,
+                            setResourcePickerComponent:this.setResourcePickerComponent
+                        })}
                         label="Image de presentation"
                     />}
                     {typeof groups.abstract!== 'undefined' &&
@@ -328,6 +382,26 @@ class ArticleForm extends React.Component{
                         component={HBFormField}
                         label="Résumé"
                     />}
+                    <Overlay
+                        key={`overlay-trigger-${componentUid}`}
+                        target={this.state.resourcePickerConfig.target}
+                        placement="left"
+                        // rootClose={true}
+                        container={this.props.container || null}
+                        show={this.state.resourcePickerConfig.show}
+                        // rootCloseEvent={'click'}
+                        // overlay={
+                        //
+                        // }
+                    >
+                        <Popover key={`popover-${componentUid}`} id="popover-contained">
+                            <ResourcePicker
+                                initialValue={null}
+                                onClose={null}
+                                onSave={null}
+                            />
+                        </Popover>
+                    </Overlay>
                     <Row>
                         <Col md={9}>
                             <OverlayTrigger placement="bottom" overlay={previewTooltip("votre article")}>

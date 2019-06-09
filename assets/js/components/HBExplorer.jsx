@@ -721,6 +721,7 @@ class HBExplorer extends React.Component {
         // console.log(articlesToDisplay);
 
         const articlePanels = articlesToDisplay.map(([id,value])=>{
+            console.log(value.activeComponent);
             return (
                 <div className="panel panel-default hg-content-panel"
                     key={`hg-container-article-panel-${id}`}
@@ -748,12 +749,17 @@ class HBExplorer extends React.Component {
                         <Article
                             dispatch={dispatch}
                             id={id}
-                            activeComponent={value.activeComponent}
-                            detailGroups={{"minimal":true,"date":true,"abstract":true,"detailImage":true}}
-                            formGroups={{"minimal":true,"date":true,"abstract":true,"detailImage":true}}
-                            handleSwitch={null}
+                            handleSwitch={()=>{this.toggleActiveComponent([id]);}}
                             onNothing={null}
-                        />
+                            groups={{"minimal":true,"date":true,"abstract":true,"detailImage":true}}
+                        >
+                            <div hidden={value.activeComponent!=='detail'}>
+                                <Article.Detail/>
+                            </div>
+                            <div hidden={value.activeComponent!=='form'}>
+                                <Article.Form/>
+                            </div>
+                        </Article>
                     </div>
                     <div className="panel-footer hg-content-panel-footer">
 

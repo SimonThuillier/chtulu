@@ -1,5 +1,4 @@
 import React from "react";
-import {Popover,OverlayTrigger,Tooltip,Image,ControlLabel,FormGroup,FormControl} from 'react-bootstrap';
 import Loadable from 'react-loading-overlay';
 const componentUid = require('uuid/v4')();
 import { getOneByIdIfNeeded} from "../actions";
@@ -8,51 +7,91 @@ import ArticleForm from './ArticleForm';
 import {getOneByIdSelector,getNotificationsSelector} from "../selectors";
 import {connect} from "react-redux";
 import {LOADING,COLORS} from '../util/notifications';
+import Groupable from './Groupable';
 
-/*const formDataTransformer = {
-    abstract:function(value){
-        return value.replace('<br />',"\n");
-    }
-};*/
+const Detail = ({groups}) => {
+    return (
+        <ArticleContext.Consumer>
+            {({ id, groups:cGroups,data,handleSwitch }) => (
+                <ArticleDetail
+                    id={id}
+                    data={data}
+                    groups={groups || cGroups}
+                    handleSwitch={handleSwitch}
+                />
+            )}
+        </ArticleContext.Consumer>
+    );
+};
+
+const Form = ({groups}) => {
+    console.log(groups);
+    return (
+        <ArticleContext.Consumer>
+            {({ id, groups:cGroups,data,handleSwitch,container}) => (
+                <ArticleForm
+                    id={id}
+                    container={container}
+                    groups={cGroups}
+                    handleSwitch={handleSwitch}
+                />
+            )}
+        </ArticleContext.Consumer>
+    );
+};
+
+
+
+
+const defaultGroups = {"minimal":true,"date":true,"abstract":true,"detailImage":true};
+
+// This creates the "Article Context" i.e. an object containing a Provider and a Consumer component
+const ArticleContext = React.createContext({groups:defaultGroups});
 
 class Article extends React.Component{
+    static Detail = Detail;
+    static Form = Form;
+
     constructor(props) {
         super(props);
         this.state = {
             id: props.id||null,
             loading: false,
-            groups: {
-                detail : props.detailGroups || {"minimal":true,"date":true,"abstract":true,"detailImage":true},
-                form : props.formGroups ||
-                {"minimal":true,"date":true,"abstract":true,"detailImage":true}
-            }
         };
-        console.log("Article built");
+        //console.log("Article built");
     }
 
     componentDidMount(){
-        console.log("Article begin Mount");
-        const {activeComponent,dispatch} = this.props;
-        dispatch(getOneByIdIfNeeded("article",this.state.groups[activeComponent], this.state.id,componentUid));
+        //console.log("Article begin Mount");
+        const {groups=defaultGroups,dispatch} = this.props;
+        dispatch(getOneByIdIfNeeded("article",groups, this.state.id,componentUid));
     }
 
     componentDidUpdate(prevProps) {
         if (prevProps.id !== this.props.id) {
-            console.log(`update ${prevProps.id} vs ${this.props.id}`);
-            const {activeComponent,dispatch} = this.props;
-            dispatch(getOneByIdIfNeeded("article",this.state.groups[activeComponent], this.props.id,componentUid));
+            //console.log(`update ${prevProps.id} vs ${this.props.id}`);
+            const {groups=defaultGroups,dispatch} = this.props;
+            dispatch(getOneByIdIfNeeded("article",groups, this.props.id,componentUid));
             this.setState({id:this.props.id});
         }
     }
 
     render(){
-        const {selector,notificationsSelector,activeComponent,handleSwitch} = this.props;
+        const {id} = this.state;
+        const {selector,notificationsSelector,handleSwitch,container,groups=defaultGroups} = this.props;
         const notifications = notificationsSelector(componentUid);
-        const loading = (notifications && notifications.hasIn([this.state.id || 'DEFAULT',LOADING]))||false;
+        const loading = (notifications && notifications.hasIn([id || 'DEFAULT',LOADING]))||false;
         //,this.state.id || 'DEFAULT',LOADING]);
-        console.log("notifications");
+        /*console.log("notifications");
         console.log(loading);
-        console.log(notifications);
+        console.log(notifications);*/
+        const contextValue = {
+            id:id,
+            data:selector(id),
+            groups:groups,
+            handleSwitch:handleSwitch,
+            container:container || null
+        };
 
         return (
             <Loadable
@@ -62,26 +101,31 @@ class Article extends React.Component{
                 color={COLORS.LOADING}
                 background={COLORS.LOADING_BACKGROUND}
             >
-                {activeComponent==='detail' &&
-                <div hidden={activeComponent!=='detail'}>
-                    <ArticleDetail
-                        id={this.state.id}
-                        groups={this.state.groups[activeComponent]}
-                        data={selector(this.state.id)}
-                        handleSwitch={handleSwitch}
-                    />
-                </div>}
-                {activeComponent==='form' &&
-                <div hidden={activeComponent!=='form'}>
-                    {activeComponent==='form' &&
-                    <ArticleForm
-                    container={this.props.container || null}
-                    id={this.state.id}
-                    groups={this.state.groups[activeComponent]}
-                    handleSwitch={handleSwitch}
-                    onNothing={this.props.onNothing}
-                    />}
-                </div>}
+                <ArticleContext.Provider
+                    value = {contextValue}
+                >
+                    {this.props.children}
+                </ArticleContext.Provider>
+                {/*{activeComponent==='detail' &&*/}
+                {/*<div hidden={activeComponent!=='detail'}>*/}
+                    {/*<ArticleDetail*/}
+                        {/*id={this.state.id}*/}
+                        {/*groups={this.state.groups[activeComponent]}*/}
+                        {/*data={selector(this.state.id)}*/}
+                        {/*handleSwitch={handleSwitch}*/}
+                    {/*/>*/}
+                {/*</div>}*/}
+                {/*{activeComponent==='form' &&*/}
+                {/*<div hidden={activeComponent!=='form'}>*/}
+                    {/*{activeComponent==='form' &&*/}
+                    {/*<ArticleForm*/}
+                    {/*container={this.props.container || null}*/}
+                    {/*id={this.state.id}*/}
+                    {/*groups={this.state.groups[activeComponent]}*/}
+                    {/*handleSwitch={handleSwitch}*/}
+                    {/*onNothing={this.props.onNothing}*/}
+                    {/*/>}*/}
+                {/*</div>}*/}
             </Loadable>
         );
     }

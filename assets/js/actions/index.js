@@ -100,8 +100,8 @@ export const uploadResource = (file,name,contentType,resourceType,senderKey,reso
     console.log("upload resource");
 
     let dataToPost = DataToPost();
-    console.log(`dataToPost`);
-    console.log(dataToPost);
+    /*console.log(`dataToPost`);
+    console.log(dataToPost);*/
 
 
     const url = getUrl(URL_UPLOAD,{
@@ -116,6 +116,8 @@ export const uploadResource = (file,name,contentType,resourceType,senderKey,reso
     httpProps.body = file;
 
     //console.log(httpProps);
+
+    //console.log(`senderKey : ${senderKey}`);
 
     dispatch(notify(SUBMITTING,senderKey,0));
 
@@ -133,11 +135,9 @@ export const uploadResource = (file,name,contentType,resourceType,senderKey,reso
                         const resourceId = Object.keys(json.data.resource)[0];
                         dispatch(notify(SUBMITTING_COMPLETED,senderKey || 'HBAPP',0,HB_SUCCESS,{resourceId:+resourceId}));
                         handlePostBackData(json.data,dispatch);
-                        //dispatch(receiveGet(waoType,groups,searchBag,json.rows,json.total,json.message));
                         break;
                     case HB_ERROR:
                         dispatch(notify(SUBMITTING_COMPLETED,senderKey || 'HBAPP',0,HB_ERROR));
-                        //dispatch(errorGet(waoType,groups,searchBag,json.message));
                         break;
                     default:
                 }

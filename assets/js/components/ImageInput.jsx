@@ -9,7 +9,7 @@ import {getOneByIdIfNeeded} from "../actions";
 import RImageMini from './RImageMini';
 import {SUBMITTING_COMPLETED} from "../util/notifications";
 import {getAllPropertiesInGroups} from "../util/WAOUtil";
-import FileUploadForm2 from './FileUploadForm2';
+const componentUid = require('uuid/v4')();
 
 const defaultStyles = {
     horizontal:{
@@ -22,6 +22,8 @@ const defaultStyles = {
     }
 };
 
+let initialShow = false;
+
 class ImageInput extends Component {
     constructor(props) {
         super(props);
@@ -29,20 +31,34 @@ class ImageInput extends Component {
         this.handleSave = this.handleSave.bind(this);
         this.handleClose = this.handleClose.bind(this);
 
-        this.inputRef = null;
+        this.setTarget = this.setTarget.bind(this);
 
-        this.state = {
-        };
+        this.targetRef = null;
+
+        console.log("instanciate image input");
+
+    }
+
+    setTarget(target){
+        const {setResourcePickerTarget} = this.props;
+
+        /*if(target !== this.targetRef){
+            this.targetRef = target;
+            setResourcePickerTarget(target);
+        }*/
     }
 
     componentDidMount() {
         console.log("image input didmount");
-        const {value} = this.props;
+        const {value,setResourcePickerComponent} = this.props;
         if(value){
             /*dispatch(getOneByIdIfNeeded("resource",
                 {minimal:true,activeVersion:{urlMini:true}},
                 this.props.id));*/
         }
+
+        /*setResourcePickerComponent((
+        ));*/
     }
 
     componentDidUpdate(prevProps) {
@@ -70,8 +86,7 @@ class ImageInput extends Component {
     }
 
     render(){
-
-        const { input, label, type,  meta: {touched,error,warning} ,dispatch,selector,value} = this.props;
+        const { input, label, type,  meta: {touched,error,warning} ,dispatch,selector,value,toggleResourcePickerShow} = this.props;
         console.log("render image input");
         console.log(input);
         let id = input.value;
@@ -86,6 +101,7 @@ class ImageInput extends Component {
             resourceLabel = resource.get("name");
         }
 
+        console.log(`rerender image input ${componentUid}`);
 
 
         switch(alignment){
@@ -129,34 +145,21 @@ class ImageInput extends Component {
             default:
                 return (
                     <FormGroup
+                        key={`image-input-${componentUid}`}
                         validationState={!touched?null:(error?"error":(warning?"warning":"success"))}
                         style={style} >
                         <Col sm={3} md={2}>
                             <ControlLabel>{label}</ControlLabel>
                         </Col>
                         <Col sm={9} md={10}>
-                            <OverlayTrigger
-                                trigger="click"
-                                placement="left"
-                                rootClose={true}
-                                container={this.props.container || null}
-                                rootCloseEvent={'click'}
-                                overlay={
-                                    <Popover id="popover-contained">
-                                        <ResourcePicker
-                                            initialValue={input.value}
-                                            onClose={this.handleClose}
-                                            onSave={this.handleSave}
-                                        />
-                                    </Popover>
-                                }
-                            >
-                                <div ref={input => (this.inputRef = input)}>
-                                    <Button>{resourceLabel}&nbsp;
-                                        <RImageMini id={id}/>
-                                    </Button>
-                                </div>
-                            </OverlayTrigger>
+                            <div ref={this.setTarget}>
+                                <Button
+                                    onClick={toggleResourcePickerShow}
+                                >
+                                    {resourceLabel}&nbsp;
+                                    <RImageMini id={id}/>
+                                </Button>
+                            </div>
                         </Col>
                         {touched && (error || warning) &&
                         <HelpBlock>{error || warning}</HelpBlock>

@@ -2,8 +2,6 @@ import React from "react";
 import {getOneByIdSelector, getNotificationsSelector, getNextNewIdSelector} from "../selectors";
 import { connect} from 'react-redux';
 import {uploadResource,discard} from '../actions';
-import ArticleTypeSelect from "./ArticleTypeSelect";
-const componentUid = require('uuid/v4')();
 import {
     Button,
     Tooltip,
@@ -62,6 +60,8 @@ const notificationAlert = (notification,dispatch) =>{
     </Alert>);
 };
 
+const componentUid = require('uuid/v4')();
+
 class FileUploadForm extends React.Component{
     constructor(props) {
         super(props);
@@ -103,9 +103,9 @@ class FileUploadForm extends React.Component{
     }
 
     onUpload(e){
+        console.clear();
         const {dispatch} = this.props;
         const {file,finalName} = this.state;
-        console.clear();
         dispatch(uploadResource(file,finalName,file.type,RESOURCE_IMAGE,componentUid,null));
     }
 

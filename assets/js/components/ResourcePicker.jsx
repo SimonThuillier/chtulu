@@ -16,7 +16,7 @@ import {
     PanelGroup
 } from 'react-bootstrap';
 import FileUploadForm from './FileUploadForm';
-
+const componentUid = require('uuid/v4')();
 
 const defaultStyle = {
     position: "absolute",
@@ -81,6 +81,7 @@ class ResourcePicker extends Component {
             <Panel
                 style={this.state.style}
                 className={className}
+                key={`resource-picker-${componentUid}`}
             >
                 <Panel.Heading align="center">
                     Choisissez une Image <Glyphicon glyph="picture" />
