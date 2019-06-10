@@ -9,7 +9,11 @@
 namespace App\Serializer;
 
 use App\DTO\ResourceDTO;
+use App\Entity\HResource;
+use App\Factory\DTOFactory;
+use App\Factory\MediatorFactory;
 use App\Helper\WAOHelper;
+use App\Mediator\DTOMediator;
 use App\Mediator\NotAvailableGroupException;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -23,15 +27,25 @@ use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 class ResourceDTONormalizer extends HNormalizer implements NormalizerInterface
 {
 
+    /** @var ManagerRegistry $doctrine */
+    private $doctrine;
+    /** @var MediatorFactory $mediatorFactory */
+    private $mediatorFactory;
+
     /**
      * @param ManagerRegistry $doctrine
      * @param ResourceVersionDTONormalizer $versionDtoNormalizer
      * @param WAOHelper $waoHelper
+     * @param MediatorFactory $mediatorFactory
      */
     public function __construct(ManagerRegistry $doctrine,
                                 ResourceVersionDTONormalizer $versionDtoNormalizer,
-                                WAOHelper $waoHelper)
+                                WAOHelper $waoHelper,
+                                MediatorFactory $mediatorFactory
+    )
     {
+        $this->doctrine = $doctrine;
+        $this->mediatorFactory = $mediatorFactory;
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
             $versionDtoNormalizer,
@@ -81,8 +95,25 @@ class ResourceDTONormalizer extends HNormalizer implements NormalizerInterface
     {
         if(is_object($data) && get_class($data) === $class ) return $data;
 
+        if(array_key_exists("id",$data)){
+            $id = intval($data["id"]);
+            if(!$id || $id < 0) return null;
+            $resource = $this->doctrine->getRepository(HResource::class)->find($id);
+            if(!$resource) return null;
 
-        $denormalization = parent::defaultDenormalize($data, $class, $format,$context);
-        return $denormalization;
+
+            $mediator = $this->mediatorFactory->create(ResourceDTO::class,$resource);
+            $mediator->mapDTOGroups(["minimal"=>true],DTOMediator::NOTHING_IF_NULL);
+
+            $denormalization = $mediator->getDTO();
+            $test = 'lol';
+            return $denormalization;
+        }
+
+
+
+
+        //$denormalization = parent::defaultDenormalize($data, $class, $format,$context);
+        //return $denormalization;
     }
 }

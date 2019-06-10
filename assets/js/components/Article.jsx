@@ -9,7 +9,7 @@ import {connect} from "react-redux";
 import {LOADING,COLORS} from '../util/notifications';
 import Groupable from './Groupable';
 
-const Detail = ({groups}) => {
+const SubDetail = ({groups}) => {
     return (
         <ArticleContext.Consumer>
             {({ id, groups:cGroups,data,handleSwitch }) => (
@@ -24,17 +24,19 @@ const Detail = ({groups}) => {
     );
 };
 
-const Form = ({groups}) => {
-    console.log(groups);
+const SubForm = ({groups}) => {
     return (
         <ArticleContext.Consumer>
             {({ id, groups:cGroups,data,handleSwitch,container}) => (
-                <ArticleForm
-                    id={id}
-                    container={container}
-                    groups={cGroups}
-                    handleSwitch={handleSwitch}
-                />
+                <Groupable groups={groups || cGroups} subKey={`article-${id}-form`}>
+                    <ArticleForm
+                        id={id}
+                        container={container}
+                        groups={groups || cGroups}
+                        handleSwitch={handleSwitch}
+                    >
+                    </ArticleForm>
+                </Groupable>
             )}
         </ArticleContext.Consumer>
     );
@@ -43,14 +45,12 @@ const Form = ({groups}) => {
 
 
 
-const defaultGroups = {"minimal":true,"date":true,"abstract":true,"detailImage":true};
-
 // This creates the "Article Context" i.e. an object containing a Provider and a Consumer component
-const ArticleContext = React.createContext({groups:defaultGroups});
+const ArticleContext = React.createContext();
 
 class Article extends React.Component{
-    static Detail = Detail;
-    static Form = Form;
+    static Detail = SubDetail;
+    static Form = SubForm;
 
     constructor(props) {
         super(props);
@@ -63,14 +63,14 @@ class Article extends React.Component{
 
     componentDidMount(){
         //console.log("Article begin Mount");
-        const {groups=defaultGroups,dispatch} = this.props;
+        const {groups,dispatch} = this.props;
         dispatch(getOneByIdIfNeeded("article",groups, this.state.id,componentUid));
     }
 
     componentDidUpdate(prevProps) {
         if (prevProps.id !== this.props.id) {
             //console.log(`update ${prevProps.id} vs ${this.props.id}`);
-            const {groups=defaultGroups,dispatch} = this.props;
+            const {groups,dispatch} = this.props;
             dispatch(getOneByIdIfNeeded("article",groups, this.props.id,componentUid));
             this.setState({id:this.props.id});
         }
@@ -78,7 +78,7 @@ class Article extends React.Component{
 
     render(){
         const {id} = this.state;
-        const {selector,notificationsSelector,handleSwitch,container,groups=defaultGroups} = this.props;
+        const {selector,notificationsSelector,handleSwitch,container,groups} = this.props;
         const notifications = notificationsSelector(componentUid);
         const loading = (notifications && notifications.hasIn([id || 'DEFAULT',LOADING]))||false;
         //,this.state.id || 'DEFAULT',LOADING]);

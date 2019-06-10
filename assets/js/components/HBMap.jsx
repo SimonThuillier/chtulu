@@ -27,11 +27,11 @@ export default class HBMap extends React.Component {
         );
 
         this.templateIcon = L.icon({
-            iconUrl: 'http://localhost:8000/media/cache/mini/246-clement-1.jpeg',
+            iconUrl: 'http://localhost:8000/media/personnage.jpeg',
             iconSize: [30, 30],
             iconAnchor: [15, 15],
             popupAnchor: [7, -15],
-            shadowUrl: 'http://localhost:8000/media/cache/mini/246-clement-1.jpeg',
+            shadowUrl: 'http://localhost:8000/media/personnage.jpeg',
             shadowSize: [0, 0],
             shadowAnchor: [0,0]
         });

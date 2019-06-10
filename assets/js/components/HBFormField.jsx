@@ -18,71 +18,29 @@ const defaultStyles = {
     }
 };
 
-const HBFormField = (props) => {
-    const { input, label,placeholder, type, meta: {touched,error,warning},onChange } = props;
-    const alignment = props.alignment || 'horizontal';
-    const style = Object.assign(defaultStyles[alignment],props.style || {});
+const SubLabel = ({}) => {
+    return (
+        <HBFormFieldContext.Consumer>
+            {({label,touched}) => (
+                <ControlLabel>
+                    {label} &nbsp; {touched && <FormControl.Feedback/>}
+                </ControlLabel>)}
+        </HBFormFieldContext.Consumer>
+    );
+};
 
-    const extraProps = {};
-    console.log("render field");
-
-    switch(alignment){
-        case 'vertical':
-            return (
-                <FormGroup
-                    controlId={(type === 'select')?'formControlsSelect':'formBasicText'}
-                    validationState={error?"error":(warning?"warning":"success")}
-                    style={style}
-                >
-                    <ControlLabel>{label}</ControlLabel>
-                    {type !== 'checkbox' &&
-                    <FormControl
-                        {...input}
-                        componentClass={getComponentClassType(type)}
-                        type={type}
-                        placeholder={placeholder || label}
-                    >
-                        {(type === 'select' && props.options)?props.options:null}
-                    </FormControl>
-                    }
-                    {type === 'checkbox' &&
-                    checkbox
-                    }
-                    {touched && error && <span>{error}</span>}
-                    <FormControl.Feedback />
-                    {(error || warning) &&
-                    <HelpBlock>{error|| warning}</HelpBlock>
-                    }
-                </FormGroup>
-            );
-        default:
-            return (
-
-                <FormGroup
-                    controlId={(type === 'select')?'formControlsSelect':'formBasicText'}
-                    validationState={error?"error":(warning?"warning":"success")}
-                    style={style}
-                >
-                    <Col xs={4} sm={3} md={2}>
-                        <ControlLabel>{label}</ControlLabel>
-                    </Col>
-                    <Col xs={8} sm={9} md={10}>
-                        {type !== 'checkbox' &&
-                        <FormControl
-                            {...input}
-                            componentClass={getComponentClassType(type)}
-                            type={type}
-                            placeholder={placeholder || label}
-                        >
-                            {(type === 'select' && props.options)?props.options:null}
-                        </FormControl>
-                        }
-                        {type === 'checkbox' &&
-                        <Checkbox
-                            checkboxClass="icheckbox_square-blue"
-                            increaseArea="20%"
-                            checked= {input.checked}
-                            onChange={(event)=>{
+// returns either a classic control or a checkbox depending on the required type
+const SubInput = ({}) => {
+    return (
+        <HBFormFieldContext.Consumer>
+            {({input,type,placeholder,label,options,onChange}) => (
+                (type === 'checkbox')?
+                    <Checkbox
+                        cursor={null}
+                        checkboxClass="icheckbox_square-blue"
+                        increaseArea="20%"
+                        checked= {input.checked}
+                        onChange={(event)=>{
                             console.log("change of checkbox value");
                             console.log(event);
                             if(onChange) onChange();
@@ -90,15 +48,85 @@ const HBFormField = (props) => {
                             //input.onFocus(event);
                             //input.onBlur(event);
                         }}
-                            />
-                        }
-                        {(error || warning) &&
-                        <HelpBlock>{error || warning}</HelpBlock>
-                        }
-                    </Col>
-                </FormGroup>
-            );
-    }
+                    />
+                    :
+                    <FormControl
+                        {...input}
+                        componentClass={getComponentClassType(type)}
+                        type={type}
+                        placeholder={placeholder || label}
+                    >
+                        {(type === 'select' && options)?options:null}
+                    </FormControl>
+            )}
+        </HBFormFieldContext.Consumer>
+    );
+};
+
+const SubHelpBlock = ({}) => {
+    return (
+        <HBFormFieldContext.Consumer>
+            {({touched,error,warning}) => (
+
+                <span>
+                    {(error || warning) &&
+                    <HelpBlock>{error|| warning}</HelpBlock>
+                    }
+                </span>
+            )}
+        </HBFormFieldContext.Consumer>
+    );
+};
+
+const HBFormFieldContext = React.createContext({});
+
+const HBFormField = (props) => {
+    const { input, label,placeholder, type, meta: {touched,error,warning},onChange,options } = props;
+    const alignment = props.alignment || 'horizontal';
+    const style = Object.assign(defaultStyles[alignment],props.style || {});
+
+    const extraProps = {};
+    //console.log("render field");
+
+    const contextValue = {
+        label:label,
+        placeholder:placeholder,
+        input:input,
+        type:type,
+        options:options,
+        touched:touched,
+        error:error,
+        warning:warning,
+        onChange:onChange
+    };
+
+    return (
+        <FormGroup
+            controlId={(type === 'select')?'formControlsSelect':'formBasicText'}
+            validationState={error?"error":(warning?"warning":"success")}
+            style={style}
+        >
+            <HBFormFieldContext.Provider value={contextValue}>
+                {(alignment === 'vertical')?
+                    <div>
+                        <SubLabel/>
+                        <SubInput/>
+                        <SubHelpBlock/>
+                    </div> :
+                    <div>
+                        <Col xs={4} sm={3} md={2}>
+                            <SubLabel/>
+                        </Col>
+                        <Col xs={8} sm={9} md={10}>
+                            <SubInput/>
+                            <SubHelpBlock/>
+                        </Col>
+                    </div>
+                }
+            </HBFormFieldContext.Provider>
+        </FormGroup>
+    );
+
 };
 
 export default HBFormField;

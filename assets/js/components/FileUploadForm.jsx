@@ -53,7 +53,7 @@ const notificationAlert = (notification,dispatch) =>{
     const notifType = notification.get("notifType");
     const senderKey = notification.get("senderKey");
     const senderParam = notification.get("senderParam");
-    const message = (status === HB_SUCCESS)?"Le fichier a bien été chargé":"Erreur ! ";
+    const message = (status === HB_SUCCESS)?"Le fichier a bien été chargé":notification.get("message");
 
     return (<Alert bsStyle={status} onDismiss={()=>{dispatch(discard(notifType,senderKey,senderParam))}}>
         <p>{message}</p>
@@ -118,7 +118,8 @@ class FileUploadForm extends React.Component{
     }
 
     componentDidUpdate(prevProps) {
-        /*if (prevProps.notificationsSelector !== this.props.notificationsSelector) {
+        if (prevProps.notificationsSelector !== this.props.notificationsSelector) {
+            console.clear();
             const notifications = this.props.notificationsSelector(componentUid);
             let submittingCompleted = (notifications && notifications.
             getIn([(this.state.data && this.state.data.id) || 'DEFAULT',SUBMITTING_COMPLETED]))||null;
@@ -130,9 +131,9 @@ class FileUploadForm extends React.Component{
                 if(submittingCompleted.get("extraData") && submittingCompleted.get("extraData").resourceId){
                     this.setResource(submittingCompleted.get("extraData").resourceId);
                 }
-                this.props.dispatch(formUntouch(componentUid,['file','name','type','size']));
+                //this.props.dispatch(formUntouch(componentUid,['file','name','type','size']));
             }
-        }*/
+        }
     }
 
     render(){
@@ -156,6 +157,7 @@ class FileUploadForm extends React.Component{
         getIn([(id) || 'DEFAULT',SUBMITTING_COMPLETED]))||null;
         submittingCompleted = (submittingCompleted && !submittingCompleted.get("discardedAt"))?submittingCompleted:null;
         // console.log("begin fileUploadFormRender : 1");
+        console.log(submittingCompleted);
         return (
             <Loadable
                 active={submitting}
@@ -168,7 +170,7 @@ class FileUploadForm extends React.Component{
                 <Form horizontal onSubmit={(e)=>{}}>
                     <FormGroup
                         controlId="file"
-                        validationState={hasFile?((errors.file === null)?`success`:`error`):``}
+                        validationState={hasFile?((errors.file === null)?`success`:`error`):null}
                     >
                         <Col sm={3}/>
                         <Col sm={9}>
@@ -178,7 +180,7 @@ class FileUploadForm extends React.Component{
                                 bsStyle={hasFile?((errors.file === null)?`success`:`danger`):`default`}
                                 style={{color:hasFile?(`white`):`black`}}
                             >
-                                <input type="file" onChange={this.onFileSelection}/>
+                                <input type="file" value={undefined} onChange={this.onFileSelection}/>
                                     {hasFile?(file.name):`Chargez une image`}
                             </Button>
                             {(hasFile && errors.file !== null) && <HelpBlock>{errors.file}</HelpBlock>}
@@ -186,7 +188,7 @@ class FileUploadForm extends React.Component{
                     </FormGroup>
                     <FormGroup
                         controlId="fileName"
-                        validationState={hasFile?((errors.finalName === null)?`success`:`error`):``}
+                        validationState={hasFile?((errors.finalName === null)?`success`:`error`):null}
                     >
                         <Col componentClass={ControlLabel} sm={3}>
                             <ControlLabel>Nom final</ControlLabel>
@@ -195,7 +197,7 @@ class FileUploadForm extends React.Component{
                             <FormControl
                                 type="text"
                                 required={true}
-                                value={finalName}
+                                value={finalName || ''}
                                 readOnly={!hasFile}
                                 onChange={(e)=>{this.setState({finalName: e.target.value})}}
                             />

@@ -109,7 +109,7 @@ class HBExplorerPanelArticle extends React.Component {
                 xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <pattern id="article-image" x="0" y="0" patternUnits="userSpaceOnUse" height="30" width="30">
-                        <image x={deltaX} y="0" href="http://localhost:8000/media/cache/mini/246-clement-1.jpeg"/>
+                        <image x={deltaX} y="0" href="http://localhost:8000/media/personnage.jpeg"/>
                     </pattern>
                 </defs>
                 <rect

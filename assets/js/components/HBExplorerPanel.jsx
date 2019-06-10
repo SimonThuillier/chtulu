@@ -286,8 +286,8 @@ export default class HBExplorerPanel extends React.Component {
     // liste des articles
     let articleProxies = null;
     if (articles !== prevProps.articles) {
-      console.log("diff article dans le panel");
-      console.log(articles);
+      //console.log("diff article dans le panel");
+      //console.log(articles);
       articleProxies = new Map();
         (articles || [])
         .filter(article => true)
@@ -419,7 +419,7 @@ export default class HBExplorerPanel extends React.Component {
     const initialMovePanelDate = this.state.timeScale.invert(initialPosition.x);
 
     const currentTime = new Date().getTime();
-    console.log(currentTime - this.lastDiscreteEventTime);
+    //console.log(currentTime - this.lastDiscreteEventTime);
     /*if (currentTime < this.lastDiscreteEventTime + 200) {
       console.log(
         `panel top y : ${this.panelRef.getBoundingClientRect().bottom -

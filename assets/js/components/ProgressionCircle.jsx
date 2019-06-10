@@ -63,8 +63,9 @@ class ProgressionCircle extends React.Component {
       startAngle = Math.PI / 2,
       sense = -1,
       staticRate = 0,
-        key = 'vanilla',
     } = this.props;
+
+    const key = this.key;
 
     const { rate } = this.props;
 

@@ -38,15 +38,15 @@ class App extends Component {
     render(){
         const {notificationsSelector,pendingTotalSelector} = this.props;
         let appProps = this.props;
-        console.log(appProps);
+        //console.log(appProps);
 
         let pendingTotal = pendingTotalSelector();
-        console.log("pendingTotal");
-        console.log(pendingTotal);
+        /*console.log("pendingTotal");
+        console.log(pendingTotal);*/
 
         const notifications = notificationsSelector('HBAPP');
-        console.log("HBAPP notifications");
-        console.log(notifications);
+        /*console.log("HBAPP notifications");
+        console.log(notifications);*/
         const submitting = (notifications && notifications.hasIn(['DEFAULT',SUBMITTING]))||false;
 
         let submittingCompleted = (notifications && notifications.

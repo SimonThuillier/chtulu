@@ -75,7 +75,7 @@ class ResourcePicker extends Component {
     }
 
     render(){
-        const { className, onClose, onSave } = this.props;
+        const { className, onClose, onSave} = this.props;
 
         return(
             <Panel
@@ -119,6 +119,7 @@ class ResourcePicker extends Component {
                                 disabled={!this.isValid()}
                                 align={"center"}
                                 onClick={() => {
+                                    console.log(`resourcepicker save : ${this.state.id}`);
                                     onSave(this.state.id);
                                     onClose();
                                 }}

@@ -108,21 +108,21 @@ const appReducer = (state=initialAppState, action) =>{
             }
             return state;
         case REMOVE_PENDING:
-            console.log("remove pending");
-            console.log(action);
+            /*console.log("remove pending");
+            console.log(action);*/
             if(state.hasIn(["entitiesToPost",waoType,+id])){
                 let pendingGroups = state.getIn(["entitiesToPost",waoType,+id]);
-                console.log("pending groups");
+                /*console.log("pending groups");
                 console.log(pendingGroups);
                 console.log("groups to remove from pending");
-                console.log(groups);
+                console.log(groups);*/
                 if(!groups){
                     state = state.removeIn(["entitiesToPost",waoType,+id]);
                 }
                 else{
                     let remainingGroups = GroupUtil.leftDiff(waoType,pendingGroups,groups);
-                    console.log("remaining pending groups");
-                    console.log(remainingGroups);
+                    /*console.log("remaining pending groups");
+                    console.log(remainingGroups);*/
                     if(Object.keys(remainingGroups).length < 1) state = state.removeIn(["entitiesToPost",waoType,+id]);
                     else state = state.setIn(["entitiesToPost",waoType,+id],remainingGroups);
                 }
@@ -145,7 +145,7 @@ const mergeRecords = function(iRec,nRec,waoType){
     let newInitialValues = iRec.get("initialValues");
     let mRec = iRec;
 
-    console.log("merging records");
+    //console.log("merging records");
 
     let loadedProperties = getAllPropertiesInGroups(waoType,Object.keys(nLoadedGroups));
     loadedProperties.forEach((property)=>{mRec = mRec.set(property,nRec.get(property));});
@@ -171,8 +171,8 @@ const mergeRecords = function(iRec,nRec,waoType){
     }
 
 
-    console.log("merged object");
-    console.log(mRec.toJS());
+    /*console.log("merged object");
+    console.log(mRec.toJS());*/
     /*console.log("equality");
     console.log(mRec.toJSON() === iRec.toJSON());*/
     return mRec;
@@ -242,28 +242,28 @@ const concreteWaoType = (waoType) => {
 
     return (state=initialWaoState, action) => {
         if (action.waoType !== waoType) return state;
-        console.log("reducer call");
+        //console.log("reducer call");
         switch (action.type) {
             case SUBMIT_LOCALLY:
                 if(action.id === null || !state.hasIn(["items",+action.id])) return state;
-                console.log("submit locally");
-                console.log(action);
+                /*console.log("submit locally");
+                console.log(action);*/
                 const oldItem = state.getIn(["items",+action.id]);
                 const oldInitialValues = oldItem.get("initialValues") || Imm.Map();
                 let newInitialValues = Imm.Map();
                 action.data.entrySeq().forEach((value,key)=>{
-                    console.log(key);
-                    console.log(value);
+                    /*console.log(key);
+                    console.log(value);*/
                     if(value[1]!==oldItem.get(value[0]))
                         newInitialValues = newInitialValues.set(value[0],oldItem.get(value[0]));
                 });
                 newInitialValues = oldInitialValues.mergeDeepWith((oldVal,newVal) => newVal, newInitialValues);
-                console.log(newInitialValues);
+                //console.log(newInitialValues);
 
                 const newItem = oldItem.
                 mergeDeepWith((oldVal,newVal) => newVal, action.data).
                 set("initialValues",newInitialValues);
-                console.log(newItem.toJS());
+                //console.log(newItem.toJS());
                 return state.setIn(["items",+action.id],newItem);
             case RESET:
                 for(let id of action.ids){
@@ -311,8 +311,8 @@ const concreteWaoType = (waoType) => {
                         state = state.setIn(["searchCache",coreBagKey],SearchCacheEntry(coreBagKey,action.total));
                     }
                     let indexMap = state.getIn(["searchCache",coreBagKey,"indexMap"]);
-                    console.log("receive get");
-                    console.log(action);
+                    /*console.log("receive get");
+                    console.log(action);*/
                     for(let i=0;i<action.result.length;i++){
                         let newStackIndex = (order===SearchBagUtil.ASC)?offset+i:action.total-(offset+i)-1;
                         indexMap = indexMap.set(+newStackIndex,+action.result[i]);
@@ -327,25 +327,25 @@ const concreteWaoType = (waoType) => {
                 }
                 return state;
             case RECEIVE_GET_ONE_BY_ID:
-                console.log("action receive get one by id");
-                console.log(action);
+                /*console.log("action receive get one by id");
+                console.log(action);*/
                 let rec = WAO(action.wao);
                 state = updateOnRecordReception(state,rec);
                 return state;
             case RECEIVE_NEW:
-                console.log(`receiveNew ${waoType}`);
-                console.log(action);
+                /*console.log(`receiveNew ${waoType}`);
+                console.log(action);*/
                 let newRec = WAO(action.wao);
                 newRec = newRec.get("receiveRecord")(newRec);
                 state = state.set("newItem",newRec);
                 return state;
             case CREATE_NEW:
                 if(! state.get("newItem")) return state;
-                console.log(`createNew ${waoType}`);
-                console.log(action);
+                /*console.log(`createNew ${waoType}`);
+                console.log(action);*/
                 let newId = idGenerator();
                 let babyRec = state.get("newItem");
-                console.log(babyRec);
+                //console.log(babyRec);
                 babyRec = babyRec.set("id",newId).set("initialValues",Imm.Map({id:0}));
                 state = state.
                 setIn(["items",newId],babyRec).

@@ -73,7 +73,7 @@ export const getHBProps = function(waoType,groups,idOrSearchBag){
         type: waoType,
         groups: JSON.stringify(groups)
     };
-    console.log(`idOrSearchbag : ${idOrSearchBag}`);
+    //console.log(`idOrSearchbag : ${idOrSearchBag}`);
 
     if(typeof idOrSearchBag === 'object' || typeof idOrSearchBag === 'boolean') {
         props.searchBag = JSON.stringify(idOrSearchBag);

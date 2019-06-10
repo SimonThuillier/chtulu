@@ -19,8 +19,8 @@ const waoPrototype = {
         return (typeof rec.get("errors") === 'object' &&  Object.entries(rec.get("errors")).length>0);
     },
     getPartial : function(groups = true){
-        console.log(this);
-        console.log(groups);
+        /*console.log(this);
+        console.log(groups);*/
         if(typeof groups !== 'object' || !this.mapping) return this;
         let keys = {};
         for (let group in groups){
@@ -60,7 +60,7 @@ const defaultPrototypes = {
          * @doc : function aimed to finalize constitution of new HArticle created by parsing JSon
          */
         finalize : function(groups=true){
-            console.log(groups);
+            //console.log(groups);
             let jsonStr = null;
             if(groups === true || (typeof groups === 'object' && groups.hasOwnProperty('date'))){
                 if(this.beginHDate !== null){
@@ -192,7 +192,7 @@ Object.keys(groups).forEach(waoType => {
     mapping.entrySeq().forEach(entry => {
         let groupValue = true;
         if (struct.hasIn([entry[0]])) {
-            console.log(struct.getIn([entry[0]]));
+            //console.log(struct.getIn([entry[0]]));
             groupValue = struct.getIn([entry[0]]);
             //protoMap.getIn([struct.getIn([entry[0]]), "mapping"]).toJS();
         }
@@ -212,9 +212,9 @@ Object.keys(groups).forEach(waoType => {
     protoMap = protoMap.setIn([waoType, "groups"], Imm.fromJS(groups[waoType]));
 });
 
-console.log("protoMap");
+/*console.log("protoMap");
 console.log(protoMap.toJS());
 console.log("article groups");
-console.log(JSON.stringify(protoMap.getIn(["article","groups"]).toJS()));
+console.log(JSON.stringify(protoMap.getIn(["article","groups"]).toJS()));*/
 
 export default protoMap;

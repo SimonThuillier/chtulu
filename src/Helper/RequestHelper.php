@@ -140,7 +140,7 @@ class RequestHelper
             throw new \Exception("Unknown resourceType of id'" . $result["resourceType"] . "'");
         $result["resourceType"] = $resourceType;
 
-        $acceptableContentTypes=[ResourceType::IMAGE=>['image/jpeg']];
+        $acceptableContentTypes=[ResourceType::IMAGE=>['image/jpeg','image/png']];
         if(!in_array($result["contentType"],$acceptableContentTypes[$resourceType->getId()])){
             throw new \Exception("HTTP ContentType '" . $result["contentType"] .
                 "' is not allowed for resourceType '". $resourceType->getLabel() ."'");

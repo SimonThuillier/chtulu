@@ -30,7 +30,7 @@ const getHIntervalFromArticles = (articles) => {
     let articleMinDate = new Date(-4000, 1, 1);
     let articleMaxDate = new Date();
 
-    console.log(articles);
+    //console.log(articles);
     (articles || []).forEach(article => {
         articleMinDate = (article.beginHDate && article.beginHDate.beginDate) || new Date(-4000, 1, 1);
         articleMaxDate = (article.endHDate && article.endHDate.endDate) || new Date();
@@ -42,15 +42,15 @@ const getHIntervalFromArticles = (articles) => {
 
     });
 
-    console.log(`minDate : ${minDate}`);
-    console.log(`maxDate : ${maxDate}`);
+    /*console.log(`minDate : ${minDate}`);
+    console.log(`maxDate : ${maxDate}`);*/
 
     if(minDate ===null || maxDate===null) return null;
     return new HDate("2", dU.addDay(minDate,-1),maxDate);
 };
 
 // groups for main article
-const mainArticleGroups = {minimal:true,date:true,abstract:true,detailImage:true};
+const mainArticleGroups = {minimal:true,date:true,detailImage:true,abstract:true};
 // default groups for articles
 const defaultGroups = {minimal:true,date:true,detailImage:{minimal:true,activeVersion:{minimal:true,urlMini:true}}};
 

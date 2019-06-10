@@ -18,7 +18,7 @@ const componentUid = require('uuid/v4')();
 import HDateInput from "./HDateInput";
 import ImageInput from "./ImageInput";
 import HBFormField from './HBFormField';
-import {Button,Tooltip,Row,Col,Popover,Overlay} from 'react-bootstrap';
+import {Button,Row,Col,Popover,Overlay} from 'react-bootstrap';
 import Loadable from 'react-loading-overlay';
 import {previewTooltip,submitTooltip,resetTooltip,deleteTooltip} from './tooltips';
 import {LOADING,SUBMITTING,SUBMITTING_COMPLETED,COLORS} from '../util/notifications';
@@ -27,11 +27,12 @@ import {getAllPropertiesInGroups} from '../util/WAOUtil';
 import withContainer from './withContainer';
 import withExtraProps from './withExtraProps';
 import ResourcePicker from './ResourcePicker';
+import ArticleFormSubmit from './ArticleFormSubmit';
 
 const validate = values => {
     const errors = {};
-    console.log("validate");
-    console.log(values);
+    /*console.log("validate");
+    console.log(values);*/
     if (!values.title) {
         errors.title = 'Le titre est obligatoire'
     } else if (values.title.length > 64) {
@@ -66,15 +67,204 @@ const notificationAlert = (notification,dispatch) =>{
     </Alert>);
 };
 
+const SubMinimal = ({}) => {
+    return (
+        <ArticleFormContext.Consumer>
+            {() => (
+                <div>
+                    <Field
+                        name="title"
+                        type="text"
+                        component={HBFormField}
+                        label="Titre"
+                    />
+                    <Field
+                        name="type"
+                        type="select"
+                        component={ArticleTypeSelect}
+                        label="Type"
+                    />
+                </div>
+            )}
+        </ArticleFormContext.Consumer>
+    );
+};
+
+const SubDate = ({}) => {
+    return (
+        <ArticleFormContext.Consumer>
+            {({hasEndDate,dispatch,container}) => (
+                <div>
+                    <Field
+                        name="beginHDate"
+                        type="text"
+                        component={withContainer(HDateInput,container||null)}
+                        label="Date de début"
+                    />
+                    <Field
+                        name="hasEndDate"
+                        component={HBFormField}
+                        type="checkbox"
+                        label="A une fin ?"
+                        //if(hasEndDate) pendingForm.setIn(["values","endHDate"],null);
+                        onChange={()=>{
+                            dispatch(formChange(componentUid, 'endHDate', null));
+                            dispatch(formTouch(componentUid, 'hasEndDate','endHDate'));
+                            //console.log(`hasEndDate : ${hasEndDate}`);
+                            if(!hasEndDate){
+                                setTimeout(()=>{
+                                    dispatch(formChange(componentUid, 'endHDate', null));
+                                    dispatch(formTouch(componentUid, 'endHDate'));
+                                },5);
+                            }
+                        }}
+                    />
+            {(hasEndDate) &&
+            <Field
+                name="endHDate"
+                type="text"
+                component={withContainer(HDateInput,container||null)}
+                label="Date de fin"
+            />}
+                </div>
+            )}
+        </ArticleFormContext.Consumer>
+    );
+};
+
+class SubDetailImage extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.toggleShow = this.toggleShow.bind(this);
+        this.onClick = this.onClick.bind(this);
+
+        this.handleSave = this.handleSave.bind(this);
+
+        this.target = React.createRef();
+        this.overlay = React.createRef();
 
 
+        this.setRealInput = this.setRealInput.bind(this);
+        this.realInput = null; // ugly but ok for now to handle save
+
+        this.state = {
+            show:false
+        };
+    }
+
+    setRealInput(input){
+        this.realInput = input;
+    }
+
+    componentDidMount() {window.addEventListener("click",this.onClick,true);}
+    componentWillUnmount(){window.removeEventListener("click",this.onClick,true);}
+
+    toggleShow(e){
+        this.setState({show:!this.state.show});
+        if(!!e){
+            e.stopPropagation();
+            e.preventDefault();
+        }
+        // console.log(e);
+    }
+
+    handleSave(value) {
+        console.log(value);
+        console.log(this.realInput);
+
+        this.realInput.handleSave(value);
+    }
+
+    onClick(e){
+        const {overlay} = this;
+        const {show} = this.state;
+        // console.log(`click : ${(show && overlay.current !== null && !overlay.current.contains(e.target))}`);
+        if(show && overlay.current !== null && !overlay.current.contains(e.target)){
+            this.toggleShow();
+        }
+    }
+
+    render(){
+        const {target} = this;
+        const {show} = this.state;
+
+        return (
+            <ArticleFormContext.Consumer>
+                {({dispatch,container}) => (
+                    <div>
+                        <Field
+                            ref={target}
+                            key={`image-input-${componentUid}`}
+                            name="detailImageResource"
+                            type="text"
+                            component={withExtraProps(ImageInput,{
+                                container:container||null,
+                                show:show,
+                                toggleShow:this.toggleShow,
+                                setRealInput:this.setRealInput // ugly but ok for now
+                            })}
+                            label="Image de presentation"
+                        />
+                        <Overlay
+                            key={`overlay-trigger-${componentUid}`}
+                            target={target.current}
+                            placement="left"
+                            container={container || null}
+                            show={show}
+                        >
+                            <Popover key={`popover-contained-${componentUid}`} id={`popover-contained-${componentUid}`}>
+                                <div ref={this.overlay}>
+                                    <ResourcePicker
+                                        initialValue={null}
+                                        onClose={this.toggleShow}
+                                        onSave={this.handleSave}
+                                    />
+                                </div>
+                            </Popover>
+                        </Overlay>
+                    </div>
+                )}
+            </ArticleFormContext.Consumer>
+        );
+    }
+}
 
 
+class SubAbstract extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render(){
+
+        return (
+            <ArticleFormContext.Consumer>
+                {({}) => (
+                    <div>
+                        <Field
+                            name="abstract"
+                            type="textarea"
+                            alignment={'vertical'}
+                            component={HBFormField}
+                            label="Résumé"
+                        />
+                    </div>
+                )}
+            </ArticleFormContext.Consumer>
+        );
+    }
+}
 
 
-
+const ArticleFormContext = React.createContext({});
 
 class ArticleForm extends React.Component{
+    static Minimal = SubMinimal;
+    static Date = SubDate;
+    static DetailImage = SubDetailImage;
+    static Abstract = SubAbstract;
+
     constructor(props) {
         super(props);
 
@@ -89,7 +279,7 @@ class ArticleForm extends React.Component{
         this.setResourcePickerTarget = this.setResourcePickerTarget.bind(this);
         this.setResourcePickerComponent = this.setResourcePickerComponent.bind(this);
 
-        console.log(props);
+        //console.log(props);
 
         this.state = {
             groups:props.groups || {"minimal":true},
@@ -101,7 +291,7 @@ class ArticleForm extends React.Component{
         
         this.loadingArticleId = null;
 
-        console.log("instanciate article form");
+        //console.log("instanciate article form");
     }
 
     toggleResourcePickerShow(){
@@ -136,10 +326,10 @@ class ArticleForm extends React.Component{
         if (!data || !data.loadedGroups) return true;
         
         const diff = GroupUtil.leftDiff("article",this.state.groups,data.loadedGroups);
-        console.log("groupes a charger");
+        /*console.log("groupes a charger");
         console.log(data.loadedGroups);
         console.log(this.state.groups);
-        console.log(diff);
+        console.log(diff);*/
 
         return (Object.keys(diff).length>0);
     }
@@ -171,7 +361,7 @@ class ArticleForm extends React.Component{
     }
 
     componentDidUpdate(prevProps) {
-        console.log(`update ${prevProps.id} vs ${this.props.id}`);
+        // console.log(`update ${prevProps.id} vs ${this.props.id}`);
         if(this.props.id === null){return}
         let data = this.state.data;
 
@@ -287,21 +477,27 @@ class ArticleForm extends React.Component{
     }
 
     render(){
-        console.log("render article form");
-        const { onSubmit, reset, load,valid,pendingForm,dispatch,notificationsSelector,pristine} = this.props;
-        const {groups} = this.state;
+        // console.log("render article form");
+        const { onSubmit, reset, load,valid,pendingForm,dispatch,notificationsSelector,pristine,container,id} = this.props;
+        const {groups,data} = this.state;
         //console.log("render form");
         //console.log(pendingForm && pendingForm.getIn(["values","hasEndDate"]));
         const hasEndDate = (pendingForm && pendingForm.hasIn(["values","hasEndDate"]))?
             pendingForm.getIn(["values","hasEndDate"]):true;
 
         const notifications = notificationsSelector(componentUid);
-        const loading = (notifications && notifications.hasIn([(this.state.data && this.state.data.id) || 'DEFAULT',LOADING]))||false;
-        const submitting = (notifications && notifications.hasIn([(this.state.data && this.state.data.id) || 'DEFAULT',SUBMITTING]))||false;
+        const loading = (notifications && notifications.hasIn([(data && data.id) || 'DEFAULT',LOADING]))||false;
+        const submitting = (notifications && notifications.hasIn([(data && data.id) || 'DEFAULT',SUBMITTING]))||false;
 
         let submittingCompleted = (notifications && notifications.
-        getIn([(this.state.data && this.state.data.id) || 'DEFAULT',SUBMITTING_COMPLETED]))||null;
+        getIn([(data && data.id) || 'DEFAULT',SUBMITTING_COMPLETED]))||null;
         submittingCompleted = (submittingCompleted && !submittingCompleted.get("discardedAt"))?submittingCompleted:null;
+
+        const contextValue = {
+            hasEndDate:hasEndDate,
+            dispatch:dispatch,
+            container :container || null
+        };
 
         return (
             <Loadable
@@ -313,159 +509,34 @@ class ArticleForm extends React.Component{
             >
                 {submittingCompleted && notificationAlert(submittingCompleted,dispatch)}
                 <Form onSubmit={(e)=>{}}>
-                    {typeof groups.minimal !== 'undefined' &&
-                    <Field
-                        name="title"
-                        type="text"
-                        component={HBFormField}
-                        label="Titre"
-                    />}
-                    {typeof groups.minimal !== 'undefined' &&
-                    <Field
-                        name="type"
-                        type="select"
-                        component={ArticleTypeSelect}
-                        label="Type"
-                    />}
-                    {typeof groups.date !== 'undefined' &&
-                    <Field
-                        name="beginHDate"
-                        type="text"
-                        component={withContainer(HDateInput,this.props.container||null)}
-                        label="Date de début"
-                    />}
-                    {typeof groups.date !== 'undefined' &&
-                    <Field
-                        name="hasEndDate"
-                        component={HBFormField}
-                        type="checkbox"
-                        label="A une fin ?"
-                        //if(hasEndDate) pendingForm.setIn(["values","endHDate"],null);
-                        onChange={()=>{
-                            dispatch(formChange(componentUid, 'endHDate', null));
-                            dispatch(formTouch(componentUid, 'hasEndDate','endHDate'));
-                            console.log(`hasEndDate : ${hasEndDate}`);
-                            if(!hasEndDate){
-                                setTimeout(()=>{
-                                    dispatch(formChange(componentUid, 'endHDate', null));
-                                    dispatch(formTouch(componentUid, 'endHDate'));
-                                },5);
-                            }
-                        }}
-                    />}
-                    {typeof groups.date !== 'undefined' && (hasEndDate) &&
-                    <Field
-                        name="endHDate"
-                        type="text"
-                        component={withContainer(HDateInput,this.props.container||null)}
-                        label="Date de fin"
-                    />}
-                    {typeof groups.detailImage !== 'undefined' &&
-                    <Field
-                        ref={target => this.setResourcePickerTarget(target)}
-                        key={`image-input-${componentUid}`}
-                        name="detailImageResource"
-                        type="text"
-                        component={withExtraProps(ImageInput,{
-                            container:this.props.container||null,
-                            setResourcePickerTarget:this.setResourcePickerTarget,
-                            toggleResourcePickerShow:this.toggleResourcePickerShow,
-                            setResourcePickerComponent:this.setResourcePickerComponent
-                        })}
-                        label="Image de presentation"
-                    />}
-                    {typeof groups.abstract!== 'undefined' &&
-                    <Field
-                        name="abstract"
-                        type="textarea"
-                        alignment={'vertical'}
-                        component={HBFormField}
-                        label="Résumé"
-                    />}
-                    <Overlay
-                        key={`overlay-trigger-${componentUid}`}
-                        target={this.state.resourcePickerConfig.target}
-                        placement="left"
-                        // rootClose={true}
-                        container={this.props.container || null}
-                        show={this.state.resourcePickerConfig.show}
-                        // rootCloseEvent={'click'}
-                        // overlay={
-                        //
-                        // }
-                    >
-                        <Popover key={`popover-${componentUid}`} id="popover-contained">
-                            <ResourcePicker
-                                initialValue={null}
-                                onClose={null}
-                                onSave={null}
-                            />
-                        </Popover>
-                    </Overlay>
-                    <Row>
-                        <Col md={9}>
-                            <OverlayTrigger placement="bottom" overlay={previewTooltip("votre article")}>
-                                <Button bsStyle="info"
-                                        disabled={!valid}
-                                        onClick={this.handleSwitch}>
-                                    Previsualiser&nbsp;<Glyphicon glyph={valid?"eye-open":"eye-closed"}/>
-                                </Button>
-                            </OverlayTrigger>
-                            &nbsp;
-                            <OverlayTrigger placement="bottom"
-                                            overlay={submitTooltip("votre article")}
-                                            ref={(ov) => {
-                                                this.saveOverlayTrigger = ov;
-                                            }}
-                                            onClick={() => {this.saveOverlayTrigger.handleDelayedHide()} }
-                            >
-                                <Button bsStyle={(this.state.data && this.state.data.get("toDelete"))?"warning":"success"}
-                                        disabled={!valid || submitting}
-                                        onClick={this.handleServerSubmit}>
-                                    {(this.state.data && this.state.data.get("toDelete"))?"Valider suppr.":"Enregistrer"}
-                                    &nbsp;<Glyphicon glyph="upload"/>
-                                </Button>
-                            </OverlayTrigger>
-                            &nbsp;
-                            <OverlayTrigger placement="bottom"
-                                            overlay={resetTooltip("cet article")}
-                                            ref={(ov) => {
-                                                this.resetOverlayTrigger = ov;
-                                            }}
-                                            onClick={() => {this.resetOverlayTrigger.handleDelayedHide()} }
-                            >
-                                <Button bsStyle={(this.state.data && this.state.data.get("toDelete"))?"default":"warning"}
-                                        disabled={(pristine || submitting) &&
-                                        (this.state.data?(!this.state.data.isDirty(this.state.data)):true)}
-                                        onClick={this.handleReset}>
-                                    {(this.state.data && this.state.data.isNew(this.state.data))?'Annuler ajout':
-                                        (this.state.data && this.state.data.get("toDelete"))?'Annuler suppr.':
-                                            'Reinitialiser'}
-                                    &nbsp;<Glyphicon
-                                    glyph={(this.state.data && this.state.data.get("toDelete"))?"hand-left":"erase"}
-                                />
-                                </Button>
-                            </OverlayTrigger>
-                        </Col>
-                        <Col md={3}>
-                            {!(this.state.data && this.state.data.isNew(this.state.data)) &&
-                            !(this.state.data && this.state.data.get("toDelete")) &&
-                            <OverlayTrigger placement="bottom"
-                                            overlay={deleteTooltip("cet article")}
-                                            ref={(ov) => {
-                                                this.deleteOverlayTrigger = ov;
-                                            }}
-                                            onClick={() => {this.deleteOverlayTrigger.handleDelayedHide()} }
-                            >
-                                <Button bsStyle="danger"
-                                        disabled={false}
-                                        onClick={this.handleDelete}>
-                                    Supprimer&nbsp;<Glyphicon glyph="remove"/>
-                                </Button>
-                            </OverlayTrigger>
-                            }
-                        </Col>
-                    </Row>
+                    <ArticleFormContext.Provider key={`article-form-provider-${id}`} value={contextValue}>
+                        {this.props.children}
+                    </ArticleFormContext.Provider>
+                    <div key={`article-form-submit-${id}`}>
+                        <ArticleFormSubmit
+                            hasData={!!data}
+                            pristine={pristine}
+                            valid={valid}
+                            submitting={submitting}
+                            isNew={data && data.isNew(data)}
+                            isDirty={data?data.isDirty(data):true}
+                            isToDelete={data && data.get("toDelete")}
+                            objectLabel={'votre article'}
+                            handleSwitch={this.handleSwitch}
+                            handleServerSubmit={this.handleServerSubmit}
+                            handleReset={this.handleReset}
+                            handleDelete={this.handleDelete}
+                        >
+                            <Col md={9}>
+                                <ArticleFormSubmit.Preview/>
+                                <ArticleFormSubmit.ServerSubmit/>
+                                <ArticleFormSubmit.Reset/>
+                            </Col>
+                            <Col md={3}>
+                                <ArticleFormSubmit.Delete/>
+                            </Col>
+                        </ArticleFormSubmit>
+                    </div>
                 </Form>
             </Loadable>
         );

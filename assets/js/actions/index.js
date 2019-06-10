@@ -97,7 +97,7 @@ const fetchWithTimeout = function( url,props, timeout=TIMEOUT ) {
 };
 
 export const uploadResource = (file,name,contentType,resourceType,senderKey,resourceId=null) => (dispatch,getState) => {
-    console.log("upload resource");
+    //console.log("upload resource");
 
     let dataToPost = DataToPost();
     /*console.log(`dataToPost`);
@@ -129,7 +129,6 @@ export const uploadResource = (file,name,contentType,resourceType,senderKey,reso
                 console.log(json);
                 switch (json.status) {
                     case HB_SUCCESS:
-                        console.log(json.data);
                         // not canonical but fast to to
                         // todo : improve later
                         const resourceId = Object.keys(json.data.resource)[0];
@@ -137,7 +136,8 @@ export const uploadResource = (file,name,contentType,resourceType,senderKey,reso
                         handlePostBackData(json.data,dispatch);
                         break;
                     case HB_ERROR:
-                        dispatch(notify(SUBMITTING_COMPLETED,senderKey || 'HBAPP',0,HB_ERROR));
+                        console.log(json.data);
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey || 'HBAPP',0,HB_ERROR,null,json.message));
                         break;
                     default:
                 }
@@ -432,18 +432,18 @@ export const receiveGet = (waoType,groups,searchBag,rows,
                            total,message="Données bien recues du serveur") => (dispatch,state) => {
     // let's normalize our received Data !
     const normData = normalize(rows,[WAOs.getIn([waoType,"schema"])]);
-    console.log(rows);
+    /*console.log(rows);
     console.log("normalizedData");
-    console.log(normData);
+    console.log(normData);*/
     Object.keys(normData.entities).forEach((key)=>{
         if(key !== waoType){
             dispatch(subReceiveGet(key,Object.values(normData.entities[key])));
         }
     });
 
-    console.log("searchbag - result");
+    /*console.log("searchbag - result");
     console.log(searchBag);
-    console.log(normData.result);
+    console.log(normData.result);*/
 
     //console.log(normData.entities[waoType]);
 
@@ -460,7 +460,7 @@ export const receiveGet = (waoType,groups,searchBag,rows,
 };
 
 export const errorGet = (waoType,searchBag,message) => {
-    console.log(`error Get fetching ${waoType} : ${message}`);
+    console.error(`error Get fetching ${waoType} : ${message}`);
 };
 
 const fetchGet = (waoType,groups=true,searchBag,senderKey) => (dispatch,state) => {
@@ -513,7 +513,7 @@ const shouldFetchGet = (state, waoType,groups,searchBag,senderKey=null) => {
 
 export const getIfNeeded = (waoType,groups=true,searchBag,senderKey=null) => (dispatch, getState) => {
     searchBag = searchBag || SearchBag();
-    console.log(`shouldFetchGet : ${shouldFetchGet(getState(), waoType,groups,searchBag,senderKey)}`);
+    //console.log(`shouldFetchGet : ${shouldFetchGet(getState(), waoType,groups,searchBag,senderKey)}`);
 
     if (shouldFetchGet(getState(), waoType,groups,searchBag,senderKey)) {
         return dispatch(fetchGet(waoType,groups,searchBag,senderKey))
@@ -523,11 +523,11 @@ export const getIfNeeded = (waoType,groups=true,searchBag,senderKey=null) => (di
 export const receiveGetOneById = (waoType,groups,id,data,message="Données bien recues du serveur") =>
     (dispatch,state) => {
     // let's normalize our received Data !
-    console.log(`denormalizedData ${waoType} with id ${id}`);
-    console.log(data);
+    /*console.log(`denormalizedData ${waoType} with id ${id}`);
+    console.log(data);*/
     const normData = normalize(data,WAOs.getIn([waoType,"schema"]));
-    console.log("normalizedData");
-    console.log(normData);
+    /*console.log("normalizedData");
+    console.log(normData);*/
     Object.keys(normData.entities).forEach((key)=>{
         if(key !== waoType){
             dispatch(subReceiveGet(key,Object.values(normData.entities[key])));
@@ -566,7 +566,7 @@ const fetchGetOneById = (waoType,groups=true,id,senderKey) => (dispatch,state) =
             pendingAPICalls.delete(APICallKey('getOneById',waoType,groups,id));
                 switch (json.status) {
                     case HB_SUCCESS:
-                        console.log(json);
+                        console.info(json);
                         dispatch(notify(LOADING_COMPLETED,senderKey,id,HB_SUCCESS));
                         dispatch(receiveGetOneById(waoType,groups,id,json.data,json.message));
                         break;
@@ -595,7 +595,7 @@ const shouldFetchGetOneById = (state, waoType,groups,id,senderKey=null) => {
         console.log(groups);
         console.log("diff");*/
         let diff = GroupUtil.leftDiff(waoType,groups,item.get("loadedGroups"));
-        console.log(diff);
+        //console.log(diff);
         if(Object.keys(diff).length < 1) return false;
     }
 
@@ -617,7 +617,7 @@ export const getOneByIdIfNeeded = (waoType,groups=true,id,senderKey=null) => (di
     // new case
     if(+id<0){
         if(shouldFetchNew(getState(),waoType)){
-            console.log(`should fetch new ${waoType}`);
+            //console.log(`should fetch new ${waoType}`);
             dispatch(fetchNew(waoType,id,senderKey));
         }
         else {
@@ -653,7 +653,7 @@ const fetchNew = (waoType,id,senderKey) => (dispatch) => {
                             dispatch(notify(LOADING_COMPLETED,waoType,null,HB_SUCCESS));
                             dispatch(createNew(waoType));
                         },10);
-                        console.log(json);
+                        //console.info(json);
                         dispatch(receiveNew(waoType,json.data));
                         break;
                     case HB_ERROR:

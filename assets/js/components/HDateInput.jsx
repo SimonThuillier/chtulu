@@ -128,6 +128,7 @@ class HDateInput extends Component {
                                     type="text"
                                     style={{ textAlign: "inherit" }}
                                     placeholder={placeholder}
+                                    onChange={()=>{}}
                                 />
                             </div>
                         </OverlayTrigger>
@@ -176,6 +177,7 @@ class HDateInput extends Component {
                                         type="text"
                                         style={{ textAlign: "inherit" }}
                                         placeholder={placeholder}
+                                        onChange={()=>{}}
                                     />
                                 </div>
                             </OverlayTrigger>

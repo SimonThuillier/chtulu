@@ -61,8 +61,8 @@ class ResourceController extends AbstractController
 
         try{
             $handledRequest = $requestHelper->handleUploadRequest($request);
-            if(!$this->isCsrfTokenValid('token_id', $handledRequest["_token"]))
-                throw new \Exception("Invalid token : would you hack history ?");
+            /*if(!$this->isCsrfTokenValid('token_id', $handledRequest["_token"]))
+                throw new \Exception("Invalid token : would you hack history ?");*/
 
             $resource= null;
             if($handledRequest["resourceId"] !== null){

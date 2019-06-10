@@ -14,9 +14,9 @@ const GroupUtil = {
         if (typeof toMerge === "undefined" || typeof base === "boolean")
             return base;
 
-        console.log("merging groups");
+        /*console.log("merging groups");
         console.log(base);
-        console.log(toMerge);
+        console.log(toMerge);*/
 
         let merged = {};
         Object.keys(base).forEach(key => {

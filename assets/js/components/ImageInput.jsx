@@ -1,14 +1,8 @@
 import React, {Component} from "react";
-import {getNotificationsSelector, getOneByIdSelector, getSelector} from "../selectors";
+import {getOneByIdSelector} from "../selectors";
 import { connect } from 'react-redux'
-import {getComponentClassType} from "../util/formUtil";
-import {change as reduxFormChange, untouch as formUntouch} from 'redux-form/immutable';
-import {ControlLabel,FormGroup,FormControl,Overlay,Col,HelpBlock,Button,OverlayTrigger,Popover} from 'react-bootstrap';
-import ResourcePicker from './ResourcePicker';
-import {getOneByIdIfNeeded} from "../actions";
+import {ControlLabel,FormGroup,Col,HelpBlock,Button} from 'react-bootstrap';
 import RImageMini from './RImageMini';
-import {SUBMITTING_COMPLETED} from "../util/notifications";
-import {getAllPropertiesInGroups} from "../util/WAOUtil";
 const componentUid = require('uuid/v4')();
 
 const defaultStyles = {
@@ -22,75 +16,80 @@ const defaultStyles = {
     }
 };
 
-let initialShow = false;
+const SubLabel = ({}) => {
+    return (
+        <ImageInputContext.Consumer>
+            {({label}) => (<ControlLabel>{label}</ControlLabel>)}
+        </ImageInputContext.Consumer>
+    );
+};
+
+const SubInput = ({}) => {
+    return (
+        <ImageInputContext.Consumer>
+            {({toggleShow,show,resourceLabel,id,onFocus,onBlur}) => (
+                <Button
+                    onClick={()=>{
+                        if(!show){
+
+                        }
+                        onFocus();
+                        toggleShow();
+                    }}
+                >
+                    {resourceLabel}&nbsp;
+                    <RImageMini id={id}/>
+                </Button>
+            )}
+        </ImageInputContext.Consumer>
+    );
+};
+
+const SubHelpBlock = ({}) => {
+    return (
+        <ImageInputContext.Consumer>
+            {({touched,error,warning}) => (
+                <span>
+                    {touched && (error || warning) &&
+                    <HelpBlock>{error || warning}</HelpBlock>}
+                </span>
+            )}
+        </ImageInputContext.Consumer>
+    );
+};
+
+
+const ImageInputContext = React.createContext({});
 
 class ImageInput extends Component {
+    static Label=SubLabel;
+    static Input=SubInput;
+    static HelpBlock=SubHelpBlock;
+
     constructor(props) {
         super(props);
+        props.setRealInput(this);
 
         this.handleSave = this.handleSave.bind(this);
-        this.handleClose = this.handleClose.bind(this);
-
-        this.setTarget = this.setTarget.bind(this);
-
-        this.targetRef = null;
-
-        console.log("instanciate image input");
-
     }
 
-    setTarget(target){
-        const {setResourcePickerTarget} = this.props;
-
-        /*if(target !== this.targetRef){
-            this.targetRef = target;
-            setResourcePickerTarget(target);
-        }*/
-    }
-
-    componentDidMount() {
-        console.log("image input didmount");
-        const {value,setResourcePickerComponent} = this.props;
-        if(value){
-            /*dispatch(getOneByIdIfNeeded("resource",
-                {minimal:true,activeVersion:{urlMini:true}},
-                this.props.id));*/
-        }
-
-        /*setResourcePickerComponent((
-        ));*/
-    }
-
-    componentDidUpdate(prevProps) {
-        if (this.props.value && this.props.value !== prevProps.value) {
-            /*dispatch(getOneByIdIfNeeded("resource",
-                {minimal:true,activeVersion:{urlMini:true}},
-                this.props.id));*/
-        }
-        if (this.props.versionSelector !== prevProps.versionSelector) {
-            //this.setState({render:this.state.render++});
-        }
-
-    }
-
-    handleClose() {
-        this.inputRef.click();
-    }
 
     handleSave(value) {
         const {
-            input: { onChange, onBlur }
+            input
         } = this.props;
-        onChange(value);
-        onBlur(value);
+        console.log("real save");
+        console.log(value);
+        console.log(input);
+        input.onChange(value);
+        input.onBlur(value);
     }
 
     render(){
-        const { input, label, type,  meta: {touched,error,warning} ,dispatch,selector,value,toggleResourcePickerShow} = this.props;
+        const { input, label, type,  meta: {touched,error,warning} ,dispatch,selector,value,toggleShow,show} = this.props;
         console.log("render image input");
         console.log(input);
         let id = input.value;
-        console.log(input.value);
 
         const alignment = this.props.alignment || 'horizontal';
         const style = Object.assign(defaultStyles[alignment],this.props.style || {});
@@ -101,72 +100,45 @@ class ImageInput extends Component {
             resourceLabel = resource.get("name");
         }
 
-        console.log(`rerender image input ${componentUid}`);
+        const contextValue = {
+            label:label,
+            toggleShow:toggleShow,
+            show:show,
+            onFocus:input.onFocus,
+            onBlur:input.onBlur,
+            resourceLabel : resourceLabel,
+            id : id,
+            touched:touched,
+            error:error,
+            warning:warning
+        };
 
-
-        switch(alignment){
-            case 'vertical':
-                return (
-                    <FormGroup
-                        validationState={!touched?null:(error?"error":(warning?"warning":"success"))}
-                        style={style} >
-                        <ControlLabel>{label}</ControlLabel>
-                        <Button
-                            ref='target'
-                            onClick={this.handleFocus}
-                        >{resourceLabel}&nbsp;<RImageMini id={id}/>
-
-                        </Button>
-                        <RImageMini id={id} force={this.state.render}/>
-                        {/*<Overlay*/}
-                            {/*rootClose={true}*/}
-                            {/*show={this.state.show}*/}
-                            {/*onHide={() => this.setState({ show: false })}*/}
-                            {/*placement="left"*/}
-                            {/*container={this}*/}
-                            {/*target={() => {*/}
-                                {/*return ReactDOM.findDOMNode(this.refs.target);*/}
-                            {/*}}*/}
-                        {/*>*/}
-                            {/*<ResourcePicker*/}
-                                {/*className="lol"*/}
-                                {/*initialValue={input.value}*/}
-                                {/*onFocus={this.handleFocus}*/}
-                                {/*onBlur={this.handleBlur}*/}
-                                {/*onClose={this.handleClose}*/}
-                                {/*onSave={this.handleSave}*/}
-                            {/*/>*/}
-                        {/*</Overlay>*/}
-                        {touched && (error || warning) &&
-                        <HelpBlock>{error|| warning}</HelpBlock>
-                        }
-                    </FormGroup>
-                );
-            default:
-                return (
-                    <FormGroup
-                        key={`image-input-${componentUid}`}
-                        validationState={!touched?null:(error?"error":(warning?"warning":"success"))}
-                        style={style} >
-                        <Col sm={3} md={2}>
-                            <ControlLabel>{label}</ControlLabel>
-                        </Col>
-                        <Col sm={9} md={10}>
-                            <div ref={this.setTarget}>
-                                <Button
-                                    onClick={toggleResourcePickerShow}
-                                >
-                                    {resourceLabel}&nbsp;
-                                    <RImageMini id={id}/>
-                                </Button>
-                            </div>
-                        </Col>
-                        {touched && (error || warning) &&
-                        <HelpBlock>{error || warning}</HelpBlock>
-                        }
-                    </FormGroup>
-                );
-        }
+        return (
+            <FormGroup
+                key={`image-input-${componentUid}`}
+                validationState={!touched?null:(error?"error":(warning?"warning":"success"))}
+                style={style}
+            >
+                <ImageInputContext.Provider value={contextValue}>
+                    {(alignment === 'vertical')?
+                        <div>
+                            <SubLabel/>
+                            <SubInput/>
+                            <SubHelpBlock/>
+                        </div> :
+                        <div>
+                            <Col sm={3} md={2}>
+                                <SubLabel/>
+                            </Col>
+                            <Col sm={9} md={10}>
+                                <SubInput/>
+                            </Col>
+                            <SubHelpBlock/>
+                        </div>
+                    }
+                </ImageInputContext.Provider>
+            </FormGroup>
+        );
     }
 }
 
