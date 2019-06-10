@@ -94,8 +94,8 @@ let _prototype = {
   equals: function(hDate) {
     return (
       this.type === hDate.type &&
-      this.beginDate === hDate.beginDate &&
-      this.endDate === hDate.endDate
+      this.beginDate.getTime() === hDate.beginDate.getTime()  &&
+      this.endDate.getTime()  === hDate.endDate.getTime()
     );
   },
   containsDate: function(date) {

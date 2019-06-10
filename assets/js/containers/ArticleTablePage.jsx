@@ -18,6 +18,7 @@ import {deleteLocally, getIfNeeded, postOne, reset as stateReset} from "../actio
 import SearchBag from '../util/SearchBag';
 import SearchBagUtil from '../util/SearchBagUtil';
 import ArticleType from '../components/ArticleType';
+import ArticleTitle from '../components/ArticleTitle';
 import {connect} from "react-redux";
 import {
     getNotificationsSelector,
@@ -33,6 +34,7 @@ import ArticleFilter from '../components/ArticleFilter';
 import {LOADING,SUBMITTING, COLORS, SUBMITTING_COMPLETED} from "../util/notifications";
 import {untouch as formUntouch} from "redux-form/immutable";
 import {getAllPropertiesInGroups} from "../util/WAOUtil";
+import EditButton from "../components/EditButton";
 const componentUid = require('uuid/v4')();
 
 
@@ -87,7 +89,7 @@ const columns = (dispatch,onSelection,notificationsSelector) => [{
         const isNew = !toDelete && (row && row.has("isNew") && row.get("isNew")(row));
         const isDirty = !toDelete && !isNew && (row.has("isDirty") && row.get("isDirty")(row));
 
-        console.log(`actions formatter id ${row.get("id")} : toDelete:${toDelete}, isNew:${isNew}, isDirty:${isDirty} `);
+        //console.log(`actions formatter id ${row.get("id")} : toDelete:${toDelete}, isNew:${isNew}, isDirty:${isDirty} `);
         const actionUid = componentUid+'#' + row.get("id");
         const notifications = notificationsSelector(actionUid);
         const submitting = (notifications && notifications.hasIn([+row.get("id"),SUBMITTING]))||false;
@@ -122,16 +124,6 @@ const columns = (dispatch,onSelection,notificationsSelector) => [{
     }
 }
 ];
-
-// if(row && row.has("toDelete") && row.get("toDelete")){
-//     return {backgroundColor:COLORS.DELETED};
-// }
-// else if(row && row.has("isNew") && row.get("isNew")(row)){
-//     return {backgroundColor:COLORS.NEW};
-// }
-// else if(row && row.has("isDirty") && row.get("isDirty")(row)){
-//     return {backgroundColor:COLORS.DIRTY};
-// }
 
 const customTotal = (babiesCount) => (from, to, size) => (
     <span className="react-bootstrap-table-pagination-total">
@@ -220,8 +212,8 @@ class ArticleTablePage extends React.Component{
     }
 
     componentDidUpdate(prevProps) {
-        console.log("articleTablePage");
-        console.log(prevProps.selector !== this.props.selector);
+        /*console.log("articleTablePage");
+        console.log(prevProps.selector !== this.props.selector);*/
         // when babies are submitted all indexes are erased to ensure coherence between server and client so we have to reload
         if (this.state.activeId && this.state.activeId<0 &&
             prevProps.newlyCreatedIdSelector !== this.props.newlyCreatedIdSelector
@@ -286,6 +278,7 @@ class ArticleTablePage extends React.Component{
     }
 
     handleComponentSwitch(activeComponent='detail') {
+        console.log(activeComponent);
         this.setState({ activeComponent: activeComponent });
     }
 
@@ -307,9 +300,9 @@ class ArticleTablePage extends React.Component{
     }
 
     onTableChange(type,newState){
-        console.log("on table change");
+        /*console.log("on table change");
         console.log(type);
-        console.log(newState);
+        console.log(newState);*/
         let searchBag = {};
         switch(type){
             case 'pagination':
@@ -331,12 +324,13 @@ class ArticleTablePage extends React.Component{
 
     render(){
         const {selector,babiesSelector,totalSelector,notificationsSelector,dispatch} = this.props;
+        const {activeComponent} = this.state;
         const babies = babiesSelector();
         const babiesCount = babies.length;
 
         let items = babies.concat(selector(this.state.searchBag));
-        console.log("items");
-        console.log(items);
+        /*console.log("items");
+        console.log(items);*/
         let total = totalSelector(this.state.searchBag);
         const notifications = notificationsSelector(componentUid);
 
@@ -407,16 +401,19 @@ class ArticleTablePage extends React.Component{
                                 <Modal.Title>
                                     <Row className="show-grid">
                                         <Col xs={9} sm={9} md={9}>
+                                            <h5><ArticleType articleId={this.state.activeId}/></h5>
+                                                &nbsp;&nbsp;&nbsp;
                                             {alreadyCreatedArticle?
                                                 <Link
                                                 to={`/article/${this.state.activeId}${this.state.activeComponent==='form'?'/edit':''}`}
                                                 className={'btn btn-link'}
                                                 title={"Page principale de l'article"}
                                                 >
-                                                    {activeArticleTitle}
+                                                    <h4><ArticleTitle id={this.state.activeId}/></h4>
                                                 </Link>
                                             :
                                             activeArticleTitle}
+
                                         </Col>
                                         <Col xs={3} sm={3} md={3}>
                                             {this.state.breadcrumb && leftBreadcrumb(this.state.breadcrumb,this.handleArticleSwitch)}
@@ -428,20 +425,32 @@ class ArticleTablePage extends React.Component{
                             <Modal.Body ref={input => (this.modalRef = input)}>
                                 <Article
                                     container={this.modalRef}
-                                    dispatch={this.props.dispatch}
+                                    dispatch={dispatch}
                                     id={this.state.activeId}
-                                    activeComponent={this.state.activeComponent}
-                                    formGroups={{"minimal":true,"date":true,"abstract":true,"detailImage":true}}
-                                    context={'modal'}
-                                    handleSwitch={this.handleComponentSwitch}
+                                    handleSwitch={()=>{this.handleComponentSwitch(activeComponent==='detail'?'form':'detail')}}
                                     onNothing={this.handleClose}
-                                />
+                                    context={'modal'}
+                                    groups={{"minimal":true,"date":true,"detailImage":true,"abstract":true}}
+                                >
+                                    <div hidden={activeComponent!=='detail'}>
+                                        <Article.Detail/>
+                                    </div>
+                                    <div hidden={activeComponent!=='form'}>
+                                        <Article.Form/>
+                                    </div>
+                                </Article>
                             </Modal.Body>
                             <Modal.Footer>
                                 <Row>
                                     <Col md={2}>
                                         {
-                                            this.state.activeComponent==='form' &&
+                                            activeComponent==='detail' &&
+                                            <EditButton
+                                                onClick={()=>{this.handleComponentSwitch(activeComponent==='detail'?'form':'detail')}}
+                                            />
+                                        }
+                                        {
+                                            activeComponent==='form' &&
                                             <Button bsStyle="success" onClick={this.onNewArticle}>
                                                 Ajouter&nbsp;<Glyphicon glyph="plus" />
                                             </Button>

@@ -1,48 +1,71 @@
 import React from "react";
-import {getOneByIdSelector} from "../selectors";
-import ArticleDetailMinimal from './ArticleDetailMinimal';
-import ArticleDetailAbstract from './ArticleDetailAbstract';
-import ArticleDetailImage from './ArticleDetailImage';
 import GroupUtil from '../util/GroupUtil';
-import {Button,Glyphicon} from 'react-bootstrap';
+import RImageDetail from './RImageDetail';
+
+const SubAbstract = ({abstract,children})=>{
+    let key=0;
+    const paragraphs =  (abstract || "").
+    replace("\r\n","\n").
+    replace("\r","\n").
+    replace("\n\n","\n").
+    replace("\n\n","\n").
+    split("\n").
+    map((line) =>{
+        if (line.trim().length === 0 || line.trim()==="\n") return null;
+        key = key+1;
+        return(
+            <p key={key}>
+                &nbsp;&nbsp;&nbsp;{line}
+            </p>
+        );
+    });
+    return(
+        <div className="col-md-12">
+            {children}
+            {paragraphs}
+        </div>
+    )
+};
+
+
+
+const SubDetailImage = ({detailImageResource}) =>{
+    if(!detailImageResource) return null;
+    const style = {
+        float:'right',
+        clear:'right',
+        marginLeft:'5px',
+        marginBottom:'3px'
+    };
+
+    return (
+        <div style={style}>
+            <RImageDetail id={detailImageResource}/>
+        </div>
+    );
+};
 
 const ArticleDetail = function(props){
-    const data = props.data;
+    const {data,id} = props;
     if (!data) return null;
 
+    //console.log(`articleDetail render ${id}`);
 
     const availableGroups = GroupUtil.intersect('article',props.groups,data.loadedGroups||{});
-
+    const {minimal,detailImage,abstract} = availableGroups;
     const context = props.context || 'main';
 
     return (
         <div>
+            {(!!abstract || !!detailImage) &&
             <div className="row">
-                {availableGroups.hasOwnProperty("minimal") &&
-                <ArticleDetailMinimal
-                    type={data.type}
-                    beginHDate={data.beginHDate}
-                    endHDate={data.endHDate}
-                    hasEndDate={data.hasEndDate}/>
-                }
-                {availableGroups.hasOwnProperty("detailImage") &&
-                <ArticleDetailImage detailImageResource={data.detailImageResource}/>
-                }
+                <SubAbstract abstract={data.abstract}>
+                    {!!detailImage &&
+                    <SubDetailImage detailImageResource={data.detailImageResource}/>
+                    }
+                </SubAbstract>
             </div>
-            <div className="row">
-                <hr/>
-            </div>
-            <div className="row">
-                {availableGroups.hasOwnProperty("abstract") &&
-                <ArticleDetailAbstract abstract={data.abstract}/>
-                }
-            </div>
-            <br/>
-            {/*<Button bsStyle="primary"*/}
-                    {/*disabled={false}*/}
-                    {/*onClick={()=>{props.handleSwitch('form')}}>*/}
-                {/*Editer&nbsp;<Glyphicon glyph={context==='modal'?'pencil':'edit'}/>*/}
-            {/*</Button>*/}
+            }
         </div>
     );
 };

@@ -27,7 +27,9 @@ import {getAllPropertiesInGroups} from '../util/WAOUtil';
 import withContainer from './withContainer';
 import withExtraProps from './withExtraProps';
 import ResourcePicker from './ResourcePicker';
-import ArticleFormSubmit from './ArticleFormSubmit';
+import FormSubmit from './FormSubmit';
+
+const ArticleFormContext = React.createContext({});
 
 const validate = values => {
     const errors = {};
@@ -89,6 +91,7 @@ const SubMinimal = ({}) => {
         </ArticleFormContext.Consumer>
     );
 };
+SubMinimal.contextType = ArticleFormContext;
 
 const SubDate = ({}) => {
     return (
@@ -131,6 +134,7 @@ const SubDate = ({}) => {
         </ArticleFormContext.Consumer>
     );
 };
+SubDate.contextType = ArticleFormContext;
 
 class SubDetailImage extends React.Component {
     constructor(props) {
@@ -229,7 +233,7 @@ class SubDetailImage extends React.Component {
         );
     }
 }
-
+SubDetailImage.contextType = ArticleFormContext;
 
 class SubAbstract extends React.Component {
     constructor(props) {
@@ -255,9 +259,8 @@ class SubAbstract extends React.Component {
         );
     }
 }
+SubAbstract.contextType = ArticleFormContext;
 
-
-const ArticleFormContext = React.createContext({});
 
 class ArticleForm extends React.Component{
     static Minimal = SubMinimal;
@@ -478,7 +481,7 @@ class ArticleForm extends React.Component{
 
     render(){
         // console.log("render article form");
-        const { onSubmit, reset, load,valid,pendingForm,dispatch,notificationsSelector,pristine,container,id} = this.props;
+        const { onSubmit, reset, load,valid,pendingForm,dispatch,notificationsSelector,pristine,container,id,anyTouched} = this.props;
         const {groups,data} = this.state;
         //console.log("render form");
         //console.log(pendingForm && pendingForm.getIn(["values","hasEndDate"]));
@@ -513,7 +516,7 @@ class ArticleForm extends React.Component{
                         {this.props.children}
                     </ArticleFormContext.Provider>
                     <div key={`article-form-submit-${id}`}>
-                        <ArticleFormSubmit
+                        <FormSubmit
                             hasData={!!data}
                             pristine={pristine}
                             valid={valid}
@@ -526,16 +529,17 @@ class ArticleForm extends React.Component{
                             handleServerSubmit={this.handleServerSubmit}
                             handleReset={this.handleReset}
                             handleDelete={this.handleDelete}
+                            anyTouched ={anyTouched}
                         >
                             <Col md={9}>
-                                <ArticleFormSubmit.Preview/>
-                                <ArticleFormSubmit.ServerSubmit/>
-                                <ArticleFormSubmit.Reset/>
+                                <FormSubmit.Preview/>
+                                <FormSubmit.ServerSubmit/>
+                                <FormSubmit.Reset/>
                             </Col>
                             <Col md={3}>
-                                <ArticleFormSubmit.Delete/>
+                                <FormSubmit.Delete/>
                             </Col>
-                        </ArticleFormSubmit>
+                        </FormSubmit>
                     </div>
                 </Form>
             </Loadable>

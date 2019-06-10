@@ -14,7 +14,7 @@ const ArticleType = function(props){
     const type = articleTypeSelector(id);
     if(typeof type ==='undefined' || !type) return null;
 
-    return( <p>{type?type.get("label"):null}</p>);
+    return( <span>{type?type.get("label"):null}</span>);
 };
 
 const mapStateToProps = (state) => {

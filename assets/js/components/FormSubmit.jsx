@@ -1,15 +1,18 @@
 
 import React from "react";
 import {deleteTooltip, previewTooltip, resetTooltip, submitTooltip} from "./tooltips";
-import {Button,Tooltip,Row,Col,Popover,OverlayTrigger,Glyphicon} from 'react-bootstrap';
-import ArticleForm from "./ArticleForm";
-import HBFormField from "./HBFormField";
-import ArticleTypeSelect from "./ArticleTypeSelect";
+import {Button,Row,OverlayTrigger,Glyphicon} from 'react-bootstrap';
 
+function hideOverlay(){
+    if(!!this.ref && !!this.ref.current){
+        console.log(this.ref.current);
+        this.ref.current.handleDelayedHide();
+    }
+};
 
 const SubPreview = ({}) => {
     return (
-        <ArticleFormSubmitContext.Consumer>
+        <FormSubmitContext.Consumer>
             {({valid,handleSwitch,objectLabel}) => (
                 <span>
                     <OverlayTrigger placement="bottom" overlay={previewTooltip(objectLabel)}>
@@ -22,29 +25,32 @@ const SubPreview = ({}) => {
                     &nbsp;
                 </span>
             )}
-        </ArticleFormSubmitContext.Consumer>
+        </FormSubmitContext.Consumer>
     );
 };
 
 class SubServerSubmit extends React.Component {
     constructor(props) {
         super(props);
+        this.hideOverlay = hideOverlay.bind(this);
         this.ref = React.createRef();
     }
 
     render(){
         return (
-            <ArticleFormSubmitContext.Consumer>
+            <FormSubmitContext.Consumer>
                 {({objectLabel,isToDelete,valid,submitting,handleServerSubmit}) => (
                     <span>
                         <OverlayTrigger placement="bottom"
                                         overlay={submitTooltip(objectLabel)}
                                         ref={this.ref}
-                                        onClick={() => {this.ref.current.handleDelayedHide()} }
                         >
                             <Button bsStyle={isToDelete?"warning":"success"}
                                     disabled={!valid || submitting}
-                                    onClick={handleServerSubmit}>
+                                    onClick={(e)=>{
+                                        this.hideOverlay();
+                                        handleServerSubmit(e);
+                                    }}>
                                 {isToDelete?"Valider suppr.":"Enregistrer"}
                                 &nbsp;<Glyphicon glyph="upload"/>
                             </Button>
@@ -52,7 +58,7 @@ class SubServerSubmit extends React.Component {
                         &nbsp;
                     </span>
                 )}
-            </ArticleFormSubmitContext.Consumer>
+            </FormSubmitContext.Consumer>
         );
     }
 }
@@ -60,22 +66,25 @@ class SubServerSubmit extends React.Component {
 class SubReset extends React.Component {
     constructor(props) {
         super(props);
+        this.hideOverlay = hideOverlay.bind(this);
         this.ref = React.createRef();
     }
 
     render(){
         return (
-            <ArticleFormSubmitContext.Consumer>
-                {({objectLabel,isToDelete,valid,submitting,handleReset,pristine,isNew,isDirty}) => (
+            <FormSubmitContext.Consumer>
+                {({objectLabel,isToDelete,valid,submitting,handleReset,pristine,isNew,isDirty,anyTouched}) => (
                     <span>
                         <OverlayTrigger placement="bottom"
                                         overlay={resetTooltip(objectLabel)}
                                         ref={this.ref}
-                                        onClick={() => {this.ref.handleDelayedHide()} }
                         >
                             <Button bsStyle={isToDelete?"default":"warning"}
-                                    disabled={(pristine || submitting) && isDirty}
-                                    onClick={handleReset}>
+                                    disabled={submitting || (!anyTouched && !isDirty)}
+                                    onClick={(e)=>{
+                                        this.hideOverlay();
+                                        handleReset(e);
+                                    }}>
                                 {isNew?'Annuler ajout':
                                     isToDelete?'Annuler suppr.': 'Reinitialiser'}
                                 &nbsp;<Glyphicon
@@ -86,7 +95,7 @@ class SubReset extends React.Component {
                         &nbsp;
                     </span>
                 )}
-            </ArticleFormSubmitContext.Consumer>
+            </FormSubmitContext.Consumer>
         );
     }
 }
@@ -94,37 +103,40 @@ class SubReset extends React.Component {
 class SubDelete extends React.Component {
     constructor(props) {
         super(props);
+        this.hideOverlay = hideOverlay.bind(this);
         this.ref = React.createRef();
     }
 
     render(){
         return (
-            <ArticleFormSubmitContext.Consumer>
+            <FormSubmitContext.Consumer>
                 {({objectLabel,isToDelete,valid,submitting,handleDelete,pristine,isNew}) => (
                     <div>
                         {!isNew && !isToDelete &&
                         <OverlayTrigger placement="bottom"
                                         overlay={deleteTooltip("cet article")}
                                         ref={this.ref}
-                                        onClick={() => {this.ref.handleDelayedHide()} }
                         >
                             <Button bsStyle="danger"
                                     disabled={false}
-                                    onClick={handleDelete}>
+                                    onClick={(e)=>{
+                                        this.hideOverlay();
+                                        handleDelete(e);
+                                    }}>
                                 Supprimer&nbsp;<Glyphicon glyph="remove"/>
                             </Button>
                         </OverlayTrigger>
                         }
                     </div>
                 )}
-            </ArticleFormSubmitContext.Consumer>
+            </FormSubmitContext.Consumer>
         );
     }
 }
 
-const ArticleFormSubmitContext = React.createContext({});
+const FormSubmitContext = React.createContext({});
 
-class ArticleFormSubmit extends React.Component {
+class FormSubmit extends React.Component {
     static Preview = SubPreview;
     static ServerSubmit = SubServerSubmit;
     static Reset = SubReset;
@@ -135,20 +147,19 @@ class ArticleFormSubmit extends React.Component {
     }
 
     render(){
-        const {target} = this;
-        const {hasData,pristine,valid,submitting,isNew,isDirty,isToDelete,objectLabel,
+        const {hasData,pristine,valid,submitting,isNew,isDirty,isToDelete,anyTouched,objectLabel,
             handleSwitch,handleServerSubmit,handleReset,handleDelete} = this.props;
 
         return (
 
-                <ArticleFormSubmitContext.Provider value={this.props}>
+                <FormSubmitContext.Provider value={this.props}>
                     <Row>
                     {this.props.children}
                     </Row>
-                </ArticleFormSubmitContext.Provider>
+                </FormSubmitContext.Provider>
         );
     }
 }
 
 
-export default ArticleFormSubmit;
+export default FormSubmit;

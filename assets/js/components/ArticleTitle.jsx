@@ -17,12 +17,15 @@ const ArticleTitle = (props) => {
 
     let value = (article && article.title) || "Nouvel article";
 
-    if(article.beginHDate){
+    if(article.beginHDate && article.endHDate && article.beginHDate.equals(article.endHDate)){
+        value = `${value} (${article.beginHDate.getLabel()})`;
+    }
+    else if(article.beginHDate){
         value = `${value} (${article.beginHDate.getLabel()} - ${article.endHDate?article.endHDate.getLabel():""})`;
     }
 
     return (
-        <p>{value}</p>
+        <span>{value}</span>
     );
 };
 

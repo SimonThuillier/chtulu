@@ -87,8 +87,8 @@ class ImageInput extends Component {
 
     render(){
         const { input, label, type,  meta: {touched,error,warning} ,dispatch,selector,value,toggleShow,show} = this.props;
-        console.log("render image input");
-        console.log(input);
+        /*console.log("render image input");
+        console.log(input);*/
         let id = input.value;
 
         const alignment = this.props.alignment || 'horizontal';
