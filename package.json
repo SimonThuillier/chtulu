@@ -43,6 +43,7 @@
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
     "slimscroll": "^0.9.1",
+    "styled-components": "^4.3.2",
     "stylefire": "2.3.4",
     "uuid": "^3.3.2",
     "webpack": "^4.30.0",

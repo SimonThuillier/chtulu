@@ -7,6 +7,7 @@ import {
 } from "../selectors/index";
 import {Helmet} from 'react-helmet';
 import HBExplorerProxy from "../components/HBExplorerProxy.jsx";
+import HBExplorerProxyOld from "../components/HBExplorerProxyOld.jsx";
 import HDate from "../util/HDate";
 
 export class ExplorerPage extends React.Component {
@@ -33,15 +34,24 @@ export class ExplorerPage extends React.Component {
         return (
             <div className="content-wrapper hb-container">
                 <Helmet>
-                    <title>Explorateur</title>
+                    <title>{!!this.props.old &&
+                    'Explorateur Old'
+                    }
+                        {!this.props.old &&
+                        'Explorateur'
+                        }</title>
                 </Helmet>
                 {/*<section className="content-header">*/}
                     {/*<h4>Explorateur</h4>*/}
                 {/*</section>*/}
                 <section className="content">
                     <div>
-                        <HBExplorerProxy
-                        />
+                        {!!this.props.old &&
+                        <HBExplorerProxyOld/>
+                        }
+                        {!this.props.old &&
+                        <HBExplorerProxy/>
+                        }
                     </div>
                 </section>
             </div>

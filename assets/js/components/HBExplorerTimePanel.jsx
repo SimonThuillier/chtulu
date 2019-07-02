@@ -135,7 +135,7 @@ const ArticleRef = (function() {
   return ArticleRef;
 })();
 
-export default class HBExplorerPanel extends React.Component {
+export default class HBExplorerTimePanel extends React.Component {
   constructor(props) {
     super(props);
 

@@ -66,6 +66,7 @@ class App extends Component {
                 appProps:{...appProps,id:32,activeComponent:'form'},
                 mainNotification:mainNotification},
             {id:10,path:'/page3',component:Page3,exact:true, appProps:appProps, mainNotification:mainNotification},
+            {id:11,path:'/explorer-old',component:ExplorerPage,exact:true,appProps:{old:true, ...appProps},mainNotification:mainNotification}
         ];
 
         return (

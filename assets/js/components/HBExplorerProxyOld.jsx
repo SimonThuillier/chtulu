@@ -5,7 +5,6 @@ import { connect } from "react-redux";
 import Loadable from 'react-loading-overlay';
 import HDate from "../util/HDate";
 import cmn from "../util/common";
-import HBExplorer from "./HBExplorer";
 import HBExplorerOld from "./HBExplorerOld";
 import SearchBag from "../util/SearchBag";
 import {
@@ -67,7 +66,7 @@ const loadMainArticle = (id,dispatch) => {
 /**
  * @doc : this invisible component ensure article retrieving and updating for HBExplorer
  */
-class HBExplorerProxy extends React.Component {
+class HBExplorerProxyOld extends React.Component {
     constructor(props) {
         super(props);
 
@@ -144,7 +143,7 @@ class HBExplorerProxy extends React.Component {
                 color={COLORS.LOADING}
                 background={COLORS.LOADING_BACKGROUND}
             >
-                <HBExplorer
+                <HBExplorerOld
                     mainArticleId={mainArticleId }
                     articles={items}
                     hInterval={this.props.hInterval || getHIntervalFromArticles(items) || defaultHInterval}
@@ -168,4 +167,4 @@ const mapStateToProps = state => {
     }
 };
 
-export default connect(mapStateToProps)(HBExplorerProxy);
+export default connect(mapStateToProps)(HBExplorerProxyOld);
