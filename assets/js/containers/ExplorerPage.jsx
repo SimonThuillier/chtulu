@@ -34,12 +34,7 @@ export class ExplorerPage extends React.Component {
         return (
             <div className="content-wrapper hb-container">
                 <Helmet>
-                    <title>{!!this.props.old &&
-                    'Explorateur Old'
-                    }
-                        {!this.props.old &&
-                        'Explorateur'
-                        }</title>
+                    <title>{!!this.props.old? 'Explorateur Old':'Explorateur' }</title>
                 </Helmet>
                 {/*<section className="content-header">*/}
                     {/*<h4>Explorateur</h4>*/}

@@ -312,7 +312,52 @@ class HBExplorer extends React.Component {
 
         const timeArea = (
             <TimeArea>
-                <TimePanel>panel</TimePanel>
+                <TimePanel>
+                    <MeasureAndRender
+                        stretch={true}
+                        debounce={1}
+                        onWindowResize={this.onPanelAreaResize}
+                        updaterVar={frameSizes.get("contentArea.height")+
+                        frameSizes.get("panelArea.height")+frameSizes.get("explorer.width")}
+                        /*ref={node => {
+                            this.panelMeasureRef = node;
+                        }}*/
+                    >
+                        {bounds => {
+                            //console.log("test2");
+                            const stroke = 1;
+                            //{ stroke, className, bounds} = props;
+                            const path = `M${stroke},${stroke}
+      L${bounds.width - stroke},${stroke}
+      L${bounds.width - stroke},${bounds.height - 10 - stroke}
+      L${stroke},${bounds.height - 10 - stroke}
+      Z`;
+                            //console.log(path);
+
+                            return [
+                                <HBExplorerTimePanel
+                                    key={"hg-time-panel"}
+                                    bounds={bounds}
+                                    path={path}
+                                    articles={articles}
+                                    selectArticle={this.selectArticle}
+                                    selected={selected}
+                                    //addArticle={this.addArticle}
+                                    setInvisibles={this.setInvisibles}
+                                    hInterval={hInterval}
+                                    setHInterval={this.setHInterval}
+                                    animationPeriod={this.timeTravellingPeriod}
+                                    marginWidth={10}
+                                    cursorRate={cursorRate}
+                                    cursorDate = {cursorDate}
+                                    isCursorActive={isCursorActive}
+                                />
+                            ];
+                        }}
+                    </MeasureAndRender>
+
+
+                </TimePanel>
                 <TimeFooter>footer</TimeFooter>
             </TimeArea>
         );

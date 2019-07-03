@@ -118,18 +118,18 @@ class HBExplorerProxy extends React.Component {
         const babies = babiesSelector();
         const notifications = notificationsSelector(componentUid);
 
-        let items = [];
+        let articles = [];
         let loading = false;
 
         // mainArticle mode
         if(mainArticleId !== null) {
-            items = babies.concat([getOneByIdSelector(+mainArticleId)]).
+            articles = babies.concat([getOneByIdSelector(+mainArticleId)]).
             filter((a)=>{return typeof a !== 'undefined' && a !== null;});
             loading = (notifications && notifications.hasIn([mainArticleId || 'DEFAULT',LOADING]))||false;
         }
         // default mode
         else{
-            items = babies.concat(selector(searchBag));
+            articles = babies.concat(selector(searchBag));
             const coreBagKey = JSON.stringify(SearchBagUtil.getCoreBag(searchBag));
             loading = (notifications && notifications.hasIn([coreBagKey || 'DEFAULT',LOADING]))||false;
         }
@@ -146,8 +146,8 @@ class HBExplorerProxy extends React.Component {
             >
                 <HBExplorer
                     mainArticleId={mainArticleId }
-                    articles={items}
-                    hInterval={this.props.hInterval || getHIntervalFromArticles(items) || defaultHInterval}
+                    articles={articles}
+                    hInterval={this.props.hInterval || getHIntervalFromArticles(articles) || defaultHInterval}
                     dispatch={dispatch}
                 />
             </Loadable>
