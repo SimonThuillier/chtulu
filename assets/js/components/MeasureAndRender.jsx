@@ -33,8 +33,12 @@ class MeasureAndRender extends React.Component {
       const {updaterVar=null} = this.props;
       const {updaterVar:oldUpdaterVar=null} = prevProps;
 
-      // console.log(`measureAndRender ${updaterVar} vs ${oldUpdaterVar}`);
       if(this.state.hasMeasured && oldUpdaterVar !==null && updaterVar !== oldUpdaterVar){
+
+          const m = this.el.getBoundingClientRect();
+
+          console.log(`measureAndRender ${m.x} ${m.y} ${m.height} ${m.width}`);
+
           this.setState({measurement:this.el.getBoundingClientRect()});
       }
   }
@@ -47,7 +51,7 @@ class MeasureAndRender extends React.Component {
   render() {
     let style = {};
     if (this.props.stretch) {
-      style.position = "absolute";
+      style.position = "relative";
       style.height = "100%";
       style.width = "100%";
       style.top = 0;

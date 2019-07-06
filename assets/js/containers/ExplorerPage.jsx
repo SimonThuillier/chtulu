@@ -39,7 +39,7 @@ export class ExplorerPage extends React.Component {
                 {/*<section className="content-header">*/}
                     {/*<h4>Explorateur</h4>*/}
                 {/*</section>*/}
-                <section className="content">
+                <section className="content no-padding">
                     <div>
                         {!!this.props.old &&
                         <HBExplorerProxyOld/>

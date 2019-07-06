@@ -6,7 +6,7 @@ const Header = (props) => {
     /*console.log("header's pending data");
     console.log(props.pendingData);*/
     return (
-        <header className="main-header">
+        <header id="main-header" className="main-header">
             <a href="#" className="logo">
                 <span className="logo-mini"><b>H</b>B</span>
                 <span className="logo-lg"><b>Historica</b>Base</span>

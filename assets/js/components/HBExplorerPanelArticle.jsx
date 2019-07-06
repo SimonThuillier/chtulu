@@ -79,6 +79,11 @@ class HBExplorerPanelArticle extends React.Component {
         const x = timeScale(article.beginHDate.beginDate);
         const endX = timeScale(article.endHDate?article.endHDate.endDate:new Date());
 
+        /*console.log(article.beginHDate.beginDate);
+        console.log(timeScale(new Date()));
+        console.log(x);
+        console.log(endX);*/
+
         const {max,min} = Math;
         let deltaX = min(max(-x,0),endX) + 15;
         deltaX=0;

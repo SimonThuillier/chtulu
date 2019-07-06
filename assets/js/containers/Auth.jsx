@@ -12,12 +12,41 @@ import {postAll,resetAll} from "../actions";
 import {COLORS, SUBMITTING, SUBMITTING_COMPLETED} from "../util/notifications";
 import Loadable from 'react-loading-overlay';
 import MainNotification from '../components/MainNotification';
+import AppContext from "../util/AppContext";
 
 class App extends Component {
     constructor(props) {
         super(props);
         this.onPostAll = this.onPostAll.bind(this);
         this.onResetAll = this.onResetAll.bind(this);
+        this.updateLayoutContext = this.updateLayoutContext.bind(this);
+
+        this.state={
+            headerHeight:0,
+            sidebarWidth:0
+        }
+    }
+
+    updateLayoutContext(){
+        const sidebar = document.getElementById("main-sidebar");
+
+        if(sidebar && sidebar.getBoundingClientRect()){
+            console.log(sidebar.getBoundingClientRect().width);
+            setTimeout(()=>{
+                this.setState({sidebarWidth:sidebar.getBoundingClientRect().width});
+            },50);
+
+        }
+    }
+
+    componentDidMount(){
+        this.updateLayoutContext();
+
+        window.addEventListener("resize",this.updateLayoutContext);
+    }
+
+    componentWillUnmount(){
+        window.removeEventListener("resize",this.updateLayoutContext);
     }
 
     onPostAll(){
@@ -69,39 +98,46 @@ class App extends Component {
             {id:11,path:'/explorer-old',component:ExplorerPage,exact:true,appProps:{old:true, ...appProps},mainNotification:mainNotification}
         ];
 
+        console.log(this.state.sidebarWidth);
+
         return (
+            <AppContext.Provider key={`app-provider`} value={{...this.state}}>
             <BrowserRouter {...appProps} basename="/app/">
                 {/*<Loadable*/}
-                    {/*active={submitting}*/}
-                    {/*spinner*/}
-                    {/*text={"Enregistrement de vos données ..."}*/}
-                    {/*color={COLORS.SUBMITTING}*/}
-                    {/*background={COLORS.LOADING_BACKGROUND}*/}
+                {/*active={submitting}*/}
+                {/*spinner*/}
+                {/*text={"Enregistrement de vos données ..."}*/}
+                {/*color={COLORS.SUBMITTING}*/}
+                {/*background={COLORS.LOADING_BACKGROUND}*/}
                 {/*>*/}
-                <div className="wrapper hold-transition skin-blue sidebar-mini">
-                    <Loadable
-                        active={submitting}
-                        spinner
-                        text={"Enregistrement de vos données ..."}
-                        color={COLORS.SUBMITTING}
-                        background={COLORS.LOADING_BACKGROUND}
-                    >
-                    <Header
-                        {...appProps}
-                        pendingData={pendingTotal>0}
-                        onPostAll={this.onPostAll}
-                        onResetAll={this.onResetAll}
-                    />
-                    <SideBar {...appProps}/>
-                    <Switch >
-                        {routes.map(({id,path,component:C,appProps,exact}) =>
-                            <Route key={id} exact={exact} path={path} render={(props) => <C {...appProps} {...props}/>}/>
-                        )}
-                    </Switch>
-                    </Loadable>
-                </div>
+                    <div className="wrapper hold-transition skin-blue sidebar-mini">
+                        <Loadable
+                            active={submitting}
+                            spinner
+                            text={"Enregistrement de vos données ..."}
+                            color={COLORS.SUBMITTING}
+                            background={COLORS.LOADING_BACKGROUND}
+                        >
+                            <Header
+                                {...appProps}
+                                pendingData={pendingTotal>0}
+                                onPostAll={this.onPostAll}
+                                onResetAll={this.onResetAll}
+                            />
+                            <SideBar {...appProps}/>
+                            <Switch >
+                                {routes.map(({id,path,component:C,appProps,exact}) =>
+                                    <AppContext.Provider key={`app-provider`} value={{...this.state}}>
+                                        <Route key={id} exact={exact} path={path} render={(props) => <C {...appProps} {...props}/>}/>
+                                    </AppContext.Provider>
+                                )}
+                            </Switch>
+                        </Loadable>
+                    </div>
+
                 {/*</Loadable>*/}
             </BrowserRouter>
+            </AppContext.Provider>
         );
     }
 }

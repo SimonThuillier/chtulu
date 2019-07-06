@@ -12,15 +12,18 @@ import {
     HelpBlock
 } from "react-bootstrap";
 import HDatePicker from "./HDatePicker";
+const componentUid = require('uuid/v4')();
 
 const defaultStyles = {
     horizontal: {
         paddingBottom: 15,
         paddingTop: 15,
-        position: "relative"
+        position: "relative",
+        fontSize: "14px"
     },
     vertical: {
-        position: "relative"
+        position: "relative",
+        fontSize: "14px"
     }
 };
 
@@ -30,15 +33,29 @@ class HDateInput extends Component {
 
         this.handleSave = this.handleSave.bind(this);
         this.handleClose = this.handleClose.bind(this);
+        this.handleFocus = this.handleFocus.bind(this);
+        this.handleBlur = this.handleBlur.bind(this);
         this.inputRef = null;
         this.state = {
+            show:false,
             value: ""
         };
+
+        this.targetLol = React.createRef();
+    }
+
+    handleFocus(){
+        this.setState({show:true});
+    }
+
+    handleBlur(){
+        this.setState({show:true});
     }
 
     handleClose() {
-        console.log(this.inputRef.current);
-        this.inputRef.click();
+        this.setState({show:false});
+        //console.log(this.inputRef.current);
+        if(this.inputRef) this.inputRef.click();
     }
 
     handleSave(value) {
@@ -74,13 +91,17 @@ class HDateInput extends Component {
 
         let dateInput = this;
 
+        const {targetLol} = this;
+
         switch (alignment) {
             case "vertical":
                 return (
-                    <div>
+                    <div ref={targetLol} style={{display:"inline"}}>
                         <FormGroup
                             validationState={
-                                error
+                                !touched
+                                    ? null
+                                    : error
                                     ? "error"
                                     : warning
                                         ? "warning"
@@ -89,56 +110,51 @@ class HDateInput extends Component {
                             style={style}
                         >
                             {label !== null && <ControlLabel>{label}</ControlLabel>}
-                            <FormControl
-                                ref="target"
+                            <FormControl ref={targetLol}
                                 value={hDateLabel}
-                                componentClass="input"
+                                component={(<input id="vachier" ref={targetLol}/>)}
                                 onFocus={this.handleFocus}
                                 onBlur={this.handleBlur}
                                 type="text"
-                                style={{ textAlign: "inherit" }}
+                                style={{
+                                    textAlign: "inherit",
+                                    display: "inline",
+                                    fontSize: thisDefaultStyles.fontSize
+                                }}
                                 placeholder={placeholder}
                             />
+                            <Overlay
+                                rootClose={false}
+                                show={this.state.show}
+                                onHide={()=>{}}
+                                placement="left"
+                                container={null}
+                                target={targetLol.current}
+                            >
+                                <Popover key={`popover-contained-${componentUid}`} id={`popover-contained-${componentUid}`}>
+                                    <div ref={this.overlay}>
+                                        <HDatePicker
+                                            initialValue={input.value}
+                                            onFocus={this.handleFocus}
+                                            onClose={this.handleClose}
+                                            onSave={this.handleSave}
+                                        />
+                                    </div>
+                                </Popover>
+                            </Overlay>
                             {touched && (error || warning) && (
                                 <HelpBlock>{error || warning}</HelpBlock>
                             )}
                         </FormGroup>
-                        <OverlayTrigger
-                            trigger="click"
-                            placement="left"
-                            rootClose={true}
-                            container={this.props.container || null}
-                            rootCloseEvent={'click'}
-                            overlay={
-                                <Popover id="popover-contained" arrowProps={null}>
-                                    <HDatePicker
-                                        initialValue={input.value}
-                                        onClose={dateInput.handleClose}
-                                        onSave={dateInput.handleSave}
-                                    />
-                                </Popover>
-                            }
-                        >
-                            <div ref={input => (this.inputRef = input)}>
-                                <FormControl
-                                    value={hDateLabel}
-                                    componentClass="input"
-                                    //onFocus={this.handleFocus}
-                                    //onBlur={this.handle}
-                                    type="text"
-                                    style={{ textAlign: "inherit" }}
-                                    placeholder={placeholder}
-                                    onChange={()=>{}}
-                                />
-                            </div>
-                        </OverlayTrigger>
                     </div>
                 );
             default:
                 return (
                     <FormGroup
                         validationState={
-                            error
+                            !touched
+                                ? null
+                                : error
                                 ? "error"
                                 : warning
                                     ? "warning"
@@ -155,9 +171,6 @@ class HDateInput extends Component {
                             <OverlayTrigger
                                 trigger="click"
                                 placement="left"
-                                rootClose={true}
-                                container={this.props.container || null}
-                                rootCloseEvent={'click'}
                                 overlay={
                                     <Popover id="popover-contained" arrowProps={null}>
                                         <HDatePicker
@@ -175,16 +188,19 @@ class HDateInput extends Component {
                                         //onFocus={this.handleFocus}
                                         //onBlur={this.handle}
                                         type="text"
-                                        style={{ textAlign: "inherit" }}
+                                        style={{
+                                            textAlign: "inherit",
+                                            fontSize: thisDefaultStyles.fontSize
+                                        }}
                                         placeholder={placeholder}
-                                        onChange={()=>{}}
                                     />
                                 </div>
                             </OverlayTrigger>
-                            {(error || warning) && (
-                                <HelpBlock>{error || warning}</HelpBlock>
-                            )}
                         </Col>
+
+                        {touched && (error || warning) && (
+                            <HelpBlock>{error || warning}</HelpBlock>
+                        )}
                     </FormGroup>
                 );
         }

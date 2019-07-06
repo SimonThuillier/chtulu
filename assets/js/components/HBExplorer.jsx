@@ -10,6 +10,7 @@ import HBExplorerDateInput from "./HBExplorerDateInput";
 import MeasureAndRender from "./MeasureAndRender";
 import TimeArrow from "./TimeArrow.jsx";
 import HBExplorerTimePanel from "./HBExplorerTimePanel.jsx";
+import HBExplorerTimeMenu from "./HBExplorerTimeMenu.jsx";
 import MapContainer from "./MapContainer.jsx";
 import MapHandlerIcon from "./MapHandlerIcon.jsx";
 import CSSVariableApplicator from "./CSSVariableApplicator.jsx";
@@ -75,9 +76,9 @@ const DEFAULT_LAYOUT = {
         display: `flex`,
         flexDirection: "column",
         overflow: `hidden`,
-        border: `1px solid black`,
+        border: `0px solid black`,
         borderRadius: "3px",
-        padding: "5px"
+        padding: "2px"
     },
     header: {
         order: 1,
@@ -109,6 +110,8 @@ const DEFAULT_LAYOUT = {
         border: `2px solid rgb(23, 88, 190)`
     },
     timeArea: {
+        className:"time-area",
+        owerflow:"hidden",
         padding: "0px",
         height: "100%",
         width: "100%",
@@ -116,14 +119,18 @@ const DEFAULT_LAYOUT = {
         flexDirection: "column"
     },
     timePanel: {
+        className:"time-panel",
         order: 1,
-        height: `100%`,
-        background: `#C0C`
+        background: `#C0C`,
+        flexBasis: `95%`,
+        maxHeight:`98%`
     },
     timeFooter: {
+        className:"time-footer",
         order: 2,
-        height: `40px`,
-        background: `#D00`
+        flexBasis: `40px`,
+        minHeight:`40px`,
+        maxHeight:`40px`
     },
     mapArea: {
         padding: "0px",
@@ -162,6 +169,9 @@ class HBExplorer extends React.Component {
         this.middleRef = React.createRef();
         this.bottomRef = React.createRef();
         this.rightRef = React.createRef();
+
+        this.timeAreaRef = React.createRef();
+
         this.setTheme = this.setTheme.bind(this);
         this.onWindowResize = this.onWindowResize.bind(this);
         this.onBottomResize = this.onBottomResize.bind(this);
@@ -249,7 +259,7 @@ class HBExplorer extends React.Component {
         // onGoing
         const { min, max } = Math;
         const { rangeAbsoluteSize, beginRelativeSize } = this.onBottomResizeParam;
-        console.log(`bottom resize ${delta}px vs ${rangeAbsoluteSize}px`);
+        //console.log(`bottom resize ${delta}px vs ${rangeAbsoluteSize}px`);
         let { length, unit } = splitCssLength(beginRelativeSize);
 
         let newPercentage = +length - (100 * delta) / rangeAbsoluteSize;
@@ -261,7 +271,7 @@ class HBExplorer extends React.Component {
             .set("middle.height", `${100 - newPercentage}%`);
         this.setState({ frameSizes: newFrameSizes });
 
-        console.log(newPercentage);
+        //console.log(newPercentage);
     }
 
     // begin flag :set the scale and origin values for resize
@@ -282,7 +292,7 @@ class HBExplorer extends React.Component {
         const { min, max } = Math;
         const { rangeAbsoluteSize, beginRelativeSize } = this.onRightResizeParam;
 
-        console.log(`right resize ${delta}px vs ${rangeAbsoluteSize}px`);
+        //console.log(`right resize ${delta}px vs ${rangeAbsoluteSize}px`);
 
         let { length, unit } = splitCssLength(beginRelativeSize);
 
@@ -298,7 +308,7 @@ class HBExplorer extends React.Component {
             .set("left.width", `${100 - newPercentage}%`);
         this.setState({ frameSizes: newFrameSizes });
 
-        console.log(newPercentage);
+        //console.log(newPercentage);
     }
 
     componentWillUnmount() {
@@ -307,47 +317,52 @@ class HBExplorer extends React.Component {
 
     render() {
         const { currentTheme, frameSizes, guiInitialized } = this.state;
+        const { hInterval,setHInterval,cursorRate,cursorDate,isCursorActive,
+            articles,displayedArticles,invisibles,selectArticle,closeArticle} = this.props;
         const theme = THEMES[currentTheme];
-        console.log(currentTheme);
+        //console.log(currentTheme);
 
         const timeArea = (
-            <TimeArea>
-                <TimePanel>
+            <TimeArea id={"time-area"} ref={this.timeAreaRef}>
+                <TimeFooter id={"time-footer"}>
+                    <HBExplorerTimeMenu
+                        hInterval={hInterval}
+                        setHInterval={setHInterval}
+                        invisibles={invisibles}
+                    />
+                </TimeFooter>
+                <TimePanel id={"time-panel"}
+                           style={{height:`${this.timeAreaRef.current?this.timeAreaRef.current.getBoundingClientRect().height-40:100}px`}}
+                >
                     <MeasureAndRender
                         stretch={true}
                         debounce={1}
                         onWindowResize={this.onPanelAreaResize}
-                        updaterVar={frameSizes.get("contentArea.height")+
-                        frameSizes.get("panelArea.height")+frameSizes.get("explorer.width")}
+                        updaterVar={frameSizes}
                         /*ref={node => {
                             this.panelMeasureRef = node;
                         }}*/
                     >
                         {bounds => {
-                            //console.log("test2");
-                            const stroke = 1;
                             //{ stroke, className, bounds} = props;
-                            const path = `M${stroke},${stroke}
-      L${bounds.width - stroke},${stroke}
-      L${bounds.width - stroke},${bounds.height - 10 - stroke}
-      L${stroke},${bounds.height - 10 - stroke}
+                            const path = `M0,0
+      L${bounds.width},0
+      L${bounds.width},${bounds.height}
+      L0,${bounds.height}
       Z`;
                             //console.log(path);
+                            //return <p>{path}</p>
 
                             return [
                                 <HBExplorerTimePanel
                                     key={"hg-time-panel"}
                                     bounds={bounds}
+                                    marginWidth={0}
                                     path={path}
-                                    articles={articles}
-                                    selectArticle={this.selectArticle}
-                                    selected={selected}
-                                    //addArticle={this.addArticle}
-                                    setInvisibles={this.setInvisibles}
                                     hInterval={hInterval}
-                                    setHInterval={this.setHInterval}
-                                    animationPeriod={this.timeTravellingPeriod}
-                                    marginWidth={10}
+                                    setHInterval={setHInterval}
+                                    articles={articles}
+                                    displayedArticles={displayedArticles}
                                     cursorRate={cursorRate}
                                     cursorDate = {cursorDate}
                                     isCursorActive={isCursorActive}
@@ -355,12 +370,18 @@ class HBExplorer extends React.Component {
                             ];
                         }}
                     </MeasureAndRender>
-
-
                 </TimePanel>
-                <TimeFooter>footer</TimeFooter>
             </TimeArea>
         );
+
+        if(this.timeAreaRef.current){
+            console.log(`timeArea height ${this.timeAreaRef.current.getBoundingClientRect().height}`);
+        }
+        else{
+            console.log(`unable to get timeArea height`);
+        }
+
+
 
         const mapArea = <MapArea>map</MapArea>;
 

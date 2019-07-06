@@ -6,7 +6,6 @@ import styler from "stylefire";
 import posed, { PoseGroup } from "react-pose";
 import date from "../util/date";
 import HDate from "../util/HDate";
-import TimeArrowCursor from "./TimeArrowCursor";
 
 const styles = {
     fill: "LightBlue",
@@ -160,8 +159,11 @@ export default class TimeArrow extends React.Component {
 
     componentDidMount() {
         const { hInterval, bounds } = this.props;
+        console.log(hInterval);
+        console.log(bounds);
 
-        const hTimeRange = new HTimeRange().setHDate(hInterval);
+        const hTimeRange = new HTimeRange().setHDate(hInterval, bounds.width);
+        this.hTimeRange = hTimeRange;
         const timeScale = this.getTimeScale(hInterval, bounds);
 
         this.animationData = {
@@ -184,8 +186,9 @@ export default class TimeArrow extends React.Component {
                 this.lastIntegratedId = Math.max(this.lastIntegratedId, grad.id);
             });
 
+        console.log(grads);
+
         this.setState({
-            hTimeRange: hTimeRange,
             timeScale: timeScale,
             grads: grads
         });
@@ -193,12 +196,12 @@ export default class TimeArrow extends React.Component {
 
     updateHInterval() {
         const { hInterval, bounds } = this.props;
-        let { hTimeRange } = this.state;
+        let { hTimeRange } = this;
         const { exitingDuration } = animationParams;
 
         const currentTime = new Date().getTime();
 
-        hTimeRange.setHDate(hInterval);
+        hTimeRange.setHDate(hInterval, bounds.width);
         const timeScale = this.getTimeScale(hInterval, bounds);
 
         let grads = new Map(this.state.grads);
@@ -245,7 +248,7 @@ export default class TimeArrow extends React.Component {
             hInterval.endDate
           }`
         );*/
-        const { marginWidth } = this.props;
+        const marginWidth = this.props.marginWidth || 5;
 
         return scaleTime()
             .domain([hInterval.beginDate, hInterval.endDate])
@@ -264,7 +267,9 @@ export default class TimeArrow extends React.Component {
             bounds.height !== oldBounds.height ||
             bounds.width !== oldBounds.width
         ) {
-            //console.log(2);
+            if (bounds.width !== oldBounds.width) {
+                this.updateHInterval();
+            }
             const timeScale = this.getTimeScale(hInterval, bounds);
             this.setState({ timeScale: timeScale });
             this.animationData.timeScale = timeScale;
@@ -272,6 +277,7 @@ export default class TimeArrow extends React.Component {
     }
 
     runAnimationIfNeeded(timeScale = null) {
+        return;
         if (timeScale === null) timeScale = this.state.timeScale;
         const { animationPeriod, hInterval } = this.props;
         const { startingDuration, exitingDuration } = animationParams;
@@ -361,7 +367,7 @@ export default class TimeArrow extends React.Component {
     }
 
     render() {
-        const {bounds,marginWidth,cursorRate,cursorDate,isCursorActive,setCursorRate,toggleCursor} = this.props;
+        const bounds = this.props.bounds;
         /*console.log("time arrow bounds");
         console.log(bounds.width);
         console.log(bounds.height);*/
@@ -369,21 +375,21 @@ export default class TimeArrow extends React.Component {
         const width = bounds.width;
         const height = bounds.height;
 
+        const arrowTop = 0;
+
         // let's design the arrow
         const stroke = 1;
-        const arrowHeight = 40;
-        const arrowPeekHeight = 60;
-        const arrowPeekWidth = 35;
+        const arrowHeight = 35;
+        const arrowPeekWidth = 0;
 
-        const bottomHeight = 10;// for the cursor
-        const path = `M${stroke},${(height - bottomHeight -arrowHeight) / 2} 
-      L${width - stroke - arrowPeekWidth},${(height - bottomHeight - arrowHeight) / 2}
-      L${width - stroke - arrowPeekWidth},${(height - bottomHeight -arrowPeekHeight) / 2}
-      L${width - stroke},${(height-bottomHeight) / 2}
-      L${width - stroke - arrowPeekWidth},${(height - bottomHeight + arrowPeekHeight) / 2}
-      L${width - stroke - arrowPeekWidth},${(height - bottomHeight + arrowHeight) / 2}
-      L${stroke},${(height - bottomHeight + arrowHeight) / 2} 
+        //{ stroke, className, bounds} = props;
+        const path = `M${stroke},${arrowTop} 
+      L${width - stroke - arrowPeekWidth},${arrowTop}
+      L${width - stroke},${arrowTop + arrowHeight / 2}
+      L${width - stroke - arrowPeekWidth},${arrowTop + arrowHeight}
+      L${stroke},${arrowTop + arrowHeight} 
       Z`;
+        //console.log(path);
 
         let currentStyle = { ...styles };
 
@@ -408,7 +414,7 @@ export default class TimeArrow extends React.Component {
                     id={`htime-grad-legend-${g.id}`}
                     opacity={0.05}
                     x={x}
-                    y={height - bottomHeight/2 - (height - arrowHeight) / 2 - 2}
+                    y={arrowTop + arrowHeight - 2}
                     textAnchor="middle"
                     fontFamily="Verdana"
                     fontSize="10"
@@ -439,7 +445,7 @@ export default class TimeArrow extends React.Component {
         const gradLines = arrayOfGradsToDisplay.map(([id, g]) => {
             const x = timeScale(g.date);
             const gradHeight = g.major ? majorGradHeight : minorGradHeight;
-            const y = height - bottomHeight/2 - (height - arrowHeight) / 2 - 11;
+            const y2 = arrowTop + arrowHeight - 11;
             const gradStroke = g.major ? 2 : 1;
             return (
                 <PosedRect
@@ -447,7 +453,7 @@ export default class TimeArrow extends React.Component {
                     id={`htime-grad-line-${g.id}`}
                     fillOpacity={0.05}
                     x={x}
-                    y={y - gradHeight}
+                    y={y2 - gradHeight}
                     height={gradHeight}
                     width={gradStroke}
                     style={{
@@ -476,32 +482,90 @@ export default class TimeArrow extends React.Component {
                 />
             );
         });
+
+        //console.log(gradLines);
+
+        /*<svg
+          viewBox={`0 0 ${bounds.width} ${bounds.height}`}
+          preserveAspectRatio="none"
+        >*/
         return (
-            <svg
-                viewBox={`0 0 ${width} ${height}`}
-                preserveAspectRatio="none"
-            >
-                <g>
-                    <path
-                        style={currentStyle}
-                        vectorEffect="non-scaling-stroke"
-                        d={path}
-                        stroke="none"
-                    />
-                    {!isAnimating &&
-                    arrayOfGradsToDisplay.map(([id, g]) => {
+            <g>
+                <path
+                    style={currentStyle}
+                    vectorEffect="non-scaling-stroke"
+                    d={path}
+                    stroke="none"
+                />
+                {!isAnimating &&
+                arrayOfGradsToDisplay.map(([id, g]) => {
+                    const beginX = timeScale(g.date);
+                    //console.log(g.minorAreaEndDate);
+                    const endX = timeScale(g.minorAreaEndDate);
+                    const beginY = arrowTop;
+                    return (
+                        <rect
+                            key={`htime-grad-minor-area-${g.id}`}
+                            id={`htime-grad-minor-area-${g.id}`}
+                            x={beginX}
+                            y={beginY}
+                            width={endX - beginX}
+                            height={arrowHeight}
+                            style={{
+                                fill: "orange",
+                                strokeWidth: 0,
+                                fillOpacity: 0,
+                                strokeOpacity: 0,
+                                transform: "none"
+                            }}
+                            ref={node => {
+                                if (
+                                    g.toDelete === 0 &&
+                                    (typeof this.gradRefs.get(g.id) === "undefined" ||
+                                        !this.gradRefs.get(g.id).minorAreaRef)
+                                ) {
+                                    let newRef = null;
+                                    let hasMadeNewRef = false;
+                                    if (typeof this.gradRefs.get(g.id) === "undefined") {
+                                        newRef = new GradRef(g);
+                                        hasMadeNewRef = true;
+                                    } else newRef = this.gradRefs.get(g.id);
+                                    newRef.minorAreaRef = node;
+                                    if (hasMadeNewRef) this.gradRefs.set(g.id, newRef);
+                                }
+                            }}
+                            onMouseOver={() => {
+                                this.gradRefs.get(g.id).minorAreaRef.style.fillOpacity = 0.8;
+                            }}
+                            onClick={() => {
+                                this.props.setHInterval(
+                                    new HDate("2", g.date, g.minorAreaEndDate)
+                                );
+                            }}
+                            onMouseOut={() => {
+                                this.gradRefs.get(g.id).minorAreaRef.style.fillOpacity = 0;
+                            }}
+                        />
+                    );
+                })}
+                {!isAnimating &&
+                arrayOfGradsToDisplay
+                    .filter(([id, g]) => {
+                        return g.majorAreaEndDate !== null;
+                    })
+                    .map(([id, g]) => {
                         const beginX = timeScale(g.date);
                         //console.log(g.minorAreaEndDate);
-                        const endX = timeScale(g.minorAreaEndDate);
-                        const beginY = (height - bottomHeight - arrowHeight) / 2;
+                        const endX = timeScale(g.majorAreaEndDate);
+                        const beginY = arrowTop;
                         return (
                             <rect
-                                key={`htime-grad-minor-area-${g.id}`}
-                                id={`htime-grad-minor-area-${g.id}`}
+                                key={`htime-grad-major-area-${g.id}`}
+                                id={`htime-grad-major-area-${g.id}`}
                                 x={beginX}
                                 y={beginY}
                                 width={endX - beginX}
-                                height={arrowHeight}
+                                height={arrowHeight / 2 - 4}
                                 style={{
                                     fill: "orange",
                                     strokeWidth: 0,
@@ -513,7 +577,7 @@ export default class TimeArrow extends React.Component {
                                     if (
                                         g.toDelete === 0 &&
                                         (typeof this.gradRefs.get(g.id) === "undefined" ||
-                                            !this.gradRefs.get(g.id).minorAreaRef)
+                                            !this.gradRefs.get(g.id).majorAreaRef)
                                     ) {
                                         let newRef = null;
                                         let hasMadeNewRef = false;
@@ -521,100 +585,29 @@ export default class TimeArrow extends React.Component {
                                             newRef = new GradRef(g);
                                             hasMadeNewRef = true;
                                         } else newRef = this.gradRefs.get(g.id);
-                                        newRef.minorAreaRef = node;
+                                        newRef.majorAreaRef = node;
                                         if (hasMadeNewRef) this.gradRefs.set(g.id, newRef);
                                     }
                                 }}
                                 onMouseOver={() => {
                                     this.gradRefs.get(
                                         g.id
-                                    ).minorAreaRef.style.fillOpacity = 0.8;
+                                    ).majorAreaRef.style.fillOpacity = 0.8;
                                 }}
                                 onClick={() => {
                                     this.props.setHInterval(
-                                        new HDate("2", g.date, g.minorAreaEndDate)
+                                        new HDate("2", g.date, g.majorAreaEndDate)
                                     );
                                 }}
                                 onMouseOut={() => {
-                                    this.gradRefs.get(g.id).minorAreaRef.style.fillOpacity = 0;
+                                    this.gradRefs.get(g.id).majorAreaRef.style.fillOpacity = 0;
                                 }}
                             />
                         );
                     })}
-                    {!isAnimating &&
-                    arrayOfGradsToDisplay
-                        .filter(([id, g]) => {
-                            return g.majorAreaEndDate !== null;
-                        })
-                        .map(([id, g]) => {
-                            const beginX = timeScale(g.date);
-                            //console.log(g.minorAreaEndDate);
-                            const endX = timeScale(g.majorAreaEndDate);
-                            const beginY = (height - bottomHeight - arrowHeight) / 2;
-                            return (
-                                <rect
-                                    key={`htime-grad-major-area-${g.id}`}
-                                    id={`htime-grad-major-area-${g.id}`}
-                                    x={beginX}
-                                    y={beginY}
-                                    width={endX - beginX}
-                                    height={arrowHeight / 2 - 4}
-                                    style={{
-                                        fill: "orange",
-                                        strokeWidth: 0,
-                                        fillOpacity: 0,
-                                        strokeOpacity: 0,
-                                        transform: "none"
-                                    }}
-                                    ref={node => {
-                                        if (
-                                            g.toDelete === 0 &&
-                                            (typeof this.gradRefs.get(g.id) === "undefined" ||
-                                                !this.gradRefs.get(g.id).majorAreaRef)
-                                        ) {
-                                            let newRef = null;
-                                            let hasMadeNewRef = false;
-                                            if (typeof this.gradRefs.get(g.id) === "undefined") {
-                                                newRef = new GradRef(g);
-                                                hasMadeNewRef = true;
-                                            } else newRef = this.gradRefs.get(g.id);
-                                            newRef.majorAreaRef = node;
-                                            if (hasMadeNewRef) this.gradRefs.set(g.id, newRef);
-                                        }
-                                    }}
-                                    onMouseOver={() => {
-                                        this.gradRefs.get(
-                                            g.id
-                                        ).majorAreaRef.style.fillOpacity = 0.8;
-                                    }}
-                                    onClick={() => {
-                                        this.props.setHInterval(
-                                            new HDate("2", g.date, g.majorAreaEndDate)
-                                        );
-                                    }}
-                                    onMouseOut={() => {
-                                        this.gradRefs.get(
-                                            g.id
-                                        ).majorAreaRef.style.fillOpacity = 0;
-                                    }}
-                                />
-                            );
-                        })}
-                    <PoseGroup>{gradLines}</PoseGroup>
-                    <PoseGroup>{gradLegends}</PoseGroup>
-                </g>
-                <TimeArrowCursor
-                    key={'time-arrow-cursor'}
-                    cursorDate = {cursorDate}
-                    cursorRate = {cursorRate}
-                    isCursorActive={isCursorActive}
-                    setCursorRate={setCursorRate}
-                    toggleCursor={toggleCursor}
-                    width = {width}
-                    height = {height}
-                    marginWidth = {marginWidth}
-                />
-            </svg>
+                <PoseGroup>{gradLines}</PoseGroup>
+                <PoseGroup>{gradLegends}</PoseGroup>
+            </g>
         );
     }
 }

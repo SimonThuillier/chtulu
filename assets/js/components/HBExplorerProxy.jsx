@@ -6,7 +6,6 @@ import Loadable from 'react-loading-overlay';
 import HDate from "../util/HDate";
 import cmn from "../util/common";
 import HBExplorer from "./HBExplorer";
-import HBExplorerOld from "./HBExplorerOld";
 import SearchBag from "../util/SearchBag";
 import {
     getBabiesSelector, getNewlyCreatedIdSelector,
@@ -17,38 +16,10 @@ import {
 import {getIfNeeded,getOneByIdIfNeeded} from "../actions";
 import {COLORS, LOADING} from "../util/notifications";
 import SearchBagUtil from "../util/SearchBagUtil";
-import dU from "../util/date";
+import {getConstrainedHInterval,getInvisibles,getHIntervalFromArticles,defaultHInterval}
+from "../util/explorerUtil";
 
 const componentUid = require("uuid/v4")();
-let _idGenerator = cmn.getIdGenerator();
-
-const defaultHInterval = new HDate("2", new Date(2000, 1, 1), new Date());
-const getHIntervalFromArticles = (articles) => {
-
-    let minDate=null;
-    let maxDate = null;
-
-    let articleMinDate = new Date(-4000, 1, 1);
-    let articleMaxDate = new Date();
-
-    //console.log(articles);
-    (articles || []).forEach(article => {
-        articleMinDate = (article.beginHDate && article.beginHDate.beginDate) || new Date(-4000, 1, 1);
-        articleMaxDate = (article.endHDate && article.endHDate.endDate) || new Date();
-
-        minDate =
-            minDate !== null ? new Date(Math.min(articleMinDate.getTime(), minDate.getTime())):dU.clone(articleMinDate);
-        maxDate =
-            maxDate !== null ? new Date(Math.max(articleMaxDate.getTime(), maxDate.getTime())):dU.clone(articleMaxDate);
-
-    });
-
-    /*console.log(`minDate : ${minDate}`);
-    console.log(`maxDate : ${maxDate}`);*/
-
-    if(minDate ===null || maxDate===null) return null;
-    return new HDate("2", dU.addDay(minDate,-1),maxDate);
-};
 
 // groups for main article
 const mainArticleGroups = {minimal:true,date:true,detailImage:true,abstract:true};
@@ -71,8 +42,20 @@ class HBExplorerProxy extends React.Component {
     constructor(props) {
         super(props);
 
+        this.setHInterval = this.setHInterval.bind(this);
+        this.setCursorRate = this.setCursorRate.bind(this);
+        this.toggleCursor = this.toggleCursor.bind(this);
+
+        this.selectArticle = this.selectArticle.bind(this);
+        this.closeArticle = this.closeArticle.bind(this);
+
         this.state = {
             searchBag:props.searchBag || defaultSearchBag,
+            hInterval: props.hInterval || defaultHInterval,
+            hasSelfUpdatedHInterval:false,
+            cursorRate:0.25,
+            isCursorActive:false,
+            displayedArticles:new Map()
         };
     }
 
@@ -88,7 +71,7 @@ class HBExplorerProxy extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        console.log("update HBExplorerProxy");
+        //console.log("update HBExplorerProxy");
         const {mainArticleId=null,selector,getOneBydIdSelector,dispatch} = this.props;
 
         // mainArticle mode
@@ -108,12 +91,57 @@ class HBExplorerProxy extends React.Component {
             else if(prevProps.selector !== selector && selector(searchBag).length<1){
                 loadSearchBag(searchBag,dispatch);
             }
+            else if(!this.state.hasSelfUpdatedHInterval && prevProps.selector !== selector && selector(searchBag).length>1){
+                this.setHInterval(getHIntervalFromArticles(selector(searchBag)));
+            }
         }
     }
 
+    setHInterval(hInterval) {
+        this.setState({ hInterval: hInterval, hasSelfUpdatedHInterval:true });
+    }
+
+    toggleCursor(){
+        this.setState({isCursorActive:!this.state.isCursorActive});
+    }
+
+    setCursorRate(rate){
+        this.setState({cursorRate:rate});
+    }
+
+    selectArticle(ids) {
+        if(ids===null) ids=[];
+        const {displayedArticles} = this.state;
+        let newDisplayedArticles = new Map(displayedArticles);
+
+        newDisplayedArticles.forEach((article,id)=>{
+            article.isOpen= false;
+        });
+
+        ids.forEach((id)=>{newDisplayedArticles.set(+id,{selectionDate:new Date(),isOpen:true,activeComponent:'detail'})});
+        this.setState({displayedArticles:newDisplayedArticles});
+    }
+
+    closeArticle(ids) {
+        if(ids===null) return;
+        const {displayedArticles} = this.state;
+        let newDisplayedArticles = new Map(displayedArticles);
+
+        newDisplayedArticles.forEach((article,id)=>{
+            if(ids.includes(+id)){
+                article.isOpen= false;
+            }
+        });
+        this.setState({displayedArticles:newDisplayedArticles});
+    }
+
     render() {
-        const {mainArticleId=null,selector,getOneByIdSelector,babiesSelector,totalSelector,notificationsSelector,dispatch} = this.props;
-        const {searchBag} = this.state;
+        const {searchBag,hInterval,cursorRate,displayedArticles} = this.state;
+
+        const cursorDate = (hInterval!==null && cursorRate!==null)?hInterval.getBarycenterDate(cursorRate):null;
+
+        const {mainArticleId=null,selector,getOneByIdSelector,babiesSelector,
+            totalSelector,notificationsSelector,dispatch} = this.props;
 
         const babies = babiesSelector();
         const notifications = notificationsSelector(componentUid);
@@ -134,6 +162,8 @@ class HBExplorerProxy extends React.Component {
             loading = (notifications && notifications.hasIn([coreBagKey || 'DEFAULT',LOADING]))||false;
         }
 
+        const invisibles = getInvisibles(articles,hInterval);
+
         //let total = totalSelector(this.state.searchBag);
 
         return (
@@ -145,10 +175,18 @@ class HBExplorerProxy extends React.Component {
                 background={COLORS.LOADING_BACKGROUND}
             >
                 <HBExplorer
-                    mainArticleId={mainArticleId }
-                    articles={articles}
-                    hInterval={this.props.hInterval || getHIntervalFromArticles(articles) || defaultHInterval}
                     dispatch={dispatch}
+                    mainArticleId={mainArticleId }
+                    hInterval={hInterval}
+                    setHInterval={this.setHInterval}
+                    cursorDate = {cursorDate}
+                    setCursorRate = {this.setCursorRate}
+                    toggleCursor = {this.toggleCursor}
+                    articles={articles}
+                    displayedArticles={displayedArticles}
+                    invisibles={invisibles}
+                    selectArticle={this.selectArticle}
+                    closeArticle={this.closeArticle}
                 />
             </Loadable>
         );

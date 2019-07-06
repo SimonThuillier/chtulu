@@ -10,9 +10,11 @@ div.innerbox{
 }
 
 section.content {
-    padding-bottom: 60px
 }
 
+section.no-padding{
+
+}
 
 div.wrapper {
     position:absolute;

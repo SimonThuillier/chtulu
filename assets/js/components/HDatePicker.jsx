@@ -51,7 +51,6 @@ class HDatePicker extends Component {
         this.onTypeChange = this.onTypeChange.bind(this);
         this.onInputChange = this.onInputChange.bind(this);
         this.isValid = this.isValid.bind(this);
-        this.panelRef = React.createRef();
         this.state = {
             value: props.initialValue,
             style: Object.assign(props.style || {}, defaultStyle),
@@ -216,12 +215,12 @@ class HDatePicker extends Component {
         );
 
         return (
-            <Panel ref={this.panelRef} style={this.state.style} className={className}>
+            <Panel style={this.state.style} className={className}>
                 <Panel.Heading align="center">
                     Choisissez une date <Glyphicon glyph="pushpin" />
                 </Panel.Heading>
                 <Panel.Body>
-                    <div ref={div => this.panelRef=div}>
+                    <div>
 
                     <Form horizontal>
                         <FormGroup controlId="formControlsSelect">

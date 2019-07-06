@@ -4,7 +4,7 @@ import { NavLink} from 'react-router-dom';
 const SideBar = (props) => {
     return (
 
-        <aside className="main-sidebar">
+        <aside id="main-sidebar" className="main-sidebar">
             <section className="sidebar">
                 <div className="user-panel">
                     <div className="pull-left image">

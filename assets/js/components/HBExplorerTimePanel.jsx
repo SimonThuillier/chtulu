@@ -5,6 +5,7 @@ import { tween, easing } from "popmotion";
 import styler from "stylefire";
 import posed, { PoseGroup } from "react-pose";
 import dU from "../util/date";
+import {articleIsOpen} from "../util/explorerUtil";
 import HBExplorerPanelArticle from './HBExplorerPanelArticle';
 import HDate from "../util/HDate";
 import debounce from "debounce";
@@ -19,6 +20,7 @@ import {
   LANDSCAPE
 } from "../util/geometry";
 import cmn from "../util/common";
+import TimeArrow from "./TimeArrow";
 
 const styles = {
   width: "100%",
@@ -31,64 +33,13 @@ const animationParams = {
   exitingDuration: 400 // real ms,
 };
 
-const PosedPanelArticle = posed(HBExplorerPanelArticle)({
-    enter: {
-        x1: props => {
-            props.x1;
-        },
-        x2: props => {
-            props.x2;
-        },
-        fillOpacity: 1,
-        delay: 0,
-        duration: animationParams.startingDuration
-    },
-    exit: {
-        x1: props => {
-            props.x1;
-        },
-        x2: props => {
-            props.x2;
-        },
-        fillOpacity: 0,
-        delay: 0,
-        duration: animationParams.exitingDuration
-    }
-});
-
-const PosedCircle = posed.circle({
-  enter: {
-    x1: props => {
-      props.x1;
-    },
-    x2: props => {
-      props.x2;
-    },
-    fillOpacity: 1,
-    delay: 0,
-    duration: animationParams.startingDuration
-  },
-  exit: {
-    x1: props => {
-      props.x1;
-    },
-    x2: props => {
-      props.x2;
-    },
-    fillOpacity: 0,
-    delay: 0,
-    duration: animationParams.exitingDuration
-  }
-});
-
-
 
 const HistoProxy = (function() {
   const yGenerator = cmn.getIdGenerator(10,5);
   function HistoProxy(article) {
     this.article = article;
     //this.y = yGenerator();
-      this.y= 10;
+      this.y= 40;
     this.deltaY=0;
     console.log("genere articleproxy");
   }
@@ -192,6 +143,8 @@ export default class HBExplorerTimePanel extends React.Component {
         articleProxies.set(+article.id, new HistoProxy(article, 40));
       });
 
+      console.log(timeScale(new Date()));
+
     this.setState({
       timeScale: timeScale,
       articles: articleProxies
@@ -207,7 +160,7 @@ export default class HBExplorerTimePanel extends React.Component {
   }
 
   getTimeScale(hInterval, bounds) {
-    const { marginWidth } = this.props;
+    const marginWidth = this.props.marginWidth ;
 
     return scaleTime()
       .domain([hInterval.beginDate, hInterval.endDate])
@@ -326,29 +279,13 @@ export default class HBExplorerTimePanel extends React.Component {
 
     const currentTime = new Date().getTime();
     const timeScale = this.getTimeScale(hInterval, bounds);
+    /*console.log("update timeScale");
+    console.log(timeScale(new Date()));*/
 
-    if (new Date().getTime() >= this.animationData.nextTime) {
-      this.setState({ timeScale: timeScale });
-    }
+    this.setState({ timeScale: timeScale });
     this.runAnimationIfNeeded(timeScale);
     this.manageCollisions();
   }
-
-  /*shouldComponentUpdate(prevProps, prevState) {
-    return true;
-    const oldBounds = prevProps.bounds;
-    const bounds = this.props.bounds;
-    //console.log("should update ?");
-
-    const shouldUpdate =
-      bounds !== oldBounds ||
-      prevProps.path !== this.props.path ||
-      bounds.height !== oldBounds.height;
-
-    //console.log(shouldUpdate);
-
-    return shouldUpdate;
-  }*/
 
   onPanelMoveBegin(e) {
     //console.log("on panel move begin");
@@ -364,7 +301,7 @@ export default class HBExplorerTimePanel extends React.Component {
       );
 
       window.addEventListener("mouseup", this.onPanelMoveEnd);
-      console.log("onPanelMoveBegin");
+      //console.log("onPanelMoveBegin");
 
       this.setState({
         isMovingPanel: true,
@@ -374,7 +311,7 @@ export default class HBExplorerTimePanel extends React.Component {
         initialTimeScale: this.state.timeScale,
         initialOriginY: this.state.originY
       });
-      console.log(`initialDate : ${initialMovePanelDate}`);
+      //console.log(`initialDate : ${initialMovePanelDate}`);
       window.addEventListener("mousemove", this.onPanelMove);
     }
   }
@@ -411,7 +348,7 @@ export default class HBExplorerTimePanel extends React.Component {
   }
 
   onPanelMoveEnd(e) {
-    console.log("on panel move end");
+    //console.log("on panel move end");
     e.preventDefault();
     e.stopPropagation();
 
@@ -554,62 +491,57 @@ export default class HBExplorerTimePanel extends React.Component {
   }
 
   render() {
-    const bounds = this.props.bounds;
+    const {bounds,displayedArticles,selectArticle,hInterval,setHInterval} = this.props;
     const strokeSize = 1;
     const { timeScale, articles,originY } = this.state;
 
-    const arrayOfArticlesToDisplay = Array.from(this.state.articles).filter(
+      /*return (
+          <svg
+              id={"main-histo-panel"}
+              key={"main-histo-panel"}
+              viewBox={`0 0 ${bounds.width} ${bounds.height-40}`}
+              preserveAspectRatio="none"
+              onMouseDown={this.onPanelMoveBegin}
+              ref={node => {
+                  this.panelRef = node;
+              }}
+          >
+              <g fill="bisque" strokeWidth={strokeSize}>
+                  <path
+                      vectorEffect="non-scaling-stroke"
+                      d={this.props.path}
+                      stroke="black"
+                  />
+              </g>
+              <TimeArrow
+                  key={"hg-time-arrow"}
+                  bounds={bounds}
+                  hInterval={hInterval}
+                  setHInterval={setHInterval}
+              />
+          </svg>
+      );*/
+
+
+
+    const arrayOfArticlesToDisplay = Array.from(articles).filter(
       ([id, a]) => {
         return true;
       }
     );
-    /*console.log("lol");
-    console.log(articles);
-    console.log(arrayOfArticlesToDisplay);*/
-
-    /*<PosedCircle
-          key={`histo-article-circle-${a.id}`}
-          id={`histo-article-circle-${a.id}`}
-          cx={x}
-          cy={y - this.state.originY}
-          r={9}
-          style={{
-            transform: "none",
-            fill: "rgb(0,0,0)",
-            strokeOpacity: 0,
-            strokeWidth: 0
-          }}*/
 
     const articleCircles = arrayOfArticlesToDisplay.map(([id, a]) => {
-      /*const x = timeScale(a.beginHDate.beginDate);
-      const y = a.currentY;*/
       return (
         <HBExplorerPanelArticle
           key={`histo-article-${a.id}`}
-          selected={this.props.selected.includes(+a.id)}
+          selected={articleIsOpen(displayedArticles,+a.id)}
           onPanelMoveEnd={this.onPanelMoveEnd} // to prevent some panel events when action on an article is performed
-          selectArticle={this.props.selectArticle}
+          selectArticle={selectArticle}
           cursorDate = {this.props.cursorDate}
           article={a}
           timeScale={timeScale}
           originY={originY}
           addBox={this.addBox}
-          /*ref={node => {
-            if (
-              typeof this.articleRefs.get(a.id) === "undefined" ||
-              !this.articleRefs.get(a.id).circleRef
-            ) {
-              let newRef = null;
-              let hasMadeNewRef = false;
-              if (typeof this.articleRefs.get(a.id) === "undefined") {
-                newRef = new ArticleRef(a);
-                hasMadeNewRef = true;
-              } else newRef = this.articleRefs.get(a.id);
-              newRef.circleRef = node;
-              newRef.circleStyler = styler(node);
-              if (hasMadeNewRef) this.articleRefs.set(a.id, newRef);
-            }
-          }}*/
         />
       );
     });
@@ -633,21 +565,13 @@ export default class HBExplorerTimePanel extends React.Component {
           />
           <PoseGroup>{articleCircles}</PoseGroup>
         </g>
-          <path id="arc"
-                d="M 30 100 A 70 70 0 1 1 30 100"
-                style={{
-                    stroke:"#13710c",
-                    strokeWidth:"8px",
-                    fill:"none"
-                }}
+          <TimeArrow
+              key={"hg-time-arrow"}
+              bounds={bounds}
+              hInterval={hInterval}
+              setHInterval={()=>{}}
           />
       </svg>
     );
   }
 }
-
-//<text x="0" y="15" fill="red">
-//  I love SVG !
-//          </text>
-//  <circle cx="240" cy="80" r="25" fill="black" />
-//  <circle cx="60" cy="60" r="25" fill="black" />
