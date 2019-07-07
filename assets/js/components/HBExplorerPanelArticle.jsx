@@ -1,6 +1,7 @@
 import React from "react";
 import ProgressionCircle from "./ProgressionCircle";
 import HDate from "../util/HDate";
+import RImageMini from './RImageMini';
 
 const textStyle = {
     fontFamily: "Arial, sans-serif",
@@ -72,6 +73,13 @@ class HBExplorerPanelArticle extends React.Component {
 
         const currentProgression = articleHDate.getRateOfDate(cursorDate);
 
+
+        /*const imageUrl = RImageMini({id:article.detailImageResource,urlOnly:true})
+            || "http://localhost:8000/media/personnage.jpeg";
+        console.log(`${article.title} , detailImageResource : ${imageUrl}`);
+
+        console.log(imageUrl);*/
+
         /*console.log(`${article.title} , prog : ${currentProgression}`);
         console.log(cursorDate);
         console.log(articleHDate);*/
@@ -113,8 +121,8 @@ class HBExplorerPanelArticle extends React.Component {
                 }}
                 xmlns="http://www.w3.org/2000/svg">
                 <defs>
-                    <pattern id="article-image" x="0" y="0" patternUnits="userSpaceOnUse" height="30" width="30">
-                        <image x={deltaX} y="0" href="http://localhost:8000/media/personnage.jpeg"/>
+                    <pattern id={`article-image-${article.id}`} x="0" y="0" patternUnits="userSpaceOnUse" height="30" width="30">
+                        <RImageMini deltaX={deltaX} id={article.detailImageResource} mode={'svg'}/>
                     </pattern>
                 </defs>
                 <rect
@@ -141,12 +149,12 @@ class HBExplorerPanelArticle extends React.Component {
                     cx={deltaX + xMargin}
                     cy={viewportHeight/2}
                     r="13"
-                    fill="url(#article-image)"
+                    fill={`url(#article-image-${article.id})`}
                     onClick={this.handleOnClick}
                 />
                 <ProgressionCircle
                     key={`histo-article-progcircle-${article.id}`}
-                    staticRate={0.125}
+                    staticRate={0}
                     rate={currentProgression}
                     cx={deltaX + xMargin}
                     cy={viewportHeight/2}

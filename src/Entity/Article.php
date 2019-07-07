@@ -153,6 +153,13 @@ class Article extends DTOMutableEntity
      */
     protected $detailImage;
 
+    /**
+     * @var ResourceGeometry
+     * @ORM\ManyToOne(targetEntity="ResourceGeometry")
+     * @ORM\JoinColumn(name="hb_resource_geometry_id", referencedColumnName="id", nullable=true)
+     */
+    protected $geometry;
+
     public function __toString()
     {
         return strval($this->id);
@@ -526,6 +533,26 @@ class Article extends DTOMutableEntity
         $this->links[] = $link;
         return $this;
     }
+
+    /**
+     * @return ResourceGeometry
+     */
+    public function getGeometry(): ?ResourceGeometry
+    {
+        return $this->geometry;
+    }
+
+    /**
+     * @param ResourceGeometry $geometry
+     * @return Article
+     */
+    public function setGeometry(?ResourceGeometry $geometry): Article
+    {
+        $this->geometry = $geometry;
+        return $this;
+    }
+
+
 
 }
 

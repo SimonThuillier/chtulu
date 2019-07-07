@@ -39,7 +39,7 @@ class ArticleDTOMediator extends DTOMediator
     public function __construct(ContainerInterface $locator)
     {
         parent::__construct($locator);
-        $this->groups = ['minimal','abstract','date','type','detailImage','subArticles','hteRange'];
+        $this->groups = ['minimal','abstract','date','type','detailImage','geometry','subArticles','hteRange'];
         $this->dtoClassName = self::DTO_CLASS_NAME;
         $this->entityClassName = self::ENTITY_CLASS_NAME;
     }
@@ -134,6 +134,27 @@ class ArticleDTOMediator extends DTOMediator
             ->setEndHDate($endHDate)
             ->setHasEndDate($hasEndDate);
             //->addMappedGroup('date');
+    }
+
+    protected function mapDTOGeometryGroup($mode=DTOMediator::NOTHING_IF_NULL,$subGroups=null)
+    {
+        /** @var ArticleDTO $dto */
+        $dto = $this->dto;
+        /** @var Article $article */
+        $article = $this->entity;
+
+        $geometry = $article->getGeometry();
+
+        if($geometry !== null){
+            $geometryMediator = $this->locator->get(MediatorFactory::class)
+                ->create(ResourceGeometryDTO::class,$geometry,null,$mode);
+            $geometryMediator->mapDTOGroups($subGroups,$mode);
+            $dto->setGeometry($geometryMediator->getDTO());
+        }
+        else{
+            $dto->setGeometry(null);
+        }
+        //$dto->addMappedGroup('detailImage');
     }
 
     protected function mapDTODetailImageGroup($mode=DTOMediator::NOTHING_IF_NULL,$subGroups=null)

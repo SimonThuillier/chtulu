@@ -1,25 +1,11 @@
 import React from "react";
-import ReactDOM from "react-dom";
-//import { distance, vectorDiff, LEFT, RIGHT, VERTICAL } from "../util/geometry";
-
-import { connect } from "react-redux";
-import debounce from "debounce";
-import { Button, Glyphicon, Form } from "react-bootstrap";
-import HBExplorerDateInput from "./HBExplorerDateInput";
 
 import MeasureAndRender from "./MeasureAndRender";
-import TimeArrow from "./TimeArrow.jsx";
 import HBExplorerTimePanel from "./HBExplorerTimePanel.jsx";
 import HBExplorerTimeMenu from "./HBExplorerTimeMenu.jsx";
-import MapContainer from "./MapContainer.jsx";
-import MapHandlerIcon from "./MapHandlerIcon.jsx";
-import CSSVariableApplicator from "./CSSVariableApplicator.jsx";
+import HBExplorerContent from "./HBExplorerContent.jsx";
+import HBMap from "./HBMap.jsx";
 
-import HDate from "../util/HDate";
-import dU from "../util/date";
-
-import { tween, easing } from "popmotion";
-import styler from "stylefire";
 import cmn from "../util/common";
 import styled, { ThemeProvider } from "styled-components";
 import ResizeBar from "./ResizeBar";
@@ -27,9 +13,14 @@ import HBExplorerHeader from "./HBExplorerHeader";
 import {
     splitCssLength,
     getInlinedCss,
-    cssizePropertyName,
-    AVAILABLE_THEMES
+    cssizePropertyName
 } from "../util/cssUtil";
+import {
+    AVAILABLE_THEMES
+} from "../util/explorerUtil";
+
+
+
 const { EDITOR, SIDEVIEW, VERTICAL } = AVAILABLE_THEMES;
 
 const explorerUid = require("uuid/v4")();
@@ -111,7 +102,7 @@ const DEFAULT_LAYOUT = {
     },
     timeArea: {
         className:"time-area",
-        owerflow:"hidden",
+        overflow:"hidden",
         padding: "0px",
         height: "100%",
         width: "100%",
@@ -171,6 +162,7 @@ class HBExplorer extends React.Component {
         this.rightRef = React.createRef();
 
         this.timeAreaRef = React.createRef();
+        this.mapAreaRef = React.createRef();
 
         this.setTheme = this.setTheme.bind(this);
         this.onWindowResize = this.onWindowResize.bind(this);
@@ -317,8 +309,9 @@ class HBExplorer extends React.Component {
 
     render() {
         const { currentTheme, frameSizes, guiInitialized } = this.state;
-        const { hInterval,setHInterval,cursorRate,cursorDate,isCursorActive,
-            articles,displayedArticles,invisibles,selectArticle,closeArticle} = this.props;
+        const { hInterval,setHInterval,cursorRate,cursorDate,isCursorActive,setCursorRate,toggleCursor,
+            articles,displayedArticles,invisibles,selectArticle,toggleActiveComponent,closeArticle,
+            dispatch} = this.props;
         const theme = THEMES[currentTheme];
         //console.log(currentTheme);
 
@@ -363,9 +356,12 @@ class HBExplorer extends React.Component {
                                     setHInterval={setHInterval}
                                     articles={articles}
                                     displayedArticles={displayedArticles}
+                                    selectArticle={selectArticle}
                                     cursorRate={cursorRate}
                                     cursorDate = {cursorDate}
                                     isCursorActive={isCursorActive}
+                                    setCursorRate = {setCursorRate}
+                                    toggleCursor = {toggleCursor}
                                 />
                             ];
                         }}
@@ -375,17 +371,38 @@ class HBExplorer extends React.Component {
         );
 
         if(this.timeAreaRef.current){
-            console.log(`timeArea height ${this.timeAreaRef.current.getBoundingClientRect().height}`);
+            //console.log(`timeArea height ${this.timeAreaRef.current.getBoundingClientRect().height}`);
         }
         else{
-            console.log(`unable to get timeArea height`);
+            //console.log(`unable to get timeArea height`);
         }
 
 
 
-        const mapArea = <MapArea>map</MapArea>;
+        const mapArea = (
+            <MapArea ref={this.mapAreaRef}>
+                <HBMap
+                    dispatch={dispatch}
+                    width={this.mapAreaRef.current?this.mapAreaRef.current.getBoundingClientRect().width:100}
+                    height={this.mapAreaRef.current?this.mapAreaRef.current.getBoundingClientRect().height:100}
+                    articles={articles}
+                    selectArticle={selectArticle}
+                    displayedArticles={displayedArticles}
+                    isResizing={false}
+                />
+            </MapArea>);
 
-        const contentArea = <ContentArea>content</ContentArea>;
+        const contentArea = (
+            <ContentArea>
+                <HBExplorerContent
+                    dispatch={dispatch}
+                    displayedArticles={displayedArticles}
+                    selectArticle={selectArticle}
+                    toggleActiveComponent={toggleActiveComponent}
+                    closeArticle={closeArticle}
+                    theme={theme}
+                />
+            </ContentArea>);
 
         return (
             <ThemeProvider theme={theme}>

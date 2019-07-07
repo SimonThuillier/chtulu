@@ -10,8 +10,8 @@ const HBExplorerContentHistory = (props) => {
 
     const {displayedArticles,selectArticle,selector} = props;
 
-    console.log("displayedArticles");
-    console.log(displayedArticles);
+    //console.log("displayedArticles");
+    //console.log(displayedArticles);
 
     const articlesToDisplay = Array.from(displayedArticles).
     sort((a,b)=>{
@@ -35,7 +35,7 @@ const HBExplorerContentHistory = (props) => {
 
 
     return (
-        <div style={{minWidth:150}}>
+        <div style={{maxHeight:'100%',overflow:'auto'}}>
             <Table bordered hover>
                 <thead/>
                 <tbody>

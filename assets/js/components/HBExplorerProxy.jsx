@@ -24,7 +24,7 @@ const componentUid = require("uuid/v4")();
 // groups for main article
 const mainArticleGroups = {minimal:true,date:true,detailImage:true,abstract:true};
 // default groups for articles
-const defaultGroups = {minimal:true,date:true,detailImage:{minimal:true,activeVersion:{minimal:true,urlMini:true}}};
+const defaultGroups = {minimal:true,date:true,detailImage:{minimal:true,activeVersion:{minimal:true,urlMini:true}},geometry:true};
 
 const defaultSearchBag = SearchBag({});
 
@@ -47,6 +47,7 @@ class HBExplorerProxy extends React.Component {
         this.toggleCursor = this.toggleCursor.bind(this);
 
         this.selectArticle = this.selectArticle.bind(this);
+        this.toggleActiveComponent = this.toggleActiveComponent.bind(this);
         this.closeArticle = this.closeArticle.bind(this);
 
         this.state = {
@@ -122,6 +123,19 @@ class HBExplorerProxy extends React.Component {
         this.setState({displayedArticles:newDisplayedArticles});
     }
 
+    toggleActiveComponent(ids){
+        const {displayedArticles} = this.state;
+
+        let newDisplayedArticles = new Map(displayedArticles);
+
+        newDisplayedArticles.forEach((article,id)=>{
+            if(ids.includes(+id)){
+                article.activeComponent= article.activeComponent==='detail'?'form':'detail';
+            }
+        });
+        this.setState({displayedArticles:newDisplayedArticles});
+    }
+
     closeArticle(ids) {
         if(ids===null) return;
         const {displayedArticles} = this.state;
@@ -180,12 +194,14 @@ class HBExplorerProxy extends React.Component {
                     hInterval={hInterval}
                     setHInterval={this.setHInterval}
                     cursorDate = {cursorDate}
+                    cursorRate = {cursorRate}
                     setCursorRate = {this.setCursorRate}
                     toggleCursor = {this.toggleCursor}
                     articles={articles}
                     displayedArticles={displayedArticles}
                     invisibles={invisibles}
                     selectArticle={this.selectArticle}
+                    toggleActiveComponent={this.toggleActiveComponent}
                     closeArticle={this.closeArticle}
                 />
             </Loadable>

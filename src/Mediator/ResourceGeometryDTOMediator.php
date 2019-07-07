@@ -24,9 +24,6 @@ class ResourceGeometryDTOMediator extends DTOMediator
     public $dtoClassName = ResourceGeometryDTO::class;
     public $entityClassName = ResourceGeometry::class;
 
-
-    /** @var FileRouter */
-    private $fileRouter;
     /**
      * ResourceGeometryDTOMediator constructor.
      * @param ContainerInterface $locator
@@ -36,7 +33,7 @@ class ResourceGeometryDTOMediator extends DTOMediator
         parent::__construct($locator);
         //$this->dtoClassName = self::DTO_CLASS_NAME;
         //$this->entityClassName = self::ENTITY_CLASS_NAME;
-        $this->groups = ['minimal','url'];
+        $this->groups = ['minimal'];
     }
 
     /**
@@ -46,8 +43,7 @@ class ResourceGeometryDTOMediator extends DTOMediator
     {
         return [
             EntityFactory::class,
-            DTOFactory::class,
-            FileRouter::class
+            DTOFactory::class
         ];
     }
 

@@ -225,6 +225,19 @@ const updateOnRecordReception = function(state,rec){
     return state;
 };
 
+const createNew = (state,idGenerator)=>{
+    if(! state.get("newItem")) return state;
+    let newId = idGenerator();
+    let babyRec = state.get("newItem");
+    console.log(babyRec);
+    babyRec = babyRec.set("id",newId).set("initialValues",Imm.Map({id:0}));
+    state = state.
+    setIn(["items",newId],babyRec).
+    setIn(["babyItemIds",newId],newId).
+    set("nextNewId",newId-1);
+    return state;
+};
+
 
 const concreteWaoType = (waoType) => {
     const initialWaoState = Imm.Map({
@@ -245,9 +258,14 @@ const concreteWaoType = (waoType) => {
         //console.log("reducer call");
         switch (action.type) {
             case SUBMIT_LOCALLY:
-                if(action.id === null || !state.hasIn(["items",+action.id])) return state;
+                //if(action.id === null || !state.hasIn(["items",+action.id])) return state;
                 /*console.log("submit locally");
                 console.log(action);*/
+                // STH 20190706 SUBMIT_LOCALLY is modified to create new element if it doesn't already exist, and update it
+                if(action.id === null) return state;
+                if(!state.hasIn(["items",+action.id]) && +action.id<0){state = createNew(state,idGenerator);}
+                console.log(+action.id);
+                console.log(state.getIn(["newItem"]));
                 const oldItem = state.getIn(["items",+action.id]);
                 const oldInitialValues = oldItem.get("initialValues") || Imm.Map();
                 let newInitialValues = Imm.Map();
@@ -340,18 +358,7 @@ const concreteWaoType = (waoType) => {
                 state = state.set("newItem",newRec);
                 return state;
             case CREATE_NEW:
-                if(! state.get("newItem")) return state;
-                /*console.log(`createNew ${waoType}`);
-                console.log(action);*/
-                let newId = idGenerator();
-                let babyRec = state.get("newItem");
-                //console.log(babyRec);
-                babyRec = babyRec.set("id",newId).set("initialValues",Imm.Map({id:0}));
-                state = state.
-                setIn(["items",newId],babyRec).
-                setIn(["babyItemIds",newId],newId).
-                set("nextNewId",newId-1);
-                return state;
+                return createNew(state,idGenerator);
             default:
                 return state;
         }

@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import { AVAILABLE_THEMES } from "../util/cssUtil";
+import { AVAILABLE_THEMES } from "../util/explorerUtil";
 
 const Option = ({ onChange, value, currentValue }) => {
     let label = "";

@@ -113,3 +113,9 @@ export const getIntegratedSpeed = (acceleration, time) => {
     const { exp, log, floor } = Math;
     return (1 / log(acceleration)) * (exp(time * log(acceleration)) - 1);
 };
+
+export const AVAILABLE_THEMES = {
+    EDITOR: `EDITOR`,
+    SIDEVIEW: `SIDEVIEW`,
+    VERTICAL: `VERTICAL`
+};

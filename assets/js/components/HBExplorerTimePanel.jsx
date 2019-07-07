@@ -8,6 +8,7 @@ import dU from "../util/date";
 import {articleIsOpen} from "../util/explorerUtil";
 import HBExplorerPanelArticle from './HBExplorerPanelArticle';
 import HDate from "../util/HDate";
+import TimeArrowCursor from "./TimeArrowCursor";
 import debounce from "debounce";
 import {
   distance,
@@ -39,7 +40,7 @@ const HistoProxy = (function() {
   function HistoProxy(article) {
     this.article = article;
     //this.y = yGenerator();
-      this.y= 40;
+      this.y= 55;
     this.deltaY=0;
     console.log("genere articleproxy");
   }
@@ -60,6 +61,9 @@ const HistoProxy = (function() {
     },
     get title() {
           return this.article.title;
+    },
+    get detailImageResource() {
+          return this.article.detailImageResource;
     },
       get currentY() {
           return this.y + this.deltaY;
@@ -491,37 +495,14 @@ export default class HBExplorerTimePanel extends React.Component {
   }
 
   render() {
-    const {bounds,displayedArticles,selectArticle,hInterval,setHInterval} = this.props;
+    const {bounds,displayedArticles,selectArticle,hInterval,setHInterval,
+    cursorDate,cursorRate,isCursorActive,setCursorRate,toggleCursor} = this.props;
+    const marginWidth = this.props.marginWidth || 0;
     const strokeSize = 1;
     const { timeScale, articles,originY } = this.state;
 
-      /*return (
-          <svg
-              id={"main-histo-panel"}
-              key={"main-histo-panel"}
-              viewBox={`0 0 ${bounds.width} ${bounds.height-40}`}
-              preserveAspectRatio="none"
-              onMouseDown={this.onPanelMoveBegin}
-              ref={node => {
-                  this.panelRef = node;
-              }}
-          >
-              <g fill="bisque" strokeWidth={strokeSize}>
-                  <path
-                      vectorEffect="non-scaling-stroke"
-                      d={this.props.path}
-                      stroke="black"
-                  />
-              </g>
-              <TimeArrow
-                  key={"hg-time-arrow"}
-                  bounds={bounds}
-                  hInterval={hInterval}
-                  setHInterval={setHInterval}
-              />
-          </svg>
-      );*/
-
+    const width = bounds.width;
+    const height = bounds.height;
 
 
     const arrayOfArticlesToDisplay = Array.from(articles).filter(
@@ -537,7 +518,7 @@ export default class HBExplorerTimePanel extends React.Component {
           selected={articleIsOpen(displayedArticles,+a.id)}
           onPanelMoveEnd={this.onPanelMoveEnd} // to prevent some panel events when action on an article is performed
           selectArticle={selectArticle}
-          cursorDate = {this.props.cursorDate}
+          cursorDate = {cursorDate}
           article={a}
           timeScale={timeScale}
           originY={originY}
@@ -569,7 +550,18 @@ export default class HBExplorerTimePanel extends React.Component {
               key={"hg-time-arrow"}
               bounds={bounds}
               hInterval={hInterval}
-              setHInterval={()=>{}}
+              setHInterval={setHInterval}
+          />
+          <TimeArrowCursor
+              key={'time-arrow-cursor'}
+              cursorDate = {cursorDate}
+              cursorRate = {cursorRate}
+              isCursorActive={isCursorActive}
+              setCursorRate={setCursorRate}
+              toggleCursor={toggleCursor}
+              width = {width}
+              height = {55}
+              marginWidth = {marginWidth}
           />
       </svg>
     );

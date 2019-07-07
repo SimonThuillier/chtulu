@@ -35,6 +35,8 @@ class ArticleDTO extends EntityMutableDTO
     protected $hasEndDate;
     /** @var mixed */
     protected $detailImageResource;
+    /** @var ResourceGeometryDTO */
+    protected $geometry;
     /** @var DTOMediator */
     protected $mediator;
     /** @var array */
@@ -190,6 +192,26 @@ class ArticleDTO extends EntityMutableDTO
     {
         $this->detailImageResource = $resource;
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('detailImageResource');
+        return $this;
+    }
+
+    /**
+     * @return ResourceGeometryDTO
+     * @Groups({"geometry"})
+     */
+    public function getGeometry(): ?ResourceGeometryDTO
+    {
+        return $this->geometry;
+    }
+
+    /**
+     * @param ResourceGeometryDTO $geometry
+     * @return ArticleDTO
+     */
+    public function setGeometry(?ResourceGeometryDTO $geometry): ArticleDTO
+    {
+        $this->geometry = $geometry;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('geometry');
         return $this;
     }
 

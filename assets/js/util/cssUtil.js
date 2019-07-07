@@ -30,9 +30,3 @@ export const getInlinedCss = theme => {
     });
     return css;
 };
-
-export const AVAILABLE_THEMES = {
-    EDITOR: `EDITOR`,
-    SIDEVIEW: `SIDEVIEW`,
-    VERTICAL: `VERTICAL`
-};

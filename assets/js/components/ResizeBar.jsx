@@ -109,7 +109,7 @@ class ResizeBar extends React.Component {
         const { isResizing } = this.state;
         const { placementType ,sidebarWidth} = this.props;
 
-        console.log(sidebarWidth);
+        // console.log(sidebarWidth);
 
         let style = {};
         Object.assign(style, this.props.style || {});

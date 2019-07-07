@@ -98,8 +98,6 @@ class App extends Component {
             {id:11,path:'/explorer-old',component:ExplorerPage,exact:true,appProps:{old:true, ...appProps},mainNotification:mainNotification}
         ];
 
-        console.log(this.state.sidebarWidth);
-
         return (
             <AppContext.Provider key={`app-provider`} value={{...this.state}}>
             <BrowserRouter {...appProps} basename="/app/">
@@ -125,13 +123,14 @@ class App extends Component {
                                 onResetAll={this.onResetAll}
                             />
                             <SideBar {...appProps}/>
+                            <AppContext.Provider key={`app-provider`} value={{...this.state}}>
                             <Switch >
                                 {routes.map(({id,path,component:C,appProps,exact}) =>
-                                    <AppContext.Provider key={`app-provider`} value={{...this.state}}>
                                         <Route key={id} exact={exact} path={path} render={(props) => <C {...appProps} {...props}/>}/>
-                                    </AppContext.Provider>
+
                                 )}
                             </Switch>
+                            </AppContext.Provider>
                         </Loadable>
                     </div>
 

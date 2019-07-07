@@ -195,6 +195,8 @@ class ArticleTablePage extends React.Component{
 
         this.modalRef = null;
 
+        console.log('articleTablePage');
+
         this.state = {
             searchBag:SearchBag({}),
             groups:{minimal:true,date:true,detailImage:{minimal:true,activeVersion:{minimal:true,urlMini:true}}},

@@ -622,7 +622,7 @@ export const getOneByIdIfNeeded = (waoType,groups=true,id,senderKey=null) => (di
         }
         else {
             setTimeout(()=>{
-                if (!getState().hasIn(["article","items",+id]) && !getState().hasIn(["article","createdItemIds",+id])){
+                if (!getState().hasIn([waoType,"items",+id]) && !getState().hasIn([waoType,"createdItemIds",+id])){
                     dispatch(createNew(waoType));
                 }
             },5);
@@ -639,7 +639,7 @@ const shouldFetchNew = (state,waoType) => {
     return ! state.getIn([waoType,"newItem"]);
 };
 
-const fetchNew = (waoType,id,senderKey) => (dispatch) => {
+export const fetchNew = (waoType,id,senderKey) => (dispatch) => {
     const url = getUrl(URL_GET_NEW,getHBProps(waoType,null,0));
     dispatch(notify(LOADING,waoType,null));
     dispatch(notify(LOADING,senderKey,id));

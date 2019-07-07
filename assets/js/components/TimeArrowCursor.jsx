@@ -112,9 +112,9 @@ class TimeArrowCursor extends React.Component {
         const cursorDateLabel = dateFormatter(cursorDate);
         //console.log(`cursorDate : ${cursorDateLabel}`);
 
-        const cursorMaxWidth=24;
-        const cursorMinWidth=6;
-        const cursorHeight=20;
+        const cursorMaxWidth=3;
+        const cursorMinWidth=20;
+        const cursorHeight=18;
 
         const cursorPath = `M${(width - marginWidth)*cursorRate-cursorMaxWidth/2},${height} 
       L${(width - marginWidth)*cursorRate-cursorMinWidth/2},${height - cursorHeight}
@@ -122,12 +122,15 @@ class TimeArrowCursor extends React.Component {
       L${(width - marginWidth)*cursorRate+cursorMaxWidth/2},${height} 
       Z`;
 
+        /*console.log(width);
+        console.log(cursorRate);*/
+
         /*let style ={};
         Object.assign(style,cursorStyle);
         if(isDraggingCursor) style.stroke="Yellow";*/
 
-        const labelX = (cursorRate<0.5)?((width - marginWidth)*cursorRate+cursorMaxWidth/2+3):
-            ((width - marginWidth)*cursorRate-cursorMaxWidth/2-3-cursorDateLabel.length*7);
+        const labelX = (cursorRate<0.5)?((width - marginWidth)*cursorRate+cursorMinWidth/2+3):
+            ((width - marginWidth)*cursorRate-cursorMinWidth/2-3-cursorDateLabel.length*7);
 
         return (
             <g>

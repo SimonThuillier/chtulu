@@ -538,6 +538,7 @@ export default class TimeArrow extends React.Component {
                                 this.gradRefs.get(g.id).minorAreaRef.style.fillOpacity = 0.8;
                             }}
                             onClick={() => {
+                                console.log("click on grad area");
                                 this.props.setHInterval(
                                     new HDate("2", g.date, g.minorAreaEndDate)
                                 );
@@ -607,7 +608,9 @@ export default class TimeArrow extends React.Component {
                     })}
                 <PoseGroup>{gradLines}</PoseGroup>
                 <PoseGroup>{gradLegends}</PoseGroup>
+
             </g>
+
         );
     }
 }

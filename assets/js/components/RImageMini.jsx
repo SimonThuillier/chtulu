@@ -6,8 +6,10 @@ import RVImageMini from "./RVImageMini"
 const RImageMini = function(props){
     const resource = props.selector(props.id);
 
+    const mode= props.mode||'regular'; // can be regular, svg,url ...
+
     const value = resource && resource.activeVersion;
-    return (value?<RVImageMini id={value}/>:null);
+    return <RVImageMini id={value} deltaX={props.deltaX} mode={mode}/>;
 };
 
 const mapStateToProps = (state) => {

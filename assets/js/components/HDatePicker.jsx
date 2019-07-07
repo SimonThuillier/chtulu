@@ -93,8 +93,8 @@ class HDatePicker extends Component {
         console.log(this.panelRef);
         this.panelRef.focus();*/
 
-        console.log("component did mount");
-        console.log(this.state.value);
+        /*console.log("component did mount");
+        console.log(this.state.value);*/
         this.setState({
             currentType: this.state.value ? this.state.value.type : 1,
             currentInput: this.state.value ? this.state.value.getCanonicalInput() : ""
@@ -207,12 +207,12 @@ class HDatePicker extends Component {
             }
         );
 
-        console.log(this.state.errors);
+        /*console.log(this.state.errors);
         console.log(
             this.state.errors.map(err => {
                 return err;
             })
-        );
+        );*/
 
         return (
             <Panel style={this.state.style} className={className}>
