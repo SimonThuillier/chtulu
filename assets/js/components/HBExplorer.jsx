@@ -315,6 +315,11 @@ class HBExplorer extends React.Component {
         const theme = THEMES[currentTheme];
         //console.log(currentTheme);
 
+        if(this.timeAreaRef.current){
+            console.log(this.timeAreaRef.current);
+            console.log(this.timeAreaRef.current.getBoundingClientRect());
+        }
+
         const timeArea = (
             <TimeArea id={"time-area"} ref={this.timeAreaRef}>
                 <TimeFooter id={"time-footer"}>
@@ -325,7 +330,7 @@ class HBExplorer extends React.Component {
                     />
                 </TimeFooter>
                 <TimePanel id={"time-panel"}
-                           style={{height:`${this.timeAreaRef.current?this.timeAreaRef.current.getBoundingClientRect().height-40:100}px`}}
+                           style={{height:`${(!!this.timeAreaRef.current)?this.timeAreaRef.current.getBoundingClientRect().height-40:100}px`}}
                 >
                     <MeasureAndRender
                         stretch={true}
@@ -369,15 +374,6 @@ class HBExplorer extends React.Component {
                 </TimePanel>
             </TimeArea>
         );
-
-        if(this.timeAreaRef.current){
-            //console.log(`timeArea height ${this.timeAreaRef.current.getBoundingClientRect().height}`);
-        }
-        else{
-            //console.log(`unable to get timeArea height`);
-        }
-
-
 
         const mapArea = (
             <MapArea ref={this.mapAreaRef}>
