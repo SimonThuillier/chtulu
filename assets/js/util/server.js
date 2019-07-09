@@ -39,6 +39,7 @@ export const getUrl = function(url,params=null){
 export const getHTTPProps = function(method=HTTP_GET){
     let headers = new Headers();
     headers.append('Content-Type', 'application/json');
+    headers.append('Connection', 'Keep-Alive');
 
     return {
         method: method,

@@ -10,34 +10,34 @@ namespace App\Serializer;
 
 use App\DTO\ResourceImageDTO;
 use App\DTO\ResourceVersionDTO;
+use App\Factory\MediatorFactory;
 use App\Helper\WAOHelper;
 use App\Mediator\NotAvailableGroupException;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 
 
-class ResourceVersionDTONormalizer extends HNormalizer implements NormalizerInterface
+class ResourceVersionDTONormalizer extends HNormalizer
 {
     /**
-     * @param ManagerRegistry $doctrine
      * @param WAOHelper $waoHelper
+     * @param ManagerRegistry $doctrine
+     * @param MediatorFactory $mediatorFactory
      */
-    public function __construct(ManagerRegistry $doctrine,WAOHelper $waoHelper)
+    public function __construct(WAOHelper $waoHelper,
+                                ManagerRegistry $doctrine,
+                                MediatorFactory $mediatorFactory)
     {
-
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
             //new PropertyNormalizer($classMetadataFactory),
             new HGetSetMethodNormalizer($classMetadataFactory),
             new ObjectNormalizer());
-        parent::__construct($normalizers,$waoHelper);
-        /*$this->subGroupables = [
-            "lol"=>($this)];*/
+        parent::__construct($normalizers,$waoHelper,$doctrine,$mediatorFactory);
     }
 
     public function supportsNormalization($data, $format = null)

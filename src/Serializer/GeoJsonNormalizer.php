@@ -3,17 +3,15 @@ namespace App\Serializer;
 
 use App\Helper\WAOHelper;
 use App\Utils\Geometry;
-use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use App\Factory\HDateFactory;
-use App\Utils\HDate;
-use App\Helper\DateHelper;
-use App\Entity\DateType;
 
-class GeoJsonNormalizer extends HNormalizer
+class GeoJsonNormalizer implements NormalizerInterface,DenormalizerInterface
 {
+    /** @var WAOHelper */
+    protected $waoHelper;
+
     private $allowedTypes;
     const MAX_DEPTH=4;
 
@@ -23,8 +21,7 @@ class GeoJsonNormalizer extends HNormalizer
      */
     public function __construct(WAOHelper $waoHelper)
     {
-        parent::__construct([],$waoHelper);
-
+        $this->waoHelper = $waoHelper;
         $this->allowedTypes = ["POINT","POLYGON","LINESTRING","GEOMETRYCOLLECTION","MULTILINESTRING","MULTIPOLYGON"];
 
         //$this->normRegex = "#^(POINT|POLYGON|LINESTRING|GEOMETRYCOLLECTION|MULTILINESTRING|MULTIPOLYGON)\([\d|\.|\-|\s|[:space:]|\,|\(|\)|POINT|POLYGON|LINESTRING|GEOMETRYCOLLECTION|MULTILINESTRING|MULTIPOLYGON]+\)$#";

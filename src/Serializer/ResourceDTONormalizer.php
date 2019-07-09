@@ -10,7 +10,6 @@ namespace App\Serializer;
 
 use App\DTO\ResourceDTO;
 use App\Entity\HResource;
-use App\Factory\DTOFactory;
 use App\Factory\MediatorFactory;
 use App\Helper\WAOHelper;
 use App\Mediator\DTOMediator;
@@ -19,29 +18,22 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 
 
-class ResourceDTONormalizer extends HNormalizer implements NormalizerInterface
+class ResourceDTONormalizer extends HNormalizer
 {
-
-    /** @var ManagerRegistry $doctrine */
-    private $doctrine;
-    /** @var MediatorFactory $mediatorFactory */
-    private $mediatorFactory;
-
     /**
-     * @param ManagerRegistry $doctrine
-     * @param ResourceVersionDTONormalizer $versionDtoNormalizer
      * @param WAOHelper $waoHelper
+     * @param ManagerRegistry $doctrine
      * @param MediatorFactory $mediatorFactory
+     * @param ResourceVersionDTONormalizer $versionDtoNormalizer
      */
-    public function __construct(ManagerRegistry $doctrine,
-                                ResourceVersionDTONormalizer $versionDtoNormalizer,
-                                WAOHelper $waoHelper,
-                                MediatorFactory $mediatorFactory
+    public function __construct(WAOHelper $waoHelper,
+                                ManagerRegistry $doctrine,
+                                MediatorFactory $mediatorFactory,
+                                ResourceVersionDTONormalizer $versionDtoNormalizer
     )
     {
         $this->doctrine = $doctrine;
@@ -52,7 +44,7 @@ class ResourceDTONormalizer extends HNormalizer implements NormalizerInterface
             //new PropertyNormalizer($classMetadataFactory),
             new HGetSetMethodNormalizer($classMetadataFactory),
             new ObjectNormalizer());
-        parent::__construct($normalizers,$waoHelper);
+        parent::__construct($normalizers,$waoHelper,$doctrine,$mediatorFactory);
        /* $this->subGroupables = ["activeVersion"=>($this->versionDtoNormalizer),
             "lol"=>($this->versionDtoNormalizer),
             "lol2"=>($this->versionDtoNormalizer)
@@ -106,14 +98,7 @@ class ResourceDTONormalizer extends HNormalizer implements NormalizerInterface
             $mediator->mapDTOGroups(["minimal"=>true],DTOMediator::NOTHING_IF_NULL);
 
             $denormalization = $mediator->getDTO();
-            $test = 'lol';
             return $denormalization;
         }
-
-
-
-
-        //$denormalization = parent::defaultDenormalize($data, $class, $format,$context);
-        //return $denormalization;
     }
 }

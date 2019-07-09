@@ -21,8 +21,8 @@ use Psr\Container\ContainerInterface;
 
 class ResourceGeometryDTOMediator extends DTOMediator
 {
-    public $dtoClassName = ResourceGeometryDTO::class;
-    public $entityClassName = ResourceGeometry::class;
+    public const DTO_CLASS_NAME = ResourceGeometryDTO::class;
+    public const ENTITY_CLASS_NAME = ResourceGeometry::class;
 
     /**
      * ResourceGeometryDTOMediator constructor.
@@ -31,8 +31,8 @@ class ResourceGeometryDTOMediator extends DTOMediator
     public function __construct(ContainerInterface $locator)
     {
         parent::__construct($locator);
-        //$this->dtoClassName = self::DTO_CLASS_NAME;
-        //$this->entityClassName = self::ENTITY_CLASS_NAME;
+        $this->dtoClassName = self::DTO_CLASS_NAME;
+        $this->entityClassName = self::ENTITY_CLASS_NAME;
         $this->groups = ['minimal'];
     }
 
@@ -62,11 +62,12 @@ class ResourceGeometryDTOMediator extends DTOMediator
     }
 
 
-    protected function mediateTargetGeometry(){
+    protected function mediateTargetGeometry($mapperCommands){
         /** @var ResourceGeometryDTO $dto */
         $dto = $this->dto;
         /** @var ResourceGeometry $geo*/
         $geo = $this->entity;
         $geo->setTargetGeometry($dto->getTargetGeometry()->getValue());
+        return $mapperCommands;
     }
 }

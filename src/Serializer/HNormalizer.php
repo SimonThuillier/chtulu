@@ -8,9 +8,12 @@
 
 namespace App\Serializer;
 
+use App\Factory\MediatorFactory;
 use App\Helper\WAOHelper;
+use App\Mediator\DTOMediator;
 use App\Mediator\NotAvailableGroupException;
 use App\Utils\ArrayUtil;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -24,17 +27,29 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
     protected $subGroupables;
     /** @var WAOHelper */
     protected $waoHelper;
+    /** @var ManagerRegistry */
+    protected $doctrine;
+    /** @var MediatorFactory */
+    protected $mediatorFactory;
+
 
     /**
      * JsonSerializer constructor.
      * @param array $normalizers
      * @param WAOHelper $waoHelper
+     * @param ManagerRegistry $doctrine
+     * @param MediatorFactory $mediatorFactory
      */
-    public function __construct(array $normalizers,WAOHelper $waoHelper)
+    public function __construct(array $normalizers,
+                                WAOHelper $waoHelper,
+                                ManagerRegistry $doctrine,
+                                MediatorFactory $mediatorFactory)
     {
         $normalizers = array_merge([new MediatorNormalizer()],$normalizers);
         $this->serializer = new Serializer($normalizers,[]);
         $this->waoHelper = $waoHelper;
+        $this->doctrine = $doctrine;
+        $this->mediatorFactory = $mediatorFactory;
         //$this->subGroupables = [];
     }
 
@@ -60,7 +75,13 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
             array_key_exists("currentKey",$context) &&
             array_key_exists($context["currentKey"],$upperSubGroups)
         ){
-            $flattenGroups = $this->handleGroups($upperSubGroups[$context["currentKey"]],$subGroups);
+            //if($subGroups===null || !is_array($subGroups)){$subGroups = [];}
+            if(is_array($upperSubGroups[$context["currentKey"]])){
+                $flattenGroups = $this->handleGroups($upperSubGroups[$context["currentKey"]],$subGroups);
+            }
+            else{
+                $flattenGroups = ['minimal'];
+            }
         }
 
         $normalization = $this->serializer->normalize($object, null, array(
@@ -91,7 +112,7 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
         $properties = [];
         foreach($mapping as $groupName=>$groupProperties){
             foreach($groupProperties as $property){
-                $properties[$property] = ($groups !== null)?(array_key_exists($groupName,$groups)?$groups[$groupName]:false):true;
+                $properties[$property] = ($groups !== null && is_array($groups))?(array_key_exists($groupName,$groups)?$groups[$groupName]:false):true;
             }
         }
 
@@ -100,31 +121,40 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
         foreach($data as $property=>$value){
             if(array_key_exists($property,$properties) && $properties[$property]){
                 if(array_key_exists($property,$structure)){
-                    $value = $this->serializer->denormalize($value, $structure[$property]);
+                    $subGroups = ($groups !== null && is_array($groups) && array_key_exists($property,$groups))?$groups[$property]:[];
+                    $value = $this->serializer->denormalize($value, $structure[$property],null,['groups'=>$subGroups]);
                 }
                 $preDenormalizedData[$property] = $value;
             }
         }
 
+        // instanciation of the denormalization which should be a DTO (with an id)
+        $denormalization = null;
         if(array_key_exists('existingDto',$context)){
             $denormalization = $context['existingDto'];
-            foreach($preDenormalizedData as $property=>$value){
-                $function = 'set' . ucfirst($property);
-                if(method_exists($denormalization,$function)){
-                    $denormalization->$function($value);
-                }
+        }
+        else if(array_key_exists("id",$preDenormalizedData)){
+            $id = intval($data["id"]);
+            if(!$id) return null;
+            $entity = null;
+            $className = MediatorFactory::getEntityClassForDTOClass($class);
+            if($id > 0){
+                $entity = $this->doctrine->getRepository($className)->find($id);
+                if(!$entity) return null; // the id doesn't exist => we do nothing else
+            }
+            $mediator = $this->mediatorFactory->create($class,$entity);
+            $mediator->mapDTOGroups(is_array($groups)?$groups:null,DTOMediator::CREATE_IF_NULL);
+            $denormalization = $mediator->getDTO();
+        }
+
+        if($denormalization === null) return null;
+        // else we finally use the set method to inject data in our regular DTO
+        foreach($preDenormalizedData as $property=>$value){
+            $function = 'set' . ucfirst($property);
+            if(method_exists($denormalization,$function)){
+                $denormalization->$function($value);
             }
         }
-        else{
-            $denormalization = $this->serializer->denormalize($data, $class, $format,$context);
-        }
-
-
-
-
-
-
-
         return $denormalization;
     }
 

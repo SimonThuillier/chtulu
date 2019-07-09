@@ -22,8 +22,6 @@ class ResourceGeometryDTO extends EntityMutableDTO
     protected $zoomGeometry;
     /** @var string */
     protected $comment;
-    /** @var UrlBag */
-    protected $urlBag;
 
     /**
      * ResourceGeometryDTO constructor.
@@ -91,25 +89,6 @@ class ResourceGeometryDTO extends EntityMutableDTO
     {
         $this->comment = $comment;
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('comment');
-        return $this;
-    }
-
-    /**
-     * @return UrlBag
-     * @Groups({"readUrl","editUrl","adminUrl","url"})
-     */
-    public function getUrlBag()
-    {
-        return $this->urlBag;
-    }
-
-    /**
-     * @param UrlBag $urlBag
-     * @return ResourceGeometryDTO
-     */
-    public function setUrlBag($urlBag): ResourceGeometryDTO
-    {
-        $this->urlBag = $urlBag;
         return $this;
     }
 

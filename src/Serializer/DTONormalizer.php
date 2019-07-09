@@ -9,6 +9,7 @@
 namespace App\Serializer;
 
 use App\DTO\EntityMutableDTO;
+use App\Factory\MediatorFactory;
 use App\Helper\WAOHelper;
 use App\Mediator\NotAvailableGroupException;
 use Doctrine\Common\Annotations\AnnotationReader;
@@ -24,19 +25,22 @@ class DTONormalizer extends HNormalizer
     const DTO_NS = 'App\\DTO\\';
 
     /**
+     * @param WAOHelper $waoHelper
+     * @param MediatorFactory $mediatorFactory
      * @param ManagerRegistry $doctrine
      * @param ArticleDTONormalizer $articleDTONormalizer
      * @param SimpleEntityNormalizer $simpleEntityNormalizer
      * @param ResourceDTONormalizer $resourceDTONormalizer
      * @param ResourceGeometryDTONormalizer $ResourceGeometryDTONormalizer
-     * @param WAOHelper $waoHelper
      */
-    public function __construct(ManagerRegistry $doctrine,
+    public function __construct(WAOHelper $waoHelper,
+                                ManagerRegistry $doctrine,
+                                MediatorFactory $mediatorFactory,
                                 ArticleDTONormalizer $articleDTONormalizer,
                                 SimpleEntityNormalizer $simpleEntityNormalizer,
                                 ResourceDTONormalizer $resourceDTONormalizer,
-                                ResourceGeometryDTONormalizer $ResourceGeometryDTONormalizer,
-                                WAOHelper $waoHelper)
+                                ResourceGeometryDTONormalizer $ResourceGeometryDTONormalizer
+                                )
     {
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
@@ -49,7 +53,7 @@ class DTONormalizer extends HNormalizer
 
         );
 
-        parent::__construct($normalizers,$waoHelper);
+        parent::__construct($normalizers,$waoHelper,$doctrine,$mediatorFactory);
     }
 
     public function supportsNormalization($data, $format = null)

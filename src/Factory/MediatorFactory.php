@@ -34,6 +34,25 @@ class MediatorFactory implements ServiceSubscriberInterface
     /** @var ContainerInterface */
     private $locator;
 
+    private const MEDIATOR_SERVICES = [
+        ArticleDTO::class => ArticleDTOMediator::class,
+        ResourceDTO::class =>  ResourceDTOMediator::class,
+        ResourceVersionDTO::class => ResourceVersionDTOMediator::class,
+        ResourceGeometryDTO::class => ResourceGeometryDTOMediator::class
+    ];
+
+    private const OTHER_SERVICES = [
+        EntityFactory::class,
+        DTOFactory::class,
+        HDateNormalizer::class,
+        AssetHelper::class,
+        MediatorFactory::class,
+        FileRouter::class,
+        'serializer.encoder.json' => EncoderInterface::class,
+        'router' => RouterInterface::class,
+        'doctrine' => ManagerRegistry::class
+    ];
+
     /**
      * EntityFactory constructor.
      * @param ContainerInterface $locator
@@ -48,21 +67,12 @@ class MediatorFactory implements ServiceSubscriberInterface
      */
     public static function getSubscribedServices()
     {
-        return [
-            EntityFactory::class,
-            DTOFactory::class,
-            ArticleDTO::class => ArticleDTOMediator::class,
-            ResourceDTO::class =>  ResourceDTOMediator::class,
-            ResourceVersionDTO::class => ResourceVersionDTOMediator::class,
-            ResourceGeometryDTO::class => ResourceGeometryDTOMediator::class,
-            HDateNormalizer::class,
-            AssetHelper::class,
-            MediatorFactory::class,
-            FileRouter::class,
-            'serializer.encoder.json' => EncoderInterface::class,
-            'router' => RouterInterface::class,
-            'doctrine' => ManagerRegistry::class
-        ];
+        return array_merge(self::MEDIATOR_SERVICES,self::OTHER_SERVICES);
+    }
+
+    public static function getEntityClassForDTOClass($dtoClass){
+        $mediatorClass = self::MEDIATOR_SERVICES[$dtoClass];
+        return $mediatorClass::ENTITY_CLASS_NAME;
     }
 
     /**

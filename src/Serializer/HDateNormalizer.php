@@ -1,7 +1,6 @@
 <?php
 namespace App\Serializer;
 
-use App\Helper\WAOHelper;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
@@ -11,23 +10,21 @@ use App\Utils\HDate;
 use App\Helper\DateHelper;
 use App\Entity\DateType;
 
-class HDateNormalizer extends HNormalizer
+class HDateNormalizer implements NormalizerInterface,DenormalizerInterface
 {
-    /** @var ManagerRegistry */
-    private $doctrine;
     /** @var HDateFactory */
-    private $mainFactory;
+    private $hDateFactory;
+    /** @var ManagerRegistry */
+    protected $doctrine;
 
     /**
      * @param ManagerRegistry $doctrine
-     * @param HDateFactory $mainFactory
-     * @param WAOHelper $waoHelper
+     * @param HDateFactory $hDateFactory
      */
-    public function __construct(ManagerRegistry $doctrine, HDateFactory $mainFactory,WAOHelper $waoHelper)
+    public function __construct(ManagerRegistry $doctrine,HDateFactory $hDateFactory)
     {
-        parent::__construct([],$waoHelper);
         $this->doctrine = $doctrine;
-        $this->mainFactory = $mainFactory;
+        $this->hDateFactory = $hDateFactory;
     }
 
     public function supportsNormalization($data, $format = null)
@@ -59,7 +56,7 @@ class HDateNormalizer extends HNormalizer
             ;
         }
         catch(\Exception $e){
-            throw new InvalidArgumentException("Error while serializing object of class " .
+            throw new InvalidArgumentException("Error while normalizing object of class " .
                 get_class($object) . " :  " . $e->getMessage());
         }
         return $normalization;
@@ -84,15 +81,15 @@ class HDateNormalizer extends HNormalizer
                 ->find(intval($data["type"]));
         }
         catch(\Exception $e){
-            throw new InvalidArgumentException("Invalid argument for transformation while deserializing to " .
+            throw new InvalidArgumentException("Invalid argument for transformation while denormalizing to " .
                 HDate::class . " :  " . $e->getMessage());
         }
         try{
-            $object = $this->mainFactory->create($data["type"],$data["beginDate"], $data["endDate"]);
+            $object = $this->hDateFactory->create($data["type"],$data["beginDate"], $data["endDate"]);
 
         }
         catch(\Exception $e){
-            throw new InvalidArgumentException("Error while deserializing onto '" .
+            throw new InvalidArgumentException("Error while denormalizing onto '" .
                 HDate::class . "' object :  " . $e->getMessage());
         }
         return $object;

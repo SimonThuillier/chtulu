@@ -18,10 +18,11 @@ use Symfony\Component\DependencyInjection\ServiceSubscriberInterface;
 
 abstract class DTOMediator implements ServiceSubscriberInterface
 {
-    /** @var string */
-    public $entityClassName;
-    /** @var string */
-    public $dtoClassName;
+    /** @var String */
+    protected $entityClassName;
+    /** @var String */
+    protected $dtoClassName;
+
     /** @var EntityMutableDTO */
     protected $dto;
     /** @var DTOMutableEntity */
@@ -166,7 +167,6 @@ abstract class DTOMediator implements ServiceSubscriberInterface
         if(!array_key_exists("minimal",$groups) || !array_search("minimal",$groups)){
             $groups = array_merge(["minimal"=>true],$groups);
         }
-        $truc = $groups;
         foreach($groups as $k => $v){
             if(is_numeric($k)) $this->mapDTOGroup($v,$mode);
             elseif(is_string($k) && is_bool($v)) $this->mapDTOGroup($k,$mode);
@@ -228,7 +228,7 @@ abstract class DTOMediator implements ServiceSubscriberInterface
         }
 
         $this->resetChangedProperties();
-        $mapperCommands[$this->dtoClassName . ":" . $id] = ["action"=>($toDelete?"delete":($id>0?"edit":"add")),"dto"=>$this->dto];
+        $mapperCommands[$this->getDtoClassName() . ":" . $id] = ["action"=>($toDelete?"delete":($id>0?"edit":"add")),"dto"=>$this->dto];
         return $mapperCommands;
     }
 

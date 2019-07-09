@@ -45,6 +45,7 @@
 		"symfony/webpack-encore-bundle": "^1.5"
 	},
 	"require-dev" : {
+		"friendsofsymfony/rest-bundle": "^2.5",
 		"symfony/phpunit-bridge": "^4.2.7",
 		"symfony/profiler-pack": "^1.0",
 		"symfony/web-server-bundle": "4.2.*"

@@ -11,6 +11,8 @@ namespace App\Serializer;
 
 use App\DTO\ArticleDTO;
 use App\DTO\ResourceGeometryDTO;
+use App\Entity\ResourceGeometry;
+use App\Factory\MediatorFactory;
 use App\Helper\WAOHelper;
 use App\Mediator\NotAvailableGroupException;
 use Doctrine\Common\Annotations\AnnotationReader;
@@ -24,30 +26,23 @@ use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 class ResourceGeometryDTONormalizer extends HNormalizer
 {
     /**
-     * @param ManagerRegistry $doctrine
-     * @param HDateNormalizer $hDateSerializer
-     * @param SimpleEntityNormalizer $simpleEntityNormalizer
-     * @param GeoJsonNormalizer $geoJsonNormalizer
-     * @param ResourceDTONormalizer $resourceDTONormalizer
      * @param WAOHelper $waoHelper
+     * @param ManagerRegistry $doctrine
+     * @param MediatorFactory $mediatorFactory
+     * @param GeoJsonNormalizer $geoJsonNormalizer
      */
-    public function __construct(ManagerRegistry $doctrine,
-                                HDateNormalizer $hDateSerializer,
-                                SimpleEntityNormalizer $simpleEntityNormalizer,
-                                GeoJsonNormalizer $geoJsonNormalizer,
-                                ResourceDTONormalizer $resourceDTONormalizer,
-                                WAOHelper $waoHelper)
+    public function __construct(WAOHelper $waoHelper,
+                                ManagerRegistry $doctrine,
+                                MediatorFactory $mediatorFactory,
+                                GeoJsonNormalizer $geoJsonNormalizer)
     {
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
-            $hDateSerializer,
-            $simpleEntityNormalizer,
             $geoJsonNormalizer,
-            $resourceDTONormalizer,
             new HGetSetMethodNormalizer($classMetadataFactory),
             new ObjectNormalizer());
 
-        parent::__construct($normalizers,$waoHelper);
+        parent::__construct($normalizers,$waoHelper,$doctrine,$mediatorFactory);
     }
 
     public function supportsNormalization($data, $format = null)
@@ -57,7 +52,7 @@ class ResourceGeometryDTONormalizer extends HNormalizer
 
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return false;
+        return $type != null && $type === ResourceGeometryDTO::class;
     }
 
     /**
@@ -84,7 +79,7 @@ class ResourceGeometryDTONormalizer extends HNormalizer
      */
     public function denormalize($data, $class, $format = null, array $context = array())
     {
-        // TODO : implements ?
-        return $data;
+        $denormalization = parent::defaultDenormalize($data, $class, $format,$context);
+        return $denormalization;
     }
 }

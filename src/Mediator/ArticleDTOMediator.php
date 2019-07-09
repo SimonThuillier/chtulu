@@ -11,21 +11,17 @@ namespace App\Mediator;
 
 use App\DTO\ArticleDTO;
 use App\DTO\ResourceDTO;
+use App\DTO\ResourceGeometryDTO;
 use App\Entity\Article;
 use App\Factory\MediatorFactory;
-use App\Form\ArticleDTOType;
 use App\Helper\AssetHelper;
 use App\Helper\DateHelper;
-use App\Manager\File\FileRouter;
 use App\Serializer\HDateNormalizer;
 use App\Utils\HDate;
-use App\Utils\UrlBag;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Psr\Container\ContainerInterface;
-use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Serializer\Encoder\EncoderInterface;
-use Symfony\Component\Validator\Constraints\DateTime;
 
 class ArticleDTOMediator extends DTOMediator
 {
@@ -39,9 +35,9 @@ class ArticleDTOMediator extends DTOMediator
     public function __construct(ContainerInterface $locator)
     {
         parent::__construct($locator);
-        $this->groups = ['minimal','abstract','date','type','detailImage','geometry','subArticles','hteRange'];
         $this->dtoClassName = self::DTO_CLASS_NAME;
         $this->entityClassName = self::ENTITY_CLASS_NAME;
+        $this->groups = ['minimal','abstract','date','type','detailImage','geometry','subArticles','hteRange'];
     }
 
     /**
@@ -292,6 +288,22 @@ class ArticleDTOMediator extends DTOMediator
             $dto->getDetailImageResource()?
                 $dto->getDetailImageResource()->getMediator()->getEntity():null);
 
+        return $mapperCommands;
+    }
+
+    protected function mediateGeometry($mapperCommands){
+        /** @var ArticleDTO $dto */
+        $dto = $this->dto;
+        /** @var Article $article */
+        $article = $this->entity;
+
+        if($dto->getGeometry()!==null){
+            $article->setGeometry($dto->getGeometry()->getMediator()->getEntity());
+            $mapperCommands = $dto->getGeometry()->getMediator()->returnDataToEntity($mapperCommands);
+        }
+        else{
+            $article->setGeometry(null);
+        }
         return $mapperCommands;
     }
 }
