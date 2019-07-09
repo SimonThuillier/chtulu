@@ -27,12 +27,11 @@ public/js/
 
 app/config/hresources\.yml
 
-public/media/*
+public/media/cache/*
 
 hresources/*
 
 public/geo/
-
 public/tiles/
 public/tiles/*
 public/tiles/*/*
@@ -70,7 +69,3 @@ composer\.lock
 symfony\.lock
 
 \.web-server-pid
-
-web/media/cache/mini/
-
-web/media/cache/detail_thumbnail/
