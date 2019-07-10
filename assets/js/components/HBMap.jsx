@@ -164,6 +164,7 @@ class HBMap extends React.Component {
     handleArticleIcons(){
         //console.log('article icons svg ref');
         //console.log(this.iconSvgRefs);
+        const {articles,displayedArticles,dispatch,getOneByIdSelector,nextNewIdSelector,newlyCreatedIdSelector} = this.props;
 
         // 1 delete not necessary markers
         this.markerRefs.forEach((ref,id)=>{
@@ -173,11 +174,15 @@ class HBMap extends React.Component {
         });
 
 
-        this.iconSvgRefs.forEach((ref,id)=>{
+        this.iconSvgRefs.forEach((object,id)=>{
+            const {geometryId,ref} = object;
             if(!!ref && !!ref.innerHTML && !this.markerRefs.has(+id)){
                 //console.log(test);
                 //let myIconUrl = encodeURI("data:image/svg+xml;base64," + btoa(ref.innerHTML)).replace('#','%23');
                 console.log(ref.innerHTML);
+                console.log(geometryId);
+                const geometry = getOneByIdSelector(+geometryId);
+                console.log(geometry.targetGeometry.value.coordinates);
 
                 let icon = L.icon({
                     iconUrl:ref.children[0].innerHTML,
@@ -191,7 +196,7 @@ class HBMap extends React.Component {
 
                 const {selectArticle} = this.props;
 
-                const marker = L.marker([49.8419, 24.0315], {
+                const marker = L.marker(geometry.targetGeometry.value.coordinates, {
                         icon: icon,
                         onClick:(()=>{selectArticle([id])}),
                         draggable:true,
@@ -244,20 +249,15 @@ class HBMap extends React.Component {
 
 
         const {articles,displayedArticles,dispatch,getOneByIdSelector,nextNewIdSelector,newlyCreatedIdSelector} = this.props;
-        const arrayOfArticlesToDisplay = articles.filter(
-            ([id, a]) => {
-                return true;
-            }
-        );
 
+        const arrayOfArticlesToDisplay = articles.filter((a) => {return !!a.geometry;});
         this.iconSvgRefs = new Map();
         const iconSvgRefs = this.iconSvgRefs;
         //console.log(iconSvgRefs);
 
         const articleSvgIconRefs = arrayOfArticlesToDisplay.map((a) => {
-            //console.log(a);
             return (
-                <div ref={(ref)=>{iconSvgRefs.set(+a.id,ref)}} hidden={true}
+                <div ref={(ref)=>{iconSvgRefs.set(+a.id,{geometryId:+a.geometry,ref:ref})}} hidden={true}
                      key={`article-svg-icon-div-${a.id}`}>
                     <div>
                         <ArticleIcon

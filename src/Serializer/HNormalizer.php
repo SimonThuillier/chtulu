@@ -112,7 +112,8 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
         $properties = [];
         foreach($mapping as $groupName=>$groupProperties){
             foreach($groupProperties as $property){
-                $properties[$property] = ($groups !== null && is_array($groups))?(array_key_exists($groupName,$groups)?$groups[$groupName]:false):true;
+                // for links reasons we always take id !
+                $properties[$property] = ($property!=='id' && ($groups !== null && is_array($groups)))?(array_key_exists($groupName,$groups)?$groups[$groupName]:false):true;
             }
         }
 

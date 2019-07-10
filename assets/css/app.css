@@ -251,33 +251,29 @@ div.hb-modal-z9{
     resize: both;
     width: auto;
     border: 1px solid black;
-    grid-template-rows: 40px 38px 75px 38px var(--content-area-height) var(--panel-area-height) 30px;
-    grid-template-columns: 100%;
     position: "relative";
 }
 
-.hg-header {
-    border: 2px solid rgb(236, 13, 13);
-    grid-row-end: -7;
-}
+/*.hg-header {*/
+    /*border: 2px solid rgb(236, 13, 13);*/
+    /*grid-row-end: -7;*/
+/*}*/
 
-.hg-date-input {
-    border: 2px solid rgb(65, 16, 71);
-    grid-row-end: -6;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-}
+/*.hg-date-input {*/
+    /*border: 2px solid rgb(65, 16, 71);*/
+    /*grid-row-end: -6;*/
+    /*display: flex;*/
+    /*justify-content: center;*/
+    /*align-items: flex-end;*/
+/*}*/
 
-.hg-time-arrow {
-    border: 2px solid rgb(23, 190, 126);
-    grid-row-end: -5;
-    position: "relative";
-}
+/*.hg-time-arrow {*/
+    /*border: 2px solid rgb(23, 190, 126);*/
+    /*grid-row-end: -5;*/
+    /*position: "relative";*/
+/*}*/
 
 .hg-menu {
-    border: 2px solid rgb(23, 143, 190);
-    grid-row-end: -4;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
@@ -290,7 +286,6 @@ div.hb-modal-z9{
 }
 
 .hg-content-container {
-    height : var(--content-area-height);
     margin: 0;
     padding: 2px;
     border: 2px solid rgb(40, 23, 190);
@@ -307,7 +302,6 @@ div.hb-modal-z9{
     overflow-y:hidden;
     display:block;
     height:100%;
-    max-height : var(--content-area-height);
 }
 
 .hg-content-panel-heading {
@@ -329,7 +323,6 @@ div.hb-modal-z9{
     overflow-y:auto;
     display:block;
     height:100%;
-    max-height : var(--content-area-height) - 40px;
 }
 
 .hg-content-panel:nth-of-type(1){
@@ -350,30 +343,30 @@ div.hb-modal-z9{
     align-items: flex-end;
 }
 
-.hg-time-area {
-    border: 2px solid rgb(23, 88, 190);
-    grid-row-end: -2;
-    position: "relative";
-    resize: vertical;
-}
+/*.hg-time-area {*/
+    /*border: 2px solid rgb(23, 88, 190);*/
+    /*grid-row-end: -2;*/
+    /*position: "relative";*/
+    /*resize: vertical;*/
+/*}*/
 
-.hg-map-container {
-    background-color: white;
-    position: absolute;
-    bottom: 50%;
-}
+/*.hg-map-container {*/
+    /*background-color: white;*/
+    /*position: absolute;*/
+    /*bottom: 50%;*/
+/*}*/
 
-.hg-svg-time-area {
-    stroke: crimson;
-    resize: vertical;
-}
+/*.hg-svg-time-area {*/
+    /*stroke: crimson;*/
+    /*resize: vertical;*/
+/*}*/
 
-.hg-footer {
-    display: flex;
-    justify-content: center;
-    border: 2px solid rgb(233, 88, 190);
-    grid-row-end: -1;
-}
+/*.hg-footer {*/
+    /*display: flex;*/
+    /*justify-content: center;*/
+    /*border: 2px solid rgb(233, 88, 190);*/
+    /*grid-row-end: -1;*/
+/*}*/
 
 .area-default {
     fill: blue;
