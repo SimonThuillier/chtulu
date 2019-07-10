@@ -17,7 +17,6 @@ const SubDetail = ({groups}) => {
     return (
         <ArticleContext.Consumer>
             {({ id, groups:cGroups,data,handleSwitch }) => {
-                console.log("context returns subDetail");
                 return (
                     <ArticleDetail
                         id={id}
@@ -100,19 +99,19 @@ class Article extends React.Component{
         }
 
         if(Object.keys(updatedValues).length>0){
-            console.log("setState");
+            //console.log("setState");
 
             let newContextValue = {};
             Object.assign(newContextValue,this.state.contextValue);
             Object.assign(newContextValue,updatedValues);
-            console.log(newContextValue);
+            //console.log(newContextValue);
             this.setState({contextValue:newContextValue});
         }
     }
 
     render(){
 
-        console.log("reRender");
+        //console.log("reRender");
 
         const {selector,notificationsSelector,handleSwitch,container,groups,id} = this.props;
         const notifications = notificationsSelector(componentUid);

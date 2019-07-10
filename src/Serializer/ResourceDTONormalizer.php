@@ -85,20 +85,7 @@ class ResourceDTONormalizer extends HNormalizer
      */
     public function denormalize($data, $class, $format = null, array $context = array())
     {
-        if(is_object($data) && get_class($data) === $class ) return $data;
-
-        if(array_key_exists("id",$data)){
-            $id = intval($data["id"]);
-            if(!$id || $id < 0) return null;
-            $resource = $this->doctrine->getRepository(HResource::class)->find($id);
-            if(!$resource) return null;
-
-
-            $mediator = $this->mediatorFactory->create(ResourceDTO::class,$resource);
-            $mediator->mapDTOGroups(["minimal"=>true],DTOMediator::NOTHING_IF_NULL);
-
-            $denormalization = $mediator->getDTO();
-            return $denormalization;
-        }
+        $denormalization = $this->serializer->denormalize($data, $class,$format,$context);
+        return $denormalization;
     }
 }

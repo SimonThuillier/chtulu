@@ -400,7 +400,7 @@ class ArticleForm extends React.Component{
             let submittingCompleted = (notifications && notifications.
             getIn([(this.state.data && this.props.id) || 'DEFAULT',SUBMITTING_COMPLETED]))||null;
             submittingCompleted = (submittingCompleted && !submittingCompleted.get("discardedAt"))?submittingCompleted:null;
-            console.log("submittingCompleted : untouching form");
+            //console.log("submittingCompleted : untouching form");
             if(submittingCompleted){
                 this.props.dispatch(formUntouch(componentUid, ...getAllPropertiesInGroups('article',Object.keys(this.state.groups))));
             }

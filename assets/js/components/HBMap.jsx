@@ -162,8 +162,8 @@ class HBMap extends React.Component {
     }
 
     handleArticleIcons(){
-        console.log('article icons svg ref');
-        console.log(this.iconSvgRefs);
+        //console.log('article icons svg ref');
+        //console.log(this.iconSvgRefs);
 
         // 1 delete not necessary markers
         this.markerRefs.forEach((ref,id)=>{

@@ -249,8 +249,8 @@ export const postAll = (senderKey=null) => (dispatch,getState) => {
         });
     });
 
-    console.log(`dataToPost ALL !`);
-    console.log(dataToPost);
+    //console.log(`dataToPost ALL !`);
+    //console.log(dataToPost);
 
     const url = getUrl(URL_POST);
     let httpProps = getHTTPProps(HTTP_POST);
@@ -265,9 +265,9 @@ export const postAll = (senderKey=null) => (dispatch,getState) => {
             }
         )
         .then(json => {
-                console.log("post returned !");
+                //console.log("post returned !");
                 json.data = JSON.parse(json.data);
-                console.log(json);
+                //console.log(json);
                 switch (json.status) {
                     case HB_SUCCESS:
                         dispatch(notify(SUBMITTING_COMPLETED,senderKey || 'HBAPP',null,HB_SUCCESS));
@@ -298,8 +298,8 @@ const handlePostBackData = (backData,dispatch) =>{
             object.loadedGroups = groups;
             object.postedGroups = postedGroups;
             //receiveGetOneById = (waoType,groups,id,data,message="Données bien recues du serveur")
-            console.log("redispatched object after post");
-            console.log(object);
+            //console.log("redispatched object after post");
+            //console.log(object);
             dispatch(removePending(waoType,+object.oldId<0?+object.oldId:+id,object.toDelete?null:postedGroups));
             dispatch(receiveGetOneById(waoType,groups,id,object,"Données bien enregistrées sur le serveur"));
         });

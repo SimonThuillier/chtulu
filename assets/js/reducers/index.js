@@ -269,6 +269,7 @@ const concreteWaoType = (waoType) => {
                 const oldItem = state.getIn(["items",+action.id]);
                 const oldInitialValues = oldItem.get("initialValues") || Imm.Map();
                 let newInitialValues = Imm.Map();
+
                 action.data.entrySeq().forEach((value,key)=>{
                     /*console.log(key);
                     console.log(value);*/
@@ -277,11 +278,20 @@ const concreteWaoType = (waoType) => {
                 });
                 newInitialValues = oldInitialValues.mergeDeepWith((oldVal,newVal) => newVal, newInitialValues);
                 //console.log(newInitialValues);
-
+                console.log("oldRecord");
+                console.log(oldItem);
+                console.log("update");
+                console.log(action.data);
                 const newItem = oldItem.
+                mergeWith((oldVal,newVal) => newVal, action.data).
+                set("initialValues",newInitialValues);
+                console.log("newRecord");
+                console.log(newItem);
+                const newItemDeep = oldItem.
                 mergeDeepWith((oldVal,newVal) => newVal, action.data).
                 set("initialValues",newInitialValues);
-                //console.log(newItem.toJS());
+                console.log("newRecord with deep merge");
+                console.log(newItemDeep);
                 return state.setIn(["items",+action.id],newItem);
             case RESET:
                 for(let id of action.ids){

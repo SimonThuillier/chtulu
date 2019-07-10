@@ -316,8 +316,8 @@ class HBExplorer extends React.Component {
         //console.log(currentTheme);
 
         if(this.timeAreaRef.current){
-            console.log(this.timeAreaRef.current);
-            console.log(this.timeAreaRef.current.getBoundingClientRect());
+            //console.log(this.timeAreaRef.current);
+            //console.log(this.timeAreaRef.current.getBoundingClientRect());
         }
 
         const timeArea = (
