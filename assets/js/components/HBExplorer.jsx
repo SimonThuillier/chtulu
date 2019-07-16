@@ -164,8 +164,11 @@ constructor(props) {
     this.onBottomResize = this.onBottomResize.bind(this);
     this.onRightResize = this.onRightResize.bind(this);
 
+    this.resizeCounter=0;
+
     this.state = {
         guiInitialized: 0,
+        isResizing : false,
         frameSizes: new Map()
             .set("container.width", `400px`)
             .set("container.height", `400px`)
@@ -200,7 +203,7 @@ onWindowResize() {
     const {
         containerRef: { current }
     } = this;
-    const { frameSizes } = this.state;
+    const { frameSizes,guiInitialized } = this.state;
     if (!current || current === null) return;
 
     const containerRect = this.containerRef.current.getBoundingClientRect();
@@ -226,7 +229,15 @@ onWindowResize() {
             .set("container.width", `${newContainerWidth}px`)
             .set("container.height", `${newContainerHeight}px`);
 
-        this.setState({ frameSizes: newFrameSizes });
+        this.setState({ frameSizes: newFrameSizes,isResizing:true});
+        const counter = this.resizeCounter;
+        const component = this;
+
+        setTimeout(()=>{
+            if(component.state.isResizing && counter === component.resizeCounter){
+                component.setState({isResizing:false});
+            }
+        },100);
     }
 }
 
@@ -303,9 +314,10 @@ componentWillUnmount() {
 }
 
 render() {
-    const { currentTheme, frameSizes, guiInitialized } = this.state;
+    const { currentTheme, frameSizes, guiInitialized,isResizing } = this.state;
     const { hInterval,setHInterval,cursorRate,cursorDate,isCursorActive,setCursorRate,toggleCursor,
-        articles,displayedArticles,invisibles,selectArticle,toggleActiveComponent,closeArticle,
+        articles,displayedArticles,invisibles,
+        hoveredArticleId, setHoveredArticle,selectArticle,closeArticle,toggleActiveComponent,addArticle,
         dispatch} = this.props;
     const theme = THEMES[currentTheme];
     //console.log(currentTheme);
@@ -349,6 +361,7 @@ render() {
                             return [
                                 <HBExplorerTimePanel
                                     key={"hg-time-panel"}
+                                    theme={theme}
                                     bounds={bounds}
                                     marginWidth={0}
                                     path={path}
@@ -356,7 +369,10 @@ render() {
                                     setHInterval={setHInterval}
                                     articles={articles}
                                     displayedArticles={displayedArticles}
+                                    hoveredArticleId={hoveredArticleId}
+                                    setHoveredArticle={setHoveredArticle}
                                     selectArticle={selectArticle}
+                                    addArticle={addArticle}
                                     cursorRate={cursorRate}
                                     cursorDate = {cursorDate}
                                     isCursorActive={isCursorActive}
@@ -377,6 +393,8 @@ render() {
                     width={this.mapAreaRef.current?this.mapAreaRef.current.getBoundingClientRect().width:100}
                     height={this.mapAreaRef.current?this.mapAreaRef.current.getBoundingClientRect().height:100}
                     articles={articles}
+                    hoveredArticleId={hoveredArticleId}
+                    setHoveredArticle={setHoveredArticle}
                     selectArticle={selectArticle}
                     displayedArticles={displayedArticles}
                     isResizing={false}
@@ -433,7 +451,7 @@ render() {
                                         ? timeArea
                                         : contentArea}
                                 </Left>
-                                {guiInitialized > 1 && !!this.rightRef.current && (
+                                {!isResizing && guiInitialized > 1 && !!this.rightRef.current && (
                                     <ResizeBar
                                         key={`right-resize-bar-${currentTheme}`}
                                         placementType={
@@ -482,7 +500,7 @@ render() {
                                     {mapArea}
                                 </Right>
                             </Middle>
-                            {guiInitialized > 1 && !!this.bottomRef.current && (
+                            {!isResizing && guiInitialized > 1 && !!this.bottomRef.current && (
                                 <ResizeBar
                                     key={"bottom-resize-bar"}
                                     placementType={"bottom"}

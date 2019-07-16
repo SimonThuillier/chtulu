@@ -79,7 +79,9 @@ export const getInvisibles = (articles, hInterval) => {
     let verticalInvisibles = 0;
     let minDate = hInterval.getMiddleDate();
     let maxDate = hInterval.getMiddleDate();
-    (articles || []).forEach(article => {
+    (articles || []).
+    filter(article => {return !!article.beginHDate;}).
+    forEach(article => {
         if (article.beginHDate.beginDate < hInterval.beginDate)
             leftInvisibles = leftInvisibles + 1;
         if (article.beginHDate.endDate > hInterval.endDate)

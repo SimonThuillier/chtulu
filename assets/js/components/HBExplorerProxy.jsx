@@ -46,16 +46,19 @@ class HBExplorerProxy extends React.Component {
         this.setCursorRate = this.setCursorRate.bind(this);
         this.toggleCursor = this.toggleCursor.bind(this);
 
+        this.setHoveredArticle = this.setHoveredArticle.bind(this);
         this.selectArticle = this.selectArticle.bind(this);
-        this.toggleActiveComponent = this.toggleActiveComponent.bind(this);
         this.closeArticle = this.closeArticle.bind(this);
+        this.toggleActiveComponent = this.toggleActiveComponent.bind(this);
+        this.addArticle = this.addArticle.bind(this);
 
         this.state = {
             searchBag:props.searchBag || defaultSearchBag,
             hInterval: props.hInterval || defaultHInterval,
             hasSelfUpdatedHInterval:false,
-            cursorRate:0.25,
+            cursorRate:0.35,
             isCursorActive:false,
+            hoveredArticleId:null,
             displayedArticles:new Map()
         };
     }
@@ -110,7 +113,12 @@ class HBExplorerProxy extends React.Component {
         this.setState({cursorRate:rate});
     }
 
-    selectArticle(ids) {
+    setHoveredArticle(id=null){
+        //console.log(`Hovered article : ${id}`);
+        this.setState({hoveredArticleId:id});
+    }
+
+    selectArticle(ids,activeComponent='detail') {
         if(ids===null) ids=[];
         const {displayedArticles} = this.state;
         let newDisplayedArticles = new Map(displayedArticles);
@@ -119,20 +127,11 @@ class HBExplorerProxy extends React.Component {
             article.isOpen= false;
         });
 
-        ids.forEach((id)=>{newDisplayedArticles.set(+id,{selectionDate:new Date(),isOpen:true,activeComponent:'detail'})});
-        this.setState({displayedArticles:newDisplayedArticles});
-    }
-
-    toggleActiveComponent(ids){
-        const {displayedArticles} = this.state;
-
-        let newDisplayedArticles = new Map(displayedArticles);
-
-        newDisplayedArticles.forEach((article,id)=>{
-            if(ids.includes(+id)){
-                article.activeComponent= article.activeComponent==='detail'?'form':'detail';
-            }
-        });
+        ids.forEach((id)=>{newDisplayedArticles.set(+id,{
+            selectionDate:new Date(),
+            isOpen:true,
+            activeComponent:activeComponent
+        })});
         this.setState({displayedArticles:newDisplayedArticles});
     }
 
@@ -149,8 +148,29 @@ class HBExplorerProxy extends React.Component {
         this.setState({displayedArticles:newDisplayedArticles});
     }
 
+    toggleActiveComponent(ids){
+        const {displayedArticles} = this.state;
+
+        let newDisplayedArticles = new Map(displayedArticles);
+
+        newDisplayedArticles.forEach((article,id)=>{
+            if(ids.includes(+id)){
+                article.activeComponent= article.activeComponent==='detail'?'form':'detail';
+            }
+        });
+        this.setState({displayedArticles:newDisplayedArticles});
+    }
+
+    addArticle(date){
+        console.log('vous voulez un nouvel article ?');
+        console.log(date);
+        const {nextNewIdSelector} = this.props;
+
+        this.selectArticle([nextNewIdSelector()],'form');
+    }
+
     render() {
-        const {searchBag,hInterval,cursorRate,displayedArticles} = this.state;
+        const {searchBag,hInterval,cursorRate,displayedArticles,hoveredArticleId} = this.state;
 
         const cursorDate = (hInterval!==null && cursorRate!==null)?hInterval.getBarycenterDate(cursorRate):null;
 
@@ -190,7 +210,7 @@ class HBExplorerProxy extends React.Component {
             >
                 <HBExplorer
                     dispatch={dispatch}
-                    mainArticleId={mainArticleId }
+                    mainArticleId={mainArticleId}
                     hInterval={hInterval}
                     setHInterval={this.setHInterval}
                     cursorDate = {cursorDate}
@@ -200,9 +220,12 @@ class HBExplorerProxy extends React.Component {
                     articles={articles}
                     displayedArticles={displayedArticles}
                     invisibles={invisibles}
+                    hoveredArticleId = {hoveredArticleId}
+                    setHoveredArticle={this.setHoveredArticle}
                     selectArticle={this.selectArticle}
-                    toggleActiveComponent={this.toggleActiveComponent}
                     closeArticle={this.closeArticle}
+                    toggleActiveComponent={this.toggleActiveComponent}
+                    addArticle = {this.addArticle}
                 />
             </Loadable>
         );

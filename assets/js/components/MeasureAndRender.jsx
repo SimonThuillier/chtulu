@@ -37,7 +37,7 @@ class MeasureAndRender extends React.Component {
 
           const m = this.el.getBoundingClientRect();
 
-          console.log(`measureAndRender ${m.x} ${m.y} ${m.height} ${m.width}`);
+          //console.log(`measureAndRender ${m.x} ${m.y} ${m.height} ${m.width}`);
 
           this.setState({measurement:this.el.getBoundingClientRect()});
       }

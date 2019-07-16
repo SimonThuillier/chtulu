@@ -65,7 +65,7 @@ class HBExplorerPanelArticle extends React.Component {
     }
 
     render() {
-        const {article,timeScale,originY,addBox,selected,cursorDate} = this.props;
+        const {article,timeScale,originY,addBox,selected,hovered,setHoveredArticle,cursorDate} = this.props;
 
         const articleHDate = new HDate("2",
             article.beginHDate.beginDate,
@@ -106,6 +106,7 @@ class HBExplorerPanelArticle extends React.Component {
         let thisTextStyle = {};
         Object.assign(thisTextStyle,textStyle);
         if(selected) thisTextStyle.stroke='#0000FF';
+        else if(hovered) thisTextStyle.stroke='#FF0000';
 
         return (
             <svg
@@ -116,6 +117,8 @@ class HBExplorerPanelArticle extends React.Component {
                 height={viewportHeight}
                 x={x-xMargin}
                 y={y}
+                onMouseEnter={()=>{setHoveredArticle(article.id)}}
+                onMouseLeave={()=>{setHoveredArticle()}}
                 ref={node => {
                     if(node) addBox(node,article);
                 }}
@@ -126,7 +129,7 @@ class HBExplorerPanelArticle extends React.Component {
                     </pattern>
                 </defs>
                 <rect
-                    fill={selected?"blue":"black"}
+                    fill={selected?"blue":hovered?"red":"black"}
                     x={xMargin}
                     y={viewportHeight/8}
                     width={Math.max(endX-x,1)}

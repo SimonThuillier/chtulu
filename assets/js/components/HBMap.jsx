@@ -53,7 +53,9 @@ class HBMap extends React.Component {
             this.handleContainerResizing.bind(this),
             this.resizingDelay
         );
+        this.getMarkerDragEndHandler = this.getMarkerDragEndHandler.bind(this);
         this.onMapDblClick = this.onMapDblClick.bind(this);
+        this.handleArticlePlacement = this.handleArticlePlacement.bind(this);
         this.handleArticleIcons = this.handleArticleIcons.bind(this);
 
         this.map=null;
@@ -74,35 +76,38 @@ class HBMap extends React.Component {
         });*/
     }
 
+    getMarkerDragEndHandler(id){
+        return (e) =>{this.handleArticlePlacement(e.target._latlng,id)};
+    }
+
     onMapDblClick(e){
-        const {articles,displayedArticles,dispatch,getOneByIdSelector,nextNewIdSelector,newlyCreatedIdSelector} = this.props;
-        const latlng = e.latlng;
         console.log("You dblclicked the map at " + e.latlng);
 
+        const {displayedArticles} = this.props;
         displayedArticles.forEach((a,id)=>{
             if(a.isOpen){
-                let article = articles.find((element)=>{return element.id === id});
-
-                console.log(`${article.title} is selected`);
-                let geometryId = article.geometry;
-                if(geometryId===null){
-                    geometryId =  nextNewIdSelector();
-                    dispatch(submitLocally("article",Imm.Map({geometry:geometryId}), id,{geometry:true}));
-                }
-
-                console.log(geometryId);
-                setTimeout(()=>{
-                    dispatch(submitLocally("resourceGeometry",Imm.Map({
-                        targetGeometry:{value:{type:"Point",coordinates:[latlng.lat,latlng.lng]}}
-                        }),
-                        geometryId,geometryGroups));
-                },50);
-
-
+                this.handleArticlePlacement(e.latlng,id);
             }
         });
+    }
 
+    handleArticlePlacement(latlng,id){
+        const {articles,dispatch,nextNewIdSelector} = this.props;
+        const article = articles.find((element)=>{return element.id === id});
+        if(!article) return;
+        console.log(`You want to place article of id ${article.id} at ${latlng}`);
 
+        let geometryId = article.geometry;
+        if(geometryId===null){
+            geometryId =  nextNewIdSelector();
+            dispatch(submitLocally("article",Imm.Map({geometry:geometryId}), article.id,{geometry:true}));
+        }
+        setTimeout(()=>{
+            dispatch(submitLocally("resourceGeometry",Imm.Map({
+                    targetGeometry:{value:{type:"Point",coordinates:[latlng.lat,latlng.lng]}}
+                }),
+                geometryId,geometryGroups));
+        },30);
     }
 
     componentDidMount() {
@@ -139,32 +144,26 @@ class HBMap extends React.Component {
             setTimeout(this.handleContainerResizing, 2 * this.resizingDelay);
         }
 
-        // handle article icons
-        const {articles,displayedArticles} = this.props;
-        //console.log(articles);
-        /*if(articles.length>0){
-            let achenSvgString =articleIcon(articles[0]);
-            console.log(achenSvgString);
-            let myIconUrl = encodeURI("data:image/svg+xml," + achenSvgString).replace('#','%23');
-            console.log(myIconUrl);
-            this.templateIcon= L.icon({
-                iconUrl: myIconUrl,
-                iconSize: [30, 30],
-                iconAnchor: [15, 15],
-                popupAnchor: [7, -15],
-                shadowUrl: 'http://localhost:8000/media/personnage.jpeg',
-                shadowSize: [0, 0],
-                shadowAnchor: [0,0]
-            });
-            L.marker([49.8419, 24.0315], {icon: this.templateIcon}).addTo(this.map);
-        }*/
+        // handle hovering
+        const {hoveredArticleId} = this.props;
 
+        if(prevProps.hoveredArticleId !== hoveredArticleId){
+            if(!!prevProps.hoveredArticleId){
+                const oldHoveredMarker = this.markerRefs.get(+prevProps.hoveredArticleId);
+                if(!!oldHoveredMarker) oldHoveredMarker.fire('mouseout');
+            }
+            if(!!hoveredArticleId){
+                const hoveredMarker = this.markerRefs.get(+hoveredArticleId);
+                if(!!hoveredMarker) hoveredMarker.fire('mouseover');
+            }
+        }
     }
 
     handleArticleIcons(){
         //console.log('article icons svg ref');
         //console.log(this.iconSvgRefs);
-        const {articles,displayedArticles,dispatch,getOneByIdSelector,nextNewIdSelector,newlyCreatedIdSelector} = this.props;
+        const {articles,displayedArticles,dispatch,setHoveredArticle,
+            getOneByIdSelector,nextNewIdSelector,newlyCreatedIdSelector} = this.props;
 
         // 1 delete not necessary markers
         this.markerRefs.forEach((ref,id)=>{
@@ -198,14 +197,23 @@ class HBMap extends React.Component {
 
                 const marker = L.marker(geometry.targetGeometry.value.coordinates, {
                         icon: icon,
-                        onClick:(()=>{selectArticle([id])}),
                         draggable:true,
                         riseOnHover:true,
-                        title:ref.children[1].children[0].innerHTML
+                        title:null
                     }
                 );
                 this.markerRefs.set(+id,marker);
-                marker.addTo(this.map).on('click',()=>{selectArticle([id])});
+                marker.addTo(this.map)
+                    .on('click',()=>{selectArticle([id])})
+                    .on('dragend',this.getMarkerDragEndHandler(id))
+                    .on('mouseover',()=>{setHoveredArticle(id)})
+                    .on('mouseout',()=>{setHoveredArticle()});
+
+                const tooltip = marker.bindTooltip(ref.children[1].children[0].innerHTML);
+
+
+                    //.bindTooltip("my tooltip text").openTooltip()
+                ;
             }
 
         });
@@ -248,7 +256,8 @@ class HBMap extends React.Component {
         currentStyle.height = `${height}px`;
 
 
-        const {articles,displayedArticles,dispatch,getOneByIdSelector,nextNewIdSelector,newlyCreatedIdSelector} = this.props;
+        const {articles,displayedArticles,hoveredArticleId,setHoveredArticle,
+            dispatch,getOneByIdSelector,nextNewIdSelector,newlyCreatedIdSelector} = this.props;
 
         const arrayOfArticlesToDisplay = articles.filter((a) => {return !!a.geometry;});
         this.iconSvgRefs = new Map();

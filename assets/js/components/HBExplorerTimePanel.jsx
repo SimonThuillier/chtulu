@@ -95,6 +95,7 @@ export default class HBExplorerTimePanel extends React.Component {
     super(props);
 
     this.getTimeScale = this.getTimeScale.bind(this);
+    this.updateHInterval= this.updateHInterval.bind(this);
     this.runAnimationIfNeeded = this.runAnimationIfNeeded.bind(this);
     //this.animate = this.animate.bind(this);
     //this.collectGarbage = this.collectGarbage.bind(this);
@@ -106,7 +107,9 @@ export default class HBExplorerTimePanel extends React.Component {
 
     this.addBox = this.addBox.bind(this);
 
-      this.manageCollisions = debounce(this.manageCollisions.bind(this),15);
+    this.manageCollisions = debounce(this.manageCollisions.bind(this),15);
+
+    this.onDblClick = this.onDblClick.bind(this);
 
     this.articleRefs = new Map();
 
@@ -154,13 +157,17 @@ export default class HBExplorerTimePanel extends React.Component {
       articles: articleProxies
     });
 
-    // test sur l'intersectionObserver
+      console.log("new component, maybe because of theme changes");
+      //this.updateHInterval();
+      setTimeout(this.updateHInterval,30);
+
+    /*// test sur l'intersectionObserver
     this.observerOptions = {
       root: document.getElementById("#hg-map-container"),
       rootMargin: "0px",
       threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     };
-    //console.clear();
+    //console.clear();*/
   }
 
   getTimeScale(hInterval, bounds) {
@@ -238,7 +245,7 @@ export default class HBExplorerTimePanel extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     const oldBounds = prevProps.bounds;
     const oldHInterval = prevProps.hInterval;
-    const { hInterval, bounds, articles } = this.props;
+    const { hInterval, bounds, articles,theme } = this.props;
 
     // liste des articles
     let articleProxies = null;
@@ -247,7 +254,7 @@ export default class HBExplorerTimePanel extends React.Component {
       //console.log(articles);
       articleProxies = new Map();
         (articles || [])
-        .filter(article => true)
+        .filter(article => {return !!article.beginHDate;})
         .sort( (a, b) =>{return a.beginHDate.beginDate.getTime() >= b.beginHDate.beginDate.getTime();})
         .forEach(article => {
           articleProxies.set(+article.id, this.state.articles.has(+article.id)?
@@ -275,6 +282,13 @@ export default class HBExplorerTimePanel extends React.Component {
       this.animationData.timeScale = timeScale;
     } else {
       timeScale = this.state.timeScale;
+    }
+
+    // si le theme change on appelle manageCollisions
+    if(prevProps.theme !== theme){
+        console.log("theme changes");
+        this.updateHInterval();
+        //setTimeout(this.updateHInterval,30);
     }
   }
 
@@ -326,13 +340,11 @@ export default class HBExplorerTimePanel extends React.Component {
     e.stopPropagation();
     const position = { x: e.clientX, y: e.clientY };
     // positions are inverted due to our UX pattern
-    const delta = vectorDiff(position, this.state.initialMovePanelPosition);
 
     const { setHInterval } = this.props;
     const {
       initialMovePanelDate,
-      initialHInterval,
-      initialTimeScale
+      initialHInterval
     } = this.state;
 
     const dateDelta = this.state.initialTimeScale.invert(position.x);
@@ -340,43 +352,14 @@ export default class HBExplorerTimePanel extends React.Component {
 
     const yDelta = this.state.initialMovePanelPosition.y - position.y;
 
-    /*console.log(
-      `position : ${
-        position.x
-      } , dateDelta : ${dateDelta}, dayDelta : ${dayDelta}`
-    );*/
-
     const newHInterval = initialHInterval.clone().addDay(dayDelta);
     this.setState({ originY: this.state.initialOriginY + yDelta });
     setHInterval(newHInterval);
   }
 
   onPanelMoveEnd(e) {
-    //console.log("on panel move end");
     e.preventDefault();
     e.stopPropagation();
-
-    const initialPosition = { x: e.clientX, y: e.clientY };
-    const initialMovePanelDate = this.state.timeScale.invert(initialPosition.x);
-
-    const currentTime = new Date().getTime();
-    //console.log(currentTime - this.lastDiscreteEventTime);
-    /*if (currentTime < this.lastDiscreteEventTime + 200) {
-      console.log(
-        `panel top y : ${this.panelRef.getBoundingClientRect().bottom -
-          this.panelRef.getBoundingClientRect().height}`
-      );
-      this.props.addArticle(
-        initialMovePanelDate,
-        -(
-          this.panelRef.getBoundingClientRect().bottom -
-          this.panelRef.getBoundingClientRect().height
-        ) +
-          initialPosition.y +
-          this.state.originY
-      );
-      console.log("new articles !");
-    }*/
 
     if (this.state.isMovingPanel) {
       e.preventDefault();
@@ -397,8 +380,6 @@ export default class HBExplorerTimePanel extends React.Component {
       if(sameBoxAsBefore) return;
       //console.log(`addBox form article ${article.title},same as before : ${sameBoxAsBefore}`);
      //console.log(boxRef);
-     const nodeBox = boxRef.getBBox();
-     //console.log(nodeBox);
 
      this.boxRefs.set(+article.id,
          {
@@ -479,8 +460,6 @@ export default class HBExplorerTimePanel extends React.Component {
           }
       }
 
-
-
       if(actionCount>0){
         let articleProxies = new Map(this.state.articles);
         articleProxies.forEach((v,k) =>{
@@ -491,11 +470,22 @@ export default class HBExplorerTimePanel extends React.Component {
         this.setState({articles:articleProxies});
         setTimeout(this.manageCollisions,30);
       }
+  }
 
+  onDblClick(e){
+      const {addArticle,bounds} = this.props;
+      //console.log(bounds);
+      const position = { x: e.clientX, y: e.clientY };
+      const addDate = this.state.timeScale.invert(
+          position.x-bounds.x
+      );
+      addArticle(addDate);
+      e.preventDefault();
+      e.stopPropagation();
   }
 
   render() {
-    const {bounds,displayedArticles,selectArticle,hInterval,setHInterval,
+    const {bounds,displayedArticles,hoveredArticleId, setHoveredArticle,selectArticle,hInterval,setHInterval,
     cursorDate,cursorRate,isCursorActive,setCursorRate,toggleCursor} = this.props;
     const marginWidth = this.props.marginWidth || 0;
     const strokeSize = 1;
@@ -517,6 +507,8 @@ export default class HBExplorerTimePanel extends React.Component {
           key={`histo-article-${a.id}`}
           selected={articleIsOpen(displayedArticles,+a.id)}
           onPanelMoveEnd={this.onPanelMoveEnd} // to prevent some panel events when action on an article is performed
+          hovered={+hoveredArticleId===+a.id}
+          setHoveredArticle={setHoveredArticle}
           selectArticle={selectArticle}
           cursorDate = {cursorDate}
           article={a}
@@ -534,6 +526,7 @@ export default class HBExplorerTimePanel extends React.Component {
         viewBox={`0 0 ${bounds.width} ${bounds.height}`}
         preserveAspectRatio="none"
         onMouseDown={this.onPanelMoveBegin}
+        onDoubleClick={this.onDblClick}
         ref={node => {
           this.panelRef = node;
         }}

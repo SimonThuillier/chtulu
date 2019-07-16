@@ -1,12 +1,7 @@
-import styled, { ThemeProvider } from "styled-components";
+import styled from "styled-components";
 import React from "react";
-import ReactDOM from "react-dom";
 
 import { vectorDiff } from "../util/geometry";
-import withContainer from "./withContainer";
-import HDateInput from "./HDateInput";
-import HBFormField from "./HBFormField";
-import {change as formChange, touch as formTouch} from "redux-form/immutable";
 import AppContext from "../util/AppContext";
 
 const getThickness = isResizing => {
@@ -14,7 +9,7 @@ const getThickness = isResizing => {
 };
 
 const getOpacity = (isResizing, isHovered) => {
-    return isResizing ? 0.25 : isHovered ? 0.8 : 1;
+    return isResizing ? 0 : isHovered ? 0 : 0;
 };
 
 const getCursor = placementType => {
@@ -43,6 +38,8 @@ class ResizeBar extends React.Component {
         super(props);
 
         this.barRef = React.createRef();
+        this.toggleResize = this.toggleResize.bind(this);
+        this.onWindowResize = this.onWindowResize.bind(this);
         this.onDragBegin = this.onDragBegin.bind(this);
         this.onDrag = this.onDrag.bind(this);
         this.onDragEnd = this.onDragEnd.bind(this);
@@ -52,6 +49,26 @@ class ResizeBar extends React.Component {
         };
 
         this.beginMousePosition = null;
+    }
+
+    toggleResize(){
+        this.setState({isResizing:!this.state.isResizing});
+        console.log("toggle resize");
+    }
+
+    onWindowResize(){
+        this.toggleResize();
+        setTimeout(this.toggleResize,800);
+    }
+
+    componentDidMount(){
+        console.log("create resizebar");
+        window.addEventListener('resize', this.onWindowResize);
+        this.onWindowResize();
+    }
+
+    componentWillUnmount(){
+        window.removeEventListener('resize', this.onWindowResize);
     }
 
     onDragBegin(e) {
@@ -107,7 +124,7 @@ class ResizeBar extends React.Component {
 
 
         const { isResizing } = this.state;
-        const { placementType ,sidebarWidth} = this.props;
+        const { placementType} = this.props;
 
         // console.log(sidebarWidth);
 
@@ -124,7 +141,7 @@ class ResizeBar extends React.Component {
         } else if (placementType === "right") {
             style.width = `${getThickness(isResizing)}px`;
             style.top = style.top - yOffset;
-            console.log(style);
+            //console.log(style);
         }
 
         return (
