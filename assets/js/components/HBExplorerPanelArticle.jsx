@@ -10,40 +10,6 @@ const textStyle = {
     fill       : "#000000"
 };
 
-
-    function collide() {
-    node = this.node();
-    nodeBox = node.getBBox();
-    nodeLeft = nodeBox.x;
-    nodeRight = nodeBox.x + nodeBox.width;
-    nodeTop = nodeBox.y;
-    nodeBottom = nodeBox.y + nodeBox.height;
-
-    d3.selectAll("circle")
-        .attr("fill", function() {
-            if (this !== node) {
-                otherBox = this.getBBox();
-
-                otherLeft = otherBox.x;
-                otherRight = otherBox.x + otherBox.width;
-                otherTop = otherBox.y;
-                otherBottom = otherBox.y + otherBox.height;
-
-                collideHoriz = nodeLeft < otherRight && nodeRight > otherLeft;
-                collideVert = nodeTop < otherBottom && nodeBottom > otherTop;
-
-                if ( collideHoriz && collideVert) {
-                    return "tomato";
-                } else {
-                    return "none"
-                }
-
-            } else {
-                return "none";
-            }
-        });
-}
-
 /**
  * molecule level component defining display of one article in the panel
  */
@@ -52,6 +18,10 @@ class HBExplorerPanelArticle extends React.Component {
         super(props);
 
         this.handleOnClick = this.handleOnClick.bind(this);
+    }
+
+    componentWillUnmount(){
+        console.log("HBExplorerPanelArticle will unmount");
     }
 
     handleOnClick (e){
@@ -167,4 +137,5 @@ class HBExplorerPanelArticle extends React.Component {
     }
 }
 
-export default React.forwardRef((props, ref) => (<HBExplorerPanelArticle ref={ref} {...props} />));
+export default HBExplorerPanelArticle;
+//export default React.forwardRef((props, ref) => (<HBExplorerPanelArticle ref={ref} {...props} />));

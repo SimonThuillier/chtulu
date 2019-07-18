@@ -3,6 +3,9 @@ import SearchBagUtil from "../util/SearchBagUtil";
 import WAOs from "../util/WAOs";
 const Imm = require("immutable");
 
+const getItems = (state) => state.get("items");
+
+
 export const getNotificationsSelector = createSelector(
     [(state) => state.get("notifications")],
     (notifications) => (senderKey) => notifications.get(senderKey)
@@ -36,6 +39,22 @@ export const getBabiesSelector = createSelector(
     }
 );
 
+const getList = (state) => state.getIn(['main', 'goods']);
+const getSorted = (state) => state.getIn(['main', 'sorted']);
+export const getGoods = createSelector(
+    getList,
+    getSorted,
+    (list, sorted) => {
+        return sorted ? list.sort((a, b) => {
+            const aPrice = a.get('price');
+            const bPrice = b.get('price');
+            if (aPrice < bPrice) { return -1; }
+            if (aPrice > bPrice) { return 1; }
+            if (aPrice === bPrice) { return 0; }
+        }) : list;
+    }
+)
+
 export const getNewlyCreatedIdSelector = createSelector(
     [(state) => state.get("createdItemIds")],
     (createdItemIds) => (id) => {
@@ -46,8 +65,11 @@ export const getNewlyCreatedIdSelector = createSelector(
 );
 
 export const getOneByIdSelector = createSelector(
-    [(state) => state.get("items")],
-    (items) => (id) => items.get(+id)
+    getItems,
+    (items) => (id) => {
+        if(!items.has(+id)) return null;
+        items.get(+id);
+    }
 );
 export const getByIdsSelector = createSelector(
     [(state) => state.get("items")],

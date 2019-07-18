@@ -52,6 +52,8 @@ class HBExplorerProxy extends React.Component {
         this.toggleActiveComponent = this.toggleActiveComponent.bind(this);
         this.addArticle = this.addArticle.bind(this);
 
+        this.getArticles=this.getArticles.bind(this);
+
         this.state = {
             searchBag:props.searchBag || defaultSearchBag,
             hInterval: props.hInterval || defaultHInterval,
@@ -61,6 +63,11 @@ class HBExplorerProxy extends React.Component {
             hoveredArticleId:null,
             displayedArticles:new Map()
         };
+
+
+        this.displayedArticlesToRestore = null;
+        // to memoize articles
+        this.articles=null;
     }
 
     componentDidMount(){
@@ -76,11 +83,20 @@ class HBExplorerProxy extends React.Component {
 
     componentDidUpdate(prevProps) {
         //console.log("update HBExplorerProxy");
-        const {mainArticleId=null,selector,getOneBydIdSelector,dispatch} = this.props;
+        const {mainArticleId=null,selector,getOneBydIdSelector,babiesSelector,dispatch} = this.props;
+
+        console.log(babiesSelector !== prevProps.babiesSelector);
+        console.log(selector !== prevProps.selector);
+        console.log(getOneBydIdSelector !== prevProps.getOneByIdSelector);
+
+        if(babiesSelector !== prevProps.babiesSelector){
+            this.articles = null;
+        }
 
         // mainArticle mode
         if(mainArticleId !== null){
-            if(mainArticleId !== prevProps.mainArticleId || getOneBydIdSelector !== prevProps.getOneBydIdSelector){
+            if(mainArticleId !== prevProps.mainArticleId || getOneBydIdSelector !== prevProps.getOneByIdSelector){
+                this.articles = null;
                 loadMainArticle(mainArticleId,dispatch);
             }
         }
@@ -90,15 +106,112 @@ class HBExplorerProxy extends React.Component {
             if(this.props.searchBag !== prevProps.searchBag){
                 searchBag = this.props.searchBag || defaultSearchBag;
                 loadSearchBag(searchBag,dispatch);
+                this.articles = null;
                 this.setState({searchBag:searchBag});
             }
             else if(prevProps.selector !== selector && selector(searchBag).length<1){
+                this.articles = null;
                 loadSearchBag(searchBag,dispatch);
             }
             else if(!this.state.hasSelfUpdatedHInterval && prevProps.selector !== selector && selector(searchBag).length>1){
                 this.setHInterval(getHIntervalFromArticles(selector(searchBag)));
             }
         }
+        this.ensureDisplayedArticlesCoherence();
+    }
+
+    getArticles(){
+        if(!!this.articles) return this.articles;
+        console.log("reassemble articles");
+
+        const {searchBag} = this.state;
+        const {mainArticleId=null,selector,getOneByIdSelector,babiesSelector} = this.props;
+
+        let articles = [];
+
+        // mainArticle mode
+        if(mainArticleId !== null) {
+            articles = babiesSelector().concat([getOneByIdSelector(+mainArticleId)]).
+            filter((a)=>{return typeof a !== 'undefined' && a !== null;});
+        }
+        // default mode
+        else{
+            articles = babiesSelector().concat(selector(searchBag));
+        }
+
+        return articles;
+    }
+
+    /**
+     * check if displayedArticles is okay with articles
+     * the main goal is to handle add & delete operations
+     */
+    isDisplayedArticlesValid(displayedArticles,articles){
+        const {nextNewIdSelector} = this.props;
+        const newArticleId = nextNewIdSelector();
+
+        for (let [id,article] of displayedArticles) {
+            /*console.log(id);
+            console.log(articles.find((a)=>{return +a.id===+id;}));*/
+            if(+id<0 && +id === +newArticleId){
+                // new article ok
+            }
+            else if(typeof articles.find((a)=>{return +a.id===+id;}) === 'undefined'){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * ensure that displayedArticles is okay with articles and update it if necessary
+     * the main goal is to handle add & delete operations
+     */
+    ensureDisplayedArticlesCoherence(){
+        const {displayedArticles} = this.state;
+        const articles = this.getArticles();
+
+        /*console.log(articles.length);
+        console.log(!!this.displayedArticlesToRestore);
+        console.log(displayedArticles.size);*/
+
+        if(articles.length === 0){
+            if(!this.displayedArticlesToRestore){
+                console.log("saveDisplayedArticles");
+                this.displayedArticlesToRestore = displayedArticles; // after reloading following server submission
+            }
+        }
+        else if(!!this.displayedArticlesToRestore && displayedArticles.size === 0){
+            console.log("restoreDisplayedArticles");
+            this.setState({displayedArticles:this.displayedArticlesToRestore});
+            this.displayedArticlesToRestore = null;
+            return;
+        }
+
+        /*console.log("ensureDisplayedArticlesCoherence");
+        console.log(articles);
+        console.log(displayedArticles);*/
+
+        if (this.isDisplayedArticlesValid(displayedArticles,articles)) return;
+
+        console.log("I have to update displayedArticles");
+        const {newlyCreatedIdSelector} = this.props;
+        let newDisplayedArticles = new Map();
+
+        displayedArticles.forEach((article,id)=>{
+            if(typeof articles.find((a)=>{return +a.id===+id;}) !== 'undefined'){
+                newDisplayedArticles.set(+id,displayedArticles.get(id));
+            }
+            // newly submitted => change the id
+            else if(!! newlyCreatedIdSelector(+id)){
+                newDisplayedArticles.set(+newlyCreatedIdSelector(+id),displayedArticles.get(id));
+            }
+            // else the article must have been deleted so farewell !
+        });
+
+        /*console.log("update displayedArticles");
+        console.log(newDisplayedArticles);*/
+        this.setState({displayedArticles:newDisplayedArticles});
     }
 
     setHInterval(hInterval) {
@@ -119,6 +232,7 @@ class HBExplorerProxy extends React.Component {
     }
 
     selectArticle(ids,activeComponent='detail') {
+        console.log(ids);
         if(ids===null) ids=[];
         const {displayedArticles} = this.state;
         let newDisplayedArticles = new Map(displayedArticles);
@@ -162,8 +276,8 @@ class HBExplorerProxy extends React.Component {
     }
 
     addArticle(date){
-        console.log('vous voulez un nouvel article ?');
-        console.log(date);
+        //console.log('vous voulez un nouvel article ?');
+        //console.log(date);
         const {nextNewIdSelector} = this.props;
 
         this.selectArticle([nextNewIdSelector()],'form');
@@ -174,24 +288,19 @@ class HBExplorerProxy extends React.Component {
 
         const cursorDate = (hInterval!==null && cursorRate!==null)?hInterval.getBarycenterDate(cursorRate):null;
 
-        const {mainArticleId=null,selector,getOneByIdSelector,babiesSelector,
-            totalSelector,notificationsSelector,dispatch} = this.props;
+        const {mainArticleId=null, totalSelector,notificationsSelector,dispatch} = this.props;
 
-        const babies = babiesSelector();
         const notifications = notificationsSelector(componentUid);
 
-        let articles = [];
+        let articles = this.getArticles();
         let loading = false;
 
         // mainArticle mode
         if(mainArticleId !== null) {
-            articles = babies.concat([getOneByIdSelector(+mainArticleId)]).
-            filter((a)=>{return typeof a !== 'undefined' && a !== null;});
             loading = (notifications && notifications.hasIn([mainArticleId || 'DEFAULT',LOADING]))||false;
         }
         // default mode
         else{
-            articles = babies.concat(selector(searchBag));
             const coreBagKey = JSON.stringify(SearchBagUtil.getCoreBag(searchBag));
             loading = (notifications && notifications.hasIn([coreBagKey || 'DEFAULT',LOADING]))||false;
         }
@@ -199,6 +308,8 @@ class HBExplorerProxy extends React.Component {
         const invisibles = getInvisibles(articles,hInterval);
 
         //let total = totalSelector(this.state.searchBag);
+
+        console.log(displayedArticles);
 
         return (
             <Loadable
@@ -234,6 +345,7 @@ class HBExplorerProxy extends React.Component {
 }
 
 const mapStateToProps = state => {
+
     return {
         getOneByIdSelector: getOneByIdSelector(state.get("article")),
         selector: getSelector(state.get("article")),

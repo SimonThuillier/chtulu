@@ -220,6 +220,9 @@ export default class HBExplorerTimePanel extends React.Component {
     const currentTime = new Date().getTime();
     const nextTime = currentTime + animationPeriod;
 
+    // delete articles that don't exist anymore
+
+
     // move articles
     articles.forEach((article, id) => {
       if (typeof this.articleRefs.get(id) !== "undefined") {
@@ -250,8 +253,18 @@ export default class HBExplorerTimePanel extends React.Component {
     // liste des articles
     let articleProxies = null;
     if (articles !== prevProps.articles) {
-      //console.log("diff article dans le panel");
-      //console.log(articles);
+      console.log("diff article dans le panel");
+      console.log(articles);
+      // 1 remove unnecessary references to allow deleted box suppression
+      for(let [id,ref] of this.boxRefs){
+          /*console.log(id);
+          console.log(ref);
+          console.log(typeof articles.find((a)=>{return +a.id===+id;}) === 'undefined');*/
+          if(typeof articles.find((a)=>{return +a.id===+id;}) === 'undefined'){
+              this.boxRefs.delete(id);
+          }
+      }
+
       articleProxies = new Map();
         (articles || [])
         .filter(article => {return !!article.beginHDate;})
@@ -261,7 +274,8 @@ export default class HBExplorerTimePanel extends React.Component {
               this.state.articles.get(+article.id).setArticle(article):new HistoProxy(article));
         });
       this.setState({ articles: articleProxies });
-      //console.log(articleProxies);
+      console.log(articleProxies);
+      console.log(this.boxRefs);
     } else {
       articleProxies = this.state.articles;
     }
@@ -493,6 +507,8 @@ export default class HBExplorerTimePanel extends React.Component {
 
     const width = bounds.width;
     const height = bounds.height;
+
+    //console.log(articles);
 
 
     const arrayOfArticlesToDisplay = Array.from(articles).filter(

@@ -463,7 +463,7 @@ class ArticleForm extends React.Component{
     }
 
     componentWillUnmount(){
-        this.submit(this.props.id);
+        if(this.props.valid) this.submit(this.props.id);
     }
 
     handleServerSubmit(){
@@ -475,7 +475,7 @@ class ArticleForm extends React.Component{
     }
 
     handleSwitch(){
-        this.submit();
+        if(this.props.valid) this.submit();
         this.props.handleSwitch('detail');
     }
 

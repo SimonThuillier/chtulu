@@ -267,7 +267,7 @@ const concreteWaoType = (waoType) => {
                 console.log(+action.id);
                 console.log(state.getIn(["newItem"]));
                 const oldItem = state.getIn(["items",+action.id]);
-                const oldInitialValues = oldItem.get("initialValues") || Imm.Map();
+                const oldInitialValues = (oldItem && oldItem.get("initialValues")) || Imm.Map();
                 let newInitialValues = Imm.Map();
 
                 action.data.entrySeq().forEach((value,key)=>{

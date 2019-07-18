@@ -172,10 +172,10 @@ constructor(props) {
         frameSizes: new Map()
             .set("container.width", `400px`)
             .set("container.height", `400px`)
-            .set("middle.height", `80%`)
-            .set("bottom.height", `20%`)
-            .set("left.width", `70%`)
-            .set("right.width", `30%`),
+            .set("middle.height", `60%`)
+            .set("bottom.height", `40%`)
+            .set("left.width", `60%`)
+            .set("right.width", `40%`),
         currentTheme: VERTICAL
     };
     console.log("build");
