@@ -345,13 +345,14 @@ class ArticleForm extends React.Component{
         this.setState({data:data});
         //console.log("initialData");
         //console.log(data);
-        if(!data) return null;
+        if(!data || typeof data==='undefined') return null;
+        console.log(data);
         //console.log(data.has("initialValues"));
         initialize(data.set("pendingModification",true));
         if(data.get("initialValues")){
             dispatch(formTouch(componentUid, ...data.get("initialValues").keySeq().toJS()));
         }
-        if(data.get("hasErrors")(data)){
+        if(typeof data.get("hasErrors")==='function' && data.get("hasErrors")(data)){
             dispatch(stopSubmit(componentUid,data.get("errors")));
         }
 

@@ -8,10 +8,10 @@ import cmn from "../util/common";
 import HBExplorer from "./HBExplorer";
 import SearchBag from "../util/SearchBag";
 import {
-    getBabiesSelector, getNewlyCreatedIdSelector,
+    makeGetBabiesSelector, getNewlyCreatedIdSelector,
     getNextNewIdSelector, getNotificationsSelector,
-    getSelector, totalSelector2,
-    getOneByIdSelector
+    totalSelector2,
+    makeGetOneByIdSelector, makeGetSelector,makeGetPlusBabiesSelector
 } from "../selectors";
 import {getIfNeeded,getOneByIdIfNeeded} from "../actions";
 import {COLORS, LOADING} from "../util/notifications";
@@ -61,13 +61,12 @@ class HBExplorerProxy extends React.Component {
             cursorRate:0.35,
             isCursorActive:false,
             hoveredArticleId:null,
-            displayedArticles:new Map()
+            displayedArticles:new Map(),
+            createdArticlesId:[]
         };
 
 
         this.displayedArticlesToRestore = null;
-        // to memoize articles
-        this.articles=null;
     }
 
     componentDidMount(){
@@ -83,20 +82,17 @@ class HBExplorerProxy extends React.Component {
 
     componentDidUpdate(prevProps) {
         //console.log("update HBExplorerProxy");
-        const {mainArticleId=null,selector,getOneBydIdSelector,babiesSelector,dispatch} = this.props;
+        const {mainArticleId=null,selector,getPlusBabiesSelector,getOneByIdSelector,babiesSelector,dispatch} = this.props;
+        const {createdArticlesId} = this.state;
 
-        console.log(babiesSelector !== prevProps.babiesSelector);
-        console.log(selector !== prevProps.selector);
-        console.log(getOneBydIdSelector !== prevProps.getOneByIdSelector);
-
-        if(babiesSelector !== prevProps.babiesSelector){
-            this.articles = null;
-        }
+        /*console.log(babiesSelector === prevProps.babiesSelector);
+        console.log(selector === prevProps.selector);
+        console.log(getOneByIdSelector === prevProps.getOneByIdSelector);
+        console.log(getPlusBabiesSelector === prevProps.getPlusBabiesSelector);*/
 
         // mainArticle mode
         if(mainArticleId !== null){
-            if(mainArticleId !== prevProps.mainArticleId || getOneBydIdSelector !== prevProps.getOneByIdSelector){
-                this.articles = null;
+            if(mainArticleId !== prevProps.mainArticleId || selector !== prevProps.selector){
                 loadMainArticle(mainArticleId,dispatch);
             }
         }
@@ -106,26 +102,25 @@ class HBExplorerProxy extends React.Component {
             if(this.props.searchBag !== prevProps.searchBag){
                 searchBag = this.props.searchBag || defaultSearchBag;
                 loadSearchBag(searchBag,dispatch);
-                this.articles = null;
                 this.setState({searchBag:searchBag});
             }
-            else if(prevProps.selector !== selector && selector(searchBag).length<1){
-                this.articles = null;
+            /*else if(prevProps.getPlusBabiesSelector !== getPlusBabiesSelector && getPlusBabiesSelector(searchBag).length<1){
                 loadSearchBag(searchBag,dispatch);
-            }
-            else if(!this.state.hasSelfUpdatedHInterval && prevProps.selector !== selector && selector(searchBag).length>1){
-                this.setHInterval(getHIntervalFromArticles(selector(searchBag)));
+            }*/
+            else if(!this.state.hasSelfUpdatedHInterval &&
+                prevProps.getPlusBabiesSelector !== getPlusBabiesSelector && getPlusBabiesSelector(searchBag,createdArticlesId).length>1){
+                console.log("different selector => update HInterval");
+                this.setHInterval(getHIntervalFromArticles(getPlusBabiesSelector(searchBag,createdArticlesId)));
             }
         }
         this.ensureDisplayedArticlesCoherence();
     }
 
     getArticles(){
-        if(!!this.articles) return this.articles;
-        console.log("reassemble articles");
+        //console.log("reassemble articles");
 
-        const {searchBag} = this.state;
-        const {mainArticleId=null,selector,getOneByIdSelector,babiesSelector} = this.props;
+        const {searchBag,createdArticlesId} = this.state;
+        const {mainArticleId=null,selector,getPlusBabiesSelector,getOneByIdSelector,babiesSelector} = this.props;
 
         let articles = [];
 
@@ -136,7 +131,8 @@ class HBExplorerProxy extends React.Component {
         }
         // default mode
         else{
-            articles = babiesSelector().concat(selector(searchBag));
+            articles = getPlusBabiesSelector(searchBag,createdArticlesId);
+            //console.log(articles);
         }
 
         return articles;
@@ -197,6 +193,7 @@ class HBExplorerProxy extends React.Component {
         console.log("I have to update displayedArticles");
         const {newlyCreatedIdSelector} = this.props;
         let newDisplayedArticles = new Map();
+        let newlyCreatedArticles = this.state.createdArticlesId.slice();
 
         displayedArticles.forEach((article,id)=>{
             if(typeof articles.find((a)=>{return +a.id===+id;}) !== 'undefined'){
@@ -205,13 +202,19 @@ class HBExplorerProxy extends React.Component {
             // newly submitted => change the id
             else if(!! newlyCreatedIdSelector(+id)){
                 newDisplayedArticles.set(+newlyCreatedIdSelector(+id),displayedArticles.get(id));
+                newlyCreatedArticles.push(+newlyCreatedIdSelector(+id));
             }
             // else the article must have been deleted so farewell !
         });
 
-        /*console.log("update displayedArticles");
-        console.log(newDisplayedArticles);*/
-        this.setState({displayedArticles:newDisplayedArticles});
+        let update = {displayedArticles:newDisplayedArticles};
+        if(newlyCreatedArticles.length !== this.state.createdArticlesId.length){
+            update.createdArticlesId = newlyCreatedArticles;
+        }
+
+        console.log("update displayedArticles");
+        console.log(newDisplayedArticles);
+        this.setState(update);
     }
 
     setHInterval(hInterval) {
@@ -309,7 +312,7 @@ class HBExplorerProxy extends React.Component {
 
         //let total = totalSelector(this.state.searchBag);
 
-        console.log(displayedArticles);
+        //console.log(displayedArticles);
 
         return (
             <Loadable
@@ -344,7 +347,29 @@ class HBExplorerProxy extends React.Component {
     }
 }
 
-const mapStateToProps = state => {
+
+const makeMapStateToProps = () => {
+    const getOneByIdSelector = makeGetOneByIdSelector();
+    const getSelector = makeGetSelector();
+    const getPlusBabiesSelector = makeGetPlusBabiesSelector();
+    const getBabiesSelector = makeGetBabiesSelector();
+
+    return state => {
+        const dataSubState = state.get("article");
+        return {
+            getOneByIdSelector: getOneByIdSelector(dataSubState),
+            selector: getSelector(dataSubState),
+            getPlusBabiesSelector : getPlusBabiesSelector(dataSubState),
+            babiesSelector:getBabiesSelector(dataSubState),
+            nextNewIdSelector: getNextNewIdSelector(dataSubState),
+            totalSelector:totalSelector2(dataSubState),
+            newlyCreatedIdSelector:getNewlyCreatedIdSelector(dataSubState),
+            notificationsSelector : getNotificationsSelector(state.get("app"))
+        }
+    }
+};
+
+/*const mapStateToProps = state => {
 
     return {
         getOneByIdSelector: getOneByIdSelector(state.get("article")),
@@ -355,6 +380,6 @@ const mapStateToProps = state => {
         newlyCreatedIdSelector:getNewlyCreatedIdSelector(state.get("article")),
         notificationsSelector : getNotificationsSelector(state.get("app"))
     }
-};
+};*/
 
-export default connect(mapStateToProps)(HBExplorerProxy);
+export default connect(makeMapStateToProps)(HBExplorerProxy);

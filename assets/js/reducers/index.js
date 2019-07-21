@@ -178,7 +178,6 @@ const mergeRecords = function(iRec,nRec,waoType){
     return mRec;
 };
 
-
 /**
  * object representing a given cache entry
  * total is the coreBag total number of items returned by the server, eg in the database and available for you
@@ -193,9 +192,27 @@ const SearchCacheEntry = function(coreBagKey,total){
     set("coreBagKey",coreBagKey).
     set("total",total).
     set("indexMap",Imm.Map()).
-    set("receivedAt",Date.now());
+    set("receivedAt",Date.now()).
+    set("invalidatedAt",null);
 
     return newEntry;
+};
+
+/**
+ * function called when new objects have been added/deleted on one waoType to force reloading from the server
+ * when new queries are executed
+ * @param state
+ */
+const invalidateAllCacheEntries = function(state){
+    const cacheEntries = state.get("searchCache");
+
+    cacheEntries.entrySeq().forEach(entry => {
+            console.log(entry[0]);
+            console.log(entry[1]);
+        state = state.setIn(["searchCache",entry[0],"invalidatedAt"],Date.now());
+        }
+    );
+    return state;
 };
 
 const updateOnRecordReception = function(state,rec){
@@ -203,24 +220,27 @@ const updateOnRecordReception = function(state,rec){
     rec = rec.get("receiveRecord")(rec);
     let oldId = (+rec.get("oldId"))<0?+rec.get("oldId"):+rec.get("id");
     // case new item submitted : its definitive id has been attributed by the server
+    let mustInvalidateCache = false;
     if(rec.get("toDelete")===true){
-        state = state.
-        removeIn(["items",+rec.get("id")]).
-        set("searchCache",Imm.Map());
+        state = state.removeIn(["items",+rec.get("id")]);
+        mustInvalidateCache = true;
     }
-    else if((+rec.get("id")) !== oldId)
+    else if((+rec.get("id")) !== oldId){
         state = state.
         setIn(["items",+rec.get("id")],
             mergeRecords(state.getIn(["items",+oldId]),rec.set("oldId",0).remove("initialValues"),waoType)).
         removeIn(["items",oldId]).
         removeIn(["babyItemIds",oldId]).
-        setIn(["createdItemIds",oldId],+rec.get("id")).
-        set("searchCache",Imm.Map());
+        setIn(["createdItemIds",oldId],+rec.get("id"));
+        mustInvalidateCache = true;
+    }
     else if(state.hasIn(["items",+rec.get("id")]))
         state = state.setIn(["items",+rec.get("id")],
             mergeRecords(state.getIn(["items",+rec.get("id")]),rec,waoType));
     else
         state = state.setIn(["items",+rec.get("id")],rec);
+
+    if(mustInvalidateCache) state = invalidateAllCacheEntries(state);
 
     return state;
 };
@@ -259,23 +279,25 @@ const concreteWaoType = (waoType) => {
         switch (action.type) {
             case SUBMIT_LOCALLY:
                 //if(action.id === null || !state.hasIn(["items",+action.id])) return state;
-                /*console.log("submit locally");
-                console.log(action);*/
+                console.log("submit locally");
+                console.log(action);
                 // STH 20190706 SUBMIT_LOCALLY is modified to create new element if it doesn't already exist, and update it
                 if(action.id === null) return state;
                 if(!state.hasIn(["items",+action.id]) && +action.id<0){state = createNew(state,idGenerator);}
                 console.log(+action.id);
                 console.log(state.getIn(["newItem"]));
-                const oldItem = state.getIn(["items",+action.id]);
+                const oldItem = state.getIn(["items",+action.id]) || Imm.Map();
                 const oldInitialValues = (oldItem && oldItem.get("initialValues")) || Imm.Map();
                 let newInitialValues = Imm.Map();
 
-                action.data.entrySeq().forEach((value,key)=>{
-                    /*console.log(key);
-                    console.log(value);*/
-                    if(value[1]!==oldItem.get(value[0]))
-                        newInitialValues = newInitialValues.set(value[0],oldItem.get(value[0]));
-                });
+                if(!!oldItem && typeof oldItem !== 'undefined'){
+                    action.data.entrySeq().forEach((value,key)=>{
+                        /*console.log(key);
+                        console.log(value);*/
+                        if(value[1]!==oldItem.get(value[0]))
+                            newInitialValues = newInitialValues.set(value[0],oldItem.get(value[0]));
+                    });
+                }
                 newInitialValues = oldInitialValues.mergeDeepWith((oldVal,newVal) => newVal, newInitialValues);
                 //console.log(newInitialValues);
                 console.log("oldRecord");

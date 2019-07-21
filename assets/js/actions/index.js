@@ -495,7 +495,7 @@ const shouldFetchGet = (state, waoType,groups,searchBag,senderKey=null) => {
     const searchCacheEntry = state.getIn([waoType,"searchCache",
         JSON.stringify(SearchBagUtil.getCoreBag(searchBag))]);
     //console.log(`shouldFetchGet 0 `);
-    if(!searchCacheEntry) return true;
+    if(!searchCacheEntry || searchCacheEntry.get('invalidatedAt') !== null) return true;
     //console.log(`shouldFetchGet 1 `);
     let indexMap = searchCacheEntry.get("indexMap");
     indexMap = (searchBag.order===SearchBagUtil.ASC)?indexMap:
