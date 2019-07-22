@@ -7,16 +7,8 @@ import {FormGroup,
     Col
 } from 'react-bootstrap';
 import {Checkbox} from 'react-icheck/lib';
+import {defaultInputStyles} from "../util/cssUtil";
 
-const defaultStyles = {
-    horizontal:{
-        paddingBottom: 15,
-        paddingTop: 15,
-    },
-    vertical:{
-        paddingTop: 20,
-    }
-};
 
 const SubLabel = ({}) => {
     return (
@@ -83,7 +75,7 @@ const HBFormFieldContext = React.createContext({});
 const HBFormField = (props) => {
     const { input, label,placeholder, type, meta: {touched,error,warning},onChange,options } = props;
     const alignment = props.alignment || 'horizontal';
-    const style = Object.assign(defaultStyles[alignment],props.style || {});
+    const style = Object.assign({...defaultInputStyles[alignment]},props.style || {});
 
     const extraProps = {};
     //console.log("render field");
@@ -108,12 +100,12 @@ const HBFormField = (props) => {
         >
             <HBFormFieldContext.Provider value={contextValue}>
                 {(alignment === 'vertical')?
-                    <div>
+                    <div style={style}>
                         <SubLabel/>
                         <SubInput/>
                         <SubHelpBlock/>
                     </div> :
-                    <div>
+                    <div style={style}>
                         <Col xs={4} sm={3} md={2}>
                             <SubLabel/>
                         </Col>

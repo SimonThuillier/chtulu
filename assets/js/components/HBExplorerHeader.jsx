@@ -1,7 +1,18 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import ArticleFilter from '../components/ArticleFilter';
+
 
 import { AVAILABLE_THEMES } from "../util/explorerUtil";
+import styled from "styled-components";
+
+const Header = styled.div`
+  display:flex;
+  flex-direction:row;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+`;
+
 
 const Option = ({ onChange, value, currentValue }) => {
     let label = "";
@@ -44,29 +55,34 @@ const Option = ({ onChange, value, currentValue }) => {
 };
 
 export default props => {
-    const { onChange, theme } = props;
+    const { onChange, theme,onFilter } = props;
 
     return (
-        <div
-            style={{ padding: `0px` }}
-            className="btn-group btn-toggle"
-            data-toggle="buttons"
-        >
-            <Option
-                onChange={onChange}
-                currentValue={theme}
-                value={AVAILABLE_THEMES.EDITOR}
-            />
-            <Option
-                onChange={onChange}
-                currentValue={theme}
-                value={AVAILABLE_THEMES.SIDEVIEW}
-            />
-            <Option
-                onChange={onChange}
-                currentValue={theme}
-                value={AVAILABLE_THEMES.VERTICAL}
-            />
-        </div>
+        <Header>
+            <div
+                style={{ padding: `0px` }}
+                className="btn-group btn-toggle"
+                data-toggle="buttons"
+            >
+                <Option
+                    onChange={onChange}
+                    currentValue={theme}
+                    value={AVAILABLE_THEMES.EDITOR}
+                />
+                <Option
+                    onChange={onChange}
+                    currentValue={theme}
+                    value={AVAILABLE_THEMES.SIDEVIEW}
+                />
+                <Option
+                    onChange={onChange}
+                    currentValue={theme}
+                    value={AVAILABLE_THEMES.VERTICAL}
+                />
+            </div>
+            <div>
+                <ArticleFilter fields={['keyword']} onSubmit={onFilter} mini={true}/>
+            </div>
+        </Header>
     );
 };

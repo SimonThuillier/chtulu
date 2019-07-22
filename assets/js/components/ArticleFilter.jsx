@@ -10,7 +10,9 @@ import {FormGroup,
     Col,
     Form,
     Glyphicon,
-    OverlayTrigger
+    OverlayTrigger,
+    DropdownButton,
+    MenuItem
 } from 'react-bootstrap';
 import { Field, reduxForm} from 'redux-form/immutable';
 const Imm = require("immutable");
@@ -45,6 +47,52 @@ const warn = values => {
     return warnings;
 };
 
+const FormWrapper = ({mini,children}) =>{
+    if(mini) {
+        return (<Form style={{display:'flex',flexDirection:'row',margin:'0px'}}>
+            {children}
+        </Form>);
+    }
+    else{
+        return(<Form>
+                <Row className="show-grid">
+                    {children}
+                </Row>
+            </Form>
+        );
+    }
+};
+
+const FieldWrapper = ({mini,children,style}) =>{
+    if(mini){
+        return <div style={style}>{children}</div>
+    }
+    else{
+        return(<Col md={3} style={style}>
+            {children}
+        </Col>);
+    }
+};
+
+const NumberSelector = ({style}) => {
+    return (<DropdownButton
+            bsStyle={'Default'}
+            title={'10'}
+            key={1}
+            id={`dropdown-basic-1`}
+            style={style}
+        >
+            <MenuItem eventKey="10">10</MenuItem>
+            <MenuItem eventKey="20">20</MenuItem>
+            <MenuItem eventKey="35" active>35</MenuItem>
+            <MenuItem eventKey="50" >50</MenuItem>
+            <MenuItem eventKey="75" >75</MenuItem>
+            <MenuItem eventKey="100" >100</MenuItem>
+        </DropdownButton>
+
+    );
+};
+
 class ArticleFilter extends React.Component{
     constructor(props) {
         super(props);
@@ -71,76 +119,96 @@ class ArticleFilter extends React.Component{
         console.log("render called");
         const { onSubmit, pristine, reset, submitting,load,valid } = this.props;
 
+        let mini = false;
+        if(!this.props.mini || typeof this.props.mini==='undefined') mini=false;
+        else mini=true;
+
+        const fieldStyle = mini?{marginRight:'5px',padding:'0px',height:'100%'}:{};
+
         return (
-            <Form>
-                <Row className="show-grid">
-                    {this.state.fields.includes("keyword") &&
-                    <Col md={3}>
-                        <Field
-                            name="keyword"
-                            type="text"
-                            component={HBFormField}
-                            label=""
-                            placeholder="Rechercher"
-                        />
-                    </Col>}
-                    {this.state.fields.includes("type") &&
-                    <Col md={3}>
-                        <Field
-                            name="type"
-                            type="select"
-                            component={ArticleTypeSelect}
-                            required={false}
-                            label="Type"
-                        />
-                    </Col>}
-                    {this.state.fields.includes("beginHDate") &&
-                    <Col md={3}>
-                        <Field
-                            name="beginHDate"
-                            type="text"
-                            component={HDateInput}
-                            label="Début"
-                        />
-                    </Col>}
-                    {this.state.fields.includes("endHDate") &&
-                    <Col md={3}>
-                        <Field
-                            name="endHDate"
-                            type="text"
-                            component={HDateInput}
-                            label="Fin"
-                        />
-                    </Col>}
-                        <Col md={3} style={{
-                            paddingBottom: 15,
-                            paddingTop: 15,
-                        }}>
-                            <Button bsStyle="primary"
-                                    disabled={false}
-                                    onClick={()=>{
-                                        const lastFilter = this.getCurrentFilter();
-                                        this.setState({lastFilterKey:JSON.stringify(lastFilter)});
-                                        onSubmit(lastFilter);
-                                    }}
-                                    >
-                                Filtrer&nbsp;<Glyphicon glyph="filter"/>
-                            </Button>
-                            &nbsp;
-                            <Button bsStyle="warning"
-                                    disabled={false}
-                                    onClick={()=>{
-                                        if(this.state.lastFilterKey !== "{}"){
-                                            onSubmit({});
-                                            this.setState({lastFilterKey:"{}"});
-                                        }
-                                        reset();
-                                    }}>
-                                Effacer&nbsp;<Glyphicon glyph="erase"/>
-                            </Button>
-                        </Col>
-                </Row>
-            </Form>
+            <FormWrapper mini={mini}>
+                {this.state.fields.includes("keyword") &&
+                <FieldWrapper mini={mini}>
+                    <Field
+                        name="keyword"
+                        type="text"
+                        component={HBFormField}
+                        label=""
+                        placeholder="Rechercher"
+                        style={fieldStyle}
+                    />
+                </FieldWrapper>
+                }
+                {this.state.fields.includes("type") &&
+                <FieldWrapper mini={mini}>
+                    <Field
+                        name="type"
+                        type="select"
+                        component={ArticleTypeSelect}
+                        required={false}
+                        label="Type"
+                        style={fieldStyle}
+                    />
+                </FieldWrapper>
+                }
+                {this.state.fields.includes("beginHDate") &&
+                <FieldWrapper mini={mini}>
+                    <Field
+                        name="beginHDate"
+                        type="text"
+                        component={HDateInput}
+                        label="Début"
+                        style={fieldStyle}
+                    />
+                </FieldWrapper>
+                }
+                {this.state.fields.includes("endHDate") &&
+                <FieldWrapper mini={mini}>
+                    <Field
+                        name="endHDate"
+                        type="text"
+                        component={HDateInput}
+                        label="Fin"
+                        style={fieldStyle}
+                    />
+                </FieldWrapper>
+                }
+                {mini &&
+                <FieldWrapper mini={mini}>
+                    <NumberSelector
+                        style={{marginLeft:'-10px',marginRight:'10px'}}
+                    />
+                </FieldWrapper>
+                }
+                <div className="clearfix visible-xs-block"/>
+                <FieldWrapper mini={mini} style={mini?{minHeight:'80%'}:{}}>
+                    <Button bsStyle="primary"
+                            disabled={false}
+                            onClick={()=>{
+                                const lastFilter = this.getCurrentFilter();
+                                this.setState({lastFilterKey:JSON.stringify(lastFilter)});
+                                onSubmit(lastFilter);
+                            }}
+                            style={fieldStyle}
+                    >
+                        {!mini?'Filtrer':'Fil.'}&nbsp;<Glyphicon glyph="filter"/>
+                    </Button>
+                    &nbsp;
+                    <Button bsStyle="warning"
+                            disabled={false}
+                            onClick={()=>{
+                                if(this.state.lastFilterKey !== "{}"){
+                                    onSubmit({});
+                                    this.setState({lastFilterKey:"{}"});
+                                }
+                                reset();
+                            }}
+                            style={fieldStyle}
+                    >
+                        {!mini?'Effacer':'Eff.'}&nbsp;<Glyphicon glyph="erase"/>
+                    </Button>
+                </FieldWrapper>
+            </FormWrapper>
         );
     }
 }

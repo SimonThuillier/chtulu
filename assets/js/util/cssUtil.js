@@ -30,3 +30,13 @@ export const getInlinedCss = theme => {
     });
     return css;
 };
+
+export const defaultInputStyles = {
+    horizontal:{
+        paddingBottom: 10,
+        paddingTop: 10,
+    },
+    vertical:{
+        paddingTop: 10,
+    }
+};

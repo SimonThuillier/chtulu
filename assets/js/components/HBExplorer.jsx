@@ -73,10 +73,12 @@ const DEFAULT_LAYOUT = {
     },
     header: {
         order: 1,
-        overflow: `hidden`,
+        overflow: `auto`,
         height: `40px`,
         border: `2px solid rgb(23, 88, 190)`,
-        padding: `0px`
+        padding: `0px`,
+        display: `flex`,
+        flexDirection: `column`
     },
     middle: {
         order: 3,
@@ -318,7 +320,7 @@ render() {
     const { hInterval,setHInterval,cursorRate,cursorDate,isCursorActive,setCursorRate,toggleCursor,
         articles,displayedArticles,invisibles,
         hoveredArticleId, setHoveredArticle,selectArticle,closeArticle,toggleActiveComponent,addArticle,
-        dispatch} = this.props;
+        dispatch,onFilter} = this.props;
     const theme = THEMES[currentTheme];
     //console.log(currentTheme);
 
@@ -429,6 +431,7 @@ render() {
                                 <HBExplorerHeader
                                     theme={this.state.currentTheme}
                                     onChange={this.setTheme}
+                                    onFilter={onFilter}
                                 />
                             </Header>
                             <Middle

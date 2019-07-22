@@ -1,6 +1,4 @@
 import React, { Component } from "react";
-import ReactDOM from "react-dom";
-import { getComponentClassType } from "../util/formUtil";
 import {
     ControlLabel,
     FormGroup,
@@ -12,20 +10,21 @@ import {
     HelpBlock
 } from "react-bootstrap";
 import HDatePicker from "./HDatePicker";
+import {defaultInputStyles} from "../util/cssUtil";
 const componentUid = require('uuid/v4')();
 
-const defaultStyles = {
-    horizontal: {
-        paddingBottom: 15,
-        paddingTop: 15,
-        position: "relative",
+let defaultStyles = {
+    horizontal: Object.assign({
+        //position: "relative",
         fontSize: "14px"
-    },
-    vertical: {
-        position: "relative",
+    },{...defaultInputStyles.horizontal}),
+    vertical: Object.assign({
+        //position: "relative",
         fontSize: "14px"
-    }
+    },{...defaultInputStyles.vertical})
 };
+
+
 
 class HDateInput extends Component {
     constructor(props) {

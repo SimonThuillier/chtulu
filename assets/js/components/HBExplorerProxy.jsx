@@ -52,6 +52,8 @@ class HBExplorerProxy extends React.Component {
         this.toggleActiveComponent = this.toggleActiveComponent.bind(this);
         this.addArticle = this.addArticle.bind(this);
 
+        this.onFilter=this.onFilter.bind(this);
+
         this.getArticles=this.getArticles.bind(this);
 
         this.state = {
@@ -286,6 +288,15 @@ class HBExplorerProxy extends React.Component {
         this.selectArticle([nextNewIdSelector()],'form');
     }
 
+    onFilter(values){
+        console.log("filter submitted");
+        console.log(values);
+
+        const searchBag = Object.assign({}, this.state.searchBag,{search:values});
+        this.loadSearchBag(this.state.groups,searchBag);
+        this.setState({searchBag:searchBag});
+    }
+
     render() {
         const {searchBag,hInterval,cursorRate,displayedArticles,hoveredArticleId} = this.state;
 
@@ -340,6 +351,7 @@ class HBExplorerProxy extends React.Component {
                     closeArticle={this.closeArticle}
                     toggleActiveComponent={this.toggleActiveComponent}
                     addArticle = {this.addArticle}
+                    onFilter={this.onFilter}
                 />
             </Loadable>
         );
