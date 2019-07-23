@@ -74,12 +74,14 @@ const FieldWrapper = ({mini,children,style}) =>{
     }
 };
 
-const NumberSelector = ({style}) => {
+const NumberSelector = ({style,id}) => {
     return (<DropdownButton
             bsStyle={'Default'}
             title={'10'}
             key={1}
-            id={`dropdown-basic-1`}
+            id={`dropdown-basic-${id}`}
+            defaultOpen={true}
+            rootCloseEvent={'mousedown'}
             style={style}
         >
             <MenuItem eventKey="10">10</MenuItem>
@@ -99,6 +101,11 @@ class ArticleFilter extends React.Component{
 
         this.getCurrentFilter = this.getCurrentFilter.bind(this);
 
+        this.id = require('uuid/v4')();
+        this.mini = false;
+        if(!this.props.mini || typeof this.props.mini==='undefined') this.mini=false;
+        else this.mini=true;
+
         this.state = {
             data:null,
             fields:props.fields || ["keyword","type","beginHDate","endHDate"],
@@ -106,7 +113,20 @@ class ArticleFilter extends React.Component{
         };
     }
 
-    componentDidMount() {}
+    componentDidMount() {
+        console.log("test");
+        console.log(document.getElementById(`dropdown-basic-${this.id}`));
+
+        if(this.mini){
+            const dropdown = document.getElementById(`dropdown-basic-${this.id}`);
+            if(!!dropdown || typeof dropdown === 'undefined'){
+                dropdown.addEventListener('show.bs.dropdown',()=>{
+                    console.log('click !');
+                });
+            }
+        }
+
+    }
 
     getCurrentFilter(){
         const {pendingForm} = this.props;
@@ -119,11 +139,8 @@ class ArticleFilter extends React.Component{
         console.log("render called");
         const { onSubmit, pristine, reset, submitting,load,valid } = this.props;
 
-        let mini = false;
-        if(!this.props.mini || typeof this.props.mini==='undefined') mini=false;
-        else mini=true;
-
         const fieldStyle = mini?{marginRight:'5px',padding:'0px',height:'100%'}:{};
+        const mini = this.mini;
 
         return (
             <FormWrapper mini={mini}>
@@ -177,6 +194,7 @@ class ArticleFilter extends React.Component{
                 <FieldWrapper mini={mini}>
                     <NumberSelector
                         style={{marginLeft:'-10px',marginRight:'10px'}}
+                        id = {this.id}
                     />
                 </FieldWrapper>
                 }
