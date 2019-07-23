@@ -42,6 +42,7 @@ class HBExplorerProxy extends React.Component {
     constructor(props) {
         super(props);
 
+        this.setSearchBag = this.setSearchBag.bind(this);
         this.setHInterval = this.setHInterval.bind(this);
         this.setCursorRate = this.setCursorRate.bind(this);
         this.toggleCursor = this.toggleCursor.bind(this);
@@ -52,6 +53,7 @@ class HBExplorerProxy extends React.Component {
         this.toggleActiveComponent = this.toggleActiveComponent.bind(this);
         this.addArticle = this.addArticle.bind(this);
 
+        this.setLimit = this.setLimit.bind(this);
         this.onFilter=this.onFilter.bind(this);
 
         this.getArticles=this.getArticles.bind(this);
@@ -219,6 +221,10 @@ class HBExplorerProxy extends React.Component {
         this.setState(update);
     }
 
+    setSearchBag(searchBag){
+        this.setState({ searchBag: searchBag });
+    }
+
     setHInterval(hInterval) {
         this.setState({ hInterval: hInterval, hasSelfUpdatedHInterval:true });
     }
@@ -288,13 +294,28 @@ class HBExplorerProxy extends React.Component {
         this.selectArticle([nextNewIdSelector()],'form');
     }
 
+    setLimit(limit){
+        const searchBag = Object.assign({}, this.state.searchBag,{limit:+limit});
+        this.setState({ searchBag: searchBag });
+    }
+
     onFilter(values){
         console.log("filter submitted");
         console.log(values);
 
         const searchBag = Object.assign({}, this.state.searchBag,{search:values});
-        this.loadSearchBag(this.state.groups,searchBag);
-        this.setState({searchBag:searchBag});
+        console.log(searchBag);
+
+        const {mainArticleId=null,dispatch} = this.props;
+
+        if(mainArticleId !== null){
+            //loadMainArticle(mainArticleId,dispatch);
+        }
+        else{
+            loadSearchBag(searchBag,dispatch);
+        }
+
+        this.setState({searchBag:searchBag,hasSelfUpdatedHInterval:false});
     }
 
     render() {
@@ -336,6 +357,8 @@ class HBExplorerProxy extends React.Component {
                 <HBExplorer
                     dispatch={dispatch}
                     mainArticleId={mainArticleId}
+                    searchBag={searchBag}
+                    setLimit={this.setLimit}
                     hInterval={hInterval}
                     setHInterval={this.setHInterval}
                     cursorDate = {cursorDate}

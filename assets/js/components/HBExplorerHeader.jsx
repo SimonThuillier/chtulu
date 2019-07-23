@@ -55,7 +55,7 @@ const Option = ({ onChange, value, currentValue }) => {
 };
 
 export default props => {
-    const { onChange, theme,onFilter } = props;
+    const { onChange, theme,onFilter,searchBag,setLimit } = props;
 
     return (
         <Header>
@@ -81,7 +81,13 @@ export default props => {
                 />
             </div>
             <div>
-                <ArticleFilter fields={['keyword']} onSubmit={onFilter} mini={true}/>
+                <ArticleFilter
+                    fields={['keyword']}
+                    onSubmit={onFilter}
+                    mini={true}
+                    searchBag={searchBag}
+                    setLimit={setLimit}
+                    />
             </div>
         </Header>
     );

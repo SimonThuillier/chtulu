@@ -74,24 +74,46 @@ const FieldWrapper = ({mini,children,style}) =>{
     }
 };
 
-const NumberSelector = ({style,id}) => {
+const LimitItem = ({limit,current})=>{
+    return(<MenuItem
+            className={'hb-number-selector'}
+            eventKey={`${limit}`}
+            active={+limit === + current}
+        >
+            {`${limit}`}
+            </MenuItem>
+
+    );
+};
+
+const LimitSelector = ({style,id,current,setLimit}) => {
+
+    const limits = [10,30,50,75,100];
+
+    const menuItems= limits.map((limit)=>(
+        <MenuItem
+            key={limit}
+            className={'hb-number-selector'} eventKey={limit}
+            active={+limit === +current}>
+                {`${limit}`}
+            </MenuItem>));
+
     return (<DropdownButton
             bsStyle={'Default'}
-            title={'10'}
+            title={current}
             key={1}
             id={`dropdown-basic-${id}`}
-            defaultOpen={true}
-            rootCloseEvent={'mousedown'}
+            defaultOpen={false}
+            rootCloseEvent={'click'}
             style={style}
+            onSelect={(eventKey,event)=>{
+                console.log(event);
+                console.log(+eventKey);
+                setLimit(+eventKey);
+            }}
         >
-            <MenuItem eventKey="10">10</MenuItem>
-            <MenuItem eventKey="20">20</MenuItem>
-            <MenuItem eventKey="35" active>35</MenuItem>
-            <MenuItem eventKey="50" >50</MenuItem>
-            <MenuItem eventKey="75" >75</MenuItem>
-            <MenuItem eventKey="100" >100</MenuItem>
+            {menuItems}
         </DropdownButton>
-
     );
 };
 
@@ -114,18 +136,18 @@ class ArticleFilter extends React.Component{
     }
 
     componentDidMount() {
-        console.log("test");
-        console.log(document.getElementById(`dropdown-basic-${this.id}`));
+        /*console.log("test");
+        console.log(document.getElementById(`dropdown-basic-${this.id}`));*/
 
         if(this.mini){
-            const dropdown = document.getElementById(`dropdown-basic-${this.id}`);
-            if(!!dropdown || typeof dropdown === 'undefined'){
-                dropdown.addEventListener('show.bs.dropdown',()=>{
-                    console.log('click !');
-                });
+            const dropdownUl = document.querySelector(`[aria-labelledby="dropdown-basic-${this.id}"]`);
+            if(!!dropdownUl && typeof dropdownUl !== 'undefined'){
+                dropdownUl.classList.add("list-inline");
+                dropdownUl.style.margin = "-37px 0 0 -10px";
+                dropdownUl.style['min-width'] = '180px';
+                dropdownUl.style['max-height'] = '40px';
             }
         }
-
     }
 
     getCurrentFilter(){
@@ -137,10 +159,11 @@ class ArticleFilter extends React.Component{
 
     render(){
         console.log("render called");
-        const { onSubmit, pristine, reset, submitting,load,valid } = this.props;
+        const { onSubmit, pristine, reset, submitting,load,valid,searchBag,setLimit } = this.props;
 
-        const fieldStyle = mini?{marginRight:'5px',padding:'0px',height:'100%'}:{};
         const mini = this.mini;
+        const fieldStyle = mini?{marginRight:'5px',padding:'0px',height:'100%'}:{};
+
 
         return (
             <FormWrapper mini={mini}>
@@ -192,9 +215,11 @@ class ArticleFilter extends React.Component{
                 }
                 {mini &&
                 <FieldWrapper mini={mini}>
-                    <NumberSelector
+                    <LimitSelector
                         style={{marginLeft:'-10px',marginRight:'10px'}}
                         id = {this.id}
+                        current={searchBag.limit}
+                        setLimit={setLimit}
                     />
                 </FieldWrapper>
                 }
@@ -215,8 +240,9 @@ class ArticleFilter extends React.Component{
                     <Button bsStyle="warning"
                             disabled={false}
                             onClick={()=>{
+                                onSubmit({});
                                 if(this.state.lastFilterKey !== "{}"){
-                                    onSubmit({});
+                                    ;
                                     this.setState({lastFilterKey:"{}"});
                                 }
                                 reset();

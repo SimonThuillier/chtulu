@@ -166,6 +166,8 @@ constructor(props) {
     this.onBottomResize = this.onBottomResize.bind(this);
     this.onRightResize = this.onRightResize.bind(this);
 
+    this.prependChild = this.prependChild.bind(this);
+
     this.resizeCounter=0;
 
     this.state = {
@@ -313,7 +315,9 @@ onRightResize(delta, flag = "onGoing") {
 
 prependChild(node){
     console.log("prepend");
-    if(this.containerRef)
+    if(!!this.containerRef && !!this.containerRef.current){
+        this.containerRef.current.prepend(node);
+    }
 }
 
 componentWillUnmount() {
@@ -322,7 +326,7 @@ componentWillUnmount() {
 
 render() {
     const { currentTheme, frameSizes, guiInitialized,isResizing } = this.state;
-    const { hInterval,setHInterval,cursorRate,cursorDate,isCursorActive,setCursorRate,toggleCursor,
+    const { searchBag,setLimit,hInterval,setHInterval,cursorRate,cursorDate,isCursorActive,setCursorRate,toggleCursor,
         articles,displayedArticles,invisibles,
         hoveredArticleId, setHoveredArticle,selectArticle,closeArticle,toggleActiveComponent,addArticle,
         dispatch,onFilter} = this.props;
@@ -441,6 +445,8 @@ render() {
                                     theme={this.state.currentTheme}
                                     onChange={this.setTheme}
                                     onFilter={onFilter}
+                                    searchBag={searchBag}
+                                    setLimit={setLimit}
                                 />
                             </Header>
                             <Middle

@@ -9,7 +9,7 @@ import SearchBagUtil from './SearchBagUtil';
  * @param limit
  * @returns object
  */
-const SearchBag = function(search={},sort='id',order=SearchBagUtil.DESC,offset=0,limit=2){
+const SearchBag = function(search={},sort='id',order=SearchBagUtil.DESC,offset=0,limit=10){
     return {
         search : search,
         sort : sort,
