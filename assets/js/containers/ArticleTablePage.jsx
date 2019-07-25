@@ -407,7 +407,7 @@ class ArticleTablePage extends React.Component{
                                                 &nbsp;&nbsp;&nbsp;
                                             {alreadyCreatedArticle?
                                                 <Link
-                                                to={`/article/${this.state.activeId}${this.state.activeComponent==='form'?'/edit':''}`}
+                                                to={`/article/${this.state.activeId}/${this.state.activeComponent==='form'?'edit':''}`}
                                                 className={'btn btn-link'}
                                                 title={"Page principale de l'article"}
                                                 >

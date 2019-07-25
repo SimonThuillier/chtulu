@@ -14,6 +14,8 @@ export const COLORS = {
     DELETED: '#A9A9A9',
     SUBMITTING:'#32CD32',
     TABLE_SELECTED:'#ADD8E6',
+    TEXT_SELECTED:'#0645ad',
+    TEXT_HOVERED:'#707090',
     ACTION_EDIT:'#3c8dbc',
     ACTION_SUBMIT:'#00a65a',
     ACTION_DELETE:'#dd4b39',

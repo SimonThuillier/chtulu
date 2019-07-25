@@ -1,32 +1,16 @@
 import React from "react";
-import ReactDOM from "react-dom";
-import { distance, vectorDiff, LEFT, RIGHT, VERTICAL } from "../util/geometry";
 
-import debounce from "debounce";
 import { Button, Glyphicon } from "react-bootstrap";
-import HBExplorerDateInput from "./HBExplorerDateInput";
 
-import MeasureAndRender from "./MeasureAndRender";
-import CSSVariableApplicator from "./CSSVariableApplicator";
-import TimeArrow from "./TimeArrow.jsx";
-import HBExplorerTimePanel from "./HBExplorerTimePanel.jsx";
+
 import HBExplorerContentHistory from "./HBExplorerContentHistory.jsx";
-import MapContainer from "./MapContainer.jsx";
-import MapHandlerIcon from "./MapHandlerIcon.jsx";
 
 import ArticleTitle from "./ArticleTitle";
 import ArticleType from "./ArticleType";
 import Article from "./Article.jsx";
-import HBExplorerMenu from "./HBExplorerTimeMenu";
+import { Link } from "react-router-dom";
 
-import HDate from "../util/HDate";
-import dU from "../util/date";
 
-import cmn from "../util/common";
-
-const explorerUid = require("uuid/v4")();
-
-let _idGenerator = cmn.getIdGenerator();
 
 import {AVAILABLE_THEMES} from "../util/explorerUtil";
 import {getInlinedCss} from "../util/cssUtil";
@@ -68,6 +52,7 @@ class HBExplorerContent extends React.Component {
 
         const articlePanels = articlesToDisplay.map(([id,value])=>{
             //console.log(value.activeComponent);
+            const alreadyCreatedArticle = +id > 0;
             return (
                 <div className="panel panel-default hg-content-panel"
                      key={`hg-container-article-panel-${id}`}
@@ -76,7 +61,17 @@ class HBExplorerContent extends React.Component {
 
                     <div className="hg-content-panel-heading">
                         <span><h4><ArticleType articleId={id}/></h4></span>
-                        <span><h4><ArticleTitle id={id}/></h4></span>
+                        {alreadyCreatedArticle?
+                            <Link
+                                to={`/article/${id}/${value.activeComponent==='form'?'edit':''}`}
+                                className={'btn btn-link'}
+                                title={"Page principale de l'article"}
+                                style={{paddingBottom:0}}
+                            >
+                                <h4><ArticleTitle id={id}/></h4>
+                            </Link>
+                            :
+                            <span><h4><ArticleTitle id={id}/></h4></span>}
                         <span>
                             <Button bsStyle="primary"
                                     disabled={false}

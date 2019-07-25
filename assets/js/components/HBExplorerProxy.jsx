@@ -13,12 +13,13 @@ import {
     totalSelector2,
     makeGetOneByIdSelector, makeGetSelector,makeGetPlusBabiesSelector
 } from "../selectors";
-import {getIfNeeded,getOneByIdIfNeeded} from "../actions";
+import {getIfNeeded, getOneByIdIfNeeded, submitLocally} from "../actions";
 import {COLORS, LOADING} from "../util/notifications";
 import SearchBagUtil from "../util/SearchBagUtil";
 import {getConstrainedHInterval,getInvisibles,getHIntervalFromArticles,defaultHInterval}
 from "../util/explorerUtil";
 
+const Imm = require("immutable");
 const componentUid = require("uuid/v4")();
 
 // groups for main article
@@ -71,6 +72,8 @@ class HBExplorerProxy extends React.Component {
 
 
         this.displayedArticlesToRestore = null;
+        this.newArticleInitialValues = null;
+        console.log("create HBExplorerProxy");
     }
 
     componentDidMount(){
@@ -78,6 +81,13 @@ class HBExplorerProxy extends React.Component {
         const {mainArticleId=null,dispatch} = this.props;
         if(mainArticleId !== null){
             loadMainArticle(mainArticleId,dispatch);
+            console.log(this.props);
+            let displayedArticles = (new Map()).set(+mainArticleId,{
+                selectionDate:new Date(),
+                isOpen:true,
+                activeComponent:'detail'
+            });
+            this.setState({displayedArticles:displayedArticles});
         }
         else{
             loadSearchBag(searchBag,dispatch);
@@ -117,6 +127,14 @@ class HBExplorerProxy extends React.Component {
                 this.setHInterval(getHIntervalFromArticles(getPlusBabiesSelector(searchBag,createdArticlesId)));
             }
         }
+
+        // new article initialization
+        if(this.newArticleInitialValues!==null && !!getOneByIdSelector(this.newArticleInitialValues.get("newArticleId"))){
+            dispatch(submitLocally("article",this.newArticleInitialValues,
+                this.newArticleInitialValues.get("newArticleId"),{date:true}));
+            this.newArticleInitialValues=null;
+        }
+
         this.ensureDisplayedArticlesCoherence();
     }
 
@@ -290,8 +308,16 @@ class HBExplorerProxy extends React.Component {
         //console.log('vous voulez un nouvel article ?');
         //console.log(date);
         const {nextNewIdSelector} = this.props;
+        const newArticleId = nextNewIdSelector();
+        this.selectArticle([newArticleId],'form');
 
-        this.selectArticle([nextNewIdSelector()],'form');
+        // initialize values for the new article
+        this.newArticleInitialValues = Imm.Map();
+        this.newArticleInitialValues = this.newArticleInitialValues
+            .set('beginHDate',new HDate("1",date))
+            .set('endHDate',new HDate("1",date))
+            .set('hasEndDate',true)
+            .set('newArticleId',newArticleId);
     }
 
     setLimit(limit){

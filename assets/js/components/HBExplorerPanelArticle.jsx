@@ -2,12 +2,56 @@ import React from "react";
 import ProgressionCircle from "./ProgressionCircle";
 import HDate from "../util/HDate";
 import RImageMini from './RImageMini';
+import {COLORS} from "../util/notifications";
 
-const textStyle = {
-    fontFamily: "Arial, sans-serif",
+const defaultTextStyle = {
+    fontFamily: "'Source Sans Pro','Helvetica Neue',Helvetica",
     fontSize  : 16,
-    stroke     : "#000000",
-    fill       : "#000000"
+    stroke     : "none",
+    fill       : "#000000",
+    fontStyle: 'normal'
+};
+
+const textStyle = (article,selected,hovered) => {
+    let overStyle = {};
+
+    if(article && article.has("isNew") && article.get("isNew")(article)){
+        overStyle.fontStyle = 'italic';
+    }
+
+    if(selected){
+        overStyle.fontWeight='bold';
+        overStyle.fill=COLORS.TEXT_SELECTED;
+    }
+    else if(hovered){
+        overStyle.fontWeight='bolder';
+        overStyle.fill=COLORS.TEXT_HOVERED;
+    }
+
+    return Object.assign({},defaultTextStyle,overStyle);
+};
+
+const filterStyle = (article,selected,hovered) => {
+    let overStyle = {floodOpacity:0};
+    if(article && article.has("hasErrors") && article.get("hasErrors")(article)){
+        overStyle.floodColor = COLORS.ERROR;
+        overStyle.floodOpacity = 1;
+    }
+    else if(article && article.has("isDirty") && article.get("isDirty")(article)){
+        overStyle.floodColor = COLORS.DIRTY;
+        overStyle.floodOpacity = 1;
+    }
+
+    if(article && article.has("toDelete") && article.get("toDelete")){
+        overStyle.floodColor = COLORS.DELETED;
+        overStyle.floodOpacity = 1;
+    }
+    else if(article && article.has("isNew") && article.get("isNew")(article)){
+        overStyle.floodColor = COLORS.NEW;
+        overStyle.floodOpacity = 1;
+    }
+
+    return overStyle;
 };
 
 /**
@@ -18,6 +62,9 @@ class HBExplorerPanelArticle extends React.Component {
         super(props);
 
         this.handleOnClick = this.handleOnClick.bind(this);
+        this.hasAddedBox = false;
+        console.log("HBExplorerPanelArticle created");
+        console.log(props.article);
     }
 
     componentWillUnmount(){
@@ -73,10 +120,7 @@ class HBExplorerPanelArticle extends React.Component {
 
         const y = article.currentY - originY;
 
-        let thisTextStyle = {};
-        Object.assign(thisTextStyle,textStyle);
-        if(selected) thisTextStyle.stroke='#0000FF';
-        else if(hovered) thisTextStyle.stroke='#FF0000';
+        const component= this;
 
         return (
             <svg
@@ -90,16 +134,25 @@ class HBExplorerPanelArticle extends React.Component {
                 onMouseEnter={()=>{setHoveredArticle(article.id)}}
                 onMouseLeave={()=>{setHoveredArticle()}}
                 ref={node => {
-                    if(node) addBox(node,article);
+                    if(node && !component.hasAddedBox){
+                        addBox(node,article);
+                        component.hasAddedBox = true;
+                    }
                 }}
                 xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <pattern id={`article-image-${article.id}`} x="0" y="0" patternUnits="userSpaceOnUse" height="30" width="30">
                         <RImageMini deltaX={deltaX} id={article.detailImageResource} mode={'svg'}/>
                     </pattern>
+                    <filter x={0} y={0} width="100%" height="100%"
+                            id={`article-text-filter-${article.id}`}>
+                        <feFlood {...filterStyle(article.record,selected,hovered)}/>
+                        <feComposite in="SourceGraphic" operator="over"/>
+                    </filter>
                 </defs>
                 <rect
-                    fill={selected?"blue":hovered?"red":"black"}
+                    fill={selected?COLORS.TEXT_SELECTED:hovered?COLORS.TEXT_HOVERED:"black"}
+                    stroke={'none'}
                     x={xMargin}
                     y={viewportHeight/8}
                     width={Math.max(endX-x,1)}
@@ -110,9 +163,10 @@ class HBExplorerPanelArticle extends React.Component {
                 />
                 <text
                     textAnchor="start"
+                    filter={`url(#article-text-filter-${article.id})`}
                     x={deltaX + xMargin+viewportHeight/2}
                     y={viewportHeight-2}
-                    style={thisTextStyle}
+                    style={textStyle(article.record,selected,hovered)}
                     onClick={this.handleOnClick}
                 >
                     {article.title}

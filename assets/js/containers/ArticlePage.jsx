@@ -4,6 +4,10 @@ import {getNewlyCreatedIdSelector, getNextNewIdSelector, getOneByIdSelector} fro
 import {Helmet} from 'react-helmet';
 import ArticleTitle from "../components/ArticleTitle";
 import HBExplorerProxy from "../components/HBExplorerProxy.jsx";
+import {makeGetOneByIdSelector} from "../selectors";
+
+
+const getActiveComponent = actionParam =>(actionParam==='edit'?'form':'detail');
 
 export class ArticlePage extends React.Component {
     constructor(props) {
@@ -12,9 +16,11 @@ export class ArticlePage extends React.Component {
         console.log(props);
         console.log(props.match.params.id);
 
+        const {id,actionParam} = props.match.params;
+
         this.state = {
-            id: +props.id||+props.match.params.id,
-            activeComponent:props.activeComponent||(props.match.params.actionParam==='edit'?'form':'detail'),
+            id: +props.id||+id,
+            activeComponent:props.activeComponent||getActiveComponent(actionParam),
             detailGroups:props.detailGroups || {"minimal":true,"abstract":true,"date":true,
                 "detailImage":{"activeVersion":true}
             },
@@ -24,25 +30,35 @@ export class ArticlePage extends React.Component {
     }
 
     componentDidMount(){
-        const {dispatch,nextNewIdSelector} = this.props;
+        /*const {dispatch,nextNewIdSelector} = this.props;
         if(!this.state.id){
             this.setState({id:nextNewIdSelector(),activeComponent:'form'})
-        }
+        }*/
         /*dispatch(getOneByIdIfNeeded("article",
             this.state.formGroups,
             this.state.id));*/
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.match.params.id !== this.props.match.params.id) {
-            this.setState({id:+this.props.match.params.id});
+        const {idParam,actionParam} = this.props.match.params;
+
+        const id = +this.props.id||+idParam;
+        const activeComponent = this.props.activeComponent||getActiveComponent(actionParam);
+
+        const {oldId,oldActiveComponent} = this.state;
+
+        if (id !== oldId) {
+            this.setState({id:+id});
+        }
+        if (activeComponent !== oldActiveComponent) {
+            this.setState({activeComponent:activeComponent});
         }
     }
 
     render(){
-        const {id} = this.state;
-        const {selector} = this.props;
-        const article = selector(id);
+        const {id,activeComponent} = this.state;
+        const {getOneByIdSelector} = this.props;
+        const article = getOneByIdSelector(id);
 
         const articleTitle = (article && article.get("title")) || 'Nouvel article';
 
@@ -51,9 +67,9 @@ export class ArticlePage extends React.Component {
                 <Helmet>
                     <title>{articleTitle}</title>
                 </Helmet>
-                <section className="content-header">
-                    <h4><ArticleTitle id={+id}/></h4>
-                </section>
+                {/*<section className="content-header">*/}
+                    {/*<h4><ArticleTitle id={+id}/></h4>*/}
+                {/*</section>*/}
                 <section className="content">
                     <div>
                         <HBExplorerProxy
@@ -66,16 +82,17 @@ export class ArticlePage extends React.Component {
     }
 }
 
+const makeMapStateToProps = () => {
+    const getOneByIdSelector = makeGetOneByIdSelector();
+    return state => {
+        const dataSubState = state.get("article");
 
-const mapStateToProps = (state) => {
-    const selector = selector || getOneByIdSelector(state.get("article"));
-    const nextNewIdSelector = getNextNewIdSelector(state.get("article"));
-    const newlyCreatedIdSelector = getNewlyCreatedIdSelector(state.get("article"));
-    return {
-        selector: selector,
-        nextNewIdSelector: nextNewIdSelector,
-        newlyCreatedIdSelector:newlyCreatedIdSelector
+        return {
+            getOneByIdSelector : getOneByIdSelector(dataSubState),
+            //nextNewIdSelector : getNextNewIdSelector(dataSubState)
+
+        }
     }
 };
 
-export default connect(mapStateToProps)(ArticlePage);
+export default connect(makeMapStateToProps)(ArticlePage);

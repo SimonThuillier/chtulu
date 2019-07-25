@@ -346,7 +346,7 @@ export const reset = (waoType,ids,groups) => (dispatch,state) =>{
 
 export const deleteLocally = (waoType,ids) => (dispatch,state) => {
     ids.forEach((id)=>{
-        if(+id> 0 ) dispatch(addPending(waoType,id,'minimal'));
+        if(+id> 0 ) dispatch(addPending(waoType,id,{minimal:true}));
         else dispatch(removePending(waoType,id,null));
     });
     return dispatch({
