@@ -4,7 +4,9 @@ const componentUid = require('uuid/v4')();
 import { getOneByIdIfNeeded} from "../actions";
 import ArticleDetail from './ArticleDetail';
 import ArticleForm from './ArticleForm';
-import {getOneByIdSelector,getNotificationsSelector} from "../selectors";
+import {
+    makeGetNotificationsSelector, makeGetOneByIdSelector
+} from "../selectors";
 import {connect} from "react-redux";
 import {LOADING,COLORS} from '../util/notifications';
 import Groupable from './Groupable';
@@ -80,16 +82,16 @@ class Article extends React.Component{
         // we provide this state as value for the provider and update in this function
         // the state properties that need to trigger re-render
         let updatedValues = {};
-        const {id,selector,groups,dispatch,container} = this.props;
+        const {id,getOneById,groups,dispatch,container} = this.props;
 
         if (prevProps.id !== id) {
             console.log(`update ${prevProps.id} vs ${id}`);
             dispatch(getOneByIdIfNeeded("article",groups, id,componentUid));
             updatedValues.id = id;
-            updatedValues.data = selector(id);
+            updatedValues.data = getOneById(id);
         }
-        if (prevProps.selector !== selector) {
-            updatedValues.data = selector(id);
+        if (prevProps.getOneById !== getOneById) {
+            updatedValues.data = getOneById(id);
         }
         if (JSON.stringify(prevProps.groups) !== JSON.stringify(groups)) {
             updatedValues.groups = groups;
@@ -113,8 +115,8 @@ class Article extends React.Component{
 
         //console.log("reRender");
 
-        const {selector,notificationsSelector,handleSwitch,container,groups,id} = this.props;
-        const notifications = notificationsSelector(componentUid);
+        const {getOneById,getNotifications,handleSwitch,container,groups,id} = this.props;
+        const notifications = getNotifications(componentUid);
         const loading = (notifications && notifications.hasIn([id || 'DEFAULT',LOADING]))||false;
         //,this.state.id || 'DEFAULT',LOADING]);
         /*console.log("notifications");
@@ -122,7 +124,7 @@ class Article extends React.Component{
         console.log(notifications);*/
         const contextValue = {
             id:id,
-            data:selector(id),
+            data:getOneById(id),
             groups:groups,
             handleSwitch:handleSwitch,
             container:container || null
@@ -147,13 +149,26 @@ class Article extends React.Component{
     }
 }
 
-const mapStateToProps = (state) => {
-    const selector = getOneByIdSelector(state.get("article"));
-    const notificationsSelector = getNotificationsSelector(state.get("app"));
-    return {
-        selector: selector,
-        notificationsSelector : notificationsSelector
+const makeMapStateToProps = () => {
+    const getOneByIdSelector = makeGetOneByIdSelector();
+    const getNotificationsSelector = makeGetNotificationsSelector();
+
+    return state => {
+        return {
+            getOneById: getOneByIdSelector(state.get("article")),
+            getNotifications: getNotificationsSelector(state.get("app"))
+        }
     }
 };
 
-export default connect(mapStateToProps)(Article);
+// const mapStateToProps = (state) => {
+//
+//     const selector = getOneByIdSelector(state.get("article"));
+//     const notificationsSelector = getNotificationsSelector(state.get("app"));
+//     return {
+//         selector: selector,
+//         notificationsSelector : notificationsSelector
+//     }
+// };
+
+export default connect(makeMapStateToProps)(Article);

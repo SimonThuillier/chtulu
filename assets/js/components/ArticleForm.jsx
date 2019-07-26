@@ -1,5 +1,7 @@
 import React from "react";
-import {getPendingSelector, getOneByIdSelector, getNotificationsSelector} from "../selectors";
+import {
+    makeGetNotificationsSelector, makeGetOneByIdSelector,makeGetFormSelector
+} from "../selectors";
 import { connect} from 'react-redux';
 import GroupUtil from '../util/GroupUtil';
 import {
@@ -20,7 +22,6 @@ import ImageInput from "./ImageInput";
 import HBFormField from './HBFormField';
 import {Button,Row,Col,Popover,Overlay} from 'react-bootstrap';
 import Loadable from 'react-loading-overlay';
-import {previewTooltip,submitTooltip,resetTooltip,deleteTooltip} from './tooltips';
 import {LOADING,SUBMITTING,SUBMITTING_COMPLETED,COLORS} from '../util/notifications';
 import {HB_SUCCESS} from "../util/server";
 import {getAllPropertiesInGroups} from '../util/WAOUtil';
@@ -96,7 +97,7 @@ SubMinimal.contextType = ArticleFormContext;
 const SubDate = ({}) => {
     return (
         <ArticleFormContext.Consumer>
-            {({hasEndDate,dispatch,container}) => (
+            {({hasEndDate,dispatch,container,componentUid}) => (
                 <div>
                     <Field
                         name="beginHDate"
@@ -139,6 +140,7 @@ SubDate.contextType = ArticleFormContext;
 class SubDetailImage extends React.Component {
     constructor(props) {
         super(props);
+        this.componentUid = props.componentUid;
 
         this.toggleShow = this.toggleShow.bind(this);
         this.onClick = this.onClick.bind(this);
@@ -199,7 +201,7 @@ class SubDetailImage extends React.Component {
                     <div>
                         <Field
                             ref={target}
-                            key={`image-input-${componentUid}`}
+                            key={`image-input-${this.componentUid}`}
                             name="detailImageResource"
                             type="text"
                             component={withExtraProps(ImageInput,{
@@ -211,13 +213,13 @@ class SubDetailImage extends React.Component {
                             label="Image de presentation"
                         />
                         <Overlay
-                            key={`overlay-trigger-${componentUid}`}
+                            key={`overlay-trigger-${this.componentUid}`}
                             target={target.current}
                             placement="left"
                             container={container || null}
                             show={show}
                         >
-                            <Popover key={`popover-contained-${componentUid}`} id={`popover-contained-${componentUid}`}>
+                            <Popover key={`popover-contained-${this.componentUid}`} id={`popover-contained-${this.componentUid}`}>
                                 <div ref={this.overlay}>
                                     <ResourcePicker
                                         initialValue={null}
@@ -270,6 +272,7 @@ class ArticleForm extends React.Component{
 
     constructor(props) {
         super(props);
+        this.componentUid = props.componentUid;
 
         this.handleSwitch = this.handleSwitch.bind(this);
         this.submit = this.submit.bind(this);
@@ -338,9 +341,9 @@ class ArticleForm extends React.Component{
     }
 
     initializeFormData(){
-        const {selector,initialize,id,dispatch} = this.props;
+        const {getOneById,initialize,id,dispatch} = this.props;
 
-        const data = selector(id);
+        const data = getOneById(id);
 
         this.setState({data:data});
         //console.log("initialData");
@@ -350,10 +353,10 @@ class ArticleForm extends React.Component{
         //console.log(data.has("initialValues"));
         initialize(data.set("pendingModification",true));
         if(data.get("initialValues")){
-            dispatch(formTouch(componentUid, ...data.get("initialValues").keySeq().toJS()));
+            dispatch(formTouch(this.componentUid, ...data.get("initialValues").keySeq().toJS()));
         }
         if(typeof data.get("hasErrors")==='function' && data.get("hasErrors")(data)){
-            dispatch(stopSubmit(componentUid,data.get("errors")));
+            dispatch(stopSubmit(this.componentUid,data.get("errors")));
         }
 
         return data;
@@ -371,7 +374,7 @@ class ArticleForm extends React.Component{
 
         if (prevProps.id !== this.props.id){
             this.submit(prevProps.id);
-            data = this.props.selector(this.props.id);
+            data = this.props.getOneById(this.props.id);
         }
         /*if(data === null || typeof data === 'undefined' ){
             //this.initializeFormData();
@@ -382,12 +385,12 @@ class ArticleForm extends React.Component{
             this.props.dispatch(getOneByIdIfNeeded("article",
                 this.state.groups,
                 this.props.id,
-                componentUid));
+                this.componentUid));
             console.log("<br>loading data</br>");
             this.loadingArticleId = this.props.id;
         }
-        if (this.props.selector(this.props.id) !== prevProps.selector(this.props.id)) {
-            data = this.props.selector(this.props.id);
+        if (this.props.getOneById(this.props.id) !== prevProps.getOneById(this.props.id)) {
+            data = this.props.getOneById(this.props.id);
             console.log("reception de nouvelles données");
             console.log(data);
         }
@@ -396,14 +399,14 @@ class ArticleForm extends React.Component{
             this.initializeFormData();
         }
 
-        if (prevProps.notificationsSelector !== this.props.notificationsSelector) {
-            const notifications = this.props.notificationsSelector(componentUid);
+        if (prevProps.getNotifications !== this.props.getNotifications) {
+            const notifications = this.props.getNotifications(this.componentUid);
             let submittingCompleted = (notifications && notifications.
             getIn([(this.state.data && this.props.id) || 'DEFAULT',SUBMITTING_COMPLETED]))||null;
             submittingCompleted = (submittingCompleted && !submittingCompleted.get("discardedAt"))?submittingCompleted:null;
             //console.log("submittingCompleted : untouching form");
             if(submittingCompleted){
-                this.props.dispatch(formUntouch(componentUid, ...getAllPropertiesInGroups('article',Object.keys(this.state.groups))));
+                this.props.dispatch(formUntouch(this.componentUid, ...getAllPropertiesInGroups('article',Object.keys(this.state.groups))));
             }
         }
     }
@@ -419,7 +422,7 @@ class ArticleForm extends React.Component{
             },20);
         }
         else{
-            onNothing();
+            if(typeof onNothing === 'function') onNothing();
         }
     }
 
@@ -438,10 +441,10 @@ class ArticleForm extends React.Component{
     submit(id=null){
         id = id || this.props.id;
 
-        const {pendingForm} = this.props;
+        const {getForm,anyTouched,dispatch} = this.props;
+        const pendingForm = getForm(this.componentUid);
         const touchedFields = pendingForm.get("fields");
         const values = pendingForm.get("values");
-        const {anyTouched,dispatch} = this.props;
 
         const touchedKeys = touchedFields?touchedFields.keySeq():null;
         /*console.log("touched fields");
@@ -471,7 +474,7 @@ class ArticleForm extends React.Component{
         const {anyTouched,dispatch,id} = this.props;
         this.submit();
         setTimeout(()=>{
-            dispatch(postOne("article",this.state.groups,id,componentUid));
+            dispatch(postOne("article",this.state.groups,id,this.componentUid));
         },5);
     }
 
@@ -482,14 +485,15 @@ class ArticleForm extends React.Component{
 
     render(){
         // console.log("render article form");
-        const { onSubmit, reset, load,valid,pendingForm,dispatch,notificationsSelector,pristine,container,id,anyTouched} = this.props;
+        const { onSubmit, reset, load,valid,getForm,dispatch,getNotifications,pristine,container,id,anyTouched} = this.props;
         const {groups,data} = this.state;
+        const pendingForm = getForm(this.componentUid);
         //console.log("render form");
         //console.log(pendingForm && pendingForm.getIn(["values","hasEndDate"]));
         const hasEndDate = (pendingForm && pendingForm.hasIn(["values","hasEndDate"]))?
             pendingForm.getIn(["values","hasEndDate"]):true;
 
-        const notifications = notificationsSelector(componentUid);
+        const notifications = getNotifications(this.componentUid);
         const loading = (notifications && notifications.hasIn([(data && data.id) || 'DEFAULT',LOADING]))||false;
         const submitting = (notifications && notifications.hasIn([(data && data.id) || 'DEFAULT',SUBMITTING]))||false;
 
@@ -513,7 +517,7 @@ class ArticleForm extends React.Component{
             >
                 {submittingCompleted && notificationAlert(submittingCompleted,dispatch)}
                 <Form onSubmit={(e)=>{}}>
-                    <ArticleFormContext.Provider key={`article-form-provider-${id}`} value={contextValue}>
+                    <ArticleFormContext.Provider componentUid={this.componentUid} key={`article-form-provider-${id}`} value={contextValue}>
                         {this.props.children}
                     </ArticleFormContext.Provider>
                     <div key={`article-form-submit-${id}`}>
@@ -548,18 +552,36 @@ class ArticleForm extends React.Component{
     }
 }
 
+let counter = 0;
+let uid = '';
+const tweaks = ()=>{
+   if(counter%2 === 0) uid=require('uuid/v4')();
+   counter = counter+1;
+   console.log(`tweaks : ${uid}`);
+   return uid;
+};
+
+
+
+const makeMapStateToProps = () => {
+    const getOneByIdSelector = makeGetOneByIdSelector();
+    const getNotificationsSelector = makeGetNotificationsSelector();
+    const getFormSelector = makeGetFormSelector();
+    //const componentUid = require('uuid/v4')();
+
+    return state => {
+        return {
+            componentUid:componentUid,
+            getOneById: getOneByIdSelector(state.get("article")),
+            getForm:getFormSelector(state.get("form")),
+            getNotifications: getNotificationsSelector(state.get("app"))
+        }
+    }
+};
 
 
 ArticleForm = connect(
-    state => {
-        const selector = getOneByIdSelector(state.get("article"));
-        const notificationsSelector = getNotificationsSelector(state.get("app"));
-        return {
-            selector: selector,
-            pendingForm:state.getIn(["form",componentUid]),
-            notificationsSelector : notificationsSelector
-        }
-    },
+    makeMapStateToProps,
     { }
 )(ArticleForm);
 

@@ -5,23 +5,20 @@ const Imm = require("immutable");
 
 const getItems = (state) => state.get("items");
 
+export const makeGetNotificationsSelector = ()=> {
+    return createSelector(
+        [(state) => state.get("notifications")],
+        (notifications) => {
+            return createSelector([(senderKey) => senderKey], (senderKey) => {
+                return notifications.get(senderKey);
+            });
+        }
+    );
+};
 
 export const getNotificationsSelector = createSelector(
     [(state) => state.get("notifications")],
     (notifications) => (senderKey) => notifications.get(senderKey)
-);
-
-export const getPendingTotalSelector = createSelector(
-    [(state) => state.get("entitiesToPost")],
-    (entitiesToPost) => () => {
-        let count = 0;
-        entitiesToPost.valueSeq().forEach((v)=>{
-            /*console.log("counting entities to post");
-            console.log(v);*/
-            count = count + v.size;
-        });
-        return count;
-    }
 );
 
 export const getNextNewIdSelector = createSelector(
@@ -29,15 +26,24 @@ export const getNextNewIdSelector = createSelector(
     (nextNewId) => () => nextNewId
 );
 
+export const makeGetNextNewIdSelector = () =>{
+    return createSelector(
+        [(state) => state.get("nextNewId")],
+        (nextNewId) => () => nextNewId
+    );
+};
+
 
 export const getBabiesSelector = createSelector(
     [(state) => state.get("babyItemIds"),(state) => state.get("items")],
     (babyItemIds,items) => () => {
-        let babies = [];
-        babyItemIds.keySeq().forEach((k)=>{
-            if(items.has(+k) || false) babies.push(items.get(+k));
+        return createSelector([()=>null],()=>{
+            let babies = [];
+            babyItemIds.keySeq().forEach((k)=>{
+                if(items.has(+k) || false) babies.push(items.get(+k));
+            });
+            return babies;
         });
-        return babies;
     }
 );
 
@@ -64,6 +70,18 @@ export const getNewlyCreatedIdSelector = createSelector(
     }
 );
 
+export const makeGetNewlyCreatedIdSelector = () => {
+    return createSelector(
+        [(state) => state.get("createdItemIds")],
+        (createdItemIds) => {
+            return createSelector([(id)=>+id],(id)=>{
+                if(createdItemIds.has(+id)) return createdItemIds.get(+id);
+                return null;
+            });
+        }
+    );
+};
+
 export const getOneByIdSelector = createSelector(
     [(state) => state.get("items")],
     (items) => (id) => {
@@ -75,19 +93,60 @@ export const getOneByIdSelector = createSelector(
 export const makeGetOneByIdSelector = () =>{
     return createSelector(
         [(state) => state.get("items")],
-        (items) => (id) => {
-            if(items.has(+id)) return items.get(+id);
-            return null;
+        (items) => {
+            return createSelector([(id)=>+id],(id)=>{
+                if(items.has(+id)) return items.get(+id);
+                return null;
+            });
         }
     );
 };
 
+export const makeGetOneByIdPlusBabiesSelector = () =>{
+    return createSelector(
+        [(state) => state.get("items"),(state) => state.get("babyItemIds")],
+        (babyItemIds,items) => {
+            return createSelector([
+                (id,extraIds)=>+id,
+                (id,extraIds)=>extraIds.join(',')
+            ],(id,extraIds)=>{
+                let selectedEntries = [];
+                if(items.has(+id)) return selectedEntries.push(items.get(+id));
 
+                // add extra Ids
+                extraIds = extraIds.split(',');
+                extraIds.forEach((k)=>{
+                    if (items.has(+k) || false) selectedEntries.push(items.get(+k));
+                });
+
+                // add babies
+                babyItemIds.keySeq().forEach((k) => {
+                    if (items.has(+k) || false) selectedEntries.push(items.get(+k));
+                });
+                return selectedEntries;
+            });
+        }
+    );
+};
 
 export const getByIdsSelector = createSelector(
     [(state) => state.get("items")],
     (items) => (ids) => ids.map(id => items.get(+id)).filter((v,k)=>v || false)
 );
+
+export const makeGetByIdsSelector = () =>{
+    return createSelector(
+        [(state) => state.get("items")],
+        (items) => {
+            return createSelector([(ids)=>ids.join('|')],(serializedIds)=>{
+                const ids = serializedIds.split('|');
+                return ids.map(id => items.get(+id)).filter((v,k)=>v || false);
+            });
+        }
+    );
+};
+
+
 
 export const getSelector = createSelector(
     [(state) => state.get("items"),(state) => state.get("searchCache")],
@@ -133,7 +192,7 @@ export const makeGetPlusBabiesSelector = () =>{
     return createSelector(
         [(state) => state.get("babyItemIds"),(state) => state.get("items"),(state) => state.get("searchCache")],
         (babyItemIds,items,searchCache) => {
-            console.log("create getPlusBabiesSelector");
+            //console.log("create getPlusBabiesSelector");
             return createSelector([
                     (searchBag,extraIds) => JSON.stringify(SearchBagUtil.getCoreBag(searchBag)),
                     (searchBag,extraIds) => (searchBag.offset),
@@ -141,16 +200,16 @@ export const makeGetPlusBabiesSelector = () =>{
                     (searchBag,extraIds) => (searchBag.order),
                     (searchBag,extraIds) => (extraIds.join(','))
                 ], (coreBagKey, offset, limit, order,extraIds) => {
-                    console.log("call getPlusBabiesSelector");
+                    /*console.log("call getPlusBabiesSelector");
                     console.log(items);
                     // get selector
                     console.log(searchCache);
                     console.log(coreBagKey);
                     console.log(order);
                     console.log("extraIds");
-                    console.log(extraIds);
+                    console.log(extraIds);*/
                     const searchCacheEntry = searchCache.get(coreBagKey);
-                    console.log(searchCacheEntry);
+                    //console.log(searchCacheEntry);
                     let selectedEntries = [];
                     if (!!searchCacheEntry) {
                         let indexMap = searchCacheEntry.get("indexMap");
@@ -183,7 +242,16 @@ export const makeGetPlusBabiesSelector = () =>{
 };
 
 
-
+export const makeGetTotalSelector = () =>{
+    return createSelector(
+        [(state) => state.get("items"),(state) => state.get("searchCache")],
+        (items,searchCache) => (searchBag) => {
+            const searchCacheEntry = searchCache.get(JSON.stringify(SearchBagUtil.getCoreBag(searchBag)));
+            if(! searchCacheEntry) return -1;
+            return searchCacheEntry.get("total");
+        }
+    );
+};
 
 export const totalSelector2 = createSelector(
     [(state) => state.get("items"),(state) => state.get("searchCache")],
@@ -198,6 +266,53 @@ export const getPendingSelector = createSelector(
     [(state) => state.get("items"),(state) => state.get("pendingIds")],
     (items,pendingIds) => (uid) => (pendingIds.has(uid))?items.get(+pendingIds.get(uid)):null
 );
+
+export const makeGetPendingSelector = () =>{
+    return createSelector(
+        [(state) => state.get("items"),(state) => state.get("pendingIds")],
+        (items,pendingIds) => (uid) => (pendingIds.has(uid))?items.get(+pendingIds.get(uid)):null
+    );
+};
+
+export const getPendingTotalSelector = createSelector(
+    [(state) => state.get("entitiesToPost")],
+    (entitiesToPost) => () => {
+        let count = 0;
+        entitiesToPost.valueSeq().forEach((v)=>{
+            /*console.log("counting entities to post");
+            console.log(v);*/
+            count = count + v.size;
+        });
+        return count;
+    }
+);
+
+export const makeGetPendingTotalSelector = () =>{
+    return createSelector(
+        [(state) => state.get("entitiesToPost")],
+        (entitiesToPost) => () => {
+            let count = 0;
+            entitiesToPost.valueSeq().forEach((v)=>{
+                /*console.log("counting entities to post");
+                console.log(v);*/
+                count = count + v.size;
+            });
+            return count;
+        }
+    );
+};
+
+export const makeGetFormSelector = () =>{
+    return createSelector(
+        [(state) => (state)],
+        (state) => {
+                return createSelector([(componentUid)=>componentUid], (componentUid) => {
+                    return state.get(componentUid);
+                });
+        }
+    );
+};
+
 
 export const entitiesSelector = createSelector(
     [(state) => state],

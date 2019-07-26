@@ -10,7 +10,7 @@ const waoPrototype = {
     initialValues:null,
     toRemove:false,
     isDirty : function(rec){
-        return (rec.initialValues && rec.initialValues.size>0);
+        return (!!rec.initialValues && rec.initialValues !== null && rec.initialValues.size>0);
     },
     isNew : function(rec){
         return (+rec.get("id") < 0);

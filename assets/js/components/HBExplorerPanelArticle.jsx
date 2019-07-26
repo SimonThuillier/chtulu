@@ -46,7 +46,7 @@ const filterStyle = (article,selected,hovered) => {
         overStyle.floodColor = COLORS.DELETED;
         overStyle.floodOpacity = 1;
     }
-    else if(article && article.has("isNew") && article.get("isNew")(article)){
+    else if(article && article.has("isNew") && article.get("isNew")(article) && +article.id<0){
         overStyle.floodColor = COLORS.NEW;
         overStyle.floodOpacity = 1;
     }

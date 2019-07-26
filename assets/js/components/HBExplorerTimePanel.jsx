@@ -63,7 +63,7 @@ const HistoProxy = (function() {
             return this.article.endHDate;
         },
         get title() {
-            return this.article.title;
+            return this.article.title || 'nouvel article';
         },
         get detailImageResource() {
             return this.article.detailImageResource;

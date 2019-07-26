@@ -7,7 +7,9 @@ import ExplorerPage from "./ExplorerPage";
 import ArticlePage from "./ArticlePage";
 import Page3 from "./Page3";
 import ArticleTablePage from "./ArticleTablePage";
-import {getNotificationsSelector, getPendingTotalSelector} from "../selectors";
+import {
+    makeGetPendingTotalSelector, makeGetNotificationsSelector,
+} from "../selectors";
 import {postAll,resetAll} from "../actions";
 import {COLORS, SUBMITTING, SUBMITTING_COMPLETED} from "../util/notifications";
 import Loadable from 'react-loading-overlay';
@@ -50,30 +52,30 @@ class App extends Component {
     }
 
     onPostAll(){
-        const {dispatch,notificationsSelector} = this.props;
-        const notifications = notificationsSelector('HBAPP');
+        const {dispatch,getNotifications} = this.props;
+        const notifications = getNotifications('HBAPP');
         const submitting = (notifications && notifications.hasIn(['DEFAULT',SUBMITTING]))||false;
         if(!submitting) dispatch(postAll());
     }
 
     onResetAll(){
-        const {dispatch,notificationsSelector} = this.props;
-        const notifications = notificationsSelector('HBAPP');
+        const {dispatch,getNotifications} = this.props;
+        const notifications = getNotifications('HBAPP');
         const submitting = (notifications && notifications.hasIn(['DEFAULT',SUBMITTING]))||false;
         if(!submitting) dispatch(resetAll());
     }
 
 
     render(){
-        const {notificationsSelector,pendingTotalSelector} = this.props;
+        const {getNotifications,getPendingTotal} = this.props;
         let appProps = this.props;
         //console.log(appProps);
 
-        let pendingTotal = pendingTotalSelector();
+        let pendingTotal = getPendingTotal();
         /*console.log("pendingTotal");
         console.log(pendingTotal);*/
 
-        const notifications = notificationsSelector('HBAPP');
+        const notifications = getNotifications('HBAPP');
         /*console.log("HBAPP notifications");
         console.log(notifications);*/
         const submitting = (notifications && notifications.hasIn(['DEFAULT',SUBMITTING]))||false;
@@ -141,7 +143,19 @@ class App extends Component {
     }
 }
 
-const mapStateToProps = state => {
+const makeMapStateToProps = () => {
+    const getPendingTotalSelector = makeGetPendingTotalSelector();
+    const getNotificationsSelector = makeGetNotificationsSelector();
+
+    return state => {
+        return {
+            getPendingTotal: getPendingTotalSelector(state.get("app")),
+            getNotifications: getNotificationsSelector(state.get("app"))
+        }
+    }
+};
+
+/*const mapStateToProps = state => {
     const pendingTotalSelector = getPendingTotalSelector(state.get("app"));
     const notificationsSelector = getNotificationsSelector(state.get("app"));
     return {
@@ -149,6 +163,6 @@ const mapStateToProps = state => {
         notificationsSelector:notificationsSelector
     };
 
-};
+};*/
 
-export default connect(mapStateToProps)(App)
+export default connect(makeMapStateToProps)(App)

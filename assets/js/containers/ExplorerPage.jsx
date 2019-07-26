@@ -22,7 +22,7 @@ export class ExplorerPage extends React.Component {
     }
 
     componentDidMount(){
-        const {dispatch,nextNewIdSelector} = this.props;
+        const {dispatch} = this.props;
     }
 
     componentDidUpdate(prevProps) {
@@ -56,19 +56,8 @@ export class ExplorerPage extends React.Component {
 
 
 const mapStateToProps = state => {
-    const selector = selector || getSelector(state.get("article"));
-    const babiesSelector = getBabiesSelector(state.get("article"));
-    const nextNewIdSelector = getNextNewIdSelector(state.get("article"));
-    const totalSelector = totalSelector2(state.get("article"));
-    const newlyCreatedIdSelector = getNewlyCreatedIdSelector(state.get("article"));
-    const notificationsSelector = getNotificationsSelector(state.get("app"));
     return {
-        selector: selector,
-        babiesSelector:babiesSelector,
-        nextNewIdSelector: nextNewIdSelector,
-        totalSelector:totalSelector,
-        newlyCreatedIdSelector:newlyCreatedIdSelector,
-        notificationsSelector : notificationsSelector
+
     }
 };
 
