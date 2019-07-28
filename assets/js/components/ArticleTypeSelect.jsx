@@ -1,6 +1,6 @@
 import React,{ Component } from "react";
 import {getIfNeeded} from '../actions';
-import {getSelector} from "../selectors";
+import {makeGetSelector} from "../selectors";
 import { connect } from 'react-redux'
 import SearchBag from "../util/SearchBag";
 import HBFormField from './HBFormField';
@@ -21,8 +21,8 @@ class ArticleTypeSelect extends Component {
     }
 
     render(){
-        const { input, label, type, meta: { touched, error } ,selector} = this.props;
-        let options =  selector(this.state.searchBag).map((rec) =>{
+        const { input, label, type, meta: { touched, error } ,get} = this.props;
+        let options =  get(this.state.searchBag).map((rec) =>{
             return(
                 <option key={rec.get("id")} value={rec.get("id")}>
                     {rec.get("label")}
@@ -43,11 +43,20 @@ class ArticleTypeSelect extends Component {
     }
 }
 
-const mapStateToProps = (state) => {
+const makeMapStateToProps = () => {
+    const getSelector = makeGetSelector();
+    return state => {
+        return {
+            get: getSelector(state.get("articleType"))
+        }
+    }
+};
+
+/*const mapStateToProps = (state) => {
     const selector = selector || getSelector(state.get("articleType"));
     return {
         selector: selector
     }
-};
+};*/
 
-export default connect(mapStateToProps)(ArticleTypeSelect);
+export default connect(makeMapStateToProps)(ArticleTypeSelect);

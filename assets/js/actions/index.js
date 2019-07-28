@@ -598,19 +598,10 @@ const shouldFetchGetOneById = (state, waoType,groups,id,senderKey=null) => {
         //console.log(diff);
         if(Object.keys(diff).length < 1) return false;
     }
-
-
-
-    /*const posts = state.postsBySubreddit[subreddit]
-    if (!posts) {
-        return true
-    }
-    if (posts.isFetching) {
-        return false
-    }
-    return posts.didInvalidate*/
     return true;
 };
+
+const pendingCreations = new Map();
 
 export const getOneByIdIfNeeded = (waoType,groups=true,id,senderKey=null) => (dispatch, getState) => {
     if (id===null) return;

@@ -198,7 +198,7 @@ export const makeGetPlusBabiesSelector = () =>{
                     (searchBag,extraIds) => (searchBag.offset),
                     (searchBag,extraIds) => (searchBag.limit),
                     (searchBag,extraIds) => (searchBag.order),
-                    (searchBag,extraIds) => (extraIds.join(','))
+                    (searchBag,extraIds=[]) => (extraIds.join(','))
                 ], (coreBagKey, offset, limit, order,extraIds) => {
                     /*console.log("call getPlusBabiesSelector");
                     console.log(items);

@@ -20,25 +20,21 @@ import SearchBagUtil from '../util/SearchBagUtil';
 import ArticleType from '../components/ArticleType';
 import ArticleTitle from '../components/ArticleTitle';
 import {connect} from "react-redux";
-import {
-    getNotificationsSelector,
-    getSelector,
-    totalSelector2,
-    getNextNewIdSelector,
-    getBabiesSelector,
-    getNewlyCreatedIdSelector
-} from "../selectors/index";
 import RImageMini from "../components/RImageMini";
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import ArticleFilter from '../components/ArticleFilter';
 import {LOADING,SUBMITTING, COLORS, SUBMITTING_COMPLETED} from "../util/notifications";
-import {untouch as formUntouch} from "redux-form/immutable";
-import {getAllPropertiesInGroups} from "../util/WAOUtil";
 import EditButton from "../components/EditButton";
+import {
+    makeGetNewlyCreatedIdSelector,
+    makeGetNextNewIdSelector, makeGetNotificationsSelector,
+    makeGetPlusBabiesSelector,
+    makeGetSelector,makeGetTotalSelector
+} from "../selectors";
 const componentUid = require('uuid/v4')();
 
 
-const columns = (dispatch,onSelection,notificationsSelector) => [{
+const columns = (dispatch,onSelection,getNotifications) => [{
     dataField: 'title',
     text: 'Titre',
     formatter: function(cell,row,rowIndex){
@@ -83,15 +79,15 @@ const columns = (dispatch,onSelection,notificationsSelector) => [{
 },{
     dataField: 'initialValues',
     text: 'Actions',
-    formatExtraData:notificationsSelector,
-    formatter: (cell, row, rowIndex,notificationsSelector) => {
+    formatExtraData:getNotifications,
+    formatter: (cell, row, rowIndex,getNotifications) => {
         const toDelete = (row && row.has("toDelete") && row.get("toDelete"));
         const isNew = !toDelete && (row && row.has("isNew") && row.get("isNew")(row));
         const isDirty = !toDelete && !isNew && (row.has("isDirty") && row.get("isDirty")(row));
 
         //console.log(`actions formatter id ${row.get("id")} : toDelete:${toDelete}, isNew:${isNew}, isDirty:${isDirty} `);
         const actionUid = componentUid+'#' + row.get("id");
-        const notifications = notificationsSelector(actionUid);
+        const notifications = getNotifications(actionUid);
         const submitting = (notifications && notifications.hasIn([+row.get("id"),SUBMITTING]))||false;
 
         return (
@@ -125,9 +121,9 @@ const columns = (dispatch,onSelection,notificationsSelector) => [{
 }
 ];
 
-const customTotal = (babiesCount) => (from, to, size) => (
+const customTotal = () => (from, to, size) => (
     <span className="react-bootstrap-table-pagination-total">
-    &nbsp;Lignes { from } à { to } affichées parmi { size } résultats{babiesCount>0?` + ${babiesCount} article(s) ajouté(s)`:''}
+    &nbsp;Lignes { from } à { to } affichées parmi { size } résultats
   </span>
 );
 
@@ -218,15 +214,13 @@ class ArticleTablePage extends React.Component{
         console.log(prevProps.selector !== this.props.selector);*/
         // when babies are submitted all indexes are erased to ensure coherence between server and client so we have to reload
         if (this.state.activeId && this.state.activeId<0 &&
-            prevProps.newlyCreatedIdSelector !== this.props.newlyCreatedIdSelector
-        && this.props.newlyCreatedIdSelector(this.state.activeId)) {
-            this.setState({activeId:this.props.newlyCreatedIdSelector(this.state.activeId)});
+            prevProps.getNewlyCreatedId !== this.props.getNewlyCreatedId
+        && this.props.getNewlyCreatedId(this.state.activeId)) {
+            this.setState({activeId:this.props.getNewlyCreatedId(this.state.activeId)});
             this.loadSearchBag(this.state.groups,this.state.searchBag);
         }
-        else if (prevProps.babiesSelector !== this.props.babiesSelector) {
-            this.loadSearchBag(this.state.groups,this.state.searchBag);
-        }
-        else if (prevProps.selector !== this.props.selector && this.props.selector(this.state.searchBag).length<1) {
+        else if (prevProps.getPlusBabies !== this.props.getPlusBabies &&
+            this.props.getPlusBabies(this.state.searchBag).length<1) {
             this.loadSearchBag(this.state.groups,this.state.searchBag);
         }
     }
@@ -238,7 +232,7 @@ class ArticleTablePage extends React.Component{
 
     getBreadcrumb(id){
         let breadcrumb = {prev:null,next:null};
-        const items = this.props.selector(this.state.searchBag);
+        const items = this.props.getPlusBabies(this.state.searchBag);
 
         if(items.length>0){
             const index = items.findIndex((item)=>{return item.id === id;});
@@ -252,10 +246,10 @@ class ArticleTablePage extends React.Component{
 
     onNewArticle(){
         console.log('vous voulez un nouvel article ?');
-        const {nextNewIdSelector} = this.props;
+        const {getNextNewId} = this.props;
         this.setState({
             selected:[],
-            activeId:nextNewIdSelector(),
+            activeId:getNextNewId(),
             activeComponent:'form',
             breadcrumb:null
         });
@@ -325,16 +319,14 @@ class ArticleTablePage extends React.Component{
     }
 
     render(){
-        const {selector,babiesSelector,totalSelector,notificationsSelector,dispatch} = this.props;
+        const {getPlusBabies,getTotal,getNotifications,dispatch} = this.props;
         const {activeComponent} = this.state;
-        const babies = babiesSelector();
-        const babiesCount = babies.length;
 
-        let items = babies.concat(selector(this.state.searchBag));
+        let items = getPlusBabies(this.state.searchBag);
         /*console.log("items");
         console.log(items);*/
-        let total = totalSelector(this.state.searchBag);
-        const notifications = notificationsSelector(componentUid);
+        let total = getTotal(this.state.searchBag);
+        const notifications = getNotifications(componentUid);
 
         const coreBagKey = JSON.stringify(SearchBagUtil.getCoreBag(this.state.searchBag));
         const loading = (notifications && notifications.hasIn([coreBagKey || 'DEFAULT',LOADING]))||false;
@@ -377,7 +369,7 @@ class ArticleTablePage extends React.Component{
                                 sizePerPage:this.state.sizePerPage,
                                 totalSize:total,
                                 showTotal:true,
-                                paginationTotalRenderer:customTotal(babiesCount),
+                                paginationTotalRenderer:customTotal(),
                                 withFirstAndLast:true
 
                             })}
@@ -395,7 +387,7 @@ class ArticleTablePage extends React.Component{
                             } }
                             onTableChange={this.onTableChange}
                             loading={loading}
-                            columns={columns(dispatch,this.onRowSelection,notificationsSelector)}
+                            columns={columns(dispatch,this.onRowSelection,getNotifications)}
                         />
 
                         <Modal show={this.state.activeId !== null} onHide={this.handleClose}>
@@ -477,7 +469,28 @@ class ArticleTablePage extends React.Component{
     }
 }
 
-const mapStateToProps = state => {
+const makeMapStateToProps = () => {
+    const getSelector = makeGetSelector();
+    const getPlusBabiesSelector = makeGetPlusBabiesSelector();
+    const getNextNewIdSelector = makeGetNextNewIdSelector();
+    const getNewlyCreatedIdSelector = makeGetNewlyCreatedIdSelector();
+    const getTotalSelector = makeGetTotalSelector();
+    const getNotificationsSelector = makeGetNotificationsSelector();
+
+    return state => {
+        const dataSubState = state.get("article");
+        return {
+            get: getSelector(dataSubState),
+            getPlusBabies : getPlusBabiesSelector(dataSubState),
+            getNextNewId: getNextNewIdSelector(dataSubState),
+            getNewlyCreatedId:getNewlyCreatedIdSelector(dataSubState),
+            getTotal:getTotalSelector(dataSubState),
+            getNotifications: getNotificationsSelector(state.get("app"))
+        }
+    }
+};
+
+/*const mapStateToProps = state => {
     const selector = selector || getSelector(state.get("article"));
     const babiesSelector = getBabiesSelector(state.get("article"));
     const nextNewIdSelector = getNextNewIdSelector(state.get("article"));
@@ -492,6 +505,6 @@ const mapStateToProps = state => {
         newlyCreatedIdSelector:newlyCreatedIdSelector,
         notificationsSelector : notificationsSelector
     }
-};
+};*/
 
-export default connect(mapStateToProps)(ArticleTablePage);
+export default connect(makeMapStateToProps)(ArticleTablePage);
