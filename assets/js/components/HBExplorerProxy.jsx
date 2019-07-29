@@ -88,22 +88,34 @@ class HBExplorerProxy extends React.Component {
                 activeComponent:'detail'
             });
             this.setState({displayedArticles:displayedArticles});
+            this.setHInterval(getHIntervalFromArticles(this.getArticles()));
         }
         else{
             loadSearchBag(searchBag,dispatch);
+            this.setHInterval(getHIntervalFromArticles(this.getArticles()));
         }
     }
 
     componentDidUpdate(prevProps) {
         //console.log("update HBExplorerProxy");
-        const {mainArticleId=null,get,getPlusBabies,
-            getOneById,dispatch} = this.props;
+        const {mainArticleId,getPlusBabies,
+            getOneByIdPlusBabies,dispatch} = this.props;
         const {createdArticlesId} = this.state;
+
+        if(mainArticleId !== prevProps.mainArticleId){
+            this.setState({hasSelfUpdatedHInterval:false});
+            const component = this;
+            setTimeout(()=>{component.setHInterval(getHIntervalFromArticles(component.getArticles()));},20);
+        }
 
         // mainArticle mode
         if(mainArticleId !== null){
             if(mainArticleId !== prevProps.mainArticleId){
                 loadMainArticle(mainArticleId,dispatch);
+            }
+            else if(!this.state.hasSelfUpdatedHInterval &&
+                prevProps.getOneByIdPlusBabies !== getOneByIdPlusBabies){
+                this.setHInterval(getHIntervalFromArticles(this.getArticles()));
             }
         }
         // default mode
@@ -120,8 +132,7 @@ class HBExplorerProxy extends React.Component {
             else if(!this.state.hasSelfUpdatedHInterval &&
                 prevProps.getPlusBabies !== getPlusBabies &&
                 getPlusBabies(searchBag,createdArticlesId).length>1){
-                console.log("different selector => update HInterval");
-                this.setHInterval(getHIntervalFromArticles(getPlusBabies(searchBag,createdArticlesId)));
+                this.setHInterval(getHIntervalFromArticles(this.getArticles()));
             }
         }
 
@@ -241,6 +252,7 @@ class HBExplorerProxy extends React.Component {
     }
 
     setHInterval(hInterval) {
+        if(!hInterval) return;
         this.setState({ hInterval: hInterval, hasSelfUpdatedHInterval:true });
     }
 

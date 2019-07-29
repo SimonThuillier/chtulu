@@ -70,7 +70,7 @@ export const getHIntervalFromArticles = (articles) => {
     console.log(`maxDate : ${maxDate}`);*/
 
     if(minDate ===null || maxDate===null) return null;
-    return new HDate("2", dU.addDay(minDate,-1),maxDate);
+    return (new HDate("2", dU.addDay(minDate,-1),maxDate)).multiply(1.03);
 };
 
 export const getInvisibles = (articles, hInterval) => {
