@@ -105,13 +105,13 @@ export const makeGetOneByIdSelector = () =>{
 export const makeGetOneByIdPlusBabiesSelector = () =>{
     return createSelector(
         [(state) => state.get("items"),(state) => state.get("babyItemIds")],
-        (babyItemIds,items) => {
+        (items,babyItemIds) => {
             return createSelector([
                 (id,extraIds)=>+id,
                 (id,extraIds)=>extraIds.join(',')
             ],(id,extraIds)=>{
                 let selectedEntries = [];
-                if(items.has(+id)) return selectedEntries.push(items.get(+id));
+                if(items.has(+id)) selectedEntries.push(items.get(+id));
 
                 // add extra Ids
                 extraIds = extraIds.split(',');

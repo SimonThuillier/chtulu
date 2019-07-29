@@ -1,6 +1,7 @@
 import HDate from "./HDate";
 import {LEFT, RIGHT} from "./geometry";
 import dU from "./date";
+import {createSelector} from "reselect/lib/index";
 
 
 export const articleIsOpen = (displayedArticles,id) => {
@@ -115,6 +116,64 @@ export const getIntegratedSpeed = (acceleration, time) => {
     const { exp, log, floor } = Math;
     return (1 / log(acceleration)) * (exp(time * log(acceleration)) - 1);
 };
+
+
+export const sortArticlesChronogically = createSelector(
+    [articles =>articles],
+    (articles)=> {
+        let sortedArticles = [...articles];
+
+        sortedArticles = sortedArticles
+            .filter(article => {return !!article.beginHDate;})
+            .sort( (a, b) =>{return a.beginHDate.beginDate.getTime() - b.beginHDate.beginDate.getTime();});
+
+       return sortedArticles;
+    }
+);
+
+export const getNeighbourArticleChronogically = (articles,currentId,sense) => {
+    const sortedArticles = sortArticlesChronogically(articles);
+    const currentIndex = sortedArticles.findIndex((element)=>{
+        return +element.get('id') === +currentId}
+        );
+
+    if(currentIndex === -1) return null;
+
+    if(sense === 1){
+        if(currentIndex >= (sortedArticles.length-1) ) return null;
+        const element = sortedArticles[currentIndex+1];
+        return element;
+    }
+    else {
+        if(currentIndex <= 0 ) return null;
+        const element = sortedArticles[currentIndex-1];
+        return element;
+    }
+};
+
+export const getLastBegunArticle = (articles,date) => {
+    const sortedArticles = sortArticlesChronogically(articles);
+    if(sortedArticles.length < 1) return null;
+    let lastArticle = sortedArticles[0];
+    for(let article of sortedArticles){
+        if(article.beginHDate.beginDate.getTime() > date.getTime()){
+            return lastArticle;
+        }
+        else{
+            lastArticle = article;
+        }
+    }
+} ;
+
+
+export const getOneByIdSelector = createSelector(
+    [(state) => state.get("items")],
+    (items) => (id) => {
+        if(items.has(+id)) return items.get(+id);
+        return null;
+    }
+);
+
 
 export const AVAILABLE_THEMES = {
     EDITOR: `EDITOR`,

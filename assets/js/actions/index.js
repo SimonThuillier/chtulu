@@ -322,14 +322,22 @@ export const removePending = (waoType,id,groups) => ({
     }
 );
 
-export const submitLocally = (waoType,data,id,groups) => (dispatch,state) => {
-    dispatch(addPending(waoType,id,groups));
-    return dispatch({
-        type: SUBMIT_LOCALLY,
-        waoType: waoType,
-        data: data,
-        id: id
-    });
+// pour gestion du cas limite d'edition dun element en cours de creation
+const pendingCreations = new Map();
+
+export const submitLocally = (waoType,data,id,groups) => (dispatch,getState) => {
+    if(getState().hasIn([waoType,"items",+id])){
+        dispatch(addPending(waoType,id,groups));
+        return dispatch({
+            type: SUBMIT_LOCALLY,
+            waoType: waoType,
+            data: data,
+            id: id
+        });
+    }
+    else{
+        pendingCreations.set(`${waoType}-${id}`,{data:data,groups:groups});
+    }
 };
 
 export const reset = (waoType,ids,groups) => (dispatch,state) =>{
@@ -601,8 +609,6 @@ const shouldFetchGetOneById = (state, waoType,groups,id,senderKey=null) => {
     return true;
 };
 
-const pendingCreations = new Map();
-
 export const getOneByIdIfNeeded = (waoType,groups=true,id,senderKey=null) => (dispatch, getState) => {
     if (id===null) return;
     // new case
@@ -615,6 +621,13 @@ export const getOneByIdIfNeeded = (waoType,groups=true,id,senderKey=null) => (di
             setTimeout(()=>{
                 if (!getState().hasIn([waoType,"items",+id]) && !getState().hasIn([waoType,"createdItemIds",+id])){
                     dispatch(createNew(waoType));
+                    if(pendingCreations.has(`${waoType}-${id}`)){
+                        const {data,groups} = pendingCreations.get(`${waoType}-${id}`);
+                        setTimeout(()=>{
+                            dispatch(submitLocally(waoType,data,id,groups));
+                        },20);
+                        pendingCreations.delete(`${waoType}-${id}`);
+                    }
                 }
             },5);
         }
@@ -644,6 +657,13 @@ export const fetchNew = (waoType,id,senderKey) => (dispatch) => {
                             dispatch(notify(LOADING_COMPLETED,waoType,null,HB_SUCCESS));
                             dispatch(createNew(waoType));
                         },10);
+                        if(pendingCreations.has(`${waoType}-${id}`)){
+                            const {data,groups} = pendingCreations.get(`${waoType}-${id}`);
+                            setTimeout(()=>{
+                                dispatch(submitLocally(waoType,data,id,groups));
+                            },30);
+                            pendingCreations.delete(`${waoType}-${id}`);
+                        }
                         //console.info(json);
                         dispatch(receiveNew(waoType,json.data));
                         break;

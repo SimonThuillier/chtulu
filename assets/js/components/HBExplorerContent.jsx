@@ -1,7 +1,8 @@
 import React from "react";
 
 import { Button, Glyphicon } from "react-bootstrap";
-
+import TimeBreadcrumb from './TimeBreadcrumb';
+import {getNeighbourArticleChronogically} from '../util/explorerUtil';
 
 import HBExplorerContentHistory from "./HBExplorerContentHistory.jsx";
 
@@ -35,7 +36,7 @@ class HBExplorerContent extends React.Component {
     }
 
     render() {
-        const {dispatch,displayedArticles,toggleActiveComponent,closeArticle,selectArticle,theme} = this.props;
+        const {dispatch,articles,displayedArticles,toggleActiveComponent,closeArticle,selectArticle,theme} = this.props;
 
 
         const articlesToDisplay = Array.from(displayedArticles).
@@ -53,6 +54,9 @@ class HBExplorerContent extends React.Component {
         const articlePanels = articlesToDisplay.map(([id,value])=>{
             //console.log(value.activeComponent);
             const alreadyCreatedArticle = +id > 0;
+            const nextArticle = getNeighbourArticleChronogically(articles,id,1);
+            const previousArticle = getNeighbourArticleChronogically(articles,id,-1);
+
             return (
                 <div className="panel panel-default hg-content-panel"
                      key={`hg-container-article-panel-${id}`}
@@ -73,6 +77,8 @@ class HBExplorerContent extends React.Component {
                             :
                             <span><h4><ArticleTitle id={id}/></h4></span>}
                         <span>
+                            <TimeBreadcrumb sense={-1} target={previousArticle} switcher={(id)=>{return selectArticle([id]);}}/>
+                            <TimeBreadcrumb sense={1} target={nextArticle} switcher={(id)=>{return selectArticle([id]);}}/>
                             <Button bsStyle="primary"
                                     disabled={false}
                                     onClick={()=>{toggleActiveComponent([id])}}>

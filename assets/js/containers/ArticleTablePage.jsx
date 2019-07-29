@@ -31,6 +31,7 @@ import {
     makeGetPlusBabiesSelector,
     makeGetSelector,makeGetTotalSelector
 } from "../selectors";
+import TimeBreadcrumb from '../components/TimeBreadcrumb';
 const componentUid = require('uuid/v4')();
 
 
@@ -126,36 +127,6 @@ const customTotal = () => (from, to, size) => (
     &nbsp;Lignes { from } à { to } affichées parmi { size } résultats
   </span>
 );
-
-const leftBreadcrumb = (breadcrumb,switcher) => {
-    return ((breadcrumb.prev)?<OverlayTrigger
-        placement="left"
-        overlay={
-            <Tooltip id="prev-tooltip">
-                {breadcrumb.prev.title}
-            </Tooltip>
-        }>
-        <Button onClick={() => {switcher(breadcrumb.prev.id)}}>
-            <Glyphicon glyph="menu-left" />
-        </Button>
-    </OverlayTrigger>:<span>&nbsp;&nbsp;&nbsp;</span>);
-};
-
-const rightBreadcrumb = (breadcrumb,switcher) => {
-    //const id = breadcrumb.next?breadcrumb.next.id:null;
-
-    return ((breadcrumb.next)?<OverlayTrigger
-        placement="right"
-        overlay={
-            <Tooltip id="next-tooltip">
-                {breadcrumb.next.title}
-            </Tooltip>
-        }>
-        <Button onClick={() => {switcher(breadcrumb.next.id)}}>
-            <Glyphicon glyph="menu-right" />
-        </Button>
-    </OverlayTrigger>:<span>&nbsp;&nbsp;&nbsp;</span>);
-};
 
 const rowStyle = (row, rowIndex) => {
     if(row && row.has("hasErrors") && row.get("hasErrors")(row)){
@@ -320,7 +291,7 @@ class ArticleTablePage extends React.Component{
 
     render(){
         const {getPlusBabies,getTotal,getNotifications,dispatch} = this.props;
-        const {activeComponent} = this.state;
+        const {activeComponent,breadcrumb} = this.state;
 
         let items = getPlusBabies(this.state.searchBag);
         /*console.log("items");
@@ -410,8 +381,8 @@ class ArticleTablePage extends React.Component{
 
                                         </Col>
                                         <Col xs={3} sm={3} md={3}>
-                                            {this.state.breadcrumb && leftBreadcrumb(this.state.breadcrumb,this.handleArticleSwitch)}
-                                            {this.state.breadcrumb && rightBreadcrumb(this.state.breadcrumb,this.handleArticleSwitch)}
+                                            {breadcrumb && TimeBreadcrumb(-1,breadcrumb.prev,this.handleArticleSwitch)}
+                                            {breadcrumb && TimeBreadcrumb(1,breadcrumb.next,this.handleArticleSwitch)}
                                         </Col>
                                     </Row>
                                 </Modal.Title>

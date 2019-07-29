@@ -4,6 +4,7 @@ const Radium = require('radium').default; // CHANGED: Must add `.default`
 const { Style } = require('radium');
 import dateUtil from "../util/date";
 import trans from "../util/translation";
+import {getLastBegunArticle} from '../util/explorerUtil';
 
 const dateFormatter = dateUtil.getFormatterFromPattern(trans.FORMAT_STRS["1"]);
 
@@ -107,7 +108,7 @@ class TimeArrowCursor extends React.Component {
 
     render() {
         const {isDraggingCursor} = this.state;
-        const {cursorRate,cursorDate,width,height,marginWidth,onMouseDown,onMouseUp} = this.props;
+        const {cursorRate,cursorDate,width,height,marginWidth,onMouseDown,onMouseUp,selectArticle,articles} = this.props;
 
         const cursorDateLabel = dateFormatter(cursorDate);
         //console.log(`cursorDate : ${cursorDateLabel}`);
@@ -145,6 +146,14 @@ class TimeArrowCursor extends React.Component {
                 <path
                     className={isDraggingCursor?'active':null}
                     onMouseDown={this.onCursorDragBegin}
+                    onDoubleClick={(e)=>{
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const lastBegunArticle = getLastBegunArticle(articles,cursorDate);
+                        if(lastBegunArticle !== null){
+                            selectArticle([lastBegunArticle.id]);
+                        }
+                    }}
                     style={cursorStyle}
                     vectorEffect="non-scaling-stroke"
                     d={cursorPath}

@@ -32,6 +32,7 @@ const loadSearchBag = (searchBag,dispatch) => {
     dispatch(getIfNeeded("article",defaultGroups,searchBag,componentUid));
 };
 const loadMainArticle = (id,dispatch) => {
+    console.log(`loadMainArticle : ${id}`);
     dispatch(getOneByIdIfNeeded("article",mainArticleGroups,+id,componentUid));
 };
 
@@ -101,7 +102,7 @@ class HBExplorerProxy extends React.Component {
 
         // mainArticle mode
         if(mainArticleId !== null){
-            if(mainArticleId !== prevProps.mainArticleId || get !== prevProps.get){
+            if(mainArticleId !== prevProps.mainArticleId){
                 loadMainArticle(mainArticleId,dispatch);
             }
         }
@@ -125,11 +126,11 @@ class HBExplorerProxy extends React.Component {
         }
 
         // new article initialization
-        if(this.newArticleInitialValues!==null && !!getOneById(this.newArticleInitialValues.get("newArticleId"))){
+        /*if(this.newArticleInitialValues!==null && !!getOneById(this.newArticleInitialValues.get("newArticleId"))){
             dispatch(submitLocally("article",this.newArticleInitialValues,
                 this.newArticleInitialValues.get("newArticleId"),{date:true}));
             this.newArticleInitialValues=null;
-        }
+        }*/
 
         this.ensureDisplayedArticlesCoherence();
     }
@@ -145,6 +146,7 @@ class HBExplorerProxy extends React.Component {
         // mainArticle mode
         if(mainArticleId !== null) {
             articles = getOneByIdPlusBabies(+mainArticleId,createdArticlesId);
+            console.log(articles);
         }
         // default mode
         else{
@@ -302,17 +304,17 @@ class HBExplorerProxy extends React.Component {
     addArticle(date){
         //console.log('vous voulez un nouvel article ?');
         //console.log(date);
-        const {getNextNewId} = this.props;
+        const {getNextNewId,dispatch} = this.props;
         const newArticleId = getNextNewId();
         this.selectArticle([newArticleId],'form');
 
         // initialize values for the new article
-        this.newArticleInitialValues = Imm.Map();
-        this.newArticleInitialValues = this.newArticleInitialValues
+        const initialValues = Imm.Map()
             .set('beginHDate',new HDate("1",date))
             .set('endHDate',new HDate("1",date))
             .set('hasEndDate',true);
-            //.set('newArticleId',newArticleId);
+
+        dispatch(submitLocally("article",initialValues,newArticleId,{date:true}));
     }
 
     setLimit(limit){

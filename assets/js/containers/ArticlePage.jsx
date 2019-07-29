@@ -40,12 +40,16 @@ export class ArticlePage extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        const {idParam,actionParam} = this.props.match.params;
+        console.log('article page props');
+        console.log(this.props);
 
-        const id = +this.props.id||+idParam;
-        const activeComponent = this.props.activeComponent||getActiveComponent(actionParam);
+        const id = +this.props.id||+this.props.match.params.id;
+        const activeComponent = this.props.activeComponent||getActiveComponent(this.props.match.params);
+        console.log(id);
+        console.log(activeComponent);
 
-        const {oldId,oldActiveComponent} = this.state;
+        const oldId = +this.state.id;
+        const oldActiveComponent = this.state.activeComponent;
 
         if (id !== oldId) {
             this.setState({id:+id});
@@ -57,10 +61,11 @@ export class ArticlePage extends React.Component {
 
     render(){
         const {id,activeComponent} = this.state;
-        const {getOneByIdSelector} = this.props;
-        const article = getOneByIdSelector(id);
+        const {getOneById} = this.props;
+        const article = getOneById(id);
 
         const articleTitle = (article && article.get("title")) || 'Nouvel article';
+        console.log(+id);
 
         return (
             <div className="content-wrapper hb-container">
@@ -70,7 +75,7 @@ export class ArticlePage extends React.Component {
                 {/*<section className="content-header">*/}
                     {/*<h4><ArticleTitle id={+id}/></h4>*/}
                 {/*</section>*/}
-                <section className="content">
+                <section className="content no-padding">
                     <div>
                         <HBExplorerProxy
                             mainArticleId={+id}
@@ -88,7 +93,7 @@ const makeMapStateToProps = () => {
         const dataSubState = state.get("article");
 
         return {
-            getOneByIdSelector : getOneByIdSelector(dataSubState),
+            getOneById : getOneByIdSelector(dataSubState),
             //nextNewIdSelector : getNextNewIdSelector(dataSubState)
 
         }

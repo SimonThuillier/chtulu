@@ -416,6 +416,7 @@ render() {
             <ContentArea>
                 <HBExplorerContent
                     dispatch={dispatch}
+                    articles={articles}
                     displayedArticles={displayedArticles}
                     selectArticle={selectArticle}
                     toggleActiveComponent={toggleActiveComponent}

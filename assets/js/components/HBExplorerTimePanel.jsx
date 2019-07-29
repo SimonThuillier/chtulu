@@ -277,7 +277,7 @@ export default class HBExplorerTimePanel extends React.Component {
             articleProxies = new Map();
             (articles || [])
                 .filter(article => {return !!article.beginHDate;})
-                .sort( (a, b) =>{return a.beginHDate.beginDate.getTime() >= b.beginHDate.beginDate.getTime();})
+                .sort( (a, b) =>{return a.beginHDate.beginDate.getTime() - b.beginHDate.beginDate.getTime();})
                 .forEach(article => {
                     articleProxies.set(+article.id, this.state.articles.has(+article.id)?
                         this.state.articles.get(+article.id).setArticle(article):new HistoProxy(article));
@@ -510,6 +510,7 @@ export default class HBExplorerTimePanel extends React.Component {
     render() {
         const {bounds,displayedArticles,hoveredArticleId, setHoveredArticle,selectArticle,hInterval,setHInterval,
             cursorDate,cursorRate,isCursorActive,setCursorRate,toggleCursor} = this.props;
+        const realArticles = this.props.articles;
         const marginWidth = this.props.marginWidth || 0;
         const strokeSize = 1;
         const { timeScale, articles,originY } = this.state;
@@ -576,6 +577,8 @@ export default class HBExplorerTimePanel extends React.Component {
                 />
                 <TimeArrowCursor
                     key={'time-arrow-cursor'}
+                    articles={realArticles}
+                    selectArticle={selectArticle}
                     cursorDate = {cursorDate}
                     cursorRate = {cursorRate}
                     isCursorActive={isCursorActive}
