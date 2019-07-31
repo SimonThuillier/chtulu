@@ -1,19 +1,18 @@
 <?php
 namespace App\Factory;
 
-use App\Entity\ArticleLink;
+use App\DTO\ArticleLinkDTO;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class ArticleLinkFactory extends AbstractEntityFactory
+class ArticleLinkDTOFactory extends AbstractDTOFactory
 {
     /**
-     * ArticleLinkFactory constructor.
      * @inheritdoc
      */
     public function __construct(ManagerRegistry $doctrine,TokenStorageInterface $tokenStorage)
     {
-        $this->productClassName = ArticleLink::class;
+        $this->productClassName = ArticleLinkDTO::class;
         parent::__construct($doctrine,$tokenStorage);
     }
 
@@ -22,12 +21,8 @@ class ArticleLinkFactory extends AbstractEntityFactory
      */
     protected function setDefaultData($product)
     {
-        /** @var ArticleLink $articleLink */
-        $articleLink = $product;
-
-        $articleLink
-            ->setActive(true)
-            ->setCreationDate(new \DateTime())
-            ->setCreationUser($this->getUser());
+        /** @var ArticleLinkDTO $articleLinkDTO */
+        $articleLinkDTO = $product;
+        $articleLinkDTO->setAbstract("Résumé contextualisé par rapport au présent sur-article");
     }
 }

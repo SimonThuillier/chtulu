@@ -37,7 +37,8 @@ class ArticleDTOMediator extends DTOMediator
         parent::__construct($locator);
         $this->dtoClassName = self::DTO_CLASS_NAME;
         $this->entityClassName = self::ENTITY_CLASS_NAME;
-        $this->groups = ['minimal','abstract','date','type','detailImage','geometry','subArticles','hteRange'];
+        $this->groups = ['minimal','abstract','date','type','detailImage','geometry'];
+        //'subArticles','hteRange'
     }
 
     /**
@@ -180,40 +181,40 @@ class ArticleDTOMediator extends DTOMediator
         }
         //$dto->addMappedGroup('detailImage');
     }
-
-    protected function mapDTOSubArticlesGroup()
-    {
-        /** @var ArticleDTO $dto */
-        $dto = $this->dto;
-        // TODO : complete when sub-article management is completed
-        $dto->addMappedGroup('subArticles');
-    }
-
-    protected function mapDTOhteRangeGroup()
-    {
-        $hDateNormalizer = $this->locator->get(HDateNormalizer::class);
-        $encoder = $this->locator->get('serializer.encoder.json');
-
-
-        /** @var Article $article */
-        $article = $this->entity;
-        /** @var ArticleDTO $dto */
-        $dto = $this->dto;
-
-        if($article->gethteRange() !==null){
-            $dto->sethteRange($hDateNormalizer->denormalize(
-                $encoder->decode($article->gethteRange(),'json'),HDate::class));
-        }
-        else{
-            $beginHDate = $this->getArticleBeginHDate($article);
-            $endHDate = $this->getArticleEndHDate($article);
-            $hteRange = $dto->gethteRange();
-            if($beginHDate !== null) $hteRange->setBeginDate($beginHDate->getBeginDate());
-            if($endHDate !== null) $hteRange->setEndDate($endHDate->getEndDate());
-        }
-        // TODO : complete when sub-article management is completed
-        //$dto->addMappedGroup('hteRange');
-    }
+//
+//    protected function mapDTOSubArticlesGroup()
+//    {
+//        /** @var ArticleDTO $dto */
+//        $dto = $this->dto;
+//        // TODO : complete when sub-article management is completed
+//        $dto->addMappedGroup('subArticles');
+//    }
+//
+//    protected function mapDTOhteRangeGroup()
+//    {
+//        $hDateNormalizer = $this->locator->get(HDateNormalizer::class);
+//        $encoder = $this->locator->get('serializer.encoder.json');
+//
+//
+//        /** @var Article $article */
+//        $article = $this->entity;
+//        /** @var ArticleDTO $dto */
+//        $dto = $this->dto;
+//
+//        if($article->gethteRange() !==null){
+//            $dto->sethteRange($hDateNormalizer->denormalize(
+//                $encoder->decode($article->gethteRange(),'json'),HDate::class));
+//        }
+//        else{
+//            $beginHDate = $this->getArticleBeginHDate($article);
+//            $endHDate = $this->getArticleEndHDate($article);
+//            $hteRange = $dto->gethteRange();
+//            if($beginHDate !== null) $hteRange->setBeginDate($beginHDate->getBeginDate());
+//            if($endHDate !== null) $hteRange->setEndDate($endHDate->getEndDate());
+//        }
+//        // TODO : complete when sub-article management is completed
+//        //$dto->addMappedGroup('hteRange');
+//    }
 
     protected function mediateBeginHDate($mapperCommands){
         /** @var ArticleDTO $dto */
@@ -265,18 +266,18 @@ class ArticleDTOMediator extends DTOMediator
         return $mapperCommands;
     }
 
-    protected function mediateHteRange($mapperCommands){
-        $hDateNormalizer = $this->locator->get(HDateNormalizer::class);
-        $encoder = $this->locator->get('serializer.encoder.json');
-
-        /** @var ArticleDTO $dto */
-        $dto = $this->dto;
-        /** @var Article $article */
-        $article = $this->entity;
-
-        $article->sethteRange($dto->gethteRange()?$encoder->encode(
-            $hDateNormalizer->normalize($dto->gethteRange()),'json'):null);
-    }
+//    protected function mediateHteRange($mapperCommands){
+//        $hDateNormalizer = $this->locator->get(HDateNormalizer::class);
+//        $encoder = $this->locator->get('serializer.encoder.json');
+//
+//        /** @var ArticleDTO $dto */
+//        $dto = $this->dto;
+//        /** @var Article $article */
+//        $article = $this->entity;
+//
+//        $article->sethteRange($dto->gethteRange()?$encoder->encode(
+//            $hDateNormalizer->normalize($dto->gethteRange()),'json'):null);
+//    }
 
     protected function mediateDetailImageResource($mapperCommands){
         /** @var ArticleDTO $dto */

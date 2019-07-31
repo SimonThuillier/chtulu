@@ -60,6 +60,12 @@ class Article extends DTOMutableEntity
     protected $editionDate;
 
     /**
+     * @var boolean
+     * @ORM\Column(name="active", type="boolean")
+     */
+    protected $active;
+
+    /**
      * @var string
      * @ORM\Column(name="abstract", type="string", length=2000)
      */
@@ -71,12 +77,6 @@ class Article extends DTOMutableEntity
      * @ORM\JoinColumn(name="type_id", referencedColumnName="id")
      */
     protected $type;
-
-    /**
-     * @var string
-     * @ORM\Column(name="content", type="text", nullable=true)
-     */
-    protected $content;
 
     /**
      * @var integer
@@ -129,22 +129,16 @@ class Article extends DTOMutableEntity
     protected $endDateLabel;
 
     /**
-     * @var string
-     * @ORM\Column(name="hte_range", type="string", nullable=true,length=255)
-     */
-    protected $hteRange;
-
-    /**
-     * @var array
-     * @ORM\Column(name="domain", type="simple_array",nullable=true)
-     */
-    protected $domain=array(0,0,0,0,0,0,0,0); // all 0 by default
-
-    /**
      * @var ArrayCollection
      * @ORM\OneToMany(targetEntity="ArticleLink", mappedBy="parentArticle")
      */
     protected $links;
+
+    /**
+     * @var integer
+     * @ORM\Column(name="children_count", type="integer")
+     */
+    protected $childrenCount;
 
     /**
      * @var HResource
@@ -265,6 +259,24 @@ class Article extends DTOMutableEntity
     }
 
     /**
+     * @return bool
+     */
+    public function getActive(): bool
+    {
+        return $this->active;
+    }
+
+    /**
+     * @param bool $active
+     * @return Article
+     */
+    public function setActive(bool $active): Article
+    {
+        $this->active = $active;
+        return $this;
+    }
+
+    /**
      * Get abstract
      * @return string
      */
@@ -297,24 +309,6 @@ class Article extends DTOMutableEntity
      */
     public function setType($type){
         $this->type = $type;
-        return $this;
-    }
-
-    /**
-     * Get content
-     * @return string
-     */
-    public function getContent(){
-        return $this->content;
-    }
-
-    /**
-     * Set content
-     * @param string $content
-     * @return Article
-     */
-    public function setContent($content){
-        $this->content = $content;
         return $this;
     }
 
@@ -463,24 +457,6 @@ class Article extends DTOMutableEntity
     }
 
     /**
-     * @return string
-     */
-    public function getHteRange(): ?string
-    {
-        return $this->hteRange;
-    }
-
-    /**
-     * @param string $hteRange
-     * @return Article
-     */
-    public function setHteRange(?string $hteRange): Article
-    {
-        $this->hteRange = $hteRange;
-        return $this;
-    }
-
-    /**
      * @return HResource|null
      */
     public function getDetailImage(): ?HResource
@@ -499,24 +475,6 @@ class Article extends DTOMutableEntity
     }
 
     /**
-     * Get domain
-     * @return array
-     */
-    public function getDomain(){
-        return $this->domain;
-    }
-
-    /**
-     * domain
-     * @param string $domain
-     * @return Article
-     */
-    public function setDomain($domain){
-        $this->domain = $domain;
-        return $this;
-    }
-
-    /**
      * Get links
      * @return ArrayCollection
      */
@@ -531,6 +489,24 @@ class Article extends DTOMutableEntity
      */
     public function addLink($link){
         $this->links[] = $link;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getChildrenCount(): int
+    {
+        return $this->childrenCount;
+    }
+
+    /**
+     * @param int $childrenCount
+     * @return Article
+     */
+    public function setChildrenCount(int $childrenCount): Article
+    {
+        $this->childrenCount = $childrenCount;
         return $this;
     }
 

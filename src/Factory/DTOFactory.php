@@ -9,6 +9,7 @@
 namespace App\Factory;
 
 use App\DTO\ArticleDTO;
+use App\DTO\ArticleLinkDTO;
 use App\DTO\EntityMutableDTO;
 use App\DTO\ResourceDTO;
 use App\DTO\ResourceGeometryDTO;
@@ -41,7 +42,8 @@ class DTOFactory implements ServiceSubscriberInterface
             ResourceDTO::class =>  ResourceDTOFactory::class,
             ResourceImageDTO::class => ResourceImageDTOFactory::class,
             ResourceVersionDTO::class => ResourceVersionDTOFactory::class,
-            ResourceGeometryDTO::class => ResourceGeometryDTOFactory::class
+            ResourceGeometryDTO::class => ResourceGeometryDTOFactory::class,
+            ArticleLinkDTO::class => ArticleLinkDTOFactory::class
         ];
     }
 

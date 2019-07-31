@@ -2,8 +2,6 @@
 namespace App\Factory;
 
 use App\DTO\ArticleDTO;
-use App\Entity\DateType;
-use App\Utils\HDate;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
@@ -26,12 +24,5 @@ class ArticleDTOFactory extends AbstractDTOFactory
         /** @var ArticleDTO $articleDTO */
         $articleDTO = $product;
         $articleDTO->setHasEndDate(true);
-
-        $hteRange = new HDate();
-        $hteRange->setType($this->doctrine->getRepository(DateType::class)->find(DateType::BOUNDED))
-            ->setBeginDate(\DateTime::createFromFormat('Y-m-d', '2000-01-01'))
-            ->setEndDate(new \DateTime());
-
-        $articleDTO->setHteRange($hteRange);
     }
 }

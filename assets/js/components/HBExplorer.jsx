@@ -327,8 +327,8 @@ componentWillUnmount() {
 render() {
     const { currentTheme, frameSizes, guiInitialized,isResizing } = this.state;
     const { searchBag,setLimit,hInterval,setHInterval,cursorRate,cursorDate,isCursorActive,setCursorRate,toggleCursor,
-        articles,displayedArticles,invisibles,
-        hoveredArticleId, setHoveredArticle,selectArticle,closeArticle,toggleActiveComponent,addArticle,
+        articles,mainArticleId,displayedArticles,invisibles,
+        hoveredArticleId, setHoveredArticle,selectArticle,closeArticle,expandArticle,toggleActiveComponent,addArticle,
         dispatch,onFilter} = this.props;
     const theme = THEMES[currentTheme];
     //console.log(currentTheme);
@@ -416,11 +416,13 @@ render() {
             <ContentArea>
                 <HBExplorerContent
                     dispatch={dispatch}
+                    mainArticleId={mainArticleId}
                     articles={articles}
                     displayedArticles={displayedArticles}
                     selectArticle={selectArticle}
                     toggleActiveComponent={toggleActiveComponent}
                     closeArticle={closeArticle}
+                    expandArticle={expandArticle}
                     theme={theme}
                 />
             </ContentArea>);

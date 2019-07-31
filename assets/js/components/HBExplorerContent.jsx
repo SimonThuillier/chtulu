@@ -36,7 +36,9 @@ class HBExplorerContent extends React.Component {
     }
 
     render() {
-        const {dispatch,articles,displayedArticles,toggleActiveComponent,closeArticle,selectArticle,theme} = this.props;
+        const {dispatch,mainArticleId,articles,displayedArticles,
+            toggleActiveComponent,closeArticle,selectArticle,expandArticle,
+            theme} = this.props;
 
 
         const articlesToDisplay = Array.from(displayedArticles).
@@ -56,6 +58,8 @@ class HBExplorerContent extends React.Component {
             const alreadyCreatedArticle = +id > 0;
             const nextArticle = getNeighbourArticleChronogically(articles,id,1);
             const previousArticle = getNeighbourArticleChronogically(articles,id,-1);
+            const isArticleMain = (+id === mainArticleId);
+            const headerStyle = isArticleMain?{backgroundColor:"#F3E3F6"}:{};
 
             return (
                 <div className="panel panel-default hg-content-panel"
@@ -63,7 +67,7 @@ class HBExplorerContent extends React.Component {
                      id={`hg-container-article-panel-${id}`}
                 >
 
-                    <div className="hg-content-panel-heading">
+                    <div className="hg-content-panel-heading" style={headerStyle}>
                         <span><h4><ArticleType articleId={id}/></h4></span>
                         {alreadyCreatedArticle?
                             <Link
@@ -79,6 +83,13 @@ class HBExplorerContent extends React.Component {
                         <span>
                             <TimeBreadcrumb sense={-1} target={previousArticle} switcher={(id)=>{return selectArticle([id]);}}/>
                             <TimeBreadcrumb sense={1} target={nextArticle} switcher={(id)=>{return selectArticle([id]);}}/>
+                            {isArticleMain &&
+                            <Button bsStyle="default"
+                                    disabled={false}
+                                    onClick={()=>{expandArticle(id)}}>
+                                <Glyphicon glyph={'folder-open'}/>
+                            </Button>
+                            }
                             <Button bsStyle="primary"
                                     disabled={false}
                                     onClick={()=>{toggleActiveComponent([id])}}>

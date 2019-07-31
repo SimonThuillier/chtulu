@@ -53,6 +53,7 @@ class HBExplorerProxy extends React.Component {
         this.closeArticle = this.closeArticle.bind(this);
         this.toggleActiveComponent = this.toggleActiveComponent.bind(this);
         this.addArticle = this.addArticle.bind(this);
+        this.expandArticle = this.expandArticle.bind(this);
 
         this.setLimit = this.setLimit.bind(this);
         this.onFilter=this.onFilter.bind(this);
@@ -85,6 +86,7 @@ class HBExplorerProxy extends React.Component {
             let displayedArticles = (new Map()).set(+mainArticleId,{
                 selectionDate:new Date(),
                 isOpen:true,
+                isExpanded:false,
                 activeComponent:'detail'
             });
             this.setState({displayedArticles:displayedArticles});
@@ -157,7 +159,7 @@ class HBExplorerProxy extends React.Component {
         // mainArticle mode
         if(mainArticleId !== null) {
             articles = getOneByIdPlusBabies(+mainArticleId,createdArticlesId);
-            console.log(articles);
+            //console.log(articles);
         }
         // default mode
         else{
@@ -282,6 +284,7 @@ class HBExplorerProxy extends React.Component {
         ids.forEach((id)=>{newDisplayedArticles.set(+id,{
             selectionDate:new Date(),
             isOpen:true,
+            isExpanded:false,
             activeComponent:activeComponent
         })});
         this.setState({displayedArticles:newDisplayedArticles});
@@ -327,6 +330,10 @@ class HBExplorerProxy extends React.Component {
             .set('hasEndDate',true);
 
         dispatch(submitLocally("article",initialValues,newArticleId,{date:true}));
+    }
+
+    expandArticle(id){
+        console.log(`vous voulez ouvrir l article ${id} ?`);
     }
 
     setLimit(limit){
@@ -406,6 +413,7 @@ class HBExplorerProxy extends React.Component {
                     selectArticle={this.selectArticle}
                     closeArticle={this.closeArticle}
                     toggleActiveComponent={this.toggleActiveComponent}
+                    expandArticle={this.expandArticle}
                     addArticle = {this.addArticle}
                     onFilter={this.onFilter}
                 />

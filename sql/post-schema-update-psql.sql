@@ -42,3 +42,8 @@ DROP SEQUENCE hb_resource_geometry_id_seq;
      CREATE SEQUENCE hb_resource_geometry_id_seq;
      SELECT setval('hb_resource_geometry_id_seq', (SELECT MAX(id) FROM hb_resource_geometry));
      ALTER TABLE hb_resource_geometry ALTER id SET DEFAULT nextval('hb_resource_geometry_id_seq');
+     
+DROP SEQUENCE hb_article_link_id_seq;
+     CREATE SEQUENCE hb_article_link_id_seq;
+     SELECT setval('hb_article_link_id_seq', (SELECT MAX(id) FROM hb_article_link));
+     ALTER TABLE hb_article_link ALTER id SET DEFAULT nextval('hb_article_link_id_seq');     

@@ -8,7 +8,6 @@
 
 namespace App\DTO;
 
-use App\Utils\UrlBag;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Entity\ArticleType;
 use App\Mediator\DTOMediator;
@@ -39,10 +38,10 @@ class ArticleDTO extends EntityMutableDTO
     protected $geometry;
     /** @var DTOMediator */
     protected $mediator;
-    /** @var array */
-    protected $subArticles;
-    /** @var HDate */
-    protected $hteRange;
+//    /** @var array */
+//    protected $subArticles;
+//    /** @var HDate */
+//    protected $hteRange;
 
     /**
      * ArticleDTO constructor.
@@ -215,44 +214,44 @@ class ArticleDTO extends EntityMutableDTO
         return $this;
     }
 
-    /**
-     * @return array
-     * @Groups({"subArticles"})
-     */
-    public function getSubArticles(): ?array
-    {
-        return $this->subArticles;
-    }
+//    /**
+//     * @return array
+//     * @Groups({"subArticles"})
+//     */
+//    public function getSubArticles(): ?array
+//    {
+//        return $this->subArticles;
+//    }
+//
+//    /**
+//     * @param array $subArticles
+//     * @return ArticleDTO
+//     */
+//    public function setSubArticles($subArticles): ArticleDTO
+//    {
+//        $this->subArticles = $subArticles;
+//        return $this;
+//    }
 
-    /**
-     * @param array $subArticles
-     * @return ArticleDTO
-     */
-    public function setSubArticles($subArticles): ArticleDTO
-    {
-        $this->subArticles = $subArticles;
-        return $this;
-    }
-
-    /**
-     * @return HDate
-     * @Groups({"hteRange"})
-     */
-    public function getHteRange(): ?HDate
-    {
-        return $this->hteRange;
-    }
-
-    /**
-     * @param HDate $hteRange
-     * @return ArticleDTO
-     */
-    public function setHteRange(?HDate $hteRange): ArticleDTO
-    {
-        $this->hteRange = $hteRange;
-        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('hteRange');
-        return $this;
-    }
+//    /**
+//     * @return HDate
+//     * @Groups({"hteRange"})
+//     */
+//    public function getHteRange(): ?HDate
+//    {
+//        return $this->hteRange;
+//    }
+//
+//    /**
+//     * @param HDate $hteRange
+//     * @return ArticleDTO
+//     */
+//    public function setHteRange(?HDate $hteRange): ArticleDTO
+//    {
+//        $this->hteRange = $hteRange;
+//        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('hteRange');
+//        return $this;
+//    }
 
 
 }

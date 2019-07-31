@@ -25,10 +25,13 @@ class ArticleFactory extends AbstractEntityFactory
     {
         /** @var Article $article */
         $article = $product;
-        $article->setCreationDate(new \DateTime());
-        $article->setCreationUser($this->getUser());
-        $article->setType(
+        $article
+            ->setCreationDate(new \DateTime())
+            ->setCreationUser($this->getUser())
+            ->setType(
             $this->doctrine->getRepository(ArticleType::class)->find(ArticleType::EVENT)
-        );
+        )
+        ->setActive(true)
+        ->setChildrenCount(0);
     }
 }
