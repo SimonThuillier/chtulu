@@ -99,9 +99,13 @@ class HBExplorerProxy extends React.Component {
         if(mainArticleId !== null){
             loadMainArticle(mainArticleId,dispatch);
             console.log(this.props);
-            let displayedArticles = (new Map()).set(+mainArticleId,getInitialDisplayed());
+            let displayedArticles = (new Map())
+                .set(+mainArticleId,Object.assign(getInitialDisplayed(),{isOpen:true,isExpanded:true}));
             this.setState({displayedArticles:displayedArticles});
             this.setHInterval(getHIntervalFromArticles(this.getArticles()));
+            setTimeout(()=>{
+                loadExpandedArticle(mainArticleId,dispatch);
+            },100);
         }
         else{
             loadSearchBag(searchBag,dispatch);
@@ -196,15 +200,15 @@ class HBExplorerProxy extends React.Component {
             }
         });
 
-        console.log('subArticles');
+        //console.log('subArticles');
         //subArticles=subArticles.filter(v=> !!v);
-        console.log(subArticles);
+        //console.log(subArticles);
 
         let articles = [];
 
         // mainArticle mode
         if(mainArticleId !== null) {
-            articles = getOneByIdPlusBabies(+mainArticleId,createdArticlesId);
+            articles = getOneByIdPlusBabies(+mainArticleId,createdArticlesId,subArticles);
             //console.log(articles);
         }
         // default mode
@@ -363,7 +367,8 @@ class HBExplorerProxy extends React.Component {
     addArticle(date){
         //console.log('vous voulez un nouvel article ?');
         //console.log(date);
-        const {getNextNewId,dispatch} = this.props;
+        const {searchBag,createdArticlesId,displayedArticles} = this.state;
+        const {mainArticleId=null,getNextNewId,getNextNewLinkId,dispatch} = this.props;
         const newArticleId = getNextNewId();
         this.selectArticle([newArticleId],'form');
 
@@ -374,6 +379,16 @@ class HBExplorerProxy extends React.Component {
             .set('hasEndDate',true);
 
         dispatch(submitLocally("article",initialValues,newArticleId,{date:true}));
+
+        // then add link
+        if(mainArticleId !== null){
+            const newLinkId = getNextNewLinkId();
+            dispatch(getOneByIdIfNeeded("articleLink",{minimal:true}, newLinkId,componentUid));
+            const linkValues = Imm.Map()
+                .set('parentId',+mainArticleId)
+                .set('childId',newArticleId);
+            dispatch(submitLocally("articleLink",linkValues,newLinkId,{minimal:true}));
+        }
     }
 
     expandArticle(id){
@@ -483,6 +498,7 @@ const makeMapStateToProps = () => {
     const getPlusBabiesSelector = makeGetPlusBabiesSelector();
     const getLinksSelector = makeLocalGetByAttributeSelector();
     const getNextNewIdSelector = makeGetNextNewIdSelector();
+    const getNextNewLinkIdSelector = makeGetNextNewIdSelector();
     const getNewlyCreatedIdSelector = makeGetNewlyCreatedIdSelector();
     const getNotificationsSelector = makeGetNotificationsSelector();
 
@@ -495,6 +511,7 @@ const makeMapStateToProps = () => {
             getPlusBabies : getPlusBabiesSelector(dataSubState),
             getLinks : getLinksSelector(state.get("articleLink")),
             getNextNewId: getNextNewIdSelector(dataSubState),
+            getNextNewLinkId: getNextNewLinkIdSelector(state.get("articleLink")),
             getNewlyCreatedId:getNewlyCreatedIdSelector(dataSubState),
             getNotifications: getNotificationsSelector(state.get("app"))
         }

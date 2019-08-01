@@ -228,6 +228,9 @@ class CRUDController extends AbstractController
                 throw new \Exception("Invalid token : would you hack history ?");
             $hResponse->setSenderKey($handledRequest["senderKey"]);
 
+            $newEntities=[];
+            $mapperCommands=[];
+
             foreach($handledRequest["waos"] as $waoType => $waoData){
                 $dtoClassName = $waoHelper->guessClassName($waoType);
                 $backData[$waoType] = [];
@@ -265,25 +268,11 @@ class CRUDController extends AbstractController
                         $backData[$waoType][$dto->getId()] = $normalizer->normalize($dto,['minimal'=>true]);
                         continue;
                     }
-                    $mapperCommands = $mediator->returnDataToEntity();
-                    $newEntities=[];
-                    $mapper->executeCommands($mapperCommands,true,$newEntities);
+                    $mapperCommands = $mediator->returnDataToEntity($mapperCommands);
+                    //$newEntities=[];
+                    //$mapper->executeCommands($mapperCommands,true,$newEntities);
 
-                    // at this step data is well injected to the database, now get the backData
-                    // let's begin with the newly created objects
-                    /** @var DTOMutableEntity $newEntity */
-                    /** @var EntityMutableDTO $newEntityDto */
-                    foreach ($newEntities as $newEntity){
-                        $newEntityDto = $newEntity->getMediator()->getDTO();
-                        $backGroups = $newEntityDto->getReturnGroups();
-                        $newEntity->getMediator()->resetChangedProperties()
-                            ->mapDTOGroups($backGroups);
-                        $newEntityDto->setBackGroups($backGroups);
 
-                        $newEntityWaoType = $waoHelper->getAbridgedName($newEntity->getMediator()->getDtoClassName());
-                        if(!array_key_exists($newEntityWaoType,$backData)) $backData[$newEntityWaoType] = [];
-                        $backData[$newEntityWaoType][$newEntityDto->getId()] = $normalizer->normalize($newEntityDto,$backGroups);
-                    }
                     // then the main core object
                     if($dto->getToDelete()) $postedGroups = ["minimal"=>true];
                     $backGroups = ArrayUtil::normalizeGroups(ArrayUtil::filter($dto->getReturnGroups(),$postedGroups));
@@ -292,6 +281,23 @@ class CRUDController extends AbstractController
                     $backData[$waoType][$dto->getId()] = $normalizer->normalize($dto,$backGroups);
                     $actionCount++;
                 }
+            }
+
+            $mapper->executeCommands($mapperCommands,true,$newEntities);
+            // at this step data is well injected to the database, now get the backData
+            // let's begin with the newly created objects
+            /** @var DTOMutableEntity $newEntity */
+            /** @var EntityMutableDTO $newEntityDto */
+            foreach ($newEntities as $newEntity){
+                $newEntityDto = $newEntity->getMediator()->getDTO();
+                $backGroups = $newEntityDto->getReturnGroups();
+                $newEntity->getMediator()->resetChangedProperties()
+                    ->mapDTOGroups($backGroups);
+                $newEntityDto->setBackGroups($backGroups);
+
+                $newEntityWaoType = $waoHelper->getAbridgedName($newEntity->getMediator()->getDtoClassName());
+                if(!array_key_exists($newEntityWaoType,$backData)) $backData[$newEntityWaoType] = [];
+                $backData[$newEntityWaoType][$newEntityDto->getId()] = $normalizer->normalize($newEntityDto,$backGroups);
             }
 
             if(count($transformedErrors)>0){

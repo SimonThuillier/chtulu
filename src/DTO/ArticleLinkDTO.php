@@ -67,7 +67,7 @@ class ArticleLinkDTO extends EntityMutableDTO
      * @param int $parentId
      * @return ArticleLinkDTO
      */
-    public function setParentId(int $parentId): ArticleLinkDTO
+    public function setParentId(?int $parentId): ArticleLinkDTO
     {
         $this->parentId = $parentId;
         return $this;
@@ -86,7 +86,7 @@ class ArticleLinkDTO extends EntityMutableDTO
      * @param int $childId
      * @return ArticleLinkDTO
      */
-    public function setChildId(int $childId): ArticleLinkDTO
+    public function setChildId(?int $childId): ArticleLinkDTO
     {
         $this->childId = $childId;
         return $this;
@@ -105,7 +105,7 @@ class ArticleLinkDTO extends EntityMutableDTO
      * @param ArticleDTO $parent
      * @return ArticleLinkDTO
      */
-    public function setParent(ArticleDTO $parent): ArticleLinkDTO
+    public function setParent(?ArticleDTO $parent): ArticleLinkDTO
     {
         if($this->parent !== $parent){
             $this->parent = $parent;
@@ -127,7 +127,7 @@ class ArticleLinkDTO extends EntityMutableDTO
      * @param ArticleDTO $child
      * @return ArticleLinkDTO
      */
-    public function setChild(ArticleDTO $child): ArticleLinkDTO
+    public function setChild(?ArticleDTO $child): ArticleLinkDTO
     {
         if($this->child !== $child){
             $this->child = $child;

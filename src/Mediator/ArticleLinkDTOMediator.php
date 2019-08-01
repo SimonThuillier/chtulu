@@ -62,8 +62,8 @@ class ArticleLinkDTOMediator extends DTOMediator
         $dto->setId($articleLink->getId());
         $dto
             ->setAbstract($articleLink->getAbstract())
-            ->setParentId($articleLink->getParent()->getId())
-            ->setChildId($articleLink->getChild()->getId());
+            ->setParentId($articleLink->getParent()?$articleLink->getParent()->getId():null)
+            ->setChildId($articleLink->getChild()?$articleLink->getChild()->getId():null);
     }
 
     protected function mapDTOParentGroup($mode=DTOMediator::NOTHING_IF_NULL,$subGroups=null)
@@ -75,6 +75,7 @@ class ArticleLinkDTOMediator extends DTOMediator
 
 
         $parent = $articleLink->getParent();
+        if($parent === null) return;
 
         $articleMediator = $this->locator->get(MediatorFactory::class)
             ->create(ArticleDTO::class,$parent,null,$mode);
@@ -91,6 +92,7 @@ class ArticleLinkDTOMediator extends DTOMediator
 
 
         $child = $articleLink->getChild();
+        if($child === null) return;
 
         $articleMediator = $this->locator->get(MediatorFactory::class)
                 ->create(ArticleDTO::class,$child,null,$mode);

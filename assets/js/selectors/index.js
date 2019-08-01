@@ -107,11 +107,24 @@ export const makeGetOneByIdPlusBabiesSelector = () =>{
         [(state) => state.get("items"),(state) => state.get("babyItemIds")],
         (items,babyItemIds) => {
             return createSelector([
-                (id,extraIds)=>+id,
-                (id,extraIds)=>extraIds.join(',')
-            ],(id,extraIds)=>{
+                (id,extraIds,expandedIds)=>+id,
+                (id,extraIds,expandedIds)=>extraIds.join(','),
+                (id,extraIds=[],expandedIds=[]) => (JSON.stringify(expandedIds))
+            ],(id,extraIds,expandedIds)=>{
+                expandedIds = JSON.parse(expandedIds);
                 let selectedEntries = [];
                 if(items.has(+id)) selectedEntries.push(items.get(+id));
+                let thisSubIds = expandedIds[+id];
+                console.log("thisSubIds");
+                console.log(thisSubIds);
+                if(typeof thisSubIds !== 'undefined'){
+                    thisSubIds.forEach(sv =>{
+                        if(items.has(+sv)){
+                            selectedEntries.push(items.get(+sv));
+                        }
+                        }
+                    );
+                }
 
                 // add extra Ids
                 extraIds = extraIds.split(',');
