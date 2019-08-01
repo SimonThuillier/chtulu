@@ -10,6 +10,7 @@ namespace App\Mapper;
 
 
 use App\DTO\ArticleDTO;
+use App\DTO\ArticleLinkDTO;
 use App\DTO\EntityMutableDTO;
 use App\DTO\ResourceDTO;
 use App\DTO\ResourceGeometryDTO;
@@ -67,6 +68,7 @@ class EntityMapper implements ServiceSubscriberInterface
             ResourceGeometryDTO::class => ResourceGeometryMapper::class,
             ResourceDTO::class => ResourceMapper::class,
             ResourceVersionDTO::class => ResourceVersionMapper::class,
+            ArticleLinkDTO::class => ArticleLinkMapper::class
         ];
     }
 

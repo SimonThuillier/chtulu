@@ -3,6 +3,7 @@
 namespace App\Mapper;
 
 use App\DTO\EntityMutableDTO;
+use App\Entity\ArticleLink;
 use App\Factory\AbstractEntityFactory;
 use App\Factory\FactoryException;
 use App\Mediator\NullColleagueException;
@@ -247,6 +248,8 @@ abstract class AbstractEntityMapper
         $countQb = $this->getCountAllQB();
         if($searchBag !== null){$this->filterBy($countQb,$searchBag);}
         try{
+            $truc = $countQb->getQuery();
+            $truc2 = $truc->getSQL();
             return $countQb->getQuery()->getSingleScalarResult();}
         catch(\Exception $e){
             return 0;
@@ -269,6 +272,9 @@ abstract class AbstractEntityMapper
             $qb->setMaxResults($searchBag->getLimit())
                 ->setFirstResult($searchBag->getOffset());
         }
+
+        $truc = $qb->getQuery();
+        $truc2 = $truc->getSQL();
 
         return $qb->getQuery()->getResult();
     }

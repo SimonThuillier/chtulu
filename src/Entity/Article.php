@@ -130,7 +130,7 @@ class Article extends DTOMutableEntity
 
     /**
      * @var ArrayCollection
-     * @ORM\OneToMany(targetEntity="ArticleLink", mappedBy="parentArticle")
+     * @ORM\OneToMany(targetEntity="ArticleLink", mappedBy="parent")
      */
     protected $links;
 

@@ -188,18 +188,42 @@ export const makeGetSelector = () =>{
     );
 };
 
+export const makeLocalGetByAttributeSelector = () =>{
+    return createSelector(
+        [(state) => state.get("items")],
+        (items) => {
+            //console.log("create getPlusBabiesSelector");
+            return createSelector([
+                    (name,value) => name,
+                    (name,value) => value
+                ], (name,value) => {
+                    let selectedEntries = [];
+                    console.log(items);
+                    items.valueSeq().forEach(v =>{
+                        if(v.get(name) == value){
+                            selectedEntries.push(v);
+                        }
+                    });
+                    return selectedEntries;
+                }
+            );
+        }
+    )
+};
+
 export const makeGetPlusBabiesSelector = () =>{
     return createSelector(
         [(state) => state.get("babyItemIds"),(state) => state.get("items"),(state) => state.get("searchCache")],
         (babyItemIds,items,searchCache) => {
             //console.log("create getPlusBabiesSelector");
             return createSelector([
-                    (searchBag,extraIds) => JSON.stringify(SearchBagUtil.getCoreBag(searchBag)),
-                    (searchBag,extraIds) => (searchBag.offset),
-                    (searchBag,extraIds) => (searchBag.limit),
-                    (searchBag,extraIds) => (searchBag.order),
-                    (searchBag,extraIds=[]) => (extraIds.join(','))
-                ], (coreBagKey, offset, limit, order,extraIds) => {
+                    (searchBag,extraIds,expandedIds) => JSON.stringify(SearchBagUtil.getCoreBag(searchBag)),
+                    (searchBag,extraIds,expandedIds) => (searchBag.offset),
+                    (searchBag,extraIds,expandedIds) => (searchBag.limit),
+                    (searchBag,extraIds,expandedIds) => (searchBag.order),
+                    (searchBag,extraIds=[]) => (extraIds.join(',')),
+                    (searchBag,extraIds=[],expandedIds=[]) => (JSON.stringify(expandedIds))
+                ], (coreBagKey, offset, limit, order,extraIds,expandedIds) => {
                     /*console.log("call getPlusBabiesSelector");
                     console.log(items);
                     // get selector
@@ -209,20 +233,35 @@ export const makeGetPlusBabiesSelector = () =>{
                     console.log("extraIds");
                     console.log(extraIds);*/
                     const searchCacheEntry = searchCache.get(coreBagKey);
-                    //console.log(searchCacheEntry);
+                    expandedIds = JSON.parse(expandedIds);
+                console.log("expandedIds");
+                    console.log(expandedIds);
                     let selectedEntries = [];
+
+                    // 1 regular articles by get
                     if (!!searchCacheEntry) {
                         let indexMap = searchCacheEntry.get("indexMap");
                         indexMap = (order === SearchBagUtil.ASC) ? indexMap :
                             SearchBagUtil.invertIndexMap(indexMap, searchCacheEntry.get("total"));
 
                         indexMap.forEach((v, k) => {
-                            if (k >= offset && k < (offset + limit)) selectedEntries[k] = +v;
+                            if (k >= offset && k < (offset + limit)){
+                                selectedEntries.push(+v);
+                                let thisSubIds = expandedIds[v];
+                                console.log("thisSubIds");
+                                console.log(thisSubIds);
+                                if(typeof thisSubIds !== 'undefined'){
+                                    thisSubIds.forEach(sv =>{
+                                        selectedEntries.push(+sv);
+                                        }
+                                    );
+                                }
+                            }
                         });
                         selectedEntries = selectedEntries.map((id) => items.get(+id)).filter((v, k) => v || false);
                         console.log(selectedEntries);
                     }
-                    // add extra Ids
+                    // 2 add extra Ids
                     extraIds = extraIds.split(',');
                     extraIds.forEach((k)=>{
                         if (items.has(+k) || false) selectedEntries.push(items.get(+k));
@@ -230,7 +269,7 @@ export const makeGetPlusBabiesSelector = () =>{
 
 
 
-                    // add babies
+                    // 3 add babies
                     babyItemIds.keySeq().forEach((k) => {
                         if (items.has(+k) || false) selectedEntries.push(items.get(+k));
                     });

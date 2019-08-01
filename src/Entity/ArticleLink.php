@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="hb_article_link")
  * @ORM\Entity(repositoryClass="App\Repository\ArticleLinkRepository")
  */
-class ArticleLink
+class ArticleLink extends DTOMutableEntity
 {
     /**
      * @var int

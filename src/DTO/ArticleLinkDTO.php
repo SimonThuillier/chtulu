@@ -37,8 +37,6 @@ class ArticleLinkDTO extends EntityMutableDTO
     /**
      * @return string
      * @Groups({"minimal"})
-     * @Assert\NotBlank()
-     * @Assert\NotNull()
      */
     public function getAbstract()
     {
@@ -60,7 +58,7 @@ class ArticleLinkDTO extends EntityMutableDTO
      * @return int
      * @Groups({"minimal"})
      */
-    public function getParentId(): int
+    public function getParentId(): ?int
     {
         return $this->parentId;
     }
@@ -79,7 +77,7 @@ class ArticleLinkDTO extends EntityMutableDTO
      * @return int
      * @Groups({"minimal"})
      */
-    public function getChildId(): int
+    public function getChildId(): ?int
     {
         return $this->childId;
     }
@@ -98,7 +96,7 @@ class ArticleLinkDTO extends EntityMutableDTO
      * @return ArticleDTO
      * @Groups({"parent"})
      */
-    public function getParent(): ArticleDTO
+    public function getParent(): ?ArticleDTO
     {
         return $this->parent;
     }
@@ -120,7 +118,7 @@ class ArticleLinkDTO extends EntityMutableDTO
      * @return ArticleDTO
      * @Groups({"child"})
      */
-    public function getChild(): ArticleDTO
+    public function getChild(): ?ArticleDTO
     {
         return $this->child;
     }

@@ -138,6 +138,10 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterfac
     {
         return $this->repository->createQueryBuilder('o')
             ->select('o')
+            ->leftJoin('o.detailImage','image')
+            ->addSelect('image')
+            ->leftJoin('o.geometry','geometry')
+            ->addSelect('geometry')
             ->orderBy('o.editionDate','DESC');
     }
 

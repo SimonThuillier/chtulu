@@ -9,15 +9,16 @@
 namespace App\Factory;
 
 use App\DTO\ArticleDTO;
+use App\DTO\ArticleLinkDTO;
 use App\DTO\EntityMutableDTO;
 use App\DTO\ResourceDTO;
 use App\DTO\ResourceGeometryDTO;
-use App\DTO\ResourceImageDTO;
 use App\DTO\ResourceVersionDTO;
 use App\Entity\DTOMutableEntity;
 use App\Helper\AssetHelper;
 use App\Manager\File\FileRouter;
 use App\Mediator\ArticleDTOMediator;
+use App\Mediator\ArticleLinkDTOMediator;
 use App\Mediator\DTOMediator;
 use App\Mediator\ResourceDTOMediator;
 use App\Mediator\ResourceGeometryDTOMediator;
@@ -38,7 +39,8 @@ class MediatorFactory implements ServiceSubscriberInterface
         ArticleDTO::class => ArticleDTOMediator::class,
         ResourceDTO::class =>  ResourceDTOMediator::class,
         ResourceVersionDTO::class => ResourceVersionDTOMediator::class,
-        ResourceGeometryDTO::class => ResourceGeometryDTOMediator::class
+        ResourceGeometryDTO::class => ResourceGeometryDTOMediator::class,
+        ArticleLinkDTO::class => ArticleLinkDTOMediator::class,
     ];
 
     private const OTHER_SERVICES = [

@@ -83,13 +83,11 @@ class HBExplorerContent extends React.Component {
                         <span>
                             <TimeBreadcrumb sense={-1} target={previousArticle} switcher={(id)=>{return selectArticle([id]);}}/>
                             <TimeBreadcrumb sense={1} target={nextArticle} switcher={(id)=>{return selectArticle([id]);}}/>
-                            {isArticleMain &&
                             <Button bsStyle="default"
                                     disabled={false}
                                     onClick={()=>{expandArticle(id)}}>
-                                <Glyphicon glyph={'folder-open'}/>
+                                <Glyphicon glyph={value.isExpanded?'folder-close':'folder-open'}/>
                             </Button>
-                            }
                             <Button bsStyle="primary"
                                     disabled={false}
                                     onClick={()=>{toggleActiveComponent([id])}}>

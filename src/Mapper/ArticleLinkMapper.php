@@ -9,15 +9,10 @@
 namespace App\Mapper;
 
 use App\DTO\EntityMutableDTO;
-use App\Entity\Article;
 use App\Entity\ArticleLink;
-use App\Entity\ArticleType;
 use App\Factory\ArticleFactory;
 use App\Factory\FactoryException;
 use App\Mediator\NullColleagueException;
-use App\Serializer\HDateNormalizer;
-use App\Serializer\SimpleEntityNormalizer;
-use App\Utils\HDate;
 use Psr\Log\LoggerInterface;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -39,7 +34,7 @@ class ArticleLinkMapper extends AbstractEntityMapper implements EntityMapperInte
         ArticleFactory $entityFactory
     )
     {
-        $this->entityClassName = Article::class;
+        $this->entityClassName = ArticleLink::class;
         parent::__construct(
             $doctrine,
             $tokenStorage,
@@ -114,6 +109,12 @@ class ArticleLinkMapper extends AbstractEntityMapper implements EntityMapperInte
         $this->getManager()->flush();
     }
 
+    protected function getCountAllQB(){
+        return $this->doctrine->getManager()->createQueryBuilder()
+            ->from(ArticleLink::class,'o')
+            ->select('COUNT(o.id)');
+    }
+
     /**
      * @inheritdoc
      */
@@ -121,6 +122,8 @@ class ArticleLinkMapper extends AbstractEntityMapper implements EntityMapperInte
     {
         return $this->repository->createQueryBuilder('o')
             ->select('o')
+            ->join('o.child','c')
+            ->addSelect('c')
             ->orderBy('o.editionDate','DESC');
     }
 

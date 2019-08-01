@@ -8,7 +8,9 @@
 
 namespace App\Serializer;
 
-use App\DTO\EntityMutableDTO;
+
+use App\DTO\ArticleDTO;
+use App\DTO\ArticleLinkDTO;
 use App\Factory\MediatorFactory;
 use App\Helper\WAOHelper;
 use App\Mediator\NotAvailableGroupException;
@@ -20,40 +22,25 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 
 
-class DTONormalizer extends HNormalizer
+class ArticleLinkDTONormalizer extends HNormalizer
 {
-    const DTO_NS = 'App\\DTO\\';
-
     /**
      * @param WAOHelper $waoHelper
-     * @param MediatorFactory $mediatorFactory
      * @param ManagerRegistry $doctrine
+     * @param MediatorFactory $mediatorFactory
      * @param ArticleDTONormalizer $articleDTONormalizer
-     * @param SimpleEntityNormalizer $simpleEntityNormalizer
-     * @param ResourceDTONormalizer $resourceDTONormalizer
-     * @param ResourceGeometryDTONormalizer $ResourceGeometryDTONormalizer
-     * @param ArticleLinkDTONormalizer $articleLinkDTONormalizer
      */
     public function __construct(WAOHelper $waoHelper,
                                 ManagerRegistry $doctrine,
                                 MediatorFactory $mediatorFactory,
-                                ArticleDTONormalizer $articleDTONormalizer,
-                                SimpleEntityNormalizer $simpleEntityNormalizer,
-                                ResourceDTONormalizer $resourceDTONormalizer,
-                                ResourceGeometryDTONormalizer $ResourceGeometryDTONormalizer,
-                                ArticleLinkDTONormalizer $articleLinkDTONormalizer
+                                ArticleDTONormalizer $articleDTONormalizer
                                 )
     {
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
-            $simpleEntityNormalizer,
             $articleDTONormalizer,
-            $resourceDTONormalizer,
-            $ResourceGeometryDTONormalizer,
-            $articleLinkDTONormalizer,
             new HGetSetMethodNormalizer($classMetadataFactory),
             new ObjectNormalizer($classMetadataFactory)
-
         );
 
         parent::__construct($normalizers,$waoHelper,$doctrine,$mediatorFactory);
@@ -61,16 +48,16 @@ class DTONormalizer extends HNormalizer
 
     public function supportsNormalization($data, $format = null)
     {
-        return is_object($data) && strpos(get_class($data),self::DTO_NS)!=-1;
+        return is_object($data) && get_class($data) === ArticleLinkDTO::class;
     }
 
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return true;
+        return $type != null && $type === ArticleLinkDTO::class;
     }
 
     /**
-     * @param mixed $object
+     * @param ArticleLinkDTO $object
      * @param array|null $groups
      * @param array $context
      * @return array
@@ -79,9 +66,7 @@ class DTONormalizer extends HNormalizer
      */
     public function normalize($object,$groups=null,array $context=[])
     {
-        $normalization = $this->serializer->normalize($object, null, array(
-                'overGroups' => $groups)
-        );
+        $normalization = parent::defaultNormalize($object,$groups,$context);
         return $normalization;
     }
 
@@ -95,8 +80,7 @@ class DTONormalizer extends HNormalizer
      */
     public function denormalize($data, $class, $format = null, array $context = array())
     {
-        // let's do it !
-        $denormalization = $this->serializer->denormalize($data, $class,$format,$context);
+        $denormalization = parent::defaultDenormalize($data, $class, $format,$context);
         return $denormalization;
     }
 }

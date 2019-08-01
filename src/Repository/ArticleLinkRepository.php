@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\ArticleLink;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * articleLinkRepository
@@ -26,6 +27,18 @@ class ArticleLinkRepository extends \Doctrine\ORM\EntityRepository
         
         return $qb->getQuery()
         ->getOneOrNullResult();
+    }
+
+    /**
+     * @param QueryBuilder $qb
+     * @param int $parentId
+     * @return QueryBuilder
+     */
+    public function filterByParent_id(QueryBuilder $qb,int $parentId){
+        return $qb
+            ->join('o.parent','p')
+            ->where('p.id = :parentId')
+            ->setParameter('parentId',$parentId);
     }
     
     
