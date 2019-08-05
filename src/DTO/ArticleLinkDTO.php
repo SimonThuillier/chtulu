@@ -70,6 +70,7 @@ class ArticleLinkDTO extends EntityMutableDTO
     public function setParentId(?int $parentId): ArticleLinkDTO
     {
         $this->parentId = $parentId;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('parentId');
         return $this;
     }
 
@@ -89,6 +90,7 @@ class ArticleLinkDTO extends EntityMutableDTO
     public function setChildId(?int $childId): ArticleLinkDTO
     {
         $this->childId = $childId;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('childId');
         return $this;
     }
 

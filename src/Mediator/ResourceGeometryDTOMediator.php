@@ -14,6 +14,7 @@ use App\Entity\ResourceGeometry;
 use App\Factory\DTOFactory;
 use App\Factory\EntityFactory;
 use App\Manager\File\FileRouter;
+use App\Observer\NewEntityObserver;
 use App\Utils\Geometry;
 use App\Utils\UrlBag;
 use Psr\Container\ContainerInterface;
@@ -27,10 +28,11 @@ class ResourceGeometryDTOMediator extends DTOMediator
     /**
      * ResourceGeometryDTOMediator constructor.
      * @param ContainerInterface $locator
+     * @param NewEntityObserver $newEntityObserver
      */
-    public function __construct(ContainerInterface $locator)
+    public function __construct(ContainerInterface $locator,NewEntityObserver $newEntityObserver)
     {
-        parent::__construct($locator);
+        parent::__construct($locator,$newEntityObserver);
         $this->dtoClassName = self::DTO_CLASS_NAME;
         $this->entityClassName = self::ENTITY_CLASS_NAME;
         $this->groups = ['minimal'];

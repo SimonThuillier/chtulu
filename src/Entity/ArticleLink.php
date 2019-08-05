@@ -69,13 +69,13 @@ class ArticleLink extends DTOMutableEntity
 
     /**
      * @var string
-     * @ORM\Column(name="abstract", type="string", length=2000)
+     * @ORM\Column(name="abstract", type="string", length=2000,nullable=true)
      */
     protected $abstract;
 
     /**
      * @var float
-     * @ORM\Column(name="y", type="float")
+     * @ORM\Column(name="y", type="float",nullable=true)
      */
     private $y;
 

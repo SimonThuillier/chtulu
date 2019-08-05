@@ -9,6 +9,7 @@
 namespace App\Mapper;
 
 
+use App\Command\EntityMapperCommand;
 use App\DTO\ArticleDTO;
 use App\DTO\ArticleLinkDTO;
 use App\DTO\EntityMutableDTO;
@@ -102,27 +103,38 @@ class EntityMapper implements ServiceSubscriberInterface
      */
     public function executeCommands(array $mapperCommands,bool $commitEdits=true,array &$newEntities=[]){
         $actionCount = 0;
-        $addCommands = array_reverse(array_filter(array_values($mapperCommands),function($action){
-            return $action["action"] === "add";
-        }));
+
+        $addCommands = array_filter(array_values($mapperCommands),function(EntityMapperCommand $action){
+            return $action->getAction() === EntityMapperCommand::ACTION_ADD;
+        });
+        usort($addCommands,function(EntityMapperCommand $action1,EntityMapperCommand $action2){
+            if($action1->getPriority() === $action2->getPriority()) return 0;
+            return $action1->getPriority() > $action2->getPriority()?-1:0;
+        });
+
+        $addCommands = array_reverse($addCommands);
+        /**
+         * @var string $key
+         * @var EntityMapperCommand $action
+         */
         foreach($addCommands as $key=>$action){
-            $newEntities[] = $this->add($action["dto"],true);
+            $newEntities[] = $this->add($action->getDto(),true);
             $actionCount++;
         }
 
-        $editCommands = array_reverse(array_filter(array_values($mapperCommands),function($action){
-            return $action["action"] === "edit";
+        $editCommands = array_reverse(array_filter(array_values($mapperCommands),function(EntityMapperCommand $action){
+            return $action->getAction() === EntityMapperCommand::ACTION_EDIT;
         }));
         foreach($editCommands as $key=>$action){
-            $this->edit($action["dto"],true);
+            $this->edit($action->getDto(),true);
             $actionCount++;
         }
 
-        $deleteCommands = array_reverse(array_filter(array_values($mapperCommands),function($action){
-            return $action["action"] === "delete";
+        $deleteCommands = array_reverse(array_filter(array_values($mapperCommands),function(EntityMapperCommand $action){
+            return $action->getAction() === EntityMapperCommand::ACTION_DELETE;
         }));
         foreach($deleteCommands as $key=>$action){
-            $this->delete($action["dto"],true);
+            $this->delete($action->getDto(),true);
             $actionCount++;
         }
 

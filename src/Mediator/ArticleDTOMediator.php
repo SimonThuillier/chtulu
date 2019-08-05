@@ -16,6 +16,7 @@ use App\Entity\Article;
 use App\Factory\MediatorFactory;
 use App\Helper\AssetHelper;
 use App\Helper\DateHelper;
+use App\Observer\NewEntityObserver;
 use App\Serializer\HDateNormalizer;
 use App\Utils\HDate;
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -31,10 +32,11 @@ class ArticleDTOMediator extends DTOMediator
     /**
      * ArticleDTOMediator constructor.
      * @param ContainerInterface $locator
+     * @param NewEntityObserver $newEntityObserver
      */
-    public function __construct(ContainerInterface $locator)
+    public function __construct(ContainerInterface $locator,NewEntityObserver $newEntityObserver)
     {
-        parent::__construct($locator);
+        parent::__construct($locator,$newEntityObserver);
         $this->dtoClassName = self::DTO_CLASS_NAME;
         $this->entityClassName = self::ENTITY_CLASS_NAME;
         $this->groups = ['minimal','abstract','date','type','detailImage','geometry'];

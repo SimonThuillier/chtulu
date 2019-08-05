@@ -17,6 +17,7 @@ use App\Factory\DTOFactory;
 use App\Factory\EntityFactory;
 use App\Factory\MediatorFactory;
 use App\Factory\ResourceVersionDTOFactory;
+use App\Observer\NewEntityObserver;
 use App\Utils\ArrayUtil;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Psr\Container\ContainerInterface;
@@ -30,10 +31,11 @@ class ResourceDTOMediator extends DTOMediator
     /**
      * ResourceDTOMediator constructor.
      * @param ContainerInterface $locator
+     * @param NewEntityObserver $newEntityObserver
      */
-    public function __construct(ContainerInterface $locator)
+    public function __construct(ContainerInterface $locator,NewEntityObserver $newEntityObserver)
     {
-        parent::__construct($locator);
+        parent::__construct($locator,$newEntityObserver);
         $this->dtoClassName = self::DTO_CLASS_NAME;
         $this->entityClassName = self::ENTITY_CLASS_NAME;
         $this->groups = ['minimal','activeVersion','versions'];

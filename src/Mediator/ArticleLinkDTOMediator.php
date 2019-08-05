@@ -18,6 +18,7 @@ use App\Entity\ArticleLink;
 use App\Factory\MediatorFactory;
 use App\Helper\AssetHelper;
 use App\Helper\DateHelper;
+use App\Observer\NewEntityObserver;
 use App\Serializer\HDateNormalizer;
 use App\Utils\HDate;
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -33,10 +34,11 @@ class ArticleLinkDTOMediator extends DTOMediator
     /**
      * ArticleLinkDTOMediator constructor.
      * @param ContainerInterface $locator
+     * @param NewEntityObserver $newEntityObserver
      */
-    public function __construct(ContainerInterface $locator)
+    public function __construct(ContainerInterface $locator,NewEntityObserver $newEntityObserver)
     {
-        parent::__construct($locator);
+        parent::__construct($locator,$newEntityObserver);
         $this->dtoClassName = self::DTO_CLASS_NAME;
         $this->entityClassName = self::ENTITY_CLASS_NAME;
         $this->groups = ['minimal','parent','child'];
@@ -100,19 +102,47 @@ class ArticleLinkDTOMediator extends DTOMediator
         $dto->setChild($articleMediator->getDTO());
     }
 
-//    protected function mediateGeometry($mapperCommands){
-//        /** @var ArticleDTO $dto */
-//        $dto = $this->dto;
-//        /** @var Article $article */
-//        $article = $this->entity;
-//
-//        if($dto->getGeometry()!==null){
-//            $article->setGeometry($dto->getGeometry()->getMediator()->getEntity());
-//            $mapperCommands = $dto->getGeometry()->getMediator()->returnDataToEntity($mapperCommands);
-//        }
-//        else{
-//            $article->setGeometry(null);
-//        }
-//        return $mapperCommands;
-//    }
+    protected function mediateParentId($mapperCommands){
+        /** @var ArticleLinkDTO $dto */
+        $dto = $this->dto;
+        /** @var ArticleLink $articleLink */
+        $articleLink = $this->entity;
+        /** @var Article $article */
+        $article = null;
+
+        if($dto->getParentId() === null) return $mapperCommands;
+        if($dto->getParentId() > 0){
+            $article = $this->locator->get('doctrine')->getRepository(Article::class)->find($dto->getParentId());
+            if($article !== null){
+                $articleLink->setParent($article);
+            }
+        }
+        else{
+            $this->newEntityObserver->askNewEntity(Article::class,$dto->getParentId(),$this,$articleLink,'setParent');
+        }
+
+        return $mapperCommands;
+    }
+
+    protected function mediateChildId($mapperCommands){
+        /** @var ArticleLinkDTO $dto */
+        $dto = $this->dto;
+        /** @var ArticleLink $articleLink */
+        $articleLink = $this->entity;
+        /** @var Article $article */
+        $article = null;
+
+        if($dto->getChildId() === null) return $mapperCommands;
+        if($dto->getChildId() > 0){
+            $article = $this->locator->get('doctrine')->getRepository(Article::class)->find($dto->getChildId());
+            if($article !== null){
+                $articleLink->setChild($article);
+            }
+        }
+        else{
+            $this->newEntityObserver->askNewEntity(Article::class,$dto->getChildId(),$this,$articleLink,'setChild');
+        }
+
+        return $mapperCommands;
+    }
 }
