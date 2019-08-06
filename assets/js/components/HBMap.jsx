@@ -9,7 +9,9 @@ import debounce from "debounce";
 import {articleIsOpen} from "../util/explorerUtil";
 import {
     getBabiesSelector, getNewlyCreatedIdSelector, getNextNewIdSelector, getNotificationsSelector, getOneByIdSelector,
-    getSelector,
+    getSelector, makeGetNewlyCreatedIdSelector, makeGetNextNewIdSelector, makeGetNotificationsSelector,
+    makeGetOneByIdPlusBabiesSelector, makeGetOneByIdSelector,
+    makeGetPlusBabiesSelector, makeGetSelector, makeLocalGetByAttributeSelector,
     totalSelector2
 } from "../selectors";
 import {connect} from "react-redux";
@@ -92,17 +94,19 @@ class HBMap extends React.Component {
     }
 
     handleArticlePlacement(latlng,id){
-        const {articles,dispatch,nextNewIdSelector} = this.props;
+        const {articles,dispatch,getNextNewId} = this.props;
         const article = articles.find((element)=>{return element.id === id});
         if(!article) return;
         console.log(`You want to place article of id ${article.id} at ${latlng}`);
 
         let geometryId = article.geometry;
         if(geometryId===null){
-            geometryId =  nextNewIdSelector();
+            geometryId =  getNextNewId();
+            console.log(`establishing new geometry of id ${geometryId} for article ${article.id}`);
             dispatch(submitLocally("article",Imm.Map({geometry:geometryId}), article.id,{geometry:true}));
         }
         setTimeout(()=>{
+            console.log(`submitting new geometry of id ${geometryId} for article ${article.id}`);
             dispatch(submitLocally("resourceGeometry",Imm.Map({
                     targetGeometry:{value:{type:"Point",coordinates:[latlng.lat,latlng.lng]}}
                 }),
@@ -113,7 +117,7 @@ class HBMap extends React.Component {
     componentDidMount() {
         // to create new geometries in future
         const {dispatch} = this.props;
-        dispatch(fetchNew('resourceGeometry',-1,null));
+        //dispatch(fetchNew('resourceGeometry',-1,null));
 
 
         this.map = L.map('mymap', {
@@ -145,7 +149,7 @@ class HBMap extends React.Component {
         }
 
         // handle hovering
-        const {hoveredArticleId} = this.props;
+        const {hoveredArticleId, getOneById} = this.props;
 
         if(prevProps.hoveredArticleId !== hoveredArticleId){
             if(!!prevProps.hoveredArticleId){
@@ -157,13 +161,16 @@ class HBMap extends React.Component {
                 if(!!hoveredMarker) hoveredMarker.fire('mouseover');
             }
         }
+
+        if(getOneById !== prevProps.getOneById){
+            this.handleArticleIcons();
+        }
     }
 
     handleArticleIcons(){
-        //console.log('article icons svg ref');
-        //console.log(this.iconSvgRefs);
-        const {articles,displayedArticles,dispatch,setHoveredArticle,
-            getOneByIdSelector,nextNewIdSelector,newlyCreatedIdSelector} = this.props;
+        console.log('article icons svg ref');
+        console.log(this.iconSvgRefs);
+        const {setHoveredArticle, getOneById} = this.props;
 
         // 1 delete not necessary markers
         this.markerRefs.forEach((ref,id)=>{
@@ -180,7 +187,8 @@ class HBMap extends React.Component {
                 //let myIconUrl = encodeURI("data:image/svg+xml;base64," + btoa(ref.innerHTML)).replace('#','%23');
                 console.log(ref.innerHTML);
                 console.log(geometryId);
-                const geometry = getOneByIdSelector(+geometryId);
+                const geometry = getOneById(+geometryId);
+                if(geometry === null || geometry.targetGeometry ===null) return;
                 console.log(geometry.targetGeometry.value.coordinates);
 
                 let icon = L.icon({
@@ -210,12 +218,8 @@ class HBMap extends React.Component {
                     .on('mouseout',()=>{setHoveredArticle()});
 
                 const tooltip = marker.bindTooltip(ref.children[1].children[0].innerHTML);
-
-
-                    //.bindTooltip("my tooltip text").openTooltip()
-                ;
+                    //.bindTooltip("my tooltip text").openTooltip();
             }
-
         });
     }
 
@@ -256,8 +260,7 @@ class HBMap extends React.Component {
         currentStyle.height = `${height}px`;
 
 
-        const {articles,displayedArticles,hoveredArticleId,setHoveredArticle,
-            dispatch,getOneByIdSelector,nextNewIdSelector,newlyCreatedIdSelector} = this.props;
+        const {articles,displayedArticles} = this.props;
 
         const arrayOfArticlesToDisplay = articles.filter((a) => {return !!a.geometry;});
         this.iconSvgRefs = new Map();
@@ -291,13 +294,19 @@ class HBMap extends React.Component {
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        getOneByIdSelector: getOneByIdSelector(state.get("resourceGeometry")),
-        babiesSelector:getBabiesSelector(state.get("resourceGeometry")),
-        nextNewIdSelector: getNextNewIdSelector(state.get("resourceGeometry")),
-        newlyCreatedIdSelector:getNewlyCreatedIdSelector(state.get("resourceGeometry"))
+const makeMapStateToProps = () => {
+    const getOneByIdSelector = makeGetOneByIdSelector();
+    const getNextNewIdSelector = makeGetNextNewIdSelector();
+    const getNewlyCreatedIdSelector = makeGetNewlyCreatedIdSelector();
+
+    return state => {
+        const dataSubState = state.get("resourceGeometry");
+        return {
+            getOneById: getOneByIdSelector(dataSubState),
+            getNextNewId: getNextNewIdSelector(dataSubState),
+            getNewlyCreatedId:getNewlyCreatedIdSelector(dataSubState)
+        }
     }
 };
 
-export default connect(mapStateToProps)(HBMap);
+export default connect(makeMapStateToProps)(HBMap);

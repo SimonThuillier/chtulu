@@ -29,7 +29,7 @@ class EntityMapperCommand
      * @param int $action
      * @param int $priority
      * @param EntityMutableDTO $dto
-     */
+     */  
     public function __construct(int $action, int $priority, EntityMutableDTO $dto)
     {
         $this->action = $action;

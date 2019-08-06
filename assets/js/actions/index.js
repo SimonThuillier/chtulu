@@ -336,6 +336,9 @@ export const submitLocally = (waoType,data,id,groups) => (dispatch,getState) => 
         });
     }
     else{
+        if(!pendingCreations.has(`${waoType}-${id}`)){
+            dispatch(getOneByIdIfNeeded(waoType,groups,id));
+        }
         pendingCreations.set(`${waoType}-${id}`,{data:data,groups:groups});
     }
 };

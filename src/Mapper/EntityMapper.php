@@ -22,6 +22,7 @@ use App\Helper\WAOHelper;
 use App\Mediator\InvalidCallerException;
 use App\Mediator\NullColleagueException;
 use App\Utils\SearchBag;
+use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\Mapping\Entity;
 use Psr\Container\ContainerInterface;
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -71,6 +72,14 @@ class EntityMapper implements ServiceSubscriberInterface
             ResourceVersionDTO::class => ResourceVersionMapper::class,
             ArticleLinkDTO::class => ArticleLinkMapper::class
         ];
+    }
+
+    /**
+     * @return ObjectManager
+     */
+    protected function getManager()
+    {
+        return $this->doctrine->getManager($this->doctrine->getDefaultManagerName());
     }
 
     /**
@@ -142,7 +151,7 @@ class EntityMapper implements ServiceSubscriberInterface
     }
 
     public function commit(){
-        $this->doctrine->getManager()->flush();
+        $this->getManager()->flush();
     }
 
     /**

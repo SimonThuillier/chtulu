@@ -22,9 +22,22 @@ const Imm = require("immutable");
 const componentUid = require("uuid/v4")();
 
 // groups for main article
-const mainArticleGroups = {minimal:true,date:true,detailImage:true,abstract:true};
+const mainArticleGroups = {
+    minimal:true,
+    date:true,
+    detailImage:true,
+    abstract:true,
+    geometry:true
+};
 // default groups for articles
-const defaultGroups = {minimal:true,date:true,detailImage:{minimal:true,activeVersion:{minimal:true,urlMini:true}},geometry:true};
+const defaultGroups = {
+    minimal:true,
+    date:true,
+    //detailImage:{minimal:true,activeVersion:{minimal:true,urlMini:true}},
+    detailImage:true,
+    abstract:true,
+    geometry:true
+};
 
 const defaultSearchBag = SearchBag({},'editionDate');
 

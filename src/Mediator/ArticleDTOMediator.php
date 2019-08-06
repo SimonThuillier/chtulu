@@ -301,8 +301,8 @@ class ArticleDTOMediator extends DTOMediator
         $article = $this->entity;
 
         if($dto->getGeometry()!==null){
-            $article->setGeometry($dto->getGeometry()->getMediator()->getEntity());
             $mapperCommands = $dto->getGeometry()->getMediator()->returnDataToEntity($mapperCommands);
+            $article->setGeometry($dto->getGeometry()->getMediator()->getEntity());
         }
         else{
             $article->setGeometry(null);

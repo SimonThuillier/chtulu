@@ -20,7 +20,7 @@ export default ({sense,target,switcher}) => {
         {placement:'right',tooltipId:'next-tooltip',glyph:'menu-right'}:
         {placement:'left',tooltipId:'prev-tooltip',glyph:'menu-left'};
 
-    if(target === null) return (<span>&nbsp;&nbsp;&nbsp;</span>);
+    if(typeof target==='undefined' || target === null) return (<span>&nbsp;&nbsp;&nbsp;</span>);
 
     return (<OverlayTrigger
         placement={params.placement}

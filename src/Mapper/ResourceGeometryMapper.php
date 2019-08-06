@@ -58,7 +58,10 @@ class ResourceGeometryMapper extends AbstractEntityMapper implements EntityMappe
         /** @var ResourceGeometry $geo */
         $geo = $this->defaultAdd($dto);
 
-        if($commit) $this->getManager()->flush();
+        if($commit){
+            //$this->getManager()->merge($geo);
+            $this->getManager()->flush();
+        }
         return $geo;
     }
 
