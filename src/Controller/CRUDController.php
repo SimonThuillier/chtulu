@@ -284,9 +284,9 @@ class CRUDController extends AbstractController
                 }
             }
 
-            $test = $dbActionObserver;
+            $memoryUsage = memory_get_usage();
+            $test3 = $dbActionObserver->getSequenceOfActions();
             $test2 = 'lol';
-
 
             //$mapper->executeCommands($mapperCommands,true,$newEntities);
             // at this step data is well injected to the database, now get the backData

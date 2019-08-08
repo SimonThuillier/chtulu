@@ -20,6 +20,8 @@ use App\Helper\AssetHelper;
 use App\Helper\DateHelper;
 use App\Observer\DBActionObserver;
 use App\Serializer\HDateNormalizer;
+use App\Util\Command\EntityMapperCommand;
+use App\Util\Command\LinkCommand;
 use App\Util\HDate;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Psr\Container\ContainerInterface;
@@ -111,15 +113,19 @@ class ArticleLinkDTOMediator extends DTOMediator
         $article = null;
 
         if($dto->getParentId() === null) return $mapperCommands;
-        if($dto->getParentId() > 0){
-            $article = $this->locator->get('doctrine')->getRepository(Article::class)->find($dto->getParentId());
-            if($article !== null){
-                $articleLink->setParent($article);
-            }
-        }
-        else{
-            $this->dbActionObserver->askNewEntity(Article::class,$dto->getParentId(),$this,$articleLink,'setParent');
-        }
+
+        $command = new LinkCommand(
+            EntityMapperCommand::ACTION_LINK,
+            $this->getEntityClassName(),
+            $dto->getId(),
+            $articleLink
+        );
+        $command->defineLink(
+            Article::class,
+            $dto->getParentId(),
+            'setParent',
+            true);
+        $this->dbActionObserver->registerAction($command);
 
         return $mapperCommands;
     }
@@ -133,15 +139,19 @@ class ArticleLinkDTOMediator extends DTOMediator
         $article = null;
 
         if($dto->getChildId() === null) return $mapperCommands;
-        if($dto->getChildId() > 0){
-            $article = $this->locator->get('doctrine')->getRepository(Article::class)->find($dto->getChildId());
-            if($article !== null){
-                $articleLink->setChild($article);
-            }
-        }
-        else{
-            $this->dbActionObserver->askNewEntity(Article::class,$dto->getChildId(),$this,$articleLink,'setChild');
-        }
+
+        $command = new LinkCommand(
+            EntityMapperCommand::ACTION_LINK,
+            $this->getEntityClassName(),
+            $dto->getId(),
+            $articleLink
+        );
+        $command->defineLink(
+            Article::class,
+            $dto->getChildId(),
+            'setChild',
+            true);
+        $this->dbActionObserver->registerAction($command);
 
         return $mapperCommands;
     }

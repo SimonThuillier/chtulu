@@ -302,7 +302,8 @@ class ArticleDTOMediator extends DTOMediator
             $command->defineLink(
                 ResourceGeometry::class,
                 $dto->getGeometry()->getId(),
-                'setGeometry')
+                'setGeometry',
+                false)
                 ->setEntityToLink($dto->getGeometry()->getMediator()->getEntity());
             ;
             $this->dbActionObserver->registerAction($command);

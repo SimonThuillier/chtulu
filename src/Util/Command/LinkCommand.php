@@ -24,6 +24,8 @@ class LinkCommand extends EntityMapperCommand
     private $idToLink;
     /** @var string name of the subject entity setter method to be executed to perform the link */
     private $linkerMethodName;
+    /** @var bool if true the link must be established before the entity is added to the DB, else it is optional */
+    private $mandatory;
     /** @var DTOMutableEntity the entity subject of the action */
     private $entityToLink;
 
@@ -31,17 +33,20 @@ class LinkCommand extends EntityMapperCommand
      * @param string $entityToLinkClassName className of the entity to link
      * @param int $idToLink the original id of the entity to link (can be negative for non already-existing entity)
      * @param string $linkerMethodName name of the subject entity setter method to be executed to perform the link
+     * @param bool $mandatory
      * @return LinkCommand
      */
     public function defineLink(
         string $entityToLinkClassName,
         int $idToLink,
-        string $linkerMethodName
+        string $linkerMethodName,
+        bool $mandatory
     ): LinkCommand
     {
         $this->entityToLinkClassName = $entityToLinkClassName;
         $this->idToLink = $idToLink;
         $this->linkerMethodName = $linkerMethodName;
+        $this->mandatory = $mandatory;
         
         return $this;
     }
@@ -55,6 +60,44 @@ class LinkCommand extends EntityMapperCommand
         $this->entityToLink = $entityToLink;
         return $this;
     }
-    
-    
+
+    /**
+     * @return string
+     */
+    public function getEntityToLinkClassName(): string
+    {
+        return $this->entityToLinkClassName;
+    }
+
+    /**
+     * @return int
+     */
+    public function getIdToLink(): int
+    {
+        return $this->idToLink;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLinkerMethodName(): string
+    {
+        return $this->linkerMethodName;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isMandatory(): bool
+    {
+        return $this->mandatory;
+    }
+
+    /**
+     * @return DTOMutableEntity|null
+     */
+    public function getEntityToLink(): ?DTOMutableEntity
+    {
+        return $this->entityToLink;
+    }
 }
