@@ -2,7 +2,7 @@
 
 use App\Entity\DateType;
 use App\Helper\DateHelper;
-use App\Utils\HDate;
+use App\Util\HDate;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\EncoderInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;

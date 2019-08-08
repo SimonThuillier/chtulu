@@ -1,7 +1,7 @@
 <?php
 namespace App\Factory;
 
-use App\Utils\HDate;
+use App\Util\HDate;
 use App\Entity\DateType;
 use App\Helper\DateHelper;
 

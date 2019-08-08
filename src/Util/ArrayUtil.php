@@ -6,7 +6,7 @@
  * Time: 21:42
  */
 
-namespace App\Utils;
+namespace App\Util;
 
 
 class ArrayUtil

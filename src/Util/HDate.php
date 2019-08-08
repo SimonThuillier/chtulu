@@ -1,5 +1,5 @@
 <?php
-namespace App\Utils;
+namespace App\Util;
 use App\Entity\DateType;
 use App\Helper\DateHelper;
 
@@ -35,7 +35,7 @@ class HDate
     private $type;
 
     /**
-     * @return \App\Utils\HDate
+     * @return \App\Util\HDate
      */
     public function __construct()
     {

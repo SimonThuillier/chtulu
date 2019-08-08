@@ -12,10 +12,11 @@ use App\Helper\RequestHelper;
 use App\Helper\WAOHelper;
 use App\Mapper\EntityMapper;
 use App\Mediator\DTOMediator;
+use App\Observer\DBActionObserver;
 use App\Serializer\DTONormalizer;
-use App\Utils\ArrayUtil;
-use App\Utils\HJsonResponse;
-use App\Utils\SearchBag;
+use App\Util\ArrayUtil;
+use App\Util\HJsonResponse;
+use App\Util\SearchBag;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -200,7 +201,7 @@ class CRUDController extends AbstractController
      * @param EntityMapper $mapper
      * @param MediatorFactory $mediatorFactory
      * @param DTONormalizer $normalizer
-     * @param EncoderInterface; $encoder
+     * @param DBActionObserver $dbActionObserver
      * @Route("/post",name="crud_post")
      * @Method({"GET","POST"})
      * @throws \Exception
@@ -215,7 +216,7 @@ class CRUDController extends AbstractController
                                EntityMapper $mapper,
                                MediatorFactory $mediatorFactory,
                                DTONormalizer $normalizer,
-                               EncoderInterface $encoder){
+                               DBActionObserver $dbActionObserver){
 
         $hResponse = new HJsonResponse();
         $transformedErrors = [];
@@ -283,7 +284,11 @@ class CRUDController extends AbstractController
                 }
             }
 
-            $mapper->executeCommands($mapperCommands,true,$newEntities);
+            $test = $dbActionObserver;
+            $test2 = 'lol';
+
+
+            //$mapper->executeCommands($mapperCommands,true,$newEntities);
             // at this step data is well injected to the database, now get the backData
             // let's begin with the newly created objects
             /** @var DTOMutableEntity $newEntity */

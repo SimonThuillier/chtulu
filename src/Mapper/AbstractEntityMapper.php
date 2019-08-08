@@ -7,7 +7,7 @@ use App\Entity\ArticleLink;
 use App\Factory\AbstractEntityFactory;
 use App\Factory\FactoryException;
 use App\Mediator\NullColleagueException;
-use App\Utils\SearchBag;
+use App\Util\SearchBag;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\EntityRepository;

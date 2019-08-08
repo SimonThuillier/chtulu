@@ -9,7 +9,7 @@ use App\Manager\ReactTranspiler;
 use App\Mapper\ResourceGeometryMapper;
 use App\Mediator\ResourceGeometryDTOMediator;
 use App\Serializer\GeoJsonNormalizer;
-use App\Utils\Geometry;
+use App\Util\Geometry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;

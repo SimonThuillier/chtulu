@@ -6,7 +6,7 @@
  * Time: 22:11
  */
 
-namespace App\Utils;
+namespace App\Util;
 
 use Symfony\Component\Serializer\Annotation\Groups;
 

@@ -10,11 +10,21 @@ namespace App\Observer;
 
 
 use App\Mediator\DTOMediator;
+use App\Util\Command\EntityMapperCommand;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class NewEntityObserver
+class DBActionObserver
 {
     private $user;
+
+    /** @var array observed ADD actions */
+    private $addActions = [];
+    /** @var array observed LINK actions */
+    private $linkActions = [];
+    /** @var array observed EDIT actions */
+    private $editActions = [];
+    /** @var array observed DELETE actions */
+    private $deleteActions = [];
 
     private $entities = [];
     private $requests = [];
@@ -23,6 +33,45 @@ class NewEntityObserver
     {
         $this->user = $tokenStorage->getToken()->getUser();
     }
+
+    /**
+     * drop all actions and reinitialize the to do list
+     * @return $this
+     */
+    public function reinitialize(){
+        $this->addActions = [];
+        $this->linkActions = [];
+        $this->editActions = [];
+        $this->deleteActions = [];
+        return $this;
+    }
+
+    /**
+     * register a new action command to be executed later
+     * @param EntityMapperCommand $action
+     * @return $this
+     */
+    public function registerAction(EntityMapperCommand $action){
+        switch ($action->getAction()){
+            case EntityMapperCommand::ACTION_ADD:
+                $this->addActions[$action->getEntityClassName().':'.$action->getId()] = $action;
+                break;
+            case EntityMapperCommand::ACTION_LINK:
+                $this->linkActions[$action->getEntityClassName().':'.$action->getId()] = $action;
+                break;
+            case EntityMapperCommand::ACTION_EDIT:
+                $this->editActions[$action->getEntityClassName().':'.$action->getId()] = $action;
+                break;
+            case EntityMapperCommand::ACTION_DELETE:
+                $this->deleteActions[$action->getEntityClassName().':'.$action->getId()] = $action;
+                break;
+            default:
+                break;
+        }
+        return $this;
+    }
+
+
 
     public function notifyNewEntity($entityClassName,$id,$entity,$priority){
 

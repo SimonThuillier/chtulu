@@ -12,7 +12,7 @@ use App\Factory\MediatorFactory;
 use App\Helper\WAOHelper;
 use App\Mediator\DTOMediator;
 use App\Mediator\NotAvailableGroupException;
-use App\Utils\ArrayUtil;
+use App\Util\ArrayUtil;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;

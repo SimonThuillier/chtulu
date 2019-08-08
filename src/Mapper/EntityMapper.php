@@ -21,7 +21,7 @@ use App\Factory\FactoryException;
 use App\Helper\WAOHelper;
 use App\Mediator\InvalidCallerException;
 use App\Mediator\NullColleagueException;
-use App\Utils\SearchBag;
+use App\Util\SearchBag;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\Mapping\Entity;
 use Psr\Container\ContainerInterface;

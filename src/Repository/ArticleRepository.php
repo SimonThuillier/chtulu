@@ -4,7 +4,7 @@ namespace App\Repository;
 use App\Entity\ArticleType;
 use App\Helper\DateHelper;
 use App\Mapper\AutoMapper;
-use App\Utils\HDate;
+use App\Util\HDate;
 use Doctrine\ORM\EntityRepository;
 use App\Entity\Article;
 use App\Factory\ArticleDTOFactory;

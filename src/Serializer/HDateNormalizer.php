@@ -6,7 +6,7 @@ use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use App\Factory\HDateFactory;
-use App\Utils\HDate;
+use App\Util\HDate;
 use App\Helper\DateHelper;
 use App\Entity\DateType;
 

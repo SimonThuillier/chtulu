@@ -6,7 +6,7 @@
  * Time: 23:27
  */
 
-namespace App\Utils;
+namespace App\Util;
 
 
 class SearchBag

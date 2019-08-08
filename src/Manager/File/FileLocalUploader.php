@@ -9,7 +9,7 @@
 namespace App\Manager\File;
 
 
-use App\Utils\FileUtil;
+use App\Util\FileUtil;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 

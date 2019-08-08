@@ -23,7 +23,7 @@ use App\Mediator\DTOMediator;
 use App\Mediator\ResourceDTOMediator;
 use App\Mediator\ResourceGeometryDTOMediator;
 use App\Mediator\ResourceVersionDTOMediator;
-use App\Observer\NewEntityObserver;
+use App\Observer\DBActionObserver;
 use App\Serializer\HDateNormalizer;
 use Psr\Container\ContainerInterface;
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -35,8 +35,8 @@ class MediatorFactory implements ServiceSubscriberInterface
 {
     /** @var ContainerInterface */
     private $locator;
-    /** @var NewEntityObserver */
-    protected $newEntityObserver;
+    /** @var DBActionObserver */
+    protected $dbActionObserver;
 
     private const MEDIATOR_SERVICES = [
         ArticleDTO::class => ArticleDTOMediator::class,
@@ -61,12 +61,12 @@ class MediatorFactory implements ServiceSubscriberInterface
     /**
      * EntityFactory constructor.
      * @param ContainerInterface $locator
-     * @param NewEntityObserver $newEntityObserver
+     * @param DBActionObserver $dbActionObserver
      */
-    public function __construct(ContainerInterface $locator,NewEntityObserver $newEntityObserver)
+    public function __construct(ContainerInterface $locator, DBActionObserver $dbActionObserver)
     {
         $this->locator = $locator;
-        $this->newEntityObserver = $newEntityObserver;
+        $this->dbActionObserver = $dbActionObserver;
     }
 
     /**
@@ -106,7 +106,7 @@ class MediatorFactory implements ServiceSubscriberInterface
         }*/
         /** @var DTOMediator $mediator */
         $mediatorClassName = self::getSubscribedServices()[$className];
-        $mediator = new $mediatorClassName($this->locator,$this->newEntityObserver);
+        $mediator = new $mediatorClassName($this->locator,$this->dbActionObserver);
 
         if ($entity === null && $mode === DTOMediator::CREATE_IF_NULL){
             $entity = $this->locator->get(EntityFactory::class)->create($mediator->getEntityClassName());

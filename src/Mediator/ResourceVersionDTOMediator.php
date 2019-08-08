@@ -14,7 +14,7 @@ use App\Entity\ResourceVersion;
 use App\Factory\DTOFactory;
 use App\Factory\EntityFactory;
 use App\Manager\File\FileRouter;
-use App\Observer\NewEntityObserver;
+use App\Observer\DBActionObserver;
 use Psr\Container\ContainerInterface;
 
 
@@ -28,11 +28,11 @@ class ResourceVersionDTOMediator extends DTOMediator
     /**
      * ResourceVersionDTOMediator constructor.
      * @param ContainerInterface $locator
-     * @param NewEntityObserver $newEntityObserver
+     * @param DBActionObserver $dbActionObserver
      */
-    public function __construct(ContainerInterface $locator,NewEntityObserver $newEntityObserver)
+    public function __construct(ContainerInterface $locator, DBActionObserver $dbActionObserver)
     {
-        parent::__construct($locator,$newEntityObserver);
+        parent::__construct($locator,$dbActionObserver);
         $this->dtoClassName = ResourceVersionDTO::class;
         $this->entityClassName = ResourceVersion::class;
         $this->groups = ['minimal','file','urlDetailThumbnail','urlMini'];

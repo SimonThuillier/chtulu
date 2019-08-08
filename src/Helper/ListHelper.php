@@ -10,7 +10,7 @@ namespace App\Helper;
 
 
 use App\Serializer\HNormalizer;
-use App\Utils\HJsonResponse;
+use App\Util\HJsonResponse;
 
 class ListHelper
 {

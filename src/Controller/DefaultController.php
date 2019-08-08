@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Entity\DateType;
 use App\Form\TestType;
 use App\Test;
-use App\Utils\HDate;
+use App\Util\HDate;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

@@ -9,12 +9,11 @@
 namespace App\Mediator;
 
 
-use App\Command\EntityMapperCommand;
+use App\Util\Command\EntityMapperCommand;
 use App\DTO\EntityMutableDTO;
 use App\Entity\DTOMutableEntity;
-use App\Factory\MediatorFactory;
-use App\Observer\NewEntityObserver;
-use App\Utils\ArrayUtil;
+use App\Observer\DBActionObserver;
+use App\Util\ArrayUtil;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\ServiceSubscriberInterface;
 
@@ -35,8 +34,8 @@ abstract class DTOMediator implements ServiceSubscriberInterface
     protected $changedProperties;
     /** @var ContainerInterface */
     protected $locator;
-    /** @var NewEntityObserver */
-    protected $newEntityObserver;
+    /** @var DBActionObserver */
+    protected $dbActionObserver;
     /** @var boolean */
     private $pendingSetDTO;
     /** @var boolean */
@@ -48,24 +47,19 @@ abstract class DTOMediator implements ServiceSubscriberInterface
     public const ERROR_IF_NULL=2;
     public const NOTHING_IF_NULL=3;
 
-    /** @var int  */
-    protected $entityPriority=0;
-    /** @var EntityMapperCommand||null */
-    protected $entityMapperCommand;
-
     /**
      * DTOBuilder constructor.
      * @param ContainerInterface $locator
-     * @param NewEntityObserver $newEntityObserver
+     * @param DBActionObserver $dbActionObserver
      */
-    public function __construct(ContainerInterface $locator,NewEntityObserver $newEntityObserver)
+    public function __construct(ContainerInterface $locator, DBActionObserver $dbActionObserver)
     {
         $this->locator = $locator;
         $this->groups = [];
         $this->changedProperties = [];
         $this->pendingSetDTO = false;
         $this->pendingSetEntity = false;
-        $this->newEntityObserver = $newEntityObserver;
+        $this->dbActionObserver = $dbActionObserver;
     }
 
     /**
@@ -240,42 +234,16 @@ abstract class DTOMediator implements ServiceSubscriberInterface
 
         $this->resetChangedProperties();
 
-        if($id < 0){
-            $this->newEntityObserver->notifyNewEntity($this->getEntityClassName(),$id,$this->entity,$this->entityPriority);
-        }
+        $this->dbActionObserver->registerAction(
+            new EntityMapperCommand(
+                $id > 0?EntityMapperCommand::ACTION_EDIT:EntityMapperCommand::ACTION_ADD,
+                $this->getEntityClassName(),
+                $id,
+                $this->entity
+            )
+        );
 
-        return $this->makeAndSaveMapperCommand($mapperCommands,$id,$toDelete);
-    }
-
-    private function makeAndSaveMapperCommand($mapperCommands,$id,$toDelete){
-        $this->entityMapperCommand = new EntityMapperCommand(
-            $toDelete?EntityMapperCommand::ACTION_DELETE:($id>0?EntityMapperCommand::ACTION_EDIT:EntityMapperCommand::ACTION_ADD),
-            $this->entityPriority,
-            $this->dto
-    );
-        $mapperCommands[$this->getDtoClassName() . ":" . $id] = $this->entityMapperCommand;
-        return $mapperCommands;
-    }
-
-    /**
-     * @return int
-     */
-    public function getEntityPriority(): int
-    {
-        return $this->entityPriority;
-    }
-
-    /**
-     * @param int $entityPriority
-     * @return DTOMediator
-     */
-    public function setEntityPriority(int $entityPriority): DTOMediator
-    {
-        $this->entityPriority = $entityPriority;
-        if($this->entityMapperCommand !== null){
-            $this->entityMapperCommand->setPriority($entityPriority);
-        }
-        return $this;
+        return [];
     }
 
     /**

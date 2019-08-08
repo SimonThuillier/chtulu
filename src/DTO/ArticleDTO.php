@@ -11,7 +11,7 @@ namespace App\DTO;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Entity\ArticleType;
 use App\Mediator\DTOMediator;
-use App\Utils\HDate;
+use App\Util\HDate;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Validator as HbAssert;
 

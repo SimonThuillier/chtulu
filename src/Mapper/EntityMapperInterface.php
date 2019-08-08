@@ -6,7 +6,7 @@ use App\DTO\EntityMutableDTO;
 use App\Factory\FactoryException;
 use App\Mediator\InvalidCallerException;
 use App\Mediator\NullColleagueException;
-use App\Utils\SearchBag;
+use App\Util\SearchBag;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\QueryBuilder;
 

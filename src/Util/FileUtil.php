@@ -6,7 +6,7 @@
  * Time: 15:42
  */
 
-namespace App\Utils;
+namespace App\Util;
 
 
 class FileUtil

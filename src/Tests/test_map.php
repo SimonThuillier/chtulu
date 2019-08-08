@@ -1,7 +1,7 @@
 <?php
 
 use App\Entity\DateType;
-use App\Utils\HDate;
+use App\Util\HDate;
 use App\Helper\DateHelper;
 use App\Mapper\AutoMapper;
 

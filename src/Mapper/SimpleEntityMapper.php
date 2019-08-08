@@ -9,7 +9,7 @@
 namespace App\Mapper;
 
 
-use App\Utils\SearchBag;
+use App\Util\SearchBag;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\QueryBuilder;

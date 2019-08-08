@@ -9,7 +9,7 @@
 namespace App\Form\DataTransformer;
 
 use App\Serializer\GeoJsonNormalizer;
-use App\Utils\Geometry;
+use App\Util\Geometry;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 use Symfony\Component\Serializer\Encoder\EncoderInterface;

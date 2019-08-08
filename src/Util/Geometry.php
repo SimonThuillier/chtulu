@@ -6,7 +6,7 @@
  * Time: 16:11
  */
 
-namespace App\Utils;
+namespace App\Util;
 
 /** wrapper object for geometry values issued from database */
 class Geometry

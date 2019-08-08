@@ -13,12 +13,15 @@ use App\DTO\ArticleDTO;
 use App\DTO\ResourceDTO;
 use App\DTO\ResourceGeometryDTO;
 use App\Entity\Article;
+use App\Entity\ResourceGeometry;
 use App\Factory\MediatorFactory;
 use App\Helper\AssetHelper;
 use App\Helper\DateHelper;
-use App\Observer\NewEntityObserver;
+use App\Observer\DBActionObserver;
 use App\Serializer\HDateNormalizer;
-use App\Utils\HDate;
+use App\Util\Command\EntityMapperCommand;
+use App\Util\Command\LinkCommand;
+use App\Util\HDate;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -32,11 +35,11 @@ class ArticleDTOMediator extends DTOMediator
     /**
      * ArticleDTOMediator constructor.
      * @param ContainerInterface $locator
-     * @param NewEntityObserver $newEntityObserver
+     * @param DBActionObserver $dbActionObserver
      */
-    public function __construct(ContainerInterface $locator,NewEntityObserver $newEntityObserver)
+    public function __construct(ContainerInterface $locator, DBActionObserver $dbActionObserver)
     {
-        parent::__construct($locator,$newEntityObserver);
+        parent::__construct($locator,$dbActionObserver);
         $this->dtoClassName = self::DTO_CLASS_NAME;
         $this->entityClassName = self::ENTITY_CLASS_NAME;
         $this->groups = ['minimal','abstract','date','type','detailImage','geometry'];
@@ -268,19 +271,6 @@ class ArticleDTOMediator extends DTOMediator
         return $mapperCommands;
     }
 
-//    protected function mediateHteRange($mapperCommands){
-//        $hDateNormalizer = $this->locator->get(HDateNormalizer::class);
-//        $encoder = $this->locator->get('serializer.encoder.json');
-//
-//        /** @var ArticleDTO $dto */
-//        $dto = $this->dto;
-//        /** @var Article $article */
-//        $article = $this->entity;
-//
-//        $article->sethteRange($dto->gethteRange()?$encoder->encode(
-//            $hDateNormalizer->normalize($dto->gethteRange()),'json'):null);
-//    }
-
     protected function mediateDetailImageResource($mapperCommands){
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
@@ -301,8 +291,21 @@ class ArticleDTOMediator extends DTOMediator
         $article = $this->entity;
 
         if($dto->getGeometry()!==null){
-            $mapperCommands = $dto->getGeometry()->getMediator()->returnDataToEntity($mapperCommands);
-            $article->setGeometry($dto->getGeometry()->getMediator()->getEntity());
+            $dto->getGeometry()->getMediator()->returnDataToEntity($mapperCommands);
+
+            $command = new LinkCommand(
+                EntityMapperCommand::ACTION_LINK,
+                $this->getEntityClassName(),
+                $dto->getId(),
+                $article
+            );
+            $command->defineLink(
+                ResourceGeometry::class,
+                $dto->getGeometry()->getId(),
+                'setGeometry')
+                ->setEntityToLink($dto->getGeometry()->getMediator()->getEntity());
+            ;
+            $this->dbActionObserver->registerAction($command);
         }
         else{
             $article->setGeometry(null);

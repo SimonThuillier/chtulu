@@ -8,7 +8,7 @@
 
 namespace App\Validator;
 
-use App\Utils\HDate;
+use App\Util\HDate;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 

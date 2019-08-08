@@ -18,9 +18,9 @@ use App\Entity\ArticleLink;
 use App\Factory\MediatorFactory;
 use App\Helper\AssetHelper;
 use App\Helper\DateHelper;
-use App\Observer\NewEntityObserver;
+use App\Observer\DBActionObserver;
 use App\Serializer\HDateNormalizer;
-use App\Utils\HDate;
+use App\Util\HDate;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -34,11 +34,11 @@ class ArticleLinkDTOMediator extends DTOMediator
     /**
      * ArticleLinkDTOMediator constructor.
      * @param ContainerInterface $locator
-     * @param NewEntityObserver $newEntityObserver
+     * @param DBActionObserver $dbActionObserver
      */
-    public function __construct(ContainerInterface $locator,NewEntityObserver $newEntityObserver)
+    public function __construct(ContainerInterface $locator, DBActionObserver $dbActionObserver)
     {
-        parent::__construct($locator,$newEntityObserver);
+        parent::__construct($locator,$dbActionObserver);
         $this->dtoClassName = self::DTO_CLASS_NAME;
         $this->entityClassName = self::ENTITY_CLASS_NAME;
         $this->groups = ['minimal','parent','child'];
@@ -118,7 +118,7 @@ class ArticleLinkDTOMediator extends DTOMediator
             }
         }
         else{
-            $this->newEntityObserver->askNewEntity(Article::class,$dto->getParentId(),$this,$articleLink,'setParent');
+            $this->dbActionObserver->askNewEntity(Article::class,$dto->getParentId(),$this,$articleLink,'setParent');
         }
 
         return $mapperCommands;
@@ -140,7 +140,7 @@ class ArticleLinkDTOMediator extends DTOMediator
             }
         }
         else{
-            $this->newEntityObserver->askNewEntity(Article::class,$dto->getChildId(),$this,$articleLink,'setChild');
+            $this->dbActionObserver->askNewEntity(Article::class,$dto->getChildId(),$this,$articleLink,'setChild');
         }
 
         return $mapperCommands;

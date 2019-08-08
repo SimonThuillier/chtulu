@@ -16,7 +16,7 @@ use App\Factory\FactoryException;
 use App\Mediator\NullColleagueException;
 use App\Serializer\HDateNormalizer;
 use App\Serializer\SimpleEntityNormalizer;
-use App\Utils\HDate;
+use App\Util\HDate;
 use Psr\Log\LoggerInterface;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;

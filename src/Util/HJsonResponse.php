@@ -6,7 +6,7 @@
  * Time: 20:53
  */
 
-namespace App\Utils;
+namespace App\Util;
 
 
 use Symfony\Component\Validator\ConstraintViolationInterface;

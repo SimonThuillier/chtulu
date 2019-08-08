@@ -2,7 +2,7 @@
 namespace App\Serializer;
 
 use App\Helper\WAOHelper;
-use App\Utils\Geometry;
+use App\Util\Geometry;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
