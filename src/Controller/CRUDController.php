@@ -285,7 +285,7 @@ class CRUDController extends AbstractController
             }
 
             $memoryUsage = memory_get_usage();
-            $test3 = $dbActionObserver->getSequenceOfActions();
+            $sequenceOfActions = $dbActionObserver->getSequenceOfActions();
             $test2 = 'lol';
 
             //$mapper->executeCommands($mapperCommands,true,$newEntities);

@@ -110,6 +110,7 @@ class DBActionObserver
      * compute and returns the ordened sequence of actions necessary to pass to the entity mapper
      * the sequence is an array [priority => [actions of this priority]]
      * the actions can then be executed in decreasing order of priority by the mapper
+     * @return array
      */
     public function getSequenceOfActions()
     {
@@ -163,7 +164,59 @@ class DBActionObserver
             $iteration++;
         }
 
-        $test='lol';
+        /**
+         * 3 & 4 : TODO priority computation about delete ?
+         * see when a decision about delete is made : should it be a real delete or an inactivation of the entity ?
+         */
+
+        /**
+         * 5 : constitution of the sequence of action
+         * 5.1 : edit actions are added with the default -1 priority
+         * 5.2 : then we loop until all edit and add actions are placed in the sequence
+         * 5.3 : delete actions are for the moment placed with -20 priority
+         */
+        $sequence = [];
+
+        /** 5.1 */
+        $chunk = [];
+        /** @var EntityMapperCommand $action */
+        foreach($this->editActions as $action){
+            $action->setPriority(-1);
+            $chunk[] = $action;
+        }
+        $sequence[-1] = $chunk;
+
+        /** 5.2 */
+        /** @var EntityMapperCommand $action */
+        $priority = -1;
+        $placedAddLinkCount = 0;
+
+        while($placedAddLinkCount < count($addLinkActions)){
+            foreach($addLinkActions as $action){
+                if($priority === $action->getPriority()){
+                    $chunk[] = $action;
+                    $placedAddLinkCount++;
+                }
+            }
+            if(count($chunk)>0){
+                $sequence[$priority] = $chunk;
+            }
+            $chunk = [];
+            $priority--;
+        }
+
+        /** 5.3 */
+        $chunk = [];
+        foreach($this->deleteActions as $action){
+            $chunk[] = $action;
+        }
+        if(count($chunk)>0){
+            $sequence[-self::MAX_ITERATIONS-1] = $chunk;
+        }
+
+        $this->hasComputedSequence = true;
+        $this->sequenceOfActions = $sequence;
+        return $sequence;
     }
 
     /**
