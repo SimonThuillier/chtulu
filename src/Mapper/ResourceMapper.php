@@ -9,13 +9,10 @@
 namespace App\Mapper;
 
 
-use App\DTO\EntityMutableDTO;
+use App\Entity\DTOMutableEntity;
 use App\DTO\ResourceDTO;
 use App\Entity\HResource;
-use App\Entity\ResourceVersion;
-use App\Factory\FactoryException;
 use App\Factory\ResourceFactory;
-use App\Mediator\NullColleagueException;
 use Psr\Log\LoggerInterface;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -53,21 +50,19 @@ class ResourceMapper extends AbstractEntityMapper implements EntityMapperInterfa
     }
 
     /**
-     * @param EntityMutableDTO $dto
+     * @param DTOMutableEntity $entity
      * @param boolean $commit
      * @return HResource
-     * @throws FactoryException
-     * @throws NullColleagueException
      * @throws EntityMapperException
      */
-    public function add(EntityMutableDTO $dto,$commit=true)
+    public function add(DTOMutableEntity $entity,$commit=true)
     {
-        $this->checkAdd($dto);
+        $this->checkAdd($entity);
 
-        /** @var ResourceDTO $dto */
+        /** @var ResourceDTO $entity */
 
         /** @var HResource $resource */
-        $resource = $this->defaultAdd($dto);
+        $resource = $this->defaultAdd($entity);
 
         $resource->setEditionDate(new \DateTime())
             ->setEditionUser($this->getUser());
@@ -77,30 +72,29 @@ class ResourceMapper extends AbstractEntityMapper implements EntityMapperInterfa
     }
 
     /**
-     * @param EntityMutableDTO $dto
+     * @param DTOMutableEntity $entity
      * @return mixed|void
      * @throws EntityMapperException
      */
-    protected function checkAdd(EntityMutableDTO $dto){
-        parent::checkAdd($dto);
-        /** @var ResourceDTO $dto */
-        if($dto->getActiveVersion() === null){
+    protected function checkAdd(DTOMutableEntity $entity){
+        parent::checkAdd($entity);
+        /** @var ResourceDTO $entity */
+        if($entity->getActiveVersion() === null){
             throw new EntityMapperException("Impossible to create a resource without active version of it");
         }
     }
 
     /**
-     * @param EntityMutableDTO $dto
+     * @param DTOMutableEntity $entity
      * @param boolean $commit
      * @return HResource
      * @throws EntityMapperException
-     * @throws NullColleagueException
      */
-    public function edit(EntityMutableDTO $dto,$commit=true)
+    public function edit(DTOMutableEntity $entity,$commit=true)
     {
-        $this->checkEdit($dto);
+        $this->checkEdit($entity);
         /** @var HResource $resource */
-        $resource = $this->defaultEdit($dto);
+        $resource = $this->defaultEdit($entity);
 
         if($commit) $this->getManager()->flush();
         return $resource;

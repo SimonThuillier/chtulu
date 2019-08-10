@@ -136,7 +136,7 @@ class User implements UserInterface,\Serializable
      * Get id
      * @return int
      */
-    public function getId()
+    public function getId() :?int
     {
         return $this->id;
     }

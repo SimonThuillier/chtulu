@@ -139,7 +139,9 @@ abstract class EntityMutableDTO
      * @return self
      */
     public function setBackGroups(?array $backGroups){
-        $this->backGroups = $backGroups;
+        if($backGroups !== null){
+            $this->backGroups = array_merge($this->backGroups,$backGroups);
+        }
         return $this;
     }
 

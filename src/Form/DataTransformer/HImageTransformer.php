@@ -77,7 +77,7 @@ class HImageTransformer implements DataTransformerInterface
         $hResource = $this->doctrine->getRepository(HResource::class)->find($id);
         if($hResource === null) return null;
 
-        $resourceMediator = $this->mediatorFactory->create(ResourceDTOMediator::class,$hResource);
+        $resourceMediator = $this->mediatorFactory->create(ResourceDTOMediator::class,$id,$hResource);
         $resourceMediator->mapDTOGroups(["minimal","activeVersion"=>["minimal"]]);
         return $resourceMediator->getDTO();
     }

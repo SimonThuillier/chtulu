@@ -8,7 +8,7 @@
 
 namespace App\Mapper;
 
-use App\DTO\EntityMutableDTO;
+use App\Entity\DTOMutableEntity;
 use App\Entity\ArticleLink;
 use App\Factory\ArticleFactory;
 use App\Factory\FactoryException;
@@ -44,40 +44,36 @@ class ArticleLinkMapper extends AbstractEntityMapper implements EntityMapperInte
     }
 
     /**
-     * @param EntityMutableDTO $dto
+     * @param DTOMutableEntity $entity
      * @param boolean $commit
      * @return ArticleLink
-     * @throws FactoryException
-     * @throws NullColleagueException
      * @throws EntityMapperException
      */
-    public function add(EntityMutableDTO $dto,$commit=true)
+    public function add(DTOMutableEntity $entity,$commit=true)
     {
-        $this->checkAdd($dto);
+        $this->checkAdd($entity);
         /** @var ArticleLink $articleLink */
-        $articleLink = $this->defaultAdd($dto);
+        $articleLink = $this->defaultAdd($entity);
         $articleLink
             ->setEditionDate(new \DateTime())
             ->setEditionUser($this->getUser());
         if($commit){
             $this->getManager()->flush();
-            $dto->setId($articleLink->getId());
         }
         return $articleLink;
     }
 
     /**
-     * @param EntityMutableDTO $dto
+     * @param DTOMutableEntity $entity
      * @param boolean $commit
      * @return ArticleLink
      * @throws EntityMapperException
-     * @throws NullColleagueException
      */
-    public function edit(EntityMutableDTO $dto,$commit=true)
+    public function edit(DTOMutableEntity $entity,$commit=true)
     {
-        $this->checkEdit($dto);
+        $this->checkEdit($entity);
         /** @var ArticleLink $articleLink */
-        $articleLink = $this->defaultEdit($dto);
+        $articleLink = $this->defaultEdit($entity);
         $articleLink
             ->setEditionDate(new \DateTime())
             ->setEditionUser($this->getUser());

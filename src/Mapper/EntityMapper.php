@@ -9,18 +9,19 @@
 namespace App\Mapper;
 
 
-use App\Command\EntityMapperCommand;
-use App\DTO\ArticleDTO;
-use App\DTO\ArticleLinkDTO;
-use App\DTO\EntityMutableDTO;
-use App\DTO\ResourceDTO;
-use App\DTO\ResourceGeometryDTO;
-use App\DTO\ResourceImageDTO;
-use App\DTO\ResourceVersionDTO;
+use App\Entity\Article;
+use App\Entity\ArticleLink;
+use App\Entity\DTOMutableEntity;
+use App\Entity\HResource;
+use App\Entity\ResourceFile;
+use App\Entity\ResourceGeometry;
+use App\Entity\ResourceVersion;
+use App\Util\Command\EntityMapperCommand;
 use App\Factory\FactoryException;
 use App\Helper\WAOHelper;
 use App\Mediator\InvalidCallerException;
 use App\Mediator\NullColleagueException;
+use App\Util\Command\LinkCommand;
 use App\Util\SearchBag;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\Mapping\Entity;
@@ -65,12 +66,12 @@ class EntityMapper implements ServiceSubscriberInterface
     public static function getSubscribedServices()
     {
         return [
-            ArticleDTO::class => ArticleMapper::class,
-            ResourceImageDTO::class => ResourceFileMapper::class,
-            ResourceGeometryDTO::class => ResourceGeometryMapper::class,
-            ResourceDTO::class => ResourceMapper::class,
-            ResourceVersionDTO::class => ResourceVersionMapper::class,
-            ArticleLinkDTO::class => ArticleLinkMapper::class
+            Article::class => ArticleMapper::class,
+            ResourceFile::class => ResourceFileMapper::class,
+            ResourceGeometry::class => ResourceGeometryMapper::class,
+            HResource::class => ResourceMapper::class,
+            ResourceVersion::class => ResourceVersionMapper::class,
+            ArticleLink::class => ArticleLinkMapper::class
         ];
     }
 
@@ -83,71 +84,66 @@ class EntityMapper implements ServiceSubscriberInterface
     }
 
     /**
-     * @param string $dtoClassName
+     * executes the sequence of action in the database
+     * @param array $sequence
+     * @return array
+     * @throws \Exception
+     */
+    public function executeSequence($sequence)
+    {
+        krsort($sequence);
+
+        foreach($sequence as $chunk){
+            /** @var EntityMapperCommand $action */
+            foreach($chunk as $action){
+                switch ($action->getAction()){
+                    case EntityMapperCommand::ACTION_ADD:
+                        $this->add($action->getEntity(),false);
+                        break;
+                    case EntityMapperCommand::ACTION_LINK:
+                        /** @var LinkCommand $linkAction */
+                        $linkAction = $action;
+                        $setterName = $linkAction->getLinkerMethodName();
+                        $entity = $linkAction->getEntity();
+                        $entityToLink = $linkAction->getEntityToLink();
+                        $entity->$setterName($entityToLink);
+                        $this->edit($entity,false);
+                        break;
+                    case EntityMapperCommand::ACTION_EDIT:
+                        $this->edit($action->getEntity(),false);
+                        break;
+                    case EntityMapperCommand::ACTION_DELETE:
+                        $this->delete($action->getEntity(),false);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            $this->commit();
+            /** at this step all the action of this priority have been effectively done in the database */
+            foreach($chunk as $action){
+                $action->setDoneAt(new \DateTime());
+            }
+        }
+
+        return $sequence;
+    }
+
+    /**
+     * @param string $entityClassName
      * @return EntityMapperInterface
      * @throws InvalidCallerException
      * @throws ServiceNotFoundException
      */
-    private function getMapperFromDtoClassName(string $dtoClassName){
-        if($this->locator->has($dtoClassName)){
+    private function getMapperFromEntityClassName(string $entityClassName){
+        if($this->locator->has($entityClassName)){
             /** @var EntityMapperInterface $mapper */
-            $mapper = $this->locator->get($dtoClassName);
+            $mapper = $this->locator->get($entityClassName);
             return $mapper;
         }
         else{
-            throw new InvalidCallerException("Mapper isn't configured for class " . $dtoClassName);
+            throw new InvalidCallerException("Mapper isn't configured for class " . $entityClassName);
         }
-    }
-
-    /**
-     * given commands from mediators execute them beginning with adds
-     * @param array $mapperCommands
-     * @param bool $commitEdits
-     * @param array $newEntities
-     * @return integer
-     * @throws FactoryException
-     * @throws InvalidCallerException
-     * @throws NullColleagueException
-     * @throws EntityMapperException
-     */
-    public function executeCommands(array $mapperCommands,bool $commitEdits=true,array &$newEntities=[]){
-        $actionCount = 0;
-
-        $addCommands = array_filter(array_values($mapperCommands),function(EntityMapperCommand $action){
-            return $action->getAction() === EntityMapperCommand::ACTION_ADD;
-        });
-        usort($addCommands,function(EntityMapperCommand $action1,EntityMapperCommand $action2){
-            if($action1->getPriority() === $action2->getPriority()) return 0;
-            return $action1->getPriority() > $action2->getPriority()?-1:0;
-        });
-
-        $addCommands = array_reverse($addCommands);
-        /**
-         * @var string $key
-         * @var EntityMapperCommand $action
-         */
-        foreach($addCommands as $key=>$action){
-            $newEntities[] = $this->add($action->getDto(),true);
-            $actionCount++;
-        }
-
-        $editCommands = array_reverse(array_filter(array_values($mapperCommands),function(EntityMapperCommand $action){
-            return $action->getAction() === EntityMapperCommand::ACTION_EDIT;
-        }));
-        foreach($editCommands as $key=>$action){
-            $this->edit($action->getDto(),true);
-            $actionCount++;
-        }
-
-        $deleteCommands = array_reverse(array_filter(array_values($mapperCommands),function(EntityMapperCommand $action){
-            return $action->getAction() === EntityMapperCommand::ACTION_DELETE;
-        }));
-        foreach($deleteCommands as $key=>$action){
-            $this->delete($action->getDto(),true);
-            $actionCount++;
-        }
-
-        return $actionCount;
     }
 
     public function commit(){
@@ -155,133 +151,133 @@ class EntityMapper implements ServiceSubscriberInterface
     }
 
     /**
-     * @param EntityMutableDTO $dto
+     * @param DTOMutableEntity $entity
      * @param bool $commit
      * @return Entity
      * @throws FactoryException
      * @throws InvalidCallerException
      * @throws NullColleagueException
      */
-    public function add(EntityMutableDTO $dto, $commit = true)
+    public function add(DTOMutableEntity $entity, $commit = true)
     {
-        $mapper = $this->getMapperFromDtoClassName(get_class($dto));
-        return $mapper->add($dto,$commit);
+        $mapper = $this->getMapperFromEntityClassName(get_class($entity));
+        return $mapper->add($entity,$commit);
     }
 
     /**
-     * @param EntityMutableDTO $dto
+     * @param DTOMutableEntity $entity
      * @param bool $commit
      * @return Entity
      * @throws InvalidCallerException
      * @throws NullColleagueException
      * @throws EntityMapperException
      */
-    public function edit(EntityMutableDTO $dto,$commit = true)
+    public function edit(DTOMutableEntity $entity,$commit = true)
     {
-        $mapper = $this->getMapperFromDtoClassName(get_class($dto));
-        return $mapper->edit($dto,$commit);
+        $mapper = $this->getMapperFromEntityClassName(get_class($entity));
+        return $mapper->edit($entity,$commit);
     }
 
     /**
-     * @param string $dtoClassName
+     * @param string $entityClassName
      * @param int $id
      * @return Entity
      * @throws InvalidCallerException
      * @throws EntityMapperException
      */
-    public function find(string $dtoClassName,int $id)
+    public function find(string $entityClassName,int $id)
     {
-        if($this->waoHelper->isSimpleEntity($dtoClassName))
-            return $this->simpleEntityMapper->find($dtoClassName,$id);
+        if($this->waoHelper->isSimpleEntity($entityClassName))
+            return $this->simpleEntityMapper->find($entityClassName,$id);
 
-        $mapper = $this->getMapperFromDtoClassName($dtoClassName);
+        $mapper = $this->getMapperFromEntityClassName($entityClassName);
         return $mapper->find($id);
     }
 
     /**
-     * @param string $dtoClassName
+     * @param string $entityClassName
      * @return \Doctrine\ORM\QueryBuilder
      * @throws InvalidCallerException
      * @throws EntityMapperException
      */
-    public function getFindAllQB(string $dtoClassName)
+    public function getFindAllQB(string $entityClassName)
     {
-        if($this->waoHelper->isSimpleEntity($dtoClassName))
-            return $this->simpleEntityMapper->getFindAllQB($dtoClassName);
+        if($this->waoHelper->isSimpleEntity($entityClassName))
+            return $this->simpleEntityMapper->getFindAllQB($entityClassName);
 
-        $mapper = $this->getMapperFromDtoClassName($dtoClassName);
+        $mapper = $this->getMapperFromEntityClassName($entityClassName);
         return $mapper->getFindAllQB();
     }
 
     /**
-     * @param string $dtoClassName
+     * @param string $entityClassName
      * @param SearchBag|null $searchBag
      * @return int
      * @throws InvalidCallerException
      */
-    public function getCountBy(string $dtoClassName,?SearchBag $searchBag)
+    public function getCountBy(string $entityClassName,?SearchBag $searchBag)
     {
-        if($this->waoHelper->isSimpleEntity($dtoClassName))
-            return $this->simpleEntityMapper->getCountBy($dtoClassName,$searchBag);
+        if($this->waoHelper->isSimpleEntity($entityClassName))
+            return $this->simpleEntityMapper->getCountBy($entityClassName,$searchBag);
 
-        $mapper = $this->getMapperFromDtoClassName($dtoClassName);
+        $mapper = $this->getMapperFromEntityClassName($entityClassName);
         return $mapper->getCountBy($searchBag);
     }
 
     /**
-     * @param string $dtoClassName
+     * @param string $entityClassName
      * @param SearchBag|null $searchBag
      * @param int $count
      * @return array
      * @throws InvalidCallerException
      */
-    public function searchBy(string $dtoClassName,?SearchBag $searchBag, &$count = 0)
+    public function searchBy(string $entityClassName,?SearchBag $searchBag, &$count = 0)
     {
-        if($this->waoHelper->isSimpleEntity($dtoClassName))
-            return $this->simpleEntityMapper->searchBy($dtoClassName,$searchBag,$count);
+        if($this->waoHelper->isSimpleEntity($entityClassName))
+            return $this->simpleEntityMapper->searchBy($entityClassName,$searchBag,$count);
 
-        $mapper = $this->getMapperFromDtoClassName($dtoClassName);
+        $mapper = $this->getMapperFromEntityClassName($entityClassName);
         return $mapper->searchBy($searchBag,$count);
     }
 
     /**
-     * @param string $dtoClassName
+     * @param string $entityClassName
      * @return Entity
      * @throws InvalidCallerException
      * @throws EntityMapperException
      */
-    public function findLast(string $dtoClassName)
+    public function findLast(string $entityClassName)
     {
-        if($this->waoHelper->isSimpleEntity($dtoClassName))
-            return $this->simpleEntityMapper->findLast($dtoClassName);
+        if($this->waoHelper->isSimpleEntity($entityClassName))
+            return $this->simpleEntityMapper->findLast($entityClassName);
 
-        $mapper = $this->getMapperFromDtoClassName($dtoClassName);
+        $mapper = $this->getMapperFromEntityClassName($entityClassName);
         return $mapper->findLast();
     }
 
     /**
-     * @param string $dtoClassName
+     * @param string $entityClassName
      * @param int $id
      * @return string
      * @throws InvalidCallerException
      */
-    public function confirmDelete(string $dtoClassName,int $id)
+    public function confirmDelete(string $entityClassName,int $id)
     {
-        $mapper = $this->getMapperFromDtoClassName($dtoClassName);
+        $mapper = $this->getMapperFromEntityClassName($entityClassName);
         return $mapper->confirmDelete($id);
     }
 
     /**
-     * @param EntityMutableDTO $dto
+     * @param DTOMutableEntity $entity
      * @param bool $commit
      * @throws InvalidCallerException
      * @throws EntityMapperException
      */
-    public function delete(EntityMutableDTO $dto, $commit = true)
+    public function delete(DTOMutableEntity $entity, $commit = true)
     {
-        $dtoClassName=get_class($dto);
-        $mapper = $this->getMapperFromDtoClassName($dtoClassName);
-        $mapper->delete($dto->getId(),$commit);
+        $entityClassName=get_class($entity);
+        $mapper = $this->getMapperFromEntityClassName($entityClassName);
+        $mapper->delete($entity->getId(),$commit);
     }
 
 

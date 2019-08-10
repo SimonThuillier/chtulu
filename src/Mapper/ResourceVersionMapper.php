@@ -9,13 +9,11 @@
 namespace App\Mapper;
 
 
-use App\DTO\EntityMutableDTO;
+use App\Entity\DTOMutableEntity;
 use App\DTO\ResourceVersionDTO;
 use App\Entity\ResourceVersion;
-use App\Factory\FactoryException;
 use App\Factory\ResourceVersionFactory;
 use App\Manager\File\FileUploader;
-use App\Mediator\NullColleagueException;
 use Psr\Log\LoggerInterface;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -52,27 +50,25 @@ class ResourceVersionMapper extends AbstractEntityMapper implements EntityMapper
     }
 
     /**
-     * @param EntityMutableDTO $dto
+     * @param DTOMutableEntity $entity
      * @param boolean $commit
      * @return ResourceVersion
-     * @throws FactoryException
-     * @throws NullColleagueException
      * @throws EntityMapperException
      */
-    public function add(EntityMutableDTO $dto,$commit=true)
+    public function add(DTOMutableEntity $entity,$commit=true)
     {
-        $this->checkAdd($dto);
+        $this->checkAdd($entity);
         /** @var ResourceVersion $version */
-        $version = $this->defaultAdd($dto);
+        $version = $this->defaultAdd($entity);
         $version->setEditionDate(new \DateTime())
             ->setEditionUser($this->getUser());
 
         if($version->getFile() !== null){
             $this->doctrine->getManager()->persist($version->getFile());
             try{
-                /** @var ResourceVersionDTO $dto */
-                $version->getFile()->setUri($this->uploader->upload($dto->getFile()));
-                $dto->setFile(null);
+                /** @var ResourceVersionDTO $entity */
+                $version->getFile()->setUri($this->uploader->upload($entity->getFile()));
+                $entity->setFile(null);
             }
             catch(\Exception $e){
                throw new EntityMapperException("Impossible to store the uploaded file : " . $e->getMessage());
@@ -83,31 +79,30 @@ class ResourceVersionMapper extends AbstractEntityMapper implements EntityMapper
     }
 
     /**
-     * @param EntityMutableDTO $dto
+     * @param DTOMutableEntity $entity
      * @return mixed|void
      * @throws EntityMapperException
      */
-    protected function checkAdd(EntityMutableDTO $dto)
+    protected function checkAdd(DTOMutableEntity $entity)
     {
-        parent::checkAdd($dto);
-        /** @var ResourceVersionDTO $dto */
-        if($dto->getFile() === null){
+        parent::checkAdd($entity);
+        /** @var ResourceVersionDTO $entity */
+        if($entity->getFile() === null){
             throw new EntityMapperException("Impossible to create a resource version without a file");
         }
     }
 
     /**
-     * @param EntityMutableDTO $dto
+     * @param DTOMutableEntity $entity
      * @param boolean $commit
      * @return ResourceVersion
      * @throws EntityMapperException
-     * @throws NullColleagueException
      */
-    public function edit(EntityMutableDTO $dto,$commit=true)
+    public function edit(DTOMutableEntity $entity,$commit=true)
     {
-        $this->checkEdit($dto);
+        $this->checkEdit($entity);
         /** @var ResourceVersion $version */
-        $version = $this->defaultEdit($dto);
+        $version = $this->defaultEdit($entity);
 
         if($commit) $this->getManager()->flush();
         return $version;

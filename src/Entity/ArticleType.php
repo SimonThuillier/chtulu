@@ -42,7 +42,7 @@ class ArticleType
      * @return int
      * @Groups({"minimal"})
      */
-    public function getId()
+    public function getId() : ?int
     {
         return $this->id;
     }

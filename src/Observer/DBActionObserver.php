@@ -10,11 +10,12 @@ namespace App\Observer;
 
 
 use App\Mediator\DTOMediator;
+use App\Util\ClearableInterface;
 use App\Util\Command\EntityMapperCommand;
 use App\Util\Command\LinkCommand;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class DBActionObserver
+class DBActionObserver implements ClearableInterface
 {
     /** for priority computation */
     const MAX_ITERATIONS = 20;
@@ -38,10 +39,10 @@ class DBActionObserver
     /** @var array sorted sequence of actions */
     private $sequenceOfActions = [];
 
-
-    private $entities = [];
-    private $requests = [];
-
+    /**
+     * DBActionObserver constructor.
+     * @param TokenStorageInterface $tokenStorage
+     */
     public function __construct(TokenStorageInterface $tokenStorage)
     {
         $this->user = $tokenStorage->getToken()->getUser();
@@ -52,7 +53,7 @@ class DBActionObserver
      * WARNING : must always be called by the client at the end of its operations !
      * @return $this
      */
-    public function reinitialize()
+    public function finishAndClear()
     {
         $this->addActions = [];
         $this->linkActions = [];
@@ -280,53 +281,4 @@ class DBActionObserver
         $dependencies = [];
         $this->currentWorkAction = null;
     }
-
-
-
-    public function notifyNewEntity($entityClassName,$id,$entity,$priority){
-
-        $this->entities[$entityClassName . ':' . $id] = ['entity'=>$entity,'priority'=>$priority];
-
-        if(array_key_exists($entityClassName . ':' . $id,$this->requests)){
-            foreach($this->requests[$entityClassName . ':' . $id] as $request){
-                $this->setEntity($entityClassName,$id,$request['mediator'],$request['entity'],$request['setterName']);
-            }
-        }
-    }
-
-    public function askNewEntity($entityClassName,$id,$mediator,$entity,$setterName){
-
-        if(array_key_exists($entityClassName . ':' . $id,$this->entities)){
-            $this->setEntity($entityClassName,$id,$mediator,$entity,$setterName);
-        }
-        else{
-            if(!array_key_exists($entityClassName . ':' . $id,$this->requests)){
-                $this->requests[$entityClassName . ':' . $id] = [];
-            }
-            $this->requests[$entityClassName . ':' . $id][] = [
-                'mediator'=>$mediator,
-                'entity'=>$entity,
-                'setterName'=>$setterName
-            ];
-        }
-    }
-
-    /**
-     * @param $entityClassName
-     * @param $id
-     * @param DTOMediator $mediator
-     * @param $entity
-     * @param $setterName
-     * @return self
-     */
-    private function setEntity($entityClassName,$id,$mediator,$entity,$setterName){
-        $subEntity = $this->entities[$entityClassName . ':' . $id]['entity'];
-        $priority = $this->entities[$entityClassName . ':' . $id]['priority'];
-        $entity->$setterName($subEntity);
-        $mediator->setEntityPriority($priority-1);
-
-        return $this;
-    }
-
-
 }

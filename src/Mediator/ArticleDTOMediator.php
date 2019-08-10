@@ -13,6 +13,7 @@ use App\DTO\ArticleDTO;
 use App\DTO\ResourceDTO;
 use App\DTO\ResourceGeometryDTO;
 use App\Entity\Article;
+use App\Entity\HResource;
 use App\Entity\ResourceGeometry;
 use App\Factory\MediatorFactory;
 use App\Helper\AssetHelper;
@@ -91,7 +92,8 @@ class ArticleDTOMediator extends DTOMediator
      * @param Article $article
      * @return null|HDate
      */
-    protected function getArticleBeginHDate($article){
+    protected function getArticleBeginHDate($article)
+    {
         $beginHDate = ($article->getBeginDateType() !== null)?new HDate():null;
 
         if($beginHDate !== null){
@@ -107,7 +109,8 @@ class ArticleDTOMediator extends DTOMediator
      * @param Article $article
      * @return null|HDate
      */
-    private function getArticleEndHDate($article){
+    private function getArticleEndHDate($article)
+    {
         $endHDate = ($article->getEndDateType() !== null)?new HDate():null;
 
         if($endHDate !== null){
@@ -149,7 +152,7 @@ class ArticleDTOMediator extends DTOMediator
 
         if($geometry !== null){
             $geometryMediator = $this->locator->get(MediatorFactory::class)
-                ->create(ResourceGeometryDTO::class,$geometry,null,$mode);
+                ->create(ResourceGeometryDTO::class,$geometry->getId(),$geometry,null,$mode);
             $geometryMediator->mapDTOGroups($subGroups,$mode);
             $dto->setGeometry($geometryMediator->getDTO());
         }
@@ -173,7 +176,7 @@ class ArticleDTOMediator extends DTOMediator
         if($detailImage !== null){
             if($dto->getDetailImageResource() === null){
                 $resourceMediator = $this->locator->get(MediatorFactory::class)
-                    ->create(ResourceDTO::class,$detailImage,null,$mode);
+                    ->create(ResourceDTO::class,$detailImage->getId(),$detailImage,null,$mode);
             }
             else{
                 $resourceMediator = $dto->getDetailImageResource()->getMediator();
@@ -186,42 +189,9 @@ class ArticleDTOMediator extends DTOMediator
         }
         //$dto->addMappedGroup('detailImage');
     }
-//
-//    protected function mapDTOSubArticlesGroup()
-//    {
-//        /** @var ArticleDTO $dto */
-//        $dto = $this->dto;
-//        // TODO : complete when sub-article management is completed
-//        $dto->addMappedGroup('subArticles');
-//    }
-//
-//    protected function mapDTOhteRangeGroup()
-//    {
-//        $hDateNormalizer = $this->locator->get(HDateNormalizer::class);
-//        $encoder = $this->locator->get('serializer.encoder.json');
-//
-//
-//        /** @var Article $article */
-//        $article = $this->entity;
-//        /** @var ArticleDTO $dto */
-//        $dto = $this->dto;
-//
-//        if($article->gethteRange() !==null){
-//            $dto->sethteRange($hDateNormalizer->denormalize(
-//                $encoder->decode($article->gethteRange(),'json'),HDate::class));
-//        }
-//        else{
-//            $beginHDate = $this->getArticleBeginHDate($article);
-//            $endHDate = $this->getArticleEndHDate($article);
-//            $hteRange = $dto->gethteRange();
-//            if($beginHDate !== null) $hteRange->setBeginDate($beginHDate->getBeginDate());
-//            if($endHDate !== null) $hteRange->setEndDate($endHDate->getEndDate());
-//        }
-//        // TODO : complete when sub-article management is completed
-//        //$dto->addMappedGroup('hteRange');
-//    }
 
-    protected function mediateBeginHDate($mapperCommands){
+    protected function mediateBeginHDate()
+    {
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
         /** @var Article $article */
@@ -243,10 +213,11 @@ class ArticleDTOMediator extends DTOMediator
                 ->setBeginDateLabel(null);
         }
 
-        return $mapperCommands;
+        return true;
     }
 
-    protected function mediateEndHDate($mapperCommands){
+    protected function mediateEndHDate()
+    {
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
         /** @var Article $article */
@@ -268,30 +239,47 @@ class ArticleDTOMediator extends DTOMediator
                 ->setEndDateLabel(null);
         }
 
-        return $mapperCommands;
+        return true;
     }
 
-    protected function mediateDetailImageResource($mapperCommands){
+    protected function mediateDetailImageResource()
+    {
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
         /** @var Article $article */
         $article = $this->entity;
 
-        $article->setDetailImage(
-            $dto->getDetailImageResource()?
-                $dto->getDetailImageResource()->getMediator()->getEntity():null);
-
-        return $mapperCommands;
+        if($dto->getDetailImageResource() !== null){
+            $command = new LinkCommand(
+                EntityMapperCommand::ACTION_LINK,
+                $this->getEntityClassName(),
+                $dto->getId(),
+                $article
+            );
+            $command->defineLink(
+                HResource::class,
+                $dto->getDetailImageResource()->getId(),
+                'setDetailImage',
+                false)
+                ->setEntityToLink($dto->getDetailImageResource()->getMediator()->getEntity());
+            ;
+            $this->dbActionObserver->registerAction($command);
+        }
+        else{
+            $article->setDetailImage(null);
+        }
+        return true;
     }
 
-    protected function mediateGeometry($mapperCommands){
+    protected function mediateGeometry()
+    {
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
         /** @var Article $article */
         $article = $this->entity;
 
         if($dto->getGeometry()!==null){
-            $dto->getGeometry()->getMediator()->returnDataToEntity($mapperCommands);
+            $dto->getGeometry()->getMediator()->returnDataToEntity();
 
             $command = new LinkCommand(
                 EntityMapperCommand::ACTION_LINK,
@@ -311,6 +299,6 @@ class ArticleDTOMediator extends DTOMediator
         else{
             $article->setGeometry(null);
         }
-        return $mapperCommands;
+        return true;
     }
 }

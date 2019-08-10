@@ -11,22 +11,14 @@ namespace App\Mediator;
 
 use App\DTO\ArticleDTO;
 use App\DTO\ArticleLinkDTO;
-use App\DTO\ResourceDTO;
-use App\DTO\ResourceGeometryDTO;
 use App\Entity\Article;
 use App\Entity\ArticleLink;
 use App\Factory\MediatorFactory;
-use App\Helper\AssetHelper;
-use App\Helper\DateHelper;
 use App\Observer\DBActionObserver;
-use App\Serializer\HDateNormalizer;
 use App\Util\Command\EntityMapperCommand;
 use App\Util\Command\LinkCommand;
-use App\Util\HDate;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Psr\Container\ContainerInterface;
-use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Serializer\Encoder\EncoderInterface;
 
 class ArticleLinkDTOMediator extends DTOMediator
 {
@@ -82,7 +74,7 @@ class ArticleLinkDTOMediator extends DTOMediator
         if($parent === null) return;
 
         $articleMediator = $this->locator->get(MediatorFactory::class)
-            ->create(ArticleDTO::class,$parent,null,$mode);
+            ->create(ArticleDTO::class,$parent->getId(),$parent,null,$mode);
         $articleMediator->mapDTOGroups($subGroups,$mode);
         $dto->setParent($articleMediator->getDTO());
     }
@@ -99,12 +91,12 @@ class ArticleLinkDTOMediator extends DTOMediator
         if($child === null) return;
 
         $articleMediator = $this->locator->get(MediatorFactory::class)
-                ->create(ArticleDTO::class,$child,null,$mode);
+                ->create(ArticleDTO::class,$child->getId(),$child,null,$mode);
         $articleMediator->mapDTOGroups($subGroups,$mode);
         $dto->setChild($articleMediator->getDTO());
     }
 
-    protected function mediateParentId($mapperCommands){
+    protected function mediateParentId(){
         /** @var ArticleLinkDTO $dto */
         $dto = $this->dto;
         /** @var ArticleLink $articleLink */
@@ -112,7 +104,7 @@ class ArticleLinkDTOMediator extends DTOMediator
         /** @var Article $article */
         $article = null;
 
-        if($dto->getParentId() === null) return $mapperCommands;
+        if($dto->getParentId() === null) return true;
 
         $command = new LinkCommand(
             EntityMapperCommand::ACTION_LINK,
@@ -127,10 +119,11 @@ class ArticleLinkDTOMediator extends DTOMediator
             true);
         $this->dbActionObserver->registerAction($command);
 
-        return $mapperCommands;
+        return true;
     }
 
-    protected function mediateChildId($mapperCommands){
+    protected function mediateChildId()
+    {
         /** @var ArticleLinkDTO $dto */
         $dto = $this->dto;
         /** @var ArticleLink $articleLink */
@@ -138,7 +131,7 @@ class ArticleLinkDTOMediator extends DTOMediator
         /** @var Article $article */
         $article = null;
 
-        if($dto->getChildId() === null) return $mapperCommands;
+        if($dto->getChildId() === null) return true;
 
         $command = new LinkCommand(
             EntityMapperCommand::ACTION_LINK,
@@ -153,6 +146,6 @@ class ArticleLinkDTOMediator extends DTOMediator
             true);
         $this->dbActionObserver->registerAction($command);
 
-        return $mapperCommands;
+        return true;
     }
 }

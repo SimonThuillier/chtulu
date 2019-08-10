@@ -69,7 +69,7 @@ class ResourceController extends AbstractController
                 $resource = $mapper->find(ResourceDTO::class,$handledRequest["resourceId"]);
                 if(!$resource) throw new \Exception("No resource found with id '". $handledRequest["resourceId"] ."'");
             }
-            $resourceMediator = $mediatorFactory->create(ResourceDTO::class,$resource);
+            $resourceMediator = $mediatorFactory->create(ResourceDTO::class,$handledRequest["resourceId"],$resource);
             $groups = ['minimal'=>true,'activeVersion'=>['minimal'=>true,'file'=>true]];
             $resourceMediator->mapDTOGroups($groups);
 

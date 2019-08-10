@@ -2,11 +2,8 @@
 
 namespace App\Mapper;
 
-use App\DTO\EntityMutableDTO;
-use App\Entity\ArticleLink;
+use App\Entity\DTOMutableEntity;
 use App\Factory\AbstractEntityFactory;
-use App\Factory\FactoryException;
-use App\Mediator\NullColleagueException;
 use App\Util\SearchBag;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -22,8 +19,6 @@ abstract class AbstractEntityMapper
     protected $doctrine;
     /** @var string  */
     protected $entityClassName;
-    /** @var string  */
-    protected $dtoClassName;
     /** @var AbstractEntityFactory */
     protected $entityFactory;
     /** @var EntityRepository */
@@ -71,69 +66,47 @@ abstract class AbstractEntityMapper
     }
 
     /**
-     * @param EntityMutableDTO $dto
+     * @param DTOMutableEntity $entity
      * @return mixed
      * @throws EntityMapperException
      */
-    protected function checkAdd(EntityMutableDTO $dto)
+    protected function checkAdd(DTOMutableEntity $entity)
     {
-        if($dto->getMediator() === null){
-            throw new EntityMapperException("Dto's mediator must be set to add an entity");
-        }
-        $id = $dto->getMediator()->getEntity()->getId();
+        $id = $entity->getId();
         if($id !== null && $id>0){
             throw new EntityMapperException("Mediator's entity already exists; please consider editing it instead");
         }
     }
 
     /**
-     * @param EntityMutableDTO $dto
-     * @return Entity
-     * @throws FactoryException
-     * @throws NullColleagueException
+     * @param DTOMutableEntity $entity
+     * @return DTOMutableEntity
      */
-    protected function defaultAdd(EntityMutableDTO $dto)
+    protected function defaultAdd(DTOMutableEntity $entity)
     {
-        $mediator = $dto->getMediator();
-        $entity = $mediator->getEntity();
-        if($entity === null){
-            $entity = $this->entityFactory->create($this->tokenStorage->getToken()->getUser());
-            $mediator->setEntity($entity);
-        }
-        $mediator->returnDataToEntity();
         $this->getManager()->persist($entity);
         return $entity;
     }
 
     /**
-     * @param EntityMutableDTO $dto
+     * @param DTOMutableEntity $entity
      * @throws EntityMapperException
      */
-    protected function checkEdit(EntityMutableDTO $dto)
+    protected function checkEdit(DTOMutableEntity $entity)
     {
-        if($dto->getMediator() === null){
-            throw new EntityMapperException("Mapper's mediator must be set to edit an entity");
-        }
-        $entity = $dto->getMediator()->getEntity();
-        if($entity === null) $entity = $this->find($dto->getId());
-
-        if($entity === null || $entity->getId() == 0){
-            throw new EntityMapperException("Entity is either null or non persisted : please consider add instead of edit");
+        $id = $entity->getId();
+        if($entity === null || $id === null|| $id == 0){
+            throw new EntityMapperException(
+                "Entity is either null or non persisted : please consider add instead of edit");
         }
     }
 
     /**
-     * @param EntityMutableDTO $dto
-     * @return Entity
-     * @throws EntityMapperException
-     * @throws NullColleagueException
+     * @param DTOMutableEntity $entity
+     * @return DTOMutableEntity
      */
-    protected function defaultEdit(EntityMutableDTO $dto)
+    protected function defaultEdit(DTOMutableEntity $entity)
     {
-        $entity = $dto->getMediator()->getEntity();
-        if($entity === null) $entity = $this->find($dto->getId());
-
-        $dto->getMediator()->returnDataToEntity();
         return $entity;
     }
 

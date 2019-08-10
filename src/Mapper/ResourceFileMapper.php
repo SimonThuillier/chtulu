@@ -9,11 +9,9 @@
 namespace App\Mapper;
 
 
-use App\DTO\EntityMutableDTO;
+use App\Entity\DTOMutableEntity;
 use App\Entity\ResourceFile;
-use App\Factory\FactoryException;
 use App\Factory\ResourceFileFactory;
-use App\Mediator\NullColleagueException;
 use Psr\Log\LoggerInterface;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -45,35 +43,32 @@ class ResourceFileMapper extends AbstractEntityMapper implements EntityMapperInt
     }
 
     /**
-     * @param EntityMutableDTO $dto
+     * @param DTOMutableEntity $entity
      * @param boolean $commit
      * @return ResourceFile
-     * @throws FactoryException
-     * @throws NullColleagueException
      * @throws EntityMapperException
      */
-    public function add(EntityMutableDTO $dto,$commit=true)
+    public function add(DTOMutableEntity $entity,$commit=true)
     {
-        $this->checkAdd($dto);
+        $this->checkAdd($entity);
         /** @var ResourceFile $file */
-        $file = $this->defaultAdd($dto);
+        $file = $this->defaultAdd($entity);
 
         if($commit) $this->getManager()->flush();
         return $file;
     }
 
     /**
-     * @param EntityMutableDTO $dto
+     * @param DTOMutableEntity $entity
      * @param boolean $commit
      * @return ResourceFile
      * @throws EntityMapperException
-     * @throws NullColleagueException
      */
-    public function edit(EntityMutableDTO $dto,$commit=true)
+    public function edit(DTOMutableEntity $entity,$commit=true)
     {
-        $this->checkEdit($dto);
+        $this->checkEdit($entity);
         /** @var ResourceFile $file */
-        $file = $this->defaultEdit($dto);
+        $file = $this->defaultEdit($entity);
 
         if($commit) $this->getManager()->flush();
         return $file;

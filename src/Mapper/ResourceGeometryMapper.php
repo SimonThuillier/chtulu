@@ -9,11 +9,9 @@
 namespace App\Mapper;
 
 
-use App\DTO\EntityMutableDTO;
+use App\Entity\DTOMutableEntity;
 use App\Entity\ResourceGeometry;
-use App\Factory\FactoryException;
 use App\Factory\ResourceGeometryFactory;
-use App\Mediator\NullColleagueException;
 use Psr\Log\LoggerInterface;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -45,38 +43,34 @@ class ResourceGeometryMapper extends AbstractEntityMapper implements EntityMappe
     }
 
     /**
-     * @param EntityMutableDTO $dto
+     * @param DTOMutableEntity $entity
      * @param boolean $commit
      * @return ResourceGeometry
-     * @throws FactoryException
-     * @throws NullColleagueException
      * @throws EntityMapperException
      */
-    public function add(EntityMutableDTO $dto,$commit=true)
+    public function add(DTOMutableEntity $entity,$commit=true)
     {
-        $this->checkAdd($dto);
+        $this->checkAdd($entity);
         /** @var ResourceGeometry $geo */
-        $geo = $this->defaultAdd($dto);
+        $geo = $this->defaultAdd($entity);
 
         if($commit){
-            //$this->getManager()->merge($geo);
             $this->getManager()->flush();
         }
         return $geo;
     }
 
     /**
-     * @param EntityMutableDTO $dto
+     * @param DTOMutableEntity $entity
      * @param boolean $commit
      * @return ResourceGeometry
      * @throws EntityMapperException
-     * @throws NullColleagueException
      */
-    public function edit(EntityMutableDTO $dto,$commit=true)
+    public function edit(DTOMutableEntity $entity,$commit=true)
     {
-        $this->checkEdit($dto);
+        $this->checkEdit($entity);
         /** @var ResourceGeometry $geo */
-        $geo = $this->defaultEdit($dto);
+        $geo = $this->defaultEdit($entity);
 
         if($commit) $this->getManager()->flush();
         return $geo;

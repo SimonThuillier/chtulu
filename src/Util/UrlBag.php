@@ -10,7 +10,11 @@ namespace App\Util;
 
 use Symfony\Component\Serializer\Annotation\Groups;
 
-
+/**
+ * @deprecated
+ * Class UrlBag
+ * @package App\Util
+ */
 class UrlBag
 {
     /** @var string */

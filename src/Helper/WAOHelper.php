@@ -9,6 +9,7 @@
 namespace App\Helper;
 
 
+use App\DTO\EntityMutableDTO;
 use App\Entity\ArticleType;
 use App\Entity\DateType;
 use App\Entity\ResourceType;
@@ -167,6 +168,11 @@ class WAOHelper
         else return self::DTO_NS . ucfirst($abridgedClassName) . "DTO";
     }
 
+    public function guessEntityClassName($abridgedClassName){
+        $className = self::ENTITY_NS . ucfirst($abridgedClassName);
+        return $className;
+    }
+
     public function isSimpleEntity($className){
         if(in_array($className,$this->simpleEntityClasses)) return true;
         else return false;
@@ -193,4 +199,21 @@ class WAOHelper
         return array_merge($this->getDTOClassNames(),$this->getSimpleEntityClassNames());
     }
 
+    /**
+     * @param string $waoType
+     * @param EntityMutableDTO $dto
+     * @return string
+     */
+    public function getOneDtoNaturalName($waoType,$dto)
+    {
+        if(method_exists($dto,'getName')){
+            return $waoType . ' ' . $dto->getName();
+        }
+        else if(method_exists($dto,'getTitle')){
+            return $waoType . ' ' . $dto->getTitle();
+        }
+        else{
+            return strtoupper($waoType) . 'OF_ID_' . $dto->getId();
+        }
+    }
 }

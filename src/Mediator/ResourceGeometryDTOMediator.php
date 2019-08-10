@@ -9,14 +9,11 @@
 namespace App\Mediator;
 
 use App\DTO\ResourceGeometryDTO;
-use App\Entity\ResourceFile;
 use App\Entity\ResourceGeometry;
 use App\Factory\DTOFactory;
 use App\Factory\EntityFactory;
-use App\Manager\File\FileRouter;
 use App\Observer\DBActionObserver;
 use App\Util\Geometry;
-use App\Util\UrlBag;
 use Psr\Container\ContainerInterface;
 
 
@@ -63,13 +60,13 @@ class ResourceGeometryDTOMediator extends DTOMediator
             //->addMappedGroup('minimal');
     }
 
-
-    protected function mediateTargetGeometry($mapperCommands){
+    protected function mediateTargetGeometry()
+    {
         /** @var ResourceGeometryDTO $dto */
         $dto = $this->dto;
         /** @var ResourceGeometry $geo*/
         $geo = $this->entity;
         $geo->setTargetGeometry($dto->getTargetGeometry()->getValue());
-        return $mapperCommands;
+        return true;
     }
 }

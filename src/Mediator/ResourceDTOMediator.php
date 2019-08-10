@@ -9,16 +9,15 @@
 namespace App\Mediator;
 
 use App\DTO\ResourceDTO;
-use App\DTO\ResourceImageDTO;
 use App\DTO\ResourceVersionDTO;
 use App\Entity\HResource;
 use App\Entity\ResourceVersion;
 use App\Factory\DTOFactory;
 use App\Factory\EntityFactory;
 use App\Factory\MediatorFactory;
-use App\Factory\ResourceVersionDTOFactory;
 use App\Observer\DBActionObserver;
-use App\Util\ArrayUtil;
+use App\Util\Command\EntityMapperCommand;
+use App\Util\Command\LinkCommand;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Psr\Container\ContainerInterface;
 
@@ -70,7 +69,6 @@ class ResourceDTOMediator extends DTOMediator
         $resource->getType()->getLabel();
     }
 
-
     /**
      * @param int $mode
      * @param null $subGroups
@@ -95,7 +93,7 @@ class ResourceDTOMediator extends DTOMediator
         if($version !== null){
             /** @var ResourceVersionDTOMediator $versionMediator */
             $versionMediator = $this->locator->get(MediatorFactory::class)
-                ->create(ResourceVersionDTO::class,$version);
+                ->create(ResourceVersionDTO::class,$version->getId(),$version);
             $versionMediator->mapDTOGroups($subGroups);
             $dto->setActiveVersion($versionMediator->getDTO());
         }
@@ -106,7 +104,17 @@ class ResourceDTOMediator extends DTOMediator
         //$dto->addMappedGroup('activeVersion');
     }
 
-    protected function mediateActiveVersion($mapperCommands){
+    protected function mapDTOVersionsGroup($mode=DTOMediator::NOTHING_IF_NULL,$subGroups=null){
+        /** @var ResourceDTO $dto */
+        $dto = $this->dto;
+
+        // TODO : to implement
+
+        //$dto->addMappedGroup('versions');
+    }
+
+    protected function mediateActiveVersion()
+    {
         /** @var ResourceDTO $dto */
         $dto = $this->dto;
         /** @var HResource $entity */
@@ -116,9 +124,23 @@ class ResourceDTOMediator extends DTOMediator
         if($activeVersionDto){
             /** @var ResourceVersion $activeVersion */
             $activeVersion = $activeVersionDto->getMediator()->getEntity();
-            $activeVersion->setResource($entity);
             $id = $activeVersionDto->getId();
-            $mapperCommands = $activeVersionDto->getMediator()->returnDataToEntity($mapperCommands);
+
+            $command = new LinkCommand(
+                EntityMapperCommand::ACTION_LINK,
+                ResourceVersion::class,
+                $id,
+                $activeVersion
+            );
+            $command->defineLink(
+                $this->getEntityClassName(),
+                $dto->getId(),
+                'setResource',
+                true)
+                ->setEntityToLink($entity);
+            $this->dbActionObserver->registerAction($command);
+
+            $activeVersionDto->getMediator()->returnDataToEntity();
             /*$toDelete = $activeVersionDto->getToDelete();
             $mapperCommands[ResourceVersion::class . ":" . $id] =
                 ["action"=>($toDelete?"delete":($id>0?"edit":"add")),"dto"=>$activeVersionDto];*/
@@ -129,26 +151,16 @@ class ResourceDTOMediator extends DTOMediator
                 $number++;
                 if($version->getId() !== $id && $version->getActive()){
                     $oldVersionMediator = $this->locator->get(MediatorFactory::class)
-                        ->create(ResourceVersionDTO::class,$version);
+                        ->create(ResourceVersionDTO::class,$version->getId(),$version);
                     $oldVersionMediator->mapDTOGroups(["minimal"=>true])->resetChangedProperties();
                     $oldVersionMediator->getDTO()->setActive(false);
-                    $mapperCommands = $oldVersionMediator->returnDataToEntity($mapperCommands);
+                    $oldVersionMediator->returnDataToEntity();
                     //$mapperCommands[ResourceVersion::class . ":" . $id] =
                     //    ["action"=>"edit","dto"=>$oldVersionMediator->getDTO()];
                 }
             }
             $activeVersion->setNumber($number);
         }
-        $truc = "lol";
-        return $mapperCommands;
-    }
-
-    protected function mapDTOVersionsGroup($mode=DTOMediator::NOTHING_IF_NULL,$subGroups=null){
-        /** @var ResourceDTO $dto */
-        $dto = $this->dto;
-
-        // TODO : to implement
-
-        //$dto->addMappedGroup('versions');
+        return true;
     }
 }

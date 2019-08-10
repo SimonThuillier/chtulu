@@ -8,12 +8,10 @@
 
 namespace App\Mapper;
 
-use App\DTO\EntityMutableDTO;
+use App\Entity\DTOMutableEntity;
 use App\Entity\Article;
 use App\Entity\ArticleType;
 use App\Factory\ArticleFactory;
-use App\Factory\FactoryException;
-use App\Mediator\NullColleagueException;
 use App\Serializer\HDateNormalizer;
 use App\Serializer\SimpleEntityNormalizer;
 use App\Util\HDate;
@@ -31,8 +29,6 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterfac
      * @var HDateNormalizer
      */
     private $hDateNormalizer;
-
-
 
 
     /**
@@ -66,40 +62,36 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterfac
     }
 
     /**
-     * @param EntityMutableDTO $dto
+     * @param DTOMutableEntity $entity
      * @param boolean $commit
      * @return Article
-     * @throws FactoryException
-     * @throws NullColleagueException
      * @throws EntityMapperException
      */
-    public function add(EntityMutableDTO $dto,$commit=true)
+    public function add(DTOMutableEntity $entity,$commit=true)
     {
-        $this->checkAdd($dto);
+        $this->checkAdd($entity);
         /** @var Article $article */
-        $article = $this->defaultAdd($dto);
+        $article = $this->defaultAdd($entity);
         $article
             ->setEditionDate(new \DateTime())
             ->setEditionUser($this->getUser());
         if($commit){
             $this->getManager()->flush();
-            $dto->setId($article->getId());
         }
         return $article;
     }
 
     /**
-     * @param EntityMutableDTO $dto
+     * @param DTOMutableEntity $entity
      * @param boolean $commit
      * @return Article
      * @throws EntityMapperException
-     * @throws NullColleagueException
      */
-    public function edit(EntityMutableDTO $dto,$commit=true)
+    public function edit(DTOMutableEntity $entity,$commit=true)
     {
-        $this->checkEdit($dto);
+        $this->checkEdit($entity);
         /** @var Article $article */
-        $article = $this->defaultEdit($dto);
+        $article = $this->defaultEdit($entity);
         $article
             ->setEditionDate(new \DateTime())
             ->setEditionUser($this->getUser());
@@ -138,6 +130,8 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterfac
     {
         return $this->repository->createQueryBuilder('o')
             ->select('o')
+            ->leftJoin('o.type','type')
+            ->addSelect('type')
             ->leftJoin('o.detailImage','image')
             ->addSelect('image')
             ->leftJoin('o.geometry','geometry')

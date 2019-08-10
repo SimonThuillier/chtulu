@@ -2,7 +2,7 @@
 
 namespace App\Mapper;
 
-use App\DTO\EntityMutableDTO;
+use App\Entity\DTOMutableEntity;
 use App\Factory\FactoryException;
 use App\Mediator\InvalidCallerException;
 use App\Mediator\NullColleagueException;
@@ -18,14 +18,14 @@ use Doctrine\ORM\QueryBuilder;
 interface EntityMapperInterface
 {
     /**
-     * @param EntityMutableDTO $dto
+     * @param DTOMutableEntity $entity
      * @param boolean $commit
      * @return Entity
      * @throws FactoryException
      * @throws NullColleagueException
      * @throws InvalidCallerException
      */
-    public function add(EntityMutableDTO $dto,$commit=true);
+    public function add(DTOMutableEntity $entity,$commit=true);
 
     /**
      * @param int $id
@@ -57,14 +57,14 @@ interface EntityMapperInterface
     public function findLast();
 
     /**
-     * @param EntityMutableDTO $dto
+     * @param DTOMutableEntity $entity
      * @param boolean $commit
      * @return Entity
      * @throws EntityMapperException
      * @throws NullColleagueException
      * @throws InvalidCallerException
      */
-    public function edit(EntityMutableDTO $dto,$commit=true);
+    public function edit(DTOMutableEntity $entity,$commit=true);
 
     /**
      * @param int $id

@@ -143,7 +143,7 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
                 $entity = $this->doctrine->getRepository($className)->find($id);
                 if(!$entity) return null; // the id doesn't exist => we do nothing else
             }
-            $mediator = $this->mediatorFactory->create($class,$entity);
+            $mediator = $this->mediatorFactory->create($class,$id,$entity);
             $mediator->mapDTOGroups(is_array($groups)?$groups:null,DTOMediator::CREATE_IF_NULL);
             $denormalization = $mediator->getDTO();
         }

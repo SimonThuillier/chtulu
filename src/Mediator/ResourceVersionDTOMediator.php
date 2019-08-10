@@ -15,6 +15,8 @@ use App\Factory\DTOFactory;
 use App\Factory\EntityFactory;
 use App\Manager\File\FileRouter;
 use App\Observer\DBActionObserver;
+use App\Util\Command\EntityMapperCommand;
+use App\Util\Command\LinkCommand;
 use Psr\Container\ContainerInterface;
 
 
@@ -63,37 +65,10 @@ class ResourceVersionDTOMediator extends DTOMediator
             //->addMappedGroup('minimal');
     }
 
-    protected function mapDTOFileGroup()
+    protected function mapDTOFileGroup(){}
+
+    protected function mapDTOUrlDetailThumbnailGroup()
     {
-    }
-
-    protected function mediateFile($mapperCommands){
-        /** @var ResourceVersionDTO $dto */
-        $dto = $this->dto;
-        if($dto->getFile() === null){return;}
-
-        /** @var ResourceVersion $version*/
-        $version = $this->entity;
-
-        if($version->getFile() === null){
-            $version->setFile($this->locator->get(EntityFactory::class)->create(ResourceFile::class));
-        }
-        $resourceFile = $version->getFile();
-
-        $truc = $dto->getFile();
-        try{
-            $resourceFile->setType($dto->getFile()->guessExtension())
-                ->setMimeType($dto->getFile()->getMimeType())
-                ->setSize($dto->getFile()->getSize());
-        }
-        catch(\Exception $e){
-            $machin ='lol';
-        }
-
-        return $mapperCommands;
-    }
-
-    protected function mapDTOUrlDetailThumbnailGroup(){
         /** @var ResourceVersionDTO $dto */
         $dto = $this->dto;
         /** @var ResourceVersion $version*/
@@ -106,7 +81,8 @@ class ResourceVersionDTOMediator extends DTOMediator
 
     }
 
-    protected function mapDTOUrlMiniGroup(){
+    protected function mapDTOUrlMiniGroup()
+    {
         /** @var ResourceVersionDTO $dto */
         $dto = $this->dto;
         /** @var ResourceVersion $version*/
@@ -117,9 +93,55 @@ class ResourceVersionDTOMediator extends DTOMediator
             $dto->addUrls(
                 ["mini"=>$fileRouter->getVersionRoute($version,"mini")]);
         }
-
-
     }
 
+    protected function mediateFile()
+    {
+        /** @var ResourceVersionDTO $dto */
+        $dto = $this->dto;
+        if($dto->getFile() === null){return true;}
 
+        /** @var ResourceVersion $version*/
+        $version = $this->entity;
+
+        if($version->getFile() === null){
+            $resourceFile = $this->locator->get(EntityFactory::class)->create(ResourceFile::class);
+            $command = new EntityMapperCommand(
+                EntityMapperCommand::ACTION_ADD,
+                ResourceFile::class,
+                $dto->getId(),
+                $resourceFile
+            );
+            $this->dbActionObserver->registerAction($command);
+
+            $command = new LinkCommand(
+                EntityMapperCommand::ACTION_LINK,
+                $this->getEntityClassName(),
+                $dto->getId(),
+                $version
+            );
+            $command->defineLink(
+                ResourceFile::class,
+                $dto->getId(),
+                'setFile',
+                false)
+            ->setEntityToLink($resourceFile);
+            $this->dbActionObserver->registerAction($command);
+        }
+        else{
+            $resourceFile = $version->getFile();
+        }
+
+        try{
+            $resourceFile->setType($dto->getFile()->guessExtension())
+                ->setMimeType($dto->getFile()->getMimeType())
+                ->setSize($dto->getFile()->getSize());
+        }
+        catch(\Exception $e){
+            // TODO handle this exception ?
+            $machin ='lol';
+        }
+
+        return true;
+    }
 }

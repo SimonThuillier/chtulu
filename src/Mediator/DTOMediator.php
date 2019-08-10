@@ -9,6 +9,7 @@
 namespace App\Mediator;
 
 
+use App\Util\ClearableInterface;
 use App\Util\Command\EntityMapperCommand;
 use App\DTO\EntityMutableDTO;
 use App\Entity\DTOMutableEntity;
@@ -17,7 +18,7 @@ use App\Util\ArrayUtil;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\ServiceSubscriberInterface;
 
-abstract class DTOMediator implements ServiceSubscriberInterface
+abstract class DTOMediator implements ServiceSubscriberInterface,ClearableInterface
 {
     /** @var String */
     protected $entityClassName;
@@ -63,6 +64,25 @@ abstract class DTOMediator implements ServiceSubscriberInterface
     }
 
     /**
+     * unlink entities and dto to allow garbage collector to clear memory
+     * @return $this
+     */
+    public function finishAndClear()
+    {
+        if($this->dto !== null) $this->dto->setMediator(null);
+        $this->dto = null;
+        $this->pendingSetDTO = false;
+        if($this->entity !== null) $this->entity->setMediator(null);
+        $this->entity = null;
+        $this->pendingSetEntity = false;
+
+        $this->groups = [];
+        $this->changedProperties = [];
+
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getEntityClassName(): string
@@ -89,7 +109,7 @@ abstract class DTOMediator implements ServiceSubscriberInterface
         $this->dto = $dto;
         if($this->dto !== null) $this->dto->setMediator($this);
         $this->pendingSetDTO = false;
-        return $this->resetChangedProperties();
+        return $this;
     }
 
     /**
@@ -110,6 +130,7 @@ abstract class DTOMediator implements ServiceSubscriberInterface
         $this->entity = $entity;
         if($this->entity !== null) $this->entity->setMediator($this);
         $this->pendingSetEntity = false;
+        $this->resetChangedProperties();
         return $this;
     }
 
@@ -212,23 +233,22 @@ abstract class DTOMediator implements ServiceSubscriberInterface
     /**
      * this function returns data of mediator DTO to it's entity
      * it's protected so that only the colleague mapper of the mediator can call it
-     * @param array $mapperCommands
-     * @var string $password
-     * @return array
      * @throws NullColleagueException
+     * @return bool
      */
-    public function returnDataToEntity($mapperCommands=[]){
+    public function returnDataToEntity()
+    {
         if($this->dto === null) throw new NullColleagueException("DTO must be specified to return data");
         if($this->entity === null) throw new NullColleagueException("Entity must be specified to receive data");
         $propertiesToReturn = array_unique($this->changedProperties);
-        if(count($propertiesToReturn) < 1) return $mapperCommands;
+        if(count($propertiesToReturn) < 1) return true;
 
         $id = intval($this->dto->getId());
         $toDelete = $this->dto->getToDelete();
 
         if(!$toDelete){
             foreach($propertiesToReturn as $property){
-                $mapperCommands = $this->mediate($property,$mapperCommands);
+                $this->mediate($property);
             }
         }
 
@@ -242,8 +262,7 @@ abstract class DTOMediator implements ServiceSubscriberInterface
                 $this->entity
             )
         );
-
-        return [];
+        return true;
     }
 
     /**

@@ -10,6 +10,12 @@ abstract class DTOMutableEntity{
     protected $mediator;
 
     /**
+     * Get id
+     * @return int
+     */
+    abstract public function getId() :?int;
+
+    /**
      * @return DTOMediator||null
      */
     public function getMediator(){

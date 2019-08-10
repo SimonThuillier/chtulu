@@ -65,12 +65,14 @@ class CRUDController extends AbstractController
             if(! $request->query->has("id")) throw new \Exception("Id parameter is mandatory");
             $groups = json_decode($request->query->get("groups"),true);
             $id = intval($request->query->get("id"));
+
+            $entityClassName = $waoHelper->guessEntityClassName($request->query->get("type"));
             $waoClassName = $waoHelper->guessClassName($request->query->get("type"));
 
-            $entity = $mapper->find($waoClassName,$id);
+            $entity = $mapper->find($entityClassName,$id);
             $data= null;
             if($waoHelper->isDTO($waoClassName)){
-                $mediator = $mediatorFactory->create($waoClassName ,$entity,
+                $mediator = $mediatorFactory->create($waoClassName ,$id,$entity,
                     $dtoFactory->create($waoClassName),DTOMediator::NOTHING_IF_NULL);
                 /** @var EntityMutableDTO $dto */
                 $dto =  $mediator->mapDTOGroups($groups)->getDTO();
@@ -91,6 +93,7 @@ class CRUDController extends AbstractController
                 ->setMessage($e->getMessage());
         }
 
+        $mediatorFactory->finishAndClear();
         ob_clean();
         return new JsonResponse(HJsonResponse::normalize($hResponse));
     }
@@ -125,13 +128,18 @@ class CRUDController extends AbstractController
             $searchBag = SearchBag::createFromArray(
                 json_decode($request->query->get("searchBag"),true));
 
+            $entityClassName = $waoHelper->guessEntityClassName($request->query->get("type"));
             $waoClassName = $waoHelper->guessClassName($request->query->get("type"));
 
             $count = 0;
-            $entities = $mapper->searchBy($waoClassName,$searchBag,$count);
+            $entities = $mapper->searchBy($entityClassName,$searchBag,$count);
             $data= [];
             if($waoHelper->isDTO($waoClassName)){
-                $mediator = $mediatorFactory->create($waoClassName ,null,null,DTOMediator::NOTHING_IF_NULL);
+                $mediator = $mediatorFactory->create($waoClassName ,
+                    null,
+                    null,
+                    null,
+                    DTOMediator::NOTHING_IF_NULL);
                 foreach($entities as $entity){
                     $data[] =  $mediator
                         ->setEntity($entity)
@@ -143,7 +151,7 @@ class CRUDController extends AbstractController
             else{
                 $data = $entities;
             }
-
+            $mediatorFactory->finishAndClear();
             ob_clean();
             return new JsonResponse(
                 ListHelper::getNormalizedListData($data,$normalizer,$groups,$count));
@@ -152,7 +160,7 @@ class CRUDController extends AbstractController
             $hResponse->setStatus(HJsonResponse::ERROR)
                 ->setMessage($e->getMessage());
         }
-
+        $mediatorFactory->finishAndClear();
         ob_clean();
         return new JsonResponse(HJsonResponse::normalize($hResponse));
     }
@@ -189,6 +197,7 @@ class CRUDController extends AbstractController
             $hResponse->setStatus(HJsonResponse::ERROR)
                 ->setMessage($e->getMessage());
         }
+        $mediatorFactory->finishAndClear();
         ob_clean();
         return new JsonResponse(HJsonResponse::normalize($hResponse));
     }
@@ -224,36 +233,38 @@ class CRUDController extends AbstractController
         $actionCount = 0;
 
         try{
+            /** A : Handle the request */
             $handledRequest = $requestHelper->handlePostRequest($request);
             if(false && !$this->isCsrfTokenValid('app_token', $handledRequest["_token"]))
                 throw new \Exception("Invalid token : would you hack history ?");
             $hResponse->setSenderKey($handledRequest["senderKey"]);
 
             $newEntities=[];
-            $mapperCommands=[];
 
+            /** B : unserialize data to DTOs,validate and return data to entities
+             * Hence the DBActionObserver register all requested action (but without executing them yet)
+             */
             foreach($handledRequest["waos"] as $waoType => $waoData){
+                $entityClassName = $waoHelper->guessEntityClassName($request->query->get("type"));
                 $dtoClassName = $waoHelper->guessClassName($waoType);
                 $backData[$waoType] = [];
 
                 foreach($waoData as $id=>$data){
+                    /** 1 : create the mediator and map the postedGroups */
                     $entity = null;
                     $id = intval($id);
-                    if($id > 0 ) $entity = $mapper->find($dtoClassName,$id);
-                    $mediator = $mediatorFactory->create($dtoClassName,$entity);
+                    if($id > 0 ) $entity = $mapper->find($entityClassName,$id);
+                    $mediator = $mediatorFactory->create($dtoClassName,$id,$entity);
                     $postedGroups = $data["postedGroups"];
                     $mediator->mapDTOGroups($postedGroups,DTOMediator::NOTHING_IF_NULL);
                     /** @var EntityMutableDTO $dto */
                     $dto=$mediator->getDTO();
 
-                    $objectName = strtoupper($waoType) . 'OF_ID_' . $dto->getId();
-
+                    /** 2 : denormalize the data to the mediator's DTO */
                     $dto = $normalizer->denormalize($data,$dtoClassName,null,array("existingDto"=>$dto,"groups"=>$postedGroups));
 
-                    $objectName = method_exists($dto,'getTitle')?$waoType . ' ' . $dto->getTitle():$objectName;
-                    $objectName = method_exists($dto,'getName')?$waoType . ' ' . $dto->getName():$objectName;
-
-
+                    /** 3 : validate the DTO */
+                    /** @var array $errors */
                     $errors = $validator->validate($dto,null,array_keys($postedGroups));
                     $dto->setErrors([]);
                     if (count($errors)>0)
@@ -264,29 +275,32 @@ class CRUDController extends AbstractController
                             $objectError[$error->getPropertyPath()] = $error->getMessage();
                         }
                         $dto->setErrors($objectError);
-                        $transformedErrors[$objectName]=$objectError;
+                        $transformedErrors[$waoHelper->getOneDtoNaturalName($waoType,$dto)]=$objectError;
                         $dto->setBackGroups(['minimal'=>true]);
                         $backData[$waoType][$dto->getId()] = $normalizer->normalize($dto,['minimal'=>true]);
                         continue;
                     }
-                    $mapperCommands = $mediator->returnDataToEntity($mapperCommands);
-                    //$newEntities=[];
-                    //$mapper->executeCommands($mapperCommands,true,$newEntities);
 
+                    /** 4 : return the edited data to entity */
+                    $mediator->returnDataToEntity();
 
-                    // then the main core object
-                    if($dto->getToDelete()) $postedGroups = ["minimal"=>true];
+                    // if delete
+                    /*if($dto->getToDelete()) $postedGroups = ["minimal"=>true];
                     $backGroups = ArrayUtil::normalizeGroups(ArrayUtil::filter($dto->getReturnGroups(),$postedGroups));
                     if(!$dto->getToDelete()) $mediator->mapDTOGroups($backGroups,DTOMediator::NOTHING_IF_NULL);
                     $dto->setBackGroups($backGroups);
                     $backData[$waoType][$dto->getId()] = $normalizer->normalize($dto,$backGroups);
-                    $actionCount++;
+                    $actionCount++;*/
                 }
             }
 
             $memoryUsage = memory_get_usage();
+            /** C : get and execute the sequence of actions, e.g. commit changes to database now ! */
+
             $sequenceOfActions = $dbActionObserver->getSequenceOfActions();
-            $test2 = 'lol';
+            $stop = 'stop1';
+            $mapper->executeSequence($sequenceOfActions);
+            $stop = 'stop2';
 
             //$mapper->executeCommands($mapperCommands,true,$newEntities);
             // at this step data is well injected to the database, now get the backData
@@ -331,6 +345,7 @@ class CRUDController extends AbstractController
                 ->setErrors($transformedErrors)
                 ->setData(json_encode($backData));
         }
+        $mediatorFactory->finishAndClear();
         ob_clean();
         return new JsonResponse(HJsonResponse::normalize($hResponse));
     }
