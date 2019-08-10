@@ -275,6 +275,7 @@ class ArticleDTOMediator extends DTOMediator
     {
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
+        $dto->addBackGroups(['geometry'=>['minimal'=>true]]);
         /** @var Article $article */
         $article = $this->entity;
 

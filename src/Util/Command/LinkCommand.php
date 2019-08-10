@@ -100,4 +100,10 @@ class LinkCommand extends EntityMapperCommand
     {
         return $this->entityToLink;
     }
+
+    public function finishAndClear()
+    {
+        parent::finishAndClear();
+        $this->entityToLink = null;
+    }
 }

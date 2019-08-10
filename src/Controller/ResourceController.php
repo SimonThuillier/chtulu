@@ -16,6 +16,7 @@ use App\Manager\File\FileRouter;
 use App\Mapper\EntityMapper;
 use App\Mapper\ResourceMapper;
 use App\Mediator\ResourceDTOMediator;
+use App\Observer\DBActionObserver;
 use App\Serializer\DTONormalizer;
 use App\Serializer\GeoJsonNormalizer;
 use App\Serializer\ResourceDTONormalizer;
@@ -44,6 +45,7 @@ class ResourceController extends AbstractController
      * @param EntityMapper $mapper
      * @param MediatorFactory $mediatorFactory
      * @param DTONormalizer $normalizer
+     * @param DBActionObserver $dbActionObserver
      * @Route("/upload-resource",name="resource_upload")
      * @Method({"POST"})
      * @throws \Exception
@@ -55,7 +57,8 @@ class ResourceController extends AbstractController
                                          ValidatorInterface $validator,
                                          EntityMapper $mapper,
                                          MediatorFactory $mediatorFactory,
-                                         DTONormalizer $normalizer)
+                                         DTONormalizer $normalizer,
+                                         DBActionObserver $dbActionObserver)
     {
         $hResponse = new HJsonResponse();
 
@@ -65,31 +68,40 @@ class ResourceController extends AbstractController
                 throw new \Exception("Invalid token : would you hack history ?");*/
 
             $resource= null;
-            if($handledRequest["resourceId"] !== null){
-                $resource = $mapper->find(ResourceDTO::class,$handledRequest["resourceId"]);
-                if(!$resource) throw new \Exception("No resource found with id '". $handledRequest["resourceId"] ."'");
+            $resourceId = $handledRequest["resourceId"];
+            if($resourceId !== null){
+                $resourceId = intval($resourceId);
+                if($resourceId > 0){
+                    $resource = $mapper->find(ResourceDTO::class,$resourceId);
+                    if(!$resource) throw new \Exception("No resource found with id '". resourceId ."'");
+                }
             }
-            $resourceMediator = $mediatorFactory->create(ResourceDTO::class,$handledRequest["resourceId"],$resource);
+            else{
+                $resourceId = -1;
+            }
+            $resourceMediator = $mediatorFactory->create(ResourceDTO::class,$resourceId,$resource);
             $groups = ['minimal'=>true,'activeVersion'=>['minimal'=>true,'file'=>true]];
             $resourceMediator->mapDTOGroups($groups);
 
             // if we upload for an existing resource we create a new version
             /** @var ResourceDTO $resource */
-            $resource = $resourceMediator->getDTO();
-            if($resource->getId()>0){
-                $newActiveVersion = $mediatorFactory
+            $resourceDto = $resourceMediator->getDTO();
+            if($resourceDto->getId()>0){
+                $newActiveVersionDto = $mediatorFactory
                     ->create(ResourceVersionDTO::class)
                     ->mapDTOGroups(['minimal'=>true,'file'=>true])
                     ->getDTO();
-                $resource->setActiveVersion($newActiveVersion);
+                $newActiveVersionDto->setId($resourceDto->getId());
+                $resourceDto->setActiveVersion($newActiveVersionDto);
             }
             else{
-                $resource->setName($handledRequest["name"]);
+                $resourceDto->setName($handledRequest["name"]);
             }
 
-            $version = $resource->getActiveVersion();
-            $version->setName($handledRequest["name"]);
-            $version->setFile($handledRequest["file"]);
+            $versionDto = $resourceDto->getActiveVersion();
+            /** @var ResourceVersionDTO $versionDto */
+            $versionDto->setName($handledRequest["name"]);
+            $versionDto->setFile($handledRequest["file"]);
 
             //$form = $formFactory->createBuilder(HFileUploadType::class,$version)->getForm();
             //$form->handleRequest($request);
@@ -107,16 +119,15 @@ class ResourceController extends AbstractController
                 default:
                     break;
             }
-            $mapperCommands = $resourceMediator->returnDataToEntity();
-            $mapper->executeCommands($mapperCommands);
-
+            $resourceMediator->returnDataToEntity();
+            $sequenceOfActions = $dbActionObserver->getSequenceOfActions();
+            $mapper->executeSequence($sequenceOfActions);
 
             $backGroups = ['minimal'=>true,'activeVersion'=>['minimal'=>true,'urlMini'=>true,'urlDetailThumbnail'=>true]];
             $resourceMediator->mapDTOGroups($backGroups);
             $waoType = $waoHelper->getAbridgedName(ResourceDTO::class);
             $resourceId = $resource->getId();
             $serialization = $normalizer->normalize($resource,$backGroups);
-            $truc = "lol";
 
             $backData = [$waoType =>
                 [$resourceId=>$serialization]
@@ -133,119 +144,4 @@ class ResourceController extends AbstractController
 
         return new JsonResponse(HJsonResponse::normalize($hResponse));
     }
-//
-//    /**
-//     * @Route("/get-resource-url/{resource}/{vNumber}/{filter}",
-//     * name="resource_get_resource_url",requirements={"vNumber" = "\d*","filter" = "\w*"})
-//     * @ParamConverter("resource", class="AppBundle:HResource")
-//     * @Method({"GET"})
-//     */
-//    public function getResourceUrlAction(Request $request,
-//                                            HResource $resource,
-//                                            $vNumber=null,
-//                                            $filter=null,
-//                                            ManagerRegistry $doctrine,
-//                                            FileRouter $router){
-//        if($filter ==="") $filter=null;
-//        $versionRepository = $doctrine->getRepository(ResourceVersion::class);
-//        /** @var ResourceVersion $version */
-//        if($vNumber === null){
-//            $version = $versionRepository->findOneBy(["resource"=>$resource,"active"=>true]);
-//        }
-//        else{
-//            $version = $versionRepository->findOneBy(["resource"=>$resource,"number"=>$vNumber]);
-//        }
-//
-//        return $this->render("@App/Test/test.html.twig",["msg" =>$router->getVersionRoute($version,$filter)]);
-//    }
-//
-//    /**
-//     * @Route("/get-resource/{resource}/{vNumber}/{filter}",
-//     * name="resource_get_resource",requirements={"vNumber" = "\d*","filter" = "\w*"})
-//     * @ParamConverter("resource", class="AppBundle:HResource")
-//     * @Method({"GET"})
-//     */
-//    public function getResourceAction(Request $request,
-//                                         HResource $resource,
-//                                         $vNumber=null,
-//                                         $filter=null,
-//                                         ManagerRegistry $doctrine,
-//                                         FileRouter $router){
-//        if($filter ==="") $filter=null;
-//        $versionRepository = $doctrine->getRepository(ResourceVersion::class);
-//        /** @var ResourceVersion $version */
-//        if($vNumber === null){
-//            $version = $versionRepository->findOneBy(["resource"=>$resource,"active"=>true]);
-//        }
-//        else{
-//            $version = $versionRepository->findOneBy(["resource"=>$resource,"number"=>$vNumber]);
-//        }
-//
-//        return $this->redirect($router->getVersionRoute($version,$filter));
-//    }
-//
-//    /**
-//     * @param Request $request
-//     * @param MediatorFactory $mediatorFactory
-//     * @param ResourceMapper $mapper
-//     * @param ResourceDTONormalizer $normalizer
-//     * @Route("/post-geometry",name="resource_post_create_geometry")
-//     * @Method({"POST"})
-//     * @throws \Exception
-//     * @return JsonResponse
-//     */
-//    public function postCreateGeometryAction(Request $request,
-//                                          MediatorFactory $mediatorFactory,
-//                                          ResourceMapper $mapper,
-//                                          GeoJsonNormalizer $normalizer)
-//    {
-//        $groups = ['minimal','activeImage'=>['minimal']];
-//
-//        $mediator = $mediatorFactory->create(ResourceDTOMediator::class);
-//
-//        /** @var ResourceDTO $resourceDto */
-//        $resourceDto = $mediator
-//            ->mapDTOGroups(array_merge($groups,[]))
-//            ->getDTO();
-//        /** @var ResourceVersionDTO $versionDto */
-//        $versionDto = $resourceDto->getActiveVersion()->setName(null);
-//
-//        $form = $this->get('form.factory')
-//            ->createBuilder(HFileUploadType::class,$versionDto)
-//            ->getForm();
-//
-//        $mediator->resetChangedProperties();
-//        $hResponse = new HJsonResponse();
-//        $errors=[];
-//        try{
-//            $form->handleRequest($request);
-//            $versionDto->setName($request->get('name'));
-//            $resourceDto->setName($request->get('name'));
-//            $errors = $this->get('validator')->validate($versionDto);
-//            if (! $form->isValid() || count($errors)>0)
-//            {
-//                throw new \Exception("Le formulaire contient des erreurs à corriger avant chargement");
-//            }
-//            $mapper->add($resourceDto);
-//
-//            $mediator->mapDTOGroups(["minimal",'activeImage'=>['minimal',"urlMini","urlDetailThumbnail"]]);
-//            $hResponse->setMessage("Le fichier a bien été chargé")
-//                ->setData($normalizer->normalize($resourceDto,['minimal',"activeVersion"=>["urlMini","minimal","urlDetailThumbnail"]
-//                ]))
-//                ->setStatus(HJsonResponse::SUCCESS);
-//        }
-//        catch(\Exception $e){
-//            $hResponse->setStatus(HJsonResponse::ERROR)
-//                ->setMessage($e->getMessage())
-//                ->setErrors(HJsonResponse::normalizeFormErrors($errors));
-//        }
-//
-//        return new JsonResponse(HJsonResponse::normalize($hResponse));
-//    }
-
-
-
-
-
-
 }

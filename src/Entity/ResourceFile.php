@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="hb_resource_file")
  * @ORM\Entity(repositoryClass="App\Repository\ResourceFileRepository")
  */
-class ResourceFile
+class ResourceFile extends DTOMutableEntity
 {
     /**
      * @var int

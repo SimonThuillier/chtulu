@@ -26,7 +26,7 @@ abstract class EntityMutableDTO
     {
         $this->toDelete=false;
         $this->groups = [];
-        $this->backGroups = [];
+        $this->backGroups = ['minimal'=>true];
         $this->errors = [];
     }
 
@@ -138,7 +138,7 @@ abstract class EntityMutableDTO
      * @param array
      * @return self
      */
-    public function setBackGroups(?array $backGroups){
+    public function addBackGroups(?array $backGroups){
         if($backGroups !== null){
             $this->backGroups = array_merge($this->backGroups,$backGroups);
         }
@@ -146,11 +146,11 @@ abstract class EntityMutableDTO
     }
 
     /**
-     * when a post is done on a DTO we send back minimal groups to get the new id
-     * @return array
+     * @return self
      */
-    public function getReturnGroups(){
-        return ["minimal"=>true];
+    public function reinitializeBackGroups(){
+        $this->backGroups = ['minimal'=>true];
+        return $this;
     }
 
     /**

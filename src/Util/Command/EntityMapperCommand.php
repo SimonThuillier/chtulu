@@ -9,13 +9,14 @@
 namespace App\Util\Command;
 
 use App\Entity\DTOMutableEntity;
+use App\Util\ClearableInterface;
 
 /**
  * Class EntityMapperCommand
  * @package App\Command
  * command representing an ORM action on the database
  */
-class EntityMapperCommand
+class EntityMapperCommand implements ClearableInterface
 {
     /** add a non already existing entity in DB */
     const ACTION_ADD=1;
@@ -154,5 +155,11 @@ class EntityMapperCommand
     public function isDone() : bool
     {
         return $this->doneAt!==null;
+    }
+
+    public function finishAndClear()
+    {
+        $this->dependencies = [];
+        $this->entity = null;
     }
 }

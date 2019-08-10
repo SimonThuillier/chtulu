@@ -14,7 +14,12 @@ use App\DTO\EntityMutableDTO;
 use App\DTO\ResourceDTO;
 use App\DTO\ResourceGeometryDTO;
 use App\DTO\ResourceVersionDTO;
+use App\Entity\Article;
+use App\Entity\ArticleLink;
 use App\Entity\DTOMutableEntity;
+use App\Entity\HResource;
+use App\Entity\ResourceGeometry;
+use App\Entity\ResourceVersion;
 use App\Helper\AssetHelper;
 use App\Manager\File\FileRouter;
 use App\Mediator\ArticleDTOMediator;
@@ -52,6 +57,14 @@ class MediatorFactory implements ServiceSubscriberInterface,ClearableInterface
         ResourceVersionDTO::class => ResourceVersionDTOMediator::class,
         ResourceGeometryDTO::class => ResourceGeometryDTOMediator::class,
         ArticleLinkDTO::class => ArticleLinkDTOMediator::class,
+    ];
+
+    private const DEFAULT_ENTITY_DTO = [
+        Article::class => ArticleDTO::class,
+        HResource::class =>  ResourceDTO::class,
+        ResourceVersion::class => ResourceVersionDTO::class,
+        ResourceGeometry::class => ResourceGeometryDTO::class,
+        ArticleLink::class => ArticleLinkDTO::class,
     ];
 
     private const OTHER_SERVICES = [
@@ -113,8 +126,8 @@ class MediatorFactory implements ServiceSubscriberInterface,ClearableInterface
     }
 
     /**
-     * @param string $className
-     * @param int|null $id
+     * @param string $className the DTO className
+     * @param int|null $id original id of the DTO (which can be negative)
      * @param DTOMutableEntity|null $entity
      * @param EntityMutableDTO|null $dto
      * @param int $mode
@@ -134,7 +147,8 @@ class MediatorFactory implements ServiceSubscriberInterface,ClearableInterface
             throw new FactoryException('Class ' . $className . ' doesn\'t exist');
         }
         if (!$this->locator->has($className)) {
-            throw new FactoryException('This factory isn\'t configured to create a ' . $className . 'Mediator');
+            throw new FactoryException(
+                'This factory isn\'t configured to create a mediator for DTO class ' . $className);
         }
 
         // if a mediator has already been made for this dto we return it to prevent data scattering
@@ -142,6 +156,9 @@ class MediatorFactory implements ServiceSubscriberInterface,ClearableInterface
             /** @var DTOMediator $mediator */
             $mediator = $this->createdMediators[$className . ':' . $id];
             if($dto !== null){
+                if($mediator->getDTO() !== null){
+                    $dto->addBackGroups($mediator->getDTO()->getBackGroups());
+                }
                 $mediator->setDTO($dto);
             }
             return $mediator;
@@ -173,5 +190,38 @@ class MediatorFactory implements ServiceSubscriberInterface,ClearableInterface
         }
 
         return $mediator;
+    }
+
+    /**
+     * @param string $entityClassName the Entity className
+     * @param int|null $id
+     * @param DTOMutableEntity|null $entity
+     * @param EntityMutableDTO|null $dto
+     * @param int $mode
+     * @return DTOMediator
+     * @throws FactoryException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
+    public function createWithEntityClassName(
+        string $entityClassName,
+        ?int $id=null,
+        ?DTOMutableEntity $entity=null,
+        ?EntityMutableDTO $dto=null,
+        $mode=DTOMediator::CREATE_IF_NULL)
+    {
+        if (!array_key_exists($entityClassName,self::DEFAULT_ENTITY_DTO)) {
+            throw new FactoryException(
+                'This factory isn\'t configured to create a mediator for Entity class ' . $entityClassName);
+        }
+        $className = self::DEFAULT_ENTITY_DTO[$entityClassName];
+
+        return $this->create(
+            $className,
+            $id,
+            $entity,
+            $dto,
+            $mode
+        );
     }
 }

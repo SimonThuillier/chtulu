@@ -93,8 +93,9 @@ class ResourceDTOMediator extends DTOMediator
         if($version !== null){
             /** @var ResourceVersionDTOMediator $versionMediator */
             $versionMediator = $this->locator->get(MediatorFactory::class)
-                ->create(ResourceVersionDTO::class,$version->getId(),$version);
+                ->create(ResourceVersionDTO::class,-1000,$version);
             $versionMediator->mapDTOGroups($subGroups);
+            $versionMediator->getDTO()->setId(-1000);
             $dto->setActiveVersion($versionMediator->getDTO());
         }
         else{
@@ -136,7 +137,7 @@ class ResourceDTOMediator extends DTOMediator
                 $this->getEntityClassName(),
                 $dto->getId(),
                 'setResource',
-                true)
+                false)
                 ->setEntityToLink($entity);
             $this->dbActionObserver->registerAction($command);
 

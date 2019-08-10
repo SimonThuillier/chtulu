@@ -89,8 +89,4 @@ class ResourceGeometryDTO extends EntityMutableDTO
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('comment');
         return $this;
     }
-
-    public function getReturnGroups(){
-        return ["minimal"];
-    }
 }

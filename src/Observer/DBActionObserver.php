@@ -55,6 +55,20 @@ class DBActionObserver implements ClearableInterface
      */
     public function finishAndClear()
     {
+        $actions = array_merge(
+            array_values($this->addActions),
+            array_values($this->editActions),
+            array_values($this->linkActions),
+            array_values($this->deleteActions)
+        );
+
+        foreach($actions as $action){
+            /** @var EntityMapperCommand $action */
+            $action->finishAndClear();
+        }
+
+        unset($actions);
+
         $this->addActions = [];
         $this->linkActions = [];
         $this->editActions = [];
@@ -63,6 +77,7 @@ class DBActionObserver implements ClearableInterface
         $this->currentWorkAction = null;
 
         $this->invalidateSequenceOfActions();
+
 
         return $this;
     }
@@ -280,5 +295,29 @@ class DBActionObserver implements ClearableInterface
 
         $dependencies = [];
         $this->currentWorkAction = null;
+    }
+
+    /**
+     * returns an array of all entities concerned by a previously executed action to the database
+     * keyed by entityClassName:entityId
+     */
+    public function getModifiedEntities(){
+        $entities = [];
+
+        $actions = array_merge(
+            array_values($this->addActions),
+            array_values($this->editActions),
+            array_values($this->linkActions),
+            array_values($this->deleteActions)
+        );
+
+        foreach($actions as $action){
+            /** @var EntityMapperCommand $action */
+            if($action->isDone()){
+                $entities[$action->getEntityClassName() . ':' . $action->getEntity()->getId()]
+                    = $action->getEntity();
+            }
+        }
+        return $entities;
     }
 }

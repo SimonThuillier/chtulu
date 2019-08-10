@@ -106,12 +106,19 @@ class ResourceVersionDTOMediator extends DTOMediator
 
         if($version->getFile() === null){
             $resourceFile = $this->locator->get(EntityFactory::class)->create(ResourceFile::class);
-            $command = new EntityMapperCommand(
-                EntityMapperCommand::ACTION_ADD,
-                ResourceFile::class,
-                $dto->getId(),
-                $resourceFile
-            );
+            try{
+                $command = new EntityMapperCommand(
+                    EntityMapperCommand::ACTION_ADD,
+                    ResourceFile::class,
+                    $dto->getId(),
+                    $resourceFile
+                );
+            }
+            catch(\Exception $e){
+                $lol = $e->getMessage();
+                $what='';
+            }
+
             $this->dbActionObserver->registerAction($command);
 
             $command = new LinkCommand(
@@ -124,7 +131,7 @@ class ResourceVersionDTOMediator extends DTOMediator
                 ResourceFile::class,
                 $dto->getId(),
                 'setFile',
-                false)
+                true)
             ->setEntityToLink($resourceFile);
             $this->dbActionObserver->registerAction($command);
         }

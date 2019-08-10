@@ -239,8 +239,6 @@ class CRUDController extends AbstractController
                 throw new \Exception("Invalid token : would you hack history ?");
             $hResponse->setSenderKey($handledRequest["senderKey"]);
 
-            $newEntities=[];
-
             /** B : unserialize data to DTOs,validate and return data to entities
              * Hence the DBActionObserver register all requested action (but without executing them yet)
              */
@@ -276,49 +274,39 @@ class CRUDController extends AbstractController
                         }
                         $dto->setErrors($objectError);
                         $transformedErrors[$waoHelper->getOneDtoNaturalName($waoType,$dto)]=$objectError;
-                        $dto->setBackGroups(['minimal'=>true]);
-                        $backData[$waoType][$dto->getId()] = $normalizer->normalize($dto,['minimal'=>true]);
+                        $dto->reinitializeBackGroups();
+                        $backData[$waoType][$dto->getId()] = $normalizer->normalize($dto,$dto->getBackGroups());
                         continue;
                     }
 
                     /** 4 : return the edited data to entity */
                     $mediator->returnDataToEntity();
-
-                    // if delete
-                    /*if($dto->getToDelete()) $postedGroups = ["minimal"=>true];
-                    $backGroups = ArrayUtil::normalizeGroups(ArrayUtil::filter($dto->getReturnGroups(),$postedGroups));
-                    if(!$dto->getToDelete()) $mediator->mapDTOGroups($backGroups,DTOMediator::NOTHING_IF_NULL);
-                    $dto->setBackGroups($backGroups);
-                    $backData[$waoType][$dto->getId()] = $normalizer->normalize($dto,$backGroups);
-                    $actionCount++;*/
+                    $actionCount++;
                 }
             }
 
-            $memoryUsage = memory_get_usage();
             /** C : get and execute the sequence of actions, e.g. commit changes to database now ! */
-
             $sequenceOfActions = $dbActionObserver->getSequenceOfActions();
-            $stop = 'stop1';
             $mapper->executeSequence($sequenceOfActions);
-            $stop = 'stop2';
 
-            //$mapper->executeCommands($mapperCommands,true,$newEntities);
-            // at this step data is well injected to the database, now get the backData
-            // let's begin with the newly created objects
-            /** @var DTOMutableEntity $newEntity */
-            /** @var EntityMutableDTO $newEntityDto */
-            foreach ($newEntities as $newEntity){
-                $newEntityDto = $newEntity->getMediator()->getDTO();
-                $backGroups = $newEntityDto->getReturnGroups();
-                $newEntity->getMediator()->resetChangedProperties()
-                    ->mapDTOGroups($backGroups);
-                $newEntityDto->setBackGroups($backGroups);
-
-                $newEntityWaoType = $waoHelper->getAbridgedName($newEntity->getMediator()->getDtoClassName());
-                if(!array_key_exists($newEntityWaoType,$backData)) $backData[$newEntityWaoType] = [];
-                $backData[$newEntityWaoType][$newEntityDto->getId()] = $normalizer->normalize($newEntityDto,$backGroups);
+            /** D : map and normalize the data and errors to return to the client page */
+            $modifiedEntities = $dbActionObserver->getModifiedEntities();
+            foreach($modifiedEntities as $key=>$entity){
+                /** @var DTOMutableEntity $entity */
+                if($entity->getMediator() !== null){$mediator = $entity->getMediator();}
+                else{
+                    $mediator = $mediatorFactory->createWithEntityClassName(
+                        get_class($entity),$entity->getId(),$entity);
+                }
+                $dto = $mediator->getDTO();
+                $mediator->mapDTOGroups($dto->getBackGroups(),DTOMediator::NOTHING_IF_NULL);
+                $waoType = $waoHelper->getAbridgedName(get_class($dto));
+                $backData[$waoType][$dto->getId()] = $normalizer->normalize($dto,$dto->getBackGroups());
             }
+            $hResponse->setData(json_encode($backData));
+            $fullMemoryUsage = memory_get_usage();
 
+            /** E : handle final response status (are there some errors ?) */
             if(count($transformedErrors)>0){
                 $errorMessage = "Les données que vous voulez sauvegarder contiennent des erreurs";
                 if($actionCount>1){
@@ -330,14 +318,14 @@ class CRUDController extends AbstractController
                         }
                     }
                 }
-                throw new \Exception($errorMessage);
+                $hResponse
+                    ->setStatus(HJsonResponse::ERROR)
+                    ->setMessage($errorMessage);
             }
-
-
-        $hResponse
-            ->setData(json_encode($backData))
-            ->setMessage($actionCount===1?"Les données ont été enregistrées"
-                :"Toutes vos modifications ont été sauvegardées");
+            else{
+                $hResponse->setMessage($actionCount===1?"Les données ont été enregistrées"
+                    :"Toutes vos modifications ont été sauvegardées");
+            }
         }
         catch(\Exception $e){
             $hResponse->setStatus(HJsonResponse::ERROR)
@@ -346,7 +334,9 @@ class CRUDController extends AbstractController
                 ->setData(json_encode($backData));
         }
         $mediatorFactory->finishAndClear();
+        $dbActionObserver->finishAndClear();
         ob_clean();
+        $lowMemoryUsage = memory_get_usage();
         return new JsonResponse(HJsonResponse::normalize($hResponse));
     }
 }
