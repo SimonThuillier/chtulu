@@ -79,9 +79,13 @@ class ResourceMapper extends AbstractEntityMapper implements EntityMapperInterfa
     protected function checkAdd(DTOMutableEntity $entity){
         parent::checkAdd($entity);
         /** @var ResourceDTO $entity */
-        if($entity->getActiveVersion() === null){
+        // this check is deleted because usually the orchestration will be :
+        // 1 : create resource and file
+        // 2 : link resource version to resource and file
+        // 3 : add resource version
+        /*if($entity->getActiveVersion() === null){
             throw new EntityMapperException("Impossible to create a resource without active version of it");
-        }
+        }*/
     }
 
     /**

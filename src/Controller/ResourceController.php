@@ -77,7 +77,7 @@ class ResourceController extends AbstractController
                 }
             }
             else{
-                $resourceId = -1;
+                $resourceId = 0;
             }
             $resourceMediator = $mediatorFactory->create(ResourceDTO::class,$resourceId,$resource);
             $groups = ['minimal'=>true,'activeVersion'=>['minimal'=>true,'file'=>true]];
@@ -100,8 +100,9 @@ class ResourceController extends AbstractController
 
             $versionDto = $resourceDto->getActiveVersion();
             /** @var ResourceVersionDTO $versionDto */
-            $versionDto->setName($handledRequest["name"]);
-            $versionDto->setFile($handledRequest["file"]);
+            $versionDto
+                ->setName($handledRequest["name"])
+                ->setFile($handledRequest["file"]);
 
             //$form = $formFactory->createBuilder(HFileUploadType::class,$version)->getForm();
             //$form->handleRequest($request);
@@ -126,11 +127,10 @@ class ResourceController extends AbstractController
             $backGroups = ['minimal'=>true,'activeVersion'=>['minimal'=>true,'urlMini'=>true,'urlDetailThumbnail'=>true]];
             $resourceMediator->mapDTOGroups($backGroups);
             $waoType = $waoHelper->getAbridgedName(ResourceDTO::class);
-            $resourceId = $resource->getId();
-            $serialization = $normalizer->normalize($resource,$backGroups);
+            $serialization = $normalizer->normalize($resourceMediator->getDTO(),$backGroups);
 
             $backData = [$waoType =>
-                [$resourceId=>$serialization]
+                [$resourceMediator->getDTO()->getId()=>$serialization]
             ];
 
             $hResponse
@@ -141,7 +141,9 @@ class ResourceController extends AbstractController
             $hResponse->setStatus(HJsonResponse::ERROR)
                 ->setMessage($e->getMessage());
         }
-
+        $mediatorFactory->finishAndClear();
+        $dbActionObserver->finishAndClear();
+        ob_clean();
         return new JsonResponse(HJsonResponse::normalize($hResponse));
     }
 }

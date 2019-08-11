@@ -28,6 +28,7 @@ import {getAllPropertiesInGroups} from '../util/WAOUtil';
 import withContainer from './withContainer';
 import withExtraProps from './withExtraProps';
 import ResourcePicker from './ResourcePicker';
+import ArticleLinkForm from './ArticleLinkForm';
 import FormSubmit from './FormSubmit';
 
 const ArticleFormContext = React.createContext({});
@@ -92,7 +93,7 @@ const SubMinimal = ({}) => {
         </ArticleFormContext.Consumer>
     );
 };
-SubMinimal.contextType = ArticleFormContext;
+//SubMinimal.contextType = ArticleFormContext;
 
 const SubDate = ({}) => {
     return (
@@ -135,7 +136,7 @@ const SubDate = ({}) => {
         </ArticleFormContext.Consumer>
     );
 };
-SubDate.contextType = ArticleFormContext;
+//SubDate.contextType = ArticleFormContext;
 
 class SubDetailImage extends React.Component {
     constructor(props) {
@@ -235,7 +236,7 @@ class SubDetailImage extends React.Component {
         );
     }
 }
-SubDetailImage.contextType = ArticleFormContext;
+//SubDetailImage.contextType = ArticleFormContext;
 
 class SubAbstract extends React.Component {
     constructor(props) {
@@ -243,10 +244,24 @@ class SubAbstract extends React.Component {
     }
 
     render(){
-
         return (
             <ArticleFormContext.Consumer>
-                {({}) => (
+                {({linksData,linkFormRefs,localSubmitCount}) => {
+                    const linksForm = linksData
+                        .map((link) =>{
+                            return(
+                                <ArticleLinkForm
+                                    form={`articleLink-${link.id}`}
+                                    id={link.id}
+                                    linkData = {link}
+                                    localSubmitCount={localSubmitCount}
+                                >
+                                </ArticleLinkForm>
+                            );
+                        });
+
+
+                    return (
                     <div>
                         <Field
                             name="abstract"
@@ -255,13 +270,14 @@ class SubAbstract extends React.Component {
                             component={HBFormField}
                             label="Résumé"
                         />
-                    </div>
-                )}
+                        {linksForm.length>0?linksForm:''}
+                    </div>);
+                }}
             </ArticleFormContext.Consumer>
         );
     }
 }
-SubAbstract.contextType = ArticleFormContext;
+//SubAbstract.contextType = ArticleFormContext;
 
 
 class ArticleForm extends React.Component{
@@ -272,7 +288,8 @@ class ArticleForm extends React.Component{
 
     constructor(props) {
         super(props);
-        this.componentUid = props.componentUid;
+        console.log(props);
+        this.componentUid = props.form;
 
         this.handleSwitch = this.handleSwitch.bind(this);
         this.submit = this.submit.bind(this);
@@ -292,11 +309,11 @@ class ArticleForm extends React.Component{
             data:null,
             resource:null,
             resourceVersion:null,
-            resourcePickerConfig:{target:null,show:false,component:null}
+            resourcePickerConfig:{target:null,show:false,component:null},
+            localSubmitCount:0 // to trigger local submission for children
         };
         
         this.loadingArticleId = null;
-
         //console.log("instanciate article form");
     }
 
@@ -349,9 +366,9 @@ class ArticleForm extends React.Component{
         //console.log("initialData");
         //console.log(data);
         if(!data || typeof data==='undefined') return null;
-        console.log(data);
-        //console.log(data.has("initialValues"));
+        console.log('initial form data');
         initialize(data.set("pendingModification",true));
+
         if(data.get("initialValues")){
             dispatch(formTouch(this.componentUid, ...data.get("initialValues").keySeq().toJS()));
         }
@@ -443,6 +460,8 @@ class ArticleForm extends React.Component{
 
         const {getForm,anyTouched,dispatch} = this.props;
         const pendingForm = getForm(this.componentUid);
+        console.log('form component uid');
+        console.log(this.componentUid);
         const touchedFields = pendingForm.get("fields");
         const values = pendingForm.get("values");
 
@@ -460,10 +479,13 @@ class ArticleForm extends React.Component{
             touchedKeys.forEach((k)=>{
                 touchedValues = touchedValues.set(k,values.get(k));
             });
-
-            //console.log(touchedValues);
+            console.log('touchedValues');
+            console.log(touchedValues);
             dispatch(submitLocally("article",touchedValues,id,this.state.groups));
         }
+
+        console.log('trigger link submission');
+        this.setState({localSubmitCount:this.state.localSubmitCount+1});
     }
 
     componentWillUnmount(){
@@ -485,8 +507,8 @@ class ArticleForm extends React.Component{
 
     render(){
         // console.log("render article form");
-        const { onSubmit, reset, load,valid,getForm,dispatch,getNotifications,pristine,container,id,anyTouched} = this.props;
-        const {groups,data} = this.state;
+        const { onSubmit, reset, load,valid,getForm,dispatch,getNotifications,pristine,container,id,anyTouched,linksData} = this.props;
+        const {groups,data,localSubmitCount} = this.state;
         const pendingForm = getForm(this.componentUid);
         //console.log("render form");
         //console.log(pendingForm && pendingForm.getIn(["values","hasEndDate"]));
@@ -504,7 +526,9 @@ class ArticleForm extends React.Component{
         const contextValue = {
             hasEndDate:hasEndDate,
             dispatch:dispatch,
-            container :container || null
+            container :container || null,
+            linksData : linksData,
+            localSubmitCount:localSubmitCount
         };
 
         return (
@@ -517,7 +541,7 @@ class ArticleForm extends React.Component{
             >
                 {submittingCompleted && notificationAlert(submittingCompleted,dispatch)}
                 <Form onSubmit={(e)=>{}}>
-                    <ArticleFormContext.Provider componentUid={this.componentUid} key={`article-form-provider-${id}`} value={contextValue}>
+                    <ArticleFormContext.Provider key={`article-form-provider-${id}`} value={contextValue}>
                         {this.props.children}
                     </ArticleFormContext.Provider>
                     <div key={`article-form-submit-${id}`}>
@@ -552,26 +576,13 @@ class ArticleForm extends React.Component{
     }
 }
 
-let counter = 0;
-let uid = '';
-const tweaks = ()=>{
-   if(counter%2 === 0) uid=require('uuid/v4')();
-   counter = counter+1;
-   console.log(`tweaks : ${uid}`);
-   return uid;
-};
-
-
-
 const makeMapStateToProps = () => {
     const getOneByIdSelector = makeGetOneByIdSelector();
     const getNotificationsSelector = makeGetNotificationsSelector();
     const getFormSelector = makeGetFormSelector();
-    //const componentUid = require('uuid/v4')();
 
     return state => {
         return {
-            componentUid:componentUid,
             getOneById: getOneByIdSelector(state.get("article")),
             getForm:getFormSelector(state.get("form")),
             getNotifications: getNotificationsSelector(state.get("app"))
@@ -579,15 +590,13 @@ const makeMapStateToProps = () => {
     }
 };
 
-
 ArticleForm = connect(
     makeMapStateToProps,
     { }
 )(ArticleForm);
 
 ArticleForm =  reduxForm({
-    form: componentUid,
-    destroyOnUnmount:false,
+    destroyOnUnmount:true,
     validate:validate,
     warn:warn
 })(ArticleForm);

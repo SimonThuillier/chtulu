@@ -21,6 +21,7 @@ use App\Entity\HResource;
 use App\Entity\ResourceGeometry;
 use App\Entity\ResourceVersion;
 use App\Helper\AssetHelper;
+use App\Manager\File\FileLocalUploader;
 use App\Manager\File\FileRouter;
 use App\Mediator\ArticleDTOMediator;
 use App\Mediator\ArticleLinkDTOMediator;
@@ -74,6 +75,7 @@ class MediatorFactory implements ServiceSubscriberInterface,ClearableInterface
         AssetHelper::class,
         MediatorFactory::class,
         FileRouter::class,
+        FileLocalUploader::class,
         'serializer.encoder.json' => EncoderInterface::class,
         'router' => RouterInterface::class,
         'doctrine' => ManagerRegistry::class

@@ -5,7 +5,7 @@ import { getOneByIdIfNeeded} from "../actions";
 import ArticleDetail from './ArticleDetail';
 import ArticleForm from './ArticleForm';
 import {
-    makeGetNotificationsSelector, makeGetOneByIdSelector
+    makeGetNotificationsSelector, makeGetOneByIdSelector, makeLocalGetByAttributeSelector
 } from "../selectors";
 import {connect} from "react-redux";
 import {LOADING,COLORS} from '../util/notifications';
@@ -18,11 +18,12 @@ const ArticleContext = React.createContext();
 const SubDetail = ({groups}) => {
     return (
         <ArticleContext.Consumer>
-            {({ id, groups:cGroups,data,handleSwitch }) => {
+            {({ id, groups:cGroups,data,handleSwitch,linksData }) => {
                 return (
                     <ArticleDetail
                         id={id}
                         data={data}
+                        linksData={linksData}
                         groups={groups || cGroups}
                         handleSwitch={handleSwitch}
                     />
@@ -32,26 +33,31 @@ const SubDetail = ({groups}) => {
         </ArticleContext.Consumer>
     );
 };
-SubDetail.contextType = ArticleContext;
+//SubDetail.contextType = ArticleContext;
 
 const SubForm = ({groups}) => {
     return (
         <ArticleContext.Consumer>
-            {({ id, groups:cGroups,data,handleSwitch,container}) => (
-                <Groupable groups={groups || cGroups} subKey={`article-${id}-form`}>
-                    <ArticleForm
-                        id={id}
-                        container={container}
-                        groups={groups || cGroups}
-                        handleSwitch={handleSwitch}
-                    >
-                    </ArticleForm>
-                </Groupable>
-            )}
+            {({ id, groups:cGroups,data,handleSwitch,container,linksData,form}) => {
+                console.log(`I call ArticleForm with form key ${form}`);
+                return (<Groupable groups={groups || cGroups} subKey={`article-${id}-form`}>
+                        <ArticleForm
+                            form={form}
+                            id={id}
+                            linksData = {linksData}
+                            container={container}
+                            groups={groups || cGroups}
+                            handleSwitch={handleSwitch}
+                        >
+                        </ArticleForm>
+                    </Groupable>
+                );
+            }
+                }
         </ArticleContext.Consumer>
     );
 };
-SubForm.contextType = ArticleContext;
+//SubForm.contextType = ArticleContext;
 
 class Article extends React.Component{
     static Detail = SubDetail;
@@ -68,11 +74,14 @@ class Article extends React.Component{
                 container:props.container || null
             }
         };
+        this.componentUid = require('uuid/v4')();
+        console.log('article component uid');
+        console.log(this.componentUid);
         //console.log("Article built");
     }
 
     componentDidMount(){
-        //console.log("Article begin Mount");
+        console.log("Article begin Mount");
         const {groups,dispatch,id} = this.props;
         dispatch(getOneByIdIfNeeded("article",groups, id,componentUid));
     }
@@ -82,7 +91,7 @@ class Article extends React.Component{
         // we provide this state as value for the provider and update in this function
         // the state properties that need to trigger re-render
         let updatedValues = {};
-        const {id,getOneById,groups,dispatch,container} = this.props;
+        const {id,getOneById,groups,dispatch,container,getLinks} = this.props;
 
         if (prevProps.id !== id) {
             console.log(`update ${prevProps.id} vs ${id}`);
@@ -115,20 +124,40 @@ class Article extends React.Component{
 
         //console.log("reRender");
 
-        const {getOneById,getNotifications,handleSwitch,container,groups,id} = this.props;
+        const {getOneById,getNotifications,handleSwitch,container,groups,id,getLinks} = this.props;
         const notifications = getNotifications(componentUid);
         const loading = (notifications && notifications.hasIn([id || 'DEFAULT',LOADING]))||false;
         //,this.state.id || 'DEFAULT',LOADING]);
         /*console.log("notifications");
         console.log(loading);
         console.log(notifications);*/
+
+        const links = getLinks('childId',id);
+        console.log('links');
+        console.log(links);
+
+        const linksData = links.map(rec => {
+            const parent = getOneById(+rec.get('parentId'));
+            return {
+                id:+rec.get('id'),
+                parentId:+rec.get('parentId'),
+                parentTitle:parent?parent.get('title'):null,
+                abstract:rec.get('abstract')
+            }
+        });
+
+        console.log(linksData);
+
         const contextValue = {
-            id:id,
-            data:getOneById(id),
-            groups:groups,
-            handleSwitch:handleSwitch,
-            container:container || null
-        };
+                id: id,
+                data: getOneById(id),
+                linksData: linksData,
+                groups: groups,
+                handleSwitch: handleSwitch,
+                container: container || null,
+                form: `article-${id}`
+            }
+        ;
 
         return (
             <Loadable
@@ -152,23 +181,15 @@ class Article extends React.Component{
 const makeMapStateToProps = () => {
     const getOneByIdSelector = makeGetOneByIdSelector();
     const getNotificationsSelector = makeGetNotificationsSelector();
+    const getLinksSelector = makeLocalGetByAttributeSelector();
 
     return state => {
         return {
             getOneById: getOneByIdSelector(state.get("article")),
-            getNotifications: getNotificationsSelector(state.get("app"))
+            getNotifications: getNotificationsSelector(state.get("app")),
+            getLinks : getLinksSelector(state.get("articleLink"))
         }
     }
 };
-
-// const mapStateToProps = (state) => {
-//
-//     const selector = getOneByIdSelector(state.get("article"));
-//     const notificationsSelector = getNotificationsSelector(state.get("app"));
-//     return {
-//         selector: selector,
-//         notificationsSelector : notificationsSelector
-//     }
-// };
 
 export default connect(makeMapStateToProps)(Article);

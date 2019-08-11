@@ -94,11 +94,11 @@ abstract class AbstractEntityMapper
      */
     protected function checkEdit(DTOMutableEntity $entity)
     {
-        $id = $entity->getId();
+        /*$id = $entity->getId();
         if($entity === null || $id === null|| $id == 0){
             throw new EntityMapperException(
                 "Entity is either null or non persisted : please consider add instead of edit");
-        }
+        }*/
     }
 
     /**

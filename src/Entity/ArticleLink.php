@@ -24,14 +24,14 @@ class ArticleLink extends DTOMutableEntity
     /**
      * @var Article
      * @ORM\ManyToOne(targetEntity="Article",inversedBy="links")
-     * @ORM\JoinColumn(name="parent_article_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="parent_article_id", referencedColumnName="id",nullable=false)
      */
     private $parent;
     
     /**
      * @var Article
      * @ORM\ManyToOne(targetEntity="Article")
-     * @ORM\JoinColumn(name="child_article_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="child_article_id", referencedColumnName="id",nullable=false)
      */
     private $child;
 

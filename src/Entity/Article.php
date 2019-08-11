@@ -29,7 +29,7 @@ class Article extends DTOMutableEntity
 
     /**
      * @var string
-     * @ORM\Column(name="title", type="string", length=50)
+     * @ORM\Column(name="title", type="string", length=64)
      */
     protected $title;
 

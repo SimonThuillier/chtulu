@@ -5,6 +5,20 @@ const Imm = require("immutable");
 
 const getItems = (state) => state.get("items");
 
+/**
+ * push in an array if the controlMap not already contains this id
+ * used to prevent doublons in selectors
+ * @param item
+ * @param int id
+ * @param Map controlMap
+ */
+const pushIfNotAlreadyInMap = (item,id,items,controlMap) => {
+    if(!controlMap.has(+id)){
+        items.push(item);
+        controlMap.set(+id,true);
+    }
+};
+
 export const makeGetNotificationsSelector = ()=> {
     return createSelector(
         [(state) => state.get("notifications")],
@@ -111,16 +125,19 @@ export const makeGetOneByIdPlusBabiesSelector = () =>{
                 (id,extraIds,expandedIds)=>extraIds.join(','),
                 (id,extraIds=[],expandedIds=[]) => (JSON.stringify(expandedIds))
             ],(id,extraIds,expandedIds)=>{
+                const controlMap = new Map();
+
                 expandedIds = JSON.parse(expandedIds);
-                let selectedEntries = [];
-                if(items.has(+id)) selectedEntries.push(items.get(+id));
+                const selectedEntries = [];
+                if(items.has(+id)) pushIfNotAlreadyInMap(items.get(+id),+id,selectedEntries,controlMap)
                 let thisSubIds = expandedIds[+id];
                 console.log("thisSubIds");
                 console.log(thisSubIds);
                 if(typeof thisSubIds !== 'undefined'){
                     thisSubIds.forEach(sv =>{
                         if(items.has(+sv)){
-                            selectedEntries.push(items.get(+sv));
+                            pushIfNotAlreadyInMap(items.get(+sv),+sv,selectedEntries,controlMap)
+                            //selectedEntries.push(items.get(+sv));
                         }
                         }
                     );
@@ -129,12 +146,12 @@ export const makeGetOneByIdPlusBabiesSelector = () =>{
                 // add extra Ids
                 extraIds = extraIds.split(',');
                 extraIds.forEach((k)=>{
-                    if (items.has(+k) || false) selectedEntries.push(items.get(+k));
+                    if (items.has(+k) || false) pushIfNotAlreadyInMap(items.get(+k),+k,selectedEntries,controlMap)
                 });
 
                 // add babies
                 babyItemIds.keySeq().forEach((k) => {
-                    if (items.has(+k) || false) selectedEntries.push(items.get(+k));
+                    if (items.has(+k) || false) pushIfNotAlreadyInMap(items.get(+k),+k,selectedEntries,controlMap)
                 });
                 return selectedEntries;
             });
@@ -184,17 +201,18 @@ export const makeGetSelector = () =>{
     return createSelector(
         [(state) => state.get("items"),(state) => state.get("searchCache")],
         (items,searchCache) => (searchBag) => {
+            const controlMap = new Map();
             const searchCacheEntry = searchCache.get(JSON.stringify(SearchBagUtil.getCoreBag(searchBag)));
             const {offset,limit} = searchBag;
             if(! searchCacheEntry) return [];
             let indexMap = searchCacheEntry.get("indexMap");
             indexMap = (searchBag.order===SearchBagUtil.ASC)?indexMap:
                 SearchBagUtil.invertIndexMap(indexMap,searchCacheEntry.get("total"));
-            let selectedEntries = [];
+            const selectedEntries = [];
 
             indexMap.forEach((v,k)=>{
                 // console.log(`k : ${k}, v : ${v}`);
-                if(k>=offset && k<(offset+limit)) selectedEntries[k] = +v;
+                if(k>=offset && k<(offset+limit)) pushIfNotAlreadyInMap(+v,+k,selectedEntries,controlMap);
             });
             return selectedEntries.map((id)=> items.get(+id)).filter((v,k)=>v || false);
         }
@@ -245,9 +263,10 @@ export const makeGetPlusBabiesSelector = () =>{
                     console.log(order);
                     console.log("extraIds");
                     console.log(extraIds);*/
+                    const controlMap = new Map();
                     const searchCacheEntry = searchCache.get(coreBagKey);
                     expandedIds = JSON.parse(expandedIds);
-                console.log("expandedIds");
+                    console.log("expandedIds");
                     console.log(expandedIds);
                     let selectedEntries = [];
 
@@ -259,13 +278,13 @@ export const makeGetPlusBabiesSelector = () =>{
 
                         indexMap.forEach((v, k) => {
                             if (k >= offset && k < (offset + limit)){
-                                selectedEntries.push(+v);
+                                pushIfNotAlreadyInMap(+v,+v,selectedEntries,controlMap);
                                 let thisSubIds = expandedIds[v];
                                 console.log("thisSubIds");
                                 console.log(thisSubIds);
                                 if(typeof thisSubIds !== 'undefined'){
                                     thisSubIds.forEach(sv =>{
-                                        selectedEntries.push(+sv);
+                                        pushIfNotAlreadyInMap(+sv,+sv,selectedEntries,controlMap);
                                         }
                                     );
                                 }
@@ -277,14 +296,14 @@ export const makeGetPlusBabiesSelector = () =>{
                     // 2 add extra Ids
                     extraIds = extraIds.split(',');
                     extraIds.forEach((k)=>{
-                        if (items.has(+k) || false) selectedEntries.push(items.get(+k));
+                        if (items.has(+k) || false) pushIfNotAlreadyInMap(items.get(+k),+k,selectedEntries,controlMap);
                     });
 
 
 
                     // 3 add babies
                     babyItemIds.keySeq().forEach((k) => {
-                        if (items.has(+k) || false) selectedEntries.push(items.get(+k));
+                        if (items.has(+k) || false) pushIfNotAlreadyInMap(items.get(+k),+k,selectedEntries,controlMap);
                     });
                     return selectedEntries;
                 }

@@ -86,22 +86,28 @@ class ResourceDTOMediator extends DTOMediator
 
         $version = $this->locator->get('doctrine')->getRepository(ResourceVersion::class)
             ->findOneBy(["resource"=>$resource,"active"=>true]);
-        if($version === null && $mode === self::CREATE_IF_NULL){
-            $version = $this->locator->get(EntityFactory::class)->create(ResourceVersion::class);
-        }
-
         if($version !== null){
             /** @var ResourceVersionDTOMediator $versionMediator */
             $versionMediator = $this->locator->get(MediatorFactory::class)
-                ->create(ResourceVersionDTO::class,-1000,$version);
+                ->create(ResourceVersionDTO::class,$version->getId(),$version);
             $versionMediator->mapDTOGroups($subGroups);
-            $versionMediator->getDTO()->setId(-1000);
+            $versionMediator->getDTO()->setId($version->getId());
             $dto->setActiveVersion($versionMediator->getDTO());
         }
         else{
-            $dto->setActiveVersion(null);
+            if($mode === self::CREATE_IF_NULL){
+                $version = $this->locator->get(EntityFactory::class)->create(ResourceVersion::class);
+                /** @var ResourceVersionDTOMediator $versionMediator */
+                $versionMediator = $this->locator->get(MediatorFactory::class)
+                    ->create(ResourceVersionDTO::class,-1000,$version);
+                $versionMediator->mapDTOGroups($subGroups);
+                $versionMediator->getDTO()->setId(-1000);
+                $dto->setActiveVersion($versionMediator->getDTO());
+            }
+            else{
+                $dto->setActiveVersion(null);
+            }
         }
-
         //$dto->addMappedGroup('activeVersion');
     }
 

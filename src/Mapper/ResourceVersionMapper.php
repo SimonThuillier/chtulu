@@ -20,8 +20,6 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 
 class ResourceVersionMapper extends AbstractEntityMapper implements EntityMapperInterface
 {
-    /** @var FileUploader */
-    private $uploader;
 
     /**
      * ResourceVersionMapper constructor.
@@ -35,8 +33,7 @@ class ResourceVersionMapper extends AbstractEntityMapper implements EntityMapper
         ManagerRegistry $doctrine,
         TokenStorageInterface $tokenStorage,
         LoggerInterface $logger,
-        ResourceVersionFactory $entityFactory,
-        FileUploader $uploader
+        ResourceVersionFactory $entityFactory
     )
     {
         $this->entityClassName = ResourceVersion::class;
@@ -46,7 +43,6 @@ class ResourceVersionMapper extends AbstractEntityMapper implements EntityMapper
             $logger,
             $entityFactory
         );
-        $this->uploader = $uploader;
     }
 
     /**
@@ -63,17 +59,6 @@ class ResourceVersionMapper extends AbstractEntityMapper implements EntityMapper
         $version->setEditionDate(new \DateTime())
             ->setEditionUser($this->getUser());
 
-        if($version->getFile() !== null){
-            $this->doctrine->getManager()->persist($version->getFile());
-            try{
-                /** @var ResourceVersionDTO $entity */
-                $version->getFile()->setUri($this->uploader->upload($entity->getFile()));
-                $entity->setFile(null);
-            }
-            catch(\Exception $e){
-               throw new EntityMapperException("Impossible to store the uploaded file : " . $e->getMessage());
-            }
-        }
         if($commit) $this->getManager()->flush();
         return $version;
     }

@@ -243,7 +243,7 @@ class CRUDController extends AbstractController
              * Hence the DBActionObserver register all requested action (but without executing them yet)
              */
             foreach($handledRequest["waos"] as $waoType => $waoData){
-                $entityClassName = $waoHelper->guessEntityClassName($request->query->get("type"));
+                $entityClassName = $waoHelper->guessEntityClassName($waoType);
                 $dtoClassName = $waoHelper->guessClassName($waoType);
                 $backData[$waoType] = [];
 

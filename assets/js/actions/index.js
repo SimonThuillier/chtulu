@@ -132,6 +132,8 @@ export const uploadResource = (file,name,contentType,resourceType,senderKey,reso
                         // not canonical but fast to to
                         // todo : improve later
                         const resourceId = Object.keys(json.data.resource)[0];
+                        console.log(json.data);
+                        console.log(`resourceId ${resourceId}`);
                         dispatch(notify(SUBMITTING_COMPLETED,senderKey || 'HBAPP',0,HB_SUCCESS,{resourceId:+resourceId}));
                         handlePostBackData(json.data,dispatch);
                         break;
@@ -338,8 +340,13 @@ export const submitLocally = (waoType,data,id,groups) => (dispatch,getState) => 
     else{
         if(!pendingCreations.has(`${waoType}-${id}`)){
             dispatch(getOneByIdIfNeeded(waoType,groups,id));
+            setTimeout(()=>{
+                pendingCreations.set(`${waoType}-${id}`,{data:data,groups:groups});
+            },20);
         }
-        pendingCreations.set(`${waoType}-${id}`,{data:data,groups:groups});
+        else{
+            pendingCreations.set(`${waoType}-${id}`,{data:data,groups:groups});
+        }
     }
 };
 
@@ -619,6 +626,7 @@ export const getOneByIdIfNeeded = (waoType,groups=true,id,senderKey=null) => (di
         if(shouldFetchNew(getState(),waoType)){
             //console.log(`should fetch new ${waoType}`);
             dispatch(fetchNew(waoType,id,senderKey));
+            pendingCreations.set(`${waoType}-${id}`,{data:{},groups:groups});
         }
         else {
             setTimeout(()=>{
@@ -660,13 +668,15 @@ export const fetchNew = (waoType,id,senderKey) => (dispatch) => {
                             dispatch(notify(LOADING_COMPLETED,waoType,null,HB_SUCCESS));
                             dispatch(createNew(waoType));
                         },10);
-                        if(pendingCreations.has(`${waoType}-${id}`)){
-                            const {data,groups} = pendingCreations.get(`${waoType}-${id}`);
-                            setTimeout(()=>{
-                                dispatch(submitLocally(waoType,data,id,groups));
-                            },30);
-                            pendingCreations.delete(`${waoType}-${id}`);
-                        }
+                        setTimeout(()=>{
+                            if(pendingCreations.has(`${waoType}-${id}`)){
+                                const {data,groups} = pendingCreations.get(`${waoType}-${id}`);
+                                setTimeout(()=>{
+                                    dispatch(submitLocally(waoType,data,id,groups));
+                                },20);
+                                pendingCreations.delete(`${waoType}-${id}`);
+                            }
+                        },30);
                         //console.info(json);
                         dispatch(receiveNew(waoType,json.data));
                         break;

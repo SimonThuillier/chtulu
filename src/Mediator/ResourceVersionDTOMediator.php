@@ -13,6 +13,7 @@ use App\Entity\ResourceFile;
 use App\Entity\ResourceVersion;
 use App\Factory\DTOFactory;
 use App\Factory\EntityFactory;
+use App\Manager\File\FileLocalUploader;
 use App\Manager\File\FileRouter;
 use App\Observer\DBActionObserver;
 use App\Util\Command\EntityMapperCommand;
@@ -25,14 +26,16 @@ class ResourceVersionDTOMediator extends DTOMediator
     const DTO_CLASS_NAME = ResourceVersionDTO::class;
     const ENTITY_CLASS_NAME = ResourceVersion::class;
 
-    /** @var FileRouter */
-    private $fileRouter;
     /**
      * ResourceVersionDTOMediator constructor.
      * @param ContainerInterface $locator
      * @param DBActionObserver $dbActionObserver
+     * @param FileLocalUploader $fileLocalUploader
      */
-    public function __construct(ContainerInterface $locator, DBActionObserver $dbActionObserver)
+    public function __construct(
+        ContainerInterface $locator,
+        DBActionObserver $dbActionObserver
+    )
     {
         parent::__construct($locator,$dbActionObserver);
         $this->dtoClassName = ResourceVersionDTO::class;
@@ -48,7 +51,8 @@ class ResourceVersionDTOMediator extends DTOMediator
         return [
             EntityFactory::class,
             DTOFactory::class,
-            FileRouter::class
+            FileRouter::class,
+            FileLocalUploader::class
         ];
     }
 
@@ -106,18 +110,12 @@ class ResourceVersionDTOMediator extends DTOMediator
 
         if($version->getFile() === null){
             $resourceFile = $this->locator->get(EntityFactory::class)->create(ResourceFile::class);
-            try{
-                $command = new EntityMapperCommand(
-                    EntityMapperCommand::ACTION_ADD,
-                    ResourceFile::class,
-                    $dto->getId(),
-                    $resourceFile
-                );
-            }
-            catch(\Exception $e){
-                $lol = $e->getMessage();
-                $what='';
-            }
+            $command = new EntityMapperCommand(
+                EntityMapperCommand::ACTION_ADD,
+                ResourceFile::class,
+                $dto->getId(),
+                $resourceFile
+            );
 
             $this->dbActionObserver->registerAction($command);
 
@@ -140,13 +138,18 @@ class ResourceVersionDTOMediator extends DTOMediator
         }
 
         try{
-            $resourceFile->setType($dto->getFile()->guessExtension())
+            $resourceFile
+                ->setType($dto->getFile()->guessExtension())
                 ->setMimeType($dto->getFile()->getMimeType())
                 ->setSize($dto->getFile()->getSize());
+
+            $fileUploader = $this->locator->get(FileLocalUploader::class);
+            $uri = $fileUploader->upload($dto->getFile());
+
+            $resourceFile->setUri($uri);
         }
         catch(\Exception $e){
-            // TODO handle this exception ?
-            $machin ='lol';
+            throw new \Exception("Impossible to store the uploaded file : " . $e->getMessage());
         }
 
         return true;

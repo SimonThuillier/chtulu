@@ -1,5 +1,9 @@
 import React from "react";
-import {getOneByIdSelector, getNotificationsSelector, getNextNewIdSelector} from "../selectors";
+import {
+    makeGetOneByIdSelector,
+    makeGetNotificationsSelector,
+    makeGetNextNewIdSelector
+} from "../selectors";
 import { connect} from 'react-redux';
 import {uploadResource,discard} from '../actions';
 import {
@@ -80,8 +84,8 @@ class FileUploadForm extends React.Component{
     }
 
     loadInitialValues(){
-        const {nextNewIdSelector} = this.props;
-        const id = nextNewIdSelector();
+        const {getNextNewId} = this.props;
+        const id = getNextNewId();
         this.setState({id:id});
     }
 
@@ -118,9 +122,9 @@ class FileUploadForm extends React.Component{
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.notificationsSelector !== this.props.notificationsSelector) {
-            console.clear();
-            const notifications = this.props.notificationsSelector(componentUid);
+        if (prevProps.getNotifications !== this.props.getNotifications) {
+            //console.clear();
+            const notifications = this.props.getNotifications(componentUid);
             let submittingCompleted = (notifications && notifications.
             getIn([(this.state.data && this.state.data.id) || 'DEFAULT',SUBMITTING_COMPLETED]))||null;
             submittingCompleted = (submittingCompleted && !submittingCompleted.get("discardedAt"))?submittingCompleted:null;
@@ -137,7 +141,7 @@ class FileUploadForm extends React.Component{
     }
 
     render(){
-        const {dispatch,notificationsSelector} = this.props;
+        const {dispatch,getNotifications} = this.props;
         const {id,file,finalName} = this.state;
         const hasFile = !!file;
         const errors = validate(file,finalName);
@@ -149,7 +153,7 @@ class FileUploadForm extends React.Component{
         console.log(valid);*/
 
 
-        const notifications = notificationsSelector(componentUid);
+        const notifications = getNotifications(componentUid);
 
         const submitting = (notifications && notifications.hasIn([(id) || 'DEFAULT',SUBMITTING]))||false;
 
@@ -227,7 +231,22 @@ class FileUploadForm extends React.Component{
     }
 }
 
-const mapStateToProps = (state) => {
+const makeMapStateToProps = () => {
+    const getOneByIdSelector = makeGetOneByIdSelector();
+    const getNextNewIdSelector = makeGetNextNewIdSelector();
+    const getNotificationsSelector = makeGetNotificationsSelector();
+
+    return state => {
+        const dataSubState = state.get("resourceVersion");
+        return {
+            getOneById: getOneByIdSelector(dataSubState),
+            getNextNewId: getNextNewIdSelector(dataSubState),
+            getNotifications: getNotificationsSelector(state.get("app"))
+        }
+    }
+};
+
+/*const mapStateToProps = (state) => {
     const selector = getOneByIdSelector(state.get("resourceVersion"));
     const notificationsSelector = getNotificationsSelector(state.get("app"));
     const nextNewIdSelector = getNextNewIdSelector(state.get("resourceVersion"));
@@ -236,6 +255,6 @@ const mapStateToProps = (state) => {
         notificationsSelector : notificationsSelector,
         nextNewIdSelector:nextNewIdSelector
     };
-};
+};*/
 
-export default connect(mapStateToProps)(FileUploadForm);
+export default connect(makeMapStateToProps)(FileUploadForm);

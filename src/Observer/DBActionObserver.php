@@ -9,10 +9,10 @@
 namespace App\Observer;
 
 
-use App\Mediator\DTOMediator;
 use App\Util\ClearableInterface;
 use App\Util\Command\EntityMapperCommand;
 use App\Util\Command\LinkCommand;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class DBActionObserver implements ClearableInterface
@@ -21,6 +21,8 @@ class DBActionObserver implements ClearableInterface
     const MAX_ITERATIONS = 20;
 
     private $user;
+    /** @var ManagerRegistry */
+    protected $doctrine;
 
     /** @var array observed ADD actions */
     private $addActions = [];
@@ -42,10 +44,15 @@ class DBActionObserver implements ClearableInterface
     /**
      * DBActionObserver constructor.
      * @param TokenStorageInterface $tokenStorage
+     * @param ManagerRegistry $doctrine
      */
-    public function __construct(TokenStorageInterface $tokenStorage)
+    public function __construct(
+        TokenStorageInterface $tokenStorage,
+        ManagerRegistry $doctrine
+    )
     {
         $this->user = $tokenStorage->getToken()->getUser();
+        $this->doctrine = $doctrine;
     }
 
     /**
@@ -238,6 +245,7 @@ class DBActionObserver implements ClearableInterface
     /**
      * compute the dependencies of each action registred by the observer,
      * e.g. the actions that must be performed before this action is
+     * for link action this method can, if entityToLink has not been previously set, set it
      */
     private function computeActionDependencies()
     {
@@ -272,8 +280,10 @@ class DBActionObserver implements ClearableInterface
         /** 2 : detect linkActions which have some add dependencies,
          *  e.g. link actions whose entityToLink is not already persisted to the DB
          *  for instance we can't associate a geometry to an article before this article is added
+         *  if entityToLink has not been previously set, set it
          **/
         foreach($this->linkActions as $linkAction){
+            /** @var LinkCommand $linkAction */
             $this->currentWorkAction = $linkAction;
             $dependencies = array_filter(
                 array_values($this->addActions),
@@ -289,7 +299,20 @@ class DBActionObserver implements ClearableInterface
             );
 
             foreach($dependencies as $dependency){
+                /** @var EntityMapperCommand $dependency */
                 $linkAction->addDependency($dependency);
+                // set entity in case of link to non existent (dependency add link)
+                if($linkAction->getEntityToLink() === null){
+                    $linkAction->setEntityToLink($dependency->getEntity());
+                }
+            }
+            // set entity in case of link to existent (find in the repository)
+            if($linkAction->getEntityToLink() === null && intval($linkAction->getIdToLink())>0){
+                $entityToLink = $this->doctrine->getRepository($linkAction->getEntityToLinkClassName())
+                    ->find(intval($linkAction->getIdToLink()));
+                if($entityToLink !== null){
+                    $linkAction->setEntityToLink($entityToLink);
+                }
             }
         }
 
