@@ -48,6 +48,9 @@ const validate = values => {
     if (values.hasEndDate && !values.endHDate) {
         errors.endHDate = 'Renseignez une date de fin ou décochez "A une fin ?"'
     }
+    if (values.abstract && values.abstract.length > 2000) {
+        errors.abstract = `${values.abstract.length} caractères sur ${2000} autorisés`
+    }
     return errors;
 };
 
@@ -55,6 +58,9 @@ const warn = values => {
     const warnings = {};
     if (values.title && values.title.length > 55) {
         warnings.title = `${values.title.length} caractères sur ${64} autorisés`
+    }
+    if (values.abstract && values.abstract.length > 1750) {
+        warnings.abstract = `${values.abstract.length} caractères sur ${2000} autorisés`
     }
     return warnings;
 };

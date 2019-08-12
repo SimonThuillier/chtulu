@@ -107,8 +107,10 @@ class DBActionObserver implements ClearableInterface
     {
         switch ($action->getAction()){
             case EntityMapperCommand::ACTION_ADD:
-                $this->invalidateSequenceOfActions();
-                $this->addActions[$action->getEntityClassName().':'.$action->getId()] = $action;
+                if(intval($action->getId())<1){
+                    $this->invalidateSequenceOfActions();
+                    $this->addActions[$action->getEntityClassName().':'.$action->getId()] = $action;
+                }
                 break;
             case EntityMapperCommand::ACTION_LINK:
                 $this->invalidateSequenceOfActions();
@@ -116,8 +118,10 @@ class DBActionObserver implements ClearableInterface
                 $this->linkActions[$action->getEntityClassName().':'.$action->getId() . ':' . $action->getLinkerMethodName()] = $action;
                 break;
             case EntityMapperCommand::ACTION_EDIT:
-                $this->invalidateSequenceOfActions();
-                $this->editActions[$action->getEntityClassName().':'.$action->getId()] = $action;
+                if(intval($action->getId())>0) {
+                    $this->invalidateSequenceOfActions();
+                    $this->editActions[$action->getEntityClassName() . ':' . $action->getId()] = $action;
+                }
                 break;
             case EntityMapperCommand::ACTION_DELETE:
                 $this->invalidateSequenceOfActions();
@@ -245,10 +249,35 @@ class DBActionObserver implements ClearableInterface
     /**
      * compute the dependencies of each action registred by the observer,
      * e.g. the actions that must be performed before this action is
-     * for link action this method can, if entityToLink has not been previously set, set it
+     * for actions this method can, if entity or entityToLink has not been previously set, set it
      */
     private function computeActionDependencies()
     {
+        /** 0 : since for flexibility reason entity is now optional for edit and delete actions
+         * we now try to load entities of this action, if required
+         */
+        foreach($this->editActions as $editAction){
+            /** @var EntityMapperCommand $editAction */
+            if($editAction->getEntity() === null && intval($editAction->getId())>0){
+                $entity = $this->doctrine->getRepository($editAction->getEntityClassName())
+                    ->find(intval($editAction->getId()));
+                if($entity !== null){
+                    $editAction->setEntity($entity);
+                }
+            }
+        }
+        foreach($this->deleteActions as $deleteAction){
+            /** @var EntityMapperCommand $deleteAction */
+            if($deleteAction->getEntity() === null && intval($deleteAction->getId())>0){
+                $entity = $this->doctrine->getRepository($deleteAction->getEntityClassName())
+                    ->find(intval($deleteAction->getId()));
+                if($entity !== null){
+                    $deleteAction->setEntity($entity);
+                }
+            }
+        }
+
+
         /** 1 : detect addActions which have some link dependencies,
          *  e.g. actions which corresponds to a subject of mandatory linkActions
          *  for instance an ArticleLink can't be added if its links have not been made
@@ -276,6 +305,7 @@ class DBActionObserver implements ClearableInterface
         }
         $dependencies = [];
         $this->currentWorkAction = null;
+
 
         /** 2 : detect linkActions which have some add dependencies,
          *  e.g. link actions whose entityToLink is not already persisted to the DB

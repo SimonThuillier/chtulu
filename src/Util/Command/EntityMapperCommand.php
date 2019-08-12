@@ -33,7 +33,7 @@ class EntityMapperCommand implements ClearableInterface
     private $entityClassName;
     /** @var int the original id of the subject entity (can be negative for non already-existing entity) */
     private $id;
-    /** @var DTOMutableEntity the entity subject of the action */
+    /** @var DTOMutableEntity|null the entity subject of the action */
     private $entity;
     /** @var int the priority of the action : among all actions of this type the highest is done first */
     private $priority=0;
@@ -48,13 +48,13 @@ class EntityMapperCommand implements ClearableInterface
      * @param int $action
      * @param string $entityClassName
      * @param int $id
-     * @param DTOMutableEntity $entity
+     * @param DTOMutableEntity|null $entity
      */
     public function __construct(
         int $action,
         string $entityClassName,
         int $id,
-        DTOMutableEntity $entity
+        ?DTOMutableEntity $entity
     )
     {
         $this->action = $action;
@@ -88,11 +88,23 @@ class EntityMapperCommand implements ClearableInterface
     }
 
     /**
-     * @return DTOMutableEntity
+     * @return DTOMutableEntity|null
      */
-    public function getEntity(): DTOMutableEntity
+    public function getEntity(): ?DTOMutableEntity
     {
         return $this->entity;
+    }
+
+    /**
+     * @param DTOMutableEntity $entity
+     * @return EntityMapperCommand
+     */
+    public function setEntity(DTOMutableEntity $entity): EntityMapperCommand
+    {
+        if($this->entity === null){
+            $this->entity = $entity;
+        }
+        return $this;
     }
 
     /**

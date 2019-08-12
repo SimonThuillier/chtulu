@@ -69,10 +69,12 @@ class ArticleDTOMediator extends DTOMediator
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
         $dto
-            ->setId($article->getId())
             ->setTitle($article->getTitle())
-            ->setType($article->getType());
-            //->addMappedGroup('minimal');
+            ->setType($article->getType())
+            ->setFirstRankLinksCount($article->getFirstRankLinksCount())
+            ->setSecondRankLinksCount($article->getSecondRankLinksCount())
+            ->setId($article->getId());
+
         // ensure mapped children are loaded
         $article->getType()->getLabel();
     }

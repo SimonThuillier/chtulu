@@ -29,9 +29,9 @@ class ArticleFactory extends AbstractEntityFactory
             ->setCreationDate(new \DateTime())
             ->setCreationUser($this->getUser())
             ->setType(
-            $this->doctrine->getRepository(ArticleType::class)->find(ArticleType::EVENT)
-        )
-        ->setActive(true)
-        ->setChildrenCount(0);
+            $this->doctrine->getRepository(ArticleType::class)->find(ArticleType::EVENT))
+            ->setFirstRankLinksCount(0)
+            ->setSecondRankLinksCount(0)
+            ->setActive(true);
     }
 }

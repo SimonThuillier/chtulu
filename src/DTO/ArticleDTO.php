@@ -24,6 +24,10 @@ class ArticleDTO extends EntityMutableDTO
     protected $title;
     /** @var ArticleType */
     protected $type;
+    /** @var integer */
+    protected $firstRankLinksCount;
+    /** @var integer */
+    protected $secondRankLinksCount;
     /** @var string */
     protected $abstract;
     /** @var HDate */
@@ -38,10 +42,6 @@ class ArticleDTO extends EntityMutableDTO
     protected $geometry;
     /** @var DTOMediator */
     protected $mediator;
-//    /** @var array */
-//    protected $subArticles;
-//    /** @var HDate */
-//    protected $hteRange;
 
     /**
      * ArticleDTO constructor.
@@ -64,7 +64,7 @@ class ArticleDTO extends EntityMutableDTO
      * @param string $title
      * @return self
      */
-    public function setTitle($title)
+    public function setTitle($title): ArticleDTO
     {
         $this->title = $title;
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('title');
@@ -84,10 +84,54 @@ class ArticleDTO extends EntityMutableDTO
      * @param ArticleType $type
      * @return self
      */
-    public function setType($type)
+    public function setType($type): ArticleDTO
     {
         $this->type = $type;
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('type');
+        return $this;
+    }
+
+    /**
+     * @return int
+     * @groups({"minimal"})
+     */
+    public function getFirstRankLinksCount(): int
+    {
+        return $this->firstRankLinksCount;
+    }
+
+    /**
+     * @param int $firstRankLinksCount
+     * @return ArticleDTO
+     */
+    public function setFirstRankLinksCount(int $firstRankLinksCount): ArticleDTO
+    {
+        if($firstRankLinksCount !== $this->firstRankLinksCount){
+            if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('firstRankLinksCount');
+            $this->firstRankLinksCount = $firstRankLinksCount;
+        }
+        return $this;
+    }
+
+    /**
+     * @return int
+     * @groups({"minimal"})
+     */
+    public function getSecondRankLinksCount(): int
+    {
+        return $this->secondRankLinksCount;
+    }
+
+    /**
+     * @param int $secondRankLinksCount
+     * @return ArticleDTO
+     */
+    public function setSecondRankLinksCount(int $secondRankLinksCount): ArticleDTO
+    {
+        if($secondRankLinksCount !== $this->secondRankLinksCount){
+            if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('secondRankLinksCount');
+            $this->secondRankLinksCount = $secondRankLinksCount;
+        }
         return $this;
     }
 
@@ -179,7 +223,6 @@ class ArticleDTO extends EntityMutableDTO
      */
     public function getDetailImageResource() : ?ResourceDTO
     {
-        //var_dump($this->detailImage);
         return $this->detailImageResource;
     }
 
@@ -213,45 +256,4 @@ class ArticleDTO extends EntityMutableDTO
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('geometry');
         return $this;
     }
-
-//    /**
-//     * @return array
-//     * @Groups({"subArticles"})
-//     */
-//    public function getSubArticles(): ?array
-//    {
-//        return $this->subArticles;
-//    }
-//
-//    /**
-//     * @param array $subArticles
-//     * @return ArticleDTO
-//     */
-//    public function setSubArticles($subArticles): ArticleDTO
-//    {
-//        $this->subArticles = $subArticles;
-//        return $this;
-//    }
-
-//    /**
-//     * @return HDate
-//     * @Groups({"hteRange"})
-//     */
-//    public function getHteRange(): ?HDate
-//    {
-//        return $this->hteRange;
-//    }
-//
-//    /**
-//     * @param HDate $hteRange
-//     * @return ArticleDTO
-//     */
-//    public function setHteRange(?HDate $hteRange): ArticleDTO
-//    {
-//        $this->hteRange = $hteRange;
-//        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('hteRange');
-//        return $this;
-//    }
-
-
 }

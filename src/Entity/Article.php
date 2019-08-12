@@ -136,9 +136,15 @@ class Article extends DTOMutableEntity
 
     /**
      * @var integer
-     * @ORM\Column(name="children_count", type="integer")
+     * @ORM\Column(name="first_rank_links_count", type="integer")
      */
-    protected $childrenCount;
+    protected $firstRankLinksCount;
+
+    /**
+     * @var integer
+     * @ORM\Column(name="second_rank_links_count", type="integer")
+     */
+    protected $secondRankLinksCount;
 
     /**
      * @var HResource
@@ -495,18 +501,36 @@ class Article extends DTOMutableEntity
     /**
      * @return int
      */
-    public function getChildrenCount(): int
+    public function getFirstRankLinksCount(): int
     {
-        return $this->childrenCount;
+        return $this->firstRankLinksCount;
     }
 
     /**
-     * @param int $childrenCount
+     * @param int $firstRankLinksCount
      * @return Article
      */
-    public function setChildrenCount(int $childrenCount): Article
+    public function setFirstRankLinksCount(int $firstRankLinksCount): Article
     {
-        $this->childrenCount = $childrenCount;
+        $this->firstRankLinksCount = $firstRankLinksCount;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSecondRankLinksCount(): int
+    {
+        return $this->secondRankLinksCount;
+    }
+
+    /**
+     * @param int $secondRankLinksCount
+     * @return Article
+     */
+    public function setSecondRankLinksCount(int $secondRankLinksCount): Article
+    {
+        $this->secondRankLinksCount = $secondRankLinksCount;
         return $this;
     }
 

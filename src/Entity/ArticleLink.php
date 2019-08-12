@@ -104,7 +104,13 @@ class ArticleLink extends DTOMutableEntity
      * @return ArticleLink
      */
     public function setParent($parent){
-        $this->parent = $parent;
+        // each time a new link is made for a parent, its count increases
+        if($parent !== $this->parent){
+            $this->parent = $parent;
+            if($parent !== null){
+                $parent->setFirstRankLinksCount($parent->getFirstRankLinksCount()+1);
+            }
+        }
         return $this;
     }
 

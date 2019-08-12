@@ -1,6 +1,7 @@
 import React from "react";
 
 import { Button, Glyphicon } from "react-bootstrap";
+import ArticleExpander from './ArticleExpander';
 import TimeBreadcrumb from './TimeBreadcrumb';
 import {getNeighbourArticleChronogically} from '../util/explorerUtil';
 
@@ -83,11 +84,7 @@ class HBExplorerContent extends React.Component {
                         <span>
                             <TimeBreadcrumb sense={-1} target={previousArticle} switcher={(id)=>{return selectArticle([id]);}}/>
                             <TimeBreadcrumb sense={1} target={nextArticle} switcher={(id)=>{return selectArticle([id]);}}/>
-                            <Button bsStyle="default"
-                                    disabled={false}
-                                    onClick={()=>{expandArticle(id)}}>
-                                <Glyphicon glyph={value.isExpanded?'folder-close':'folder-open'}/>
-                            </Button>
+                            <ArticleExpander id={id} expanded={value.isExpanded} onClick={()=>{expandArticle(id)}}/>
                             <Button bsStyle="primary"
                                     disabled={false}
                                     onClick={()=>{toggleActiveComponent([id])}}>

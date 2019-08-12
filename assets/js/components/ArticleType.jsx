@@ -27,13 +27,4 @@ const makeMapStateToProps = () => {
     }
 };
 
-/*const mapStateToProps = (state) => {
-    const articleSelector = getOneByIdSelector(state.get("article"));
-    const articleTypeSelector = getOneByIdSelector(state.get("articleType"));
-    return {
-        articleSelector:articleSelector,
-        articleTypeSelector: articleTypeSelector
-    }
-};*/
-
 export default connect(makeMapStateToProps)(ArticleType);

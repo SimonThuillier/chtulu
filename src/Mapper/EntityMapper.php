@@ -32,6 +32,10 @@ use Symfony\Component\DependencyInjection\ServiceSubscriberInterface;
 
 class EntityMapper implements ServiceSubscriberInterface
 {
+    public static function getEntityClassNameFromObject($object){
+        return (str_replace("Proxies\__CG__\App\Entity",'App\Entity',get_class($object)));
+    }
+
     /** @var ManagerRegistry */
     protected $doctrine;
     /** @var ContainerInterface */
@@ -160,7 +164,7 @@ class EntityMapper implements ServiceSubscriberInterface
      */
     public function add(DTOMutableEntity $entity, $commit = true)
     {
-        $mapper = $this->getMapperFromEntityClassName(get_class($entity));
+        $mapper = $this->getMapperFromEntityClassName(self::getEntityClassNameFromObject($entity));
         return $mapper->add($entity,$commit);
     }
 
@@ -174,7 +178,7 @@ class EntityMapper implements ServiceSubscriberInterface
      */
     public function edit(DTOMutableEntity $entity,$commit = true)
     {
-        $mapper = $this->getMapperFromEntityClassName(get_class($entity));
+        $mapper = $this->getMapperFromEntityClassName(self::getEntityClassNameFromObject($entity));
         return $mapper->edit($entity,$commit);
     }
 
@@ -275,7 +279,7 @@ class EntityMapper implements ServiceSubscriberInterface
      */
     public function delete(DTOMutableEntity $entity, $commit = true)
     {
-        $entityClassName=get_class($entity);
+        $entityClassName=self::getEntityClassNameFromObject($entity);
         $mapper = $this->getMapperFromEntityClassName($entityClassName);
         $mapper->delete($entity->getId(),$commit);
     }

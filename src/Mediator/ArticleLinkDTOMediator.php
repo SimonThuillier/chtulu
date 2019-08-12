@@ -118,6 +118,14 @@ class ArticleLinkDTOMediator extends DTOMediator
             'setParent',
             true);
         $this->dbActionObserver->registerAction($command);
+        // for update of parent article children count
+        $command = new EntityMapperCommand(
+            EntityMapperCommand::ACTION_EDIT,
+            Article::class,
+            $dto->getParentId(),
+            null
+        );
+        $this->dbActionObserver->registerAction($command);
 
         return true;
     }
