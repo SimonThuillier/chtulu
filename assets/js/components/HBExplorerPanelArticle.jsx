@@ -3,6 +3,8 @@ import ProgressionCircle from "./ProgressionCircle";
 import HDate from "../util/HDate";
 import RImageMini from './RImageMini';
 import {COLORS} from "../util/notifications";
+import {connect} from "react-redux";
+import {makeLocalGetByAttributeSelector} from "../selectors";
 
 const defaultTextStyle = {
     fontFamily: "'Source Sans Pro','Helvetica Neue',Helvetica",
@@ -12,11 +14,17 @@ const defaultTextStyle = {
     fontStyle: 'normal'
 };
 
-const textStyle = (article,selected,hovered) => {
+const {floor,sqrt,log10} = Math;
+
+const textStyle = (article,selected,hovered,linked,linksCount,minLinksCount,maxLinksCount) => {
     let overStyle = {};
 
     if(article && article.has("isNew") && article.get("isNew")(article)){
         overStyle.fontStyle = 'italic';
+    }
+
+    if(linked !==null && linked === false){
+        overStyle.fontStyle = 'oblique';
     }
 
     if(selected){
@@ -28,8 +36,21 @@ const textStyle = (article,selected,hovered) => {
         overStyle.fill=COLORS.TEXT_HOVERED;
     }
 
+
+
+    overStyle.fontSize=16 + floor(8*log10((1+linksCount - minLinksCount)));
+
     return Object.assign({},defaultTextStyle,overStyle);
 };
+
+const thickness = (linksCount,minLinksCount,maxLinksCount) =>{
+    return 5 + floor(6*log10((1+linksCount - minLinksCount)));
+};
+
+const viewPortHeight = (linksCount,minLinksCount,maxLinksCount) =>{
+    return 28 + floor(12*log10((1+linksCount - minLinksCount)));
+};
+
 
 const filterStyle = (article,selected,hovered) => {
     let overStyle = {floodOpacity:0};
@@ -82,7 +103,8 @@ class HBExplorerPanelArticle extends React.Component {
     }
 
     render() {
-        const {article,timeScale,originY,addBox,selected,hovered,setHoveredArticle,cursorDate} = this.props;
+        const {article,mainArticleId,minLinksCount,maxLinksCount,linksCount,linked,
+            timeScale,originY,addBox,selected,hovered,setHoveredArticle,cursorDate} = this.props;
 
         const articleHDate = new HDate("2",
             article.beginHDate.beginDate,
@@ -90,37 +112,22 @@ class HBExplorerPanelArticle extends React.Component {
 
         const currentProgression = articleHDate.getRateOfDate(cursorDate);
 
-
-        /*const imageUrl = RImageMini({id:article.detailImageResource,urlOnly:true})
-            || "http://localhost:8000/media/personnage.jpeg";
-        console.log(`${article.title} , detailImageResource : ${imageUrl}`);
-
-        console.log(imageUrl);*/
-
-        /*console.log(`${article.title} , prog : ${currentProgression}`);
-        console.log(cursorDate);
-        console.log(articleHDate);*/
-
         const x = timeScale(article.beginHDate.beginDate);
         const endX = timeScale(article.endHDate?article.endHDate.endDate:new Date());
 
-        /*console.log(article.beginHDate.beginDate);
-        console.log(timeScale(new Date()));
-        console.log(x);
-        console.log(endX);*/
 
         const {max,min} = Math;
-        let deltaX = min(max(-x,0),endX) + 15;
-        deltaX=0;
 
         const xMargin = 18;
-        const viewportHeight = 30;
+        const viewportHeight = viewPortHeight(linksCount,minLinksCount,maxLinksCount);
 
         let viewportWidth = Math.max(endX-x + 2*xMargin,(article.title.length)*15);
 
         const y = article.currentY - originY;
 
         const component= this;
+
+        let deltaX = x-xMargin < 0 ? min(-(x-xMargin),max(endX-x,1)):0;
 
         return (
             <svg
@@ -141,8 +148,8 @@ class HBExplorerPanelArticle extends React.Component {
                 }}
                 xmlns="http://www.w3.org/2000/svg">
                 <defs>
-                    <pattern id={`article-image-${article.id}`} x="0" y="0" patternUnits="userSpaceOnUse" height="30" width="30">
-                        <RImageMini deltaX={deltaX} id={article.detailImageResource} mode={'svg'}/>
+                    <pattern id={`article-image-${article.id}`} x={deltaX} y="0" patternUnits="userSpaceOnUse" height="30" width="30">
+                        <RImageMini deltaX={0} id={article.detailImageResource} mode={'svg'}/>
                     </pattern>
                     <filter x={0} y={0} width="100%" height="100%"
                             id={`article-text-filter-${article.id}`}>
@@ -154,9 +161,9 @@ class HBExplorerPanelArticle extends React.Component {
                     fill={selected?COLORS.TEXT_SELECTED:hovered?COLORS.TEXT_HOVERED:"black"}
                     stroke={'none'}
                     x={xMargin}
-                    y={viewportHeight/8}
-                    width={Math.max(endX-x,1)}
-                    height={viewportHeight/4}
+                    y={7}
+                    width={max(endX-x,1)}
+                    height={thickness(linksCount,minLinksCount,maxLinksCount)}
                     rx={2}
                     ry={2}
                     onClick={this.handleOnClick}
@@ -164,9 +171,9 @@ class HBExplorerPanelArticle extends React.Component {
                 <text
                     textAnchor="start"
                     filter={`url(#article-text-filter-${article.id})`}
-                    x={deltaX + xMargin+viewportHeight/2}
+                    x={deltaX + xMargin+15}
                     y={viewportHeight-2}
-                    style={textStyle(article.record,selected,hovered)}
+                    style={textStyle(article.record,selected,hovered,linked,linksCount,minLinksCount,maxLinksCount)}
                     onClick={this.handleOnClick}
                 >
                     {article.title}
@@ -174,7 +181,7 @@ class HBExplorerPanelArticle extends React.Component {
 
                 <circle
                     cx={deltaX + xMargin}
-                    cy={viewportHeight/2}
+                    cy={15}
                     r="13"
                     fill={`url(#article-image-${article.id})`}
                     onClick={this.handleOnClick}
@@ -184,7 +191,7 @@ class HBExplorerPanelArticle extends React.Component {
                     staticRate={0}
                     rate={currentProgression}
                     cx={deltaX + xMargin}
-                    cy={viewportHeight/2}
+                    cy={15}
                     r={13}/>
             </svg>
         );
@@ -192,4 +199,3 @@ class HBExplorerPanelArticle extends React.Component {
 }
 
 export default HBExplorerPanelArticle;
-//export default React.forwardRef((props, ref) => (<HBExplorerPanelArticle ref={ref} {...props} />));

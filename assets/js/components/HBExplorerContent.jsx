@@ -1,17 +1,7 @@
 import React from "react";
 
-import { Button, Glyphicon } from "react-bootstrap";
-import ArticleExpander from './ArticleExpander';
-import TimeBreadcrumb from './TimeBreadcrumb';
-import {getNeighbourArticleChronogically} from '../util/explorerUtil';
-
 import HBExplorerContentHistory from "./HBExplorerContentHistory.jsx";
-
-import ArticleTitle from "./ArticleTitle";
-import ArticleType from "./ArticleType";
-import Article from "./Article.jsx";
-import { Link } from "react-router-dom";
-
+import HBExplorerArticleCard from "./HBExplorerArticleCard";
 
 
 import {AVAILABLE_THEMES} from "../util/explorerUtil";
@@ -37,7 +27,7 @@ class HBExplorerContent extends React.Component {
     }
 
     render() {
-        const {dispatch,mainArticleId,articles,displayedArticles,
+        const {dispatch,mainArticleId,articles,displayedArticles,setHoveredArticle,
             toggleActiveComponent,closeArticle,selectArticle,expandArticle,
             theme} = this.props;
 
@@ -52,74 +42,24 @@ class HBExplorerContent extends React.Component {
             return (aSelectionDate.getTime() - bSelectionDate.getTime());
         });
 
-        // console.log(articlesToDisplay);
+        console.log("render content");
 
-        const articlePanels = articlesToDisplay.map(([id,value])=>{
-            //console.log(value.activeComponent);
-            const alreadyCreatedArticle = +id > 0;
-            const nextArticle = getNeighbourArticleChronogically(articles,id,1);
-            const previousArticle = getNeighbourArticleChronogically(articles,id,-1);
-            const isArticleMain = (+id === mainArticleId);
-            const headerStyle = isArticleMain?{backgroundColor:"#F3E3F6"}:{};
-
+        const articleCards = articlesToDisplay.map(([id,value])=>{
             return (
-                <div className="panel panel-default hg-content-panel"
-                     key={`hg-container-article-panel-${id}`}
-                     id={`hg-container-article-panel-${id}`}
-                >
-
-                    <div className="hg-content-panel-heading" style={headerStyle}>
-                        <span><h4><ArticleType articleId={id}/></h4></span>
-                        {alreadyCreatedArticle?
-                            <Link
-                                to={`/article/${id}/${value.activeComponent==='form'?'edit':''}`}
-                                className={'btn btn-link'}
-                                title={"Page principale de l'article"}
-                                style={{paddingBottom:0}}
-                            >
-                                <h4><ArticleTitle id={id}/></h4>
-                            </Link>
-                            :
-                            <span><h4><ArticleTitle id={id}/></h4></span>}
-                        <span>
-                            <TimeBreadcrumb sense={-1} target={previousArticle} switcher={(id)=>{return selectArticle([id]);}}/>
-                            <TimeBreadcrumb sense={1} target={nextArticle} switcher={(id)=>{return selectArticle([id]);}}/>
-                            <ArticleExpander id={id} expanded={value.isExpanded} onClick={()=>{expandArticle(id)}}/>
-                            <Button bsStyle="primary"
-                                    disabled={false}
-                                    onClick={()=>{toggleActiveComponent([id])}}>
-                               <Glyphicon glyph={value.activeComponent==='detail'?'edit':'eye-open'}/>
-                            </Button>
-                            <Button bsStyle="default"
-                                    disabled={false}
-                                    onClick={()=>{closeArticle([id])}}>
-                               <Glyphicon glyph={'remove'}/>
-                            </Button>
-                        </span>
-                    </div>
-
-                    <div className="panel-body" style={{overflow:'auto'}}>
-                        <Article
-                            dispatch={dispatch}
-                            id={id}
-                            handleSwitch={()=>{toggleActiveComponent([id]);}}
-                            onNothing={null}
-                            groups={{"minimal":true,"date":true,"detailImage":true,"abstract":true}}
-                        >
-                            <div hidden={value.activeComponent!=='detail'}>
-                                <Article.Detail/>
-                            </div>
-                            <div hidden={value.activeComponent!=='form'}>
-                                <Article.Form/>
-                            </div>
-                        </Article>
-                        <div style={{minHeight:'30px'}}/>
-                    </div>
-                    <div className="panel-footer hg-content-panel-footer">
-
-                    </div>
-                </div>
-
+               <HBExplorerArticleCard
+                   key={`hg-container-article-card-${id}`}
+                   dispatch={dispatch}
+                   id={+id}
+                   mainArticleId={mainArticleId}
+                   articles={articles}
+                   displayParameters={value}
+                   activeComponent = {value.activeComponent}
+                   setHoveredArticle={setHoveredArticle}
+                   toggleActiveComponent={toggleActiveComponent}
+                   closeArticle={closeArticle}
+                   selectArticle={selectArticle}
+                   expandArticle={expandArticle}
+               />
             );
         });
 
@@ -139,7 +79,7 @@ class HBExplorerContent extends React.Component {
                     />
                 </div>
 
-                {articlePanels}
+                {articleCards}
 
             </Container>
         );

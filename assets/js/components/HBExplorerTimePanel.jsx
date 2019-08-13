@@ -22,6 +22,8 @@ import {
 } from "../util/geometry";
 import cmn from "../util/common";
 import TimeArrow from "./TimeArrow";
+import {connect} from "react-redux";
+import {makeLocalGetByAttributeSelector} from "../selectors";
 
 const styles = {
     width: "100%",
@@ -93,7 +95,7 @@ const ArticleRef = (function() {
     return ArticleRef;
 })();
 
-export default class HBExplorerTimePanel extends React.Component {
+class HBExplorerTimePanel extends React.Component {
     constructor(props) {
         super(props);
 
@@ -508,8 +510,8 @@ export default class HBExplorerTimePanel extends React.Component {
     }
 
     render() {
-        const {bounds,displayedArticles,hoveredArticleId, setHoveredArticle,selectArticle,hInterval,setHInterval,
-            cursorDate,cursorRate,isCursorActive,setCursorRate,toggleCursor} = this.props;
+        const {bounds,displayedArticles,mainArticleId,hoveredArticleId, setHoveredArticle,selectArticle,hInterval,setHInterval,
+            cursorDate,cursorRate,isCursorActive,setCursorRate,toggleCursor,getLinks} = this.props;
         const realArticles = this.props.articles;
         const marginWidth = this.props.marginWidth || 0;
         const strokeSize = 1;
@@ -532,6 +534,18 @@ export default class HBExplorerTimePanel extends React.Component {
         console.log(this.boxRefs);*/
 
         const articleCircles = arrayOfArticlesToDisplay.map(([id, a]) => {
+
+            let isLinked = null;
+            const isArticleMain = (+a.id === mainArticleId);
+            if(mainArticleId !== null && !isArticleMain){
+                const links = getLinks('childId',+a.id);
+                const currentLink = links.find((link)=>{return +link.get('parentId') === +mainArticleId});
+                if(typeof currentLink !== 'undefined') isLinked=true;
+                else isLinked=false;
+            }
+
+            const realArticle = realArticles.find((realArticle)=>{return +realArticle.id === +a.id});
+
             return (
                 <HBExplorerPanelArticle
                     key={`histo-article-${a.id}`}
@@ -542,6 +556,11 @@ export default class HBExplorerTimePanel extends React.Component {
                     selectArticle={selectArticle}
                     cursorDate = {cursorDate}
                     article={a}
+                    mainArticleId={mainArticleId}
+                    minLinksCount={this.props.minLinksCount}
+                    maxLinksCount={this.props.maxLinksCount}
+                    linksCount={typeof realArticle !=='undefined'?realArticle.firstRankLinksCount:0}
+                    linked={isLinked}
                     timeScale={timeScale}
                     originY={originY}
                     addBox={this.addBox}
@@ -592,3 +611,15 @@ export default class HBExplorerTimePanel extends React.Component {
         );
     }
 }
+
+const makeMapStateToProps = () => {
+    const getLinksSelector = makeLocalGetByAttributeSelector();
+
+    return state => {
+        return {
+            getLinks : getLinksSelector(state.get("articleLink"))
+        }
+    }
+};
+export default connect(makeMapStateToProps)(HBExplorerTimePanel);
+

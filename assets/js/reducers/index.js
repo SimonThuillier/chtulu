@@ -364,7 +364,10 @@ const concreteWaoType = (waoType) => {
                     /*console.log("receive get");
                     console.log(action);*/
                     for(let i=0;i<action.result.length;i++){
+                        //console.log('indexMap key');
+                        //console.log(`order ${order} , offset ${offset} , total ${action.total}`);
                         let newStackIndex = (order===SearchBagUtil.ASC)?offset+i:action.total-(offset+i)-1;
+                        //console.log(`newStackIndex ${newStackIndex}`);
                         indexMap = indexMap.set(+newStackIndex,+action.result[i]);
                     }
                     // indexMap = indexMap.sortBy((v,k)=>+k,(a,b)=>a>b?1:a<b?-1:0); TODO : check if it can work

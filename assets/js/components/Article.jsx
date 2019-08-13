@@ -133,8 +133,8 @@ class Article extends React.Component{
         console.log(notifications);*/
 
         const links = getLinks('childId',id);
-        console.log('links');
-        console.log(links);
+        /*console.log('links');
+        console.log(links);*/
 
         const linksData = links.map(rec => {
             const parent = getOneById(+rec.get('parentId'));

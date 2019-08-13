@@ -90,7 +90,7 @@ class HBExplorerProxy extends React.Component {
         this.getArticles=this.getArticles.bind(this);
 
         this.state = {
-            searchBag:props.searchBag || defaultSearchBag,
+            searchBag:null,
             hInterval: props.hInterval || defaultHInterval,
             hasSelfUpdatedHInterval:false,
             cursorRate:0.35,
@@ -107,7 +107,6 @@ class HBExplorerProxy extends React.Component {
     }
 
     componentDidMount(){
-        const {searchBag} = this.state;
         const {mainArticleId=null,dispatch} = this.props;
         if(mainArticleId !== null){
             loadMainArticle(mainArticleId,dispatch);
@@ -121,7 +120,9 @@ class HBExplorerProxy extends React.Component {
             },100);
         }
         else{
+            const searchBag = this.props.searchBag || defaultSearchBag;
             loadSearchBag(searchBag,dispatch);
+            this.setState({searchBag:searchBag});
             this.setHInterval(getHIntervalFromArticles(this.getArticles()));
         }
     }
@@ -154,12 +155,19 @@ class HBExplorerProxy extends React.Component {
             console.log('links have changed');
         }
 
-
+        let searchBag = this.state.searchBag;
 
         if(mainArticleId !== prevProps.mainArticleId){
             this.setState({hasSelfUpdatedHInterval:false});
             const component = this;
             setTimeout(()=>{component.setHInterval(getHIntervalFromArticles(component.getArticles()));},20);
+            if(mainArticleId === null){
+                searchBag = this.props.searchBag || defaultSearchBag;
+            }
+            else{
+                searchBag =null;
+            }
+            this.setState({hasSelfUpdatedHInterval:false,searchBag:searchBag});
         }
 
         // mainArticle mode
@@ -174,28 +182,16 @@ class HBExplorerProxy extends React.Component {
         }
         // default mode
         else{
-            let searchBag = this.state.searchBag;
-            if(this.props.searchBag !== prevProps.searchBag){
-                searchBag = this.props.searchBag || defaultSearchBag;
+            if(prevProps.searchBag !== searchBag){
                 loadSearchBag(searchBag,dispatch);
-                this.setState({searchBag:searchBag});
+                this.setHInterval(getHIntervalFromArticles(this.getArticles()));
             }
-            /*else if(prevProps.getPlusBabies !== getPlusBabies && getPlusBabies(searchBag).length<1){
-                loadSearchBag(searchBag,dispatch);
-            }*/
             else if(!this.state.hasSelfUpdatedHInterval &&
                 prevProps.getPlusBabies !== getPlusBabies &&
                 getPlusBabies(searchBag,createdArticlesId).length>1){
                 this.setHInterval(getHIntervalFromArticles(this.getArticles()));
             }
         }
-
-        // new article initialization
-        /*if(this.newArticleInitialValues!==null && !!getOneById(this.newArticleInitialValues.get("newArticleId"))){
-            dispatch(submitLocally("article",this.newArticleInitialValues,
-                this.newArticleInitialValues.get("newArticleId"),{date:true}));
-            this.newArticleInitialValues=null;
-        }*/
 
         this.ensureDisplayedArticlesCoherence();
     }
@@ -204,7 +200,7 @@ class HBExplorerProxy extends React.Component {
         //console.log("reassemble articles");
 
         const {searchBag,createdArticlesId,displayedArticles} = this.state;
-        const {mainArticleId=null,getPlusBabies,getOneByIdPlusBabies} = this.props;
+        const {mainArticleId=null,getPlusBabies,getOneByIdPlusBabies,get} = this.props;
 
         let subArticles= {};
         displayedArticles.forEach((article,id)=>{
@@ -221,12 +217,22 @@ class HBExplorerProxy extends React.Component {
 
         // mainArticle mode
         if(mainArticleId !== null) {
-            articles = getOneByIdPlusBabies(+mainArticleId,createdArticlesId,subArticles);
+            const otherArticles = searchBag!==null?get(searchBag):[];
+            const otherArticlesId = otherArticles.map((a)=>{
+                return +a.get('id');
+            });
+            console.log('otherArticles');
+            console.log(searchBag);
+            console.log(otherArticles);
+            const extraArticlesId = createdArticlesId.concat(otherArticlesId);
+            articles = getOneByIdPlusBabies(+mainArticleId,extraArticlesId,subArticles);
             //console.log(articles);
         }
         // default mode
         else{
-            articles = getPlusBabies(searchBag,createdArticlesId,subArticles);
+            if(searchBag !== null){
+                articles = getPlusBabies(searchBag,createdArticlesId,subArticles);
+            }
             //console.log(articles);
         }
 
@@ -417,7 +423,7 @@ class HBExplorerProxy extends React.Component {
     }
 
     setLimit(limit){
-        const searchBag = Object.assign({}, this.state.searchBag,{limit:+limit});
+        const searchBag = Object.assign({},defaultSearchBag, this.state.searchBag,{limit:+limit});
         this.setState({ searchBag: searchBag });
     }
 
@@ -425,7 +431,7 @@ class HBExplorerProxy extends React.Component {
         console.log("filter submitted");
         console.log(values);
 
-        const searchBag = Object.assign({}, this.state.searchBag,{search:values});
+        const searchBag = Object.assign({},defaultSearchBag, this.state.searchBag,{search:values});
         console.log(searchBag);
 
         const {mainArticleId=null,dispatch} = this.props;
@@ -434,9 +440,11 @@ class HBExplorerProxy extends React.Component {
             //loadMainArticle(mainArticleId,dispatch);
         }
         else{
-            loadSearchBag(searchBag,dispatch);
+            //loadSearchBag(searchBag,dispatch);
         }
-
+        console.log(`loading et setting searchBag : `);
+        console.log(searchBag);
+        loadSearchBag(searchBag,dispatch);
         this.setState({searchBag:searchBag,hasSelfUpdatedHInterval:false});
     }
 
@@ -450,16 +458,29 @@ class HBExplorerProxy extends React.Component {
         const notifications = getNotifications(componentUid);
 
         let articles = this.getArticles();
-        let loading = false;
 
+        // get min and max children count
+        const minLinksCount = articles.reduce(
+            (count, article) => Math.min(count,article.get('firstRankLinksCount')),0);
+        const maxLinksCount = articles.reduce(
+            (count, article) => Math.max(count,article.get('firstRankLinksCount')),0);
+
+
+        // check if is loading data
+        let loading = false;
         // mainArticle mode
         if(mainArticleId !== null) {
             loading = (notifications && notifications.hasIn([mainArticleId || 'DEFAULT',LOADING]))||false;
         }
         // default mode
         else{
-            const coreBagKey = JSON.stringify(SearchBagUtil.getCoreBag(searchBag));
-            loading = (notifications && notifications.hasIn([coreBagKey || 'DEFAULT',LOADING]))||false;
+            if(searchBag !== null){
+                const coreBagKey = JSON.stringify(SearchBagUtil.getCoreBag(searchBag));
+                loading = (notifications && notifications.hasIn([coreBagKey || 'DEFAULT',LOADING]))||false;
+            }
+            else{
+                loading = true;
+            }
         }
 
         const invisibles = getInvisibles(articles,hInterval);
@@ -477,7 +498,7 @@ class HBExplorerProxy extends React.Component {
                 <HBExplorer
                     dispatch={dispatch}
                     mainArticleId={mainArticleId}
-                    searchBag={searchBag}
+                    searchBag={searchBag || defaultSearchBag}
                     setLimit={this.setLimit}
                     hInterval={hInterval}
                     setHInterval={this.setHInterval}
@@ -486,6 +507,8 @@ class HBExplorerProxy extends React.Component {
                     setCursorRate = {this.setCursorRate}
                     toggleCursor = {this.toggleCursor}
                     articles={articles}
+                    minLinksCount={minLinksCount}
+                    maxLinksCount={maxLinksCount}
                     displayedArticles={displayedArticles}
                     invisibles={invisibles}
                     hoveredArticleId = {hoveredArticleId}

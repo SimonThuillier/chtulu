@@ -8,11 +8,7 @@ import L from "leaflet";
 import debounce from "debounce";
 import {articleIsOpen} from "../util/explorerUtil";
 import {
-    getBabiesSelector, getNewlyCreatedIdSelector, getNextNewIdSelector, getNotificationsSelector, getOneByIdSelector,
-    getSelector, makeGetNewlyCreatedIdSelector, makeGetNextNewIdSelector, makeGetNotificationsSelector,
-    makeGetOneByIdPlusBabiesSelector, makeGetOneByIdSelector,
-    makeGetPlusBabiesSelector, makeGetSelector, makeLocalGetByAttributeSelector,
-    totalSelector2
+     makeGetNewlyCreatedIdSelector, makeGetNextNewIdSelector, makeGetOneByIdSelector,
 } from "../selectors";
 import {connect} from "react-redux";
 import {getOneByIdIfNeeded,submitLocally,deleteLocally,fetchNew} from "../actions";
@@ -115,14 +111,9 @@ class HBMap extends React.Component {
     }
 
     componentDidMount() {
-        // to create new geometries in future
-        const {dispatch} = this.props;
-        //dispatch(fetchNew('resourceGeometry',-1,null));
-
-
         this.map = L.map('mymap', {
-            center: [49.8419, 24.0315],
-            zoom: 16,
+            center: [0, 0],
+            zoom: 0,
             layers: [
                 L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
                     attribution: null
@@ -130,7 +121,6 @@ class HBMap extends React.Component {
             ]
         });
         this.map.on('dblclick',this.onMapDblClick);
-        //L.marker([49.8419, 24.0315], {icon: this.templateIcon}).addTo(this.map);
     }
 
     componentDidUpdate(prevProps){
@@ -251,9 +241,6 @@ class HBMap extends React.Component {
     render() {
         const width = this.props.width;
         const height = this.props.height;
-
-        const position = [51, 0];
-        const zoom = 6;
 
         let currentStyle = { ...style };
         currentStyle.width = `${width}px`;

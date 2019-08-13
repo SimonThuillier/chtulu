@@ -200,21 +200,32 @@ export const getSelector = createSelector(
 export const makeGetSelector = () =>{
     return createSelector(
         [(state) => state.get("items"),(state) => state.get("searchCache")],
-        (items,searchCache) => (searchBag) => {
-            const controlMap = new Map();
-            const searchCacheEntry = searchCache.get(JSON.stringify(SearchBagUtil.getCoreBag(searchBag)));
-            const {offset,limit} = searchBag;
-            if(! searchCacheEntry) return [];
-            let indexMap = searchCacheEntry.get("indexMap");
-            indexMap = (searchBag.order===SearchBagUtil.ASC)?indexMap:
-                SearchBagUtil.invertIndexMap(indexMap,searchCacheEntry.get("total"));
-            const selectedEntries = [];
+        (items,searchCache) => {
+            return createSelector([
+                    (searchBag) => JSON.stringify(SearchBagUtil.getCoreBag(searchBag)),
+                    (searchBag) => (searchBag.offset),
+                    (searchBag) => (searchBag.limit),
+                    (searchBag) => (searchBag.order),
+                ],
+                (coreBagKey, offset, limit, order)=>{
+                    const controlMap = new Map();
+                    const searchCacheEntry = searchCache.get(coreBagKey);
+                    console.log('searchCacheEntry');
+                    console.log(coreBagKey);
+                    console.log(searchCacheEntry);
+                    if(! searchCacheEntry) return [];
+                    let indexMap = searchCacheEntry.get("indexMap");
+                    indexMap = (order===SearchBagUtil.ASC)?indexMap:
+                        SearchBagUtil.invertIndexMap(indexMap,searchCacheEntry.get("total"));
+                    const selectedEntries = [];
 
-            indexMap.forEach((v,k)=>{
-                // console.log(`k : ${k}, v : ${v}`);
-                if(k>=offset && k<(offset+limit)) pushIfNotAlreadyInMap(+v,+k,selectedEntries,controlMap);
-            });
-            return selectedEntries.map((id)=> items.get(+id)).filter((v,k)=>v || false);
+                    indexMap.forEach((v,k)=>{
+                        console.log(`k : ${k}, v : ${v}`);
+                        if(k>=offset && k<(offset+limit)) pushIfNotAlreadyInMap(+v,+v,selectedEntries,controlMap);
+                    });
+                    return selectedEntries.map((id)=> items.get(+id)).filter((v,k)=>v || false);
+                }
+                );
         }
     );
 };

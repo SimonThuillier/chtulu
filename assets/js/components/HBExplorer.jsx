@@ -379,6 +379,9 @@ render() {
                                     hInterval={hInterval}
                                     setHInterval={setHInterval}
                                     articles={articles}
+                                    minLinksCount={this.props.minLinksCount}
+                                    maxLinksCount={this.props.maxLinksCount}
+                                    mainArticleId={mainArticleId}
                                     displayedArticles={displayedArticles}
                                     hoveredArticleId={hoveredArticleId}
                                     setHoveredArticle={setHoveredArticle}
@@ -419,6 +422,7 @@ render() {
                     mainArticleId={mainArticleId}
                     articles={articles}
                     displayedArticles={displayedArticles}
+                    setHoveredArticle={setHoveredArticle}
                     selectArticle={selectArticle}
                     toggleActiveComponent={toggleActiveComponent}
                     closeArticle={closeArticle}
