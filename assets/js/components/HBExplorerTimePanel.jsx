@@ -539,7 +539,7 @@ class HBExplorerTimePanel extends React.Component {
             const isArticleMain = (+a.id === mainArticleId);
             if(mainArticleId !== null && !isArticleMain){
                 const links = getLinks('childId',+a.id);
-                const currentLink = links.find((link)=>{return +link.get('parentId') === +mainArticleId});
+                const currentLink = links.find((link)=>{return +link.get('parentId') === +mainArticleId && link.get('toDelete')===false});
                 if(typeof currentLink !== 'undefined') isLinked=true;
                 else isLinked=false;
             }

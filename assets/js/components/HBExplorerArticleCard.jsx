@@ -18,13 +18,19 @@ import {connect} from "react-redux";
 class HBExplorerArticleCard extends React.Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+            askedNewLink:false
+        };
     }
 
     render() {
         const {dispatch,id,mainArticleId,articles,displayParameters,
             setHoveredArticle,toggleActiveComponent,closeArticle,
-            selectArticle,expandArticle,
+            selectArticle,expandArticle,linkArticle,
             getLinks} = this.props;
+
+        const {askedNewLink} = this.state;
 
         const alreadyCreatedArticle = +id > 0;
         const nextArticle = getNeighbourArticleChronogically(articles,id,1);
@@ -35,9 +41,14 @@ class HBExplorerArticleCard extends React.Component {
         let isLinked = null;
         if(mainArticleId !== null && !isArticleMain){
             const links = getLinks('childId',id);
-            const currentLink = links.find((link)=>{return +link.get('parentId') === +mainArticleId});
-            if(typeof currentLink !== 'undefined') isLinked=true;
-            else isLinked=false;
+            const currentLink = links.find((link)=>{return +link.get('parentId') === +mainArticleId  && link.get('toDelete')===false});
+            if(typeof currentLink !== 'undefined'){
+                isLinked=true;
+                if(askedNewLink){this.setState({askedNewLink:false});}
+            }
+            else{
+                isLinked=false;
+            }
         }
 
         console.log('render card');
@@ -80,8 +91,11 @@ class HBExplorerArticleCard extends React.Component {
                                 <Button
                                     id={`unlink-${id}-to-${mainArticleId}`}
                                     bsStyle={isLinked?'warning':'info'}
-                                    disabled={false}
-                                    onClick={()=>{closeArticle([id])}}
+                                    disabled={askedNewLink}
+                                    onClick={()=>{
+                                        linkArticle(+id,!isLinked);
+                                        if(!isLinked) this.setState({askedNewLink:true});
+                                    }}
                                 >
                                 <Glyphicon glyph={isLinked?'resize-full':'resize-small'}/>
                             </Button>

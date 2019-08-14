@@ -367,7 +367,10 @@ class DBActionObserver implements ClearableInterface
         foreach($actions as $action){
             /** @var EntityMapperCommand $action */
             if($action->isDone()){
-                $entities[$action->getEntityClassName() . ':' . $action->getEntity()->getId()]
+                $id = $action->getEntity()->getId();
+                if($id ===null) $id=$action->getId(); // to handle delete case
+
+                $entities[$action->getEntityClassName() . ':' . $id]
                     = $action->getEntity();
             }
         }

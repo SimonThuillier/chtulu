@@ -328,7 +328,7 @@ render() {
     const { currentTheme, frameSizes, guiInitialized,isResizing } = this.state;
     const { searchBag,setLimit,hInterval,setHInterval,cursorRate,cursorDate,isCursorActive,setCursorRate,toggleCursor,
         articles,mainArticleId,displayedArticles,invisibles,
-        hoveredArticleId, setHoveredArticle,selectArticle,closeArticle,expandArticle,toggleActiveComponent,addArticle,
+        hoveredArticleId, setHoveredArticle,selectArticle,closeArticle,expandArticle,linkArticle,toggleActiveComponent,addArticle,
         dispatch,onFilter} = this.props;
     const theme = THEMES[currentTheme];
     //console.log(currentTheme);
@@ -427,6 +427,7 @@ render() {
                     toggleActiveComponent={toggleActiveComponent}
                     closeArticle={closeArticle}
                     expandArticle={expandArticle}
+                    linkArticle={linkArticle}
                     theme={theme}
                 />
             </ContentArea>);

@@ -12,7 +12,7 @@ import {
     makeGetNextNewIdSelector, makeGetNotificationsSelector,makeLocalGetByAttributeSelector,
     makeGetOneByIdPlusBabiesSelector,makeGetOneByIdSelector, makeGetSelector,makeGetPlusBabiesSelector
 } from "../selectors";
-import {getIfNeeded, getOneByIdIfNeeded, submitLocally} from "../actions";
+import {deleteLocally, getIfNeeded, getOneByIdIfNeeded, submitLocally} from "../actions";
 import {COLORS, LOADING} from "../util/notifications";
 import SearchBagUtil from "../util/SearchBagUtil";
 import {getInvisibles,getHIntervalFromArticles,defaultHInterval}
@@ -83,6 +83,7 @@ class HBExplorerProxy extends React.Component {
         this.toggleActiveComponent = this.toggleActiveComponent.bind(this);
         this.addArticle = this.addArticle.bind(this);
         this.expandArticle = this.expandArticle.bind(this);
+        this.linkArticle = this.linkArticle.bind(this);
 
         this.setLimit = this.setLimit.bind(this);
         this.onFilter=this.onFilter.bind(this);
@@ -422,6 +423,34 @@ class HBExplorerProxy extends React.Component {
         this.setState({displayedArticles:newDisplayedArticles});
     }
 
+    /**
+     * @param childId
+     * @param link : if link is true link else unlink
+     */
+    linkArticle(childId,link){
+        const {mainArticleId=null,getNextNewLinkId,getLinks,dispatch} = this.props;
+
+        if(mainArticleId === null) return;
+
+        if(link===true){
+            const newLinkId = getNextNewLinkId();
+            dispatch(getOneByIdIfNeeded("articleLink",{minimal:true}, newLinkId,componentUid));
+            setTimeout(()=>{
+                const linkValues = Imm.Map()
+                    .set('parentId',+mainArticleId)
+                    .set('childId',+childId);
+                dispatch(submitLocally("articleLink",linkValues,newLinkId,{minimal:true}));
+            },15);
+        }
+        else if(link===false){
+            const links = getLinks('childId',+childId);
+            const currentLink = links.find((link)=>{return +link.get('parentId') === +mainArticleId});
+            if(typeof currentLink !== 'undefined'){
+                dispatch(deleteLocally("articleLink",[+currentLink.id]));
+            }
+        }
+    }
+
     setLimit(limit){
         const searchBag = Object.assign({},defaultSearchBag, this.state.searchBag,{limit:+limit});
         this.setState({ searchBag: searchBag });
@@ -431,20 +460,25 @@ class HBExplorerProxy extends React.Component {
         console.log("filter submitted");
         console.log(values);
 
-        const searchBag = Object.assign({},defaultSearchBag, this.state.searchBag,{search:values});
+        let searchBag = Object.assign({},defaultSearchBag, this.state.searchBag,{search:values});
         console.log(searchBag);
 
         const {mainArticleId=null,dispatch} = this.props;
 
         if(mainArticleId !== null){
-            //loadMainArticle(mainArticleId,dispatch);
+            if(typeof values.keyword === 'undefined' || values.keyword === null || values.keyword === ''){
+                searchBag = null;
+            }
         }
         else{
             //loadSearchBag(searchBag,dispatch);
         }
-        console.log(`loading et setting searchBag : `);
-        console.log(searchBag);
-        loadSearchBag(searchBag,dispatch);
+
+        if(searchBag !== null){
+            console.log(`loading et setting searchBag : `);
+            console.log(searchBag);
+            loadSearchBag(searchBag,dispatch);
+        }
         this.setState({searchBag:searchBag,hasSelfUpdatedHInterval:false});
     }
 
@@ -517,6 +551,7 @@ class HBExplorerProxy extends React.Component {
                     closeArticle={this.closeArticle}
                     toggleActiveComponent={this.toggleActiveComponent}
                     expandArticle={this.expandArticle}
+                    linkArticle={this.linkArticle}
                     addArticle = {this.addArticle}
                     onFilter={this.onFilter}
                 />

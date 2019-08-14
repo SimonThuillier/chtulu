@@ -156,4 +156,21 @@ class ArticleLinkDTOMediator extends DTOMediator
 
         return true;
     }
+
+    protected function onDelete(){
+        /** @var ArticleLink $articleLink */
+        $articleLink = $this->entity;
+        $parentArticle = $articleLink->getParent();
+
+        if($parentArticle!==null){
+            $parentArticle->setFirstRankLinksCount($parentArticle->getFirstRankLinksCount()-1);
+            $command = new EntityMapperCommand(
+                EntityMapperCommand::ACTION_EDIT,
+                Article::class,
+                $parentArticle->getId(),
+                $parentArticle
+            );
+            $this->dbActionObserver->registerAction($command);
+        }
+    }
 }

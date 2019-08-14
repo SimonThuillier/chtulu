@@ -102,7 +102,8 @@ abstract class DTOMediator implements ServiceSubscriberInterface,ClearableInterf
      * @param EntityMutableDTO|null $dto
      * @return $this
      */
-    public function setDTO($dto){
+    public function setDTO($dto)
+    {
         if($this->dto === $dto || $this->pendingSetDTO) return $this;
         $this->pendingSetDTO = true;
         if($this->dto !== null) $this->dto->setMediator(null);
@@ -115,7 +116,8 @@ abstract class DTOMediator implements ServiceSubscriberInterface,ClearableInterf
     /**
      * @return mixed|null
      */
-    public function getDTO(){
+    public function getDTO()
+    {
         return $this->dto;
     }
 
@@ -123,7 +125,8 @@ abstract class DTOMediator implements ServiceSubscriberInterface,ClearableInterf
      * @param DTOMutableEntity|null $entity
      * @return $this
      */
-    public function setEntity($entity){
+    public function setEntity($entity)
+    {
         if($this->entity === $entity || $this->pendingSetEntity) return $this;
         $this->pendingSetEntity = true;
         if($this->entity !== null) $this->entity->setMediator(null);
@@ -137,14 +140,16 @@ abstract class DTOMediator implements ServiceSubscriberInterface,ClearableInterf
     /**
      * @return mixed|null
      */
-    public function getEntity(){
+    public function getEntity()
+    {
         return $this->entity;
     }
 
     /**
      * @return array
      */
-    public function getAvailableGroups():array{
+    public function getAvailableGroups():array
+    {
         return $this->groups;
     }
 
@@ -188,7 +193,8 @@ abstract class DTOMediator implements ServiceSubscriberInterface,ClearableInterf
      * @throws NullColleagueException
      * @return self
      */
-    public function mapDTOGroups(?array $groups=null,$mode = self::CREATE_IF_NULL){
+    public function mapDTOGroups(?array $groups=null,$mode = self::CREATE_IF_NULL)
+    {
         if ($groups === null) $groups = ArrayUtil::normalizeGroups($this->getAvailableGroups());
         if(!array_key_exists("minimal",$groups) || !array_search("minimal",$groups)){
             $groups = array_merge(["minimal"=>true],$groups);
@@ -250,18 +256,29 @@ abstract class DTOMediator implements ServiceSubscriberInterface,ClearableInterf
             foreach($propertiesToReturn as $property){
                 $this->mediate($property);
             }
+            $this->dbActionObserver->registerAction(
+                new EntityMapperCommand(
+                    $id > 0?EntityMapperCommand::ACTION_EDIT:EntityMapperCommand::ACTION_ADD,
+                    $this->getEntityClassName(),
+                    $id,
+                    $this->entity
+                )
+            );
+        }
+        else if($id>0){
+            if(method_exists($this,'onDelete'))  $this->onDelete();
+            $this->dbActionObserver->registerAction(
+                new EntityMapperCommand(
+                    EntityMapperCommand::ACTION_DELETE,
+                    $this->getEntityClassName(),
+                    $id,
+                    $this->entity
+                )
+            );
         }
 
         $this->resetChangedProperties();
 
-        $this->dbActionObserver->registerAction(
-            new EntityMapperCommand(
-                $id > 0?EntityMapperCommand::ACTION_EDIT:EntityMapperCommand::ACTION_ADD,
-                $this->getEntityClassName(),
-                $id,
-                $this->entity
-            )
-        );
         return true;
     }
 
@@ -270,7 +287,8 @@ abstract class DTOMediator implements ServiceSubscriberInterface,ClearableInterf
      * @param array $mapperCommands
      * @return array
      */
-    protected function mediate(string $property, array $mapperCommands=[]){
+    protected function mediate(string $property, array $mapperCommands=[])
+    {
         $mediatorFunction = 'mediate' . ucfirst($property);
         $dtoFunction = 'get' . ucfirst($property);
         $entityFunction = 'set' . ucfirst($property);
@@ -283,4 +301,10 @@ abstract class DTOMediator implements ServiceSubscriberInterface,ClearableInterf
         }
         return $mapperCommands;
     }
+
+    /**
+     * this function is called when a delete is performed to trigger some particular actions
+     */
+    //abstract protected function onDelete();
+
 }

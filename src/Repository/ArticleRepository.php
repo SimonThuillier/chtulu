@@ -51,11 +51,20 @@ class ArticleRepository extends EntityRepository
      */
     public function filterByKeyword(QueryBuilder $qb,?string $keyword){
         if($keyword === null || $keyword === "") return $qb;
-        return $qb->andWhere('(
-        o.title LIKE \'%' . lcfirst($keyword) . '%\' 
-        OR o.title LIKE \'%' . ucfirst($keyword) . '%\' 
-        OR o.abstract LIKE \'%' . lcfirst($keyword) . '%\'
-        OR o.abstract LIKE \'%' . ucfirst($keyword) . '%\')');
+        $keywordPieces = explode(':',$keyword);
+
+        $conditions = [];
+        foreach ($keywordPieces as $piece){
+            $piece = "'%" . strtolower(trim($piece)) . "%'";
+            $conditions[] = $qb->expr()->orX(
+                $qb->expr()->like($qb->expr()->lower('o.title'),$piece),
+                $qb->expr()->like($qb->expr()->lower('o.abstract'),$piece)
+            );
+        }
+
+        $condition = $qb->expr()->orX()->addMultiple($conditions);
+
+        return $qb->andWhere($condition);
     }
 
     /**

@@ -296,10 +296,12 @@ class CRUDController extends AbstractController
                 if($entity->getMediator() !== null){$mediator = $entity->getMediator();}
                 else{
                     $mediator = $mediatorFactory->createWithEntityClassName(
-                        get_class($entity),$entity->getId(),$entity);
+                        EntityMapper::getEntityClassNameFromObject($entity),$entity->getId(),$entity);
                 }
                 $dto = $mediator->getDTO();
-                $mediator->mapDTOGroups($dto->getBackGroups(),DTOMediator::NOTHING_IF_NULL);
+                if($dto->getToDelete()===false){
+                    $mediator->mapDTOGroups($dto->getBackGroups(),DTOMediator::NOTHING_IF_NULL);
+                }
                 $waoType = $waoHelper->getAbridgedName(get_class($dto));
                 $backData[$waoType][$dto->getId()] = $normalizer->normalize($dto,$dto->getBackGroups());
             }
