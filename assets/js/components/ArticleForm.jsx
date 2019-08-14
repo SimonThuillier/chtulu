@@ -485,6 +485,10 @@ class ArticleForm extends React.Component{
             touchedKeys.forEach((k)=>{
                 touchedValues = touchedValues.set(k,values.get(k));
             });
+            const hasEndDate = (pendingForm && pendingForm.hasIn(["values","hasEndDate"]))?
+                pendingForm.getIn(["values","hasEndDate"]):true;
+            touchedValues=touchedValues.set('hasEndDate',hasEndDate);
+
             console.log('touchedValues');
             console.log(touchedValues);
             dispatch(submitLocally("article",touchedValues,id,this.state.groups));

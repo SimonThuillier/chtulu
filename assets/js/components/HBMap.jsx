@@ -166,6 +166,7 @@ class HBMap extends React.Component {
         this.markerRefs.forEach((ref,id)=>{
             if(!this.iconSvgRefs.has(+id)){
                 ref.removeFrom(this.map);
+                this.markerRefs.delete(+id);
             }
         });
 
