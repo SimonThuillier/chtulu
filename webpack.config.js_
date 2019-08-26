@@ -1,0 +1,47 @@
+"use strict";
+const path = require('path');
+const Encore = require('@symfony/webpack-encore');
+
+Encore
+    .cleanupOutputBeforeBuild()
+    .enableSourceMaps(!Encore.isProduction())
+    .enableVersioning(Encore.isProduction())
+    .disableSingleRuntimeChunk();
+
+module.exports = env => {
+    // Use env.<YOUR VARIABLE> here:
+    //console.log('NODE_ENV: ', env.NODE_ENV); // 'local'
+    //console.log('Production: ', env.production); // true
+
+    console.log(path.join(__dirname, '/public/build/'));
+
+    const appConfig = {
+        name : 'app',
+        entry: './assets/js/app.js',
+        output: {
+            path: path.join(__dirname, '/public/build/'),
+            filename: "app.js"
+        }
+    };
+
+    const noAuthConfig = {
+        name : 'noAuth',
+        entry: './assets/js/noAuth.jsx',
+        output: {
+            path: path.join(__dirname, '/public/build/'),
+            filename: "no-auth.js"
+        }
+    };
+
+    /*const authConfig = {
+        name : 'auth',
+        entry: './assets/js/auth.jsx',
+        output: {
+            path: path.join(__dirname, '/public/build/auth/'),
+            filename: "auth.js"
+        }
+    };*/
+
+    //return [appConfig, noAuthConfig,authConfig]
+    return [appConfig];
+};

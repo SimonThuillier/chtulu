@@ -4,16 +4,12 @@
     {% block head %}
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>{% block title %}HistoricaBase | Blank Page 2{% endblock %}</title>
+        <title>{% block title %}HistoricaBase | App{% endblock %}</title>
         <meta
                 content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
                 name="viewport">
-        <link rel="stylesheet" href="{{ asset('build/app.css') }}" />
-
-
-
-
         {% block stylesheets %}
+            {{ encore_entry_link_tags('auth') }}
         {% endblock %}
     {% endblock %}
 </head>
@@ -34,8 +30,7 @@
         <div data-token="{{ csrf_token('app_token') }}" id="hb-security-token"></div>
     {% endblock %}
 </div>
-<script src="{{ asset('build/app.js') }}"></script>
-<script src="{{ asset('build/auth.js') }}"></script>
 {% block javascript %}
+    {{ encore_entry_script_tags('auth') }}
 {% endblock %}
 </html>

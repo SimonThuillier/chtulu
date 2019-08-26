@@ -2,6 +2,7 @@
   "name": "hbase",
   "version": "0.0.1",
   "dependencies": {
+    "@symfony/webpack-encore": "^0.28.0",
     "admin-lte": "^2.4.12",
     "babel-install": "^2.1.0",
     "babel-register": "^6.26.0",
@@ -46,7 +47,6 @@
     "styled-components": "^4.3.2",
     "stylefire": "2.3.4",
     "uuid": "^3.3.2",
-    "webpack": "^4.35.3",
     "webpack-cli": "^3.3.5",
     "webpack-notifier": "^1.8.0"
   },
@@ -58,7 +58,6 @@
     "@babel/plugin-transform-react-jsx": "^7.3.0",
     "@babel/preset-env": "^7.5.0",
     "@babel/preset-react": "^7.0.0",
-    "@symfony/webpack-encore": "^0.27.0",
     "babel-loader": "^8.0.6",
     "babel-plugin-lodash": "^3.3.2",
     "babel-plugin-react-transform": "^3.0.0",

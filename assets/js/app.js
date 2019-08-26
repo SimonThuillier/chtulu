@@ -16,11 +16,9 @@ window.L = require('leaflet');
 window.React = require('react');
 window.ReactDOM = require('react-dom');
 require('react-router-dom');
-window.RL = require('react-leaflet');
 
 require('bootstrap3/dist/js/bootstrap.js');
 require('admin-lte/dist/js/adminlte.js');
-require('admin-lte/dist/js/demo.js');
 require('jquery-slimscroll/jquery.slimscroll.min.js');
 require('fastclick/lib/fastclick.js');
 require('bootstrap-table/dist/bootstrap-table.js');

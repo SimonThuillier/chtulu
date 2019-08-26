@@ -1,5 +1,5 @@
 Arguments: 
-  /usr/bin/node /usr/bin/yarn add @symfony/webpack-encore-dev
+  /usr/bin/node /usr/bin/yarn install
 
 PATH: 
   /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
@@ -14,82 +14,79 @@ Platform:
   linux x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/@symfony%2fwebpack-encore-dev: Not found
-      at Request.params.callback [as _callback] (/usr/lib/node_modules/yarn/lib/cli.js:66058:18)
-      at Request.self.callback (/usr/lib/node_modules/yarn/lib/cli.js:129541:22)
-      at Request.emit (events.js:189:13)
-      at Request.<anonymous> (/usr/lib/node_modules/yarn/lib/cli.js:130513:10)
-      at Request.emit (events.js:189:13)
-      at IncomingMessage.<anonymous> (/usr/lib/node_modules/yarn/lib/cli.js:130435:12)
-      at Object.onceWrapper (events.js:277:13)
-      at IncomingMessage.emit (events.js:194:15)
-      at endReadableNT (_stream_readable.js:1125:12)
-      at process._tickCallback (internal/process/next_tick.js:63:19)
+  Error: EACCES: permission denied, mkdir '/home/simon/sites/hbase/node_modules/@babel/core/node_modules/@babel/code-frame'
 
 npm manifest: 
   {
     "name": "hbase",
     "version": "0.0.1",
     "dependencies": {
-      "admin-lte": "^2.4.8",
+      "admin-lte": "^2.4.12",
       "babel-install": "^2.1.0",
       "babel-register": "^6.26.0",
-      "bootstrap-table": "^1.12.1",
+      "bootstrap-table": "^1.15.2",
       "bootstrap3": "^3.3.5",
-      "d3": "^5.7.0",
+      "d3": "5.7.0",
+      "debounce": "1.2.0",
       "extract-text-webpack-plugin": "^4.0.0-beta.0",
       "fastclick": "^1.0.6",
       "font-awesome": "^4.7.0",
       "icheck": "^1.0.2",
-      "immutable": "^3.8.2",
+      "immutable": "4.0.0-rc.12",
+      "jquery": "^3.4.1",
       "jquery-slimscroll": "^1.3.8",
-      "leaflet": "^1.3.6",
-      "normalizr": "^3.3.0",
-      "prop-types": "^15.6.2",
-      "react": "^16.4.2",
+      "leaflet": "^1.5.1",
+      "normalizr": "^3.4.0",
+      "popmotion": "8.5.5",
+      "prop-types": "^15.7.2",
+      "radium": "^0.25.2",
+      "react": "^16.8.6",
       "react-bootstrap": "^0.32.4",
-      "react-bootstrap-table-next": "^1.2.0",
+      "react-bootstrap-table-next": "^1.4.4",
       "react-bootstrap-table2-overlay": "^1.0.0",
       "react-bootstrap-table2-paginator": "^1.0.4",
-      "react-dom": "^16.4.2",
-      "react-helmet": "^5.2.0",
+      "react-dom": "^16.8.6",
+      "react-helmet": "^5.2.1",
       "react-icheck": "^0.3.8",
-      "react-leaflet": "^2.0.1",
+      "react-leaflet": "^2.4.0",
       "react-loading-overlay": "^0.3.0",
+      "react-pose": "4.0.4",
       "react-redux": "^5.0.7",
-      "react-redux-form": "^1.16.10",
+      "react-redux-form": "^1.16.14",
       "react-router": "^4.3.1",
       "react-router-dom": "^4.3.1",
-      "redux": "^4.0.1",
-      "redux-devtools-extension": "^2.13.5",
-      "redux-form": "^8.2.0",
+      "redux": "^4.0.3",
+      "redux-devtools-extension": "^2.13.7",
+      "redux-form": "^8.2.4",
       "redux-immutable": "^4.0.0",
       "redux-thunk": "^2.3.0",
       "reselect": "^4.0.0",
       "slimscroll": "^0.9.1",
+      "styled-components": "^4.3.2",
+      "stylefire": "2.3.4",
       "uuid": "^3.3.2",
-      "webpack-cli": "^3.3.0",
-      "webpack": "^4.30.0"
+      "@symfony/webpack-encore": "^0.28.0",
+      "webpack-cli": "^3.3.5",
+      "webpack-notifier": "^1.8.0"
     },
     "devDependencies": {
-      "@babel/cli": "^7.0.0-beta.40",
-      "@babel/core": "^7.0.0",
-      "@babel/plugin-proposal-class-properties": "^7.0.0",
-      "@babel/plugin-proposal-export-default-from": "^7.0.0",
-      "@babel/plugin-transform-react-jsx": "^7.0.0",
-      "@babel/preset-env": "^7.0.0",
+      "@babel/cli": "^7.5.0",
+      "@babel/core": "^7.5.0",
+      "@babel/plugin-proposal-class-properties": "^7.5.0",
+      "@babel/plugin-proposal-export-default-from": "^7.2.0",
+      "@babel/plugin-transform-react-jsx": "^7.3.0",
+      "@babel/preset-env": "^7.5.0",
       "@babel/preset-react": "^7.0.0",
-      "@symfony/webpack-encore": "^0.27.0",
-      "babel-loader": "^8.0.0",
+      "babel-loader": "^8.0.6",
       "babel-plugin-lodash": "^3.3.2",
       "babel-plugin-react-transform": "^3.0.0",
       "babel-preset-es2015": "^6.24.1",
       "babel-preset-es2017": "^6.24.1",
       "babel-preset-react": "^6.24.1",
       "babel-register": "^6.26.0",
+      "css-loader": "^2.1.1",
       "extract-text-webpack-plugin": "^4.0.0-beta.0",
-      "gulp-babel": "^8.0.0",
-      "jquery": "^3.3.1"
+      "gulp-babel": "^8.0.0"
     },
     "scripts": {
       "build": "webpack --mode development"
@@ -816,6 +813,13 @@ Lockfile:
     version "7.4.3"
     resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.4.3.tgz#79888e452034223ad9609187a0ad1fe0d2ad4bdc"
     integrity sha512-9lsJwJLxDh/T3Q3SZszfWOTkk3pHbkmH+3KY+zwIDmsNlxsumuhS2TH3NIpktU4kNvfzy+k3eLT7aTJSPTo0OA==
+    dependencies:
+      regenerator-runtime "^0.13.2"
+  
+  "@babel/runtime@^7.2.0":
+    version "7.4.4"
+    resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.4.4.tgz#dc2e34982eb236803aa27a07fea6857af1b9171d"
+    integrity sha512-w0+uT71b6Yi7i5SE0co4NioIpSYS6lLiXvCzWzGSKvpK5vdQtCbICHMj+gbAKAOtxiV6HsVh/MBdaF9EQ6faSg==
     dependencies:
       regenerator-runtime "^0.13.2"
   
@@ -4293,6 +4297,11 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.1.15.tgz#ffb703e1066e8a0eeaa4c8b80ba9253eeefbfb00"
     integrity sha512-6uHUhOPEBgQ24HM+r6b/QwWfZq+yiFcipKFrOFiBEnWdy5sdzYoi+pJeQaPI5qOLRFqWmAXUPQNsielzdLoecA==
   
+  growly@^1.3.0:
+    version "1.3.0"
+    resolved "https://registry.yarnpkg.com/growly/-/growly-1.3.0.tgz#f10748cbe76af964b7c96c93c6bcc28af120c081"
+    integrity sha1-8QdIy+dq+WS3yWyTxrzCivEgwIE=
+  
   gulp-babel@^8.0.0:
     version "8.0.0"
     resolved "https://registry.yarnpkg.com/gulp-babel/-/gulp-babel-8.0.0.tgz#e0da96f4f2ec4a88dd3a3030f476e38ab2126d87"
@@ -4420,12 +4429,12 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-1.2.0.tgz#aa448cf0986d55cc40773b17174b7dd066cb7cfb"
     integrity sha1-qkSM8JhtVcxAdzsXF0t90GbLfPs=
   
-  hoist-non-react-statics@^2.5.0, hoist-non-react-statics@^2.5.4:
+  hoist-non-react-statics@^2.5.0:
     version "2.5.5"
     resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-2.5.5.tgz#c5903cf409c0dfd908f388e619d86b9c1174cb47"
     integrity sha512-rqcy4pJo55FTTLWt+bU8ukscqHeE/e9KWvsOW2b/a3afxQZhwkQdT1rPPCJ0rYXdj4vNcasY8zHTH+jF/qStxw==
   
-  hoist-non-react-statics@^3.1.0, hoist-non-react-statics@^3.3.0:
+  hoist-non-react-statics@^3.1.0, hoist-non-react-statics@^3.2.1, hoist-non-react-statics@^3.3.0:
     version "3.3.0"
     resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-3.3.0.tgz#b09178f0122184fb95acf525daaecb4d8f45958b"
     integrity sha512-0XsbTXxgiaCDYDIWFcwkmerZPSwywfUqYmwT4jzewKTQSWoE6FCMoUVOeBJWK3E/CrWbxRG3m5GzY4lnIwGRBA==
@@ -5262,7 +5271,7 @@ Lockfile:
       p-locate "^3.0.0"
       path-exists "^3.0.0"
   
-  lodash-es@^4.17.10:
+  lodash-es@^4.17.11:
     version "4.17.11"
     resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.11.tgz#145ab4a7ac5c5e52a3531fb4f310255a152b4be0"
     integrity sha512-DHb1ub+rMjjrxqlB3H56/6MXtm1lSksDp2rA2cNWjG8mlDUYFhUj3Di2Zn5IwSU87xLv8tNIQ7sSwE/YOX/D/Q==
@@ -5693,6 +5702,17 @@ Lockfile:
       url "^0.11.0"
       util "^0.11.0"
       vm-browserify "0.0.4"
+  
+  node-notifier@^5.1.2:
+    version "5.4.0"
+    resolved "https://registry.yarnpkg.com/node-notifier/-/node-notifier-5.4.0.tgz#7b455fdce9f7de0c63538297354f3db468426e6a"
+    integrity sha512-SUDEb+o71XR5lXSTyivXd9J7fCloE3SyP4lSgt3lU2oSANiox+SxlNRGPjDKrwU1YN3ix2KN/VGGCg0t01rttQ==
+    dependencies:
+      growly "^1.3.0"
+      is-wsl "^1.1.0"
+      semver "^5.5.0"
+      shellwords "^0.1.1"
+      which "^1.3.0"
   
   node-pre-gyp@^0.10.0:
     version "0.10.3"
@@ -6964,18 +6984,20 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/redux-devtools-extension/-/redux-devtools-extension-2.13.8.tgz#37b982688626e5e4993ff87220c9bbb7cd2d96e1"
     integrity sha512-8qlpooP2QqPtZHQZRhx3x3OP5skEV1py/zUdMY28WNAocbafxdG2tRD1MWE7sp8obGMNYuLWanhhQ7EQvT1FBg==
   
-  redux-form@^7.4.2:
-    version "7.4.2"
-    resolved "https://registry.yarnpkg.com/redux-form/-/redux-form-7.4.2.tgz#d6061088fb682eb9fc5fb9749bd8b102f03154b0"
-    integrity sha512-QxC36s4Lelx5Cr8dbpxqvl23dwYOydeAX8c6YPmgkz/Dhj053C16S2qoyZN6LO6HJ2oUF00rKsAyE94GwOUhFA==
+  redux-form@^8.2.0:
+    version "8.2.0"
+    resolved "https://registry.yarnpkg.com/redux-form/-/redux-form-8.2.0.tgz#87667f39a7eebd4c6ed368817481c1ece80c8890"
+    integrity sha512-KXsOLwlhV1hn8unTWtxNpFJW2vtIyoGX4zCIw3lSbWCqz8kOyG774aSTPt7k9MTKzJBtxNGZK0O0d2UhTk+JkQ==
     dependencies:
+      "@babel/runtime" "^7.2.0"
       es6-error "^4.1.1"
-      hoist-non-react-statics "^2.5.4"
+      hoist-non-react-statics "^3.2.1"
       invariant "^2.2.4"
       is-promise "^2.1.0"
-      lodash "^4.17.10"
-      lodash-es "^4.17.10"
+      lodash "^4.17.11"
+      lodash-es "^4.17.11"
       prop-types "^15.6.1"
+      react-is "^16.7.0"
       react-lifecycles-compat "^3.0.4"
   
   redux-immutable@^4.0.0:
@@ -7479,6 +7501,11 @@ Lockfile:
       array-map "~0.0.0"
       array-reduce "~0.0.0"
       jsonify "~0.0.0"
+  
+  shellwords@^0.1.1:
+    version "0.1.1"
+    resolved "https://registry.yarnpkg.com/shellwords/-/shellwords-0.1.1.tgz#d6b9181c1a48d397324c84871efbcfc73fc0654b"
+    integrity sha512-vFwSUfQvqybiICwZY5+DAWIPLKsWO31Q91JSKl3UYv+K5c2QRPzn0qzec6QPu1Qc9eHYItiP3NdJqNVqetYAww==
   
   signal-exit@^3.0.0:
     version "3.0.2"
@@ -8428,6 +8455,15 @@ Lockfile:
       lodash ">=3.5 <5"
       tapable "^1.0.0"
   
+  webpack-notifier@^1.7.0:
+    version "1.7.0"
+    resolved "https://registry.yarnpkg.com/webpack-notifier/-/webpack-notifier-1.7.0.tgz#4e03ea3ba1c0588d863935363f145d067815068a"
+    integrity sha512-L3UKrl500xk0VDYKkwQxy5/BPhBWsZ2xHsAx2Qe3dVKYUEk9+y690RcNTMIUcVOK2fRgK7KK3PA4ccOq1h+fTg==
+    dependencies:
+      node-notifier "^5.1.2"
+      object-assign "^4.1.0"
+      strip-ansi "^3.0.1"
+  
   webpack-sources@^1.1.0, webpack-sources@^1.3.0:
     version "1.3.0"
     resolved "https://registry.yarnpkg.com/webpack-sources/-/webpack-sources-1.3.0.tgz#2a28dcb9f1f45fe960d8f1493252b5ee6530fa85"
@@ -8440,6 +8476,36 @@ Lockfile:
     version "4.29.6"
     resolved "https://registry.yarnpkg.com/webpack/-/webpack-4.29.6.tgz#66bf0ec8beee4d469f8b598d3988ff9d8d90e955"
     integrity sha512-MwBwpiE1BQpMDkbnUUaW6K8RFZjljJHArC6tWQJoFm0oQtfoSebtg4Y7/QHnJ/SddtjYLHaKGX64CFjG5rehJw==
+    dependencies:
+      "@webassemblyjs/ast" "1.8.5"
+      "@webassemblyjs/helper-module-context" "1.8.5"
+      "@webassemblyjs/wasm-edit" "1.8.5"
+      "@webassemblyjs/wasm-parser" "1.8.5"
+      acorn "^6.0.5"
+      acorn-dynamic-import "^4.0.0"
+      ajv "^6.1.0"
+      ajv-keywords "^3.1.0"
+      chrome-trace-event "^1.0.0"
+      enhanced-resolve "^4.1.0"
+      eslint-scope "^4.0.0"
+      json-parse-better-errors "^1.0.2"
+      loader-runner "^2.3.0"
+      loader-utils "^1.1.0"
+      memory-fs "~0.4.1"
+      micromatch "^3.1.8"
+      mkdirp "~0.5.0"
+      neo-async "^2.5.0"
+      node-libs-browser "^2.0.0"
+      schema-utils "^1.0.0"
+      tapable "^1.1.0"
+      terser-webpack-plugin "^1.1.0"
+      watchpack "^1.5.0"
+      webpack-sources "^1.3.0"
+  
+  webpack@^4.30.0:
+    version "4.30.0"
+    resolved "https://registry.yarnpkg.com/webpack/-/webpack-4.30.0.tgz#aca76ef75630a22c49fcc235b39b4c57591d33a9"
+    integrity sha512-4hgvO2YbAFUhyTdlR4FNyt2+YaYBYHavyzjCMbZzgglo02rlKi/pcsEzwCuCpsn1ryzIl1cq/u8ArIKu8JBYMg==
     dependencies:
       "@webassemblyjs/ast" "1.8.5"
       "@webassemblyjs/helper-module-context" "1.8.5"
@@ -8489,7 +8555,7 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/which-module/-/which-module-2.0.0.tgz#d9ef07dce77b9902b8a3a8fa4b31c3e3f7e6e87a"
     integrity sha1-2e8H3Od7mQK4o6j6SzHD4/fm6Ho=
   
-  which@^1.2.14, which@^1.2.9:
+  which@^1.2.14, which@^1.2.9, which@^1.3.0:
     version "1.3.1"
     resolved "https://registry.yarnpkg.com/which/-/which-1.3.1.tgz#a45043d54f5805316da8d62f9f50918d3da70b0a"
     integrity sha512-HxJdYWq1MTIQbJ3nw0cqssHoTNU267KlrDuGZ1WYlxDStUtKUhOaJmh112/TZmHxxUfuJqPXSOm7tDyas0OSIQ==

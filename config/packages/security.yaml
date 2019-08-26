@@ -12,11 +12,11 @@ security:
 
     firewalls:
         noauth:
-            pattern: ^/(noauth)/
+            pattern: ^/(web)/
             security: false
         main:
             provider: app_user_provider
-            pattern: ^/(app|_hb_post|_hb_get)/
+            pattern: ^/(app|_hb_post|_hb_get)/|^/public/build/auth.jsx$
             http_basic:
                 realm: Secured Area
         # disables authentication for assets and the profiler, adapt it according to your needs
