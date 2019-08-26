@@ -31,24 +31,24 @@
 		"jsor/doctrine-postgis": "^1.7",
 		"liip/imagine-bundle": "^2.1",
 		"sensio/framework-extra-bundle": "^5.3",
-		"symfony/asset": "4.2.*",
-		"symfony/console": "4.2.*",
+		"symfony/asset": "4.3.*",
+		"symfony/console": "4.3.*",
 		"symfony/flex": "^1.1",
 		"symfony/maker-bundle": "^1.11",
 		"symfony/monolog-bundle": "^3.3",
 		"symfony/orm-pack": "^1.0",
 		"symfony/polyfill-apcu": "^1.11",
-		"symfony/security-bundle": "4.2.*",
+		"symfony/security-bundle": "4.3.*",
 		"symfony/swiftmailer-bundle": "^3.2",
-		"symfony/symfony": "^4.2",
-		"symfony/twig-bundle": "4.2.*",
-		"symfony/validator": "4.2.*",
+		"symfony/symfony": "^4.3",
+		"symfony/twig-bundle": "4.3.*",
+		"symfony/validator": "4.3.*",
 		"symfony/webpack-encore-bundle": "^1.5"
 	},
 	"require-dev" : {
-		"symfony/phpunit-bridge": "^4.2.7",
+		"symfony/phpunit-bridge": "^4.3",
 		"symfony/profiler-pack": "^1.0",
-		"symfony/web-server-bundle": "4.2.*"
+		"symfony/web-server-bundle": "4.3.*"
 	},
 	"scripts": {
 		"auto-scripts": {
@@ -65,7 +65,7 @@
 	"extra": {
 		"symfony": {
 			"allow-contrib": false,
-			"require": "4.2.*"
+			"require": "4.3.*"
 		}
 	}
 }

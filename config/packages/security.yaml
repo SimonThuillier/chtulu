@@ -11,9 +11,12 @@ security:
                 property: email
 
     firewalls:
+        noauth:
+            pattern: ^/(noauth)/
+            security: false
         main:
             provider: app_user_provider
-            pattern: ^/
+            pattern: ^/(app|_hb_post|_hb_get)/
             http_basic:
                 realm: Secured Area
         # disables authentication for assets and the profiler, adapt it according to your needs
