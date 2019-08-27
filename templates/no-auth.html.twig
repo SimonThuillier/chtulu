@@ -9,7 +9,7 @@
                 content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
                 name="viewport">
         {% block stylesheets %}
-            {{ encore_entry_link_tags('auth') }}
+            {{ encore_entry_link_tags('noAuth') }}
         {% endblock %}
     {% endblock %}
 </head>
@@ -27,11 +27,10 @@
                 <div class="hb-wao-mapping" data-mapping="{{ wao|getMapping() }}" id="hb-mapping-{{ wao|getAbridgedName() }}"></div>
                 <div class="hb-wao-structure" data-structure="{{ wao|getStructure() }}" id="hb-structure-{{ wao|getAbridgedName() }}"></div>
         {% endfor %}
-        <div data-token="{{ csrf_token('app_token') }}" id="hb-security-token"></div>
+        <div data-token="_NA_" id="hb-security-token"></div>
     {% endblock %}
 </div>
 {% block javascript %}
-    {{  }}
-    {{ encore_entry_script_tags('auth') }}
+    {{ encore_entry_script_tags('noAuth') }}
 {% endblock %}
 </html>

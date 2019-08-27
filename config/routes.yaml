@@ -2,6 +2,16 @@ controllers:
     resource: ../src/Controller/
     type: annotation
 
+# redirecting the homepage
+homepage:
+    path: /
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController::urlRedirectAction
+    defaults:
+        path: /web/welcome
+        permanent: true
+
+
+
 _wdt:
     resource: "@WebProfilerBundle/Resources/config/routing/wdt.xml"
     prefix:   /_wdt
