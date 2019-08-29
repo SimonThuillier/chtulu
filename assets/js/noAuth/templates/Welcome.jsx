@@ -3,6 +3,7 @@ const Imm = require("immutable");
 const componentUid = require("uuid/v4")();
 
 import Header from '../organisms/Header';
+import RegisterLink from '../atoms/RegisterLink';
 
 class Welcome extends React.Component
 {
@@ -30,8 +31,11 @@ class Welcome extends React.Component
                     <section className="content-header">
                         <h4>Bienvenue !</h4>
                     </section>
-                    <section className="content no-padding">
+                    <section className="content">
                         <div>Bienvenue sur mon projet d'histoire interactive :)</div>
+                        <div>Le site est encore en construction & test.
+                            Vous pouvez vous inscrire et le découvrir en suivant <RegisterLink message={'ce lien'}/>
+                        </div>
                     </section>
                 </div>
             </div>

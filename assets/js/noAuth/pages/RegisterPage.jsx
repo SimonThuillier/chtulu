@@ -3,7 +3,7 @@ import {Helmet} from 'react-helmet';
 
 import Register from '../templates/Register';
 
-export class RegisterPage extends React.Component
+class RegisterPage extends React.Component
 {
     constructor(props)
     {
@@ -23,7 +23,7 @@ export class RegisterPage extends React.Component
     render()
     {
         return (
-            <div className="wrapper hold-transition skin-blue sidebar-mini">
+            <div>
                 <Helmet>
                     <title>S'inscrire</title>
                 </Helmet>

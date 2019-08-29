@@ -3,7 +3,7 @@ import {Helmet} from 'react-helmet';
 
 import Welcome from '../templates/Welcome';
 
-export class WelcomePage extends React.Component
+class WelcomePage extends React.Component
 {
     constructor(props)
     {
