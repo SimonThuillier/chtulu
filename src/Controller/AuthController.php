@@ -17,7 +17,7 @@ class AuthController extends AbstractController
      * @Route("/{page}", name="homepage",requirements={"page"=".+"})
      * @throws \Exception
      */
-    public function indexAction(Request $request)
+    public function indexAction(Request $request,$page)
     {
         return $this->render('@HB/auth.html.twig', []);
     }

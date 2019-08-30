@@ -19,6 +19,7 @@ use App\Util\ArrayUtil;
 use App\Util\HDate;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,6 +32,36 @@ use Symfony\Component\HttpFoundation\Session\Session;
  */
 class TestController extends AbstractController
 {
+    /**
+     * @Route("/send-mail",name="send_mail")
+     * @param Request $request
+     * @Template()
+     */
+    public function sendMailAction(
+        Request $request,
+        \Swift_Mailer $mailer
+    )
+    {
+            $message = (new \Swift_Message('Hello Email'))
+                ->setFrom('send@example.com')
+                ->setTo('simon.thuillier@prestataires.tdf.fr')
+                ->setSubject('mail de test historicaBase')
+                ->setBody(
+                    $this->renderView(
+                    // templates/hello/email.txt.twig
+                        'Mail/test.html.twig',
+                        ['name' => 'simon']
+                    ),
+                    'text/html'
+                )
+            ;
+
+            $mailer->send($message);
+
+        return array("msg"=>"bonjour");
+    }
+
+
 
     /**
      * @Route("/test", name="testpage")

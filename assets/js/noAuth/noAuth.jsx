@@ -15,7 +15,7 @@ const routes = [
     {
         id:2,
         path:'/register',
-        exact:true,
+        exact:false,
         component:RegisterPage
     }
 ];

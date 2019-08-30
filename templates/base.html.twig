@@ -15,13 +15,13 @@
         <!-- css assets : bootstrap (3.3.6), AdminLTE (2.3.11), font awesome(4.7.0) and ionicons(2.0.1) -->
         <!-- AdminLTE Skins. Choose a skin from the css/skins
                folder instead of downloading all of them to reduce the load. -->
-        <link rel="stylesheet" href="{{ asset('build/app.css') }}" />
+        <link rel="stylesheet" href="{{ encore_entry_link_tags('noAuth') }}" />
 
 
 
 
         {% block stylesheets %}
-            {#{% include('@WebProfiler/Profiler/toolbar.')  %}#}
+            {{ encore_entry_link_tags('noAuth') }}
         {% endblock %}
 
 
@@ -183,7 +183,7 @@
                                             <a href="#" class="btn btn-default btn-flat">Profil</a>
                                         </div>
                                         <div class="pull-right">
-                                            <a href="{{ path('logout') }}"
+                                            <a href="#"
                                                class="btn btn-default btn-flat">Se deconnecter</a>
                                         </div>
                                     </li>
@@ -644,10 +644,6 @@
 </body>
 <div id="hb-data" hidden>
 {% block data %}
-    <div data-url="{{ url('crud_get') }}" id="hb-url-crud-get"></div>
-    <div data-url="{{ url('crud_get_one_by_id') }}" id="hb-url-crud-get-one-by-id"></div>
-    <div data-url="{{ url('crud_get_new') }}" id="hb-url-crud-get-new"></div>
-    <div data-url="{{ url('crud_post') }}" id="hb-url-crud-post"></div>
     {% for wao in waoList() %}
         <div class="hb-wao-mapping" data-mapping="{{ wao|getMapping() }}" id="hb-mapping-{{ wao|getAbridgedName() }}"></div>
         <div class="hb-wao-structure" data-structure="{{ wao|getStructure() }}" id="hb-structure-{{ wao|getAbridgedName() }}"></div>

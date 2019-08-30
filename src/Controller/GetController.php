@@ -27,7 +27,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  *
  * @author belze
- *         @Route("/_hb_get")
+ *         @Route("/_hb_get",name="get_")
  */
 class GetController extends AbstractController
 {
@@ -41,7 +41,7 @@ class GetController extends AbstractController
      * @param DTOFactory $dtoFactory
      * @param MediatorFactory $mediatorFactory
      * @param DTONormalizer $normalizer
-     * @Route("/get-one-by-id",name="get_get_one_by_id")
+     * @Route("/get-one-by-id",name="get_one_by_id")
      * @Method({"GET"})
      * @throws \Exception
      * @throws \Psr\Container\ContainerExceptionInterface
@@ -102,7 +102,7 @@ class GetController extends AbstractController
      * @param DTOFactory $dtoFactory
      * @param MediatorFactory $mediatorFactory
      * @param DTONormalizer $normalizer
-     * @Route("/get",name="get_get")
+     * @Route("/get",name="get")
      * @Method({"GET"})
      * @throws \Exception
      * @throws \Psr\Container\ContainerExceptionInterface
@@ -168,7 +168,7 @@ class GetController extends AbstractController
      * @param WAOHelper $waoHelper
      * @param MediatorFactory $mediatorFactory
      * @param DTONormalizer $normalizer
-     * @Route("/get-new",name="get_get_new")
+     * @Route("/get-new",name="get_new")
      * @Method({"GET"})
      * @throws \Exception
      * @return JsonResponse

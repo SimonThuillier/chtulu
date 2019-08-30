@@ -1,11 +1,22 @@
 const SECURITY_TOKEN = document.getElementById('hb-security-token').getAttribute('data-token');
 document.getElementById('hb-security-token').remove(); // to prevent visualisation of token
 
-export const URL_GET = document.getElementById('hb-url-crud-get').getAttribute('data-url');
-export const URL_GET_ONE_BY_ID = document.getElementById('hb-url-crud-get-one-by-id').getAttribute('data-url');
-export const URL_GET_NEW = document.getElementById('hb-url-crud-get-new').getAttribute('data-url');
-export const URL_POST = document.getElementById('hb-url-crud-post').getAttribute('data-url');
-export const URL_UPLOAD = document.getElementById('hb-url-resource-upload').getAttribute('data-url');
+const getDataUrlOrNa = (domId) =>{
+    const element = document.getElementById(domId);
+    if(typeof element === 'undefined' || element === null) return '_NA_';
+    const url = element.getAttribute('data-url');
+    element.remove();
+    return url;
+};
+
+export const URL_REGISTER = getDataUrlOrNa('hb-url-security-register');
+
+export const URL_GET = getDataUrlOrNa('hb-url-get-get');
+export const URL_GET_ONE_BY_ID = getDataUrlOrNa('hb-url-get-get-one-by-id');
+export const URL_GET_NEW = getDataUrlOrNa('hb-url-get-get-new');
+
+export const URL_POST = getDataUrlOrNa('hb-url-post-post');
+export const URL_UPLOAD = getDataUrlOrNa('hb-url-post-upload-resource');
 
 export const HTTP_GET='GET';
 export const HTTP_POST='POST';
@@ -117,10 +128,10 @@ const DataToPostPrototype = {
  * standard data for posting to server
  * @constructor
  */
-export const DataToPost = function(){
+export const DataToPost = function(senderKey=null){
     return Object.setPrototypeOf({
         _token:SECURITY_TOKEN,
-        senderKey:null,
+        senderKey:senderKey,
         waos:{}
     },DataToPostPrototype);
 };

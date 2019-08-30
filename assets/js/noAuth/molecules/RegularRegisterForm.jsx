@@ -1,6 +1,7 @@
 import React from 'react';
 
-import {FormGroup,InputGroup,ControlLabel,FormControl,HelpBlock,Glyphicon} from 'react-bootstrap';
+import {FormGroup,InputGroup,ControlLabel,FormControl,HelpBlock,Glyphicon,
+    Grid,Row,Col,Button} from 'react-bootstrap';
 import {checkPasswordStrength,scorePassword,PWD_STRENGTH} from '../../util/passwordUtil';
 
 
@@ -20,6 +21,12 @@ const validate = (values,beforeSubmit=false) => {
     }
     else if (scorePassword(password) <passwordMinScore){
         errors.password = `Votre mot de passe est ${checkPasswordStrength(password)}`;
+    }
+
+    if(beforeSubmit){
+        if(password !== passwordBis){
+            errors.passwordBis = "Les deux valeurs ne correspondent pas";
+        }
     }
 
     return errors;
@@ -60,6 +67,8 @@ export class RegularRegisterForm extends React.Component
         this.handleChange = this.handleChange.bind(this);
         this.getValidationState = this.getValidationState.bind(this);
         this.getValidationMessage = this.getValidationMessage.bind(this);
+
+        this.onSubmit = this.onSubmit.bind(this);
 
         this.state = {
             formValue :{
@@ -109,11 +118,22 @@ export class RegularRegisterForm extends React.Component
         );
     }
 
-    getValidationState(controlId)
+    getValidationState(controlId=null)
     {
+        const {errors,warnings} = this.state;
+
+        if(controlId === null){
+            if(this.pristine || Object.keys(errors).length>0){
+                return 'error';
+            }
+            else{
+                return 'success';
+            }
+        }
+
         if(this.pristine) return null;
 
-        const {errors,warnings} = this.state;
+
 
         if(Object.prototype.hasOwnProperty.call(errors, controlId)){
             return 'error';
@@ -148,9 +168,28 @@ export class RegularRegisterForm extends React.Component
         }
     }
 
+    onSubmit(e){
+
+        const errors = validate(this.state.formValue,true);
+
+        if(Object.keys(errors).length>0){
+            this.setState({errors : errors});
+            return;
+        }
+
+        this.setState({submitting : true});
+
+        const {formValue} = this.state;
+        this.props.onSubmit({email:formValue.email,password:formValue.password});
+
+        console.log("submit ...");
+
+    }
+
     render()
     {
         const {formValue} = this.state;
+        const {submitting} = this.props;
 
         return (
             <form action="#" method="post">
@@ -216,13 +255,18 @@ export class RegularRegisterForm extends React.Component
                     </InputGroup>
                     <HelpBlock>{this.getValidationMessage("passwordBis")}</HelpBlock>
                 </FormGroup>
-
-
-                <div className="row">
-                    <div className="col-4">
-                        <button type="submit" className="btn btn-primary btn-block btn-flat">Register</button>
-                    </div>
-                </div>
+                    <Row >
+                        <Col xs={1} sm={2} md={3} lg={4}/>
+                        <Col xs={10} sm={8} md={6} lg={4}>
+                            <Button bsStyle="primary"
+                                    style={{display:'inline-block',minWidth:'100%'}}
+                                    disabled={this.getValidationState() !== 'success' || submitting}
+                                    onClick={this.onSubmit}>
+                                Inscription{submitting?' en cours ...':''}
+                            </Button>
+                        </Col>
+                        <Col xs={1} sm={2} md={3} lg={4}/>
+                    </Row>
             </form>
         )
     }

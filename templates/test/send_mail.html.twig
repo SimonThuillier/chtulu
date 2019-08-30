@@ -1,0 +1,23 @@
+{% extends "base.html.twig" %}
+
+
+{% block title %}
+Bienvenue
+{% endblock %}
+
+{%  block content %}
+<p>Page de test envoi mail</p>
+
+    <br>
+    <p>message de test : </p><br>
+    {{ msg }}
+
+    {#{% include('@WebProfiler/Profiler/toolbar.html.twig')  %}#}
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        console.log(hb);
+console.log(typeof hb);
+    </script>
+{% endblock %}

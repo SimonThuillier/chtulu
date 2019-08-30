@@ -12,7 +12,7 @@ security:
 
     firewalls:
         noauth:
-            pattern: ^/(web)/
+            pattern: ^/(web|test)/
             security: false
         main:
             provider: app_user_provider

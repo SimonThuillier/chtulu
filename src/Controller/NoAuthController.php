@@ -11,14 +11,17 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class NoAuthController extends AbstractController
 {
+
     /**
      * main controller for loading the spa
      * TODO : check for auth and no-auth redirecting
      * @Route("/{page}", name="homepage",requirements={"page"=".+"})
      * @throws \Exception
      */
-    public function indexAction(Request $request)
+    public function indexAction(Request $request,$page)
     {
         return $this->render('@HB/no-auth.html.twig', []);
     }
+
+
 }

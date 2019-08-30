@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5845a28719c411e13fb03099932b97b2",
+    "content-hash": "685522d4382931feedf852f3cd57405f",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -2270,16 +2270,16 @@
         },
         {
             "name": "symfony/contracts",
-            "version": "v1.1.5",
+            "version": "v1.1.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/contracts.git",
-                "reference": "3f3f796d5f24a098a9da62828b8daa1b11494c1b"
+                "reference": "3692662d26cd9d204a69748792ae021c35313610"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/contracts/zipball/3f3f796d5f24a098a9da62828b8daa1b11494c1b",
-                "reference": "3f3f796d5f24a098a9da62828b8daa1b11494c1b",
+                "url": "https://api.github.com/repos/symfony/contracts/zipball/3692662d26cd9d204a69748792ae021c35313610",
+                "reference": "3692662d26cd9d204a69748792ae021c35313610",
                 "shasum": ""
             },
             "require": {
@@ -2343,7 +2343,7 @@
                 "interoperability",
                 "standards"
             ],
-            "time": "2019-06-20T06:46:26+00:00"
+            "time": "2019-08-21T15:14:41+00:00"
         },
         {
             "name": "symfony/flex",

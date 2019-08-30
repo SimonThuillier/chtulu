@@ -31,6 +31,7 @@
 		"jsor/doctrine-postgis": "^1.7",
 		"liip/imagine-bundle": "^2.1",
 		"sensio/framework-extra-bundle": "^5.3",
+		"swiftmailer/swiftmailer": "^6.2",
 		"symfony/asset": "4.3.*",
 		"symfony/console": "4.3.*",
 		"symfony/flex": "^1.1",

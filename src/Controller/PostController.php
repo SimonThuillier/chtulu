@@ -28,7 +28,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  *
  * @author belze
- *         @Route("/_hb_post")
+ *         @Route("/_hb_post",name="post_")
  */
 class PostController extends AbstractController
 {
@@ -44,7 +44,7 @@ class PostController extends AbstractController
      * @param MediatorFactory $mediatorFactory
      * @param DTONormalizer $normalizer
      * @param DBActionObserver $dbActionObserver
-     * @Route("/post",name="post_post")
+     * @Route("/post",name="post")
      * @Method({"POST"})
      * @throws \Exception
      * @throws \Psr\Container\ContainerExceptionInterface
@@ -185,7 +185,7 @@ class PostController extends AbstractController
      * @param MediatorFactory $mediatorFactory
      * @param DTONormalizer $normalizer
      * @param DBActionObserver $dbActionObserver
-     * @Route("/upload-resource",name="post_upload_resource")
+     * @Route("/upload-resource",name="upload_resource")
      * @Method({"POST"})
      * @throws \Exception
      * @return JsonResponse

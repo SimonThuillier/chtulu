@@ -1,0 +1,54 @@
+swiftmailer:
+    default_mailer:       gmailer
+    mailers:
+        hb_mailer:
+            url:                  null
+            transport:            "%mailer_transport%"
+            command:              '/usr/sbin/sendmail -bs'
+            username:             "%mailer_user%"
+            password:             "%mailer_password%"
+            host:                 "%mailer_host%"
+            port:                 null
+            timeout:              30
+            source_ip:            null
+            local_domain:         null
+            stream_options:       []
+            encryption:           null
+            auth_mode:            null
+            sender_address:       ~
+            delivery_addresses:   []
+            antiflood:
+                threshold:            99
+                sleep:                0
+            logging:              true
+            spool:
+                type:                 file
+                path:                 '%kernel.cache_dir%/swiftmailer/spool'
+
+                # Used by "service" type
+                id:                   null
+            delivery_whitelist:   []
+            disable_delivery:     ~
+        gmailer:
+                    url:                  'gmail://sthuillier1988@gmail.com:.*gooVoltele45gle1@localhost'
+                    transport:            null
+                    command:              '/usr/sbin/sendmail -bs'
+                    username:             null
+                    password:             null
+                    host:                 null
+                    port:                 null
+                    timeout:              30
+                    source_ip:            null
+                    local_domain:         null
+                    stream_options:       []
+                    encryption:           null
+                    auth_mode:            null
+                    disable_delivery:     false
+                    sender_address:       ~
+                    delivery_addresses:   ['simon.thuillier@prestataires.tdf.fr']
+                    antiflood:
+                        threshold:            99
+                        sleep:                0
+                    logging:              true
+                    spool:
+                        type:                 memory

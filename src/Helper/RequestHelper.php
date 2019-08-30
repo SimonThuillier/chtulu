@@ -162,4 +162,38 @@ class RequestHelper
 
         return $result;
     }
+
+    /**
+     * check if register request is valid and returns the data
+     * @param Request $request
+     * @return array
+     * @throws \Exception
+     */
+    public function handleRegisterRequest(Request $request)
+    {
+        $result = [
+            "senderKey"=>null,
+            "email" => null,
+            "password" => null,
+            "_token" => null
+        ];
+
+        if (0 !== strpos($request->headers->get('Content-Type'), 'application/json')) {
+            throw new \Exception("Request Content-Type must be application/json for Register request");
+        }
+        /** @var array $data */
+        $data = json_decode($request->getContent(), true);
+        if(!$data) throw new \Exception("Post request data is null");
+        if(! array_key_exists("senderKey",$data)) throw new \Exception("senderKey attribute is mandatory for Register data");
+        if(! array_key_exists("_token",$data)) throw new \Exception("_token attribute is mandatory for Register data");
+        if(! array_key_exists("email",$data)) throw new \Exception("email attribute is mandatory for Register data");
+        if(! array_key_exists("password",$data)) throw new \Exception("password attribute is mandatory for Register data");
+
+        $result["_token"] = $data["_token"];
+        $result["senderKey"] = $data["senderKey"];
+        $result["email"] = $data["email"];
+        $result["password"] = $data["password"];
+
+        return $result;
+    }
 }
