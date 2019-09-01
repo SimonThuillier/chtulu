@@ -3,6 +3,7 @@ import { BrowserRouter,Route,Switch} from 'react-router-dom';
 import AppContext from "../util/AppContext";
 
 import WelcomePage from "./pages/WelcomePage";
+import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 
 const routes = [
@@ -13,7 +14,13 @@ const routes = [
         component:WelcomePage
     },
     {
-        id:2,
+        id:3,
+        path:'/login',
+        exact:false,
+        component:LoginPage
+    },
+    {
+        id:3,
         path:'/register',
         exact:false,
         component:RegisterPage

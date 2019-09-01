@@ -55,7 +55,10 @@ abstract class AbstractEntityFactory
      * @return mixed
      */
     protected function getUser(){
-        return $this->tokenStorage->getToken()->getUser();
+        if($this->tokenStorage->getToken() !== null){
+            return $this->tokenStorage->getToken()->getUser();
+        }
+        return null;
     }
 
     /**

@@ -1,5 +1,5 @@
 import React from 'react';
-import RegularRegisterForm from '../molecules/RegularRegisterForm';
+import RegularLoginForm from '../molecules/RegularLoginForm';
 const componentUid = require("uuid/v4")();
 import {regularRegister} from '../actions';
 import {makeGetNotificationsSelector} from "../../selectors";
@@ -9,10 +9,10 @@ import NotificationAlert from '../../shared/molecules/NotificationAlert';
 import posed, { PoseGroup } from "react-pose";
 import Shade from '../../shared/atoms/Shade';
 import {HB_CONFIRM, HB_SUCCESS} from "../../util/server";
-import LoginLink from '../atoms/LoginLink';
 import {loadInitialHResponse} from "../../shared/actions";
+import RegisterLink from '../atoms/RegisterLink';
 
-class RegisterCard extends React.Component
+class LoginCard extends React.Component
 {
     constructor(props)
     {
@@ -56,7 +56,8 @@ class RegisterCard extends React.Component
         getIn(['DEFAULT',SUBMITTING_COMPLETED]))||null;
         submittingCompleted = (submittingCompleted && !submittingCompleted.get("discardedAt"))?submittingCompleted:null;
 
-        let initialLogin = null;
+        let initialLogin =(submittingCompleted && submittingCompleted.get('extraData') && submittingCompleted.get('extraData').login)
+            ?submittingCompleted.get('extraData').login:null;
         if(!submittingCompleted){
             let initialNotif = (notifications && notifications.getIn(['DEFAULT',INITIAL]))||null;
 
@@ -72,13 +73,13 @@ class RegisterCard extends React.Component
             }
         }
 
+console.log(initialLogin);
         console.log(submittingCompleted);
 
         return (
                 <div className="register-box-body">
                     <div className="login-box-msg">
-                        <h2>Inscription</h2>
-                        <h4>C'est rapide et facile.</h4>
+                        <h2>Connection à HistoricaBase</h2>
                     </div>
                     <PoseGroup>
                     {submittingCompleted &&
@@ -89,18 +90,16 @@ class RegisterCard extends React.Component
                         dispatch={dispatch}/>
                     </Shade>
                     }
-                    {!(submittingCompleted && submittingCompleted.get("status") === HB_SUCCESS) &&
-                        <Shade key={`${componentUid}-regular-form`}>
-                            <RegularRegisterForm
-                                initialLogin={initialLogin}
-                                onSubmit={this.onRegularSubmit}
-                                submitting={submitting}
-                            />
-                        </Shade>
-                    }
+                    <Shade key={`${componentUid}-regular-form`}>
+                        <RegularLoginForm
+                            initialLogin={initialLogin}
+                            onSubmit={this.onRegularSubmit}
+                            submitting={submitting}
+                        />
+                    </Shade>
                     </PoseGroup>
                     <br/>
-                    <LoginLink message={'Déjà inscrit ? c\'est par ici !'}/>
+                    <RegisterLink message={'Pas encore inscrit ? c\'est par ici !'}/>
                 </div>
         )
     }
@@ -116,4 +115,4 @@ const makeMapStateToProps = () => {
     }
 };
 
-export default connect(makeMapStateToProps)(RegisterCard);
+export default connect(makeMapStateToProps)(LoginCard);

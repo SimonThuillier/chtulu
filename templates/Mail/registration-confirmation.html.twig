@@ -1,0 +1,15 @@
+<html>
+<head>
+</head>
+<body>
+Merci de vous êtes inscrit à {{ siteName }} !<br>
+Vous pouvez désormais vous connecter au site en suivant <a href="{{ url('security_login',{login:user.email}) }}">ce lien</a>  :)
+<br/><br/>
+La connexion est possible avec votre email <strong>{{ user.email }}</strong> ou votre nom d'utilisateur <strong>{{ user.username }}</strong> (vous pourrez le changer par la suite).
+<br/><br>
+Cordialement,
+<br/>
+{{ siteName }}
+<br/>
+</body>
+</html>

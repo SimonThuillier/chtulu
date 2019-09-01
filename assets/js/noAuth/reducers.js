@@ -7,7 +7,6 @@ import {
 import WAOs from '../util/WAOs';
 import SearchBagUtil from '../util/SearchBagUtil';
 const Imm = require("immutable");
-import { reducer as reduxFormReducer } from "redux-form/immutable";
 import {appReducer,updateOnRecordReception,SearchCacheEntry} from '../shared/reducers';
 
 /** SIMPLIFIED READ ONLY REDUCERS FOR WAOS */
@@ -78,8 +77,6 @@ WAOs.entrySeq().forEach(entry => {
 });
 
 waoReducers.app =  appReducer;
-waoReducers.form =  reduxFormReducer;
 
-export const rootReducer = combineReducers(
-    waoReducers);
+export const rootReducer = combineReducers(waoReducers);
 

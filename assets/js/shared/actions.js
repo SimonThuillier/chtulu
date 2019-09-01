@@ -1,17 +1,22 @@
 import SearchBag from '../util/SearchBag';
 import {
     URL_GET,
+    INITIAL_HRESPONSE,
     getUrl,
     getHTTPProps,
     getHBProps,
     HB_SUCCESS,
+    HB_INFO,
     HB_ERROR,
+    HB_WARNING,
+    HB_CONFIRM,
+    DataToPost,
 } from '../util/server';
 import { normalize,denormalize, schema } from 'normalizr';
 import WAOs from '../util/WAOs';
 import GroupUtil from "../util/GroupUtil";
 import SearchBagUtil from '../util/SearchBagUtil';
-import {LOADING,LOADING_COMPLETED} from '../util/notifications';
+import {LOADING, LOADING_COMPLETED, INITIAL} from '../util/notifications';
 
 // notifications actions
 export const NOTIFY = 'NOTIFY';
@@ -19,6 +24,7 @@ export const DISCARD = 'DISCARD';
 // data reception actions
 export const GET = 'GET';
 export const RECEIVE_GET = 'RECEIVE_GET';
+export const RECEIVE_GET_ONE_BY_ID = 'RECEIVE_GET_ONE_BY_ID';
 
 export const TIMEOUT = 5000;
 
@@ -192,6 +198,42 @@ export const receiveGetOneById = (waoType,groups,id,data,message="Données bien 
             wao: Object.values(normData.entities[waoType])[0],
         });
     };
+
+
+let hasLoadedInitialHResponse = false;
+export const loadInitialHResponse = (senderKey=null) => (dispatch, getState) => {
+    if(hasLoadedInitialHResponse) return;
+    hasLoadedInitialHResponse = true;
+    if(INITIAL_HRESPONSE === null) return;
+    const json = INITIAL_HRESPONSE;
+    console.log(`initialHResponse`);
+    console.log(json);
+
+    switch (json.status) {
+        case HB_SUCCESS:
+            console.log(`notify initialHResponse`);
+            return dispatch(notify(INITIAL,senderKey,0,HB_SUCCESS,json.data,json.message));
+            break;
+        case HB_INFO:
+            console.log(`notify initialHResponse`);
+            return dispatch(notify(INITIAL,senderKey,0,HB_INFO,json.data,json.message));
+            break;
+        case HB_ERROR:
+            console.error(json.message);
+            console.log(json.errors);
+            return dispatch(notify(INITIAL,senderKey,0,HB_ERROR,json.data,json.message,json.errors));
+            break;
+        case HB_WARNING:
+            console.warn(json.message);
+            return dispatch(notify(INITIAL,senderKey,0,HB_WARNING,json.data,json.message,json.errors));
+            break;
+        case HB_CONFIRM:
+            setTimeout(()=>{dispatch(discard(INITIAL,senderKey,0))},1000);
+            return dispatch(notify(INITIAL,senderKey,0,HB_CONFIRM,json.data,json.message,json.errors));
+            break;
+        default:
+    }
+};
 
 
 

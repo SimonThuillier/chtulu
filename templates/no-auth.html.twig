@@ -18,6 +18,8 @@
 </body>
 <div id="hb-data" hidden>
     {% block data %}
+        <div data-url="{{ hResponse is defined and hResponse!=null and hResponse!='' ? hResponse:'_NA_' }}"
+             id="hb-initial-response"></div>
         <div data-url="{{ url('security_register') }}" id="hb-url-security-register"></div>
         {% for wao in waoList() %}
                 <div class="hb-wao-mapping" data-mapping="{{ wao|getMapping() }}" id="hb-mapping-{{ wao|getAbridgedName() }}"></div>

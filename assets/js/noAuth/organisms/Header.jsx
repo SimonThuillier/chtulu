@@ -2,6 +2,7 @@ import React from 'react';
 
 import HeaderLogo from '../../shared/atoms/HeaderLogo';
 import SidebarToggler from '../../shared/atoms/SidebarToggler';
+import LoginLink from '../atoms/LoginLink';
 import RegisterLink from '../atoms/RegisterLink';
 
 const Header = (props) => {
@@ -60,6 +61,11 @@ const Header = (props) => {
 
 
 
+                    </ul>
+                    <ul className="nav navbar-nav">
+                        <li className="dropdown user user-menu">
+                            <LoginLink className={'hidden-xs'}/>
+                        </li>
                     </ul>
                 </div>
             </nav>

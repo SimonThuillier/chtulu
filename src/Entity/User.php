@@ -28,7 +28,7 @@ class User implements UserInterface,\Serializable
 
     /**
      * @var string
-     * @ORM\Column(name="username", type="string", length=50, unique=true)
+     * @ORM\Column(name="username", type="string", length=100, unique=true,nullable=false)
      * @Assert\NotNull(message="username is null.")
      * @Assert\NotBlank(message="username {{ value }} is empty.")
      */
@@ -36,19 +36,19 @@ class User implements UserInterface,\Serializable
 
     /**
      * @var string
-     * @ORM\Column(name="firstname", type="string", length=50, nullable=true)
+     * @ORM\Column(name="firstname", type="string", length=100, nullable=true)
      */
     private $firstname;
 
     /**
      * @var string
-     * @ORM\Column(name="lastname", type="string", length=50, nullable=true)
+     * @ORM\Column(name="lastname", type="string", length=100, nullable=true)
      */
     private $lastname;
 
     /**
      * @var string
-     * @ORM\Column(name="email", type="string", length=100, unique=true)
+     * @ORM\Column(name="email", type="string", length=150, unique=true,nullable=false)
      * @Assert\NotNull(message="email is null.")
      * @Assert\NotBlank(message="email {{ value }} is empty.")
      * @Assert\Email(message="email {{ value }} is not a valid email address.",checkMX=true)
@@ -57,13 +57,13 @@ class User implements UserInterface,\Serializable
 
     /**
      * @var string
-     * @ORM\Column(name="salt", type="string", length=255)
+     * @ORM\Column(name="salt", type="string", length=255,nullable=false)
      */
     private $salt;
 
     /**
      * @var string
-     * @ORM\Column(name="password", type="string", length=255)
+     * @ORM\Column(name="password", type="string", length=255,nullable=false)
      */
     private $password;
 
@@ -87,7 +87,7 @@ class User implements UserInterface,\Serializable
 
     /**
      * @var \DateTime
-     * @ORM\Column(name="last_login", type="datetime")
+     * @ORM\Column(name="last_login", type="datetime",nullable=true)
      */
     private $lastLogin;
 
@@ -108,24 +108,6 @@ class User implements UserInterface,\Serializable
      * @ORM\Column(name="enabled", type="boolean")
      */
     private $enabled;
-
-    /**
-     * @var ArrayCollection
-     * @ORM\OneToMany(targetEntity="Article", mappedBy="creationUser")
-     */
-    private $createdArticles;
-
-    /**
-     * @var ArrayCollection
-     * @ORM\OneToMany(targetEntity="HResource", mappedBy="creationUser")
-     */
-    private $createdResources;
-
-    /**
-     * @var ArrayCollection
-     * @ORM\OneToMany(targetEntity="ResourceVersion", mappedBy="creationUser")
-     */
-    private $createdResourceVersions;
 
 
     public function __construct(){
@@ -309,13 +291,12 @@ class User implements UserInterface,\Serializable
     public function setLastLogin($lastLogin)
     {
         $this->lastLogin = $lastLogin;
-
         return $this;
     }
 
     /**
      * Get lastLogin
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function getLastLogin()
     {
@@ -475,31 +456,5 @@ class User implements UserInterface,\Serializable
     {
         return true;
     }
-
-    /**
-     * Get createdArticles
-     * @return ArrayCollection
-     */
-    public function getCreatedArticles(){
-        return $this->createdArticles;
-    }
-
-    /**
-     * @return ArrayCollection
-     */
-    public function getCreatedResources(): ArrayCollection
-    {
-        return $this->createdResources;
-    }
-
-    /**
-     * @return ArrayCollection
-     */
-    public function getCreatedResourceVersions(): ArrayCollection
-    {
-        return $this->createdResourceVersions;
-    }
-
-
 }
 

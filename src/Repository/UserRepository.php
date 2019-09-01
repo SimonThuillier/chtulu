@@ -20,27 +20,29 @@ class UserRepository extends ServiceEntityRepository
     }
 
     /**
-     * returns true if username exists, false otherwise
+     * returns count of all users with username beginning by the parameter, 0 if none exists
      * @param string $username
-     * @return boolean
+     * @return int
      */
-    public function usernameExists($username){
+    public function countWithUsernamePrefix($username)
+    {
         $qb = $this->getEntityManager()->createQueryBuilder();
         $qb->select('count(u.id) FROM ' . $this->getEntityName() . ' u')
-            ->where('u.username = :param')
-            ->setParameter('param',$username);
+            ->where($qb->expr()->eq('u.username',$qb->expr()->literal($username)))
+            ->orWhere($qb->expr()->like('u.username',$qb->expr()->literal($username . '|%')));
 
         $result = $qb->getQuery()->getSingleScalarResult();
-        if($result !== null && $result>0) {return true;}
-        return false;
+        if($result !== null ) return intval($result);
+        return 0;
     }
 
     /**
-     * returns true if email exists, false otherwise
+     * returns true if username with this email exists, false otherwise
      * @param string $email
      * @return boolean
      */
-    public function emailExists($email){
+    public function emailExists($email)
+    {
         $qb = $this->getEntityManager()->createQueryBuilder();
         $qb->select('count(u.id) FROM ' . $this->getEntityName() . ' u')
             ->where('u.email = :param')

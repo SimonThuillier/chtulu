@@ -6,13 +6,14 @@ import {
     getHBProps,
     HB_SUCCESS,
     HB_ERROR,
+    HB_WARNING,
     HTTP_POST,
     DataToPost
 } from '../util/server';
 import { normalize,denormalize, schema } from 'normalizr';
 import WAOs from '../util/WAOs';
 import GroupUtil from "../util/GroupUtil";
-import {LOADING, LOADING_COMPLETED, SUBMITTING, SUBMITTING_COMPLETED} from '../util/notifications';
+import {LOADING, LOADING_COMPLETED, SUBMITTING, SUBMITTING_COMPLETED,INITIAL} from '../util/notifications';
 import {notify,errorGet,subReceiveGet} from '../shared/actions';
 import {entitiesSelector} from "../selectors";
 import {getDataToPost} from "../util/WAOUtil";
@@ -56,10 +57,13 @@ export const regularRegister = (data,senderKey) => (dispatch, getState) => {
                         dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_SUCCESS,null,json.message));
                         break;
                     case HB_ERROR:
-                        console.log("retour en erreur : ");
+                        console.error(json.message);
                         console.log(json.errors);
-                        //json.errors = JSON.parse(json.errors);
                         dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_ERROR,null,json.message,json.errors));
+                        break;
+                    case HB_WARNING:
+                        console.warn(json.message);
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_WARNING,null,json.message,json.errors));
                         break;
                     default:
                 }

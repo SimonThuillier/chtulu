@@ -1,7 +1,10 @@
 <?php
 namespace App\Controller;
 
+use App\Entity\PendingAction;
+use App\Entity\User;
 use App\Helper\RequestHelper;
+use App\Manager\SecurityManager;
 use App\Util\HJsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -9,6 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
  * @Route("/_security", name="security_")
@@ -19,40 +23,41 @@ class SecurityController extends AbstractController
      * @Route("/register",name="register")
      * @param Request $request
      * @param RequestHelper $requestHelper
+     * @param SecurityManager $securityManager
      * @return JsonResponse
      */
     public function registerAction(
         Request $request,
         RequestHelper $requestHelper,
-        \Swift_Mailer $mailer
+        SecurityManager $securityManager
     )
     {
         $hResponse = new HJsonResponse();
         try{
             $handledRequest = $requestHelper->handleRegisterRequest($request);
+            $result = $securityManager->askRegistration($handledRequest["email"],$handledRequest["password"]);
+            /** @var PendingAction $action */
+            $action = $result['action'];
 
-            $hResponse
-                ->setStatus(HJsonResponse::ERROR)
-                ->setMessage("L'adresse est déjà utilisée")
-                ->setData(['dataTest' => 'test'])
-                ->setSenderKey($handledRequest["senderKey"]);
-
-            $message = (new \Swift_Message('Hello Email'))
-                ->setFrom('send@example.com')
-                ->setTo('simon.thuillier@prestataires.tdf.fr')
-                ->setBody(
-                    $this->renderView(
-                    // templates/hello/email.txt.twig
-                        'Mail/test.html.twig',
-                        ['name' => 'simon']
-                    )
-                )
-            ;
-
-            $mailer->send($message);
-
-
-
+            switch($result['resultCode']){
+                case SecurityManager::RESULT_DONE:
+                    $hResponse->setMessage('Votre inscription a bien été prise en compte. 
+                    Un mail de validation a été envoyé à <strong>' . $action->getEmail() . "</strong>.");
+                    break;
+                case SecurityManager::RESULT_RENEWED:
+                    $hResponse->setMessage("Votre demande d'inscription du " . $action->getUpdatedAt()->format("d/m/Y à H:i") .
+                        " avait expiré et a été renouvelée pour 24H. Un 
+                    nouveau mail de validation a été envoyé à <strong>". $action->getEmail() . "</strong>.");
+                    break;
+                case SecurityManager::RESULT_UPDATED:
+                    $hResponse
+                        ->setStatus(HJsonResponse::WARNING)
+                        ->setMessage("Une demande d'inscription a déjà été faîte le " .
+                            $action->getCreatedAt()->format("d/m/Y à H:i") . " pour le mail <strong>" . $action->getEmail() . "</strong>.");
+                    break;
+                default:
+                    break;
+            }
         }
         catch(\Exception $e){
             $hResponse
@@ -65,18 +70,108 @@ class SecurityController extends AbstractController
     }
 
     /**
-     * @Route("/login",name="login")
+     * @Route("/validate-register/{email}/{token}",name="validate_register")
+     * @param Request $request
+     * @param RequestHelper $requestHelper
+     * @param string $email
+     * @param string $token
      */
-    public function loginAction(Request $request, AuthenticationUtils $authUtils)
+    public function validateRegisterAction(
+        Request $request,
+        SecurityManager $securityManager,
+        string $email,
+        string $token,
+        Session $session
+    )
     {
+        $session->remove('initialHResponse');
+        $hResponse = new HJsonResponse();
+        try{
+            $result = $securityManager->askValidateRegistration($email,$token);
+            /** @var PendingAction $action */
+            $action = $result['action'];
+            /** @var User $user */
+            $user = $result['user'];
+
+            switch($result['resultCode']){
+                case SecurityManager::RESULT_NOTHING:
+                    $hResponse
+                        ->setStatus(HJsonResponse::INFO)
+                        ->setData(["login"=>$email])
+                        ->setMessage("Le mail <strong>" . $email . "</strong> 
+                    est déjà inscrit. Il n'y a plus qu'à vous connecter :)");
+                    $session->set('initialHResponse',HJsonResponse::normalize($hResponse));
+                    return $this->redirectToRoute('no-auth_homepage',['page'=>'login']);
+                    break;
+                case SecurityManager::RESULT_TO_RENEW:
+                    $hResponse
+                        ->setStatus(HJsonResponse::WARNING)
+                        ->setData(["login"=>$email])
+                        ->setMessage("Votre demande d'inscription du " . $action->getUpdatedAt()->format("d/m/Y à H:i") .
+                        " a expiré et doit être renouvelée. Un 
+                    nouveau mail de validation sera envoyé à <strong>". $action->getEmail() . "</strong>.");
+                    $session->set('initialHResponse',HJsonResponse::normalize($hResponse));
+                    return $this->redirectToRoute('no-auth_homepage',['page'=>'register']);
+                    break;
+                case SecurityManager::RESULT_DONE:
+                    $hResponse
+                        ->setStatus(HJsonResponse::SUCCESS)
+                        ->setData(["login"=>$user->getEmail()])
+                        ->setMessage("Votre inscription est désormais terminée ! :) Vous pouvez vous connecter
+                        avec votre email <strong>". $user->getEmail() ."</strong> ou votre nom d'utilisateur par défaut <strong>". $user->getUsername() ."</strong>");
+                    $session->set('initialHResponse',HJsonResponse::normalize($hResponse));
+                    break;
+                default:
+                    break;
+            }
+        }
+        catch(\Exception $e){
+            $hResponse
+                ->setStatus(HJsonResponse::ERROR)
+                ->setMessage($e->getMessage());
+            $session->set('initialHResponse',HJsonResponse::normalize($hResponse));
+            return $this->redirectToRoute('no-auth_homepage',['page'=>'register']);
+        }
+
+        return $this->redirectToRoute('no-auth_homepage',['page'=>'login']);
+    }
+
+    /**
+     * @Route("/login/{login}",name="login")
+     */
+    public function loginAction(
+        Request $request,
+        AuthenticationUtils $authUtils,
+        $login,
+        Session $session
+    )
+    {
+        $session->remove('initialHResponse');
+        $hResponse = new HJsonResponse();
+
+
+        if ($request->getMethod() === "GET") {
+            $hResponse
+                ->setStatus(HJsonResponse::CONFIRM)
+                ->setData(["login"=>$login]);
+            $session->set('initialHResponse',HJsonResponse::normalize($hResponse));
+            return $this->redirectToRoute('no-auth_homepage',['page'=>'login']);
+        }
+
+        /*
         // get the login error if there is one
         $error = $authUtils->getLastAuthenticationError();
 
         // last username entered by the user
         $lastUsername = $authUtils->getLastUsername();
 
-        /** @var Session $session */
-        $session = $this->get('session');
+
+        if ($request->getMethod() === "POST" && $error === null) {
+            $session->getFlashBag()->add('success', 'Bienvenue ' . $this->get('security.token_storage')
+                    ->getToken()
+                    ->getUser());
+        }
+
         if ($request->getMethod() === "POST" && $error === null) {
             $session->getFlashBag()->add('success', 'Bienvenue ' . $this->get('security.token_storage')
                 ->getToken()
@@ -86,7 +181,7 @@ class SecurityController extends AbstractController
         return $this->render('@HB/Security/login.html.twig', array(
             'last_username' => $lastUsername,
             'error' => $error
-        ));
+        ));*/
     }
 
     /**

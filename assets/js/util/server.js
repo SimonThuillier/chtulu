@@ -9,6 +9,13 @@ const getDataUrlOrNa = (domId) =>{
     return url;
 };
 
+let initialHResponse = getDataUrlOrNa('hb-initial-response');
+console.log(initialHResponse);
+if(initialHResponse && initialHResponse !== '_NA_') initialHResponse = JSON.parse(initialHResponse);
+else initialHResponse = null;
+
+export const INITIAL_HRESPONSE = initialHResponse;
+
 export const URL_REGISTER = getDataUrlOrNa('hb-url-security-register');
 
 export const URL_GET = getDataUrlOrNa('hb-url-get-get');

@@ -15,7 +15,6 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @author Belze
  * @ORM\Table(name="hb_article")
  * @ORM\Entity(repositoryClass="App\Repository\ArticleRepository")
- * @UniqueEntity(fields="title", message="Another article named {{ value }} exists. Consider editing it instead or rename your article.")
  */
 class Article extends DTOMutableEntity
 {

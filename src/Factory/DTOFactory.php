@@ -55,7 +55,7 @@ class DTOFactory implements ServiceSubscriberInterface
     public function create(string $className)
     {
         if (!class_exists($className)) {
-            throw new FactoryException('Class ' . $className . ' doesn\'t exists');
+            throw new FactoryException('Class ' . $className . ' doesn\'t exist');
         }
         // !array_key_exists($className,self::getSubscribedServices())
         if (!$this->locator->has($className)) {

@@ -12,9 +12,11 @@ use App\Entity\Article;
 use App\Entity\ArticleLink;
 use App\Entity\DTOMutableEntity;
 use App\Entity\HResource;
+use App\Entity\PendingAction;
 use App\Entity\ResourceFile;
 use App\Entity\ResourceGeometry;
 use App\Entity\ResourceVersion;
+use App\Entity\User;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\ServiceSubscriberInterface;
 
@@ -43,7 +45,9 @@ class EntityFactory implements ServiceSubscriberInterface
             HResource::class => ResourceFactory::class,
             ResourceFile::class => ResourceFileFactory::class,
             ResourceVersion::class => ResourceVersionFactory::class,
-            ResourceGeometry::class => ResourceGeometryFactory::class
+            ResourceGeometry::class => ResourceGeometryFactory::class,
+            PendingAction::class => PendingActionFactory::class,
+            User::class => UserFactory::class
         ];
     }
 
@@ -55,7 +59,7 @@ class EntityFactory implements ServiceSubscriberInterface
     public function create(string $className)
     {
         if (!class_exists($className)) {
-            throw new FactoryException('Class ' . $className . ' doesn\'t exists');
+            throw new FactoryException('Class ' . $className . ' doesn\'t exist');
         }
         // !array_key_exists($className,self::getSubscribedServices())
         if (!$this->locator->has($className)) {

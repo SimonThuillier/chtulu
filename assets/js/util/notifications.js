@@ -1,5 +1,5 @@
 
-
+export const INITIAL = 'INITIAL';
 export const LOADING = 'LOADING';
 export const LOADING_COMPLETED = 'LOADING_COMPLETED';
 export const SUBMITTING = 'SUBMITTING';

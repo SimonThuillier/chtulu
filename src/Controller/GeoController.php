@@ -36,20 +36,6 @@ class GeoController extends AbstractController
     }
 
     /**
-     * @Route("/react", name="geo_testpage")
-     * @Template()
-     */
-    public function reactAction(Request $request,ReactTranspiler $transpiler)
-    {
-        /** @var Session $session */
-        $session = $this->get('session');
-
-        //$cmd = $transpiler->test1();
-        ob_clean();
-        return array('cmd'=>'yolo');
-    }
-
-    /**
      * @Route("/test-react-router1", name="geo_testreactrouter1")
      * @Template()
      */

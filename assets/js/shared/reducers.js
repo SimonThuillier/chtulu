@@ -1,4 +1,4 @@
-import {LOADING, LOADING_COMPLETED, SUBMITTING, SUBMITTING_COMPLETED} from "../util/notifications";
+import {INITIAL,LOADING, LOADING_COMPLETED, SUBMITTING, SUBMITTING_COMPLETED} from "../util/notifications";
 
 import {
     NOTIFY,
@@ -6,12 +6,6 @@ import {
     ADD_PENDING,
     REMOVE_PENDING
 } from '../actions';
-import {
-    LOADING,
-    SUBMITTING,
-    LOADING_COMPLETED,
-    SUBMITTING_COMPLETED
-} from '../util/notifications';
 
 
 import GroupUtil from '../util/GroupUtil';
@@ -27,10 +21,24 @@ const initialAppState = Imm.Map({
 
 export const appReducer = (state=initialAppState, action) =>{
     const {notifType,senderKey,senderParam,status,waoType,groups,id,extraData,message,errors} = action;
+    console.log(action);
     switch (action.type) {
         case NOTIFY:
             let notification=null;
+            console.log(action);
             switch(notifType){
+                case INITIAL :
+                    notification = Imm.Map({
+                        notifType : notifType,
+                        senderKey : senderKey,
+                        senderParam : senderParam || 'DEFAULT',
+                        message:message,
+                        extraData:extraData,
+                        status:status,
+                        receivedAt : Date.now(),
+                    });
+                    state = state.setIn(["notifications",senderKey,senderParam || 'DEFAULT',notifType],notification);
+                    return state;
                 case LOADING :
                     notification = Imm.Map({
                         notifType : notifType,
