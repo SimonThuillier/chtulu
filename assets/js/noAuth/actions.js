@@ -1,6 +1,7 @@
 import {
     URL_GET_ONE_BY_ID,
     URL_REGISTER,
+    URL_LOGIN,
     getUrl,
     getHTTPProps,
     getHBProps,
@@ -15,7 +16,7 @@ import WAOs from '../util/WAOs';
 import GroupUtil from "../util/GroupUtil";
 import {LOADING, LOADING_COMPLETED, SUBMITTING, SUBMITTING_COMPLETED,INITIAL} from '../util/notifications';
 import {notify,errorGet,subReceiveGet} from '../shared/actions';
-import {entitiesSelector} from "../selectors";
+import {entitiesSelector} from "../shared/selectors";
 import {getDataToPost} from "../util/WAOUtil";
 
 // data reception actions
@@ -54,16 +55,60 @@ export const regularRegister = (data,senderKey) => (dispatch, getState) => {
                 console.log(json);
                 switch (json.status) {
                     case HB_SUCCESS:
-                        dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_SUCCESS,null,json.message));
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_SUCCESS,json.data,json.message));
                         break;
                     case HB_ERROR:
                         console.error(json.message);
                         console.log(json.errors);
-                        dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_ERROR,null,json.message,json.errors));
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_ERROR,json.data,json.message,json.errors));
                         break;
                     case HB_WARNING:
                         console.warn(json.message);
-                        dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_WARNING,null,json.message,json.errors));
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_WARNING,json.data,json.message,json.errors));
+                        break;
+                    default:
+                }
+            }
+        )
+};
+
+export const regularLogin = (data,senderKey) => (dispatch, getState) => {
+    console.log("login");
+    console.log(data);
+
+    let dataToPost = DataToPost(senderKey);
+    dataToPost.login = data.login;
+    dataToPost.password = data.password;
+    console.log(`dataToPost`);
+    console.log(dataToPost);
+
+    const url = getUrl(URL_LOGIN);
+    let httpProps = getHTTPProps(HTTP_POST);
+    httpProps.body = JSON.stringify(dataToPost);
+
+    dispatch(notify(SUBMITTING,senderKey,0));
+
+    return fetch(url,httpProps)
+        .then(response => response.json())
+        .catch(exception => {
+                dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_ERROR,null,"Le serveur est tombé en erreur :(",null));
+            }
+        )
+        .then(json => {
+                console.log("post returned !");
+                console.log(json);
+                switch (json.status) {
+                    case HB_SUCCESS:
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_SUCCESS,json.data,json.message));
+                        break;
+                    case HB_ERROR:
+                        console.error(json.message);
+                        console.log(json.errors);
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_ERROR,json.data,json.message,json.errors));
+                        break;
+                    case HB_WARNING:
+                        console.warn(json.message);
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_WARNING,json.data,json.message,json.errors));
                         break;
                     default:
                 }

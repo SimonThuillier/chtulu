@@ -21,9 +21,10 @@
         <div data-url="{{ hResponse is defined and hResponse!=null and hResponse!='' ? hResponse:'_NA_' }}"
              id="hb-initial-response"></div>
         <div data-url="{{ url('security_register') }}" id="hb-url-security-register"></div>
+        <div data-url="{{ url('security_login') }}" id="hb-url-security-login"></div>
         {% for wao in waoList() %}
-                <div class="hb-wao-mapping" data-mapping="{{ wao|getMapping() }}" id="hb-mapping-{{ wao|getAbridgedName() }}"></div>
-                <div class="hb-wao-structure" data-structure="{{ wao|getStructure() }}" id="hb-structure-{{ wao|getAbridgedName() }}"></div>
+            <div class="hb-wao-mapping" data-mapping="{{ wao|getMapping() }}" id="hb-mapping-{{ wao|getAbridgedName() }}"></div>
+            <div class="hb-wao-structure" data-structure="{{ wao|getStructure() }}" id="hb-structure-{{ wao|getAbridgedName() }}"></div>
         {% endfor %}
         <div data-token="_NA_" id="hb-security-token"></div>
     {% endblock %}

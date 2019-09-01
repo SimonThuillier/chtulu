@@ -2,8 +2,8 @@ import React from 'react'
 import { render } from 'react-dom'
 import { createStore,applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
-import App from './containers/Auth'
-import {rootReducer} from './reducers'
+import Auth from './auth/Auth'
+import {rootReducer} from './auth/reducers'
 import thunk from 'redux-thunk'
 import { composeWithDevTools } from 'redux-devtools-extension';
 require('./app.js');
@@ -17,7 +17,7 @@ const store = createStore(
 
 render(
     <Provider store={store}>
-        <App />
+        <Auth/>
     </Provider>,
     document.getElementById('hb-wrapper')
 );

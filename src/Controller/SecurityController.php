@@ -7,11 +7,12 @@ use App\Helper\RequestHelper;
 use App\Manager\SecurityManager;
 use App\Util\HJsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
@@ -108,7 +109,7 @@ class SecurityController extends AbstractController
                         ->setStatus(HJsonResponse::WARNING)
                         ->setData(["login"=>$email])
                         ->setMessage("Votre demande d'inscription du " . $action->getUpdatedAt()->format("d/m/Y à H:i") .
-                        " a expiré et doit être renouvelée. Un 
+                            " a expiré et doit être renouvelée. Un 
                     nouveau mail de validation sera envoyé à <strong>". $action->getEmail() . "</strong>.");
                     $session->set('initialHResponse',HJsonResponse::normalize($hResponse));
                     return $this->redirectToRoute('no-auth_homepage',['page'=>'register']);
@@ -117,8 +118,9 @@ class SecurityController extends AbstractController
                     $hResponse
                         ->setStatus(HJsonResponse::SUCCESS)
                         ->setData(["login"=>$user->getEmail()])
-                        ->setMessage("Votre inscription est désormais terminée ! :) Vous pouvez vous connecter
-                        avec votre email <strong>". $user->getEmail() ."</strong> ou votre nom d'utilisateur par défaut <strong>". $user->getUsername() ."</strong>");
+                        ->setMessage("Votre inscription est désormais terminée ! :) <br/>
+                        Vous pouvez vous connecter avec votre email <strong>". $user->getEmail() ."</strong> 
+                        ou votre nom d'utilisateur par défaut <strong>". $user->getUsername() ."</strong>");
                     $session->set('initialHResponse',HJsonResponse::normalize($hResponse));
                     break;
                 default:
@@ -138,50 +140,66 @@ class SecurityController extends AbstractController
 
     /**
      * @Route("/login/{login}",name="login")
+     * @param string|null $login
+     * @param Request $request
+     * @param RequestHelper $requestHelper
+     * @param SecurityManager $securityManager
+     * @param Session $session
+     * @param TokenStorageInterface $tokenStorage
+     * @param EventDispatcherInterface $eventDispatcher
+     * @return mixed
      */
     public function loginAction(
+        $login=null,
         Request $request,
-        AuthenticationUtils $authUtils,
-        $login,
-        Session $session
+        RequestHelper $requestHelper,
+        SecurityManager $securityManager,
+        Session $session,
+        TokenStorageInterface $tokenStorage,
+        EventDispatcherInterface $eventDispatcher
     )
     {
         $session->remove('initialHResponse');
         $hResponse = new HJsonResponse();
 
-
-        if ($request->getMethod() === "GET") {
+        if ($request->getMethod() === 'GET') {
             $hResponse
                 ->setStatus(HJsonResponse::CONFIRM)
-                ->setData(["login"=>$login]);
+                ->setData(($login!==null && !empty($login))?["login"=>$login]:null);
             $session->set('initialHResponse',HJsonResponse::normalize($hResponse));
             return $this->redirectToRoute('no-auth_homepage',['page'=>'login']);
         }
 
-        /*
-        // get the login error if there is one
-        $error = $authUtils->getLastAuthenticationError();
+        /** POST case e.g. someone wants to login */
+        try{
+            $handledRequest = $requestHelper->handleLoginRequest($request);
 
-        // last username entered by the user
-        $lastUsername = $authUtils->getLastUsername();
+            $user = $securityManager->login(
+                $handledRequest['login'],
+                $handledRequest['password'],
+                $request,
+                $session,
+                $tokenStorage,
+                $eventDispatcher
+            );
 
-
-        if ($request->getMethod() === "POST" && $error === null) {
-            $session->getFlashBag()->add('success', 'Bienvenue ' . $this->get('security.token_storage')
-                    ->getToken()
-                    ->getUser());
+            $hResponse
+                ->setMessage('Connection reussie <strong>'. $user->getUsername() .'</strong>!')
+                ->setData(["redirectTo"=>$this->generateUrl(
+                    'auth_homepage',
+                    ['page'=>'explorer'],
+                    UrlGeneratorInterface::ABSOLUTE_URL)]);
+        }
+        catch(\Exception $e){
+            $hResponse
+                ->setStatus(HJsonResponse::ERROR)
+                ->setMessage($e->getMessage());
+            ob_clean();
+            return new JsonResponse(HJsonResponse::normalize($hResponse));
         }
 
-        if ($request->getMethod() === "POST" && $error === null) {
-            $session->getFlashBag()->add('success', 'Bienvenue ' . $this->get('security.token_storage')
-                ->getToken()
-                ->getUser());
-        }
-
-        return $this->render('@HB/Security/login.html.twig', array(
-            'last_username' => $lastUsername,
-            'error' => $error
-        ));*/
+        ob_clean();
+        return new JsonResponse(HJsonResponse::normalize($hResponse));
     }
 
     /**

@@ -17,6 +17,8 @@ else initialHResponse = null;
 export const INITIAL_HRESPONSE = initialHResponse;
 
 export const URL_REGISTER = getDataUrlOrNa('hb-url-security-register');
+export const URL_LOGIN = getDataUrlOrNa('hb-url-security-login');
+export const URL_LOGOUT = getDataUrlOrNa('hb-url-security-logout');
 
 export const URL_GET = getDataUrlOrNa('hb-url-get-get');
 export const URL_GET_ONE_BY_ID = getDataUrlOrNa('hb-url-get-get-one-by-id');

@@ -2,7 +2,7 @@ import React from 'react';
 import RegularRegisterForm from '../molecules/RegularRegisterForm';
 const componentUid = require("uuid/v4")();
 import {regularRegister} from '../actions';
-import {makeGetNotificationsSelector} from "../../selectors";
+import {makeGetNotificationsSelector} from "../../shared/selectors";
 import {connect} from "react-redux";
 import {INITIAL, SUBMITTING, SUBMITTING_COMPLETED} from "../../util/notifications";
 import NotificationAlert from '../../shared/molecules/NotificationAlert';
@@ -56,19 +56,19 @@ class RegisterCard extends React.Component
         getIn(['DEFAULT',SUBMITTING_COMPLETED]))||null;
         submittingCompleted = (submittingCompleted && !submittingCompleted.get("discardedAt"))?submittingCompleted:null;
 
-        let initialLogin = null;
+        let initialLogin =(submittingCompleted && submittingCompleted.get('extraData') && submittingCompleted.get('extraData').login)
+            ?submittingCompleted.get('extraData').login:null;
+
         if(!submittingCompleted){
             let initialNotif = (notifications && notifications.getIn(['DEFAULT',INITIAL]))||null;
 
-            if(initialNotif !==null && initialNotif.get('status') === HB_CONFIRM){
+            if(initialNotif !==null && !initialNotif.get("discardedAt")){
                 initialLogin = initialNotif.get('extraData')?initialNotif.get('extraData').login:null;
                 console.log(`initial notif`);
                 console.log(initialNotif);
                 console.log(`initial login ${initialLogin}`);
+                if(initialNotif.get("status") !== HB_CONFIRM) submittingCompleted = initialNotif;
                 initialNotif = null;
-            }
-            else{
-                submittingCompleted = (initialNotif && !initialNotif.get("discardedAt"))?initialNotif:null;
             }
         }
 

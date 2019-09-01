@@ -5,7 +5,7 @@ import {loadInitialHResponse} from '../../shared/actions';
 
 import Header from '../organisms/Header';
 import RegisterLink from '../atoms/RegisterLink';
-import {makeGetNotificationsSelector} from "../../selectors";
+import {makeGetNotificationsSelector} from "../../shared/selectors";
 import {connect} from "react-redux";
 import { PoseGroup } from "react-pose";
 import Shade from '../../shared/atoms/Shade';

@@ -13,7 +13,14 @@ use App\Entity\PendingAction;
 use App\Entity\User;
 use App\Factory\EntityFactory;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class SecurityManager
@@ -176,7 +183,7 @@ class SecurityManager
 
         // to prevent two identical username
         $usernameCount = $this->doctrine->getRepository(User::class)->countWithUsernamePrefix($username);
-        if($usernameCount>0) $username = $username . '|' . self::generateToken(8);
+        if($usernameCount>0) $username = $username . '@' . self::generateToken(8);
 
         /** @var User $user */
         $user = $this->entityFactory->create(User::class);
@@ -200,11 +207,63 @@ class SecurityManager
      * encode password and update salt and plain password
      * @param User $user
      */
-    private function encodePassword(User $user){
+    private function encodePassword(User $user)
+    {
         $user
             ->setSalt(self::generateToken())
             ->setPassword($this->encoder->encodePassword($user, $user->getPlainPassword()))
             ->setPlainPassword(null);
+    }
+
+    /**
+     * try to login, either throw an exception or return the User
+     * @param string $login
+     * @param string $password
+     * @param Request $request
+     * @param Session $session
+     * @param TokenStorageInterface $tokenStorage
+     * @param EventDispatcherInterface $eventDispatcher
+     * @throws \Exception
+     * @return User
+     */
+    public function login(
+        string $login,
+        string $password,
+        Request $request,
+        Session $session,
+        TokenStorageInterface $tokenStorage,
+        EventDispatcherInterface $eventDispatcher
+    )
+    {
+        /** A : retrieve User */
+        /** @var User $user */
+        $user = $this->doctrine->getRepository(User::class)->loadUserByUsername($login);
+        if($user === null) throw new \Exception("L'utilisateur <strong>". $login ."</strong> n'existe pas. <br/>Etes vous déjà inscrit ?");
+
+        /** B : check password */
+        $passwordValid = $this->encoder->isPasswordValid($user,$password);
+        if(!$passwordValid) throw new \Exception("<u>Le mot de passe est invalide</u>");
+
+        /** C : check if user is enabled */
+        if(!$user->getEnabled()) throw new \Exception("L'utilisateur est actuellement <u>desactivé</u>");
+
+        /** D : login the user ! */
+        $token = new UsernamePasswordToken($user, null, 'main', $user->getRoles());
+        $tokenStorage->setToken($token);
+
+        // If the firewall name is not main, then the set value would be instead:
+        // $this->get('session')->set('_security_XXXFIREWALLNAMEXXX', serialize($token));
+        $session->set('_security_main', serialize($token));
+
+        // Fire the login event manually
+        $event = new InteractiveLoginEvent($request, $token);
+        try{$eventDispatcher->dispatch($event);}
+        catch(\TypeError $e){throw new \Exception($e->getMessage());}
+
+        $user->setLastLogin(new \DateTime());
+        $this->doctrine->getManager()->flush();
+
+        return $user;
     }
 
 

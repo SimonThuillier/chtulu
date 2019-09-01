@@ -5,7 +5,7 @@ import {
     DISCARD,
     ADD_PENDING,
     REMOVE_PENDING
-} from '../actions';
+} from '../auth/actions';
 
 
 import GroupUtil from '../util/GroupUtil';

@@ -196,4 +196,38 @@ class RequestHelper
 
         return $result;
     }
+
+    /**
+     * check if login request is valid and returns the data
+     * @param Request $request
+     * @return array
+     * @throws \Exception
+     */
+    public function handleLoginRequest(Request $request)
+    {
+        $result = [
+            "senderKey"=>null,
+            "email" => null,
+            "password" => null,
+            "_token" => null
+        ];
+
+        if (0 !== strpos($request->headers->get('Content-Type'), 'application/json')) {
+            throw new \Exception("Request Content-Type must be application/json for Login request");
+        }
+        /** @var array $data */
+        $data = json_decode($request->getContent(), true);
+        if(!$data) throw new \Exception("Post request data is null");
+        if(! array_key_exists("senderKey",$data)) throw new \Exception("senderKey attribute is mandatory for Login data");
+        if(! array_key_exists("_token",$data)) throw new \Exception("_token attribute is mandatory for Login data");
+        if(! array_key_exists("login",$data)) throw new \Exception("login attribute is mandatory for Login data");
+        if(! array_key_exists("password",$data)) throw new \Exception("password attribute is mandatory for Login data");
+
+        $result["_token"] = $data["_token"];
+        $result["senderKey"] = $data["senderKey"];
+        $result["login"] = $data["login"];
+        $result["password"] = $data["password"];
+
+        return $result;
+    }
 }

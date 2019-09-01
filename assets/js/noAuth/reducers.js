@@ -2,7 +2,7 @@ import { combineReducers } from 'redux-immutable'
 import {
     RECEIVE_GET,
     RECEIVE_GET_ONE_BY_ID
-} from '../actions';
+} from '../auth/actions';
 
 import WAOs from '../util/WAOs';
 import SearchBagUtil from '../util/SearchBagUtil';
