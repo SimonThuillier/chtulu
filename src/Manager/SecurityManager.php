@@ -15,15 +15,19 @@ use App\Factory\EntityFactory;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class SecurityManager
+class SecurityManager implements AuthenticationFailureHandlerInterface
 {
     const RESULT_DONE = 'DONE';
     const RESULT_UPDATED = 'UPDATED';
@@ -42,12 +46,15 @@ class SecurityManager
 
     private $mailer;
 
+    private $router;
+
     public function __construct(
         ManagerRegistry $doctrine,
         ValidatorInterface $validator,
         UserPasswordEncoderInterface $encoder,
         EntityFactory $entityFactory,
-        SecurityMailer $mailer
+        SecurityMailer $mailer,
+        RouterInterface $router
     )
     {
         $this->doctrine = $doctrine;
@@ -56,6 +63,7 @@ class SecurityManager
 
         $this->entityFactory = $entityFactory;
         $this->mailer = $mailer;
+        $this->router = $router;
     }
 
     /**
@@ -266,6 +274,14 @@ class SecurityManager
         return $user;
     }
 
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
+    {
+        // TODO: Implement onAuthenticationFailure() method.
+
+        $truc = 'lol';
+
+        return new RedirectResponse($this->router->generate('no-auth_homepage',['page'=>'login']));
+    }
 
 
     public static function generateToken($length=32)

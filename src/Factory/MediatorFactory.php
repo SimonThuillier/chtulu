@@ -14,12 +14,14 @@ use App\DTO\EntityMutableDTO;
 use App\DTO\ResourceDTO;
 use App\DTO\ResourceGeometryDTO;
 use App\DTO\ResourceVersionDTO;
+use App\DTO\UserDTO;
 use App\Entity\Article;
 use App\Entity\ArticleLink;
 use App\Entity\DTOMutableEntity;
 use App\Entity\HResource;
 use App\Entity\ResourceGeometry;
 use App\Entity\ResourceVersion;
+use App\Entity\User;
 use App\Helper\AssetHelper;
 use App\Manager\File\FileLocalUploader;
 use App\Manager\File\FileRouter;
@@ -29,6 +31,7 @@ use App\Mediator\DTOMediator;
 use App\Mediator\ResourceDTOMediator;
 use App\Mediator\ResourceGeometryDTOMediator;
 use App\Mediator\ResourceVersionDTOMediator;
+use App\Mediator\UserDTOMediator;
 use App\Observer\DBActionObserver;
 use App\Serializer\HDateNormalizer;
 use App\Util\ClearableInterface;
@@ -58,6 +61,7 @@ class MediatorFactory implements ServiceSubscriberInterface,ClearableInterface
         ResourceVersionDTO::class => ResourceVersionDTOMediator::class,
         ResourceGeometryDTO::class => ResourceGeometryDTOMediator::class,
         ArticleLinkDTO::class => ArticleLinkDTOMediator::class,
+        UserDTO::class => UserDTOMediator::class
     ];
 
     private const DEFAULT_ENTITY_DTO = [
@@ -66,6 +70,7 @@ class MediatorFactory implements ServiceSubscriberInterface,ClearableInterface
         ResourceVersion::class => ResourceVersionDTO::class,
         ResourceGeometry::class => ResourceGeometryDTO::class,
         ArticleLink::class => ArticleLinkDTO::class,
+        User::class => UserDTO::class
     ];
 
     private const OTHER_SERVICES = [

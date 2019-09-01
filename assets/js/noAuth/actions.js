@@ -9,13 +9,13 @@ import {
     HB_ERROR,
     HB_WARNING,
     HTTP_POST,
-    DataToPost
+    DataToPost, INITIAL_HRESPONSE, HB_INFO, HB_CONFIRM
 } from '../util/server';
 import { normalize,denormalize, schema } from 'normalizr';
 import WAOs from '../util/WAOs';
 import GroupUtil from "../util/GroupUtil";
 import {LOADING, LOADING_COMPLETED, SUBMITTING, SUBMITTING_COMPLETED,INITIAL} from '../util/notifications';
-import {notify,errorGet,subReceiveGet} from '../shared/actions';
+import {notify, errorGet, subReceiveGet, discard} from '../shared/actions';
 import {entitiesSelector} from "../shared/selectors";
 import {getDataToPost} from "../util/WAOUtil";
 
@@ -219,5 +219,41 @@ export const getOneByIdIfNeeded = (waoType,groups=true,id,senderKey=null) => (di
     if (id===null) return;
     if (shouldFetchGetOneById(getState(), waoType,groups,id,senderKey)) {
         return dispatch(fetchGetOneById(waoType, groups, id, senderKey))
+    }
+};
+
+
+let hasLoadedInitialHResponse = false;
+export const loadInitialHResponse = (senderKey=null) => (dispatch, getState) => {
+    if(hasLoadedInitialHResponse) return;
+    hasLoadedInitialHResponse = true;
+    if(INITIAL_HRESPONSE === null) return;
+    const json = INITIAL_HRESPONSE;
+    console.log(`initialHResponse`);
+    console.log(json);
+
+    switch (json.status) {
+        case HB_SUCCESS:
+            console.log(`notify initialHResponse`);
+            return dispatch(notify(INITIAL,senderKey,0,HB_SUCCESS,json.data,json.message));
+            break;
+        case HB_INFO:
+            console.log(`notify initialHResponse`);
+            return dispatch(notify(INITIAL,senderKey,0,HB_INFO,json.data,json.message));
+            break;
+        case HB_ERROR:
+            console.error(json.message);
+            console.log(json.errors);
+            return dispatch(notify(INITIAL,senderKey,0,HB_ERROR,json.data,json.message,json.errors));
+            break;
+        case HB_WARNING:
+            console.warn(json.message);
+            return dispatch(notify(INITIAL,senderKey,0,HB_WARNING,json.data,json.message,json.errors));
+            break;
+        case HB_CONFIRM:
+            setTimeout(()=>{dispatch(discard(INITIAL,senderKey,0))},1000);
+            return dispatch(notify(INITIAL,senderKey,0,HB_CONFIRM,json.data,json.message,json.errors));
+            break;
+        default:
     }
 };

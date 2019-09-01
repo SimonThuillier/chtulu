@@ -8,7 +8,9 @@
 
 namespace App\Serializer;
 
-use App\DTO\EntityMutableDTO;
+
+use App\DTO\ArticleDTO;
+use App\DTO\UserDTO;
 use App\Factory\MediatorFactory;
 use App\Helper\WAOHelper;
 use App\Mediator\NotAvailableGroupException;
@@ -20,43 +22,33 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 
 
-class DTONormalizer extends HNormalizer
+class UserDTONormalizer extends HNormalizer
 {
-    const DTO_NS = 'App\\DTO\\';
-
     /**
      * @param WAOHelper $waoHelper
-     * @param MediatorFactory $mediatorFactory
      * @param ManagerRegistry $doctrine
-     * @param ArticleDTONormalizer $articleDTONormalizer
+     * @param MediatorFactory $mediatorFactory
+     * @param DateNormalizer $dateNormalizer
+     * @param HDateNormalizer $hDateNormalizer
      * @param SimpleEntityNormalizer $simpleEntityNormalizer
+     * @param ResourceGeometryDTONormalizer $resourceGeometryDTONormalizer
      * @param ResourceDTONormalizer $resourceDTONormalizer
-     * @param ResourceGeometryDTONormalizer $ResourceGeometryDTONormalizer
-     * @param ArticleLinkDTONormalizer $articleLinkDTONormalizer
-     * @param UserDTONormalizer $userDTONormalizer
      */
     public function __construct(WAOHelper $waoHelper,
                                 ManagerRegistry $doctrine,
                                 MediatorFactory $mediatorFactory,
-                                ArticleDTONormalizer $articleDTONormalizer,
-                                SimpleEntityNormalizer $simpleEntityNormalizer,
-                                ResourceDTONormalizer $resourceDTONormalizer,
-                                ResourceGeometryDTONormalizer $ResourceGeometryDTONormalizer,
-                                ArticleLinkDTONormalizer $articleLinkDTONormalizer,
-                                UserDTONormalizer $userDTONormalizer
+                                DateNormalizer $dateNormalizer,
+                                ResourceGeometryDTONormalizer $resourceGeometryDTONormalizer,
+                                ResourceDTONormalizer $resourceDTONormalizer
                                 )
     {
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
-            $simpleEntityNormalizer,
-            $userDTONormalizer,
-            $articleDTONormalizer,
+            $dateNormalizer,
+            $resourceGeometryDTONormalizer,
             $resourceDTONormalizer,
-            $ResourceGeometryDTONormalizer,
-            $articleLinkDTONormalizer,
             new HGetSetMethodNormalizer($classMetadataFactory),
             new ObjectNormalizer($classMetadataFactory)
-
         );
 
         parent::__construct($normalizers,$waoHelper,$doctrine,$mediatorFactory);
@@ -64,16 +56,16 @@ class DTONormalizer extends HNormalizer
 
     public function supportsNormalization($data, $format = null)
     {
-        return is_object($data) && strpos(get_class($data),self::DTO_NS)!=-1;
+        return is_object($data) && get_class($data) === UserDTO::class;
     }
 
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return true;
+        return $type != null && $type === UserDTO::class;
     }
 
     /**
-     * @param mixed $object
+     * @param ArticleDTO $object
      * @param array|null $groups
      * @param array $context
      * @return array
@@ -82,9 +74,7 @@ class DTONormalizer extends HNormalizer
      */
     public function normalize($object,$groups=null,array $context=[])
     {
-        $normalization = $this->serializer->normalize($object, null, array(
-                'overGroups' => $groups)
-        );
+        $normalization = parent::defaultNormalize($object,$groups,$context);
         return $normalization;
     }
 
@@ -98,8 +88,15 @@ class DTONormalizer extends HNormalizer
      */
     public function denormalize($data, $class, $format = null, array $context = array())
     {
-        // let's do it !
-        $denormalization = $this->serializer->denormalize($data, $class,$format,$context);
+        /*if(is_array($data) && array_key_exists('detailImageResource',$data)){
+            $resourceEntity = $this->doctrine->
+            getRepository(HResource::class)->find(intval($data['detailImageResource']['id']));
+            $mediator = $this->mediatorFactory->create(ResourceDTO::class,$resourceEntity);
+            $mediator->mapDTOGroups(['minimal'=>true]);
+            $data['detailImageResource'] = $mediator->getDTO();
+        }*/
+
+        $denormalization = parent::defaultDenormalize($data, $class, $format,$context);
         return $denormalization;
     }
 }

@@ -1,6 +1,7 @@
 const Imm = require("immutable");
 import { normalize, schema } from 'normalizr';
 import HDate from './HDate';
+import DateUtil from './date';
 
 /**
  * @class WAO
@@ -56,39 +57,39 @@ const defaultPrototypes = {
      * @class Article
      */
     article:{
-        /**
-         * @doc : function aimed to finalize constitution of new HArticle created by parsing JSon
-         */
-        finalize : function(groups=true){
-            //console.log(groups);
-            let jsonStr = null;
-            if(groups === true || (typeof groups === 'object' && groups.hasOwnProperty('date'))){
-                if(this.beginHDate !== null){
-                    if(typeof this.beginHDate === "object"){jsonStr = JSON.stringify(this.beginHDate);}
-                    else{jsonStr = this.beginHDate;}
-                    this.beginHDate = HDate.prototype.parseFromJson(jsonStr);
-                }
-                if(this.hasEndDate && this.endHDate !== null && this.endHDate !== ''){
-                    if(typeof this.endHDate === "object"){jsonStr = JSON.stringify(this.endHDate);}
-                    else{jsonStr = this.endHDate;}
-                    this.endHDate = HDate.prototype.parseFromJson(jsonStr);
-                }
-                else{this.endHDate = null;}
-            }
-            if(groups === true || (typeof groups === 'object' && groups.hasOwnProperty('hteRange'))){
-                if(this.hteRange !== null){
-                    if(typeof this.hteRange === "object"){jsonStr = JSON.stringify(this.hteRange);}
-                    else{jsonStr = this.hteRange;}
-                    this.hteRange = HDate.prototype.parseFromJson(jsonStr);
-                }
-                if(this.detailImageResource === "") this.detailImageResource = null;
-                if(this.detailImageResource !== null){
-                    if(typeof this.detailImageResource === "string"){
-                        this.detailImageResource = JSON.parse(this.detailImageResource);
-                    }
-                }
-            }
-        },
+        // /**
+        //  * @doc : function aimed to finalize constitution of new HArticle created by parsing JSon
+        //  */
+        // finalize : function(groups=true){
+        //     //console.log(groups);
+        //     let jsonStr = null;
+        //     if(groups === true || (typeof groups === 'object' && groups.hasOwnProperty('date'))){
+        //         if(this.beginHDate !== null){
+        //             if(typeof this.beginHDate === "object"){jsonStr = JSON.stringify(this.beginHDate);}
+        //             else{jsonStr = this.beginHDate;}
+        //             this.beginHDate = HDate.prototype.parseFromJson(jsonStr);
+        //         }
+        //         if(this.hasEndDate && this.endHDate !== null && this.endHDate !== ''){
+        //             if(typeof this.endHDate === "object"){jsonStr = JSON.stringify(this.endHDate);}
+        //             else{jsonStr = this.endHDate;}
+        //             this.endHDate = HDate.prototype.parseFromJson(jsonStr);
+        //         }
+        //         else{this.endHDate = null;}
+        //     }
+        //     if(groups === true || (typeof groups === 'object' && groups.hasOwnProperty('hteRange'))){
+        //         if(this.hteRange !== null){
+        //             if(typeof this.hteRange === "object"){jsonStr = JSON.stringify(this.hteRange);}
+        //             else{jsonStr = this.hteRange;}
+        //             this.hteRange = HDate.prototype.parseFromJson(jsonStr);
+        //         }
+        //         if(this.detailImageResource === "") this.detailImageResource = null;
+        //         if(this.detailImageResource !== null){
+        //             if(typeof this.detailImageResource === "string"){
+        //                 this.detailImageResource = JSON.parse(this.detailImageResource);
+        //             }
+        //         }
+        //     }
+        // },
         receiveRecord: function(rec){
             //console.log("article receiveRecord");
             //console.log(rec);
@@ -120,6 +121,24 @@ const defaultPrototypes = {
         },
         getPointLng(){
             return this.getPointCoords()[1];
+        }
+    },
+    /**
+     * @class User
+     */
+    user:{
+        /**
+         * @doc : function aimed to finalize constitution of User record
+         */
+        receiveRecord: function(rec)
+        {
+            if(rec.has("creation") && rec.get("creation") !== null){
+                console.log('parsing user creation date');
+                let date = DateUtil.parseRegularServerDate(rec.get("creation"));
+                console.log(date);
+                rec = rec.set("creation",date);
+            }
+            return rec;
         }
     }
 };

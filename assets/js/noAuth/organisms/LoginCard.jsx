@@ -1,7 +1,7 @@
 import React from 'react';
 import RegularLoginForm from '../molecules/RegularLoginForm';
 const componentUid = require("uuid/v4")();
-import {regularLogin} from '../actions';
+import {regularLogin,loadInitialHResponse} from '../actions';
 import {makeGetNotificationsSelector} from "../../shared/selectors";
 import {connect} from "react-redux";
 import {INITIAL, SUBMITTING, SUBMITTING_COMPLETED} from "../../util/notifications";
@@ -9,7 +9,6 @@ import NotificationAlert from '../../shared/molecules/NotificationAlert';
 import posed, { PoseGroup } from "react-pose";
 import Shade from '../../shared/atoms/Shade';
 import {HB_CONFIRM, HB_SUCCESS} from "../../util/server";
-import {loadInitialHResponse} from "../../shared/actions";
 import RegisterLink from '../atoms/RegisterLink';
 
 class LoginCard extends React.Component

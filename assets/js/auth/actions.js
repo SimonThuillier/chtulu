@@ -5,6 +5,7 @@ import {
     URL_GET_ONE_BY_ID,
     URL_GET_NEW,
     URL_UPLOAD,
+    URL_LOGOUT,
     getUrl,
     getHTTPProps,
     getHTTPUploadProps,
@@ -12,7 +13,7 @@ import {
     DataToPost,
     HB_SUCCESS,
     HB_ERROR,
-    URL_POST
+    URL_POST, HB_WARNING, INITIAL_HRESPONSE, HB_INFO, HB_CONFIRM, URL_LOGIN
 } from '../util/server';
 import { normalize,denormalize, schema } from 'normalizr';
 import WAOs from '../util/WAOs';
@@ -20,7 +21,7 @@ import {getDataToPost} from '../util/WAOUtil';
 import GroupUtil from "../util/GroupUtil";
 import SearchBagUtil from '../util/SearchBagUtil';
 import {entitiesSelector,getPendingTotalSelector} from '../shared/selectors';
-import {LOADING,LOADING_COMPLETED,SUBMITTING,SUBMITTING_COMPLETED} from '../util/notifications';
+import {INITIAL, LOADING, LOADING_COMPLETED, SUBMITTING, SUBMITTING_COMPLETED} from '../util/notifications';
 import {startSubmit,stopSubmit} from 'redux-form';
 
 // notifications actions
@@ -705,6 +706,90 @@ const createNew = (waoType) => ({
     waoType : waoType,
     receivedAt: Date.now()
 });
+
+
+
+let hasLoadedInitialHResponse = false;
+export const loadInitialHResponse = (senderKey=null) => (dispatch, getState) => {
+    if(hasLoadedInitialHResponse) return;
+    hasLoadedInitialHResponse = true;
+    if(INITIAL_HRESPONSE === null) return;
+    const json = INITIAL_HRESPONSE;
+    console.log(`initialHResponse`);
+    console.log(json);
+
+    switch (json.status) {
+        case HB_SUCCESS:
+            console.log(`notify initialHResponse`);
+            return dispatch(notify(INITIAL,senderKey,0,HB_SUCCESS,json.data,json.message));
+            break;
+        case HB_INFO:
+            console.log(`notify initialHResponse`);
+            return dispatch(notify(INITIAL,senderKey,0,HB_INFO,json.data,json.message));
+            break;
+        case HB_ERROR:
+            console.error(json.message);
+            console.log(json.errors);
+            return dispatch(notify(INITIAL,senderKey,0,HB_ERROR,json.data,json.message,json.errors));
+            break;
+        case HB_WARNING:
+            console.warn(json.message);
+            return dispatch(notify(INITIAL,senderKey,0,HB_WARNING,json.data,json.message,json.errors));
+            break;
+        case HB_CONFIRM:
+            setTimeout(()=>{dispatch(discard(INITIAL,senderKey,0))},1000);
+            console.log(json.data);
+            if(json.data.currentUser) dispatch(receiveGetOneById(
+                "user",
+                json.data.currentUser.loadedGroups,
+                +json.data.currentUser.id,
+                json.data.currentUser
+            ));
+            return dispatch(notify(INITIAL,senderKey,0,HB_CONFIRM,json.data,json.message,json.errors));
+            break;
+        default:
+    }
+};
+
+
+export const logout = (senderKey) => (dispatch, getState) => {
+    console.log("logout");
+
+    let dataToPost = DataToPost(senderKey);
+    console.log(`dataToPost`);
+    console.log(dataToPost);
+
+    const url = getUrl(URL_LOGOUT);
+    let httpProps = getHTTPProps(HTTP_POST);
+    httpProps.body = JSON.stringify(dataToPost);
+
+    return fetch(url,httpProps)
+        .then(response => response.json())
+        .catch(exception => {
+                dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_ERROR,null,"Le serveur est tombé en erreur :(",null));
+            }
+        )
+        .then(json => {
+                console.log("post returned !");
+                console.log(json);
+                switch (json.status) {
+                    case HB_SUCCESS:
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_SUCCESS,{redirectTo:URL_LOGIN},json.message));
+                        break;
+                    case HB_ERROR:
+                        console.error(json.message);
+                        console.log(json.errors);
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_ERROR,json.data,json.message,json.errors));
+                        break;
+                    case HB_WARNING:
+                        console.warn(json.message);
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_WARNING,json.data,json.message,json.errors));
+                        break;
+                    default:
+                }
+            }
+        )
+};
 
 
 

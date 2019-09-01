@@ -14,7 +14,7 @@ const Imm = require("immutable");
 
 /** THE SHARED APP REDUCER */
 const initialAppState = Imm.Map({
-    user:null,
+    currentUser:null,
     entitiesToPost:Imm.Map(),
     notifications: Imm.Map()
 });
@@ -38,6 +38,10 @@ export const appReducer = (state=initialAppState, action) =>{
                         receivedAt : Date.now(),
                     });
                     state = state.setIn(["notifications",senderKey,senderParam || 'DEFAULT',notifType],notification);
+                    console.log(extraData);
+                    if(extraData && extraData.currentUser){
+                        state = state.set('currentUser',+extraData.currentUser.id);
+                    }
                     return state;
                 case LOADING :
                     notification = Imm.Map({

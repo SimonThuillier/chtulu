@@ -1,7 +1,7 @@
 import React from 'react';
 import RegularRegisterForm from '../molecules/RegularRegisterForm';
 const componentUid = require("uuid/v4")();
-import {regularRegister} from '../actions';
+import {regularRegister,loadInitialHResponse} from '../actions';
 import {makeGetNotificationsSelector} from "../../shared/selectors";
 import {connect} from "react-redux";
 import {INITIAL, SUBMITTING, SUBMITTING_COMPLETED} from "../../util/notifications";
@@ -10,7 +10,6 @@ import posed, { PoseGroup } from "react-pose";
 import Shade from '../../shared/atoms/Shade';
 import {HB_CONFIRM, HB_SUCCESS} from "../../util/server";
 import LoginLink from '../atoms/LoginLink';
-import {loadInitialHResponse} from "../../shared/actions";
 
 class RegisterCard extends React.Component
 {

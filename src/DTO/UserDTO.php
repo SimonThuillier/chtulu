@@ -1,0 +1,113 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: ajeelomen-1
+ * Date: 22/03/18
+ * Time: 22:59
+ */
+
+namespace App\DTO;
+
+use App\Mediator\DTOMediator;
+use Symfony\Component\Serializer\Annotation\Groups;
+
+class UserDTO extends EntityMutableDTO
+{
+    /** @var string */
+    protected $username;
+    /** @var \DateTime */
+    protected $creation;
+    /** @var string */
+    protected $email;
+    /** @var string */
+    protected $description;
+    /** @var DTOMediator */
+    protected $mediator;
+
+    /**
+     * ArticleDTO constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * @return string
+     * @groups({"minimal"})
+     */
+    public function getUsername()
+    {
+        return $this->username;
+    }
+
+    /**
+     * @param string $username
+     * @return self
+     */
+    public function setUsername($username): UserDTO
+    {
+        $this->username = $username;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('username');
+        return $this;
+    }
+
+    /**
+     * @return \DateTime
+     * @groups({"minimal"})
+     */
+    public function getCreation(): \DateTime
+    {
+        return $this->creation;
+    }
+
+    /**
+     * @param \DateTime $creation
+     * @return UserDTO
+     */
+    public function setCreation(\DateTime $creation): UserDTO
+    {
+        $this->creation = $creation;
+        return $this;
+    }
+
+    /**
+     * @return string
+     * @groups({"email"})
+     */
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    /**
+     * @param string $email
+     * @return UserDTO
+     */
+    public function setEmail(string $email): UserDTO
+    {
+        $this->email = $email;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('email');
+        return $this;
+    }
+
+    /**
+     * @return string
+     * @groups({"description"})
+     */
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param string|null $description
+     * @return UserDTO
+     */
+    public function setDescription(?string $description): UserDTO
+    {
+        $this->description = $description;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('description');
+        return $this;
+    }
+}

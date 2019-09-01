@@ -11,13 +11,18 @@ security:
 
     firewalls:
         noauth:
-            pattern: ^/(web|test)/
+            pattern: ^/(web|test|)/|^/_security/(register|validate-register|login)
             security: false
         main:
             provider: app_user_provider
-            pattern: ^/(app|_hb_post|_hb_get)/|^/public/build/auth.jsx$
-            http_basic:
-                realm: Secured Area
+            pattern: ^/(app|_hb_post|_hb_get)/|^/public/build/auth.jsx$|^/_security/(check-path|logout)
+            json_login:
+                check_path: /_security/check-path
+                failure_handler : App\Manager\SecurityManager
+            logout:
+                path: /_security/logout
+                target: /_security/login
+
         # disables authentication for assets and the profiler, adapt it according to your needs
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/

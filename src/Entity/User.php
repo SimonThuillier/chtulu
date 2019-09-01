@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @UniqueEntity(fields="username", message="Username {{ value }} is already used. Please choose another.")
  * @UniqueEntity(fields="email", message="Email {{ value }} is already used. Please choose another.")
  */
-class User implements UserInterface,\Serializable
+class User extends DTOMutableEntity implements UserInterface,\Serializable
 {
     /**
      * @var int

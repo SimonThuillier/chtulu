@@ -17,6 +17,7 @@ import WelcomePage from "./pages/WelcomePage";
 import ExplorerPage from "./pages/ExplorerPage";
 import ArticlePage from "./pages/ArticlePage";
 import ArticleTablePage from "./pages/ArticleTablePage";
+import {loadInitialHResponse} from "./actions";
 
 
 const routes = [
@@ -69,6 +70,8 @@ class Auth extends Component {
 
     componentDidMount()
     {
+        const {dispatch,getNotifications} = this.props;
+        dispatch(loadInitialHResponse("DEFAULT"));
     }
 
     componentWillUnmount()

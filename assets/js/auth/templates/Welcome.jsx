@@ -20,8 +20,6 @@ class Welcome extends React.Component
 
     componentDidMount()
     {
-        const {dispatch,getNotifications} = this.props;
-        dispatch(loadInitialHResponse(componentUid));
     }
 
     componentDidUpdate(prevProps)
@@ -42,32 +40,29 @@ class Welcome extends React.Component
 
 
         return (
-            <div className="wrapper hold-transition skin-blue sidebar-mini">
-                <Header/>
-                <div className="content-wrapper hb-container">
-                    <section className="content-header">
-                        <h4>Bienvenue !</h4>
-                    </section>
-                    <section className="content">
-                        <PoseGroup>
-                            {initialNotif &&
-                            <Shade key={`${componentUid}-notification`}>
-                                <NotificationAlert
-                                    key={`${componentUid}-notification`}
-                                    notification={initialNotif}
-                                    dispatch={dispatch}/>
-                            </Shade>
-                            }
-                            {!initialNotif &&
-                            <Shade key={`${componentUid}-content`}>
-                                <div>Merci de vous être inscrit sur mon projet d'histoire interactive :)</div>
-                                <div>Vous allez désormais pouvoir faire plein de chose (a venir)...
-                                </div>
-                            </Shade>
-                            }
-                        </PoseGroup>
-                    </section>
-                </div>
+            <div className="content-wrapper hb-container">
+                <section className="content-header">
+                    <h4>Bienvenue !</h4>
+                </section>
+                <section className="content">
+                    <PoseGroup>
+                        {initialNotif &&
+                        <Shade key={`${componentUid}-notification`}>
+                            <NotificationAlert
+                                key={`${componentUid}-notification`}
+                                notification={initialNotif}
+                                dispatch={dispatch}/>
+                        </Shade>
+                        }
+                        {!initialNotif &&
+                        <Shade key={`${componentUid}-content`}>
+                            <div>Merci de vous être inscrit sur mon projet d'histoire interactive :)</div>
+                            <div>Vous allez désormais pouvoir faire plein de chose (a venir)...
+                            </div>
+                        </Shade>
+                        }
+                    </PoseGroup>
+                </section>
             </div>
         );
     }

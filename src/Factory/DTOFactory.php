@@ -15,6 +15,7 @@ use App\DTO\ResourceDTO;
 use App\DTO\ResourceGeometryDTO;
 use App\DTO\ResourceImageDTO;
 use App\DTO\ResourceVersionDTO;
+use App\DTO\UserDTO;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\ServiceSubscriberInterface;
 
@@ -43,7 +44,8 @@ class DTOFactory implements ServiceSubscriberInterface
             ResourceImageDTO::class => ResourceImageDTOFactory::class,
             ResourceVersionDTO::class => ResourceVersionDTOFactory::class,
             ResourceGeometryDTO::class => ResourceGeometryDTOFactory::class,
-            ArticleLinkDTO::class => ArticleLinkDTOFactory::class
+            ArticleLinkDTO::class => ArticleLinkDTOFactory::class,
+            UserDTO::class => UserDTOFactory::class
         ];
     }
 

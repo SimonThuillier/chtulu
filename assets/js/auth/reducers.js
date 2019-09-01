@@ -1,249 +1,20 @@
 import { combineReducers } from 'redux-immutable'
 import {
-    NOTIFY,
-    DISCARD,
     SUBMIT_LOCALLY,
-    ADD_PENDING,
-    REMOVE_PENDING,
     RESET,
-    RESET_ALL_PENDING,
     RECEIVE_GET,
     RECEIVE_GET_ONE_BY_ID,
     RECEIVE_NEW,
     CREATE_NEW,
     DELETE
 } from './actions';
-import {
-    LOADING,
-    SUBMITTING,
-    LOADING_COMPLETED,
-    SUBMITTING_COMPLETED
-} from '../util/notifications';
 
 import WAOs from '../util/WAOs';
-import {getAllPropertiesInGroups} from '../util/WAOUtil';
-import GroupUtil from '../util/GroupUtil';
 import SearchBagUtil from '../util/SearchBagUtil';
 const Imm = require("immutable");
 import { reducer as reduxFormReducer } from "redux-form/immutable";
 import Common from '../util/common';
-
-
-// app reducer
-const initialAppState = Imm.Map({
-    user:null,
-    entitiesToPost:Imm.Map(),
-    notifications: Imm.Map()
-});
-
-const appReducer = (state=initialAppState, action) =>{
-    const {notifType,senderKey,senderParam,status,waoType,groups,id,extraData,message,errors} = action;
-    switch (action.type) {
-        case NOTIFY:
-            let notification=null;
-            switch(notifType){
-                case LOADING :
-                    notification = Imm.Map({
-                        notifType : notifType,
-                        senderKey : senderKey,
-                        senderParam : senderParam || 'DEFAULT',
-                        status:status,
-                        receivedAt : Date.now(),
-                    });
-                    state = state.setIn(["notifications",senderKey,senderParam || 'DEFAULT',notifType],notification);
-                    return state;
-                case SUBMITTING :
-                    notification = Imm.Map({
-                        notifType : notifType,
-                        senderKey : senderKey,
-                        senderParam : senderParam || 'DEFAULT',
-                        status:status,
-                        receivedAt : Date.now(),
-                    });
-                    state = state.setIn(["notifications",senderKey,senderParam || 'DEFAULT',notifType],notification);
-                    return state;
-                case LOADING_COMPLETED :
-                    notification = Imm.Map({
-                        notifType : notifType,
-                        senderKey : senderKey,
-                        senderParam : senderParam || 'DEFAULT',
-                        status:status,
-                        receivedAt : Date.now(),
-                    });
-                    state = state.removeIn(["notifications",senderKey,senderParam || 'DEFAULT',LOADING]);
-                    state = state.setIn(["notifications",senderKey,senderParam || 'DEFAULT',notifType],notification);
-                    return state;
-                case SUBMITTING_COMPLETED :
-                    notification = Imm.Map({
-                        notifType : notifType,
-                        senderKey : senderKey,
-                        senderParam : senderParam || 'DEFAULT',
-                        status:status,
-                        receivedAt : Date.now(),
-                        discardedAt:null,
-                        extraData:extraData,
-                        message:message,
-                        errors:errors
-                    });
-                    state = state.removeIn(["notifications",senderKey,senderParam || 'DEFAULT',SUBMITTING]);
-                    state = state.setIn(["notifications",senderKey,senderParam || 'DEFAULT',notifType],notification);
-                    return state;
-                default :
-                    return state;
-            }
-        case DISCARD:
-            if(state.hasIn(["notifications",senderKey,senderParam || 'DEFAULT',notifType])){
-                state = state.setIn(["notifications",senderKey,senderParam || 'DEFAULT',notifType,"discardedAt"],Date.now());
-            }
-            return state;
-        case ADD_PENDING:
-            if(id === null || +id===0){
-                return state;
-            }
-            if(state.hasIn(["entitiesToPost",waoType,+id])){
-                state = state.setIn(["entitiesToPost",waoType,+id],GroupUtil.merge(state.getIn(["entitiesToPost",waoType,+id]),groups));
-            }
-            else{
-                state = state.setIn(["entitiesToPost",waoType,+id],groups);
-            }
-            return state;
-        case REMOVE_PENDING:
-            /*console.log("remove pending");
-            console.log(action);*/
-            if(state.hasIn(["entitiesToPost",waoType,+id])){
-                let pendingGroups = state.getIn(["entitiesToPost",waoType,+id]);
-                /*console.log("pending groups");
-                console.log(pendingGroups);
-                console.log("groups to remove from pending");
-                console.log(groups);*/
-                if(!groups){
-                    state = state.removeIn(["entitiesToPost",waoType,+id]);
-                }
-                else{
-                    let remainingGroups = GroupUtil.leftDiff(waoType,pendingGroups,groups);
-                    /*console.log("remaining pending groups");
-                    console.log(remainingGroups);*/
-                    if(Object.keys(remainingGroups).length < 1) state = state.removeIn(["entitiesToPost",waoType,+id]);
-                    else state = state.setIn(["entitiesToPost",waoType,+id],remainingGroups);
-                }
-            }
-            return state;
-        default:
-            return state;
-    }
-};
-
-
-
-
-// waos reducers
-const mergeRecords = function(iRec,nRec,waoType){
-    const iLoadedGroups = iRec.get("loadedGroups");
-    const nLoadedGroups = nRec.get("loadedGroups");
-    const nPostedGroups = nRec.get("postedGroups");
-
-    let newInitialValues = iRec.get("initialValues");
-    let mRec = iRec;
-
-    //console.log("merging records");
-
-    let loadedProperties = getAllPropertiesInGroups(waoType,Object.keys(nLoadedGroups));
-    loadedProperties.forEach((property)=>{mRec = mRec.set(property,nRec.get(property));});
-    mRec = mRec.set("loadedGroups",GroupUtil.merge(iLoadedGroups,nLoadedGroups));
-
-    if(nPostedGroups && iRec.get("initialValues") ){
-        //console.log("postedGroups");
-        //console.log(nPostedGroups);
-        let postedProperties = getAllPropertiesInGroups(waoType,Object.keys(nPostedGroups));
-        //console.log("postedProperties");
-        //console.log(postedProperties );
-
-        postedProperties.forEach((property)=>{
-            newInitialValues = newInitialValues.remove(property);
-        });
-
-        mRec = mRec.
-        set("initialValues",newInitialValues).
-        set("postedGroups",null);
-
-        //console.log("newInitialValues");
-        //console.log(newInitialValues.toJS());
-    }
-
-
-    /*console.log("merged object");
-    console.log(mRec.toJS());*/
-    /*console.log("equality");
-    console.log(mRec.toJSON() === iRec.toJSON());*/
-    return mRec;
-};
-
-/**
- * object representing a given cache entry
- * total is the coreBag total number of items returned by the server, eg in the database and available for you
- * ids are in ASC order
- * @param coreBagKey
- * @param total : total number of items on server
- */
-const SearchCacheEntry = function(coreBagKey,total){
-    let newEntry = Imm.Map();
-
-    newEntry = newEntry.
-    set("coreBagKey",coreBagKey).
-    set("total",total).
-    set("indexMap",Imm.Map()).
-    set("receivedAt",Date.now()).
-    set("invalidatedAt",null);
-
-    return newEntry;
-};
-
-/**
- * function called when new objects have been added/deleted on one waoType to force reloading from the server
- * when new queries are executed
- * @param state
- */
-const invalidateAllCacheEntries = function(state){
-    const cacheEntries = state.get("searchCache");
-
-    cacheEntries.entrySeq().forEach(entry => {
-            console.log(entry[0]);
-            console.log(entry[1]);
-        state = state.setIn(["searchCache",entry[0],"invalidatedAt"],Date.now());
-        }
-    );
-    return state;
-};
-
-const updateOnRecordReception = function(state,rec){
-    const waoType = state.get("type");
-    rec = rec.get("receiveRecord")(rec);
-    let oldId = (+rec.get("oldId"))<0?+rec.get("oldId"):+rec.get("id");
-    // case new item submitted : its definitive id has been attributed by the server
-    let mustInvalidateCache = false;
-    if(rec.get("toDelete")===true){
-        state = state.removeIn(["items",+rec.get("id")]);
-        mustInvalidateCache = true;
-    }
-    else if((+rec.get("id")) !== oldId){
-        state = state.
-        setIn(["items",+rec.get("id")],
-            mergeRecords(state.getIn(["items",+oldId]),rec.set("oldId",0).remove("initialValues"),waoType)).
-        removeIn(["items",oldId]).
-        removeIn(["babyItemIds",oldId]).
-        setIn(["createdItemIds",oldId],+rec.get("id"));
-        mustInvalidateCache = true;
-    }
-    else if(state.hasIn(["items",+rec.get("id")]))
-        state = state.setIn(["items",+rec.get("id")],
-            mergeRecords(state.getIn(["items",+rec.get("id")]),rec,waoType));
-    else
-        state = state.setIn(["items",+rec.get("id")],rec);
-
-    if(mustInvalidateCache) state = invalidateAllCacheEntries(state);
-
-    return state;
-};
+import {appReducer,updateOnRecordReception,SearchCacheEntry} from '../shared/reducers';
 
 const createNew = (state,idGenerator)=>{
     if(! state.get("newItem")) return state;
@@ -408,6 +179,5 @@ WAOs.entrySeq().forEach(entry => {
 waoReducers.app =  appReducer;
 waoReducers.form =  reduxFormReducer;
 
-export const rootReducer = combineReducers(
-    waoReducers);
+export const rootReducer = combineReducers(waoReducers);
 

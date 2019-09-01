@@ -200,42 +200,6 @@ export const receiveGetOneById = (waoType,groups,id,data,message="Données bien 
     };
 
 
-let hasLoadedInitialHResponse = false;
-export const loadInitialHResponse = (senderKey=null) => (dispatch, getState) => {
-    if(hasLoadedInitialHResponse) return;
-    hasLoadedInitialHResponse = true;
-    if(INITIAL_HRESPONSE === null) return;
-    const json = INITIAL_HRESPONSE;
-    console.log(`initialHResponse`);
-    console.log(json);
-
-    switch (json.status) {
-        case HB_SUCCESS:
-            console.log(`notify initialHResponse`);
-            return dispatch(notify(INITIAL,senderKey,0,HB_SUCCESS,json.data,json.message));
-            break;
-        case HB_INFO:
-            console.log(`notify initialHResponse`);
-            return dispatch(notify(INITIAL,senderKey,0,HB_INFO,json.data,json.message));
-            break;
-        case HB_ERROR:
-            console.error(json.message);
-            console.log(json.errors);
-            return dispatch(notify(INITIAL,senderKey,0,HB_ERROR,json.data,json.message,json.errors));
-            break;
-        case HB_WARNING:
-            console.warn(json.message);
-            return dispatch(notify(INITIAL,senderKey,0,HB_WARNING,json.data,json.message,json.errors));
-            break;
-        case HB_CONFIRM:
-            setTimeout(()=>{dispatch(discard(INITIAL,senderKey,0))},1000);
-            return dispatch(notify(INITIAL,senderKey,0,HB_CONFIRM,json.data,json.message,json.errors));
-            break;
-        default:
-    }
-};
-
-
 
 
 

@@ -21,6 +21,13 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 class SecurityController extends AbstractController
 {
     /**
+     * @Route("/check-path", name="check_path")
+     */
+    public function checkPathAction(Request $request)
+    {
+    }
+
+    /**
      * @Route("/register",name="register")
      * @param Request $request
      * @param RequestHelper $requestHelper
@@ -166,7 +173,7 @@ class SecurityController extends AbstractController
             $hResponse
                 ->setStatus(HJsonResponse::CONFIRM)
                 ->setData(($login!==null && !empty($login))?["login"=>$login]:null);
-            $session->set('initialHResponse',HJsonResponse::normalize($hResponse));
+            $session->set('hResponse',HJsonResponse::normalize($hResponse));
             return $this->redirectToRoute('no-auth_homepage',['page'=>'login']);
         }
 
@@ -204,11 +211,33 @@ class SecurityController extends AbstractController
 
     /**
      * @Route("/logout",name="logout")
-     *
      * @param Request $request
+     * @param Session $session
+     * @return JsonResponse
      */
-    public function logoutAction(Request $request)
+    public function logoutAction(
+        Request $request,
+        Session $session
+    )
     {
-        $session->getFlashBag()->add('success', 'Merci de votre visite');
+        $session->remove('initialHResponse');
+        $hResponse = new HJsonResponse();
+
+        try{
+            $hResponse
+                ->setMessage('Deconnection reussie !')
+                ->setData(["redirectTo"=>$this->generateUrl(
+                    'no-auth_homepage',
+                    ['page'=>'login'],
+                    UrlGeneratorInterface::ABSOLUTE_URL)]);
+        }
+        catch(\Exception $e) {
+            $hResponse
+                ->setStatus(HJsonResponse::ERROR)
+                ->setMessage($e->getMessage());
+        }
+
+        ob_clean();
+        return new JsonResponse(HJsonResponse::normalize($hResponse));
     }
 }
