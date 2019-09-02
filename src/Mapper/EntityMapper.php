@@ -16,6 +16,7 @@ use App\Entity\HResource;
 use App\Entity\ResourceFile;
 use App\Entity\ResourceGeometry;
 use App\Entity\ResourceVersion;
+use App\Entity\User;
 use App\Util\Command\EntityMapperCommand;
 use App\Factory\FactoryException;
 use App\Helper\WAOHelper;
@@ -75,7 +76,8 @@ class EntityMapper implements ServiceSubscriberInterface
             ResourceGeometry::class => ResourceGeometryMapper::class,
             HResource::class => ResourceMapper::class,
             ResourceVersion::class => ResourceVersionMapper::class,
-            ArticleLink::class => ArticleLinkMapper::class
+            ArticleLink::class => ArticleLinkMapper::class,
+            User::class => UserMapper::class
         ];
     }
 

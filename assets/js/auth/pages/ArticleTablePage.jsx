@@ -20,7 +20,7 @@ import SearchBagUtil from '../../util/SearchBagUtil';
 import ArticleType from '../atoms/ArticleType';
 import ArticleTitle from '../atoms/ArticleTitle';
 import {connect} from "react-redux";
-import RImageMini from "../atoms/RImageMini";
+import RImageMini from "../../shared/atoms/RImageMini";
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import ArticleFilter from '../organisms/ArticleFilter';
 import {LOADING,SUBMITTING, COLORS, SUBMITTING_COMPLETED} from "../../util/notifications";

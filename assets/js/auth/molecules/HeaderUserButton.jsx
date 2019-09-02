@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink} from 'react-router-dom';
-import RImageMini from '../atoms/RImageMini';
+import RImageMini from '../../shared/atoms/RImageMini';
 
 const HeaderUserButton = (props) => {
 
@@ -9,9 +9,9 @@ const HeaderUserButton = (props) => {
     return (
         <li className="dropdown user user-menu">
             <a href="#" className="dropdown-toggle" data-toggle="dropdown">
-                <RImageMini id={0}/>
+                <RImageMini id={currentUser && currentUser.detailImageResource} useDefault={true}/>&nbsp;
                 <span className="hidden-xs">
-                {(currentUser && currentUser.username) || '...'}
+                    <strong>{(currentUser && currentUser.username) || '...'}</strong>
             </span>
             </a>
             {children}

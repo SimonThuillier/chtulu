@@ -30,7 +30,7 @@ const HeaderUserDropDown = (props) => {
             </li>
             <li className="user-footer">
                 <div className="pull-left">
-                    <NavLink className={`btn btn-primary`} to='/welcome' activeClassName={'active'}>
+                    <NavLink className={`btn btn-primary`} to='/account' activeClassName={'active'}>
                         Mon profil
                     </NavLink>
                 </div>

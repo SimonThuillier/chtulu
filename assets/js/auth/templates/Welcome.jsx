@@ -1,7 +1,7 @@
 import React from "react";
 const Imm = require("immutable");
 const componentUid = require("uuid/v4")();
-import {loadInitialHResponse} from '../../shared/actions';
+import {loadInitialHResponse} from '../actions';
 
 import Header from '../organisms/Header';
 import {makeGetNotificationsSelector} from "../../shared/selectors";

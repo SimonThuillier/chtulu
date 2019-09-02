@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import RImageMini from '../atoms/RImageMini';
+import RImageMini from '../../shared/atoms/RImageMini';
 import ArticleTitle from '../atoms/ArticleTitle';
 
 import L from "leaflet";

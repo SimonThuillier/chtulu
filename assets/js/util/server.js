@@ -14,6 +14,12 @@ console.log(initialHResponse);
 if(initialHResponse && initialHResponse !== '_NA_') initialHResponse = JSON.parse(initialHResponse);
 else initialHResponse = null;
 
+export const URL_DEFAULT_IMAGE_MINI = getDataUrlOrNa('hb-url-default-image-mini');
+export const URL_DEFAULT_IMAGE_DETAIL = getDataUrlOrNa('hb-url-default-image-detail');
+
+console.log(URL_DEFAULT_IMAGE_MINI);
+console.log(URL_DEFAULT_IMAGE_DETAIL);
+
 export const INITIAL_HRESPONSE = initialHResponse;
 
 export const URL_REGISTER = getDataUrlOrNa('hb-url-security-register');

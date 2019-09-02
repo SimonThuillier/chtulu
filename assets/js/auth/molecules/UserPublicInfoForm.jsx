@@ -3,7 +3,6 @@ import {
     makeGetNotificationsSelector, makeGetOneByIdSelector,makeGetFormSelector
 } from "../../shared/selectors";
 import { connect} from 'react-redux';
-import GroupUtil from '../../util/GroupUtil';
 import {
     Alert,
     Form,
@@ -13,25 +12,22 @@ import {
 import { Field, reduxForm,change as formChange,
     blur as formBlur,focus as formFocus,touch as formTouch,untouch as formUntouch} from 'redux-form/immutable';
 import { stopSubmit} from 'redux-form';
-const Imm = require("immutable");
-import {getOneByIdIfNeeded,submitLocally,postOne,reset as stateReset,TIMEOUT,discard,deleteLocally} from '../actions';
-import ArticleTypeSelect from "../molecules/ArticleTypeSelect";
-const componentUid = require('uuid/v4')();
-import HDateInput from "../molecules/HDateInput";
+import {submitLocally,postOne,reset as stateReset,discard} from '../actions';
 import ImageInput from "../molecules/ImageInput";
 import HBFormField from '../hoc/HBFormField';
-import {Button,Row,Col,Popover,Overlay} from 'react-bootstrap';
+import {Col,Popover,Overlay} from 'react-bootstrap';
 import Loadable from 'react-loading-overlay';
 import {LOADING,SUBMITTING,SUBMITTING_COMPLETED,COLORS} from '../../util/notifications';
 import {HB_SUCCESS} from "../../util/server";
 import {getAllPropertiesInGroups} from '../../util/WAOUtil';
-import withContainer from '../hoc/withContainer';
 import withExtraProps from '../hoc/withExtraProps';
-import ResourcePicker from './ResourcePicker';
-import ArticleLinkForm from '../molecules/ArticleLinkForm';
+import ResourcePicker from '../organisms/ResourcePicker';
 import FormSubmit from '../molecules/FormSubmit';
 
-const ArticleFormContext = React.createContext({});
+const Imm = require("immutable");
+const componentUid = require('uuid/v4')();
+
+const UserPublicFormContext = React.createContext({});
 
 const validate = values => {
     const errors = {};
@@ -76,73 +72,6 @@ const notificationAlert = (notification,dispatch) =>{
         <p>{message}</p>
     </Alert>);
 };
-
-const SubMinimal = ({}) => {
-    return (
-        <ArticleFormContext.Consumer>
-            {() => (
-                <div>
-                    <Field
-                        name="title"
-                        type="text"
-                        component={HBFormField}
-                        label="Titre"
-                    />
-                    <Field
-                        name="type"
-                        type="select"
-                        component={ArticleTypeSelect}
-                        label="Type"
-                    />
-                </div>
-            )}
-        </ArticleFormContext.Consumer>
-    );
-};
-//SubMinimal.contextType = ArticleFormContext;
-
-const SubDate = ({}) => {
-    return (
-        <ArticleFormContext.Consumer>
-            {({hasEndDate,dispatch,container,componentUid}) => (
-                <div>
-                    <Field
-                        name="beginHDate"
-                        type="text"
-                        component={withContainer(HDateInput,container||null)}
-                        label="Date de début"
-                    />
-                    <Field
-                        name="hasEndDate"
-                        component={HBFormField}
-                        type="checkbox"
-                        label="A une fin ?"
-                        //if(hasEndDate) pendingForm.setIn(["values","endHDate"],null);
-                        onChange={()=>{
-                            dispatch(formChange(componentUid, 'endHDate', null));
-                            dispatch(formTouch(componentUid, 'hasEndDate','endHDate'));
-                            //console.log(`hasEndDate : ${hasEndDate}`);
-                            if(!hasEndDate){
-                                setTimeout(()=>{
-                                    dispatch(formChange(componentUid, 'endHDate', null));
-                                    dispatch(formTouch(componentUid, 'endHDate'));
-                                },5);
-                            }
-                        }}
-                    />
-            {(hasEndDate) &&
-            <Field
-                name="endHDate"
-                type="text"
-                component={withContainer(HDateInput,container||null)}
-                label="Date de fin"
-            />}
-                </div>
-            )}
-        </ArticleFormContext.Consumer>
-    );
-};
-//SubDate.contextType = ArticleFormContext;
 
 class SubDetailImage extends React.Component {
     constructor(props) {
@@ -203,7 +132,7 @@ class SubDetailImage extends React.Component {
         const {show} = this.state;
 
         return (
-            <ArticleFormContext.Consumer>
+            <UserPublicFormContext.Consumer>
                 {({dispatch,container}) => (
                     <div>
                         <Field
@@ -238,59 +167,39 @@ class SubDetailImage extends React.Component {
                         </Overlay>
                     </div>
                 )}
-            </ArticleFormContext.Consumer>
+            </UserPublicFormContext.Consumer>
         );
     }
 }
-//SubDetailImage.contextType = ArticleFormContext;
 
-class SubAbstract extends React.Component {
+
+class SubDescription extends React.Component {
     constructor(props) {
         super(props);
     }
 
     render(){
         return (
-            <ArticleFormContext.Consumer>
-                {({linksData,linkFormRefs,localSubmitCount}) => {
-                    const linksForm = linksData
-                        .map((link) =>{
-                            return(
-                                <ArticleLinkForm
-                                    form={`articleLink-${link.id}`}
-                                    id={link.id}
-                                    linkData = {link}
-                                    localSubmitCount={localSubmitCount}
-                                >
-                                </ArticleLinkForm>
-                            );
-                        });
-
-
+            <UserPublicFormContext.Consumer>
+                {({}) => {
                     return (
-                    <div>
-                        <Field
-                            name="abstract"
-                            type="textarea"
-                            alignment={'vertical'}
-                            component={HBFormField}
-                            label="Résumé"
-                        />
-                        {linksForm.length>0?linksForm:''}
-                    </div>);
+                        <div>
+                            <Field
+                                name="description"
+                                type="textarea"
+                                alignment={'vertical'}
+                                component={HBFormField}
+                                label="Biographie"
+                            />
+                        </div>);
                 }}
-            </ArticleFormContext.Consumer>
+            </UserPublicFormContext.Consumer>
         );
     }
 }
-//SubAbstract.contextType = ArticleFormContext;
 
 
-class ArticleForm extends React.Component{
-    static Minimal = SubMinimal;
-    static Date = SubDate;
-    static DetailImage = SubDetailImage;
-    static Abstract = SubAbstract;
+class UserPublicInfoForm extends React.Component{
 
     constructor(props) {
         super(props);
@@ -301,26 +210,18 @@ class ArticleForm extends React.Component{
         this.submit = this.submit.bind(this);
         this.handleServerSubmit = this.handleServerSubmit.bind(this);
         this.handleReset = this.handleReset.bind(this);
-        this.handleDelete = this.handleDelete.bind(this);
-        this.shouldLoadData = this.shouldLoadData.bind(this);
 
         this.toggleResourcePickerShow = this.toggleResourcePickerShow.bind(this);
         this.setResourcePickerTarget = this.setResourcePickerTarget.bind(this);
         this.setResourcePickerComponent = this.setResourcePickerComponent.bind(this);
 
-        //console.log(props);
-
         this.state = {
-            groups:props.groups || {"minimal":true},
+            groups:{description:true,detailImage:true},
             data:null,
             resource:null,
             resourceVersion:null,
-            resourcePickerConfig:{target:null,show:false,component:null},
-            localSubmitCount:0 // to trigger local submission for children
+            resourcePickerConfig:{target:null,show:false,component:null}
         };
-        
-        this.loadingArticleId = null;
-        //console.log("instanciate article form");
     }
 
     toggleResourcePickerShow(){
@@ -329,7 +230,7 @@ class ArticleForm extends React.Component{
                 target:resourcePickerConfig.target,
                 show:!resourcePickerConfig.show,
                 component:resourcePickerConfig.component
-        }});
+            }});
     }
 
     setResourcePickerTarget(target){
@@ -339,7 +240,7 @@ class ArticleForm extends React.Component{
                 target:target,
                 show:resourcePickerConfig.show,
                 component:resourcePickerConfig.component
-        }});
+            }});
     }
 
     setResourcePickerComponent(component){
@@ -351,26 +252,12 @@ class ArticleForm extends React.Component{
             }});
     }
 
-    shouldLoadData(data){
-        if (!data || !data.loadedGroups) return true;
-        
-        const diff = GroupUtil.leftDiff("article",this.state.groups,data.loadedGroups);
-        /*console.log("groupes a charger");
-        console.log(data.loadedGroups);
-        console.log(this.state.groups);
-        console.log(diff);*/
-
-        return (Object.keys(diff).length>0);
-    }
-
     initializeFormData(){
         const {getOneById,initialize,id,dispatch} = this.props;
 
         const data = getOneById(id);
 
         this.setState({data:data});
-        //console.log("initialData");
-        //console.log(data);
         if(!data || typeof data==='undefined') return null;
         console.log('initial form data');
         initialize(data.set("pendingModification",true));
@@ -391,7 +278,6 @@ class ArticleForm extends React.Component{
     }
 
     componentDidUpdate(prevProps) {
-        // console.log(`update ${prevProps.id} vs ${this.props.id}`);
         if(this.props.id === null){return}
         let data = this.state.data;
 
@@ -399,19 +285,7 @@ class ArticleForm extends React.Component{
             this.submit(prevProps.id);
             data = this.props.getOneById(this.props.id);
         }
-        /*if(data === null || typeof data === 'undefined' ){
-            //this.initializeFormData();
-            return;
-        }*/
 
-        if (this.loadingArticleId !== this.props.id && this.shouldLoadData(data)) {
-            this.props.dispatch(getOneByIdIfNeeded("article",
-                this.state.groups,
-                this.props.id,
-                this.componentUid));
-            console.log("<br>loading data</br>");
-            this.loadingArticleId = this.props.id;
-        }
         if (this.props.getOneById(this.props.id) !== prevProps.getOneById(this.props.id)) {
             data = this.props.getOneById(this.props.id);
             console.log("reception de nouvelles données");
@@ -427,9 +301,8 @@ class ArticleForm extends React.Component{
             let submittingCompleted = (notifications && notifications.
             getIn([(this.state.data && this.props.id) || 'DEFAULT',SUBMITTING_COMPLETED]))||null;
             submittingCompleted = (submittingCompleted && !submittingCompleted.get("discardedAt"))?submittingCompleted:null;
-            //console.log("submittingCompleted : untouching form");
             if(submittingCompleted){
-                this.props.dispatch(formUntouch(this.componentUid, ...getAllPropertiesInGroups('article',Object.keys(this.state.groups))));
+                this.props.dispatch(formUntouch(this.componentUid, ...getAllPropertiesInGroups('user',Object.keys(this.state.groups))));
             }
         }
     }
@@ -437,7 +310,7 @@ class ArticleForm extends React.Component{
     handleReset(){
         const { reset,dispatch,id,onNothing} = this.props;
         //reset();
-        dispatch(stateReset("article",[id],(this.state.data && this.state.data.get("toDelete"))?'minimal':this.state.groups));
+        dispatch(stateReset("user",[id],(this.state.data && this.state.data.get("toDelete"))?'minimal':this.state.groups));
         if(+id>0){
             setTimeout(() => {
                 this.initializeFormData();
@@ -447,18 +320,6 @@ class ArticleForm extends React.Component{
         else{
             if(typeof onNothing === 'function') onNothing();
         }
-    }
-
-    handleDelete(){
-        const {dispatch,id} = this.props;
-        dispatch(deleteLocally("article",[id]));
-        //console.log("delete");
-
-
-        /*setTimeout(() => {
-            this.initializeFormData();
-            reset();
-        },20);*/
     }
 
     submit(id=null){
@@ -478,17 +339,10 @@ class ArticleForm extends React.Component{
             touchedKeys.forEach((k)=>{
                 touchedValues = touchedValues.set(k,values.get(k));
             });
-            const hasEndDate = (pendingForm && pendingForm.hasIn(["values","hasEndDate"]))?
-                pendingForm.getIn(["values","hasEndDate"]):true;
-            touchedValues=touchedValues.set('hasEndDate',hasEndDate);
 
-            console.log('touchedValues');
             console.log(touchedValues);
-            dispatch(submitLocally("article",touchedValues,id,this.state.groups));
+            dispatch(submitLocally("user",touchedValues,id,this.state.groups));
         }
-
-        console.log('trigger link submission');
-        this.setState({localSubmitCount:this.state.localSubmitCount+1});
     }
 
     componentWillUnmount(){
@@ -499,7 +353,7 @@ class ArticleForm extends React.Component{
         const {anyTouched,dispatch,id} = this.props;
         this.submit();
         setTimeout(()=>{
-            dispatch(postOne("article",this.state.groups,id,this.componentUid));
+            dispatch(postOne("user",this.state.groups,id,this.componentUid));
         },5);
     }
 
@@ -509,14 +363,9 @@ class ArticleForm extends React.Component{
     }
 
     render(){
-        // console.log("render article form");
-        const { onSubmit, reset, load,valid,getForm,dispatch,getNotifications,pristine,container,id,anyTouched,linksData} = this.props;
+        const { onSubmit, reset, load,valid,getForm,dispatch,getNotifications,pristine,container,id,anyTouched} = this.props;
         const {groups,data,localSubmitCount} = this.state;
-        const pendingForm = getForm(this.componentUid);
-        //console.log("render form");
-        //console.log(pendingForm && pendingForm.getIn(["values","hasEndDate"]));
-        const hasEndDate = (pendingForm && pendingForm.hasIn(["values","hasEndDate"]))?
-            pendingForm.getIn(["values","hasEndDate"]):true;
+
 
         const notifications = getNotifications(this.componentUid);
         const loading = (notifications && notifications.hasIn([(data && data.id) || 'DEFAULT',LOADING]))||false;
@@ -527,10 +376,8 @@ class ArticleForm extends React.Component{
         submittingCompleted = (submittingCompleted && !submittingCompleted.get("discardedAt"))?submittingCompleted:null;
 
         const contextValue = {
-            hasEndDate:hasEndDate,
             dispatch:dispatch,
             container :container || null,
-            linksData : linksData,
             localSubmitCount:localSubmitCount
         };
 
@@ -538,16 +385,18 @@ class ArticleForm extends React.Component{
             <Loadable
                 active={loading || submitting}
                 spinner
-                text={loading?"Chargement de l'article ...":"Enregistrement de l'article ..."}
+                text={loading?"Chargement des informations ...":"Enregistrement des informations ..."}
                 color={loading?COLORS.LOADING:COLORS.SUBMITTING}
                 background={COLORS.LOADING_BACKGROUND}
             >
                 {submittingCompleted && notificationAlert(submittingCompleted,dispatch)}
                 <Form onSubmit={(e)=>{}}>
-                    <ArticleFormContext.Provider key={`article-form-provider-${id}`} value={contextValue}>
-                        {this.props.children}
-                    </ArticleFormContext.Provider>
-                    <div key={`article-form-submit-${id}`}>
+                    <UserPublicFormContext.Provider key={`user-public-form-provider-${id}`} value={contextValue}>
+                        <SubDescription/>
+                        <SubDetailImage/>
+                    </UserPublicFormContext.Provider>
+                    <br/><br/>
+                    <div key={`user-form-submit-${id}`}>
                         <FormSubmit
                             hasData={!!data}
                             pristine={pristine}
@@ -556,20 +405,17 @@ class ArticleForm extends React.Component{
                             isNew={data && data.isNew(data)}
                             isDirty={data?data.isDirty(data):true}
                             isToDelete={data && data.get("toDelete")}
-                            objectLabel={'votre article'}
+                            objectLabel={'mon compte'}
                             handleSwitch={this.handleSwitch}
                             handleServerSubmit={this.handleServerSubmit}
                             handleReset={this.handleReset}
-                            handleDelete={this.handleDelete}
+                            handleDelete={()=>{}}
                             anyTouched ={anyTouched}
                         >
                             <Col md={9}>
                                 <FormSubmit.Preview/>
                                 <FormSubmit.ServerSubmit/>
                                 <FormSubmit.Reset/>
-                            </Col>
-                            <Col md={3}>
-                                <FormSubmit.Delete/>
                             </Col>
                         </FormSubmit>
                     </div>
@@ -586,24 +432,22 @@ const makeMapStateToProps = () => {
 
     return state => {
         return {
-            getOneById: getOneByIdSelector(state.get("article")),
+            getOneById: getOneByIdSelector(state.get("user")),
             getForm:getFormSelector(state.get("form")),
             getNotifications: getNotificationsSelector(state.get("app"))
         }
     }
 };
 
-ArticleForm = connect(
+UserPublicInfoForm = connect(
     makeMapStateToProps,
     { }
-)(ArticleForm);
+)(UserPublicInfoForm);
 
-ArticleForm =  reduxForm({
+UserPublicInfoForm =  reduxForm({
     destroyOnUnmount:true,
     validate:validate,
     warn:warn
-})(ArticleForm);
+})(UserPublicInfoForm);
 
-
-
-export default ArticleForm;
+export default UserPublicInfoForm;

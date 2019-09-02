@@ -22,14 +22,16 @@ class DateNormalizer implements NormalizerInterface,DenormalizerInterface
 
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return false;
+        if($data === null || empty($data) || !is_string($data)) return false;
+        $supports = preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/',$data);
+        return $supports;
     }
 
     /**
      * @param \DateTime|null $object
      * @param array|null $groups
      * @param array $context
-     * @return array
+     * @return string
      * @throws InvalidArgumentException
      */
     public function normalize($object,$groups=null,array $context=[])
@@ -49,6 +51,15 @@ class DateNormalizer implements NormalizerInterface,DenormalizerInterface
      */
     public function denormalize($data, $class, $format = null, array $context = array())
     {
-        return null;
+        if($data === null || empty($data)) return null;
+        $matches = [];
+        $supports = preg_match('/^(?<iso>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?<millis>\.\d+)?Z$/',$data,$matches);
+        if(!$supports) return null;
+
+        $isoString = $matches['iso'] . 'Z';
+        $date = \DateTime::createFromFormat(\DateTime::ISO8601, $isoString);
+        if(! $date instanceof \DateTime) return null;
+
+        return $date;
     }
 }

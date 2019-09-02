@@ -31,21 +31,18 @@ class UserDTONormalizer extends HNormalizer
      * @param DateNormalizer $dateNormalizer
      * @param HDateNormalizer $hDateNormalizer
      * @param SimpleEntityNormalizer $simpleEntityNormalizer
-     * @param ResourceGeometryDTONormalizer $resourceGeometryDTONormalizer
      * @param ResourceDTONormalizer $resourceDTONormalizer
      */
     public function __construct(WAOHelper $waoHelper,
                                 ManagerRegistry $doctrine,
                                 MediatorFactory $mediatorFactory,
                                 DateNormalizer $dateNormalizer,
-                                ResourceGeometryDTONormalizer $resourceGeometryDTONormalizer,
                                 ResourceDTONormalizer $resourceDTONormalizer
                                 )
     {
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
             $dateNormalizer,
-            $resourceGeometryDTONormalizer,
             $resourceDTONormalizer,
             new HGetSetMethodNormalizer($classMetadataFactory),
             new ObjectNormalizer($classMetadataFactory)
@@ -88,14 +85,6 @@ class UserDTONormalizer extends HNormalizer
      */
     public function denormalize($data, $class, $format = null, array $context = array())
     {
-        /*if(is_array($data) && array_key_exists('detailImageResource',$data)){
-            $resourceEntity = $this->doctrine->
-            getRepository(HResource::class)->find(intval($data['detailImageResource']['id']));
-            $mediator = $this->mediatorFactory->create(ResourceDTO::class,$resourceEntity);
-            $mediator->mapDTOGroups(['minimal'=>true]);
-            $data['detailImageResource'] = $mediator->getDTO();
-        }*/
-
         $denormalization = parent::defaultDenormalize($data, $class, $format,$context);
         return $denormalization;
     }

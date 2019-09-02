@@ -75,7 +75,8 @@ class AuthController extends AbstractController
                 null,
                 DTOMediator::NOTHING_IF_NULL);
 
-            $userGroups = ['minimal'=>true,'email'=>true,'description'=>true];
+            $userGroups = ['minimal'=>true,'email'=>true,'description'=>true,
+                'detailImage'=>['minimal'=>true,'activeVersion'=>true]];
             $mediator->mapDTOGroups($userGroups);
 
             $userDTO = $mediator->getDTO();

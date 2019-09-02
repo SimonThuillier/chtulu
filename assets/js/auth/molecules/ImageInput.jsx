@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {getOneByIdSelector} from "../../shared/selectors";
 import { connect } from 'react-redux'
 import {ControlLabel,FormGroup,Col,HelpBlock,Button} from 'react-bootstrap';
-import RImageMini from '../atoms/RImageMini';
+import RImageMini from '../../shared/atoms/RImageMini';
 const componentUid = require('uuid/v4')();
 
 const defaultStyles = {

@@ -12,12 +12,14 @@ import {COLORS, SUBMITTING, SUBMITTING_COMPLETED} from "../util/notifications";
 import Loadable from 'react-loading-overlay';
 import MainNotification from './atoms/MainNotification';
 import AppContext from "../util/AppContext";
+import {loadInitialHResponse} from "./actions";
 
 import WelcomePage from "./pages/WelcomePage";
 import ExplorerPage from "./pages/ExplorerPage";
 import ArticlePage from "./pages/ArticlePage";
+import AccountPage from "./pages/AccountPage";
 import ArticleTablePage from "./pages/ArticleTablePage";
-import {loadInitialHResponse} from "./actions";
+
 
 
 const routes = [
@@ -46,7 +48,19 @@ const routes = [
         component:ArticlePage
     },
     {
+        id:5,
+        path:'/account',
+        exact:true,
+        component:AccountPage
+    },
+    {
         id:6,
+        path:'/account/:nav',
+        exact:true,
+        component:AccountPage
+    },
+    {
+        id:10,
         path:'/article-table',
         exact:true,
         component:ArticleTablePage

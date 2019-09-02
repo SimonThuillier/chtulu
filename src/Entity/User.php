@@ -103,6 +103,13 @@ class User extends DTOMutableEntity implements UserInterface,\Serializable
     private $description;
 
     /**
+     * @var HResource
+     * @ORM\ManyToOne(targetEntity="HResource")
+     * @ORM\JoinColumn(name="detail_image_resource_id", referencedColumnName="id", nullable=true)
+     */
+    protected $detailImage;
+
+    /**
      * @var boolean
      * @ORM\Column(name="enabled", type="boolean")
      */
@@ -342,6 +349,24 @@ class User extends DTOMutableEntity implements UserInterface,\Serializable
     public function getDescription()
     {
         return $this->description;
+    }
+
+    /**
+     * @return HResource|null
+     */
+    public function getDetailImage(): ?HResource
+    {
+        return $this->detailImage;
+    }
+
+    /**
+     * @param HResource|null $detailImage
+     * @return User
+     */
+    public function setDetailImage(?HResource $detailImage): User
+    {
+        $this->detailImage = $detailImage;
+        return $this;
     }
 
     /**

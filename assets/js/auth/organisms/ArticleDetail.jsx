@@ -1,30 +1,10 @@
 import React from "react";
 import GroupUtil from '../../util/GroupUtil';
-import RImageDetail from '../atoms/RImageDetail';
+import RImageDetail from '../../shared/atoms/RImageDetail';
 import {
     Well
 } from 'react-bootstrap';
-
-const makeParagraphs = (text,initial=[],keyPrefix='default') =>{
-    let index = 0;
-
-    const newParagraphs =  (text || "").
-    replace("\r\n","\n").
-    replace("\r","\n").
-    replace("\n\n","\n").
-    replace("\n\n","\n").
-    split("\n").
-    map((line) =>{
-        if (line.trim().length === 0 || line.trim()==="\n") return null;
-        index = index+1;
-        return(
-            <p key={`keyPrefix-${index}`}>
-                &nbsp;&nbsp;&nbsp;{line}
-            </p>
-        );
-    });
-    return initial.concat(newParagraphs);
-};
+import Paragraphs from '../../shared/hoc/Paragraphs';
 
 const SubAbstract = ({abstract,linksData,children})=>{
     let key=0;
@@ -42,13 +22,13 @@ const SubAbstract = ({abstract,linksData,children})=>{
             return(
                 <Well bsSize="small" style={{padding:'4px'}}>
                     <p key={`which-context`}>Par rapport à <strong>{link.parentTitle}</strong> : </p>
-                    {makeParagraphs(link.abstract)}
+                    {Paragraphs(link.abstract)}
                 </Well>
             );
         });
     }
 
-    const paragraphs =  makeParagraphs(abstract,linksDescription);
+    const paragraphs =  Paragraphs(abstract,linksDescription);
     return(
         <div className="col-md-12">
             {children}
@@ -56,8 +36,6 @@ const SubAbstract = ({abstract,linksData,children})=>{
         </div>
     )
 };
-
-
 
 const SubDetailImage = ({detailImageResource}) =>{
     if(!detailImageResource) return null;

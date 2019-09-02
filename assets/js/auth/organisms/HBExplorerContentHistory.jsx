@@ -4,7 +4,7 @@ import {
     getOneByIdSelector
 } from "../../shared/selectors";
 import {connect} from "react-redux";
-import RImageMini from "../atoms/RImageMini";
+import RImageMini from "../../shared/atoms/RImageMini";
 
 const HBExplorerContentHistory = (props) => {
 

@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     {% block head %}
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>{% block title %}HistoricaBase | App{% endblock %}</title>
-        <meta
-                content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
-                name="viewport">
+            <meta charset="utf-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <title>{% block title %}HistoricaBase | App{% endblock %}</title>
+            <meta
+                    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+                    name="viewport">
         {% block stylesheets %}
             {{ encore_entry_link_tags('auth') }}
         {% endblock %}
@@ -18,20 +18,22 @@
 </body>
 <div id="hb-data" hidden>
     {% block data %}
-        <div data-url="{{ hResponse is defined and hResponse!=null and hResponse!='' ? hResponse:'_NA_' }}"
-             id="hb-initial-response"></div>
-        <div data-url="{{ url('security_login') }}" id="hb-url-security-login"></div>
-        <div data-url="{{ url('security_logout') }}" id="hb-url-security-logout"></div>
-        <div data-url="{{ url('get_get_one_by_id') }}" id="hb-url-get-get-one-by-id"></div>
-        <div data-url="{{ url('get_get') }}" id="hb-url-get-get"></div>
-        <div data-url="{{ url('get_get_new') }}" id="hb-url-get-get-new"></div>
-        <div data-url="{{ url('post_post') }}" id="hb-url-post-post"></div>
-        <div data-url="{{ url('post_upload_resource') }}" id="hb-url-post-upload-resource"></div>
+            <div data-url="{{ app.request.getSchemeAndHttpHost() }}/media/default-mini.jpeg" id="hb-url-default-image-mini"></div>
+            <div data-url="{{ app.request.getSchemeAndHttpHost() }}/media/default-detail.jpeg" id="hb-url-default-image-detail"></div>
+            <div data-url="{{ hResponse is defined and hResponse!=null and hResponse!='' ? hResponse:'_NA_' }}"
+                 id="hb-initial-response"></div>
+            <div data-url="{{ url('security_login') }}" id="hb-url-security-login"></div>
+            <div data-url="{{ url('security_logout') }}" id="hb-url-security-logout"></div>
+            <div data-url="{{ url('get_get_one_by_id') }}" id="hb-url-get-get-one-by-id"></div>
+            <div data-url="{{ url('get_get') }}" id="hb-url-get-get"></div>
+            <div data-url="{{ url('get_get_new') }}" id="hb-url-get-get-new"></div>
+            <div data-url="{{ url('post_post') }}" id="hb-url-post-post"></div>
+            <div data-url="{{ url('post_upload_resource') }}" id="hb-url-post-upload-resource"></div>
         {% for wao in waoList() %}
-            <div class="hb-wao-mapping" data-mapping="{{ wao|getMapping() }}" id="hb-mapping-{{ wao|getAbridgedName() }}"></div>
-            <div class="hb-wao-structure" data-structure="{{ wao|getStructure() }}" id="hb-structure-{{ wao|getAbridgedName() }}"></div>
+                <div class="hb-wao-mapping" data-mapping="{{ wao|getMapping() }}" id="hb-mapping-{{ wao|getAbridgedName() }}"></div>
+                <div class="hb-wao-structure" data-structure="{{ wao|getStructure() }}" id="hb-structure-{{ wao|getAbridgedName() }}"></div>
         {% endfor %}
-        <div data-token="{{ csrf_token('app_token') }}" id="hb-security-token"></div>
+            <div data-token="{{ csrf_token('app_token') }}" id="hb-security-token"></div>
     {% endblock %}
 </div>
 {% block javascript %}

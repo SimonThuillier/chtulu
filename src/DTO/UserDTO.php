@@ -21,6 +21,8 @@ class UserDTO extends EntityMutableDTO
     protected $email;
     /** @var string */
     protected $description;
+    /** @var mixed */
+    protected $detailImageResource;
     /** @var DTOMediator */
     protected $mediator;
 
@@ -65,7 +67,7 @@ class UserDTO extends EntityMutableDTO
      * @param \DateTime $creation
      * @return UserDTO
      */
-    public function setCreation(\DateTime $creation): UserDTO
+    public function setCreation(?\DateTime $creation): UserDTO
     {
         $this->creation = $creation;
         return $this;
@@ -84,7 +86,7 @@ class UserDTO extends EntityMutableDTO
      * @param string $email
      * @return UserDTO
      */
-    public function setEmail(string $email): UserDTO
+    public function setEmail(?string $email): UserDTO
     {
         $this->email = $email;
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('email');
@@ -108,6 +110,26 @@ class UserDTO extends EntityMutableDTO
     {
         $this->description = $description;
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('description');
+        return $this;
+    }
+
+    /**
+     * @return ResourceDTO|null
+     * @Groups({"detailImage"})
+     */
+    public function getDetailImageResource() : ?ResourceDTO
+    {
+        return $this->detailImageResource;
+    }
+
+    /**
+     * @param ResourceDTO|null $resource
+     * @return UserDTO
+     */
+    public function setDetailImageResource(?ResourceDTO $resource): UserDTO
+    {
+        $this->detailImageResource = $resource;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('detailImageResource');
         return $this;
     }
 }

@@ -1,6 +1,5 @@
 import React from "react";
 import Loadable from 'react-loading-overlay';
-const componentUid = require('uuid/v4')();
 import { getOneByIdIfNeeded} from "../actions";
 import ArticleDetail from './ArticleDetail';
 import ArticleForm from './ArticleForm';
@@ -10,6 +9,7 @@ import {
 import {connect} from "react-redux";
 import {LOADING,COLORS} from '../../util/notifications';
 import Groupable from '../hoc/Groupable';
+const componentUid = require('uuid/v4')();
 
 // This creates the "Article Context" i.e. an object containing a Provider and a Consumer component
 const ArticleContext = React.createContext();

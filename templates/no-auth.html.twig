@@ -18,6 +18,8 @@
 </body>
 <div id="hb-data" hidden>
     {% block data %}
+        <div data-url="{{ app.request.getSchemeAndHttpHost() }}/media/default-mini.jpeg" id="hb-url-default-image-mini"></div>
+        <div data-url="{{ app.request.getSchemeAndHttpHost() }}/media/default-detail.jpeg" id="hb-url-default-image-detail"></div>
         <div data-url="{{ hResponse is defined and hResponse!=null and hResponse!='' ? hResponse:'_NA_' }}"
              id="hb-initial-response"></div>
         <div data-url="{{ url('security_register') }}" id="hb-url-security-register"></div>
