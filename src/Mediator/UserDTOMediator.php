@@ -60,6 +60,7 @@ class UserDTOMediator extends DTOMediator
         $dto = $this->dto;
         $dto
             ->setUsername($user->getUsername())
+            ->setSignature($user->getSignature())
             ->setCreation($user->getCreation())
             ->setId($user->getId());
     }

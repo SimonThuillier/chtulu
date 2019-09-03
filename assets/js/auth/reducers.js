@@ -85,7 +85,7 @@ const concreteWaoType = (waoType) => {
                 set("initialValues",newInitialValues);
                 console.log("newRecord with deep merge");
                 console.log(newItemDeep);
-                return state.setIn(["items",+action.id],newItem);
+                return state.setIn(["items",+action.id],newItem.set('errors',[]));
             case RESET:
                 for(let id of action.ids){
                     if(state.hasIn(["items",+id])){
@@ -122,7 +122,7 @@ const concreteWaoType = (waoType) => {
                 action.waos.map(item => {
                     //console.log(item);
                     let rec = WAO(item);
-                    state = updateOnRecordReception(state,rec);
+                    state = updateOnRecordReception(state,rec.set("receivedAt",Date.now()));
                 });
                 if(action.searchBag && action.result){
                     let {offset,order} = action.searchBag;
@@ -154,7 +154,7 @@ const concreteWaoType = (waoType) => {
                 /*console.log("action receive get one by id");
                 console.log(action);*/
                 let rec = WAO(action.wao);
-                state = updateOnRecordReception(state,rec);
+                state = updateOnRecordReception(state,rec.set("receivedAt",Date.now()));
                 return state;
             case RECEIVE_NEW:
                 /*console.log(`receiveNew ${waoType}`);

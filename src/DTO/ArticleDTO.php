@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use App\Validator as HbAssert;
 
 /**
- * @HbAssert\EndHDateSuperiorToBeginHDate()
+ * @HbAssert\EndHDateSuperiorToBeginHDate(groups={"date"})
  */
 class ArticleDTO extends EntityMutableDTO
 {

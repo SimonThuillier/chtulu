@@ -64,7 +64,7 @@ framework:
     validation:
         enabled:              true
         cache:                ~
-        enable_annotations:   false
+        enable_annotations:   true
         static_method:
 
             # Default:

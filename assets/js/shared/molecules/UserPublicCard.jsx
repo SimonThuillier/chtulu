@@ -15,10 +15,12 @@ const UserPublicCard = (props) => {
                 <div className="col-md-12">
                     <div style={{float:'left',
                         clear:'left',
-                        marginLeft:'5px',
-                        marginBottom:'3px'}}>
+                        marginRight:'10px',
+                        marginBottom:'4px'}}>
                         <RImageDetail id={user.detailImageResource} useDefault={true}/>
                     </div>
+                    <h4>{user.username}</h4>
+                    <i>{user.signature}</i><br/><br/>
                     {paragraphs}
                 </div>
             </div>

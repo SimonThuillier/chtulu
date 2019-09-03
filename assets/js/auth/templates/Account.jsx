@@ -81,12 +81,12 @@ class Account extends React.Component
                         </Shade>
                         }
                     </PoseGroup>
-                    <h2>Informations publiques&nbsp;
+                    <h3>Informations publiques&nbsp;
                         <Glyphicon
                             title={'editer'}
                             glyph={'edit'}
                             onClick={()=>{this.setState({activePublicInfo:activePublicInfo==='detail'?'form':'detail'})}}/>
-                    </h2>
+                    </h3>
                     {activePublicInfo==='detail' ?
                         (<UserPublicCard user={currentUser}/>) :
                         (<UserPublicInfoForm

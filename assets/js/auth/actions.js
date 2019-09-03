@@ -219,7 +219,7 @@ export const postOne = (waoType,groups=true,id,senderKey) => (dispatch,getState)
                         dispatch(notify(SUBMITTING_COMPLETED,senderKey || 'HBAPP',id,HB_ERROR,null,json.message,json.errors));
                         //dispatch(errorGet(waoType,groups,searchBag,json.message));
                         //dispatch(stopSubmit(senderKey,json.errors));
-                        let thisError = json.errors[Object.keys(json.errors)[0]];
+                        let thisError = json.errors?json.errors[Object.keys(json.errors)[0]]:null;
                         dispatch(stopSubmit(senderKey,thisError));
                         handlePostBackData(json.data,dispatch);
                         break;

@@ -10,6 +10,7 @@ const waoPrototype = {
     pendingModification:false,
     initialValues:null,
     toRemove:false,
+    receivedAt:1,
     isDirty : function(rec){
         return (!!rec.initialValues && rec.initialValues !== null && rec.initialValues.size>0);
     },

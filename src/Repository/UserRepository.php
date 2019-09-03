@@ -38,7 +38,7 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
     }
 
     /**
-     * returns true if username with this email exists, false otherwise
+     * returns true if user with this email exists, false otherwise
      * @param string $email
      * @return boolean
      */
@@ -51,6 +51,29 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
 
         try{$result = $qb->getQuery()->getSingleScalarResult();}
         catch(\Exception $e){return false;}
+        if($result !== null && $result>0) {return true;}
+        return false;
+    }
+
+    /**
+     * returns true if another user with this username exists, false otherwise
+     * @param int $id of our user
+     * @param string $username
+     * @return boolean
+     */
+    public function otherUserWithUsernameExists($id,$username)
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('count(u.id) FROM ' . $this->getEntityName() . ' u')
+            ->where('u.username = :username')
+            ->andWhere($qb->expr()->not('u.id = :id'))
+            ->setParameter('username',$username)
+            ->setParameter('id',$id);
+
+        try{$result = $qb->getQuery()->getSingleScalarResult();}
+        catch(\Exception $e){
+            return true;
+        }
         if($result !== null && $result>0) {return true;}
         return false;
     }

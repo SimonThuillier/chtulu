@@ -132,7 +132,7 @@ class PostController extends AbstractController
                         EntityMapper::getEntityClassNameFromObject($entity),$entity->getId(),$entity);
                 }
                 $dto = $mediator->getDTO();
-                if($dto->getToDelete()===false){
+                if($dto->getToDelete()===false && ($dto->getErrors() === null || empty($dto->getErrors()) )){
                     $mediator->mapDTOGroups($dto->getBackGroups(),DTOMediator::NOTHING_IF_NULL);
                 }
                 $waoType = $waoHelper->getAbridgedName(get_class($dto));

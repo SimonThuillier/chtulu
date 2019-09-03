@@ -84,7 +84,8 @@ class AuthController extends AbstractController
         }
         catch(\Exception $e){
             $hResponse["status"] = HJsonResponse::ERROR;
-            $hResponse["message"] = $e->getMessage();
+            $hResponse["message"] = "<strong>Oups !</strong>J'ai cru voir une erreur technique. <small>Je fais tout pour la corriger au plus vite, promis :)</small>"
+                . $e->getMessage();
         }
 
         return $this->render('@HB/auth.html.twig', ['hResponse'=>json_encode($hResponse)]);

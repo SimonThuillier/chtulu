@@ -10,7 +10,12 @@ namespace App\DTO;
 
 use App\Mediator\DTOMediator;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+use App\Validator as HbAssert;
 
+/**
+ * @HbAssert\UniqueUsername(groups={"minimal"})
+ */
 class UserDTO extends EntityMutableDTO
 {
     /** @var string */
@@ -19,6 +24,8 @@ class UserDTO extends EntityMutableDTO
     protected $creation;
     /** @var string */
     protected $email;
+    /** @var string */
+    protected $signature;
     /** @var string */
     protected $description;
     /** @var mixed */
@@ -37,6 +44,8 @@ class UserDTO extends EntityMutableDTO
     /**
      * @return string
      * @groups({"minimal"})
+     * @Assert\NotBlank(groups={"minimal"})
+     * @Assert\NotNull(groups={"minimal"})
      */
     public function getUsername()
     {
@@ -57,8 +66,9 @@ class UserDTO extends EntityMutableDTO
     /**
      * @return \DateTime
      * @groups({"minimal"})
+     * @Assert\NotNull()
      */
-    public function getCreation(): \DateTime
+    public function getCreation(): ?\DateTime
     {
         return $this->creation;
     }
@@ -74,10 +84,32 @@ class UserDTO extends EntityMutableDTO
     }
 
     /**
+     * @return string|null
+     * @groups({"minimal"})
+     */
+    public function getSignature(): ?string
+    {
+        return $this->signature;
+    }
+
+    /**
+     * @param string|null $signature
+     * @return UserDTO
+     */
+    public function setSignature(?string $signature): UserDTO
+    {
+        $this->signature = $signature;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('signature');
+        return $this;
+    }
+
+    /**
      * @return string
      * @groups({"email"})
+     * @Assert\NotBlank()
+     * @Assert\NotNull()
      */
-    public function getEmail(): string
+    public function getEmail(): ?string
     {
         return $this->email;
     }

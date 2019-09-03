@@ -35,8 +35,8 @@ const ArticleFormContext = React.createContext({});
 
 const validate = values => {
     const errors = {};
-    /*console.log("validate");
-    console.log(values);*/
+    console.log("VALIDATE");
+    console.log(values);
     if (!values.title) {
         errors.title = 'Le titre est obligatoire'
     } else if (values.title.length > 64) {
@@ -45,12 +45,18 @@ const validate = values => {
     if (!values.beginHDate) {
         errors.beginHDate = 'La date de début est obligatoire'
     }
-    if (values.hasEndDate && !values.endHDate) {
-        errors.endHDate = 'Renseignez une date de fin ou décochez "A une fin ?"'
+    if (values.hasEndDate) {
+        if(values.errors && values.errors.endHDate && Date.now() >(values.receivedAt + 500)){
+            errors.endHDate = values.errors.endHDate;
+        }
+        else if(!values.endHDate){
+            errors.endHDate = 'Renseignez une date de fin ou décochez "A une fin ?"';
+        }
     }
     if (values.abstract && values.abstract.length > 2000) {
         errors.abstract = `${values.abstract.length} caractères sur ${2000} autorisés`
     }
+    console.log(errors);
     return errors;
 };
 
@@ -369,8 +375,10 @@ class ArticleForm extends React.Component{
         const data = getOneById(id);
 
         this.setState({data:data});
-        //console.log("initialData");
-        //console.log(data);
+        console.log("initialData");
+        console.log(data);
+        console.log("erreurs");
+        console.log(data?data.get("errors"):null);
         if(!data || typeof data==='undefined') return null;
         console.log('initial form data');
         initialize(data.set("pendingModification",true));

@@ -27,7 +27,7 @@ class User extends DTOMutableEntity implements UserInterface,\Serializable
 
     /**
      * @var string
-     * @ORM\Column(name="username", type="string", length=100, unique=true,nullable=false)
+     * @ORM\Column(name="username", type="string", length=50, unique=true,nullable=false)
      * @Assert\NotNull(message="username is null.")
      * @Assert\NotBlank(message="username {{ value }} is empty.")
      */
@@ -98,7 +98,13 @@ class User extends DTOMutableEntity implements UserInterface,\Serializable
 
     /**
      * @var string
-     * @ORM\Column(name="description", type="string", length=1024, nullable=true)
+     * @ORM\Column(name="signature", type="string", length=255, nullable=true)
+     */
+    private $signature;
+
+    /**
+     * @var string
+     * @ORM\Column(name="description", type="string", length=2048, nullable=true)
      */
     private $description;
 
@@ -328,6 +334,24 @@ class User extends DTOMutableEntity implements UserInterface,\Serializable
     public function getBirth()
     {
         return $this->birth;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getSignature(): ?string
+    {
+        return $this->signature;
+    }
+
+    /**
+     * @param string|null $signature
+     * @return User
+     */
+    public function setSignature(?string $signature): User
+    {
+        $this->signature = $signature;
+        return $this;
     }
 
     /**

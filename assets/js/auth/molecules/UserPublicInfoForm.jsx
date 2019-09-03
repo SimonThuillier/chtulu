@@ -31,32 +31,36 @@ const UserPublicFormContext = React.createContext({});
 
 const validate = values => {
     const errors = {};
-    /*console.log("validate");
-    console.log(values);*/
-    if (!values.title) {
-        errors.title = 'Le titre est obligatoire'
-    } else if (values.title.length > 64) {
-        errors.title = `${values.title.length} caractères sur ${64} autorisés`
+    console.log("VALIDATE");
+    console.log(values);
+    console.log(values?values.errors:null);
+    if(values.errors && values.errors.username && Date.now()<(values.get('receivedAt') + 250)){
+        errors.username = values.errors.username;
     }
-    if (!values.beginHDate) {
-        errors.beginHDate = 'La date de début est obligatoire'
+    else if (!values.username) {
+        errors.username = "Le nom d'utilisateur est obligatoire"
     }
-    if (values.hasEndDate && !values.endHDate) {
-        errors.endHDate = 'Renseignez une date de fin ou décochez "A une fin ?"'
+    else if (/^.*@.*$/.test(values.username)) {
+        errors.username = `le nom d'utilisateur ne doit pas contenir '@'`;
     }
-    if (values.abstract && values.abstract.length > 2000) {
-        errors.abstract = `${values.abstract.length} caractères sur ${2000} autorisés`
+    else if (values.username.length > 25) {
+        errors.username = `${values.username.length} caractères sur ${25} autorisés`;
     }
+
+    if (values.description && values.description.length > 2048) {
+        errors.description = `${values.description.length} caractères sur ${2048} autorisés`
+    }
+    if (values.signature && values.signature.length > 255) {
+        errors.signature = `${values.signature.length} caractères sur ${255} autorisés`
+    }
+
     return errors;
 };
 
 const warn = values => {
     const warnings = {};
-    if (values.title && values.title.length > 55) {
-        warnings.title = `${values.title.length} caractères sur ${64} autorisés`
-    }
-    if (values.abstract && values.abstract.length > 1750) {
-        warnings.abstract = `${values.abstract.length} caractères sur ${2000} autorisés`
+    if (values.description && values.description.length > 2000) {
+        warnings.description = `${values.description.length} caractères sur ${2048} autorisés`
     }
     return warnings;
 };
@@ -66,7 +70,7 @@ const notificationAlert = (notification,dispatch) =>{
     const notifType = notification.get("notifType");
     const senderKey = notification.get("senderKey");
     const senderParam = notification.get("senderParam");
-    const message = (status === HB_SUCCESS)?"L'article a bien été enregistré":notification.get("message");
+    const message = (status === HB_SUCCESS)?"Vos informations ont bien été enregistrées":notification.get("message");
 
     return (<Alert bsStyle={status} onDismiss={()=>{dispatch(discard(notifType,senderKey,senderParam))}}>
         <p>{message}</p>
@@ -190,6 +194,39 @@ class SubDescription extends React.Component {
                                 alignment={'vertical'}
                                 component={HBFormField}
                                 label="Biographie"
+                            />
+                        </div>);
+                }}
+            </UserPublicFormContext.Consumer>
+        );
+    }
+}
+
+class SubMinimal extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render(){
+        return (
+            <UserPublicFormContext.Consumer>
+                {({}) => {
+                    return (
+                        <div>
+                            <Field
+                                name="username"
+                                type="text"
+                                alignment={'horizontal'}
+                                component={HBFormField}
+                                label="Nom d'utilisateur"
+                            />
+                            <Field
+                                name="signature"
+                                type="text"
+                                alignment={'horizontal'}
+                                component={HBFormField}
+                                title={'Ce message est visible des autres utilisateurs'}
+                                label="Signature"
                             />
                         </div>);
                 }}
@@ -392,6 +429,7 @@ class UserPublicInfoForm extends React.Component{
                 {submittingCompleted && notificationAlert(submittingCompleted,dispatch)}
                 <Form onSubmit={(e)=>{}}>
                     <UserPublicFormContext.Provider key={`user-public-form-provider-${id}`} value={contextValue}>
+                        <SubMinimal/>
                         <SubDescription/>
                         <SubDetailImage/>
                     </UserPublicFormContext.Provider>
