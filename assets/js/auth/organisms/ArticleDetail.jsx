@@ -1,6 +1,7 @@
 import React from "react";
 import GroupUtil from '../../util/GroupUtil';
 import RImageDetail from '../../shared/atoms/RImageDetail';
+import UserIconLink from '../../shared/molecules/UserIconLink';
 import {
     Well
 } from 'react-bootstrap';
@@ -74,6 +75,9 @@ const ArticleDetail = function(props){
                 </SubAbstract>
             </div>
             }
+            <div className="hb-flex-center">
+                <UserIconLink id={data.ownerUser}/>
+            </div>
         </div>
     );
 };

@@ -28,39 +28,46 @@ class Article extends DTOMutableEntity
 
     /**
      * @var string
-     * @ORM\Column(name="title", type="string", length=64)
+     * @ORM\Column(name="title", type="string", length=64,nullable=false)
      */
     protected $title;
 
     /**
      * @var User
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="creation_user_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="creation_user_id", referencedColumnName="id",nullable=false)
      */
     protected $creationUser;
 
     /**
+     * @var User
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(name="owner_user_id", referencedColumnName="id",nullable=false)
+     */
+    protected $ownerUser;
+
+    /**
      * @var \DateTime
-     * @ORM\Column(name="creation_date", type="datetime")
+     * @ORM\Column(name="creation_date", type="datetime",nullable=false)
      */
     protected $creationDate;
 
     /**
      * @var User
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="edition_user_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="edition_user_id", referencedColumnName="id",nullable=false)
      */
     protected $editionUser;
 
     /**
      * @var \DateTime
-     * @ORM\Column(name="edition_date", type="datetime")
+     * @ORM\Column(name="edition_date", type="datetime",nullable=false)
      */
     protected $editionDate;
 
     /**
      * @var boolean
-     * @ORM\Column(name="active", type="boolean")
+     * @ORM\Column(name="active", type="boolean",nullable=false)
      */
     protected $active;
 
@@ -73,7 +80,7 @@ class Article extends DTOMutableEntity
     /**
      * @var ArticleType
      * @ORM\ManyToOne(targetEntity="ArticleType")
-     * @ORM\JoinColumn(name="type_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="type_id", referencedColumnName="id",nullable=false)
      */
     protected $type;
 
@@ -206,6 +213,24 @@ class Article extends DTOMutableEntity
      */
     public function setCreationUser($creationUser){
         $this->creationUser = $creationUser;
+        return $this;
+    }
+
+    /**
+     * @return User
+     */
+    public function getOwnerUser(): ?User
+    {
+        return $this->ownerUser;
+    }
+
+    /**
+     * @param User $ownerUser
+     * @return Article
+     */
+    public function setOwnerUser(?User $ownerUser): Article
+    {
+        $this->ownerUser = $ownerUser;
         return $this;
     }
 

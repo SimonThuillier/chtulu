@@ -166,7 +166,7 @@ class ArticleTablePage extends React.Component{
 
         this.state = {
             searchBag:SearchBag({}),
-            groups:{minimal:true,date:true,detailImage:{minimal:true,activeVersion:{minimal:true,urlMini:true}}},
+            groups:{minimal:true,date:true,detailImage:{minimal:true,activeVersion:{minimal:true,urlMini:true}},owner:{minimal:true}},
             selected:null,
             activeId:null,
             breadcrumb:{prev:null,next:null},
@@ -395,7 +395,7 @@ class ArticleTablePage extends React.Component{
                                     handleSwitch={()=>{this.handleComponentSwitch(activeComponent==='detail'?'form':'detail')}}
                                     onNothing={this.handleClose}
                                     context={'modal'}
-                                    groups={{"minimal":true,"date":true,"detailImage":true,"abstract":true}}
+                                    groups={{minimal:true,date:true,detailImage:true,abstract:true,owner:{minimal:true}}}
                                 >
                                     <div hidden={activeComponent!=='detail'}>
                                         <Article.Detail/>

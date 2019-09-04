@@ -189,6 +189,13 @@ class SubDescription extends React.Component {
                     return (
                         <div>
                             <Field
+                                name="signature"
+                                type="text"
+                                alignment={'horizontal'}
+                                component={HBFormField}
+                                label="Signature"
+                            />
+                            <Field
                                 name="description"
                                 type="textarea"
                                 alignment={'vertical'}
@@ -219,14 +226,6 @@ class SubMinimal extends React.Component {
                                 alignment={'horizontal'}
                                 component={HBFormField}
                                 label="Nom d'utilisateur"
-                            />
-                            <Field
-                                name="signature"
-                                type="text"
-                                alignment={'horizontal'}
-                                component={HBFormField}
-                                title={'Ce message est visible des autres utilisateurs'}
-                                label="Signature"
                             />
                         </div>);
                 }}

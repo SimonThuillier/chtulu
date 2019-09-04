@@ -52,11 +52,4 @@ const makeMapStateToProps = () => {
     }
 };
 
-/*const mapStateToProps = (state) => {
-    const selector = selector || getSelector(state.get("articleType"));
-    return {
-        selector: selector
-    }
-};*/
-
 export default connect(makeMapStateToProps)(ArticleTypeSelect);

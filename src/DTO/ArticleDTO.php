@@ -40,6 +40,8 @@ class ArticleDTO extends EntityMutableDTO
     protected $detailImageResource;
     /** @var ResourceGeometryDTO */
     protected $geometry;
+    /** @var UserDTO */
+    protected $ownerUser;
     /** @var DTOMediator */
     protected $mediator;
 
@@ -256,4 +258,26 @@ class ArticleDTO extends EntityMutableDTO
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('geometry');
         return $this;
     }
+
+    /**
+     * @return UserDTO
+     * @Groups({"owner"})
+     */
+    public function getOwnerUser(): UserDTO
+    {
+        return $this->ownerUser;
+    }
+
+    /**
+     * @param UserDTO $ownerUser
+     * @return ArticleDTO
+     */
+    public function setOwnerUser(?UserDTO $ownerUser): ?ArticleDTO
+    {
+        $this->ownerUser = $ownerUser;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('ownerUser');
+        return $this;
+    }
+
+
 }

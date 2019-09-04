@@ -630,6 +630,7 @@ const dateUtil = {
      * @returns {string}
      */
     function formatter(date, pieces = []) {
+      if(!date) return "";
       for (let index = 1; index <= maxIndex; index++) {
         if (typeof _FORMATTERS[regexArray[index]] === "function") {
           pieces[index - 1] = _FORMATTERS[regexArray[index]](date);

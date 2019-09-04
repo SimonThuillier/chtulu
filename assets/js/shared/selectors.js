@@ -30,6 +30,20 @@ export const makeGetNotificationsSelector = ()=> {
     );
 };
 
+export const getCurrentUserSelector = createSelector(
+    [
+        (appState,userWaoState) => appState.get("currentUser"),
+        (appState,userWaoState) => userWaoState.get("items")
+    ],
+    (currentUser,users) => () => {
+        if(currentUser === null) return null;
+        if(users.has(+currentUser)) return users.get(+currentUser);
+        return null;
+    }
+);
+
+
+
 export const getNotificationsSelector = createSelector(
     [(state) => state.get("notifications")],
     (notifications) => (senderKey) => notifications.get(senderKey)

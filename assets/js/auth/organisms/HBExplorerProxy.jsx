@@ -27,7 +27,8 @@ const mainArticleGroups = {
     date:true,
     detailImage:true,
     abstract:true,
-    geometry:true
+    geometry:true,
+    owner:{minimal:true}
 };
 // default groups for articles
 const defaultGroups = {
@@ -36,7 +37,8 @@ const defaultGroups = {
     //detailImage:{minimal:true,activeVersion:{minimal:true,urlMini:true}},
     detailImage:true,
     abstract:true,
-    geometry:true
+    geometry:true,
+    owner:{minimal:true}
 };
 
 const defaultSearchBag = SearchBag({},'editionDate');

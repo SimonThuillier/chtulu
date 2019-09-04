@@ -9,7 +9,7 @@ import NotificationAlert from '../../shared/molecules/NotificationAlert';
 import UserPublicCard from '../../shared/molecules/UserPublicCard';
 import UserPublicInfoForm from '../molecules/UserPublicInfoForm';
 import {Nav,NavItem} from 'react-bootstrap';
-import {getCurrentUserSelector} from "../selectors";
+import {getCurrentUserSelector} from "../../shared/selectors";
 import {Glyphicon} from 'react-bootstrap';
 
 const Imm = require("immutable");

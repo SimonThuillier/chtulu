@@ -18,6 +18,7 @@ import WelcomePage from "./pages/WelcomePage";
 import ExplorerPage from "./pages/ExplorerPage";
 import ArticlePage from "./pages/ArticlePage";
 import AccountPage from "./pages/AccountPage";
+import UserPublicPage from "../shared/pages/UserPublicPage";
 import ArticleTablePage from "./pages/ArticleTablePage";
 
 
@@ -58,6 +59,12 @@ const routes = [
         path:'/account/:nav',
         exact:true,
         component:AccountPage
+    },
+    {
+        id:7,
+        path:'/user/:id',
+        exact:true,
+        component:UserPublicPage
     },
     {
         id:10,

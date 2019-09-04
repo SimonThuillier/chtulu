@@ -31,6 +31,7 @@ class ArticleDTONormalizer extends HNormalizer
      * @param SimpleEntityNormalizer $simpleEntityNormalizer
      * @param ResourceGeometryDTONormalizer $resourceGeometryDTONormalizer
      * @param ResourceDTONormalizer $resourceDTONormalizer
+     * @param UserDTONormalizer $userDTONormalizer
      */
     public function __construct(WAOHelper $waoHelper,
                                 ManagerRegistry $doctrine,
@@ -38,7 +39,8 @@ class ArticleDTONormalizer extends HNormalizer
                                 HDateNormalizer $hDateNormalizer,
                                 SimpleEntityNormalizer $simpleEntityNormalizer,
                                 ResourceGeometryDTONormalizer $resourceGeometryDTONormalizer,
-                                ResourceDTONormalizer $resourceDTONormalizer
+                                ResourceDTONormalizer $resourceDTONormalizer,
+                                UserDTONormalizer $userDTONormalizer
                                 )
     {
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
@@ -47,6 +49,7 @@ class ArticleDTONormalizer extends HNormalizer
             $simpleEntityNormalizer,
             $resourceGeometryDTONormalizer,
             $resourceDTONormalizer,
+            $userDTONormalizer,
             new HGetSetMethodNormalizer($classMetadataFactory),
             new ObjectNormalizer($classMetadataFactory)
         );

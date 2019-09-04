@@ -9,7 +9,7 @@ import HeaderUserDropDown from '../organisms/HeaderUserDropDown';
 const componentUid = require('uuid/v4')();
 
 import {connect} from "react-redux";
-import {getCurrentUserSelector} from "../selectors";
+import {getCurrentUserSelector} from "../../shared/selectors";
 import {SUBMITTING, SUBMITTING_COMPLETED} from "../../util/notifications";
 import {logout} from "../actions";
 import {makeGetNotificationsSelector} from "../../shared/selectors";

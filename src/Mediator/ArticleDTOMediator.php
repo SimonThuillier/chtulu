@@ -12,6 +12,7 @@ namespace App\Mediator;
 use App\DTO\ArticleDTO;
 use App\DTO\ResourceDTO;
 use App\DTO\ResourceGeometryDTO;
+use App\DTO\UserDTO;
 use App\Entity\Article;
 use App\Entity\HResource;
 use App\Entity\ResourceGeometry;
@@ -43,7 +44,7 @@ class ArticleDTOMediator extends DTOMediator
         parent::__construct($locator,$dbActionObserver);
         $this->dtoClassName = self::DTO_CLASS_NAME;
         $this->entityClassName = self::ENTITY_CLASS_NAME;
-        $this->groups = ['minimal','abstract','date','type','detailImage','geometry'];
+        $this->groups = ['minimal','abstract','date','type','detailImage','geometry','owner'];
         //'subArticles','hteRange'
     }
 
@@ -141,6 +142,27 @@ class ArticleDTOMediator extends DTOMediator
             ->setEndHDate($endHDate)
             ->setHasEndDate($hasEndDate);
             //->addMappedGroup('date');
+    }
+
+    protected function mapDTOOwnerGroup($mode=DTOMediator::NOTHING_IF_NULL,$subGroups=null)
+    {
+        /** @var ArticleDTO $dto */
+        $dto = $this->dto;
+        /** @var Article $article */
+        $article = $this->entity;
+
+        $owner = $article->getOwnerUser();
+
+        if($owner !== null){
+            $userMediator = $this->locator->get(MediatorFactory::class)
+                ->create(UserDTO::class,$owner->getId(),$owner,null,$mode);
+            $userMediator->mapDTOGroups($subGroups,$mode);
+            $dto->setOwnerUser($userMediator->getDTO());
+        }
+        else{
+            $dto->setOwnerUser(null);
+        }
+        //$dto->addMappedGroup('detailImage');
     }
 
     protected function mapDTOGeometryGroup($mode=DTOMediator::NOTHING_IF_NULL,$subGroups=null)

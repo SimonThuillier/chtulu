@@ -64,46 +64,6 @@ class UserDTO extends EntityMutableDTO
     }
 
     /**
-     * @return \DateTime
-     * @groups({"minimal"})
-     * @Assert\NotNull()
-     */
-    public function getCreation(): ?\DateTime
-    {
-        return $this->creation;
-    }
-
-    /**
-     * @param \DateTime $creation
-     * @return UserDTO
-     */
-    public function setCreation(?\DateTime $creation): UserDTO
-    {
-        $this->creation = $creation;
-        return $this;
-    }
-
-    /**
-     * @return string|null
-     * @groups({"minimal"})
-     */
-    public function getSignature(): ?string
-    {
-        return $this->signature;
-    }
-
-    /**
-     * @param string|null $signature
-     * @return UserDTO
-     */
-    public function setSignature(?string $signature): UserDTO
-    {
-        $this->signature = $signature;
-        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('signature');
-        return $this;
-    }
-
-    /**
      * @return string
      * @groups({"email"})
      * @Assert\NotBlank()
@@ -126,6 +86,26 @@ class UserDTO extends EntityMutableDTO
     }
 
     /**
+     * @return \DateTime
+     * @groups({"description"})
+     * @Assert\NotNull()
+     */
+    public function getCreation(): ?\DateTime
+    {
+        return $this->creation;
+    }
+
+    /**
+     * @param \DateTime $creation
+     * @return UserDTO
+     */
+    public function setCreation(?\DateTime $creation): UserDTO
+    {
+        $this->creation = $creation;
+        return $this;
+    }
+
+    /**
      * @return string
      * @groups({"description"})
      */
@@ -142,6 +122,26 @@ class UserDTO extends EntityMutableDTO
     {
         $this->description = $description;
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('description');
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     * @groups({"description"})
+     */
+    public function getSignature(): ?string
+    {
+        return $this->signature;
+    }
+
+    /**
+     * @param string|null $signature
+     * @return UserDTO
+     */
+    public function setSignature(?string $signature): UserDTO
+    {
+        $this->signature = $signature;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('signature');
         return $this;
     }
 
