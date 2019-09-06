@@ -28,6 +28,7 @@ class ArticleDTONormalizer extends HNormalizer
      * @param ManagerRegistry $doctrine
      * @param MediatorFactory $mediatorFactory
      * @param HDateNormalizer $hDateNormalizer
+     * @param DateNormalizer $dateNormalizer
      * @param SimpleEntityNormalizer $simpleEntityNormalizer
      * @param ResourceGeometryDTONormalizer $resourceGeometryDTONormalizer
      * @param ResourceDTONormalizer $resourceDTONormalizer
@@ -37,6 +38,7 @@ class ArticleDTONormalizer extends HNormalizer
                                 ManagerRegistry $doctrine,
                                 MediatorFactory $mediatorFactory,
                                 HDateNormalizer $hDateNormalizer,
+                                DateNormalizer $dateNormalizer,
                                 SimpleEntityNormalizer $simpleEntityNormalizer,
                                 ResourceGeometryDTONormalizer $resourceGeometryDTONormalizer,
                                 ResourceDTONormalizer $resourceDTONormalizer,
@@ -46,6 +48,7 @@ class ArticleDTONormalizer extends HNormalizer
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
             $hDateNormalizer,
+            $dateNormalizer,
             $simpleEntityNormalizer,
             $resourceGeometryDTONormalizer,
             $resourceDTONormalizer,

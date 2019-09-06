@@ -12,8 +12,8 @@ class UserPublicPage extends React.Component
 
         const {match} = props;
         const id = (match && match.params && match.params.id) || this.props.id;
-        console.log(match);
-        console.log(id);
+        //console.log(match);
+        //console.log(id);
 
     }
 

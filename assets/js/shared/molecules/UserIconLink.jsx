@@ -38,7 +38,7 @@ class ArticleIconLink extends React.Component
 
         const tooltip = (
             <Tooltip id="user-signature">
-                <p>{user?`${user.signature}`:'...'}</p>
+                <p>{(user && user.signature)?`${user.signature}`:''}</p>
                 {user && (<p>Membre depuis {dateFormatter(user.creation)}</p>)}
             </Tooltip>
         );

@@ -13,6 +13,11 @@ let initialHResponse = getDataUrlOrNa('hb-initial-response');
 console.log(initialHResponse);
 if(initialHResponse && initialHResponse !== '_NA_') initialHResponse = JSON.parse(initialHResponse);
 else initialHResponse = null;
+let currentUserId = null;
+if(initialHResponse!==null && initialHResponse.data &&
+    initialHResponse.data.currentUser && initialHResponse.data.currentUser.id) {
+    currentUserId = +initialHResponse.data.currentUser.id;
+}
 
 export const URL_DEFAULT_IMAGE_MINI = getDataUrlOrNa('hb-url-default-image-mini');
 export const URL_DEFAULT_IMAGE_DETAIL = getDataUrlOrNa('hb-url-default-image-detail');
@@ -21,6 +26,7 @@ console.log(URL_DEFAULT_IMAGE_MINI);
 console.log(URL_DEFAULT_IMAGE_DETAIL);
 
 export const INITIAL_HRESPONSE = initialHResponse;
+export const CURRENT_USER_ID = currentUserId;
 
 export const URL_REGISTER = getDataUrlOrNa('hb-url-security-register');
 export const URL_LOGIN = getDataUrlOrNa('hb-url-security-login');
@@ -44,6 +50,13 @@ export const HB_CONFIRM="confirm";
 
 export const RESOURCE_IMAGE={id:1,label:"Image"};
 export const RESOURCE_TEXT={id:2,label:"Texte"};
+
+let ROOT_URL = '/app';
+export const setRootUrl = (root)=>{
+    ROOT_URL = root;
+};
+export const getRootUrl = ()=>ROOT_URL;
+
 
 /**
  * @param url string

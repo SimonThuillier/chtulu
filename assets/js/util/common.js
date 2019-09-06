@@ -105,6 +105,18 @@ const mod =
         cancelSelection : function(){
             if (window.getSelection) {window.getSelection().removeAllRanges();}
             else if (document.selection) {document.selection.empty();}
+        },
+        /**
+         * @doc given a simple object key=>value returns the object value=>key
+         * values must be unique in the original object
+         * @return Object
+         */
+        reverseMapping : function(o){
+            return Object.keys(o).reduce((r, k) => {
+                const item = {};
+                item[o[k]] = k;
+                return  Object.assign(r, item);
+            }, {});
         }
     };
 

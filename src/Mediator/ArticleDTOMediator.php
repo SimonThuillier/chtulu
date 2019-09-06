@@ -72,6 +72,7 @@ class ArticleDTOMediator extends DTOMediator
         $dto
             ->setTitle($article->getTitle())
             ->setType($article->getType())
+            ->setEditionDate($article->getEditionDate())
             ->setFirstRankLinksCount($article->getFirstRankLinksCount())
             ->setSecondRankLinksCount($article->getSecondRankLinksCount())
             ->setId($article->getId());
@@ -325,5 +326,15 @@ class ArticleDTOMediator extends DTOMediator
             $article->setGeometry(null);
         }
         return true;
+    }
+
+    protected function mediateOwnerUser()
+    {
+        // nothing for now
+    }
+
+    protected function mediateEditionDate()
+    {
+        // nothing : this way edition date is only handled by mapper
     }
 }

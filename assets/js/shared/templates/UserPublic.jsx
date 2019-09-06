@@ -50,7 +50,7 @@ class UserPublic extends React.Component
                         <NavItem eventKey={NAV_INFO} >
                             Informations
                         </NavItem>
-                        <NavItem eventKey={NAV_ARTICLES} href="/articles">
+                        <NavItem eventKey={NAV_ARTICLES}>
                             Ses Articles
                         </NavItem>
                     </Nav>

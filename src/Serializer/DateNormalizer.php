@@ -38,7 +38,7 @@ class DateNormalizer implements NormalizerInterface,DenormalizerInterface
     {
         if($object === null) return null;
         /** @var \DateTime $object */
-        return "#DATE#" . $object->setTimezone(new \DateTimeZone("UTC"))->format("Y-m-d#H:i:s#");
+        return "#DATE#" . $object->setTimezone(new \DateTimeZone("UTC"))->format("Y-m-d\TH:i:s\Z") . "#";
     }
 
     /**

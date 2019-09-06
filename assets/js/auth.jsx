@@ -6,7 +6,10 @@ import Auth from './auth/Auth'
 import {rootReducer} from './auth/reducers'
 import thunk from 'redux-thunk'
 import { composeWithDevTools } from 'redux-devtools-extension';
+import {setRootUrl} from './util/server';
 require('./app.js');
+
+setRootUrl('/app');
 
 const middleware = [ thunk ];
 

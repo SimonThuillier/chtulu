@@ -1,6 +1,4 @@
 import React from "react";
-const Imm = require("immutable");
-const componentUid = require("uuid/v4")();
 import {loadInitialHResponse} from '../actions';
 
 import Header from '../organisms/Header';
@@ -10,6 +8,9 @@ import { PoseGroup } from "react-pose";
 import Shade from '../../shared/atoms/Shade';
 import {INITIAL} from "../../util/notifications";
 import NotificationAlert from '../../shared/molecules/NotificationAlert';
+
+const Imm = require("immutable");
+const componentUid = require("uuid/v4")();
 
 class Welcome extends React.Component
 {

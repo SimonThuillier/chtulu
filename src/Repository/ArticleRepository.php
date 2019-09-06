@@ -116,4 +116,24 @@ class ArticleRepository extends EntityRepository
     public function sortByEndHDate(QueryBuilder $qb,string $order){
         return $qb->orderBy('o.endDateMaxIndex',$order);
     }
+
+    /**
+     * @param QueryBuilder $qb
+     * @param int|null $ownerId
+     * @return QueryBuilder
+     */
+    public function filterByOwnerId(QueryBuilder $qb,$ownerId){
+        if($ownerId === null) return $qb;
+        return $qb->andWhere('(o.ownerUser = :ownerId)')
+            ->setParameter('ownerId', $ownerId);
+    }
+
+    /**
+     * @param QueryBuilder $qb
+     * @param string $order
+     * @return QueryBuilder
+     */
+    public function sortByEditionDate(QueryBuilder $qb,string $order){
+        return $qb->orderBy('o.editionDate',$order);
+    }
 }

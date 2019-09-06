@@ -4,7 +4,7 @@ import DateUtil from '../../util/date';
 import LogoutButton from "../atoms/LogoutButton";
 import RImageMini from '../../shared/atoms/RImageMini';
 
-const dateFormatter = DateUtil.getFormatterFromPattern('F Y');
+const dateFormatter = DateUtil.getFormatterFromPattern('d/m/Y ');
 
 const HeaderUserDropDown = (props) => {
 

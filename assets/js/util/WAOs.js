@@ -94,6 +94,12 @@ const defaultPrototypes = {
         receiveRecord: function(rec){
             //console.log("article receiveRecord");
             //console.log(rec);
+
+            if(rec.has("editionDate") && rec.get("editionDate") !== null){
+                let date = DateUtil.parseRegularServerDate(rec.get("editionDate"));
+                rec = rec.set("editionDate",date);
+            }
+
             if(rec.has("beginHDate") && rec.get("beginHDate") !== null){
                 rec = rec.set("beginHDate",HDate.prototype.parseFromJson(JSON.stringify(rec.get("beginHDate"))));
             }
@@ -102,6 +108,7 @@ const defaultPrototypes = {
                     .set("endHDate",HDate.prototype.parseFromJson(JSON.stringify(rec.get("endHDate"))))
                     .set("hasEndDate",true);
             } else{ rec = rec.set("hasEndDate",false)}
+
             return (rec.has("loadedGroups")?rec:rec.set("loadedGroups",{minimal:true}));
 
         }

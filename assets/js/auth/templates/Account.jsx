@@ -8,6 +8,7 @@ import {INITIAL} from "../../util/notifications";
 import NotificationAlert from '../../shared/molecules/NotificationAlert';
 import UserPublicCard from '../../shared/molecules/UserPublicCard';
 import UserPublicInfoForm from '../molecules/UserPublicInfoForm';
+import UserArticleList from '../organisms/UserArticleList';
 import {Nav,NavItem} from 'react-bootstrap';
 import {getCurrentUserSelector} from "../../shared/selectors";
 import {Glyphicon} from 'react-bootstrap';
@@ -15,18 +16,19 @@ import {Glyphicon} from 'react-bootstrap';
 const Imm = require("immutable");
 const componentUid = require("uuid/v4")();
 
-const NAV_INFO = 'INFORMATIONS';
-const NAV_ARTICLES = 'ARTICLES';
+export const NAV_MENUS = {
+    INFORMATIONS:'DEFAULT',
+    ARTICLES:'/articles'
+};
 
 
-class Account extends React.Component
+class AccountComponent extends React.Component
 {
     constructor(props)
     {
         super(props);
 
         this.state = {
-            activeNav:NAV_INFO,
             activePublicInfo:'detail'
         };
 
@@ -44,8 +46,8 @@ class Account extends React.Component
 
     render()
     {
-        const {getNotifications,dispatch,getCurrentUser} = this.props;
-        const {activeNav,activePublicInfo} = this.state;
+        const {getNotifications,dispatch,getCurrentUser,nav,setCurrentNav} = this.props;
+        const {activePublicInfo} = this.state;
 
         const currentUser = getCurrentUser();
 
@@ -54,18 +56,50 @@ class Account extends React.Component
         let initialNotif = (notifications && notifications.getIn(['DEFAULT',INITIAL]))||null;
         initialNotif = (initialNotif && !initialNotif.get("discardedAt"))?initialNotif:null;
 
-        console.log(initialNotif);
+        console.log(nav);
+
+        let currentComponent = null;
+        switch(nav){
+            case 'INFORMATIONS':
+                currentComponent = (
+                    <div>
+                        <h3>Informations publiques&nbsp;
+                            <Glyphicon
+                                title={'editer'}
+                                glyph={'edit'}
+                                onClick={()=>{this.setState({activePublicInfo:activePublicInfo==='detail'?'form':'detail'})}}/>
+                        </h3>
+                        {activePublicInfo==='detail' ?
+                            (<UserPublicCard user={currentUser}/>) :
+                            (<UserPublicInfoForm
+                                form={'account-public'}
+                                id={currentUser.id}
+                                container={null}
+                                handleSwitch={()=>{this.setState({activePublicInfo:activePublicInfo==='detail'?'form':'detail'})}}
+                            >
+                            </UserPublicInfoForm>)
+                        }
+                    </div>);
+                break;
+            case  'ARTICLES' :
+                currentComponent = (
 
 
+                    <UserArticleList/>
+                );
+                break;
+            default:
+                break;
+        };
 
         return (
             <div className="content-wrapper hb-container">
                 <section className="content-header">
-                    <Nav bsStyle="pills" activeKey={activeNav} onSelect={(e)=>{console.log(e)}}>
-                        <NavItem eventKey={NAV_INFO} >
+                    <Nav bsStyle="pills" activeKey={nav} onSelect={setCurrentNav}>
+                        <NavItem eventKey={'INFORMATIONS'} >
                             Mes informations
                         </NavItem>
-                        <NavItem eventKey={NAV_ARTICLES} href="/articles">
+                        <NavItem eventKey={'ARTICLES'}>
                             Mes Articles
                         </NavItem>
                     </Nav>
@@ -81,23 +115,7 @@ class Account extends React.Component
                         </Shade>
                         }
                     </PoseGroup>
-                    <h3>Informations publiques&nbsp;
-                        <Glyphicon
-                            title={'editer'}
-                            glyph={'edit'}
-                            onClick={()=>{this.setState({activePublicInfo:activePublicInfo==='detail'?'form':'detail'})}}/>
-                    </h3>
-                    {activePublicInfo==='detail' ?
-                        (<UserPublicCard user={currentUser}/>) :
-                        (<UserPublicInfoForm
-                            form={'account-public'}
-                            id={currentUser.id}
-                            container={null}
-                            handleSwitch={()=>{this.setState({activePublicInfo:activePublicInfo==='detail'?'form':'detail'})}}
-                        >
-                        </UserPublicInfoForm>)
-                    }
-
+                    {currentComponent}
                 </section>
             </div>
         );
@@ -115,4 +133,4 @@ const makeMapStateToProps = () => {
     }
 };
 
-export default connect(makeMapStateToProps)(Account);
+export const Account = connect(makeMapStateToProps)(AccountComponent);

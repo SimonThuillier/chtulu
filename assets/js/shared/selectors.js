@@ -36,6 +36,8 @@ export const getCurrentUserSelector = createSelector(
         (appState,userWaoState) => userWaoState.get("items")
     ],
     (currentUser,users) => () => {
+        console.log(currentUser);
+        console.log(users.has(+currentUser));
         if(currentUser === null) return null;
         if(users.has(+currentUser)) return users.get(+currentUser);
         return null;

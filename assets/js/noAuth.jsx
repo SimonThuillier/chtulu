@@ -6,7 +6,9 @@ import NoAuth from './noAuth/NoAuth'
 import {rootReducer} from './noAuth/reducers'
 import thunk from 'redux-thunk'
 import { composeWithDevTools } from 'redux-devtools-extension';
+import {setRootUrl} from './util/server';
 require('./app.js');
+setRootUrl('/web');
 
 const middleware = [ thunk ];
 

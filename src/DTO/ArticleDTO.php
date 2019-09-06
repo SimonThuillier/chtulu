@@ -24,6 +24,8 @@ class ArticleDTO extends EntityMutableDTO
     protected $title;
     /** @var ArticleType */
     protected $type;
+    /** @var \DateTime */
+    protected $editionDate;
     /** @var integer */
     protected $firstRankLinksCount;
     /** @var integer */
@@ -90,6 +92,25 @@ class ArticleDTO extends EntityMutableDTO
     {
         $this->type = $type;
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('type');
+        return $this;
+    }
+
+    /**
+     * @return \DateTime
+     * @groups({"minimal"})
+     */
+    public function getEditionDate(): ?\DateTime
+    {
+        return $this->editionDate;
+    }
+
+    /**
+     * @param \DateTime $editionDate
+     * @return ArticleDTO
+     */
+    public function setEditionDate(?\DateTime $editionDate): ArticleDTO
+    {
+        $this->editionDate = $editionDate;
         return $this;
     }
 
