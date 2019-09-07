@@ -136,4 +136,13 @@ class ArticleRepository extends EntityRepository
     public function sortByEditionDate(QueryBuilder $qb,string $order){
         return $qb->orderBy('o.editionDate',$order);
     }
+
+    /**
+     * @param QueryBuilder $qb
+     * @param string $order
+     * @return QueryBuilder
+     */
+    public function sortByFirstRankLinksCount(QueryBuilder $qb,string $order){
+        return $qb->orderBy('o.firstRankLinksCount',$order);
+    }
 }

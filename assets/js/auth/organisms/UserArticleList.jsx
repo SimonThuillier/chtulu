@@ -59,7 +59,16 @@ const columns = (dispatch,onSelection,getNotifications) => [{
         return <ArticleType id={cell}/>
     },
     sort: true
-},{
+}, {
+    dataField: 'firstRankLinksCount',
+    text: 'sous-Articles',
+    formatter: function(cell){
+        if(cell==0) return '';
+        else return cell;
+    },
+    sort: true
+}
+,{
     dataField: 'editionDate',
     text: 'Derniere edition',
     formatter: function(cell){

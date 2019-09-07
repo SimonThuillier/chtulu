@@ -61,11 +61,17 @@ const HistoProxy = (function() {
         get beginHDate() {
             return this.article.beginHDate;
         },
+        get beginDate() {
+            return (this.article.beginHDate)?this.article.beginHDate.beginDate:new Date();
+        },
         get endHDate() {
             return this.article.endHDate;
         },
         get title() {
             return this.article.title || 'nouvel article';
+        },
+        get firstRankLinksCount() {
+            return this.article.firstRankLinksCount;
         },
         get detailImageResource() {
             return this.article.detailImageResource;
@@ -108,6 +114,11 @@ class HBExplorerTimePanel extends React.Component {
         this.onPanelMove = debounce(this.onPanelMove.bind(this),10);
         this.onPanelMoveEnd = this.onPanelMoveEnd.bind(this);
 
+        this.trackMousePosition = this.trackMousePosition.bind(this);
+        this.mouseX = null;
+
+        this.onPanelZooming = this.onPanelZooming.bind(this);
+
         this.animate = this.animate.bind(this);
 
         this.addBox = this.addBox.bind(this);
@@ -125,6 +136,7 @@ class HBExplorerTimePanel extends React.Component {
             articles: new Map(),
             isAnimating: false,
             isMovingPanel: false,
+            isZoomingPanel: false,
             originY: this.props.originY || 0
             // gradLegends: new Map()
             //...this.getTimeRangeAndScale()
@@ -133,7 +145,8 @@ class HBExplorerTimePanel extends React.Component {
         this.lastDiscreteEventTime = new Date().getTime();
     }
 
-    componentDidMount() {
+    componentDidMount()
+    {
         const { hInterval, bounds, articles } = this.props;
 
         const timeScale = this.getTimeScale(hInterval, bounds);
@@ -163,16 +176,13 @@ class HBExplorerTimePanel extends React.Component {
         });
 
         console.log("new component, maybe because of theme changes");
-        //this.updateHInterval();
-        setTimeout(this.updateHInterval,30);
+        window.addEventListener("mousemove", this.trackMousePosition);
+        setTimeout(this.updateHInterval,20);
+    }
 
-        /*// test sur l'intersectionObserver
-        this.observerOptions = {
-          root: document.getElementById("#hg-map-container"),
-          rootMargin: "0px",
-          threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-        };
-        //console.clear();*/
+    componentWillUnmount()
+    {
+        window.removeEventListener("mousemove", this.trackMousePosition);
     }
 
     getTimeScale(hInterval, bounds) {
@@ -400,7 +410,51 @@ class HBExplorerTimePanel extends React.Component {
         }
     }
 
-    addBox(boxRef,article){
+    onPanelZoomingBegin(e, sense = -1) {
+        if (!this.state.isZoomingPanel) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.addEventListener("mouseup", this.onTimeZoomingEnd);
+            console.log("beginning of the time zooming ...");
+            this.setState({
+                isTimeZooming: sense,
+                timeTravelBeginTime: new Date().getTime(),
+                initialTimeTravelInterval: this.state.hInterval.clone()
+            });
+            this.onTimeZooming();
+        }
+    }
+
+    trackMousePosition(e)
+    {
+        this.mouseX = e.clientX;
+    }
+
+    onPanelZooming(e)
+    {
+        const { setHInterval,hInterval,bounds} = this.props;
+        const mouseDate = this.state.timeScale.invert(this.mouseX-bounds.x);
+
+        const baseDeltaY = 53;
+        const baseTimeDelta = 0.075;
+
+        const {max,min} = Math;
+        let factor = 1;
+        if(+e.deltaY>0) factor = 1 + min((e.deltaY/baseDeltaY * baseTimeDelta),baseTimeDelta*2);
+            else if (+e.deltaY<0) factor = 1 + max((e.deltaY/baseDeltaY * baseTimeDelta),-baseTimeDelta*2);
+
+        const middleDate = hInterval.getMiddleDate();
+        const dayDiff = dU.dayDiff(mouseDate,middleDate);
+
+        const newHInterval = hInterval.clone().multiply(factor);
+        const newDayDiff = dU.dayDiff(mouseDate,newHInterval.getMiddleDate());
+        const deltaDay = newDayDiff - dayDiff*factor;
+        newHInterval.addDay(deltaDay);
+        setHInterval(newHInterval);
+    }
+
+    addBox(boxRef,article)
+    {
         const sameBoxAsBefore = (this.boxRefs.has(+article.id) && this.boxRefs.get(+article.id).boxRef===boxRef);
         if(sameBoxAsBefore) return;
         //console.log(`addBox form article ${article.title},same as before : ${sameBoxAsBefore}`);
@@ -411,6 +465,8 @@ class HBExplorerTimePanel extends React.Component {
                 boxRef:boxRef,
                 y:article.y,
                 title:article.title,
+                beginDate:article.beginDate,
+                firstRankLinksCount:article.firstRankLinksCount,
                 isTested:false,
                 deltaY:0,
                 collisions:{},
@@ -433,11 +489,11 @@ class HBExplorerTimePanel extends React.Component {
                 v.isTested = false;
                 v.collisions = {};
                 //v.deltaY = this.state.articles.get(+k).deltaY;
-                checkIndex.push([k,v.y]);
+                checkIndex.push([k,v.firstRankLinksCount,v.beginDate]);
             }
         );
         // then sort it from upper to lower y
-        checkIndex.sort((a,b)=>{return a[1]>=b[1]?1:-1});
+        checkIndex.sort((a,b)=>{return a[1]>b[1]?-1:(a[1]===b[1]?(a[2]>=b[2]?1:-1):1)});
         //console.log(checkIndex);
         // let's then use this index to iterate on boxRefs
         let actionCount=0;
@@ -445,16 +501,19 @@ class HBExplorerTimePanel extends React.Component {
             let mainId = checkIndex[i][0];
             let mainBoxRef = this.boxRefs.get(mainId);
             // first we aggregate all data to compute deltaY for the mainBoxRef
-            let maxDelta =null;
+            let maxDelta =-10000;
+            if(mainId===149) console.log(mainBoxRef.collisions);
             Object.entries(mainBoxRef.collisions).forEach((v,k) =>{
                     //console.log(v);
                     maxDelta = max(maxDelta,+v[1]);
                 }
             );
-            if(maxDelta === null) {maxDelta = 0;}
+            if(mainId===149) console.log(`1 -maxDelta ${maxDelta} vs oldDeltaY ${mainBoxRef.deltaY}`);
+            if(maxDelta === -10000) {maxDelta = 0;}
             else {
                 maxDelta +=mainBoxRef.deltaY;
             }
+            if(mainId===149) console.log(`2 -maxDelta ${maxDelta} vs oldDeltaY ${mainBoxRef.deltaY}`);
 
             if(maxDelta > mainBoxRef.deltaY){
                 mainBoxRef.deltaY = max(0,maxDelta);
@@ -464,6 +523,8 @@ class HBExplorerTimePanel extends React.Component {
                 mainBoxRef.deltaY = max(0,maxDelta);
                 actionCount+=1;
             }
+
+            if(mainId===149) console.log(`3 -maxDelta ${maxDelta} vs oldDeltaY ${mainBoxRef.deltaY}`);
             //console.log(`${mainBoxRef.title} maxDelta ${maxDelta} vs deltaY ${mainBoxRef.deltaY}`);
             mainBoxRef.isTested = true;
 
@@ -472,6 +533,7 @@ class HBExplorerTimePanel extends React.Component {
                 let lowerId = checkIndex[j][0];
                 let lowerBoxRef = this.boxRefs.get(lowerId);
                 let collision = nodesCollide(mainBoxRef.boxRef,lowerBoxRef.boxRef,2);
+                if(mainId===140) console.log(collision);
                 if(collision !== null){
                     //console.log(`${mainBoxRef.title} on ${lowerBoxRef.title}, collision ${collision}`);
                 }
@@ -480,10 +542,26 @@ class HBExplorerTimePanel extends React.Component {
                     //console.log(`${mainBoxRef.title} on ${lowerBoxRef.title}, collision ${collision}`);
                     lowerBoxRef.collisions[mainId] = collision;// + mainBoxRef.deltaY;
                     //lowerBoxRef.deltaY = max(lowerBoxRef.deltaY,collision + mainBoxRef.deltaY);
-
                 }
+                /*else if(!lowerBoxRef.isTested){
+                    let outerCollision = nodesCollide(mainBoxRef.boxRef,lowerBoxRef.boxRef,10);
+                    if(outerCollision === null){
+                        lowerBoxRef.deltaY = lowerBoxRef.deltaY-4;
+                        actionCount+=1;
+                    }
+                }*/
             }
         }
+
+        /*for (let i=0;i<checkIndex.length;i++) {
+            let id = checkIndex[i][0];
+            let boxRef = this.boxRefs.get(id);
+            console.log(boxRef);
+            if(Object.keys(boxRef.collisions).length===0 && boxRef.deltaY>4){
+                boxRef.deltaY = boxRef.deltaY-5;
+                actionCount+=1;
+            }
+        }*/
 
         if(actionCount>0){
             let articleProxies = new Map(this.state.articles);
@@ -575,6 +653,7 @@ class HBExplorerTimePanel extends React.Component {
                 viewBox={`0 0 ${bounds.width} ${bounds.height}`}
                 preserveAspectRatio="none"
                 onMouseDown={this.onPanelMoveBegin}
+                onWheel={this.onPanelZooming}
                 onDoubleClick={this.onDblClick}
                 ref={node => {
                     this.panelRef = node;
