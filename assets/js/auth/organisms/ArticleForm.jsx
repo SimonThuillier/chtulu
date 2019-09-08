@@ -7,20 +7,17 @@ import GroupUtil from '../../util/GroupUtil';
 import {
     Alert,
     Form,
-    Glyphicon,
-    OverlayTrigger
+    Col,Popover,Overlay
 } from 'react-bootstrap';
 import { Field, reduxForm,change as formChange,
     blur as formBlur,focus as formFocus,touch as formTouch,untouch as formUntouch} from 'redux-form/immutable';
 import { stopSubmit} from 'redux-form';
-const Imm = require("immutable");
 import {getOneByIdIfNeeded,submitLocally,postOne,reset as stateReset,TIMEOUT,discard,deleteLocally} from '../actions';
 import ArticleTypeSelect from "../molecules/ArticleTypeSelect";
-const componentUid = require('uuid/v4')();
 import HDateInput from "../molecules/HDateInput";
+import HDateInputFormBinder from "../hoc/HDateInputFormBinder";
 import ImageInput from "../molecules/ImageInput";
 import HBFormField from '../hoc/HBFormField';
-import {Button,Row,Col,Popover,Overlay} from 'react-bootstrap';
 import Loadable from 'react-loading-overlay';
 import {LOADING,SUBMITTING,SUBMITTING_COMPLETED,COLORS} from '../../util/notifications';
 import {HB_SUCCESS} from "../../util/server";
@@ -30,6 +27,9 @@ import withExtraProps from '../hoc/withExtraProps';
 import ResourcePicker from './ResourcePicker';
 import ArticleLinkForm from '../molecules/ArticleLinkForm';
 import FormSubmit from '../molecules/FormSubmit';
+
+const Imm = require("immutable");
+const componentUid = require('uuid/v4')();
 
 const ArticleFormContext = React.createContext({});
 
@@ -112,10 +112,11 @@ const SubDate = ({}) => {
         <ArticleFormContext.Consumer>
             {({hasEndDate,dispatch,container,componentUid}) => (
                 <div>
-                    <Field
+                    <HDateInputFormBinder
                         name="beginHDate"
-                        type="text"
-                        component={withContainer(HDateInput,container||null)}
+                        dispatch={dispatch}
+                        container={container}
+                        componentUid={componentUid + '-begin'}
                         label="Date de début"
                     />
                     <Field
@@ -125,6 +126,8 @@ const SubDate = ({}) => {
                         label="A une fin ?"
                         //if(hasEndDate) pendingForm.setIn(["values","endHDate"],null);
                         onChange={()=>{
+                            console.log("click on hasEndDate");
+                            console.log(componentUid);
                             dispatch(formChange(componentUid, 'endHDate', null));
                             dispatch(formTouch(componentUid, 'hasEndDate','endHDate'));
                             //console.log(`hasEndDate : ${hasEndDate}`);
@@ -137,10 +140,11 @@ const SubDate = ({}) => {
                         }}
                     />
             {(hasEndDate) &&
-            <Field
+            <HDateInputFormBinder
                 name="endHDate"
-                type="text"
-                component={withContainer(HDateInput,container||null)}
+                dispatch={dispatch}
+                container={container}
+                componentUid={componentUid + '-end'}
                 label="Date de fin"
             />}
                 </div>
@@ -180,6 +184,25 @@ class SubDetailImage extends React.Component {
     componentWillUnmount(){window.removeEventListener("click",this.onClick,true);}
 
     toggleShow(e){
+        if(!this.state.show){
+            console.log("toggle show");
+            setTimeout(()=>{
+                //console.log(this.overlay);
+                if(this.overlay && this.overlay.current &&
+                    this.overlay.current.parentNode &&
+                    this.overlay.current.parentNode.parentNode){
+                    const overlayRoot = this.overlay.current.parentNode.parentNode;
+                    let left = +((overlayRoot.style.left).replace('px',''));
+                    let top = +((overlayRoot.style.top).replace('px',''));
+                    overlayRoot.style.left = `${left+150}px`;
+                    overlayRoot.style.top = `${top-380}px`;
+                    console.log(overlayRoot);
+
+                }
+            },20);
+        }
+
+
         this.setState({show:!this.state.show});
         if(!!e){
             e.stopPropagation();
@@ -248,7 +271,6 @@ class SubDetailImage extends React.Component {
         );
     }
 }
-//SubDetailImage.contextType = ArticleFormContext;
 
 class SubAbstract extends React.Component {
     constructor(props) {
@@ -535,6 +557,7 @@ class ArticleForm extends React.Component{
         submittingCompleted = (submittingCompleted && !submittingCompleted.get("discardedAt"))?submittingCompleted:null;
 
         const contextValue = {
+            componentUid:this.componentUid,
             hasEndDate:hasEndDate,
             dispatch:dispatch,
             container :container || null,

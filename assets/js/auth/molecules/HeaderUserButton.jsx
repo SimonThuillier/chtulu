@@ -8,7 +8,7 @@ const HeaderUserButton = (props) => {
 
     return (
         <li className="dropdown user user-menu">
-            <a href="#" className="dropdown-toggle" data-toggle="dropdown">
+            <a style={{maxHeight:'50px'}} href="#" className="dropdown-toggle" data-toggle="dropdown">
                 <RImageMini id={currentUser && currentUser.detailImageResource} useDefault={true}/>&nbsp;
                 <span className="hidden-xs">
                     <strong>{(currentUser && currentUser.username) || '...'}</strong>

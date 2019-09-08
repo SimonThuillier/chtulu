@@ -21,8 +21,6 @@ import AccountPage from "./pages/AccountPage";
 import UserPublicPage from "../shared/pages/UserPublicPage";
 import ArticleTablePage from "./pages/ArticleTablePage";
 
-
-
 const routes = [
     {
         id:1,
@@ -37,31 +35,31 @@ const routes = [
         component:ExplorerPage
     },
     {
-        id:3,
+        id:4,
         path:'/article/:id',
         exact:true,
         component:ArticlePage
     },
     {
-        id:4,
+        id:5,
         path:'/article/:id/:actionParam',
         exact:true,
         component:ArticlePage
     },
     {
-        id:5,
+        id:6,
         path:'/account',
         exact:true,
         component:AccountPage
     },
     {
-        id:6,
+        id:7,
         path:'/account/:nav',
         exact:true,
         component:AccountPage
     },
     {
-        id:7,
+        id:8,
         path:'/user/:id',
         exact:true,
         component:UserPublicPage
@@ -156,14 +154,19 @@ class Auth extends Component {
                                 onPostAll={this.onPostAll}
                                 onResetAll={this.onResetAll}
                             />
-                            <SideBar {...appProps}/>
                             <AppContext.Provider key={`app-provider`} value={{...this.state}}>
                                 {routes.map(({id,path,exact,component:C}) =>
                                     <Route
                                         key={id}
                                         exact={exact}
                                         path={path}
-                                        render={(props) => <C {...this.props} {...props}/>}/>
+                                        render={(props) =>
+                                            <div>
+                                            <SideBar {...this.props} {...props}/>
+                                            <C {...this.props} {...props}/>
+                                        </div>}
+
+                                    />
                                 )}
                             </AppContext.Provider>
                         </Loadable>

@@ -1,13 +1,7 @@
 import React from 'react';
 import {connect} from "react-redux";
-import {
-    getBabiesSelector, getNewlyCreatedIdSelector, getNextNewIdSelector, getNotificationsSelector,
-    getSelector,
-    totalSelector2
-} from "../../shared/selectors";
 import {Helmet} from 'react-helmet';
 import HBExplorerProxy from "../organisms/HBExplorerProxy.jsx";
-import HDate from "../../util/HDate";
 
 export class ExplorerPage extends React.Component {
     constructor(props) {
@@ -30,6 +24,10 @@ export class ExplorerPage extends React.Component {
 
     render(){
 
+        let search = this.props.location.search;
+        if(search) search = search.replace('?','');
+        else search=null;
+
         return (
             <div className="content-wrapper hb-container">
                 <Helmet>
@@ -40,7 +38,7 @@ export class ExplorerPage extends React.Component {
                 {/*</section>*/}
                 <section className="content no-padding">
                     <div>
-                        <HBExplorerProxy/>
+                        <HBExplorerProxy initialSearch={search}/>
                     </div>
                 </section>
             </div>

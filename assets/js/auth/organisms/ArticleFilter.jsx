@@ -127,12 +127,15 @@ class ArticleFilter extends React.Component{
         this.mini = false;
         if(!this.props.mini || typeof this.props.mini==='undefined') this.mini=false;
         else this.mini=true;
-
+        console.clear();
         this.state = {
             data:null,
             fields:props.fields || ["keyword","type","beginHDate","endHDate"],
-            lastFilterKey:"{}"
+            lastFilterKey:(props.searchBag && props.searchBag.search) || "{}"
         };
+
+        console.log(props.searchBag);
+        console.log(this.state.lastFilterKey);
     }
 
     componentDidMount() {
@@ -148,6 +151,17 @@ class ArticleFilter extends React.Component{
                 dropdownUl.style['max-height'] = '40px';
             }
         }
+
+        const {getOneById,initialize,id,dispatch} = this.props;
+        if(this.state.lastFilterKey && Object.keys(this.state.lastFilterKey).length>0){
+            console.log("search");
+            console.log(this.state.lastFilterKey);
+            initialize(this.state.lastFilterKey);
+        }
+
+
+
+
     }
 
     getCurrentFilter(){

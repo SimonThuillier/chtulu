@@ -44,6 +44,15 @@ export const getCurrentUserSelector = createSelector(
     }
 );
 
+export const getHbaseVersionSelector = createSelector(
+    [
+        (appState) => appState.get("hbaseVersion")
+    ],
+    (hbaseVersion) => () => {
+        return hbaseVersion || null;
+    }
+);
+
 
 
 export const getNotificationsSelector = createSelector(

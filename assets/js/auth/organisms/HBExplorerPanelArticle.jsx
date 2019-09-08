@@ -104,7 +104,7 @@ class HBExplorerPanelArticle extends React.Component {
 
     render() {
         const {article,mainArticleId,minLinksCount,maxLinksCount,linksCount,linked,
-            timeScale,originY,addBox,selected,hovered,setHoveredArticle,cursorDate} = this.props;
+            timeScale,originY,addBox,selected,hovered,setHoveredArticle,cursorDate,width} = this.props;
 
         const articleHDate = new HDate("2",
             article.beginHDate.beginDate,
@@ -112,22 +112,39 @@ class HBExplorerPanelArticle extends React.Component {
 
         const currentProgression = articleHDate.getRateOfDate(cursorDate);
 
+        const xMargin = 16;
+        const {max,min} = Math;
+
         const x = timeScale(article.beginHDate.beginDate);
         const endX = timeScale(article.endHDate?article.endHDate.endDate:new Date());
 
 
-        const {max,min} = Math;
+        let realTitle = article.title;
 
-        const xMargin = 18;
+        let realX = x;
+        let realEndX = endX;
+        let viewportWidth = Math.max(realEndX-realX + 2*xMargin,xMargin+(article.title.length)*12);
+        let deltaX = realX-2 < 0 ? min(-(realX-2),max(realEndX-realX,1)):0;
+
+        if((x<0 && endX<-30) || (x>width && endX>width)){
+            viewportWidth = 0;
+            realX = -2000;
+            realEndX = -2000;
+            deltaX=0;
+        }
+        else if(realEndX>width && x <0){
+            realX=0;
+            realTitle = realTitle + ' //';
+            realEndX = xMargin+(article.title.length + 3)*11;
+            viewportWidth = realEndX-xMargin;
+            deltaX=0;
+        }
+
+
         const viewportHeight = viewPortHeight(linksCount,minLinksCount,maxLinksCount);
-
-        let viewportWidth = Math.max(endX-x + 2*xMargin,(article.title.length)*15);
-
         const y = article.currentY - originY;
-
         const component= this;
 
-        let deltaX = x-xMargin < 0 ? min(-(x-xMargin),max(endX-x,1)):0;
 
         return (
             <svg
@@ -136,7 +153,7 @@ class HBExplorerPanelArticle extends React.Component {
                 viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
                 width={viewportWidth}
                 height={viewportHeight}
-                x={x-xMargin}
+                x={realX}//{x-xMargin}
                 y={y}
                 onMouseEnter={()=>{setHoveredArticle(article.id)}}
                 onMouseLeave={()=>{setHoveredArticle()}}
@@ -162,7 +179,7 @@ class HBExplorerPanelArticle extends React.Component {
                     stroke={'none'}
                     x={xMargin}
                     y={7}
-                    width={max(endX-x,1)}
+                    width={max(realEndX-realX,1)}
                     height={thickness(linksCount,minLinksCount,maxLinksCount)}
                     rx={2}
                     ry={2}
@@ -171,16 +188,16 @@ class HBExplorerPanelArticle extends React.Component {
                 <text
                     textAnchor="start"
                     filter={`url(#article-text-filter-${article.id})`}
-                    x={deltaX + xMargin+15}
+                    x={xMargin+15 +deltaX} //{deltaX + xMargin+15}
                     y={viewportHeight-2}
                     style={textStyle(article.record,selected,hovered,linked,linksCount,minLinksCount,maxLinksCount)}
                     onClick={this.handleOnClick}
                 >
-                    {article.title}
+                    {realTitle}
                 </text>
 
                 <circle
-                    cx={deltaX + xMargin}
+                    cx={xMargin + deltaX}//{deltaX + xMargin}
                     cy={15}
                     r="13"
                     fill={`url(#article-image-${article.id})`}
@@ -190,7 +207,7 @@ class HBExplorerPanelArticle extends React.Component {
                     key={`histo-article-progcircle-${article.id}`}
                     staticRate={0}
                     rate={currentProgression}
-                    cx={deltaX + xMargin}
+                    cx={xMargin + deltaX}//{deltaX + xMargin}
                     cy={15}
                     r={13}/>
             </svg>

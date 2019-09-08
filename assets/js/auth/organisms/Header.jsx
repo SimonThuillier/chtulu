@@ -1,20 +1,17 @@
 import React from 'react';
 import {PostAllButton,ResetAllButton} from "../atoms/PostAllWidget";
-
 import HeaderLogo from '../../shared/atoms/HeaderLogo';
 import SidebarToggler from '../../shared/atoms/SidebarToggler';
 import HeaderUserButton from '../molecules/HeaderUserButton';
 import HeaderUserDropDown from '../organisms/HeaderUserDropDown';
-
-const componentUid = require('uuid/v4')();
-
 import {connect} from "react-redux";
-import {getCurrentUserSelector} from "../../shared/selectors";
+import {getCurrentUserSelector,getHbaseVersionSelector} from "../../shared/selectors";
 import {SUBMITTING, SUBMITTING_COMPLETED} from "../../util/notifications";
 import {logout} from "../actions";
 import {makeGetNotificationsSelector} from "../../shared/selectors";
-
 import {URL_LOGIN} from '../../util/server';
+
+const componentUid = require('uuid/v4')();
 
 class Header extends React.Component
 {
@@ -60,7 +57,7 @@ class Header extends React.Component
 
         return (
             <header id="main-header" className="main-header">
-                <HeaderLogo/>
+                <HeaderLogo version={this.props.getHbaseVersion()}/>
                 <nav className="navbar navbar-static-top">
                     <SidebarToggler/>
                     <div className="navbar-custom-menu">
@@ -94,6 +91,7 @@ class Header extends React.Component
 const mapStateToProps = (state) => {
         const getNotificationsSelector = makeGetNotificationsSelector();
         return {
+            getHbaseVersion: getHbaseVersionSelector(state.get("app")),
             getCurrentUser: getCurrentUserSelector(state.get("app"),state.get("user")),
             getNotifications: getNotificationsSelector(state.get("app"))
         }

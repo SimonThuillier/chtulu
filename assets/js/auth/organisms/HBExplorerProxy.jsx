@@ -110,7 +110,7 @@ class HBExplorerProxy extends React.Component {
     }
 
     componentDidMount(){
-        const {mainArticleId=null,dispatch} = this.props;
+        const {mainArticleId=null,dispatch,initialSearch} = this.props;
         if(mainArticleId !== null){
             loadMainArticle(mainArticleId,dispatch);
             console.log(this.props);
@@ -123,7 +123,8 @@ class HBExplorerProxy extends React.Component {
             },100);
         }
         else{
-            const searchBag = this.props.searchBag || defaultSearchBag;
+            let searchBag = this.props.searchBag || defaultSearchBag;
+            if(initialSearch) searchBag.search = {keyword:initialSearch};
             loadSearchBag(searchBag,dispatch);
             this.setState({searchBag:searchBag});
             this.setHInterval(getHIntervalFromArticles(this.getArticles()));
@@ -133,7 +134,7 @@ class HBExplorerProxy extends React.Component {
     componentDidUpdate(prevProps) {
         //console.log("update HBExplorerProxy");
         const {mainArticleId,getPlusBabies,
-            getOneByIdPlusBabies,dispatch,getLinks} = this.props;
+            getOneByIdPlusBabies,dispatch,getLinks,initialSearch} = this.props;
         const {createdArticlesId} = this.state;
 
         let displayedArticles = this.state.displayedArticles;
@@ -171,6 +172,7 @@ class HBExplorerProxy extends React.Component {
                 searchBag =null;
             }
             this.setState({hasSelfUpdatedHInterval:false,searchBag:searchBag});
+            setTimeout(()=>{this.setHInterval(getHIntervalFromArticles(this.getArticles()));},20);
         }
 
         // mainArticle mode
@@ -180,20 +182,25 @@ class HBExplorerProxy extends React.Component {
             }
             else if(!this.state.hasSelfUpdatedHInterval &&
                 prevProps.getOneByIdPlusBabies !== getOneByIdPlusBabies){
-                this.setHInterval(getHIntervalFromArticles(this.getArticles()));
+                setTimeout(()=>{this.setHInterval(getHIntervalFromArticles(this.getArticles()));},20);
             }
         }
         // default mode
         else{
-            if(prevProps.searchBag !== searchBag){
+            if(prevProps.initialSearch !== initialSearch){
+                searchBag.search = {keyword:initialSearch};
                 loadSearchBag(searchBag,dispatch);
-                this.setHInterval(getHIntervalFromArticles(this.getArticles()));
+                this.setState({searchBag:searchBag});
+
+            }
+            else if(prevProps.searchBag !== searchBag){
+                loadSearchBag(searchBag,dispatch);
             }
             else if(!this.state.hasSelfUpdatedHInterval &&
                 prevProps.getPlusBabies !== getPlusBabies &&
                 getPlusBabies(searchBag,createdArticlesId).length>1){
-                this.setHInterval(getHIntervalFromArticles(this.getArticles()));
             }
+            setTimeout(()=>{this.setHInterval(getHIntervalFromArticles(this.getArticles()));},20);
         }
 
         this.ensureDisplayedArticlesCoherence();

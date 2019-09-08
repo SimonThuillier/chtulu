@@ -46,6 +46,7 @@ class AuthController extends AbstractController
             $session->remove('initialHResponse');
             $hResponse = new HJsonResponse();
             $hResponse
+                ->setData(['hbaseVersion'=>$this->getParameter('hbase_version')])
                 ->setStatus(HJsonResponse::WARNING)
                 ->setMessage("Vous devez vous <strong>connecter</strong> pour acceder à cette page");
             $session->set('initialHResponse',HJsonResponse::normalize($hResponse));
@@ -57,13 +58,17 @@ class AuthController extends AbstractController
             $hResponse = $session->get('initialHResponse',$hResponse);
             $session->remove('initialHResponse');
 
-            if(is_string($hResponse)) $hResponse = json_decode($hResponse,true);
-            if(empty($hResponse)) $hResponse = null;
+            if(is_string($hResponse) && !empty($hResponse)){
+                $hResponse = json_decode($hResponse,true);
+                $hResponse['data']['hbaseVersion'] = $this->getParameter('hbase_version');
+            }
         }
 
         if($hResponse === null){
             $hResponse = new HJsonResponse();
-            $hResponse->setStatus(HJsonResponse::CONFIRM);
+            $hResponse
+                ->setData(['hbaseVersion'=>$this->getParameter('hbase_version')])
+                ->setStatus(HJsonResponse::CONFIRM);
             $hResponse = HJsonResponse::normalize($hResponse);
         }
 

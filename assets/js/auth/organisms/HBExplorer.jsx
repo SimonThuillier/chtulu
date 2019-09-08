@@ -200,7 +200,9 @@ setTheme(theme) {
     this.setState({ currentTheme: theme, guiInitialized: 1 });
     setTimeout(() => {
         this.setState({ guiInitialized: 2 });
-    }, 20);
+    }, 10);
+    setTimeout(()=>{window.dispatchEvent(new Event('resize'))},20);
+    setTimeout(()=>{this.onBottomResize(null);},25);
 }
 
 onWindowResize() {
@@ -248,6 +250,13 @@ onWindowResize() {
 // begin flag :set the scale and origin values for resize
 onBottomResize(delta, flag = "onGoing") {
     const { frameSizes } = this.state;
+
+    if(delta===null){
+        let newFrameSizes = new Map(this.state.frameSizes);
+        this.setState({ frameSizes: newFrameSizes });
+        return
+    }
+
     if (flag === "begin") {
         this.onBottomResizeParam = {
             beginMousePosition: delta,
@@ -259,6 +268,7 @@ onBottomResize(delta, flag = "onGoing") {
         return;
     }
     // onGoing
+
     const { min, max } = Math;
     const { rangeAbsoluteSize, beginRelativeSize } = this.onBottomResizeParam;
     //console.log(`bottom resize ${delta}px vs ${rangeAbsoluteSize}px`);

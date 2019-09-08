@@ -502,18 +502,18 @@ class HBExplorerTimePanel extends React.Component {
             let mainBoxRef = this.boxRefs.get(mainId);
             // first we aggregate all data to compute deltaY for the mainBoxRef
             let maxDelta =-10000;
-            if(mainId===149) console.log(mainBoxRef.collisions);
+            //if(mainId===149) console.log(mainBoxRef.collisions);
             Object.entries(mainBoxRef.collisions).forEach((v,k) =>{
-                    //console.log(v);
-                    maxDelta = max(maxDelta,+v[1]);
+                        maxDelta = max(maxDelta,+v[1]);
                 }
             );
             if(mainId===149) console.log(`1 -maxDelta ${maxDelta} vs oldDeltaY ${mainBoxRef.deltaY}`);
             if(maxDelta === -10000) {maxDelta = 0;}
+            else if(maxDelta>-4 && maxDelta<2){maxDelta=mainBoxRef.deltaY;}
             else {
                 maxDelta +=mainBoxRef.deltaY;
             }
-            if(mainId===149) console.log(`2 -maxDelta ${maxDelta} vs oldDeltaY ${mainBoxRef.deltaY}`);
+            //if(mainId===149) console.log(`2 -maxDelta ${maxDelta} vs oldDeltaY ${mainBoxRef.deltaY}`);
 
             if(maxDelta > mainBoxRef.deltaY){
                 mainBoxRef.deltaY = max(0,maxDelta);
@@ -524,7 +524,7 @@ class HBExplorerTimePanel extends React.Component {
                 actionCount+=1;
             }
 
-            if(mainId===149) console.log(`3 -maxDelta ${maxDelta} vs oldDeltaY ${mainBoxRef.deltaY}`);
+            //if(mainId===149) console.log(`3 -maxDelta ${maxDelta} vs oldDeltaY ${mainBoxRef.deltaY}`);
             //console.log(`${mainBoxRef.title} maxDelta ${maxDelta} vs deltaY ${mainBoxRef.deltaY}`);
             mainBoxRef.isTested = true;
 
@@ -533,35 +533,17 @@ class HBExplorerTimePanel extends React.Component {
                 let lowerId = checkIndex[j][0];
                 let lowerBoxRef = this.boxRefs.get(lowerId);
                 let collision = nodesCollide(mainBoxRef.boxRef,lowerBoxRef.boxRef,2);
-                if(mainId===140) console.log(collision);
+                //if(mainId===140) console.log(collision);
                 if(collision !== null){
                     //console.log(`${mainBoxRef.title} on ${lowerBoxRef.title}, collision ${collision}`);
                 }
 
                 if(!lowerBoxRef.isTested && collision!==null){
                     //console.log(`${mainBoxRef.title} on ${lowerBoxRef.title}, collision ${collision}`);
-                    lowerBoxRef.collisions[mainId] = collision;// + mainBoxRef.deltaY;
-                    //lowerBoxRef.deltaY = max(lowerBoxRef.deltaY,collision + mainBoxRef.deltaY);
+                    lowerBoxRef.collisions[mainId] = collision;
                 }
-                /*else if(!lowerBoxRef.isTested){
-                    let outerCollision = nodesCollide(mainBoxRef.boxRef,lowerBoxRef.boxRef,10);
-                    if(outerCollision === null){
-                        lowerBoxRef.deltaY = lowerBoxRef.deltaY-4;
-                        actionCount+=1;
-                    }
-                }*/
             }
         }
-
-        /*for (let i=0;i<checkIndex.length;i++) {
-            let id = checkIndex[i][0];
-            let boxRef = this.boxRefs.get(id);
-            console.log(boxRef);
-            if(Object.keys(boxRef.collisions).length===0 && boxRef.deltaY>4){
-                boxRef.deltaY = boxRef.deltaY-5;
-                actionCount+=1;
-            }
-        }*/
 
         if(actionCount>0){
             let articleProxies = new Map(this.state.articles);
@@ -642,6 +624,7 @@ class HBExplorerTimePanel extends React.Component {
                     timeScale={timeScale}
                     originY={originY}
                     addBox={this.addBox}
+                    width={width}
                 />
             );
         });

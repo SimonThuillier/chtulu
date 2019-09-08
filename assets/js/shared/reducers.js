@@ -14,6 +14,7 @@ const Imm = require("immutable");
 
 /** THE SHARED APP REDUCER */
 const initialAppState = Imm.Map({
+    hbaseVersion:null,
     currentUser:null,
     entitiesToPost:Imm.Map(),
     notifications: Imm.Map()
@@ -39,8 +40,10 @@ export const appReducer = (state=initialAppState, action) =>{
                     });
                     state = state.setIn(["notifications",senderKey,senderParam || 'DEFAULT',notifType],notification);
                     console.log(extraData);
-                    if(extraData && extraData.currentUser){
-                        state = state.set('currentUser',+extraData.currentUser.id);
+                    if(extraData){
+                        if(extraData.hbaseVersion) state = state.set('hbaseVersion',extraData.hbaseVersion);
+                        console.log(extraData.hbaseVersion);
+                        if(extraData.currentUser) state = state.set('currentUser',+extraData.currentUser.id);
                     }
                     return state;
                 case LOADING :

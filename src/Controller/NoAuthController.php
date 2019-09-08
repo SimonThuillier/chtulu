@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Util\HJsonResponse;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,12 +22,18 @@ class NoAuthController extends AbstractController
      */
     public function indexAction(Request $request,Session $session,$page)
     {
-        $hResponse = null;
+        $hResponse = new HJsonResponse();
+        $hResponse
+            ->setData(['hbaseVersion'=>$this->getParameter('hbase_version')])
+            ->setStatus(HJsonResponse::CONFIRM);
+        $hResponse = HJsonResponse::normalize($hResponse);
+
         if($session->has('initialHResponse')){
             $hResponse = $session->get('initialHResponse',$hResponse);
             $session->remove('initialHResponse');
-            if(is_array($hResponse)) $hResponse = json_encode($hResponse);
+            $hResponse['data']['hbaseVersion'] = $this->getParameter('hbase_version');
         }
+        if(is_array($hResponse)) $hResponse = json_encode($hResponse);
 
         return $this->render('@HB/no-auth.html.twig', ['page'=>$page,'hResponse'=>$hResponse]);
     }

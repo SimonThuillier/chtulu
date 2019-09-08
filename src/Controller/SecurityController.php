@@ -191,7 +191,7 @@ class SecurityController extends AbstractController
             );
 
             $hResponse
-                ->setMessage('Connection reussie <strong>'. $user->getUsername() .'</strong>!')
+                ->setMessage('Connexion reussie <strong>'. $user->getUsername() .'</strong>!')
                 ->setData(["redirectTo"=>$this->generateUrl(
                     'auth_homepage',
                     ['page'=>'explorer'],

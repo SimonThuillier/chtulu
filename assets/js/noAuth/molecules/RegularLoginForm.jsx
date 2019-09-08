@@ -190,7 +190,7 @@ export class RegularLoginForm extends React.Component
                                     style={{display:'inline-block',minWidth:'100%'}}
                                     disabled={this.getValidationState() !== 'success' || submitting}
                                     onClick={this.onSubmit}>
-                                Connection{submitting?' en cours ...':''}
+                                Connexion{submitting?' en cours ...':''}
                             </Button>
                         </Col>
                         <Col xs={1} sm={2} md={3} lg={4}/>

@@ -262,10 +262,14 @@ export const nodesCollide = function (node1,node2,margin=0,returnType=VERTICAL) 
 
     const {abs,min,max} = Math;
 
-    const hCollide = (node1Left < node2Right && node1Right > node2Left)?
+    /*const hCollide = (node1Left < node2Right && node1Right > node2Left)?
         min(abs(node1Left - node2Right),abs(node1Right - node2Left)):
         -min(abs(node1Left - node2Right),abs(node1Right - node2Left));
-    ;
+    ;*/
+
+    const L1R2 = node2Right - node1Left;
+    const R1L2 = node2Left - node1Right;
+    const hCollide = (((L1R2 > 0 && R1L2 > 0) || (L1R2 < 0 && R1L2 < 0))?-1:+1) * min(abs(L1R2),abs(R1L2));
 
     const B1T2 = node2Top - node1Bottom;
     const T1B2 = node2Bottom - node1Top;

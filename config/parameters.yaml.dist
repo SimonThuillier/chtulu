@@ -2,18 +2,26 @@
 # Set parameters here that may be different on each deployment target of the app, e.g. development, staging, production.
 # http://symfony.com/doc/current/best_practices/configuration.html#infrastructure-related-configuration
 parameters:
-    psql_database_host: 127.0.0.1
+    secret: 42a44645522e34e5eab0818863452325728b23b7
+    hbase_version:
+        number : 0.8.0
+        tag : Marc Bloch
+
+    authorized_registration_emails :
+        - email1
+        - email2
+
+
+
+    psql_database_host:
     psql_database_port: 5432
-    psql_database_name: mabase
-    psql_database_user: root
-    psql_database_password: toto
-    # You should uncomment this if you want use pdo_sqlite
-    # database_path: "%kernel.root_dir%/data.db3"
+    psql_database_name: hbase
+    psql_database_user:
+    psql_database_password:
 
-    mailer_transport:  smtp
-    mailer_host:       127.0.0.1
-    mailer_user:       ~
-    mailer_password:   ~
+    mailer_transport: smtp
+    mailer_host: 127.0.0.1
+    mailer_user: null
+    mailer_password: null
 
-    # A secret key that's used to generate certain security-related tokens
-    secret:            ThisTokenIsNotSoSecretChangeIt
+
