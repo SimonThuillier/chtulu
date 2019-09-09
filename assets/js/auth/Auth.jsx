@@ -20,6 +20,7 @@ import ArticlePage from "./pages/ArticlePage";
 import AccountPage from "./pages/AccountPage";
 import UserPublicPage from "../shared/pages/UserPublicPage";
 import ArticleTablePage from "./pages/ArticleTablePage";
+import ContactPage from "./pages/ContactPage";
 
 const routes = [
     {
@@ -69,6 +70,13 @@ const routes = [
         path:'/article-table',
         exact:true,
         component:ArticleTablePage
+    }
+    ,
+    {
+        id:10,
+        path:'/contact',
+        exact:true,
+        component:ContactPage
     }
 ];
 

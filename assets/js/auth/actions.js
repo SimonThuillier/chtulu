@@ -6,6 +6,7 @@ import {
     URL_GET_NEW,
     URL_UPLOAD,
     URL_LOGOUT,
+    URL_CONTACT,
     getUrl,
     getHTTPProps,
     getHTTPUploadProps,
@@ -13,7 +14,7 @@ import {
     DataToPost,
     HB_SUCCESS,
     HB_ERROR,
-    URL_POST, HB_WARNING, INITIAL_HRESPONSE, HB_INFO, HB_CONFIRM, URL_LOGIN
+    URL_POST, HB_WARNING, INITIAL_HRESPONSE, HB_INFO, HB_CONFIRM, URL_LOGIN, URL_REGISTER
 } from '../util/server';
 import { normalize,denormalize, schema } from 'normalizr';
 import WAOs from '../util/WAOs';
@@ -775,6 +776,51 @@ export const logout = (senderKey) => (dispatch, getState) => {
                 switch (json.status) {
                     case HB_SUCCESS:
                         dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_SUCCESS,{redirectTo:URL_LOGIN},json.message));
+                        break;
+                    case HB_ERROR:
+                        console.error(json.message);
+                        console.log(json.errors);
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_ERROR,json.data,json.message,json.errors));
+                        break;
+                    case HB_WARNING:
+                        console.warn(json.message);
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_WARNING,json.data,json.message,json.errors));
+                        break;
+                    default:
+                }
+            }
+        )
+};
+
+
+
+export const sendContact = (data,senderKey) => (dispatch, getState) => {
+    console.log("send contact");
+    console.log(data);
+
+    let dataToPost = DataToPost(senderKey);
+    dataToPost = Object.assign(dataToPost,data);
+    console.log(`dataToPost`);
+    console.log(dataToPost);
+
+    const url = getUrl(URL_REGISTER);
+    let httpProps = getHTTPProps(HTTP_POST);
+    httpProps.body = JSON.stringify(dataToPost);
+
+    dispatch(notify(SUBMITTING,senderKey,0));
+
+    return fetch(url,httpProps)
+        .then(response => response.json())
+        .catch(exception => {
+                dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_ERROR,null,"Le serveur est tombé en erreur :(",null));
+            }
+        )
+        .then(json => {
+                console.log("post returned !");
+                console.log(json);
+                switch (json.status) {
+                    case HB_SUCCESS:
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_SUCCESS,json.data,json.message));
                         break;
                     case HB_ERROR:
                         console.error(json.message);

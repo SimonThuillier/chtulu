@@ -230,4 +230,41 @@ class RequestHelper
 
         return $result;
     }
+
+    /**
+     * check if contact request is valid and returns the data
+     * @param Request $request
+     * @return array
+     * @throws \Exception
+     */
+    public function handleContactRequest(Request $request)
+    {
+        $result = [
+            "senderKey"=>null,
+            "type" => null,
+            "subject" => null,
+            "message" => null,
+            "_token" => null
+        ];
+
+        if (0 !== strpos($request->headers->get('Content-Type'), 'application/json')) {
+            throw new \Exception("Request Content-Type must be application/json for Login request");
+        }
+        /** @var array $data */
+        $data = json_decode($request->getContent(), true);
+        if(!$data) throw new \Exception("Post request data is null");
+        if(! array_key_exists("senderKey",$data)) throw new \Exception("senderKey attribute is mandatory for Contact data");
+        if(! array_key_exists("_token",$data)) throw new \Exception("_token attribute is mandatory for Contact data");
+        if(! array_key_exists("type",$data)) throw new \Exception("type attribute is mandatory for Contact data");
+        if(! array_key_exists("subject",$data)) throw new \Exception("subject attribute is mandatory for Contact data");
+        if(! array_key_exists("message",$data)) throw new \Exception("message attribute is mandatory for Contact data");
+
+        $result["_token"] = $data["_token"];
+        $result["senderKey"] = $data["senderKey"];
+        $result["type"] = $data["type"];
+        $result["subject"] = $data["subject"];
+        $result["message"] = $data["message"];
+
+        return $result;
+    }
 }

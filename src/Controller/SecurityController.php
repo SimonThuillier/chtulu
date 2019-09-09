@@ -9,6 +9,7 @@ use App\Util\HJsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -80,9 +81,9 @@ class SecurityController extends AbstractController
     /**
      * @Route("/validate-register/{email}/{token}",name="validate_register")
      * @param Request $request
-     * @param RequestHelper $requestHelper
      * @param string $email
      * @param string $token
+     * @return RedirectResponse
      */
     public function validateRegisterAction(
         Request $request,

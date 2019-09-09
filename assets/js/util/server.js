@@ -22,8 +22,8 @@ if(initialHResponse!==null && initialHResponse.data &&
 export const URL_DEFAULT_IMAGE_MINI = getDataUrlOrNa('hb-url-default-image-mini');
 export const URL_DEFAULT_IMAGE_DETAIL = getDataUrlOrNa('hb-url-default-image-detail');
 
-console.log(URL_DEFAULT_IMAGE_MINI);
-console.log(URL_DEFAULT_IMAGE_DETAIL);
+/*console.log(URL_DEFAULT_IMAGE_MINI);
+console.log(URL_DEFAULT_IMAGE_DETAIL);*/
 
 export const INITIAL_HRESPONSE = initialHResponse;
 export const CURRENT_USER_ID = currentUserId;
@@ -31,6 +31,8 @@ export const CURRENT_USER_ID = currentUserId;
 export const URL_REGISTER = getDataUrlOrNa('hb-url-security-register');
 export const URL_LOGIN = getDataUrlOrNa('hb-url-security-login');
 export const URL_LOGOUT = getDataUrlOrNa('hb-url-security-logout');
+
+export const URL_CONTACT = getDataUrlOrNa('hb-url-contact-contact');
 
 export const URL_GET = getDataUrlOrNa('hb-url-get-get');
 export const URL_GET_ONE_BY_ID = getDataUrlOrNa('hb-url-get-get-one-by-id');
@@ -50,6 +52,14 @@ export const HB_CONFIRM="confirm";
 
 export const RESOURCE_IMAGE={id:1,label:"Image"};
 export const RESOURCE_TEXT={id:2,label:"Texte"};
+
+export const CONTACT_TYPES = [
+    {id:'BUG',label:"Signaler un bug"},
+    {id:'HOWTO',label:"Comment faire quelque chose sur le site"},
+    {id:'IDEA',label:"Proposer une evolution ou une nouvelle fonctionnalité"},
+    {id:'ABOUT',label:"Poser des questions sur le projet"},
+    {id:'THANKS',label:"Remercier l'équipe car ça fait toujours plaisir :)"}
+    ];
 
 let ROOT_URL = '/app';
 export const setRootUrl = (root)=>{

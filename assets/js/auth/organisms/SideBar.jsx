@@ -61,6 +61,11 @@ const SideBar = (props) => {
                             <i className="fa fa-globe"></i> <span>Explorateur</span>
                         </Link>
                     </li>
+                    <li>
+                        <Link title="Contacter le webmaster" className={""} to='/contact'>
+                            <i className="fa fa-envelope"></i> <span>Contact</span>
+                        </Link>
+                    </li>
 
                     {/*<li className="treeview">*/}
                         {/*<a href="#">*/}

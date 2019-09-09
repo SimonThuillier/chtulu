@@ -11,6 +11,7 @@ parameters:
         - email1
         - email2
 
+    webmaster_email : webmaster@dom.ext
 
 
     psql_database_host:

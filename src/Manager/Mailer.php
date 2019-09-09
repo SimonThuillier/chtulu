@@ -51,6 +51,11 @@ abstract class Mailer implements ServiceSubscriberInterface
         return 'HistoricaBase';
     }
 
+    public function getWebmasterEmail()
+    {
+        return $this->container->get('parameter_bag')->get('webmaster_email');
+    }
+
 
 
     protected function generateUrl($route, array $parameters = array())
