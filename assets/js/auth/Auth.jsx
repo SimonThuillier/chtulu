@@ -73,7 +73,7 @@ const routes = [
     }
     ,
     {
-        id:10,
+        id:11,
         path:'/contact',
         exact:true,
         component:ContactPage

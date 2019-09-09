@@ -57,7 +57,7 @@ class Contact extends React.Component
         return (
             <div className="content-wrapper hb-container">
                 <section className="content-header">
-                    <h4>Me contacter</h4>
+                    <h3>Contact</h3>
                 </section>
                 <section className="content">
                     <PoseGroup>
@@ -70,7 +70,7 @@ class Contact extends React.Component
                         </Shade>
                         }
                         <Shade key={`${componentUid}-content`}>
-                            <div>Si vous avez une question ou voulez rapporter un bug remplissez le formulaire ci-dessous</div>
+                            <div>Contacter le webmaster en remplissant le formulaire ci-dessous.</div>
                             <br/>
                             <ContactForm
                                 onSubmit={this.onSubmit}

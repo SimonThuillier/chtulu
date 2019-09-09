@@ -99,7 +99,7 @@ const LimitSelector = ({style,id,current,setLimit}) => {
             </MenuItem>));
 
     return (<DropdownButton
-            bsStyle={'Default'}
+            bsStyle={'default'}
             title={current}
             key={1}
             id={`dropdown-basic-${id}`}
@@ -131,7 +131,7 @@ class ArticleFilter extends React.Component{
         this.state = {
             data:null,
             fields:props.fields || ["keyword","type","beginHDate","endHDate"],
-            lastFilterKey:(props.searchBag && props.searchBag.search) || "{}"
+            lastFilterKey:(props.searchBag && props.searchBag.search) || {}
         };
 
         console.log(props.searchBag);
@@ -156,12 +156,8 @@ class ArticleFilter extends React.Component{
         if(this.state.lastFilterKey && Object.keys(this.state.lastFilterKey).length>0){
             console.log("search");
             console.log(this.state.lastFilterKey);
-            initialize(this.state.lastFilterKey);
+            initialize(Imm.Map(this.state.lastFilterKey));
         }
-
-
-
-
     }
 
     getCurrentFilter(){

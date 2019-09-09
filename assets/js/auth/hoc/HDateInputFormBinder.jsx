@@ -51,7 +51,7 @@ export default class HDateInputFormBinder extends React.Component {
                     let left = +((overlayRoot.style.left).replace('px',''));
                     let top = +((overlayRoot.style.top).replace('px',''));
                     overlayRoot.style.left = `${left+150}px`;
-                    overlayRoot.style.top = `${top-320}px`;
+                    overlayRoot.style.top = `${top-240}px`;
                     console.log(overlayRoot);
 
                 }

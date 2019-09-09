@@ -20,8 +20,9 @@ class ContactManager
 {
     const TYPES = [
         'BUG'=> 'Rapport de bug',
-        'HOWTO'=>'Question sur le fonctionnement du site',
-        'IDEA'=>'Idée et proposition utilisateur',
+        'PROBLEM'=>'Signalement d\'abus',
+        'HOWTO'=>'Comment faire',
+        'IDEA'=>'Idée et proposition',
         'ABOUT'=>'Question sur le projet',
         'THANKS'=>'Remerciements'
     ];

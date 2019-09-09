@@ -29,6 +29,7 @@ import EditButton from "../atoms/EditButton";
 import Loadable from 'react-loading-overlay';
 import DateUtil from '../../util/date';
 import {CURRENT_USER_ID} from '../../util/server';
+import UserIconLink from '../../shared/molecules/UserIconLink';
 
 const Imm = require("immutable");
 const componentUid = require("uuid/v4")();
@@ -71,8 +72,9 @@ const columns = (dispatch,onSelection,getNotifications) => [{
 ,{
     dataField: 'editionDate',
     text: 'Derniere edition',
-    formatter: function(cell){
-        return dateFormatter(cell);
+    formatter: function(cell,row){
+        if(!row.editionUser) return dateFormatter(cell);
+        else return (<UserIconLink id={row.editionUser} prefix={dateFormatter(cell) + ' par '} mini={true}/>);
     },
     sort: true
 },

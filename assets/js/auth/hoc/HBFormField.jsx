@@ -15,7 +15,7 @@ const SubLabel = ({}) => {
         <HBFormFieldContext.Consumer>
             {({label,touched}) => (
                 <ControlLabel>
-                    {label} &nbsp; {touched && <FormControl.Feedback/>}
+                    {label} &nbsp;
                 </ControlLabel>)}
         </HBFormFieldContext.Consumer>
     );

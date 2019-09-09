@@ -153,6 +153,7 @@ class ArticleDTOMediator extends DTOMediator
         $article = $this->entity;
 
         $owner = $article->getOwnerUser();
+        $editionUser = $article->getEditionUser();
 
         if($owner !== null){
             $userMediator = $this->locator->get(MediatorFactory::class)
@@ -163,7 +164,16 @@ class ArticleDTOMediator extends DTOMediator
         else{
             $dto->setOwnerUser(null);
         }
-        //$dto->addMappedGroup('detailImage');
+
+        if($editionUser !== null){
+            $userMediator = $this->locator->get(MediatorFactory::class)
+                ->create(UserDTO::class,$editionUser->getId(),$editionUser,null,$mode);
+            $userMediator->mapDTOGroups($subGroups,$mode);
+            $dto->setEditionUser($userMediator->getDTO());
+        }
+        else{
+            $dto->setEditionUser(null);
+        }
     }
 
     protected function mapDTOGeometryGroup($mode=DTOMediator::NOTHING_IF_NULL,$subGroups=null)
@@ -331,6 +341,11 @@ class ArticleDTOMediator extends DTOMediator
     protected function mediateOwnerUser()
     {
         // nothing for now
+    }
+
+    protected function mediateLastUpdaterUser()
+    {
+        // nothing : this is handled by mapper only
     }
 
     protected function mediateEditionDate()

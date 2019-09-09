@@ -803,7 +803,7 @@ export const sendContact = (data,senderKey) => (dispatch, getState) => {
     console.log(`dataToPost`);
     console.log(dataToPost);
 
-    const url = getUrl(URL_REGISTER);
+    const url = getUrl(URL_CONTACT);
     let httpProps = getHTTPProps(HTTP_POST);
     httpProps.body = JSON.stringify(dataToPost);
 

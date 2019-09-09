@@ -55,7 +55,8 @@ export const RESOURCE_TEXT={id:2,label:"Texte"};
 
 export const CONTACT_TYPES = [
     {id:'BUG',label:"Signaler un bug"},
-    {id:'HOWTO',label:"Comment faire quelque chose sur le site"},
+    {id:'PROBLEM',label:"Signaler un abus"},
+    {id:'HOWTO',label:"Comment faire"},
     {id:'IDEA',label:"Proposer une evolution ou une nouvelle fonctionnalité"},
     {id:'ABOUT',label:"Poser des questions sur le projet"},
     {id:'THANKS',label:"Remercier l'équipe car ça fait toujours plaisir :)"}

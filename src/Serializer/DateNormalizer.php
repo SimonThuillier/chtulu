@@ -22,7 +22,10 @@ class DateNormalizer implements NormalizerInterface,DenormalizerInterface
 
     public function supportsDenormalization($data, $type, $format = null)
     {
-        if($data === null || empty($data) || !is_string($data)) return false;
+        if($data === null || empty($data) || !is_string($data)){
+            if(preg_match('/\\\DateTime$/',$type)) return true;
+            else return false;
+        }
         $supports = preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/',$data);
         return $supports;
     }

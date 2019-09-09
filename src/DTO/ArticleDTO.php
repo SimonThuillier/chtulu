@@ -44,6 +44,8 @@ class ArticleDTO extends EntityMutableDTO
     protected $geometry;
     /** @var UserDTO */
     protected $ownerUser;
+    /** @var UserDTO */
+    protected $editionUser;
     /** @var DTOMediator */
     protected $mediator;
 
@@ -293,12 +295,30 @@ class ArticleDTO extends EntityMutableDTO
      * @param UserDTO $ownerUser
      * @return ArticleDTO
      */
-    public function setOwnerUser(?UserDTO $ownerUser): ?ArticleDTO
+    public function setOwnerUser(?UserDTO $ownerUser): ArticleDTO
     {
         $this->ownerUser = $ownerUser;
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('ownerUser');
         return $this;
     }
 
+    /**
+     * @return UserDTO
+     * @Groups({"owner"})
+     */
+    public function getEditionUser(): ?UserDTO
+    {
+        return $this->editionUser;
+    }
+
+    /**
+     * @param UserDTO $editionUser
+     * @return ArticleDTO
+     */
+    public function setEditionUser(?UserDTO $editionUser): ArticleDTO
+    {
+        $this->editionUser = $editionUser;
+        return $this;
+    }
 
 }

@@ -266,6 +266,11 @@ div.hb-modal-z9{
     align-items: center;
 }
 
+.hb-flex-end {
+    display: flex;
+    justify-content: flex-end;
+}
+
 .hg-content-area {
     grid-row-end: -3;
     min-height: 30px;

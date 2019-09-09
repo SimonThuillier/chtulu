@@ -1,6 +1,6 @@
 import React from "react";
 import ArticleFilter from './ArticleFilter';
-
+import HBExplorerHelp from './HBExplorerHelp';
 
 import { AVAILABLE_THEMES } from "../../util/explorerUtil";
 import styled from "styled-components";
@@ -88,6 +88,9 @@ export default props => {
                     searchBag={searchBag}
                     setLimit={setLimit}
                     />
+            </div>
+            <div style={{marginLeft: 'auto'}}>
+                <HBExplorerHelp/>
             </div>
         </Header>
     );

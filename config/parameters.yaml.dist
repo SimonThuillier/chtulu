@@ -7,11 +7,13 @@ parameters:
         number : 0.8.0
         tag : Marc Bloch
 
-    authorized_registration_emails :
-        - email1
-        - email2
-
     webmaster_email : webmaster@dom.ext
+
+    hb_resources :
+        provider : file_system
+        file_system :
+            root: "%kernel.project_dir%/../hresources/"
+
 
 
     psql_database_host:
@@ -25,4 +27,8 @@ parameters:
     mailer_user: null
     mailer_password: null
 
+
+    authorized_registration_emails :
+            - email1
+            - email2
 

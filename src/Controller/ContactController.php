@@ -43,8 +43,8 @@ class ContactController extends AbstractController
                 $handledRequest['message']
                 );
 
-            $hResponse->setMessage('Votre message a bien été envoyé au webmaster. 
-                    Un mail de confirmation a été envoyé à <strong>' . $user->getEmail() . "</strong> et nous allons y répondre au plus vite :).");
+            $hResponse->setMessage('Votre message a bien été envoyé et nous allons y répondre au plus vite :).
+                    Un mail de confirmation vous a été envoyé à <strong>' . $user->getEmail() . "</strong> ");
         }
         catch(\Exception $e){
             $hResponse

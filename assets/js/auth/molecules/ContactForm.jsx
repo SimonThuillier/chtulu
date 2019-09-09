@@ -8,6 +8,8 @@ const validate = (values) => {
     const {type,subject,message} = values;
     const errors = {};
 
+    console.log(values);
+
     if(!type ){
         errors.type = "Vous devez choisir un type de message";
     }
@@ -24,6 +26,9 @@ const validate = (values) => {
     else if (message.length>2000){
         errors.message = `${message.length} caractères sur ${2000} autorisés`;
     }
+
+
+    console.log(errors);
 
     return errors;
 };
@@ -95,8 +100,7 @@ export class ContactForm extends React.Component
             {
                 formValue : formValue,
                 errors : validate(formValue),
-                warnings : warn(formValue),
-                success: success(formValue)
+                warnings : warn(formValue)
             }
         );
     }
@@ -168,54 +172,59 @@ export class ContactForm extends React.Component
         const {formValue} = this.state;
         const {submitting} = this.props;
 
-        contactTypes = CONTACT_TYPES.map(({id,label})=>{
+        let contactTypes = [(<option key={'placeholder'} value={null}>Choisissez un type de message</option>)];
+
+        contactTypes = contactTypes.concat(CONTACT_TYPES.map(({id,label})=>{
             return (
                 <option key={id} value={id}>
                     {label}
                 </option>
             );
-        });
+        }));
 
         return (
             <form action="#" method="post">
                 <FormGroup
                     controlId="type"
-                    validationState={this.getValidationState("subject")}
+                    validationState={this.getValidationState("type")}
                 >
-                    <ControlLabel>Sujet</ControlLabel>
-                    <InputGroup>
-                        <FormControl
-                            type="text"
-                            value={formValue.subject}
-                            placeholder="sujet de votre message"
-                            onChange={(e)=>{this.handleChange(e,"subject");}}
-                        />
-                        <FormControl.Feedback/>
-                    </InputGroup>
-
-                </FormGroup>
-                <FormGroup controlId="type">
-                    <ControlLabel>Type de message</ControlLabel>
-                    <FormControl componentClass="select" placeholder="Choisissez un type de message">
-                        {contactTypes}
-                    </FormControl>
-                    <FormControl.Feedback/>
-                    <HelpBlock>{this.getValidationMessage("subject")}</HelpBlock>
+                    <Row>
+                        <Col xs={3} sm={2} md={2} lg={1} xl={1}>
+                            <ControlLabel>Type</ControlLabel>
+                        </Col>
+                        <Col xs={9} sm={7} md={6} lg={4} xl={2}>
+                            <FormControl
+                                componentClass="select"
+                                placeholder="Choisissez un type de message"
+                                style={{width:'100%'}}
+                                onChange={(e)=>{this.handleChange(e,"type");}}
+                            >
+                                {contactTypes}
+                            </FormControl>
+                        </Col>
+                    </Row>
+                    <HelpBlock>{this.getValidationMessage("type")}</HelpBlock>
                 </FormGroup>
                 <FormGroup
                     controlId="subject"
                     validationState={this.getValidationState("subject")}
                 >
-                    <ControlLabel>Sujet</ControlLabel>
-                    <InputGroup>
-                        <FormControl
-                            type="text"
-                            value={formValue.subject}
-                            placeholder="sujet de votre message"
-                            onChange={(e)=>{this.handleChange(e,"subject");}}
-                        />
-                        <FormControl.Feedback/>
-                    </InputGroup>
+                    <Row>
+                        <Col xs={3} sm={2} md={2} lg={1} xl={1}>
+                            <ControlLabel>Sujet</ControlLabel>
+                        </Col>
+                        <Col xs={9} sm={7} md={6} lg={4} xl={2}>
+                            <InputGroup style={{width:'100%'}}>
+                                <FormControl
+                                    type="text"
+                                    size={50}
+                                    value={formValue.subject}
+                                    placeholder="sujet de votre message"
+                                    onChange={(e)=>{this.handleChange(e,"subject");}}
+                                />
+                            </InputGroup>
+                        </Col>
+                    </Row>
                     <HelpBlock>{this.getValidationMessage("subject")}</HelpBlock>
                 </FormGroup>
                 <FormGroup
@@ -223,7 +232,10 @@ export class ContactForm extends React.Component
                     validationState={this.getValidationState("message")}
                 >
                     <ControlLabel>Message</ControlLabel>
-                    <InputGroup>
+                    <Row>
+                        <Col xs={12} sm={10} md={9} lg={8} xl={6}>
+                    <InputGroup style={{width:'100%'}}>
+
                         <FormControl
                             componentClass="textarea"
                             type="textarea"
@@ -231,24 +243,24 @@ export class ContactForm extends React.Component
                             placeholder="votre message"
                             onChange={(e)=>{this.handleChange(e,"message");}}
                         />
-                        <FormControl.Feedback/>
                     </InputGroup>
+                        </Col>
+                    </Row>
                     <HelpBlock>{this.getValidationMessage("message")}</HelpBlock>
                 </FormGroup>
 
 
-                    <Row >
-                        <Col xs={1} sm={2} md={3} lg={4}/>
-                        <Col xs={10} sm={8} md={6} lg={4}>
-                            <Button bsStyle="primary"
-                                    style={{display:'inline-block',minWidth:'100%'}}
-                                    disabled={this.getValidationState() !== 'success' || submitting}
-                                    onClick={this.onSubmit}>
-                                {submitting?'Envoi en cours ...':'Envoyer'}
-                            </Button>
-                        </Col>
-                        <Col xs={1} sm={2} md={3} lg={4}/>
-                    </Row>
+                <Row >
+                    <Col xs={3} sm={2} md={2} lg={1} xl={1}/>
+                    <Col xs={9} sm={7} md={6} lg={4} xl={2}>
+                        <Button bsStyle="primary"
+                                style={{display:'inline-block',minWidth:'100%'}}
+                                disabled={this.getValidationState() !== 'success' || submitting}
+                                onClick={this.onSubmit}>
+                            {submitting?'Envoi en cours ...':'Envoyer'}
+                        </Button>
+                    </Col>
+                </Row>
             </form>
         )
     }

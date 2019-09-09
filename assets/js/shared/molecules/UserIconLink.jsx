@@ -29,7 +29,7 @@ class ArticleIconLink extends React.Component
 
     render()
     {
-        const {getOneById,getCurrentUser,id} = this.props;
+        const {getOneById,getCurrentUser,id,prefix='',mini=false} = this.props;
         const user = getOneById(id);
         if(!user) return null;
 
@@ -37,7 +37,11 @@ class ArticleIconLink extends React.Component
         const isCurrentUser = currentUser && user && +user.id===currentUser.id;
 
         const tooltip = (
-            <Tooltip id="user-signature">
+            <Tooltip id="user-signature" positionLeft={-20} delayHide={1000}>
+                {mini &&
+                <Link to={isCurrentUser?`/account`:`/user/${user.id}`}>
+                    <strong>{user?user.username:'...'}</strong>&nbsp;{isCurrentUser && <i>(moi)</i>}
+                </Link>}
                 <p>{(user && user.signature)?`${user.signature}`:''}</p>
                 {user && (<p>Membre depuis {dateFormatter(user.creation)}</p>)}
             </Tooltip>
@@ -46,11 +50,14 @@ class ArticleIconLink extends React.Component
         return (
             <OverlayTrigger placement="right" overlay={tooltip}>
                 <ul>
-                    <RImageMini id={user && user.detailImageResource} useDefault={true}/>
-                    &nbsp;
+                    {prefix}
                     <Link to={isCurrentUser?`/account`:`/user/${user.id}`}>
-                        <strong>{user?user.username:'...'}</strong>&nbsp;{isCurrentUser && <i>(moi)</i>}
+                        <RImageMini id={user && user.detailImageResource} useDefault={true}/>
                     </Link>
+                    &nbsp;
+                    {!mini &&<Link to={isCurrentUser?`/account`:`/user/${user.id}`}>
+                        <strong>{user?user.username:'...'}</strong>&nbsp;{isCurrentUser && <i>(moi)</i>}
+                    </Link>}
                 </ul>
             </OverlayTrigger>
 
