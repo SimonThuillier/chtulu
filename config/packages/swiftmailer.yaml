@@ -1,5 +1,4 @@
 swiftmailer:
-    default_mailer:       gmailer
     mailers:
         hb_mailer:
             url:                  null
@@ -16,7 +15,7 @@ swiftmailer:
             encryption:           null
             auth_mode:            null
             sender_address:       ~
-            delivery_addresses:   []
+            delivery_addresses:   ~
             antiflood:
                 threshold:            99
                 sleep:                0
@@ -45,7 +44,7 @@ swiftmailer:
                     auth_mode:            null
                     disable_delivery:     false
                     sender_address:       ~
-                    delivery_addresses:   ['simon.thuillier@prestataires.tdf.fr']
+                    delivery_addresses:   ~
                     antiflood:
                         threshold:            99
                         sleep:                0

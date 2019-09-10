@@ -44,6 +44,13 @@ class SecurityController extends AbstractController
         $hResponse = new HJsonResponse();
         try{
             $handledRequest = $requestHelper->handleRegisterRequest($request);
+            if(!in_array($handledRequest["email"],$this->getParameter('authorized_registration_emails'))){
+                throw new \Exception('Désolé le site est encore en betatest et votre adresse mail <strong>' . $handledRequest["email"] .
+                    "</strong> n'est pas sur la liste des adresses autorisées pour l'inscription. Contactez-moi sur le groupe Facebook <strong>" .
+                    $this->getParameter('facebook_group_name') . "</strong> si vous desirez participer au betatest :)");
+            }
+
+
             $result = $securityManager->askRegistration($handledRequest["email"],$handledRequest["password"]);
             /** @var PendingAction $action */
             $action = $result['action'];
@@ -192,7 +199,7 @@ class SecurityController extends AbstractController
             );
 
             $hResponse
-                ->setMessage('Connexion reussie <strong>'. $user->getUsername() .'</strong>!')
+                ->setMessage('Connexion réussie <strong>'. $user->getUsername() .'</strong>')
                 ->setData(["redirectTo"=>$this->generateUrl(
                     'auth_homepage',
                     ['page'=>'explorer'],

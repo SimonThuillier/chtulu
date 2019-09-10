@@ -1,11 +1,18 @@
 # This file is a "template" of what your parameters.yml file should look like
 # Set parameters here that may be different on each deployment target of the app, e.g. development, staging, production.
 # http://symfony.com/doc/current/best_practices/configuration.html#infrastructure-related-configuration
+
+swiftmailer:
+    default_mailer: gmailer
+
 parameters:
     secret: 42a44645522e34e5eab0818863452325728b23b7
     hbase_version:
         number : 0.8.0
         tag : Marc Bloch
+
+    website_name : HistoricaBase
+    facebook_group_name : HistoCosmos
 
     webmaster_email : webmaster@dom.ext
 
@@ -13,7 +20,6 @@ parameters:
         provider : file_system
         file_system :
             root: "%kernel.project_dir%/../hresources/"
-
 
 
     psql_database_host:

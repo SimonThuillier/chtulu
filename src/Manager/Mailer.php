@@ -48,7 +48,7 @@ abstract class Mailer implements ServiceSubscriberInterface
 
     public function getSiteName()
     {
-        return 'HistoricaBase';
+        return $this->container->get('parameter_bag')->get('website_name');
     }
 
     public function getWebmasterEmail()
