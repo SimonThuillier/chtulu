@@ -45,7 +45,7 @@ class TestController extends AbstractController
             $message = (new \Swift_Message('Hello Email'))
                 ->setFrom('send@example.com')
                 ->setTo('simon.thuillier@prestataires.tdf.fr')
-                ->setSubject('mail de test historicaBase')
+                ->setSubject('mail de test historiCité')
                 ->setBody(
                     $this->renderView(
                     // templates/hello/email.txt.twig

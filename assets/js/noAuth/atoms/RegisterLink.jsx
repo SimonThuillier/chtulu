@@ -5,7 +5,7 @@ export default (props) => (
     <Link
         to={`/register`}
         className={props.className || ''}
-        title={"S'inscrire sur HistoricaBase !"}
+        title={"S'inscrire sur HistoriCité !"}
         style={props.style || null}
     >
         {props.message || `s'inscrire`}

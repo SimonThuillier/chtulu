@@ -29,7 +29,6 @@ swiftmailer:
             delivery_whitelist:   []
             disable_delivery:     ~
         gmailer:
-                    url:                  'gmail://sthuillier1988@gmail.com:.*gooVoltele45gle1@localhost'
                     transport:            null
                     command:              '/usr/sbin/sendmail -bs'
                     username:             null

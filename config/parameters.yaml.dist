@@ -4,6 +4,9 @@
 
 swiftmailer:
     default_mailer: gmailer
+    mailers:
+        gmailer:
+            url: 'gmail://username:mdp@localhost'
 
 parameters:
     secret: 42a44645522e34e5eab0818863452325728b23b7
@@ -11,8 +14,8 @@ parameters:
         number : 0.8.0
         tag : Marc Bloch
 
-    website_name : HistoricaBase
-    facebook_group_name : HistoCosmos
+    website_name : HistoriCité
+    facebook_group_name : HistoriCité
 
     webmaster_email : webmaster@dom.ext
 

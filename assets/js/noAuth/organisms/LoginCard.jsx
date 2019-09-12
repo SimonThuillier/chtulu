@@ -84,7 +84,7 @@ console.log(initialLogin);
         return (
                 <div className="register-box-body">
                     <div className="login-box-msg">
-                        <h2>Connexion à HistoricaBase</h2>
+                        <h2>Connexion à HistoriCité</h2>
                     </div>
                     <PoseGroup>
                     {submittingCompleted &&

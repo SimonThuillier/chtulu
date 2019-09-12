@@ -8,7 +8,7 @@ export default (props) => (
         title={"Page d'accueil"}
         style={props.style || null}
     >
-        <span className="logo-mini"><b>H</b>B</span>
-        <span className="logo-lg"><b>Historica</b>Base</span>
+        <span className="logo-mini"><b>HC</b></span>
+        <span className="logo-lg"><b>H</b>istori<b>C</b>ité</span>
     </Link>
 );
