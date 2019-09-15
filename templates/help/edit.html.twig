@@ -1,0 +1,71 @@
+<div>
+    <h3>Editer et enregistrer</h3>
+    <div class="row">
+        <div class="col-md-12">
+            <div style="float: right; clear: right; margin-left: 5px; margin-bottom: 3px;">
+                <img src="{{ app.request.getSchemeAndHttpHost() }}/media/help/editer.JPG" />
+            </div>
+            <p>Depuis la zone de contenu cliquez sur cette icone à droite de la fenêtre d'un article pour l'editer.
+                La fenêtre article montre alors le formulaire article.
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div style="float: right; clear: right; margin-left: 5px; margin-bottom: 3px;">
+                <img src="{{ app.request.getSchemeAndHttpHost() }}/media/help/previsualiser.JPG" />
+            </div>
+            <p>
+                Lorsque vous avez terminé vos modifications cliquez sur le bouton <i>Previsualiser</i> en bas du formulaire
+                afin de prendre en compte les modifications sur votre navigateur. Cela ne transmet pas les données au serveur
+                mais vous permet de visualiser le rendu final.
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div style="float: right; clear: right; margin-left: 5px; margin-bottom: 3px;">
+                <img src="{{ app.request.getSchemeAndHttpHost() }}/media/help/enregistrement_reinit.JPG" />
+            </div>
+            <p>Lorsque vous editez puis previsualisez les boutons <i>enregistrer</i> et <i>reinitialiser</i>
+                apparaissent dans l'entête du site. Enregistrer permet de transmettre au serveur toutes vos
+                modifications tandis que reinitialiser annule toutes vos modifications et reinitialise aux dernieres
+                données reçues du serveur.
+            </p>
+            <p><u>N'oubliez pas d'appuyer sur enregistrer avant de quitter la page. Sinon vos modifications
+                ne seront pas transmises au serveur.</u></p>
+        </div>
+    </div>
+    <br>
+    <h3>Charger des images</h3>
+    <div class="row">
+        <div class="col-md-12">
+            <div style="float: right; clear: right; margin-left: 5px; margin-bottom: 3px;">
+                <img src="{{ app.request.getSchemeAndHttpHost() }}/media/help/image-picker.JPG" />
+            </div>
+
+            <p>Le chargement d'image se fait via cet imagePicker. Pour l'instant seul le chargement depuis votre
+                ordinateur est possible (mais une galerie utilisateur est prevue ;).
+            </p>
+            <p>Appuyez sur Charger pour uploader le fichier vers le serveur puis cliquez sur le bouton de validation
+                en bas à gauche pour valider le lien entre cette image et votre article.
+            </p>
+        </div>
+    </div>
+    <br>
+    <h3>Placer sur la carte</h3>
+    <div class="row">
+        <div class="col-md-12">
+            <div style="float: right; clear: right; margin-left: 5px; margin-bottom: 3px;">
+                <img src="{{ app.request.getSchemeAndHttpHost() }}/media/help/placement.JPG" />
+            </div>
+
+            <p>Lorsqu'un article est selectionné dans la zone de contenu double-cliquez sur la carte pour le localiser s'il ne l'est pas déjà,
+                ou <i>drag & droppez</i> son image sur la carte afin de modifier sa localisation.
+            </p>
+            <p>Comme toute modification vous devrez les transmettre au serveur en cliquant sur enregistrer en haut de la page
+            </p>
+        </div>
+    </div>
+
+</div>

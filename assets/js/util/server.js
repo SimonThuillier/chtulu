@@ -9,6 +9,15 @@ const getDataUrlOrNa = (domId) =>{
     return url;
 };
 
+const getInnerHtmlOrNa = (domId) =>{
+    const element = document.getElementById(domId);
+    if(typeof element === 'undefined' || element === null) return '_NA_';
+    const html = element.innerHTML;
+    element.remove();
+    return html;
+};
+
+
 let initialHResponse = getDataUrlOrNa('hb-initial-response');
 console.log(initialHResponse);
 if(initialHResponse && initialHResponse !== '_NA_') initialHResponse = JSON.parse(initialHResponse);
@@ -67,6 +76,12 @@ export const setRootUrl = (root)=>{
     ROOT_URL = root;
 };
 export const getRootUrl = ()=>ROOT_URL;
+
+export const HELP_DIVS = {
+   consult: getInnerHtmlOrNa('hb-html-help-consult'),
+    edit: getInnerHtmlOrNa('hb-html-help-edit'),
+    mainArticlePage: getInnerHtmlOrNa('hb-html-help-main-article-page')
+};
 
 
 /**

@@ -4,12 +4,19 @@ import {makeGetSelector} from "../../shared/selectors";
 import { connect } from 'react-redux'
 import SearchBag from "../../util/SearchBag";
 import HBFormField from '../hoc/HBFormField';
+import SearchBagUtil from '../../util/SearchBagUtil';
+
 
 class ArticleTypeSelect extends Component {
     constructor(props) {
         super(props);
+
+        const searchBag = SearchBag();
+        searchBag.sort='label';
+        searchBag.order=SearchBagUtil.ASC;
+
         this.state = {
-            searchBag:SearchBag(),
+            searchBag:searchBag,
             items:props.selector,
             required:(typeof props.required !=='undefined')?props.required:true
         };
@@ -17,7 +24,7 @@ class ArticleTypeSelect extends Component {
 
     componentDidMount() {
         const {dispatch} = this.props;
-        dispatch(getIfNeeded("articleType"));
+        dispatch(getIfNeeded("articleType",true,this.state.searchBag));
     }
 
     render(){
