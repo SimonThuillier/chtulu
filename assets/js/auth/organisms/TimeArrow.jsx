@@ -248,7 +248,7 @@ export default class TimeArrow extends React.Component {
             hInterval.endDate
           }`
         );*/
-        const marginWidth = this.props.marginWidth || 5;
+        const marginWidth = this.props.marginWidth || 0;
 
         return scaleTime()
             .domain([hInterval.beginDate, hInterval.endDate])

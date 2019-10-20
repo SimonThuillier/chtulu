@@ -5,6 +5,7 @@ import RImageMini from '../../shared/atoms/RImageMini';
 import {COLORS} from "../../util/notifications";
 import {connect} from "react-redux";
 import {makeLocalGetByAttributeSelector} from "../../shared/selectors";
+import {getInlinedCss} from '../../util/cssUtil';
 
 const defaultTextStyle = {
     fontFamily: "'Source Sans Pro','Helvetica Neue',Helvetica",
@@ -48,9 +49,8 @@ const thickness = (linksCount,minLinksCount,maxLinksCount) =>{
 };
 
 const viewPortHeight = (linksCount,minLinksCount,maxLinksCount) =>{
-    return 28 + floor(12*log10((1+linksCount - minLinksCount)));
+    return 28 + floor(13*log10((1+linksCount - minLinksCount)));
 };
-
 
 const filterStyle = (article,selected,hovered) => {
     let overStyle = {floodOpacity:0};
@@ -75,6 +75,9 @@ const filterStyle = (article,selected,hovered) => {
     return overStyle;
 };
 
+// to prerender title text of the article and measure its width
+let mockSvgText = null;
+
 /**
  * molecule level component defining display of one article in the panel
  */
@@ -86,6 +89,8 @@ class HBExplorerPanelArticle extends React.Component {
         this.hasAddedBox = false;
         console.log("HBExplorerPanelArticle created");
         console.log(props.article);
+
+        mockSvgText = document.getElementById(`time-panel-svg-article-mock`);
     }
 
     componentWillUnmount(){
@@ -120,13 +125,28 @@ class HBExplorerPanelArticle extends React.Component {
 
 
         let realTitle = article.title;
+        if(endX>width && x <0) realTitle = realTitle + ' //';
 
-        let realX = x;
+
+        let currentTextStyle = textStyle(article.record,selected,hovered,linked,linksCount,minLinksCount,maxLinksCount)
+        console.log(`textStyle ${realTitle}`);
+        console.log(currentTextStyle);
+
+        mockSvgText.setAttribute('style',getInlinedCss(Object.assign({visibility:'hidden',textLength:realTitle.length},currentTextStyle)));
+        mockSvgText.innerHTML=realTitle;
+        const textWidth = mockSvgText.getBBox().width+xMargin;
+        console.log(mockSvgText);
+        console.log(textWidth);
+
+
+        let realX = x-xMargin;
         let realEndX = endX;
-        let viewportWidth = Math.max(realEndX-realX + 2*xMargin,xMargin+(article.title.length)*12);
-        let deltaX = realX-2 < 0 ? min(-(realX-2),max(realEndX-realX,1)):0;
+        let deltaX = realX < 0 ? min(-realX,max(realEndX-realX,1)):0;
+        let viewportWidth = Math.max(realEndX-realX + 2*xMargin,textWidth + 2*xMargin+deltaX);
+        console.log(viewportWidth);
 
-        if((x<0 && endX<-30) || (x>width && endX>width)){
+
+        if((x<0 && endX<0) || (x>width && endX>width)){
             viewportWidth = 0;
             realX = -2000;
             realEndX = -2000;
@@ -134,11 +154,12 @@ class HBExplorerPanelArticle extends React.Component {
         }
         else if(realEndX>width && x <0){
             realX=0;
-            realTitle = realTitle + ' //';
-            realEndX = xMargin+(article.title.length + 3)*11;
+            realEndX = 2*xMargin+textWidth;
             viewportWidth = realEndX-xMargin;
             deltaX=0;
         }
+
+
 
 
         const viewportHeight = viewPortHeight(linksCount,minLinksCount,maxLinksCount);
@@ -153,7 +174,7 @@ class HBExplorerPanelArticle extends React.Component {
                 viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
                 width={viewportWidth}
                 height={viewportHeight}
-                x={realX}//{x-xMargin}
+                x={realX}
                 y={y}
                 onMouseEnter={()=>{setHoveredArticle(article.id)}}
                 onMouseLeave={()=>{setHoveredArticle()}}
@@ -179,7 +200,7 @@ class HBExplorerPanelArticle extends React.Component {
                     stroke={'none'}
                     x={xMargin}
                     y={7}
-                    width={max(realEndX-realX,1)}
+                    width={max(realEndX-realX-xMargin,1)}
                     height={thickness(linksCount,minLinksCount,maxLinksCount)}
                     rx={2}
                     ry={2}
@@ -188,9 +209,9 @@ class HBExplorerPanelArticle extends React.Component {
                 <text
                     textAnchor="start"
                     filter={`url(#article-text-filter-${article.id})`}
-                    x={xMargin+15 +deltaX} //{deltaX + xMargin+15}
-                    y={viewportHeight-2}
-                    style={textStyle(article.record,selected,hovered,linked,linksCount,minLinksCount,maxLinksCount)}
+                    x={2*xMargin+deltaX}
+                    y={viewportHeight-3}
+                    style={currentTextStyle}
                     onClick={this.handleOnClick}
                 >
                     {realTitle}

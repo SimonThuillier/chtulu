@@ -186,7 +186,7 @@ class HBExplorerTimePanel extends React.Component {
     }
 
     getTimeScale(hInterval, bounds) {
-        const marginWidth = this.props.marginWidth ;
+        const marginWidth = 0;//this.props.marginWidth ;
 
         return scaleTime()
             .domain([hInterval.beginDate, hInterval.endDate])
@@ -593,7 +593,7 @@ class HBExplorerTimePanel extends React.Component {
         console.log("this.boxRefs");
         console.log(this.boxRefs);*/
 
-        const articleCircles = arrayOfArticlesToDisplay.map(([id, a]) => {
+        const panelSvgArticles = arrayOfArticlesToDisplay.map(([id, a]) => {
 
             let isLinked = null;
             const isArticleMain = (+a.id === mainArticleId);
@@ -648,7 +648,9 @@ class HBExplorerTimePanel extends React.Component {
                         d={this.props.path}
                         stroke="black"
                     />
-                    {articleCircles}
+                    <svg>
+                        <text id={`time-panel-svg-article-mock`} style={{visibility:'hidden'}}/></svg>
+                    {panelSvgArticles}
                 </g>
                 <TimeArrow
                     key={"hg-time-arrow"}
