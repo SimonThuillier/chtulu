@@ -357,3 +357,7 @@ rect.area-default:hover {
     fill: red;
     stroke: blue;
 }
+
+aside ::-webkit-scrollbar { width: 0 !important }
+aside { overflow: -moz-scrollbars-none;scrollbar-width: none; }
+aside { -ms-overflow-style: none; }

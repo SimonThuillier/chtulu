@@ -9,7 +9,13 @@ const RImageMini = function(props){
     const mode= props.mode||'regular'; // can be regular, svg,url ...
 
     const value = resource && resource.activeVersion;
-    return <RVImageMini id={value} deltaX={props.deltaX} mode={mode} useDefault={props.useDefault||false}/>;
+    return <RVImageMini
+        id={value}
+        className={props.className||null}
+        deltaX={props.deltaX}
+        mode={mode}
+        useDefault={props.useDefault||false}
+    />;
 };
 
 const makeMapStateToProps = () => {

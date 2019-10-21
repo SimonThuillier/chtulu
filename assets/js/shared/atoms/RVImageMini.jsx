@@ -21,8 +21,8 @@ const RVImageMini = function(props){
             return value?`${value}`:URL_DEFAULT_IMAGE_MINI;
             break ;
         default:
-            return value?(<img src={value} className="img-circle"/>):
-                (useDefault?(<img src={URL_DEFAULT_IMAGE_MINI} className="img-circle"/>):null);
+            return value?(<img src={value} className={"img-circle" + (props.className?(" " + props.className):"")}/>):
+                (useDefault?(<img src={URL_DEFAULT_IMAGE_MINI} className={"img-circle" + (props.className?(" " + props.className):"")}/>):null);
             break;
     }
 };

@@ -8,7 +8,7 @@ function LogoutButton(props) {
         <Button bsStyle="default"
             disabled={exiting}
             onClick={onClick}>
-            {exiting?'Au revoir ...':'Deconnection'}&nbsp;
+            {exiting?'Au revoir ...':'Deconnexion'}&nbsp;
             <Glyphicon glyph={'eject'}/>
         </Button>
     );

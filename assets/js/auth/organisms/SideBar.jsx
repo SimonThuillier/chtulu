@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink,Link} from 'react-router-dom';
 import {getHbaseVersionSelector} from "../../shared/selectors";
+import RImageMini from '../../shared/atoms/RImageMini'
 import {connect} from "react-redux";
 const componentUid = require("uuid/v4")();
 
@@ -19,6 +20,21 @@ const search = (e,history) =>{
 
 const SideBar = (props) => {
     const version = props.getHbaseVersion();
+
+    const keys = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+
+    const test = keys.map((key)=>(<li style={{direction:"ltr"}} key={key}>
+        <a title={"si c'etait un article ?"} href={"#"}>
+            <RImageMini className={"fa"} useDefault={true}/>&nbsp;&nbsp;
+            <span style={{whiteSpace:"pre-wrap"}}>
+                                mon super article avec un nom très très long {key}
+                            </span>
+        </a>
+    </li>
+
+    ));
+
+
     return (
 
         <aside id="main-sidebar" className="main-sidebar">
@@ -68,29 +84,42 @@ const SideBar = (props) => {
                     </li>
 
                     {/*<li className="treeview">*/}
-                        {/*<a href="#">*/}
-                            {/*<i className="fa fa-pencil"/>*/}
-                            {/*<span>Ecrire</span>*/}
-                            {/*<span className="pull-right-container">*/}
-                            {/*<i className="fa fa-angle-left pull-right"/>*/}
-						{/*</span>*/}
-                        {/*</a>*/}
-                        {/*<ul className="treeview-menu">*/}
-                            {/*<li>*/}
-                                {/*<NavLink to='/article-table' activeClassName='hurray'>*/}
-                                    {/*<i className="fa fa-search"></i>*/}
-                                    {/*Listes article*/}
-                                {/*</NavLink>*/}
-                            {/*</li>*/}
-                            {/*<li>*/}
-                                {/*<NavLink to='/article/' activeClassName='hurray'>*/}
-                                    {/*<i className="fa fa-plus"></i>*/}
-                                    {/*Creer article*/}
-                                {/*</NavLink>*/}
-                            {/*</li>*/}
-                        {/*</ul>*/}
+                    {/*<a href="#">*/}
+                    {/*<i className="fa fa-pencil"/>*/}
+                    {/*<span>Ecrire</span>*/}
+                    {/*<span className="pull-right-container">*/}
+                    {/*<i className="fa fa-angle-left pull-right"/>*/}
+                    {/*</span>*/}
+                    {/*</a>*/}
+                    {/*<ul className="treeview-menu">*/}
+                    {/*<li>*/}
+                    {/*<NavLink to='/article-table' activeClassName='hurray'>*/}
+                    {/*<i className="fa fa-search"></i>*/}
+                    {/*Listes article*/}
+                    {/*</NavLink>*/}
                     {/*</li>*/}
+                    {/*<li>*/}
+                    {/*<NavLink to='/article/' activeClassName='hurray'>*/}
+                    {/*<i className="fa fa-plus"></i>*/}
+                    {/*Creer article*/}
+                    {/*</NavLink>*/}
+                    {/*</li>*/}
+                    {/*</ul>*/}
+                    {/*</li>*/}
+                    <li style={{color: "#4b646f", background: "#1a2226"}}>
+                        <a href="#">
+                            <i className="glyphicon glyphicon-book"></i>
+                            <span>Historique</span>
+                        </a>
+                    </li>
                 </ul>
+                <ul
+                    className="sidebar-menu" data-widget="tree"
+                    style={{maxHeight:"30%",overflow:"auto",direction:"rtl"}}
+                >
+                    {test}
+                </ul>
+
             </section>
         </aside>
     )
