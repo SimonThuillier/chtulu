@@ -1,6 +1,7 @@
 import React from "react";
 import Loadable from 'react-loading-overlay';
 import { getOneByIdIfNeeded} from "../actions";
+import { notifyArticleSelection} from "../../shared/actions";
 import ArticleDetail from './ArticleDetail';
 import ArticleForm from './ArticleForm';
 import {
@@ -84,6 +85,7 @@ class Article extends React.Component{
         console.log("Article begin Mount");
         const {groups,dispatch,id} = this.props;
         dispatch(getOneByIdIfNeeded("article",groups, id,componentUid));
+        dispatch(notifyArticleSelection(id));
     }
 
     componentDidUpdate(prevProps) {
@@ -96,6 +98,7 @@ class Article extends React.Component{
         if (prevProps.id !== id) {
             console.log(`update ${prevProps.id} vs ${id}`);
             dispatch(getOneByIdIfNeeded("article",groups, id,componentUid));
+            dispatch(notifyArticleSelection(id));
             updatedValues.id = id;
             updatedValues.data = getOneById(id);
         }

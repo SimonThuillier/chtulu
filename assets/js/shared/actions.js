@@ -19,6 +19,7 @@ import SearchBagUtil from '../util/SearchBagUtil';
 import {LOADING, LOADING_COMPLETED, INITIAL} from '../util/notifications';
 
 // notifications actions
+export const NOTIFY_ARTICLE_SELECTION = 'NOTIFY_ARTICLE_SELECTION';
 export const NOTIFY = 'NOTIFY';
 export const DISCARD = 'DISCARD';
 // data reception actions
@@ -57,6 +58,11 @@ export const get = (waoType,groups,searchBag=null) => ({
     waoType : waoType,
     groups : groups,
     searchBag : searchBag || SearchBag()
+});
+
+export const notifyArticleSelection = (id) => ({
+    type: NOTIFY_ARTICLE_SELECTION,
+    id:id
 });
 
 

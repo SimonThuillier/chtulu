@@ -437,3 +437,20 @@ export const entitiesSelector = createSelector(
         return entities;
     }
 );
+
+export const getArticlesHistory = createSelector(
+    [(state) => state.getIn(["app","articlesHistory"])],
+    (articlesHistory) => () => {
+        let history = [];
+
+        articlesHistory.sort((a, b) => {
+            return a>=b?-1:1
+        }).forEach((v,k)=>{
+            /*console.log(v);
+            console.log(k);*/
+            history.push(k);
+        });
+
+        return history;
+    }
+);

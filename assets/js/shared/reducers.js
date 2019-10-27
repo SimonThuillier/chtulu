@@ -1,4 +1,14 @@
-import {INITIAL,LOADING, LOADING_COMPLETED, SUBMITTING, SUBMITTING_COMPLETED} from "../util/notifications";
+import {
+    INITIAL,
+    LOADING,
+    LOADING_COMPLETED,
+    SUBMITTING,
+    SUBMITTING_COMPLETED
+} from "../util/notifications";
+
+import {
+    NOTIFY_ARTICLE_SELECTION
+} from "./actions";
 
 import {
     NOTIFY,
@@ -17,7 +27,8 @@ const initialAppState = Imm.Map({
     hbaseVersion:null,
     currentUser:null,
     entitiesToPost:Imm.Map(),
-    notifications: Imm.Map()
+    notifications: Imm.Map(),
+    articlesHistory:Imm.OrderedMap()
 });
 
 export const appReducer = (state=initialAppState, action) =>{
@@ -132,6 +143,8 @@ export const appReducer = (state=initialAppState, action) =>{
                 }
             }
             return state;
+        case NOTIFY_ARTICLE_SELECTION:
+            return state.setIn(["articlesHistory",+id],(new Date()).getTime());
         default:
             return state;
     }

@@ -1,10 +1,9 @@
 import React from 'react';
 import { NavLink,Link} from 'react-router-dom';
 import {getHbaseVersionSelector} from "../../shared/selectors";
-import RImageMini from '../../shared/atoms/RImageMini'
 import {connect} from "react-redux";
+import SidebarHistory from '../molecules/SidebarHistory';
 const componentUid = require("uuid/v4")();
-
 
 const search = (e,history) =>{
 
@@ -21,22 +20,7 @@ const search = (e,history) =>{
 const SideBar = (props) => {
     const version = props.getHbaseVersion();
 
-    const keys = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
-
-    const test = keys.map((key)=>(<li style={{direction:"ltr"}} key={key}>
-        <a title={"si c'etait un article ?"} href={"#"}>
-            <RImageMini className={"fa"} useDefault={true}/>&nbsp;&nbsp;
-            <span style={{whiteSpace:"pre-wrap"}}>
-                                mon super article avec un nom très très long {key}
-                            </span>
-        </a>
-    </li>
-
-    ));
-
-
     return (
-
         <aside id="main-sidebar" className="main-sidebar">
             <section className="sidebar">
                 <ul className="sidebar-menu" data-widget="tree">
@@ -113,13 +97,7 @@ const SideBar = (props) => {
                         </a>
                     </li>
                 </ul>
-                <ul
-                    className="sidebar-menu" data-widget="tree"
-                    style={{maxHeight:"30%",overflow:"auto",direction:"rtl"}}
-                >
-                    {test}
-                </ul>
-
+                <SidebarHistory/>
             </section>
         </aside>
     )
