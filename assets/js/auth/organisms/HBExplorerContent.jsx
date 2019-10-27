@@ -66,19 +66,19 @@ class HBExplorerContent extends React.Component {
 
         return (
             <Container>
-                <div
-                    hidden={theme===AVAILABLE_THEMES.SIDEVIEW}
-                    className="hg-content-panel"
-                    key={`hg-container-history`}
-                    id={`hg-container-history`}
-                    style={{height:'100%',width:'180px'}}
-                >
-                    <HBExplorerContentHistory
-                        selectArticle = {selectArticle}
-                        displayedArticles = {displayedArticles}
+                {/*<div*/}
+                    {/*hidden={theme===AVAILABLE_THEMES.SIDEVIEW}*/}
+                    {/*className="hg-content-panel"*/}
+                    {/*key={`hg-container-history`}*/}
+                    {/*id={`hg-container-history`}*/}
+                    {/*style={{height:'100%',width:'180px'}}*/}
+                {/*>*/}
+                    {/*<HBExplorerContentHistory*/}
+                        {/*selectArticle = {selectArticle}*/}
+                        {/*displayedArticles = {displayedArticles}*/}
 
-                    />
-                </div>
+                    {/*/>*/}
+                {/*</div>*/}
 
                 {articleCards}
 

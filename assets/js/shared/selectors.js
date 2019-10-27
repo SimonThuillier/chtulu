@@ -36,8 +36,8 @@ export const getCurrentUserSelector = createSelector(
         (appState,userWaoState) => userWaoState.get("items")
     ],
     (currentUser,users) => () => {
-        console.log(currentUser);
-        console.log(users.has(+currentUser));
+        //console.log(currentUser);
+        //console.log(users.has(+currentUser));
         if(currentUser === null) return null;
         if(users.has(+currentUser)) return users.get(+currentUser);
         return null;
@@ -235,9 +235,9 @@ export const makeGetSelector = () =>{
                 (coreBagKey, offset, limit, order)=>{
                     const controlMap = new Map();
                     const searchCacheEntry = searchCache.get(coreBagKey);
-                    console.log('searchCacheEntry');
-                    console.log(coreBagKey);
-                    console.log(searchCacheEntry);
+                    //console.log('searchCacheEntry');
+                    //console.log(coreBagKey);
+                    //console.log(searchCacheEntry);
                     if(! searchCacheEntry) return [];
                     let indexMap = searchCacheEntry.get("indexMap");
                     indexMap = (order===SearchBagUtil.ASC)?indexMap:
@@ -245,7 +245,7 @@ export const makeGetSelector = () =>{
                     const selectedEntries = [];
 
                     indexMap.forEach((v,k)=>{
-                        console.log(`k : ${k}, v : ${v}`);
+                        //console.log(`k : ${k}, v : ${v}`);
                         if(k>=offset && k<(offset+limit)) pushIfNotAlreadyInMap(+v,+v,selectedEntries,controlMap);
                     });
                     return selectedEntries.map((id)=> items.get(+id)).filter((v,k)=>v || false);
@@ -265,7 +265,7 @@ export const makeLocalGetByAttributeSelector = () =>{
                     (name,value) => value
                 ], (name,value) => {
                     let selectedEntries = [];
-                    console.log(items);
+                    //console.log(items);
                     items.valueSeq().forEach(v =>{
                         if(v.get(name) == value){
                             selectedEntries.push(v);

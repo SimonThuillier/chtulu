@@ -287,7 +287,7 @@ div.hb-modal-z9{
 }
 
 .hg-content-panel {
-    flex-basis:90%;
+    flex-basis:100%;
     border: 1px solid;
     margin:2px;
     overflow-x:hidden;
@@ -317,9 +317,9 @@ div.hb-modal-z9{
     height:100%;
 }
 
-.hg-content-panel:nth-of-type(1){
-    flex-basis:10%;
-}
+/*.hg-content-panel:nth-of-type(1){*/
+    /*flex-basis:10%;*/
+/*}*/
 
 .hg-content-panel-footer {
     height:5px;

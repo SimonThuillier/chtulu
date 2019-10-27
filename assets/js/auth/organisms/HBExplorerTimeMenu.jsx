@@ -8,7 +8,7 @@ import { Button, Glyphicon } from "react-bootstrap";
 import debounce from "debounce";
 import {getIntegratedSpeed} from "../../util/explorerUtil";
 
-const timeTravellingPeriod = 20;
+const timeTravellingPeriod = 40;
 /* proportion of hInterval travelled by second */
 const timeTravellingPace = 0.1;
 /* proportion of initial hInterval zoomed by second */

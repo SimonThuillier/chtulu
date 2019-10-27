@@ -87,8 +87,8 @@ class HBExplorerPanelArticle extends React.Component {
 
         this.handleOnClick = this.handleOnClick.bind(this);
         this.hasAddedBox = false;
-        console.log("HBExplorerPanelArticle created");
-        console.log(props.article);
+        //console.log("HBExplorerPanelArticle created");
+        //console.log(props.article);
 
         mockSvgText = document.getElementById(`time-panel-svg-article-mock`);
     }
@@ -129,21 +129,21 @@ class HBExplorerPanelArticle extends React.Component {
 
 
         let currentTextStyle = textStyle(article.record,selected,hovered,linked,linksCount,minLinksCount,maxLinksCount)
-        console.log(`textStyle ${realTitle}`);
-        console.log(currentTextStyle);
+        //console.log(`textStyle ${realTitle}`);
+        //console.log(currentTextStyle);
 
         mockSvgText.setAttribute('style',getInlinedCss(Object.assign({visibility:'hidden',textLength:realTitle.length},currentTextStyle)));
         mockSvgText.innerHTML=realTitle;
         const textWidth = mockSvgText.getBBox().width+xMargin;
-        console.log(mockSvgText);
-        console.log(textWidth);
+        //console.log(mockSvgText);
+        //console.log(textWidth);
 
 
         let realX = x-xMargin;
         let realEndX = endX;
         let deltaX = realX < 0 ? min(-realX,max(realEndX-realX,1)):0;
         let viewportWidth = Math.max(realEndX-realX + 2*xMargin,textWidth + 2*xMargin+deltaX);
-        console.log(viewportWidth);
+        //console.log(viewportWidth);
 
 
         if((x<0 && endX<0) || (x>width && endX>width)){

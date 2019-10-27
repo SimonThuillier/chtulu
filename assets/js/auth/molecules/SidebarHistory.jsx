@@ -1,7 +1,7 @@
 import React,{ Component } from "react";
 import {getArticlesHistory} from "../../shared/selectors";
 import { connect } from 'react-redux';
-import RImageMini from '../../shared/atoms/RImageMini';
+import SidebarHistoryArticle from './SidebarHistoryArticle';
 
 class SidebarHistory extends Component {
     constructor(props) {
@@ -14,8 +14,6 @@ class SidebarHistory extends Component {
     }
 
     componentDidMount() {
-        const {dispatch} = this.props;
-
         window.addEventListener("resize", this.onWindowResize);
         this.onWindowResize();
     }
@@ -25,26 +23,15 @@ class SidebarHistory extends Component {
     }
 
     onWindowResize() {
-        console.log(`resized window : ${window.innerWidth} / ${window.innerHeight}`);
+        //console.log(`resized window : ${window.innerWidth} / ${window.innerHeight}`);
         this.setState({height:Math.floor(window.innerHeight-300)});
     }
 
     render(){
         const {height} = this.state;
-
-
-
-
-        const keys = this.props.getHistory();
-
-        const test = keys.map((key)=>(<li style={{direction:"ltr"}} key={key}>
-                <a title={"si c'etait un article ?"} href={"#"}>
-                    <RImageMini className={"fa"} useDefault={true}/>&nbsp;&nbsp;
-                    <span style={{whiteSpace:"pre-wrap"}}>
-                                mon super article avec un nom très très long {key}
-                            </span>
-                </a>
-            </li>
+        const historyIds = this.props.getHistory();
+        const sidebarHistoryArticles = historyIds.map((id)=>(
+            <SidebarHistoryArticle id={id} sidebarStatus={this.props.sidebarStatus}/>
         ));
 
         return (
@@ -52,12 +39,11 @@ class SidebarHistory extends Component {
                 className="sidebar-menu" data-widget="tree"
                 style={{
                     maxHeight:`${height}px`,
-                    overflow:"auto",
-                    direction:"rtl",
+                    overflowY:"auto",
                     borderBottom: `3px ridge rgb(170, 50, 220, .4)`
                 }}
             >
-                {test}
+                {sidebarHistoryArticles}
             </ul>
         );
     }

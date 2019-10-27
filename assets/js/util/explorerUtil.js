@@ -119,20 +119,22 @@ export const getIntegratedSpeed = (acceleration, time) => {
 
 
 export const sortArticlesChronogically = createSelector(
-    [articles =>articles],
+    [(articles) =>articles],
     (articles)=> {
         let sortedArticles = [...articles];
 
         sortedArticles = sortedArticles
             .filter(article => {return !!article.beginHDate;})
             .sort( (a, b) =>{return a.beginHDate.beginDate.getTime() - b.beginHDate.beginDate.getTime();});
+        console.log("sortArticles");
 
-       return sortedArticles;
+        const index = sortedArticles.map((a)=>a.beginHDate.beginDate.getTime());
+        return {sortedArticles:sortedArticles,index:index};
     }
 );
 
 export const getNeighbourArticleChronogically = (articles,currentId,sense) => {
-    const sortedArticles = sortArticlesChronogically(articles);
+    const {sortedArticles,index} = sortArticlesChronogically(articles);
     const currentIndex = sortedArticles.findIndex((element)=>{
         return +element.get('id') === +currentId}
         );
@@ -151,19 +153,21 @@ export const getNeighbourArticleChronogically = (articles,currentId,sense) => {
     }
 };
 
+
+
 export const getLastBegunArticle = (articles,date) => {
-    const sortedArticles = sortArticlesChronogically(articles);
+    const {sortedArticles,index} = sortArticlesChronogically(articles);
     if(sortedArticles.length < 1) return null;
-    let lastArticle = sortedArticles[0];
-    for(let article of sortedArticles){
-        if(article.beginHDate.beginDate.getTime() > date.getTime()){
-            return lastArticle;
-        }
-        else{
-            lastArticle = article;
-        }
-    }
-} ;
+
+    const currentDateTime = date.getTime();
+    const calculus = index.filter((time)=>(time-currentDateTime<=0));
+
+    if(calculus.length <1) return sortedArticles[0];
+    const maxTime = Math.max.apply(null, calculus);
+    const wantedIndex = index.findIndex((v)=>(v===maxTime));
+
+    return sortedArticles[wantedIndex];
+};
 
 
 export const getOneByIdSelector = createSelector(

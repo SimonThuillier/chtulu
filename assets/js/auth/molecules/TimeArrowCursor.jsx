@@ -108,7 +108,7 @@ class TimeArrowCursor extends React.Component {
 
     render() {
         const {isDraggingCursor} = this.state;
-        const {cursorRate,cursorDate,width,height,marginWidth,onMouseDown,onMouseUp,selectArticle,articles} = this.props;
+        const {cursorRate,timeRecordMode,toggleTimeRecordMode,cursorDate,width,height,marginWidth} = this.props;
 
         const cursorDateLabel = dateFormatter(cursorDate);
         //console.log(`cursorDate : ${cursorDateLabel}`);
@@ -122,6 +122,9 @@ class TimeArrowCursor extends React.Component {
       L${(width - marginWidth)*cursorRate+cursorMinWidth/2},${height - cursorHeight}
       L${(width - marginWidth)*cursorRate+cursorMaxWidth/2},${height} 
       Z`;
+
+        const currentCursorStyle= {};
+        Object.assign(currentCursorStyle,cursorStyle,timeRecordMode?{fill: "red"}:{});
 
         /*console.log(width);
         console.log(cursorRate);*/
@@ -149,12 +152,13 @@ class TimeArrowCursor extends React.Component {
                     onDoubleClick={(e)=>{
                         e.preventDefault();
                         e.stopPropagation();
-                        const lastBegunArticle = getLastBegunArticle(articles,cursorDate);
-                        if(lastBegunArticle !== null){
+                        /*const lastBegunArticle = getLastBegunArticle(articles,cursorDate);
+                        if(lastBegunArticle !== null && typeof lastBegunArticle!=='undefined'){
                             selectArticle([lastBegunArticle.id]);
-                        }
+                        }*/
+                        toggleTimeRecordMode();
                     }}
-                    style={cursorStyle}
+                    style={currentCursorStyle}
                     vectorEffect="non-scaling-stroke"
                     d={cursorPath}
                 />

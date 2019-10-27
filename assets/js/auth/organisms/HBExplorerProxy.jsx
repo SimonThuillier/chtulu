@@ -17,6 +17,8 @@ import {COLORS, LOADING} from "../../util/notifications";
 import SearchBagUtil from "../../util/SearchBagUtil";
 import {getInvisibles,getHIntervalFromArticles,defaultHInterval}
 from "../../util/explorerUtil";
+import {getLastBegunArticle} from '../../util/explorerUtil';
+import {createSelector} from "reselect/lib/index";
 
 const Imm = require("immutable");
 const componentUid = require("uuid/v4")();
@@ -67,6 +69,67 @@ const getInitialDisplayed = () =>{
     };
 };
 
+/*export const getArticlesHistory = createSelector(
+    [(state) => state.getIn(["app","articlesHistory"])],
+    (articlesHistory) => () => {
+        let history = [];
+
+        articlesHistory.sort((a, b) => {
+            return a>=b?-1:1
+        }).forEach((v,k)=>{
+            history.push(k);
+        });
+
+        return history;
+    }
+);*/
+
+const getArticlesSelector = createSelector(
+    [(searchBag,createdArticlesId,expandedArticles,mainArticleId,getPlusBabies,getOneByIdPlusBabies,get) => mainArticleId,
+        (searchBag,createdArticlesId,expandedArticles,mainArticleId,getPlusBabies,getOneByIdPlusBabies,get) => JSON.stringify(searchBag||defaultSearchBag),
+        (searchBag,createdArticlesId,expandedArticles,mainArticleId,getPlusBabies,getOneByIdPlusBabies,get) => JSON.stringify(expandedArticles),
+        (searchBag,createdArticlesId,expandedArticles,mainArticleId,getPlusBabies,getOneByIdPlusBabies,get) => createdArticlesId.join(','),
+        (searchBag,createdArticlesId,expandedArticles,mainArticleId,getPlusBabies,getOneByIdPlusBabies,get) => get,
+        (searchBag,createdArticlesId,expandedArticles,mainArticleId,getPlusBabies,getOneByIdPlusBabies,get) => getOneByIdPlusBabies,
+        (searchBag,createdArticlesId,expandedArticles,mainArticleId,getPlusBabies,getOneByIdPlusBabies,get) => getPlusBabies
+    ],
+    (mainArticleId,searchBag,expandedArticles,createdArticlesId,get,getOneByIdPlusBabies,getPlusBabies)=>{
+
+        expandedArticles = JSON.parse(expandedArticles);
+        createdArticlesId = createdArticlesId.split(',');
+
+        searchBag = JSON.parse(searchBag);
+        let articles = [];
+
+        /*console.log("in selector");
+        console.log(mainArticleId);
+        console.log(searchBag);*/
+
+        // mainArticle mode
+        if(mainArticleId !== null) {
+            const otherArticles = searchBag!==null?get(searchBag):[];
+            const otherArticlesId = otherArticles.map((a)=>{
+                return +a.get('id');
+            });
+            /*console.log('otherArticles');
+            console.log(searchBag);
+            console.log(otherArticles);*/
+            const extraArticlesId = createdArticlesId.concat(otherArticlesId);
+            articles = getOneByIdPlusBabies(+mainArticleId,extraArticlesId,expandedArticles);
+            //console.log(articles);
+        }
+        // default mode
+        else{
+            if(searchBag !== null){
+                articles = getPlusBabies(searchBag,createdArticlesId,expandedArticles);
+            }
+            //console.log(articles);
+        }
+
+        return articles;
+    }
+);
+
 /**
  * @doc : this invisible component ensure article retrieving and updating for HBExplorer
  */
@@ -78,9 +141,18 @@ class HBExplorerProxy extends React.Component {
         this.setHInterval = this.setHInterval.bind(this);
         this.setCursorRate = this.setCursorRate.bind(this);
         this.toggleCursor = this.toggleCursor.bind(this);
+        this.toggleTimeRecordMode = this.toggleTimeRecordMode.bind(this);
+
+        this.onExternalArticleSelect = this.onExternalArticleSelect.bind(this);
 
         this.setHoveredArticle = this.setHoveredArticle.bind(this);
-        this.selectArticle = this.selectArticle.bind(this);
+        this.selectArticle = createSelector([
+            (ids,activeComponent)=>ids.join(','),
+            (ids,activeComponent)=>activeComponent
+        ],this.selectArticle.bind(this)).bind(this);
+
+
+            this.selectArticle.bind(this);
         this.closeArticle = this.closeArticle.bind(this);
         this.toggleActiveComponent = this.toggleActiveComponent.bind(this);
         this.addArticle = this.addArticle.bind(this);
@@ -97,6 +169,7 @@ class HBExplorerProxy extends React.Component {
             hInterval: props.hInterval || defaultHInterval,
             hasSelfUpdatedHInterval:false,
             cursorRate:0.35,
+            timeRecordMode:false,
             isCursorActive:false,
             hoveredArticleId:null,
             displayedArticles:new Map(),
@@ -129,6 +202,12 @@ class HBExplorerProxy extends React.Component {
             this.setState({searchBag:searchBag});
             this.setHInterval(getHIntervalFromArticles(this.getArticles()));
         }
+
+        window.addEventListener("hb.article.select", this.onExternalArticleSelect);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("hb.article.select", this.onExternalArticleSelect);
     }
 
     componentDidUpdate(prevProps) {
@@ -206,44 +285,24 @@ class HBExplorerProxy extends React.Component {
         this.ensureDisplayedArticlesCoherence();
     }
 
-    getArticles(){
-        //console.log("reassemble articles");
-
+    getArticles(returnType="record"){
         const {searchBag,createdArticlesId,displayedArticles} = this.state;
         const {mainArticleId=null,getPlusBabies,getOneByIdPlusBabies,get} = this.props;
 
-        let subArticles= {};
+        let expandedArticles= {};
         displayedArticles.forEach((article,id)=>{
             if(article.isExpanded){
-                subArticles[id] = article.subArticles.map((v)=> +v.childId).sort();
+                expandedArticles[id] = article.subArticles.map((v)=> +v.childId).sort();
             }
         });
-
-        //console.log('subArticles');
-        //subArticles=subArticles.filter(v=> !!v);
-        //console.log(subArticles);
-
-        let articles = [];
-
-        // mainArticle mode
-        if(mainArticleId !== null) {
-            const otherArticles = searchBag!==null?get(searchBag):[];
-            const otherArticlesId = otherArticles.map((a)=>{
-                return +a.get('id');
+        //console.log("debut");
+        const articles = getArticlesSelector(searchBag,createdArticlesId,expandedArticles,
+            mainArticleId,getPlusBabies,getOneByIdPlusBabies,get);
+        //console.log(articles);
+        if(returnType==="id"){
+            return articles.map((v) =>{
+                return +v.get('id');
             });
-            console.log('otherArticles');
-            console.log(searchBag);
-            console.log(otherArticles);
-            const extraArticlesId = createdArticlesId.concat(otherArticlesId);
-            articles = getOneByIdPlusBabies(+mainArticleId,extraArticlesId,subArticles);
-            //console.log(articles);
-        }
-        // default mode
-        else{
-            if(searchBag !== null){
-                articles = getPlusBabies(searchBag,createdArticlesId,subArticles);
-            }
-            //console.log(articles);
         }
 
         return articles;
@@ -334,15 +393,68 @@ class HBExplorerProxy extends React.Component {
 
     setHInterval(hInterval) {
         if(!hInterval) return;
+
         this.setState({ hInterval: hInterval, hasSelfUpdatedHInterval:true });
+
+        if(this.state.timeRecordMode){
+            const {cursorRate} = this.state;
+            const cursorDate = (hInterval!==null && cursorRate!==null)?hInterval.getBarycenterDate(cursorRate):null;
+            const lastBegunArticle = getLastBegunArticle(this.getArticles(),cursorDate);
+            if(lastBegunArticle !== null && typeof lastBegunArticle!=='undefined'){
+                this.selectArticle([lastBegunArticle.id]);
+            }
+        }
     }
 
     toggleCursor(){
         this.setState({isCursorActive:!this.state.isCursorActive});
     }
 
+    toggleTimeRecordMode(){
+
+        if(!this.state.timeRecordMode){
+            const {cursorRate,hInterval} = this.state;
+            const cursorDate = (hInterval!==null && cursorRate!==null)?hInterval.getBarycenterDate(cursorRate):null;
+            const lastBegunArticle = getLastBegunArticle(this.getArticles(),cursorDate);
+            if(lastBegunArticle !== null && typeof lastBegunArticle!=='undefined'){
+                this.selectArticle([lastBegunArticle.id]);
+            }
+        }
+        this.setState({timeRecordMode:!this.state.timeRecordMode});
+    }
+
     setCursorRate(rate){
+
         this.setState({cursorRate:rate});
+
+        if(this.state.timeRecordMode){
+            const {cursorRate,hInterval} = this.state;
+            const cursorDate = (hInterval!==null && cursorRate!==null)?hInterval.getBarycenterDate(rate):null;
+            const lastBegunArticle = getLastBegunArticle(this.getArticles(),cursorDate);
+            if(lastBegunArticle !== null && typeof lastBegunArticle!=='undefined'){
+                this.selectArticle([lastBegunArticle.id]);
+            }
+        }
+    }
+
+    onExternalArticleSelect(event){
+        event.preventDefault();
+        event.stopPropagation();
+        // console.log("external article selection");
+        const selectedId = +event.detail.id;
+        const currentArticleIds = this.getArticles('id');
+
+        if(currentArticleIds.indexOf(selectedId) === -1){
+            this.setState({createdArticlesId : this.state.createdArticlesId.concat([+selectedId])});
+            setTimeout(()=>{this.selectArticle([selectedId]);},10);
+        }
+        else{
+            this.selectArticle([selectedId]);
+        }
+
+        /*console.log(event.detail.id);
+        console.log(this.getArticles('id'));
+        console.log(this.getArticles('id').contains(+event.detail.id));*/
     }
 
     setHoveredArticle(id=null){
@@ -351,6 +463,7 @@ class HBExplorerProxy extends React.Component {
     }
 
     selectArticle(ids,activeComponent='detail') {
+        if(typeof ids ==='string') ids = ids.split(',');
         console.log(ids);
         if(ids===null) ids=[];
         const {displayedArticles} = this.state;
@@ -492,7 +605,7 @@ class HBExplorerProxy extends React.Component {
     }
 
     render() {
-        const {searchBag,hInterval,cursorRate,displayedArticles,hoveredArticleId} = this.state;
+        const {searchBag,hInterval,cursorRate,timeRecordMode,displayedArticles,hoveredArticleId} = this.state;
 
         const cursorDate = (hInterval!==null && cursorRate!==null)?hInterval.getBarycenterDate(cursorRate):null;
 
@@ -549,6 +662,8 @@ class HBExplorerProxy extends React.Component {
                     cursorRate = {cursorRate}
                     setCursorRate = {this.setCursorRate}
                     toggleCursor = {this.toggleCursor}
+                    toggleTimeRecordMode = {this.toggleTimeRecordMode}
+                    timeRecordMode = {timeRecordMode}
                     articles={articles}
                     minLinksCount={minLinksCount}
                     maxLinksCount={maxLinksCount}

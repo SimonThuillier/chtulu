@@ -571,7 +571,8 @@ class HBExplorerTimePanel extends React.Component {
 
     render() {
         const {bounds,displayedArticles,mainArticleId,hoveredArticleId, setHoveredArticle,selectArticle,hInterval,setHInterval,
-            cursorDate,cursorRate,isCursorActive,setCursorRate,toggleCursor,getLinks} = this.props;
+            cursorDate,cursorRate,isCursorActive,setCursorRate,timeRecordMode,toggleTimeRecordMode,toggleCursor,getLinks} = this.props;
+
         const realArticles = this.props.articles;
         const marginWidth = this.props.marginWidth || 0;
         const strokeSize = 1;
@@ -660,12 +661,12 @@ class HBExplorerTimePanel extends React.Component {
                 />
                 <TimeArrowCursor
                     key={'time-arrow-cursor'}
-                    articles={realArticles}
-                    selectArticle={selectArticle}
                     cursorDate = {cursorDate}
                     cursorRate = {cursorRate}
                     isCursorActive={isCursorActive}
                     setCursorRate={setCursorRate}
+                    toggleTimeRecordMode = {toggleTimeRecordMode}
+                    timeRecordMode = {timeRecordMode}
                     toggleCursor={toggleCursor}
                     width = {width}
                     height = {55}

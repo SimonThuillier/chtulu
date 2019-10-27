@@ -336,7 +336,8 @@ componentWillUnmount() {
 
 render() {
     const { currentTheme, frameSizes, guiInitialized,isResizing } = this.state;
-    const { searchBag,setLimit,hInterval,setHInterval,cursorRate,cursorDate,isCursorActive,setCursorRate,toggleCursor,
+    const { searchBag,setLimit,hInterval,setHInterval,cursorRate,timeRecordMode,toggleTimeRecordMode,
+        cursorDate,isCursorActive,setCursorRate,toggleCursor,
         articles,mainArticleId,displayedArticles,invisibles,
         hoveredArticleId, setHoveredArticle,selectArticle,closeArticle,expandArticle,linkArticle,toggleActiveComponent,addArticle,
         dispatch,onFilter} = this.props;
@@ -398,6 +399,8 @@ render() {
                                     selectArticle={selectArticle}
                                     addArticle={addArticle}
                                     cursorRate={cursorRate}
+                                    toggleTimeRecordMode = {toggleTimeRecordMode}
+                                    timeRecordMode = {timeRecordMode}
                                     cursorDate = {cursorDate}
                                     isCursorActive={isCursorActive}
                                     setCursorRate = {setCursorRate}
