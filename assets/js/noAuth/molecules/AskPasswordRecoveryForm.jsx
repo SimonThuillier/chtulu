@@ -2,63 +2,20 @@ import React from 'react';
 
 import {FormGroup,InputGroup,ControlLabel,FormControl,HelpBlock,Glyphicon,
     Grid,Row,Col,Button} from 'react-bootstrap';
-import {checkPasswordStrength,scorePassword,PWD_STRENGTH} from '../../util/passwordUtil';
-
-
-const passwordMinScore = 40;
 
 const validate = (values,beforeSubmit=false) => {
-
-    const {email,password,passwordBis} = values;
+    const {emailOrLogin} = values;
     const errors = {};
 
-
-    if (! /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
-        errors.email = "L'adresse email n'est pas valide";
-    }
-    else if(!password || password.length<1){
-        errors.password = "Vous devez definir un mot de passe";
-    }
-    else if (scorePassword(password) <passwordMinScore){
-        errors.password = `Votre mot de passe est ${checkPasswordStrength(password)}`;
-    }
-
-    if(beforeSubmit){
-        if(password !== passwordBis){
-            errors.passwordBis = "Les deux valeurs ne correspondent pas";
-        }
-    }
-
+    if(! emailOrLogin) errors.emailOrLogin = "Vous devez indiquer votre email ou votre nom d'utilisateur ";
     return errors;
 };
 
-const warn = values => {
-    const {email,password,passwordBis} = values;
-    const warnings = {};
+const warn = values => {return {};};
+const success = values => {return {};};
 
-    const passwordStrength = checkPasswordStrength(password);
 
-    if ([PWD_STRENGTH.TOO_WEAK,PWD_STRENGTH.WEAK,PWD_STRENGTH.MEDIUM].includes(passwordStrength)){
-        warnings.password = `Votre mot de passe est ${checkPasswordStrength(password)}`;
-    }
-
-    return warnings;
-};
-
-const success = values => {
-    const {email,password,passwordBis} = values;
-    const success = {};
-
-    const passwordStrength = checkPasswordStrength(password);
-
-    if (! [PWD_STRENGTH.TOO_WEAK,PWD_STRENGTH.WEAK,PWD_STRENGTH.MEDIUM].includes(passwordStrength)){
-        success.password = `Votre mot de passe est ${checkPasswordStrength(password)}`;
-    }
-
-    return success;
-};
-
-export class RegularRegisterForm extends React.Component
+export class RecoverPasswordForm extends React.Component
 {
     constructor(props)
     {
@@ -72,9 +29,7 @@ export class RegularRegisterForm extends React.Component
 
         this.state = {
             formValue :{
-                email:"",
-                password:"",
-                passwordBis:""
+                emailOrLogin:""
             },
             errors:{},
             warnings:{},
@@ -145,9 +100,6 @@ export class RegularRegisterForm extends React.Component
         else if(Object.prototype.hasOwnProperty.call(warnings, controlId)){
             return 'warning';
         }
-        else if(controlId!=='passwordBis'){
-            return 'success';
-        }
 
         return null;
     }
@@ -184,10 +136,9 @@ export class RegularRegisterForm extends React.Component
         this.setState({submitting : true});
 
         const {formValue} = this.state;
-        this.props.onSubmit({email:formValue.email,password:formValue.password});
+        this.props.onSubmit({emailOrLogin:formValue.emailOrLogin});
 
         console.log("submit ...");
-
     }
 
     render()
@@ -198,11 +149,11 @@ export class RegularRegisterForm extends React.Component
         return (
             <form action="#" method="post">
                 <FormGroup
-                    controlId="email"
-                    validationState={this.getValidationState("email")}
+                    controlId="emailOrLogin"
+                    validationState={this.getValidationState("emailOrLogin")}
                 >
-                    <ControlLabel>Email</ControlLabel>
-                    <HelpBlock>Un mail vous sera envoyé pour confirmer votre inscription</HelpBlock>
+                    <ControlLabel>Email ou Nom d'utilisateur</ControlLabel>
+                    <HelpBlock>Un mail vous sera envoyé pour valider la demande</HelpBlock>
                     <InputGroup>
                         <InputGroup.Addon>
                             <Glyphicon glyph="envelope" />
@@ -211,53 +162,12 @@ export class RegularRegisterForm extends React.Component
                             type="email"
                             value={formValue.email}
                             autoComplete="email"
-                            placeholder="adresse email"
-                            onChange={(e)=>{this.handleChange(e,"email");}}
+                            placeholder="Email ou Nom d'utilisateur"
+                            onChange={(e)=>{this.handleChange(e,"emailOrLogin");}}
                         />
                         <FormControl.Feedback/>
                     </InputGroup>
-                    <HelpBlock>{this.getValidationMessage("email")}</HelpBlock>
-                </FormGroup>
-
-                <FormGroup
-                    controlId="password"
-                    validationState={this.getValidationState("password")}
-                >
-                    <ControlLabel>Mot de passe</ControlLabel>
-                    <InputGroup>
-                        <InputGroup.Addon>
-                            <Glyphicon glyph="lock" />
-                        </InputGroup.Addon>
-                        <FormControl
-                            type="password"
-                            value={formValue.password}
-                            autoComplete="password"
-                            placeholder="mot de passe"
-                            onChange={(e)=>{this.handleChange(e,"password");}}
-                        />
-                        <FormControl.Feedback />
-                    </InputGroup>
-                    <HelpBlock>{this.getValidationMessage("password")}</HelpBlock>
-                </FormGroup>
-
-                <FormGroup
-                    controlId="passwordBis"
-                    validationState={this.getValidationState("passwordBis")}
-                >
-                    <InputGroup>
-                        <InputGroup.Addon>
-                            <Glyphicon glyph="lock" />
-                        </InputGroup.Addon>
-                        <FormControl
-                            type="password"
-                            value={formValue.passwordBis}
-                            autoComplete="new-password"
-                            placeholder="confirmez le mot de passe"
-                            onChange={(e)=>{this.handleChange(e,"passwordBis");}}
-                        />
-                        <FormControl.Feedback />
-                    </InputGroup>
-                    <HelpBlock>{this.getValidationMessage("passwordBis")}</HelpBlock>
+                    <HelpBlock>{this.getValidationMessage("emailOrLogin")}</HelpBlock>
                 </FormGroup>
                     <Row >
                         <Col xs={1} sm={2} md={3} lg={4}/>
@@ -266,7 +176,7 @@ export class RegularRegisterForm extends React.Component
                                     style={{display:'inline-block',minWidth:'100%'}}
                                     disabled={this.getValidationState() !== 'success' || submitting}
                                     onClick={this.onSubmit}>
-                                Inscription{submitting?' en cours ...':''}
+                                Envoyer la demande{submitting?' en cours ...':''}
                             </Button>
                         </Col>
                         <Col xs={1} sm={2} md={3} lg={4}/>
@@ -276,4 +186,4 @@ export class RegularRegisterForm extends React.Component
     }
 }
 
-export default RegularRegisterForm;
+export default RecoverPasswordForm;
