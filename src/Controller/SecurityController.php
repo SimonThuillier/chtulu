@@ -218,6 +218,117 @@ class SecurityController extends AbstractController
     }
 
     /**
+     * @Route("/ask-password-recovery",name="ask_password_recovery")
+     * @param Request $request
+     * @param RequestHelper $requestHelper
+     * @param SecurityManager $securityManager
+     * @return JsonResponse
+     */
+    public function askPasswordRecoveryAction(
+        Request $request,
+        RequestHelper $requestHelper,
+        SecurityManager $securityManager
+    )
+    {
+        $hResponse = new HJsonResponse();
+        try{
+            $handledRequest = $requestHelper->handleAskPasswordRecoveryRequest($request);
+
+            $result = $securityManager->askPasswordRecovery($handledRequest["login"]);
+            /** @var PendingAction $action */
+            $action = $result['action'];
+
+            switch($result['resultCode']){
+                case SecurityManager::RESULT_DONE:
+                    $hResponse->setMessage('Votre demande a bien été prise en compte. 
+                    Un mail de validation avec le lien vous permettant de changer de mot de passe a été envoyé à <strong>' . $action->getUser()->getEmail() . "</strong>.");
+                    break;
+                case SecurityManager::RESULT_RENEWED:
+                    $hResponse->setMessage("Votre demande de reinitialisation de mot de passe du " . $action->getUpdatedAt()->format("d/m/Y à H:i") .
+                        " avait expiré et a été renouvelée pour 24H. Un 
+                    nouveau mail de validation a été envoyé à <strong>". $action->getUser()->getEmail() . "</strong>.");
+                    break;
+                case SecurityManager::RESULT_UPDATED:
+                    $hResponse
+                        ->setStatus(HJsonResponse::WARNING)
+                        ->setMessage("Une demande de reinitialisation de mot de passe a déjà été faîte pour votre compte le " .
+                            $action->getCreatedAt()->format("d/m/Y à H:i") . ". Verifiez la reception du mail de validation sur " . $action->getUser()->getEmail());
+                    break;
+                default:
+                    break;
+            }
+        }
+        catch(\Exception $e){
+            $hResponse
+                ->setStatus(HJsonResponse::ERROR)
+                ->setMessage($e->getMessage());
+        }
+
+        ob_clean();
+        return new JsonResponse(HJsonResponse::normalize($hResponse));
+    }
+
+    /**
+     * @Route("/change-password",name="change_password")
+     * @param Request $request
+     * @param RequestHelper $requestHelper
+     * @param SecurityManager $securityManager
+     * @param Session $session
+     * @return JsonResponse
+     */
+    public function changePasswordAction(
+        Request $request,
+        RequestHelper $requestHelper,
+        SecurityManager $securityManager,
+        Session $session
+    )
+    {
+        $hResponse = new HJsonResponse();
+        try{
+            $handledRequest = $requestHelper->handleChangePasswordRequest($request);
+            $email = $handledRequest["email"];
+            $password = $handledRequest["password"];
+            $isAlreadyAuthenticated = $handledRequest["isAlreadyAuthenticated"];
+            $token = $handledRequest["token"];
+
+            $result = $securityManager->changePassword(
+                $email,
+                $password,
+                $isAlreadyAuthenticated,
+                $token);
+
+            /** @var User $user */
+            $user = $result['user'];
+
+            switch($result['resultCode']){
+                case SecurityManager::RESULT_DONE:
+                    $hResponse
+                        ->setStatus(HJsonResponse::SUCCESS)
+                        ->setData(["login"=>$user->getEmail()])
+                        ->setMessage("Votre mot de passe a bien été changé.<br/>
+                        Vous pouvez l'utiliser pour vous connecter avec votre email <strong>". $user->getEmail() ."</strong> 
+                        ou votre nom d'utilisateur <strong>". $user->getUsername() ."</strong>.")
+                        ->setData(["redirectTo"=>$this->generateUrl(
+                            'no-auth_homepage',
+                            ['page'=>'login'],
+                            UrlGeneratorInterface::ABSOLUTE_URL)]);
+                    break;
+                default:
+                    throw new \Exception("");
+                    break;
+            }
+        }
+        catch(\Exception $e){
+            $hResponse
+                ->setStatus(HJsonResponse::ERROR)
+                ->setMessage($e->getMessage());
+        }
+
+        ob_clean();
+        return new JsonResponse(HJsonResponse::normalize($hResponse));
+    }
+
+    /**
      * @Route("/logout",name="logout")
      * @param Request $request
      * @param Session $session
@@ -233,7 +344,7 @@ class SecurityController extends AbstractController
 
         try{
             $hResponse
-                ->setMessage('Deconnection reussie !')
+                ->setMessage('Deconnexion reussie !')
                 ->setData(["redirectTo"=>$this->generateUrl(
                     'no-auth_homepage',
                     ['page'=>'login'],

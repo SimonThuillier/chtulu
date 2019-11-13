@@ -1,9 +1,9 @@
 import React from 'react';
 import {Helmet} from 'react-helmet';
 
-import RecoverPassword from '../templates/RecoverPassword';
+import AskPasswordRecovery from '../templates/AskPasswordRecovery';
 
-class RecoverPasswordPage extends React.Component
+class AskPasswordRecoveryPage extends React.Component
 {
     constructor(props)
     {
@@ -27,10 +27,10 @@ class RecoverPasswordPage extends React.Component
                 <Helmet>
                     <title>Demander un nouveau mot de passe</title>
                 </Helmet>
-                <RecoverPassword/>
+                <AskPasswordRecovery/>
             </div>
         )
     }
 }
 
-export default RecoverPasswordPage;
+export default AskPasswordRecoveryPage;

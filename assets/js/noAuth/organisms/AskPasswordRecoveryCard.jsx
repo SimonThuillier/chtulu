@@ -1,6 +1,6 @@
 import React from 'react';
-import RecoverPasswordForm from '../molecules/RecoverPasswordForm';
-import {regularLogin,loadInitialHResponse} from '../actions';
+import AskPasswordRecoveryForm from '../molecules/AskPasswordRecoveryForm';
+import {askPasswordRecovery,loadInitialHResponse} from '../actions';
 import {makeGetNotificationsSelector} from "../../shared/selectors";
 import {connect} from "react-redux";
 import {INITIAL, SUBMITTING, SUBMITTING_COMPLETED} from "../../util/notifications";
@@ -12,7 +12,7 @@ import LoginLink from '../atoms/LoginLink';
 
 const componentUid = require("uuid/v4")();
 
-class RecoverPasswordCard extends React.Component
+class AskPasswordRecoveryCard extends React.Component
 {
     constructor(props)
     {
@@ -42,7 +42,7 @@ class RecoverPasswordCard extends React.Component
         const submitting = (notifications && notifications.hasIn(['DEFAULT',SUBMITTING]))||false;
 
         if(!submitting){
-            dispatch(regularLogin(data,componentUid));
+            dispatch(askPasswordRecovery(data,componentUid));
         }
     }
 
@@ -80,7 +80,7 @@ class RecoverPasswordCard extends React.Component
                     </Shade>
                     }
                     <Shade key={`${componentUid}-regular-form`}>
-                        <RecoverPasswordForm
+                        <AskPasswordRecoveryForm
                             onSubmit={this.onRegularSubmit}
                             submitting={submitting}
                         />
@@ -103,4 +103,4 @@ const makeMapStateToProps = () => {
     }
 };
 
-export default connect(makeMapStateToProps)(RecoverPasswordCard);
+export default connect(makeMapStateToProps)(AskPasswordRecoveryCard);

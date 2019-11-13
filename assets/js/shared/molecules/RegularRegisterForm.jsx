@@ -74,7 +74,8 @@ export class RegularRegisterForm extends React.Component
             formValue :{
                 email:!!props.initialLogin?props.initialLogin:"",
                 password:"",
-                passwordBis:""
+                passwordBis:"",
+                oldPassword:null
             },
             errors:{},
             warnings:{},
@@ -186,7 +187,7 @@ export class RegularRegisterForm extends React.Component
         this.setState({submitting : true});
 
         const {formValue} = this.state;
-        this.props.onSubmit({email:formValue.email,password:formValue.password});
+        this.props.onSubmit({email:formValue.email,password:formValue.password,oldPassword:formValue.oldPassword});
 
         console.log("submit ...");
 
@@ -226,11 +227,28 @@ export class RegularRegisterForm extends React.Component
                     <HelpBlock>{this.getValidationMessage("email")}</HelpBlock>
                 </FormGroup>
                 }
+                {!!this.props.changePassword && !!this.props.requireCurrentPassword &&
+                <FormGroup
+                    controlId="oldPassword"
+                >
+                    <ControlLabel>Mot de passe actuel</ControlLabel>
+                    <InputGroup>
+                        <FormControl
+                            type="password"
+                            value={formValue.oldPassword}
+                            autoComplete="off"
+                            placeholder="mot de passe actuel"
+                            onChange={(e)=>{this.handleChange(e,"oldPassword");}}
+                        />
+                        <FormControl.Feedback />
+                    </InputGroup>
+                </FormGroup>
+                }
                 <FormGroup
                     controlId="password"
                     validationState={this.getValidationState("password")}
                 >
-                    <ControlLabel>Mot de passe</ControlLabel>
+                    <ControlLabel>{!!this.props.changePassword?'Nouveau mot de passe':'Mot de passe'}</ControlLabel>
                     <InputGroup>
                         <InputGroup.Addon>
                             <Glyphicon glyph="lock" />

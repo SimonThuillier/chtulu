@@ -23,6 +23,7 @@
             <div data-url="{{ hResponse is defined and hResponse!=null and hResponse!='' ? hResponse:'_NA_' }}"
                  id="hb-initial-response"></div>
             <div data-url="{{ url('security_login') }}" id="hb-url-security-login"></div>
+            <div data-url="{{ url('security_change_password') }}" id="hb-url-security-change-password"></div>
             <div data-url="{{ url('security_logout') }}" id="hb-url-security-logout"></div>
             <div data-url="{{ url('contact_contact') }}" id="hb-url-contact-contact"></div>
 
@@ -31,6 +32,7 @@
             <div data-url="{{ url('get_get_new') }}" id="hb-url-get-get-new"></div>
             <div data-url="{{ url('post_post') }}" id="hb-url-post-post"></div>
             <div data-url="{{ url('post_upload_resource') }}" id="hb-url-post-upload-resource"></div>
+
         {% for wao in waoList() %}
                 <div class="hb-wao-mapping" data-mapping="{{ wao|getMapping() }}" id="hb-mapping-{{ wao|getAbridgedName() }}"></div>
                 <div class="hb-wao-structure" data-structure="{{ wao|getStructure() }}" id="hb-structure-{{ wao|getAbridgedName() }}"></div>

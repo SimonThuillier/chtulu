@@ -1,13 +1,13 @@
 import React from "react";
+import {Grid,Row,Col} from 'react-bootstrap';
+import Header from '../organisms/Header';
+import ChangePasswordCard from '../organisms/ChangePasswordCard';
+
 const Imm = require("immutable");
 const componentUid = require("uuid/v4")();
 
-import {Grid,Row,Col} from 'react-bootstrap';
 
-import Header from '../organisms/Header';
-import RegisterCard from '../organisms/RegisterCard';
-
-class Register extends React.Component
+class RecoverPassword extends React.Component
 {
     constructor(props)
     {
@@ -35,7 +35,7 @@ class Register extends React.Component
                             <Row className="show-grid">
                                 <Col xs={0} sm={2} md={3} lg={3}/>
                                 <Col xs={12} sm={8} md={6} lg={6}>
-                                    <RegisterCard/>
+                                    <ChangePasswordCard {...this.props}/>
                                 </Col>
                                 <Col xs={0} sm={2} md={3} lg={3}/>
                             </Row>
@@ -47,4 +47,4 @@ class Register extends React.Component
     }
 }
 
-export default Register;
+export default RecoverPassword;

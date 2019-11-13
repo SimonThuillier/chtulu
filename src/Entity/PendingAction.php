@@ -19,6 +19,7 @@ use Doctrine\ORM\Mapping as ORM;
 class PendingAction
 {
     const REGISTRATION='REGISTRATION';
+    const PASSWORD_RECOVERY='PASSWORD_RECOVERY';
 
     const STATUS_VALID='VALID';
     const STATUS_INCOMPLETE='INCOMPLETE';

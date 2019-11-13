@@ -1,12 +1,11 @@
 import React from "react";
-const Imm = require("immutable");
-const componentUid = require("uuid/v4")();
-
 import {Grid,Row,Col} from 'react-bootstrap';
-
 import Header from '../organisms/Header';
 import LoginCard from '../organisms/LoginCard';
 import {loadInitialHResponse} from "../../shared/actions";
+
+const Imm = require("immutable");
+const componentUid = require("uuid/v4")();
 
 class Login extends React.Component
 {

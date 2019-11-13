@@ -4,10 +4,10 @@ import {FormGroup,InputGroup,ControlLabel,FormControl,HelpBlock,Glyphicon,
     Grid,Row,Col,Button} from 'react-bootstrap';
 
 const validate = (values,beforeSubmit=false) => {
-    const {emailOrLogin} = values;
+    const {login} = values;
     const errors = {};
 
-    if(! emailOrLogin) errors.emailOrLogin = "Vous devez indiquer votre email ou votre nom d'utilisateur ";
+    if(! login) errors.login = "Vous devez indiquer votre email ou votre nom d'utilisateur ";
     return errors;
 };
 
@@ -15,7 +15,7 @@ const warn = values => {return {};};
 const success = values => {return {};};
 
 
-export class RecoverPasswordForm extends React.Component
+export class AskPasswordRecoveryForm extends React.Component
 {
     constructor(props)
     {
@@ -29,7 +29,7 @@ export class RecoverPasswordForm extends React.Component
 
         this.state = {
             formValue :{
-                emailOrLogin:""
+                login:""
             },
             errors:{},
             warnings:{},
@@ -136,7 +136,7 @@ export class RecoverPasswordForm extends React.Component
         this.setState({submitting : true});
 
         const {formValue} = this.state;
-        this.props.onSubmit({emailOrLogin:formValue.emailOrLogin});
+        this.props.onSubmit({login:formValue.login});
 
         console.log("submit ...");
     }
@@ -149,25 +149,25 @@ export class RecoverPasswordForm extends React.Component
         return (
             <form action="#" method="post">
                 <FormGroup
-                    controlId="emailOrLogin"
-                    validationState={this.getValidationState("emailOrLogin")}
+                    controlId="login"
+                    validationState={this.getValidationState("login")}
                 >
                     <ControlLabel>Email ou Nom d'utilisateur</ControlLabel>
                     <HelpBlock>Un mail vous sera envoyé pour valider la demande</HelpBlock>
                     <InputGroup>
                         <InputGroup.Addon>
-                            <Glyphicon glyph="envelope" />
+                            <Glyphicon glyph="user" />
                         </InputGroup.Addon>
                         <FormControl
                             type="email"
-                            value={formValue.email}
+                            value={formValue.login}
                             autoComplete="email"
                             placeholder="Email ou Nom d'utilisateur"
-                            onChange={(e)=>{this.handleChange(e,"emailOrLogin");}}
+                            onChange={(e)=>{this.handleChange(e,"login");}}
                         />
                         <FormControl.Feedback/>
                     </InputGroup>
-                    <HelpBlock>{this.getValidationMessage("emailOrLogin")}</HelpBlock>
+                    <HelpBlock>{this.getValidationMessage("login")}</HelpBlock>
                 </FormGroup>
                     <Row >
                         <Col xs={1} sm={2} md={3} lg={4}/>
@@ -186,4 +186,4 @@ export class RecoverPasswordForm extends React.Component
     }
 }
 
-export default RecoverPasswordForm;
+export default AskPasswordRecoveryForm;

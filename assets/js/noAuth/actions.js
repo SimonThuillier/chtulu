@@ -1,23 +1,25 @@
 import {
-    URL_GET_ONE_BY_ID,
-    URL_REGISTER,
-    URL_LOGIN,
-    getUrl,
-    getHTTPProps,
+    DataToPost,
     getHBProps,
-    HB_SUCCESS,
+    getHTTPProps,
+    getUrl,
+    HB_CONFIRM,
     HB_ERROR,
+    HB_INFO,
+    HB_SUCCESS,
     HB_WARNING,
     HTTP_POST,
-    DataToPost, INITIAL_HRESPONSE, HB_INFO, HB_CONFIRM
+    INITIAL_HRESPONSE,
+    URL_ASK_PASSWORD_RECOVERY,
+    URL_GET_ONE_BY_ID,
+    URL_LOGIN,
+    URL_REGISTER
 } from '../util/server';
-import { normalize,denormalize, schema } from 'normalizr';
+import {normalize} from 'normalizr';
 import WAOs from '../util/WAOs';
 import GroupUtil from "../util/GroupUtil";
-import {LOADING, LOADING_COMPLETED, SUBMITTING, SUBMITTING_COMPLETED,INITIAL} from '../util/notifications';
-import {notify, errorGet, subReceiveGet, discard} from '../shared/actions';
-import {entitiesSelector} from "../shared/selectors";
-import {getDataToPost} from "../util/WAOUtil";
+import {INITIAL, LOADING, LOADING_COMPLETED, SUBMITTING, SUBMITTING_COMPLETED} from '../util/notifications';
+import {discard, errorGet, notify, subReceiveGet} from '../shared/actions';
 
 // data reception actions
 export const GET_ONE_BY_ID = 'GET_ONE_BY_ID';
@@ -116,23 +118,51 @@ export const regularLogin = (data,senderKey) => (dispatch, getState) => {
         )
 };
 
+export const askPasswordRecovery = (data,senderKey) => (dispatch, getState) => {
+    console.log("askPasswordRecovery");
+    console.log(data);
 
-/*const handlePostBackData = (backData,dispatch) =>{
-    Object.keys(backData).forEach((waoType)=>{
-        Object.keys(backData[waoType]).forEach((id)=>{
-            let object = backData[waoType][id];
-            let groups = object.backGroups;
-            let postedGroups = object.loadedGroups;
-            object.loadedGroups = groups;
-            object.postedGroups = postedGroups;
-            //receiveGetOneById = (waoType,groups,id,data,message="Données bien recues du serveur")
-            //console.log("redispatched object after post");
-            //console.log(object);
-            dispatch(removePending(waoType,+object.oldId<0?+object.oldId:+id,object.toDelete?null:postedGroups));
-            dispatch(receiveGetOneById(waoType,groups,id,object,"Données bien enregistrées sur le serveur"));
-        });
-    });
-};*/
+    let dataToPost = DataToPost(senderKey);
+    dataToPost.login = data.login;
+    console.log(`dataToPost`);
+    console.log(dataToPost);
+
+    const url = getUrl(URL_ASK_PASSWORD_RECOVERY);
+    let httpProps = getHTTPProps(HTTP_POST);
+    httpProps.body = JSON.stringify(dataToPost);
+
+    dispatch(notify(SUBMITTING,senderKey,0));
+
+    return fetch(url,httpProps)
+        .then(response => response.json())
+        .catch(exception => {
+                dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_ERROR,null,"Le serveur est tombé en erreur :(",null));
+            }
+        )
+        .then(json => {
+                console.log("post returned !");
+                console.log(json);
+                switch (json.status) {
+                    case HB_SUCCESS:
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_SUCCESS,json.data,json.message));
+                        break;
+                    case HB_ERROR:
+                        console.error(json.message);
+                        console.log(json.errors);
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_ERROR,json.data,json.message,json.errors));
+                        break;
+                    case HB_WARNING:
+                        console.warn(json.message);
+                        dispatch(notify(SUBMITTING_COMPLETED,senderKey,0,HB_WARNING,json.data,json.message,json.errors));
+                        break;
+                    default:
+                }
+            }
+        )
+};
+
+
+
 
 export const receiveGetOneById = (waoType,groups,id,data,message="Données bien recues du serveur") =>
     (dispatch,state) => {

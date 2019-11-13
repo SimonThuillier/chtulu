@@ -1,9 +1,9 @@
 import React from 'react';
 import {Helmet} from 'react-helmet';
 
-import Register from '../templates/Register';
+import RecoverPassword from '../templates/RecoverPassword';
 
-class RegisterPage extends React.Component
+class RecoverPasswordPage extends React.Component
 {
     constructor(props)
     {
@@ -22,15 +22,31 @@ class RegisterPage extends React.Component
 
     render()
     {
+        const search = this.props.history.location.search;
+        console.log(search);
+        let email=null;
+        let token = null;
+        if(!!search){
+            email = (new RegExp("email=([^&]*)")).exec(search);
+            if(!! email) email = email[1];
+            console.log(email);
+            token = (new RegExp("token=([^&]*)")).exec(search);
+            if(!! token) token = token[1];
+            console.log(token);
+        }
+
         return (
             <div>
                 <Helmet>
-                    <title>S'inscrire</title>
+                    <title>Choisir un nouveau mot de passe</title>
                 </Helmet>
-                <Register/>
+                <RecoverPassword
+                    email={email}
+                    token={token}
+                />
             </div>
         )
     }
 }
 
-export default RegisterPage;
+export default RecoverPasswordPage;

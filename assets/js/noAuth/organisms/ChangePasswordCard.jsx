@@ -1,6 +1,6 @@
 import React from 'react';
-import RegularRegisterForm from '../molecules/RegularRegisterForm';
-import {regularRegister,loadInitialHResponse} from '../actions';
+import RegularRegisterForm from '../../shared/molecules/RegularRegisterForm';
+import {loadInitialHResponse} from '../actions';
 import {makeGetNotificationsSelector} from "../../shared/selectors";
 import {connect} from "react-redux";
 import {INITIAL, SUBMITTING, SUBMITTING_COMPLETED} from "../../util/notifications";
@@ -8,7 +8,8 @@ import NotificationAlert from '../../shared/molecules/NotificationAlert';
 import posed, { PoseGroup } from "react-pose";
 import Shade from '../../shared/atoms/Shade';
 import {HB_CONFIRM, HB_SUCCESS} from "../../util/server";
-import LoginLink from '../atoms/LoginLink';
+import AskPasswordRecoveryLink from '../atoms/AskPasswordRecoveryLink';
+import {changePassword} from "../../shared/actions";
 
 const componentUid = require("uuid/v4")();
 
@@ -18,37 +19,26 @@ class RegisterCard extends React.Component
     {
         super(props);
 
-        this.onRegularSubmit = this.onRegularSubmit.bind(this);
+        this.onSubmit = this.onSubmit.bind(this);
 
         this.state = {
         }
     }
 
-    componentDidMount()
+    onSubmit(data)
     {
-        const {dispatch,getNotifications} = this.props;
-        dispatch(loadInitialHResponse(componentUid));
-    }
-
-    componentDidUpdate(prevProps)
-    {
-
-    }
-
-    onRegularSubmit(data)
-    {
-        const {dispatch,getNotifications} = this.props;
+        const {dispatch,getNotifications,token} = this.props;
         const notifications = getNotifications(componentUid);
         const submitting = (notifications && notifications.hasIn(['DEFAULT',SUBMITTING]))||false;
 
         if(!submitting){
-            dispatch(regularRegister(data,componentUid));
+            dispatch(changePassword({...data,token},componentUid));
         }
     }
 
     render()
     {
-        const {getNotifications,dispatch} = this.props;
+        const {getNotifications,dispatch,email,token} = this.props;
         const notifications = getNotifications(componentUid);
         const submitting = (notifications && notifications.hasIn(['DEFAULT',SUBMITTING]))||false;
 
@@ -56,20 +46,11 @@ class RegisterCard extends React.Component
         getIn(['DEFAULT',SUBMITTING_COMPLETED]))||null;
         submittingCompleted = (submittingCompleted && !submittingCompleted.get("discardedAt"))?submittingCompleted:null;
 
-        let initialLogin =(submittingCompleted && submittingCompleted.get('extraData') && submittingCompleted.get('extraData').login)
-            ?submittingCompleted.get('extraData').login:null;
-
-        if(!submittingCompleted){
-            let initialNotif = (notifications && notifications.getIn(['DEFAULT',INITIAL]))||null;
-
-            if(initialNotif !==null && !initialNotif.get("discardedAt")){
-                initialLogin = initialNotif.get('extraData')?initialNotif.get('extraData').login:null;
-                console.log(`initial notif`);
-                console.log(initialNotif);
-                console.log(`initial login ${initialLogin}`);
-                if(initialNotif.get("status") !== HB_CONFIRM) submittingCompleted = initialNotif;
-                initialNotif = null;
-            }
+        if(submittingCompleted !== null &&
+            submittingCompleted.get('extraData') &&
+            submittingCompleted.get('extraData').redirectTo){
+            const redirectTo = submittingCompleted.get('extraData').redirectTo;
+            setTimeout(()=>{window.location=redirectTo},200);
         }
 
         console.log(submittingCompleted);
@@ -77,8 +58,7 @@ class RegisterCard extends React.Component
         return (
                 <div className="register-box-body">
                     <div className="login-box-msg">
-                        <h2>Inscription</h2>
-                        <h4>C'est rapide et facile.</h4>
+                        <h2>Choisir un nouveau mot de passe</h2>
                     </div>
                     <PoseGroup>
                     {submittingCompleted &&
@@ -92,15 +72,16 @@ class RegisterCard extends React.Component
                     {!(submittingCompleted && submittingCompleted.get("status") === HB_SUCCESS) &&
                         <Shade key={`${componentUid}-regular-form`}>
                             <RegularRegisterForm
-                                initialLogin={initialLogin}
-                                onSubmit={this.onRegularSubmit}
+                                changePassword
+                                initialLogin={email}
+                                onSubmit={this.onSubmit}
                                 submitting={submitting}
                             />
                         </Shade>
                     }
                     </PoseGroup>
                     <br/>
-                    <LoginLink message={'Déjà inscrit ? c\'est par ici !'}/>
+                    <AskPasswordRecoveryLink message={'(Re)faire une demande de reinitialisation de mot de passe'}/>
                 </div>
         )
     }

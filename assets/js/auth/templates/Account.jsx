@@ -6,12 +6,14 @@ import { PoseGroup } from "react-pose";
 import Shade from '../../shared/atoms/Shade';
 import {INITIAL} from "../../util/notifications";
 import NotificationAlert from '../../shared/molecules/NotificationAlert';
-import UserPublicCard from '../../shared/molecules/UserPublicCard';
-import UserPublicInfoForm from '../molecules/UserPublicInfoForm';
-import UserArticleList from '../organisms/UserArticleList';
 import {Nav,NavItem} from 'react-bootstrap';
 import {getCurrentUserSelector} from "../../shared/selectors";
 import {Glyphicon} from 'react-bootstrap';
+
+import UserPublicCard from '../../shared/molecules/UserPublicCard';
+import UserPublicInfoForm from '../molecules/UserPublicInfoForm';
+import UserArticleList from '../organisms/UserArticleList';
+import UserConnectionInfoCard from '../molecules/UserConnectionInfoCard';
 
 const Imm = require("immutable");
 const componentUid = require("uuid/v4")();
@@ -50,6 +52,7 @@ class AccountComponent extends React.Component
         const {activePublicInfo} = this.state;
 
         const currentUser = getCurrentUser();
+        console.log(currentUser);
 
         const notifications = getNotifications(componentUid);
 
@@ -79,6 +82,10 @@ class AccountComponent extends React.Component
                             >
                             </UserPublicInfoForm>)
                         }
+                        <br/>
+                        <hr/>
+                        <h3>Connexion&nbsp;</h3>
+                        <UserConnectionInfoCard user={currentUser}/>
                     </div>);
                 break;
             case  'ARTICLES' :

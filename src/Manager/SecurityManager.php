@@ -169,6 +169,109 @@ class SecurityManager implements AuthenticationFailureHandlerInterface
     }
 
     /**
+     * @param string $login
+     * @throws \Exception
+     * @return array
+     */
+    public function askPasswordRecovery(string $login)
+    {
+        /** A : retrieve User */
+        /** @var User $user */
+        $user = $this->doctrine->getRepository(User::class)->loadUserByUsername($login);
+        if($user === null) throw new \Exception("L'utilisateur <strong>". $login ."</strong> n'existe pas. <br/>Etes vous déjà inscrit ?");
+
+
+
+        $pendingAction = $this->doctrine->getRepository(PendingAction::class)
+            ->findBy(['type'=>PendingAction::PASSWORD_RECOVERY,'user'=>$user->getId()],['updatedAt'=>'DESC']);
+        if(is_array($pendingAction) && count($pendingAction)>0) $pendingAction = $pendingAction[0];
+        else $pendingAction = null;
+        /** @var PendingAction $pendingAction */
+
+        $resultCode = self::RESULT_UPDATED;
+        if($pendingAction === null){
+            $pendingAction = $this->entityFactory->create(PendingAction::class);
+            $pendingAction
+                ->setUser($user)
+                ->setType(PendingAction::PASSWORD_RECOVERY)
+                ->setExpirationDelay(1440)
+                ->setToken(self::generateToken());
+            $this->doctrine->getManager()->persist($pendingAction);
+            $resultCode = self::RESULT_DONE;
+        }
+        elseif($pendingAction->getExecutionStatus() === PendingAction::STATUS_EXPIRED){
+            $pendingAction
+                ->setToken(self::generateToken())
+                ->setUpdatedAt(new \DateTime());
+            $resultCode = self::RESULT_RENEWED;
+        }
+
+        $this->doctrine->getManager()->flush();
+
+        if(in_array($resultCode,[self::RESULT_DONE,self::RESULT_RENEWED])){
+            $this->mailer->sendAskPasswordRecovery($user,$pendingAction->getToken());
+        }
+
+        return ['action'=>$pendingAction,'resultCode'=>$resultCode];
+    }
+
+    /**
+     * @param string $email
+     * @param string $password
+     * @param bool $isAlreadyAuthenticated
+     * @param string|null $token
+     * @throws \Exception
+     * @return array
+     */
+    public function changePassword(
+        string $email,
+        string $password,
+        bool $isAlreadyAuthenticated,
+        ?string $token
+    )
+    {
+        /** A : retrieve User */
+        /** @var User $user */
+        $user = $this->doctrine->getRepository(User::class)->loadUserByUsername($email);
+        if($user === null) throw new \Exception("L'utilisateur <strong>". $email ."</strong> n'existe pas. <br/>Etes vous déjà inscrit ?");
+
+        $pendingAction = $this->doctrine->getRepository(PendingAction::class)
+            ->findBy(['type'=>PendingAction::PASSWORD_RECOVERY,'user'=>$user->getId()],['updatedAt'=>'DESC']);
+        if(is_array($pendingAction) && count($pendingAction)>0) $pendingAction = $pendingAction[0];
+        else $pendingAction = null;
+        /** @var PendingAction $pendingAction */
+
+        if(!$isAlreadyAuthenticated){
+            if($pendingAction === null || $pendingAction->getToken()!==$token){
+                throw new \Exception("Vous devez faire une demande de reinitialisation de mot de passe et cliquez sur le lien du mail de validation pour modifier votre mot de passe.");
+            }
+            /** @var PendingAction $pendingAction */
+            $status = $pendingAction->getExecutionStatus();
+            if($status === PendingAction::STATUS_EXPIRED){
+                throw new \Exception("Votre demande de reinitialisation de mot de passe a expiré. Renouvelez-la pour modifier votre mot de passe.");
+            }
+        }
+        else{
+            $tokenCheck = $this->encoder->isPasswordValid($user,$token);
+
+            if(!$tokenCheck){
+                throw new \Exception("Le mot de passe actuel que vous avez indiqué est invalide.");
+            }
+        }
+
+        $user->setPlainPassword($password);
+        $this->encodePassword($user);
+        $user->setLastUpdate(new \DateTime());
+
+        if($pendingAction !== null){
+            $this->doctrine->getManager()->remove($pendingAction);
+        }
+
+        $this->doctrine->getManager()->flush();
+        return ['resultCode'=>self::RESULT_DONE,'user'=>$user,];
+    }
+
+    /**
      * Main secured function to create users in HB project
      * @param $email string
      * @param $password string

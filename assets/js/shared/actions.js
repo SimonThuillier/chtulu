@@ -1,22 +1,21 @@
 import SearchBag from '../util/SearchBag';
 import {
-    URL_GET,
-    INITIAL_HRESPONSE,
-    getUrl,
-    getHTTPProps,
-    getHBProps,
-    HB_SUCCESS,
-    HB_INFO,
-    HB_ERROR,
-    HB_WARNING,
-    HB_CONFIRM,
     DataToPost,
+    getHBProps,
+    getHTTPProps,
+    getUrl,
+    HB_ERROR,
+    HB_SUCCESS,
+    HB_WARNING,
+    HTTP_POST,
+    URL_CHANGE_PASSWORD,
+    URL_GET,
 } from '../util/server';
-import { normalize,denormalize, schema } from 'normalizr';
+import {normalize} from 'normalizr';
 import WAOs from '../util/WAOs';
 import GroupUtil from "../util/GroupUtil";
 import SearchBagUtil from '../util/SearchBagUtil';
-import {LOADING, LOADING_COMPLETED, INITIAL} from '../util/notifications';
+import {LOADING, LOADING_COMPLETED, SUBMITTING, SUBMITTING_COMPLETED} from '../util/notifications';
 
 // notifications actions
 export const NOTIFY_ARTICLE_SELECTION = 'NOTIFY_ARTICLE_SELECTION';
@@ -204,6 +203,53 @@ export const receiveGetOneById = (waoType,groups,id,data,message="Données bien 
             wao: Object.values(normData.entities[waoType])[0],
         });
     };
+
+
+export const changePassword = (data, senderKey) => (dispatch, getState) => {
+    console.log("change password");
+    console.log(data);
+
+    let dataToPost = DataToPost(senderKey);
+    dataToPost.email = data.email;
+    dataToPost.password = data.password;
+    dataToPost.token = data.token;
+    dataToPost.isAlreadyAuthenticated = data.isAlreadyAuthenticated || false;
+    console.log(`dataToPost`);
+    console.log(dataToPost);
+
+    const url = getUrl(URL_CHANGE_PASSWORD);
+    let httpProps = getHTTPProps(HTTP_POST);
+    httpProps.body = JSON.stringify(dataToPost);
+
+    dispatch(notify(SUBMITTING, senderKey, 0));
+
+    return fetch(url, httpProps)
+        .then(response => response.json())
+        .catch(exception => {
+                dispatch(notify(SUBMITTING_COMPLETED, senderKey, 0, HB_ERROR, null, "Le serveur est tombé en erreur :(", null));
+            }
+        )
+        .then(json => {
+                console.log("post returned !");
+                console.log(json);
+                switch (json.status) {
+                    case HB_SUCCESS:
+                        dispatch(notify(SUBMITTING_COMPLETED, senderKey, 0, HB_SUCCESS, json.data, json.message));
+                        break;
+                    case HB_ERROR:
+                        console.error(json.message);
+                        console.log(json.errors);
+                        dispatch(notify(SUBMITTING_COMPLETED, senderKey, 0, HB_ERROR, json.data, json.message, json.errors));
+                        break;
+                    case HB_WARNING:
+                        console.warn(json.message);
+                        dispatch(notify(SUBMITTING_COMPLETED, senderKey, 0, HB_WARNING, json.data, json.message, json.errors));
+                        break;
+                    default:
+                }
+            }
+        )
+};
 
 
 

@@ -39,6 +39,8 @@ export const CURRENT_USER_ID = currentUserId;
 
 export const URL_REGISTER = getDataUrlOrNa('hb-url-security-register');
 export const URL_LOGIN = getDataUrlOrNa('hb-url-security-login');
+export const URL_ASK_PASSWORD_RECOVERY = getDataUrlOrNa('hb-url-security-ask-password-recovery');
+export const URL_CHANGE_PASSWORD = getDataUrlOrNa('hb-url-security-change-password');
 export const URL_LOGOUT = getDataUrlOrNa('hb-url-security-logout');
 
 export const URL_CONTACT = getDataUrlOrNa('hb-url-contact-contact');

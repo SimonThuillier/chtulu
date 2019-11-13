@@ -232,6 +232,75 @@ class RequestHelper
     }
 
     /**
+     * check if askPasswordRecovery request is valid and returns the data
+     * @param Request $request
+     * @return array
+     * @throws \Exception
+     */
+    public function handleAskPasswordRecoveryRequest(Request $request)
+    {
+        $result = [
+            "senderKey"=>null,
+            "login" => null,
+            "_token" => null
+        ];
+
+        if (0 !== strpos($request->headers->get('Content-Type'), 'application/json')) {
+            throw new \Exception("Request Content-Type must be application/json for AskPasswordRecovery request");
+        }
+        /** @var array $data */
+        $data = json_decode($request->getContent(), true);
+        if(!$data) throw new \Exception("Post request data is null");
+        if(! array_key_exists("senderKey",$data)) throw new \Exception("senderKey attribute is mandatory for AskPasswordRecovery data");
+        if(! array_key_exists("_token",$data)) throw new \Exception("_token attribute is mandatory for AskPasswordRecovery data");
+        if(! array_key_exists("login",$data)) throw new \Exception("email attribute is mandatory for AskPasswordRecovery data");
+
+        $result["_token"] = $data["_token"];
+        $result["senderKey"] = $data["senderKey"];
+        $result["login"] = $data["login"];
+
+        return $result;
+    }
+
+    /**
+     * check if changePassword request is valid and returns the data
+     * @param Request $request
+     * @return array
+     * @throws \Exception
+     */
+    public function handleChangePasswordRequest(Request $request)
+    {
+        $result = [
+            "senderKey"=>null,
+            "_token" => null,
+            "email" => null,
+            "password" => null
+        ];
+
+        if (0 !== strpos($request->headers->get('Content-Type'), 'application/json')) {
+            throw new \Exception("Request Content-Type must be application/json for AskPasswordRecovery request");
+        }
+        /** @var array $data */
+        $data = json_decode($request->getContent(), true);
+        if(!$data) throw new \Exception("Post request data is null");
+        if(! array_key_exists("senderKey",$data)) throw new \Exception("senderKey attribute is mandatory for ChangePassword data");
+        if(! array_key_exists("_token",$data)) throw new \Exception("_token attribute is mandatory for ChangePassword data");
+        if(! array_key_exists("email",$data)) throw new \Exception("email attribute is mandatory for ChangePassword data");
+        if(! array_key_exists("password",$data)) throw new \Exception("password attribute is mandatory for ChangePassword data");
+        if(! array_key_exists("isAlreadyAuthenticated",$data)) throw new \Exception("isAlreadyAuthenticated attribute is mandatory for ChangePassword data");
+        if(! array_key_exists("token",$data)) throw new \Exception("token attribute is mandatory for ChangePassword data");
+
+        $result["_token"] = $data["_token"];
+        $result["senderKey"] = $data["senderKey"];
+        $result["email"] = $data["email"];
+        $result["password"] = $data["password"];
+        $result["isAlreadyAuthenticated"] = $data["isAlreadyAuthenticated"];
+        $result["token"] = $data["token"];
+
+        return $result;
+    }
+
+    /**
      * check if contact request is valid and returns the data
      * @param Request $request
      * @return array

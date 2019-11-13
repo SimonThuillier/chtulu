@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 export default (props) => (
     <Link
-        to={`/recover-password`}
+        to={`/ask-password-recovery`}
         className={props.className || ''}
         title={"Ne vous en faites pas ça arrive à tout le monde"}
         style={props.style || null}

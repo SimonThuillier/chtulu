@@ -5,6 +5,8 @@ import AppContext from "../util/AppContext";
 import WelcomePage from "./pages/WelcomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import AskPasswordRecoveryPage from "./pages/AskPasswordRecoveryPage";
+import RecoverPasswordPage from "./pages/RecoverPasswordPage";
 
 const routes = [
     {
@@ -24,6 +26,18 @@ const routes = [
         path:'/register',
         exact:false,
         component:RegisterPage
+    },
+    {
+        id:4,
+        path:'/ask-password-recovery',
+        exact:false,
+        component:AskPasswordRecoveryPage
+    },
+    {
+        id:5,
+        path:'/recover-password',
+        exact:false,
+        component:RecoverPasswordPage
     }
 ];
 

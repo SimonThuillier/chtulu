@@ -44,4 +44,20 @@ class SecurityMailer extends Mailer
         $this->send($message);
     }
 
+    public function sendAskPasswordRecovery(User $user,$token)
+    {
+        $message = $this->newMessage()
+            ->setTo($user->getEmail())
+            ->setSubject('Votre demande de reinitialisation de mot de passe sur ' . $this->getSiteName())
+            ->setBody($this->renderView('@HB/Mail/ask-password-recovery.html.twig',
+                array(
+                    'user' => $user,
+                    'token' => $token,
+                    'siteName' => $this->getSiteName(),
+                )),
+                'text/html');
+
+        $this->send($message);
+    }
+
 }

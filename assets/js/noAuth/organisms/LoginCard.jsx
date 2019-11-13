@@ -1,6 +1,5 @@
 import React from 'react';
 import RegularLoginForm from '../molecules/RegularLoginForm';
-const componentUid = require("uuid/v4")();
 import {regularLogin,loadInitialHResponse} from '../actions';
 import {makeGetNotificationsSelector} from "../../shared/selectors";
 import {connect} from "react-redux";
@@ -10,6 +9,9 @@ import posed, { PoseGroup } from "react-pose";
 import Shade from '../../shared/atoms/Shade';
 import {HB_CONFIRM, HB_SUCCESS} from "../../util/server";
 import RegisterLink from '../atoms/RegisterLink';
+import AskPasswordRecoveryLink from '../atoms/AskPasswordRecoveryLink';
+
+const componentUid = require("uuid/v4")();
 
 class LoginCard extends React.Component
 {
@@ -105,6 +107,8 @@ console.log(initialLogin);
                     </PoseGroup>
                     <br/>
                     <RegisterLink message={'Pas encore inscrit ? c\'est par ici !'}/>
+                    <br/>
+                    <AskPasswordRecoveryLink message={'Mot de passe oublié ?'}/>
                 </div>
         )
     }

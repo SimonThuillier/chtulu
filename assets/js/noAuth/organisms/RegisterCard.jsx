@@ -1,5 +1,5 @@
 import React from 'react';
-import RegularRegisterForm from '../molecules/RegularRegisterForm';
+import RegularRegisterForm from '../../shared/molecules/RegularRegisterForm';
 import {regularRegister,loadInitialHResponse} from '../actions';
 import {makeGetNotificationsSelector} from "../../shared/selectors";
 import {connect} from "react-redux";
