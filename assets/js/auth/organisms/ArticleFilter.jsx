@@ -1,31 +1,20 @@
 import React from "react";
-import {getPendingSelector,getOneByIdSelector} from "../../shared/selectors";
 import { connect} from 'react-redux';
-import GroupUtil from '../../util/GroupUtil';
-import {FormGroup,
-    ControlLabel,
-    FormControl,
-    HelpBlock,
+import {Button,
     Row,
     Col,
     Form,
     Glyphicon,
-    OverlayTrigger,
     DropdownButton,
     MenuItem
 } from 'react-bootstrap';
 import { Field, reduxForm} from 'redux-form/immutable';
-const Imm = require("immutable");
-import WAOs from '../../util/WAOs'
-import {getOneByIdIfNeeded, loadForEdit,submitLocally,reset as stateReset,TIMEOUT} from '../actions';
-import SearchBag from "../../util/SearchBag";
 import ArticleTypeSelect from "../molecules/ArticleTypeSelect";
-const formUid = require('uuid/v4')();
-import {getComponentClassType} from '../../util/formUtil';
 import HDateInput from "../molecules/HDateInput";
 import HBFormField from '../hoc/HBFormField';
-import {Button,Tooltip} from 'react-bootstrap';
-import Loadable from 'react-loading-overlay';
+
+const formUid = require('uuid/v4')();
+const Imm = require("immutable");
 
 const validate = values => {
     const errors = {};

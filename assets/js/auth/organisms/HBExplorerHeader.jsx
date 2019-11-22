@@ -2,6 +2,11 @@ import React from "react";
 import ArticleFilter from './ArticleFilter';
 import HBExplorerHelp from './HBExplorerHelp';
 
+import {
+    DropdownButton,
+    MenuItem
+} from 'react-bootstrap';
+
 import { AVAILABLE_THEMES } from "../../util/explorerUtil";
 import styled from "styled-components";
 
@@ -13,6 +18,46 @@ const Header = styled.div`
   overflow:hidden;
 `;
 
+/*const dropdownUl = document.querySelector(`[aria-labelledby="dropdown-basic-${this.id}"]`);
+if(!!dropdownUl && typeof dropdownUl !== 'undefined'){
+    dropdownUl.classList.add("list-inline");
+    dropdownUl.style.margin = "-37px 0 0 -10px";
+    dropdownUl.style['min-width'] = '180px';
+    dropdownUl.style['max-height'] = '40px';
+}*/
+
+const ThemeSelector = ({style,id,current,setValue}) => {
+
+    const limits = [AVAILABLE_THEMES.EDITOR,AVAILABLE_THEMES.SIDEVIEW,AVAILABLE_THEMES.VERTICAL
+    ];
+
+    const menuItems= limits.map((limit)=>(
+        <MenuItem
+            key={limit}
+            className={'hb-number-selector'} eventKey={limit}
+            active={+limit === +current}>
+            {`${limit}`}
+        </MenuItem>));
+
+    return (<DropdownButton
+            bsStyle={'default'}
+            title={current}
+            key={1}
+            id={`dropdown-basic-${id}`}
+            defaultOpen={false}
+            rootCloseEvent={'click'}
+            className={'list-inline'}
+            style={{...style}}
+            onSelect={(eventKey,event)=>{
+                console.log(event);
+                console.log(+eventKey);
+                setValue(+eventKey);
+            }}
+        >
+            {menuItems}
+        </DropdownButton>
+    );
+};
 
 const Option = ({ onChange, value, currentValue }) => {
     let label = "";
@@ -64,6 +109,12 @@ export default props => {
                 className="btn-group btn-toggle"
                 data-toggle="buttons"
             >
+                <ThemeSelector
+                    style={{marginLeft:'-10px',marginRight:'10px'}}
+                    id = {require('uuid/v4')()}
+                    current={AVAILABLE_THEMES.EDITOR}
+                    setValue={()=>{}}
+                />
                 <Option
                     onChange={onChange}
                     currentValue={theme}
