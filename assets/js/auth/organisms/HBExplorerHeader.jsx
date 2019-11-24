@@ -2,12 +2,9 @@ import React from "react";
 import ArticleFilter from './ArticleFilter';
 import HBExplorerHelp from './HBExplorerHelp';
 
-import {
-    DropdownButton,
-    MenuItem
-} from 'react-bootstrap';
+import HorizontalDropdown from '../../shared/molecules/HorizontalDropdown';
 
-import { AVAILABLE_THEMES } from "../../util/explorerUtil";
+import { AVAILABLE_THEMES,AVAILABLE_AREAS } from "../../util/explorerUtil";
 import styled from "styled-components";
 
 const Header = styled.div`
@@ -18,86 +15,79 @@ const Header = styled.div`
   overflow:hidden;
 `;
 
-/*const dropdownUl = document.querySelector(`[aria-labelledby="dropdown-basic-${this.id}"]`);
-if(!!dropdownUl && typeof dropdownUl !== 'undefined'){
-    dropdownUl.classList.add("list-inline");
-    dropdownUl.style.margin = "-37px 0 0 -10px";
-    dropdownUl.style['min-width'] = '180px';
-    dropdownUl.style['max-height'] = '40px';
-}*/
 
-const ThemeSelector = ({style,id,current,setValue}) => {
 
-    const limits = [AVAILABLE_THEMES.EDITOR,AVAILABLE_THEMES.SIDEVIEW,AVAILABLE_THEMES.VERTICAL
-    ];
+const ThemeSelector = ({style,ulStyle,current,toggleKey}) => {
 
-    const menuItems= limits.map((limit)=>(
-        <MenuItem
-            key={limit}
-            className={'hb-number-selector'} eventKey={limit}
-            active={+limit === +current}>
-            {`${limit}`}
-        </MenuItem>));
+    const keys = [AVAILABLE_THEMES.EDITOR,AVAILABLE_THEMES.SIDEVIEW,AVAILABLE_THEMES.VERTICAL];
+    const getLabel = (value)=>{
+        let label="";
+        switch (value) {
+            case AVAILABLE_THEMES.EDITOR:
+                label = "lay. edition";
+                break;
+            case AVAILABLE_THEMES.SIDEVIEW:
+                label = "lay. coté";
+                break;
+            case AVAILABLE_THEMES.VERTICAL:
+                label = "lay. vertical";
+                break;
+            default:
+                label = "Default";
+                break;
+        }
+        return label;
+    };
 
-    return (<DropdownButton
-            bsStyle={'default'}
-            title={current}
-            key={1}
-            id={`dropdown-basic-${id}`}
-            defaultOpen={false}
-            rootCloseEvent={'click'}
-            className={'list-inline'}
-            style={{...style}}
-            onSelect={(eventKey,event)=>{
-                console.log(event);
-                console.log(+eventKey);
-                setValue(+eventKey);
-            }}
-        >
-            {menuItems}
-        </DropdownButton>
+    return (<HorizontalDropdown
+        style={style}
+        ulStyle={ulStyle}
+        keys={keys}
+        current={current}
+        toggleKey={toggleKey}
+        getLabel={getLabel}
+        getTitle={getLabel}
+        />
     );
 };
 
-const Option = ({ onChange, value, currentValue }) => {
-    let label = "";
 
-    switch (value) {
-        case AVAILABLE_THEMES.EDITOR:
-            label = "lay. edition";
-            break;
-        case AVAILABLE_THEMES.SIDEVIEW:
-            label = "lay. coté";
-            break;
-        case AVAILABLE_THEMES.VERTICAL:
-            label = "lay. vertical";
-            break;
-        default:
-            label = "Default";
-            break;
-    }
+const AreasSelector = ({style,ulStyle,current,toggleKey}) => {
 
-    const isActive = value === currentValue;
-    const className = isActive ? `btn btn-primary active` : `btn btn-default`;
+    const keys = [AVAILABLE_AREAS.GEOGRAPHY,AVAILABLE_AREAS.HISTORY,AVAILABLE_AREAS.TEXT];
+    const getLabel = (value)=>{
+        let label="";
+        switch (value) {
+            case AVAILABLE_AREAS.GEOGRAPHY:
+                label = "Carte";
+                break;
+            case AVAILABLE_AREAS.HISTORY:
+                label = "Frise";
+                break;
+            case AVAILABLE_AREAS.TEXT:
+                label = "Texte";
+                break;
+            default:
+                label = "Default";
+                break;
+        }
+        return label;
+    };
 
-    return (
-        <label
-            className={className}
-            onClick={() => {
-                if (!isActive) {
-                    onChange(value);
-                }
-            }}
-        >
-            <input
-                type="radio"
-                name="options"
-                value={value}
-            />
-            {label}
-        </label>
+    return (<HorizontalDropdown
+            style={style}
+            ulStyle={ulStyle}
+            keys={keys}
+            current={current}
+            toggleKey={toggleKey}
+            getLabel={getLabel}
+            getTitle={getLabel}
+        />
     );
 };
+
+
+
 
 export default props => {
     const { onChange, theme,onFilter,searchBag,setLimit } = props;
@@ -111,24 +101,16 @@ export default props => {
             >
                 <ThemeSelector
                     style={{marginLeft:'-10px',marginRight:'10px'}}
-                    id = {require('uuid/v4')()}
-                    current={AVAILABLE_THEMES.EDITOR}
-                    setValue={()=>{}}
+                    ulStyle={{margin:"-37px 0 0 -10px",minWidth:"250px",maxHeight:"40px"}}
+                    current={theme}
+                    toggleKey={onChange}
                 />
-                <Option
-                    onChange={onChange}
-                    currentValue={theme}
-                    value={AVAILABLE_THEMES.EDITOR}
-                />
-                <Option
-                    onChange={onChange}
-                    currentValue={theme}
-                    value={AVAILABLE_THEMES.SIDEVIEW}
-                />
-                <Option
-                    onChange={onChange}
-                    currentValue={theme}
-                    value={AVAILABLE_THEMES.VERTICAL}
+                <span>&nbsp;&nbsp;</span>
+                <AreasSelector
+                    style={{marginLeft:'-10px',marginRight:'10px'}}
+                    ulStyle={{margin:"-37px 0 0 -10px",minWidth:"250px",maxHeight:"40px"}}
+                    current={AVAILABLE_AREAS.GEOGRAPHY}
+                    toggleKey={()=>{}}
                 />
             </div>
             <div>

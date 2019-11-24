@@ -184,3 +184,9 @@ export const AVAILABLE_THEMES = {
     SIDEVIEW: `SIDEVIEW`,
     VERTICAL: `VERTICAL`
 };
+
+export const AVAILABLE_AREAS = {
+    TEXT: `TEXT`,
+    HISTORY: `HISTORY`,
+    GEOGRAPHY: `GEOGRAPHY`
+};

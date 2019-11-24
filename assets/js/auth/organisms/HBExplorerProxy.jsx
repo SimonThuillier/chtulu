@@ -69,20 +69,6 @@ const getInitialDisplayed = () =>{
     };
 };
 
-/*export const getArticlesHistory = createSelector(
-    [(state) => state.getIn(["app","articlesHistory"])],
-    (articlesHistory) => () => {
-        let history = [];
-
-        articlesHistory.sort((a, b) => {
-            return a>=b?-1:1
-        }).forEach((v,k)=>{
-            history.push(k);
-        });
-
-        return history;
-    }
-);*/
 
 const getArticlesSelector = createSelector(
     [(searchBag,createdArticlesId,expandedArticles,mainArticleId,getPlusBabies,getOneByIdPlusBabies,get) => mainArticleId,
