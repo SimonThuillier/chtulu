@@ -54,17 +54,17 @@ const ThemeSelector = ({style,ulStyle,current,toggleKey}) => {
 
 const AreasSelector = ({style,ulStyle,current,toggleKey}) => {
 
-    const keys = [AVAILABLE_AREAS.GEOGRAPHY,AVAILABLE_AREAS.HISTORY,AVAILABLE_AREAS.TEXT];
+    const keys = [AVAILABLE_AREAS.MAP,AVAILABLE_AREAS.TIME,AVAILABLE_AREAS.CONTENT];
     const getLabel = (value)=>{
         let label="";
         switch (value) {
-            case AVAILABLE_AREAS.GEOGRAPHY:
+            case AVAILABLE_AREAS.MAP:
                 label = "Carte";
                 break;
-            case AVAILABLE_AREAS.HISTORY:
+            case AVAILABLE_AREAS.TIME:
                 label = "Frise";
                 break;
-            case AVAILABLE_AREAS.TEXT:
+            case AVAILABLE_AREAS.CONTENT:
                 label = "Texte";
                 break;
             default:
@@ -74,6 +74,19 @@ const AreasSelector = ({style,ulStyle,current,toggleKey}) => {
         return label;
     };
 
+    const getTitle = (value)=>{
+        if (!Array.isArray(value)) value = [value];
+
+        let title = `
+        ${value.includes(AVAILABLE_AREAS.MAP)?'C':''}
+        ${value.includes(AVAILABLE_AREAS.TIME)?'F':''}
+        ${value.includes(AVAILABLE_AREAS.CONTENT)?'T':''}
+        `;
+
+        if(!title) title='-';
+        return title;
+    };
+
     return (<HorizontalDropdown
             style={style}
             ulStyle={ulStyle}
@@ -81,7 +94,7 @@ const AreasSelector = ({style,ulStyle,current,toggleKey}) => {
             current={current}
             toggleKey={toggleKey}
             getLabel={getLabel}
-            getTitle={getLabel}
+            getTitle={getTitle}
         />
     );
 };
@@ -90,7 +103,7 @@ const AreasSelector = ({style,ulStyle,current,toggleKey}) => {
 
 
 export default props => {
-    const { onChange, theme,onFilter,searchBag,setLimit } = props;
+    const { onChange,toggleArea, theme,enabledAreas, onFilter,searchBag,setLimit } = props;
 
     return (
         <Header>
@@ -109,8 +122,8 @@ export default props => {
                 <AreasSelector
                     style={{marginLeft:'-10px',marginRight:'10px'}}
                     ulStyle={{margin:"-37px 0 0 -10px",minWidth:"250px",maxHeight:"40px"}}
-                    current={AVAILABLE_AREAS.GEOGRAPHY}
-                    toggleKey={()=>{}}
+                    current={enabledAreas}
+                    toggleKey={toggleArea}
                 />
             </div>
             <div>

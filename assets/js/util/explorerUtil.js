@@ -186,7 +186,7 @@ export const AVAILABLE_THEMES = {
 };
 
 export const AVAILABLE_AREAS = {
-    TEXT: `TEXT`,
-    HISTORY: `HISTORY`,
-    GEOGRAPHY: `GEOGRAPHY`
+    CONTENT: `CONTENT`,
+    MAP: `MAP`,
+    TIME: `TIME`
 };

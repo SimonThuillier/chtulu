@@ -16,12 +16,14 @@ import {
     cssizePropertyName
 } from "../../util/cssUtil";
 import {
-    AVAILABLE_THEMES
+    AVAILABLE_THEMES,
+    AVAILABLE_AREAS
 } from "../../util/explorerUtil";
 
 
 
 const { EDITOR, SIDEVIEW, VERTICAL } = AVAILABLE_THEMES;
+const { CONTENT, MAP, TIME } = AVAILABLE_AREAS;
 
 const explorerUid = require("uuid/v4")();
 
@@ -33,8 +35,8 @@ const Container = styled.div`
 const Header = styled.div`
   ${({ theme: { header } }) => getInlinedCss(header)}
 `;
-const Middle = styled.div`
-  ${({ theme: { middle } }) => getInlinedCss(middle)}
+const TwoPieces = styled.div`
+  ${({ theme: { twoPieces } }) => getInlinedCss(twoPieces)}
 `;
 const Left = styled.div`
   ${({ theme: { left } }) => getInlinedCss(left)}
@@ -42,8 +44,8 @@ const Left = styled.div`
 const Right = styled.div`
   ${({ theme: { right } }) => getInlinedCss(right)}
 `;
-const Bottom = styled.div`
-  ${({ theme: { bottom } }) => getInlinedCss(bottom)}
+const OnePiece = styled.div`
+  ${({ theme: { onePiece } }) => getInlinedCss(onePiece)}
 `;
 
 const TimeArea = styled.div`
@@ -80,8 +82,8 @@ const DEFAULT_LAYOUT = {
         display: `flex`,
         flexDirection: `column`
     },
-    middle: {
-        order: 3,
+    twoPieces: {
+        order: 5,
         overflow: `hidden`,
         display: "flex",
         flexDirection: "row"
@@ -92,8 +94,8 @@ const DEFAULT_LAYOUT = {
     right: {
         order: 2,
     },
-    bottom: {
-        order: 5,
+    onePiece: {
+        order: 3,
         overflow: `hidden`,
         height: `20%`,
         border: `2px solid rgb(23, 88, 190)`
@@ -119,256 +121,350 @@ const DEFAULT_LAYOUT = {
         flexBasis: `40px`,
         minHeight:`40px`,
         maxHeight:`40px`
-},
-mapArea: {
-    padding: "0px",
-    height: "100%",
-    width: "100%",
-    display: "flex",
-    background: "green",
-    flexDirection: "column"
-},
-contentArea: {
-    padding: "0px",
-    height: "100%",
-    width: "100%",
-    background: `#AAB`
-}
+    },
+    mapArea: {
+        padding: "0px",
+        height: "100%",
+        width: "100%",
+        display: "flex",
+        background: "green",
+        flexDirection: "column"
+    },
+    contentArea: {
+        padding: "0px",
+        height: "100%",
+        width: "100%",
+        background: `#AAB`
+    }
 };
 
 let VERTICAL_LAYOUT = JSON.parse(JSON.stringify(DEFAULT_LAYOUT));
-VERTICAL_LAYOUT.middle.flexDirection = "column";
+VERTICAL_LAYOUT.twoPieces.flexDirection = "column";
 VERTICAL_LAYOUT.left.order = 3;
 
 const THEMES = {
-EDITOR: DEFAULT_LAYOUT,
-SIDEVIEW: DEFAULT_LAYOUT,
-VERTICAL: VERTICAL_LAYOUT
+    EDITOR: DEFAULT_LAYOUT,
+    SIDEVIEW: DEFAULT_LAYOUT,
+    VERTICAL: VERTICAL_LAYOUT
 };
 
 let { context, provider } = React.createContext();
 
 class HBExplorer extends React.Component {
-constructor(props) {
-    super(props);
+    constructor(props) {
+        super(props);
 
-    this.containerRef = React.createRef();
-    this.headerRef = React.createRef();
-    this.middleRef = React.createRef();
-    this.bottomRef = React.createRef();
-    this.rightRef = React.createRef();
+        this.containerRef = React.createRef();
+        this.headerRef = React.createRef();
+        this.twoPiecesRef = React.createRef();
+        this.onePieceRef = React.createRef();
+        this.rightRef = React.createRef();
 
-    this.timeAreaRef = React.createRef();
-    this.mapAreaRef = React.createRef();
+        this.timeAreaRef = React.createRef();
+        this.mapAreaRef = React.createRef();
 
-    this.setTheme = this.setTheme.bind(this);
-    this.onWindowResize = this.onWindowResize.bind(this);
-    this.onBottomResize = this.onBottomResize.bind(this);
-    this.onRightResize = this.onRightResize.bind(this);
+        this.getRealFrameSize = this.getRealFrameSize.bind(this);
 
-    this.prependChild = this.prependChild.bind(this);
+        this.setTheme = this.setTheme.bind(this);
+        this.toggleArea = this.toggleArea.bind(this);
 
-    this.resizeCounter=0;
+        this.onWindowResize = this.onWindowResize.bind(this);
+        this.onOnePieceResize = this.onOnePieceResize.bind(this);
+        this.onRightResize = this.onRightResize.bind(this);
 
-    this.state = {
-        guiInitialized: 0,
-        isResizing : false,
-        frameSizes: new Map()
-            .set("container.width", `400px`)
-            .set("container.height", `400px`)
-            .set("middle.height", `60%`)
-            .set("bottom.height", `40%`)
-            .set("left.width", `60%`)
-            .set("right.width", `40%`),
-        currentTheme: VERTICAL
-    };
-    console.log("build");
-}
+        this.prependChild = this.prependChild.bind(this);
 
-componentDidMount() {
-    window.addEventListener("resize", this.onWindowResize);
-    this.onWindowResize();
-    this.setState({ guiInitialized: 1 });
-    setTimeout(() => {
-        console.log("gui2");
-        this.setState({ guiInitialized: 2 });
-    }, 100);
-}
+        this.resizeCounter=0;
 
-setTheme(theme) {
-    console.log(theme);
-    this.setState({ currentTheme: theme, guiInitialized: 1 });
-    setTimeout(() => {
-        this.setState({ guiInitialized: 2 });
-    }, 10);
-    setTimeout(()=>{window.dispatchEvent(new Event('resize'))},20);
-    setTimeout(()=>{this.onBottomResize(null);},25);
-}
+        this.state = {
+            guiInitialized: 0,
+            isResizing : false,
+            frameSizes: new Map()
+                .set("container.width", `400px`)
+                .set("container.height", `400px`)
+                .set("twoPieces.height", `60%`)
+                .set("onePiece.height", `40%`)
+                .set("left.width", `60%`)
+                .set("right.width", `40%`),
+            currentTheme: SIDEVIEW,
+            enabledAreas: [CONTENT,MAP,TIME]
+        };
+        console.log("build");
+    }
 
-onWindowResize() {
-    const {
-        containerRef: { current }
-    } = this;
-    const { frameSizes,guiInitialized } = this.state;
-    if (!current || current === null) return;
+    /** returns the real frameSize from the frameSizes map, theme and enabled areas */
+    getRealFrameSize(key){
+        const {currentTheme,frameSizes,enabledAreas} = this.state;
+        if(enabledAreas.length===3) return frameSizes.get(key);
 
-    const containerRect = this.containerRef.current.getBoundingClientRect();
-    console.log(
-        `resized window : ${window.innerWidth} / ${window.innerHeight}`
-    );
-    console.log(
-        `explorer origin : ${containerRect.top} / ${containerRect.left}`
-    );
-    console.log(
-        `resized explorer : ${containerRect.width} / ${containerRect.height}`
-    );
+        const realFrameSizes = new Map()
+            .set("twoPieces.height", frameSizes.get("twoPieces.height"))
+            .set("onePiece.height", frameSizes.get("onePiece.height"))
+            .set("left.width", frameSizes.get("left.width"))
+            .set("right.width", frameSizes.get("right.width"));
 
-    const newContainerWidth = window.innerWidth - containerRect.left;
-    const newContainerHeight = window.innerHeight - containerRect.top;
+        switch(currentTheme){
+            case EDITOR:
+                if(!enabledAreas.includes(CONTENT)){
+                    realFrameSizes.set("onePiece.height",'0%').set("twoPieces.height",'100%');
+                }
+                if(!enabledAreas.includes(TIME)){
+                    realFrameSizes.set("left.width",'0%').set("right.width",'100%');
+                }
+                if(!enabledAreas.includes(MAP)){
+                    realFrameSizes.set("left.width",'100%').set("right.width",'0%');
+                }
+                if(!enabledAreas.includes(TIME) && !enabledAreas.includes(MAP)){
+                    realFrameSizes.set("onePiece.height",'100%').set("twoPieces.height",'0%');
+                }
+                break;
+            case SIDEVIEW :
+                if(!enabledAreas.includes(CONTENT)){
+                    realFrameSizes.set("left.width",'0%').set("right.width",'100%');
+                }
+                if(!enabledAreas.includes(TIME)){
+                    realFrameSizes.set("twoPieces.height",'0%').set("onePiece.height",'100%');
+                }
+                if(!enabledAreas.includes(MAP)){
+                    realFrameSizes.set("left.width",'100%').set("right.width",'0%');
+                }
+                if(enabledAreas.includes(TIME) && !enabledAreas.includes(CONTENT) && !enabledAreas.includes(MAP)){
+                    realFrameSizes.set("onePiece.height",'0%').set("twoPieces.height",'100%')
+                        .set("left.width",'100%').set("right.width",'0%');
+                }
+                break;
+            case VERTICAL:
+                if(!enabledAreas.includes(CONTENT)){
+                    realFrameSizes.set("onePiece.height",'0%').set("twoPieces.height",'100%');
+                }
+                if(!enabledAreas.includes(TIME)){
+                    realFrameSizes.set("left.width",'0%').set("right.width",'100%');
+                }
+                if(!enabledAreas.includes(MAP)){
+                    realFrameSizes.set("left.width",'100%').set("right.width",'0%');
+                }
+                if(!enabledAreas.includes(TIME) && !enabledAreas.includes(MAP)){
+                    realFrameSizes.set("onePiece.height",'100%').set("twoPieces.height",'0%');
+                }
+                break;
+            default:
+                break;
+        }
 
-    if (
-        `${newContainerWidth}px` !== frameSizes.get("container.width") ||
-        `${newContainerHeight}px` !== frameSizes.get("container.height")
-    ) {
-        let newFrameSizes = new Map(frameSizes);
-        newFrameSizes
-            .set("container.width", `${newContainerWidth}px`)
-            .set("container.height", `${newContainerHeight}px`);
+        return realFrameSizes.get(key);
+    }
 
-        this.setState({ frameSizes: newFrameSizes,isResizing:true});
-        const counter = this.resizeCounter;
-        const component = this;
+    componentDidMount() {
+        window.addEventListener("resize", this.onWindowResize);
+        this.onWindowResize();
+        this.setState({ guiInitialized: 1 });
+        setTimeout(() => {
+            console.log("gui2");
+            this.setState({ guiInitialized: 2 });
+        }, 100);
+    }
 
-        setTimeout(()=>{
-            if(component.state.isResizing && counter === component.resizeCounter){
-                component.setState({isResizing:false});
+    setTheme(theme) {
+        console.log(theme);
+        this.setState({ currentTheme: theme, guiInitialized: 1 });
+        setTimeout(() => {
+            this.setState({ guiInitialized: 2 });
+        }, 10);
+        setTimeout(()=>{window.dispatchEvent(new Event('resize'))},20);
+        setTimeout(()=>{this.onOnePieceResize(null);},25);
+    }
+
+    toggleArea(areaKey){
+        const {enabledAreas} = this.state;
+        let newEnabledAreas = [];
+        let hasRemoved=false;
+
+        console.log(areaKey);
+
+        enabledAreas.forEach((key)=>{
+            if(areaKey === key){
+                if(! enabledAreas.includes(key)) newEnabledAreas.push(key);
+                else hasRemoved = true;
             }
-        },100);
+            else{
+                newEnabledAreas.push(key);
+            }
+        });
+
+        if(!hasRemoved) newEnabledAreas.push(areaKey);
+
+        this.setState({enabledAreas:newEnabledAreas,guiInitialized: 1});
+        setTimeout(() => {
+            this.setState({ guiInitialized: 2 });
+        }, 10);
+        setTimeout(()=>{window.dispatchEvent(new Event('resize'))},20);
+        setTimeout(()=>{this.onOnePieceResize(null);},25);
     }
-}
+
+    onWindowResize() {
+        const {
+            containerRef: { current }
+        } = this;
+        const { frameSizes,guiInitialized } = this.state;
+        if (!current || current === null) return;
+
+        const containerRect = this.containerRef.current.getBoundingClientRect();
+        console.log(
+            `resized window : ${window.innerWidth} / ${window.innerHeight}`
+        );
+        console.log(
+            `explorer origin : ${containerRect.top} / ${containerRect.left}`
+        );
+        console.log(
+            `resized explorer : ${containerRect.width} / ${containerRect.height}`
+        );
+
+        const newContainerWidth = window.innerWidth - containerRect.left;
+        const newContainerHeight = window.innerHeight - containerRect.top;
+
+        if (
+            `${newContainerWidth}px` !== frameSizes.get("container.width") ||
+            `${newContainerHeight}px` !== frameSizes.get("container.height")
+        ) {
+            let newFrameSizes = new Map(frameSizes);
+            newFrameSizes
+                .set("container.width", `${newContainerWidth}px`)
+                .set("container.height", `${newContainerHeight}px`);
+
+            this.setState({ frameSizes: newFrameSizes,isResizing:true});
+            const counter = this.resizeCounter;
+            const component = this;
+
+            setTimeout(()=>{
+                if(component.state.isResizing && counter === component.resizeCounter){
+                    component.setState({isResizing:false});
+                }
+            },100);
+        }
+    }
 
 // begin flag :set the scale and origin values for resize
-onBottomResize(delta, flag = "onGoing") {
-    const { frameSizes } = this.state;
+    onOnePieceResize(delta, flag = "onGoing") {
+        const { frameSizes } = this.state;
 
-    if(delta===null){
+        if(delta===null){
+            let newFrameSizes = new Map(this.state.frameSizes);
+            this.setState({ frameSizes: newFrameSizes });
+            return
+        }
+
+        if (flag === "begin") {
+            this.onOnePieceResizeParam = {
+                beginMousePosition: delta,
+                rangeAbsoluteSize:
+                this.containerRef.current.getBoundingClientRect().height -
+                this.headerRef.current.getBoundingClientRect().height,
+                beginRelativeSize: frameSizes.get("onePiece.height")
+            };
+            return;
+        }
+        // onGoing
+
+        const { min, max } = Math;
+        const { rangeAbsoluteSize, beginRelativeSize } = this.onOnePieceResizeParam;
+        //console.log(`onePiece resize ${delta}px vs ${rangeAbsoluteSize}px`);
+        let { length, unit } = splitCssLength(beginRelativeSize);
+
+        let newPercentage = +length + (100 * delta) / rangeAbsoluteSize;
+        newPercentage = max(min(newPercentage, 100), 0);
+
         let newFrameSizes = new Map(this.state.frameSizes);
+        newFrameSizes
+            .set("onePiece.height", `${newPercentage}%`)
+            .set("twoPieces.height", `${100 - newPercentage}%`);
         this.setState({ frameSizes: newFrameSizes });
-        return
+
+        //console.log(newPercentage);
     }
-
-    if (flag === "begin") {
-        this.onBottomResizeParam = {
-            beginMousePosition: delta,
-            rangeAbsoluteSize:
-            this.containerRef.current.getBoundingClientRect().height -
-            this.headerRef.current.getBoundingClientRect().height,
-            beginRelativeSize: frameSizes.get("bottom.height")
-        };
-        return;
-    }
-    // onGoing
-
-    const { min, max } = Math;
-    const { rangeAbsoluteSize, beginRelativeSize } = this.onBottomResizeParam;
-    //console.log(`bottom resize ${delta}px vs ${rangeAbsoluteSize}px`);
-    let { length, unit } = splitCssLength(beginRelativeSize);
-
-    let newPercentage = +length - (100 * delta) / rangeAbsoluteSize;
-    newPercentage = max(min(newPercentage, 100), 0);
-
-    let newFrameSizes = new Map(this.state.frameSizes);
-    newFrameSizes
-        .set("bottom.height", `${newPercentage}%`)
-        .set("middle.height", `${100 - newPercentage}%`);
-    this.setState({ frameSizes: newFrameSizes });
-
-    //console.log(newPercentage);
-}
 
 // begin flag :set the scale and origin values for resize
-onRightResize(delta, flag = "onGoing") {
-    const { frameSizes, currentTheme } = this.state;
-    if (flag === "begin") {
-        this.onRightResizeParam = {
-            beginMousePosition: delta,
-            rangeAbsoluteSize:
-                currentTheme === "VERTICAL"
-                    ? this.middleRef.current.getBoundingClientRect().height
-                    : this.middleRef.current.getBoundingClientRect().width,
-            beginRelativeSize: frameSizes.get("right.width")
-        };
-        return;
-    }
-    // onGoing
-    const { min, max } = Math;
-    const { rangeAbsoluteSize, beginRelativeSize } = this.onRightResizeParam;
+    onRightResize(delta, flag = "onGoing") {
+        const { frameSizes, currentTheme } = this.state;
+        if (flag === "begin") {
+            this.onRightResizeParam = {
+                beginMousePosition: delta,
+                rangeAbsoluteSize:
+                    currentTheme === "VERTICAL"
+                        ? this.twoPiecesRef.current.getBoundingClientRect().height
+                        : this.twoPiecesRef.current.getBoundingClientRect().width,
+                beginRelativeSize: frameSizes.get("right.width")
+            };
+            return;
+        }
+        // onGoing
+        const { min, max } = Math;
+        const { rangeAbsoluteSize, beginRelativeSize } = this.onRightResizeParam;
 
-    //console.log(`right resize ${delta}px vs ${rangeAbsoluteSize}px`);
+        //console.log(`right resize ${delta}px vs ${rangeAbsoluteSize}px`);
 
-    let { length, unit } = splitCssLength(beginRelativeSize);
+        let { length, unit } = splitCssLength(beginRelativeSize);
 
-    let newPercentage =
-        +length +
-        ((currentTheme === "VERTICAL" ? 1 : -1) * (100 * delta)) /
-        rangeAbsoluteSize;
-    newPercentage = max(min(newPercentage, 100), 0);
+        let newPercentage =
+            +length +
+            ((currentTheme === "VERTICAL" ? 1 : -1) * (100 * delta)) /
+            rangeAbsoluteSize;
+        newPercentage = max(min(newPercentage, 100), 0);
 
-    let newFrameSizes = new Map(this.state.frameSizes);
-    newFrameSizes
-        .set("right.width", `${newPercentage}%`)
-        .set("left.width", `${100 - newPercentage}%`);
-    this.setState({ frameSizes: newFrameSizes });
+        let newFrameSizes = new Map(this.state.frameSizes);
+        newFrameSizes
+            .set("right.width", `${newPercentage}%`)
+            .set("left.width", `${100 - newPercentage}%`);
+        this.setState({ frameSizes: newFrameSizes });
 
-    //console.log(newPercentage);
-}
-
-prependChild(node){
-    console.log("prepend");
-    if(!!this.containerRef && !!this.containerRef.current){
-        this.containerRef.current.prepend(node);
-    }
-}
-
-componentWillUnmount() {
-    window.removeEventListener("resize", this.onWindowResize);
-}
-
-render() {
-    const { currentTheme, frameSizes, guiInitialized,isResizing } = this.state;
-    const { searchBag,setLimit,hInterval,setHInterval,cursorRate,timeRecordMode,toggleTimeRecordMode,
-        cursorDate,isCursorActive,setCursorRate,toggleCursor,
-        articles,mainArticleId,displayedArticles,invisibles,
-        hoveredArticleId, setHoveredArticle,selectArticle,closeArticle,expandArticle,linkArticle,toggleActiveComponent,addArticle,
-        dispatch,onFilter} = this.props;
-    const theme = THEMES[currentTheme];
-    //console.log(currentTheme);
-
-    if(this.timeAreaRef.current){
-        //console.log(this.timeAreaRef.current);
-        //console.log(this.timeAreaRef.current.getBoundingClientRect());
+        //console.log(newPercentage);
     }
 
-    const timeArea = (
-        <TimeArea id={"time-area"} ref={this.timeAreaRef}>
-            <TimeFooter id={"time-footer"}>
-                <HBExplorerTimeMenu
-                    hInterval={hInterval}
-                    setHInterval={setHInterval}
-                    invisibles={invisibles}
-                />
-            </TimeFooter>
-            <TimePanel id={"time-panel"}
-                       style={{height:`${(!!this.timeAreaRef.current)?this.timeAreaRef.current.getBoundingClientRect().height-40:100}px`}}
-            >
-                <MeasureAndRender
-                    stretch={true}
-                    debounce={1}
-                    onWindowResize={this.onPanelAreaResize}
-                    updaterVar={frameSizes}
-                    /*ref={node => {
-                        this.panelMeasureRef = node;
-                    }}*/
+    prependChild(node){
+        console.log("prepend");
+        if(!!this.containerRef && !!this.containerRef.current){
+            this.containerRef.current.prepend(node);
+        }
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.onWindowResize);
+    }
+
+    render() {
+        const { currentTheme,enabledAreas, frameSizes, guiInitialized,isResizing } = this.state;
+        const { searchBag,setLimit,hInterval,setHInterval,cursorRate,timeRecordMode,toggleTimeRecordMode,
+            cursorDate,isCursorActive,setCursorRate,toggleCursor,
+            articles,mainArticleId,displayedArticles,invisibles,
+            hoveredArticleId, setHoveredArticle,selectArticle,closeArticle,expandArticle,linkArticle,toggleActiveComponent,addArticle,
+            dispatch,onFilter} = this.props;
+        const theme = THEMES[currentTheme];
+        //console.log(currentTheme);
+
+        if(this.timeAreaRef.current){
+            //console.log(this.timeAreaRef.current);
+            //console.log(this.timeAreaRef.current.getBoundingClientRect());
+        }
+
+        const timeArea = (
+            <TimeArea id={"time-area"} ref={this.timeAreaRef}>
+                <TimeFooter id={"time-footer"}>
+                    <HBExplorerTimeMenu
+                        hInterval={hInterval}
+                        setHInterval={setHInterval}
+                        invisibles={invisibles}
+                    />
+                </TimeFooter>
+                <TimePanel id={"time-panel"}
+                           style={{height:`${(!!this.timeAreaRef.current)?this.timeAreaRef.current.getBoundingClientRect().height-40:100}px`}}
+                >
+                    <MeasureAndRender
+                        stretch={true}
+                        debounce={1}
+                        onWindowResize={this.onPanelAreaResize}
+                        updaterVar={frameSizes}
+                        /*ref={node => {
+                            this.panelMeasureRef = node;
+                        }}*/
                     >
                         {bounds => {
                             //{ stroke, className, bounds} = props;
@@ -464,25 +560,63 @@ render() {
                             <Header ref={this.headerRef}>
                                 <HBExplorerHeader
                                     theme={this.state.currentTheme}
+                                    enabledAreas={enabledAreas}
+                                    toggleArea={this.toggleArea}
                                     onChange={this.setTheme}
                                     onFilter={onFilter}
                                     searchBag={searchBag}
                                     setLimit={setLimit}
                                 />
                             </Header>
-                            <Middle
-                                ref={this.middleRef}
+                            <OnePiece
+                                ref={this.onePieceRef}
+                                key={`onePiece`}
                                 style={{
-                                    height: frameSizes.get("middle.height")
+                                    height: [EDITOR, VERTICAL].includes(currentTheme)
+                                        ? this.getRealFrameSize("onePiece.height")
+                                        : this.getRealFrameSize("twoPieces.height"),
+                                    order : [EDITOR, VERTICAL].includes(currentTheme)
+                                        ? 3
+                                        : 5
+                                }}
+                            >
+                                {[EDITOR, VERTICAL].includes(currentTheme)
+                                    ? contentArea
+                                    : timeArea}
+                            </OnePiece>
+                            {!isResizing && guiInitialized > 1 && !!this.onePieceRef.current && (
+                                <ResizeBar
+                                    key={"onePiece-resize-bar"}
+                                    placementType={"bottom"}
+                                    style={{
+                                        bottom:
+                                        window.innerHeight -
+                                        ([EDITOR, VERTICAL].includes(currentTheme)?this.onePieceRef:this.twoPiecesRef)
+                                            .current.getBoundingClientRect().bottom,
+                                        width: this.onePieceRef.current.getBoundingClientRect().width,
+                                        left: this.onePieceRef.current.getBoundingClientRect().left
+                                    }}
+                                    onMove={this.onOnePieceResize}
+                                />
+                            )}
+                            <TwoPieces
+                                ref={this.twoPiecesRef}
+                                style={{
+                                    height: [EDITOR, VERTICAL].includes(currentTheme)
+                                        ? this.getRealFrameSize("twoPieces.height")
+                                        : this.getRealFrameSize("onePiece.height"),
+                                    order : [EDITOR, VERTICAL].includes(currentTheme)
+                                        ? 5
+                                        : 3
                                 }}
                             >
                                 <Left
                                     style={{
                                         height: [VERTICAL].includes(currentTheme)
-                                            ? frameSizes.get("left.width")
+                                            ? this.getRealFrameSize("left.width")
                                             : null,
                                         width: [EDITOR, SIDEVIEW].includes(currentTheme)
-                                            ? frameSizes.get("left.width")
+                                            ? this.getRealFrameSize("left.width")
                                             : null
                                     }}
                                 >
@@ -529,41 +663,16 @@ render() {
                                     ref={this.rightRef}
                                     style={{
                                         height: [VERTICAL].includes(currentTheme)
-                                            ? frameSizes.get("right.width")
+                                            ? this.getRealFrameSize("right.width")
                                             : null,
                                         width: [EDITOR, SIDEVIEW].includes(currentTheme)
-                                            ? frameSizes.get("right.width")
+                                            ? this.getRealFrameSize("right.width")
                                             : null
                                     }}
                                 >
                                     {mapArea}
                                 </Right>
-                            </Middle>
-                            {!isResizing && guiInitialized > 1 && !!this.bottomRef.current && (
-                                <ResizeBar
-                                    key={"bottom-resize-bar"}
-                                    placementType={"bottom"}
-                                    style={{
-                                        bottom:
-                                        window.innerHeight -
-                                        this.bottomRef.current.getBoundingClientRect().top,
-                                        width: this.bottomRef.current.getBoundingClientRect().width,
-                                        left: this.bottomRef.current.getBoundingClientRect().left
-                                    }}
-                                    onMove={this.onBottomResize}
-                                />
-                            )}
-                            <Bottom
-                                ref={this.bottomRef}
-                                key={`bottom`}
-                                style={{
-                                    height: frameSizes.get("bottom.height")
-                                }}
-                            >
-                                {[EDITOR, VERTICAL].includes(currentTheme)
-                                    ? contentArea
-                                    : timeArea}
-                            </Bottom>
+                            </TwoPieces>
                         </Container>
                     )}
                 </div>
