@@ -182,12 +182,12 @@ class HBExplorer extends React.Component {
             frameSizes: new Map()
                 .set("container.width", `400px`)
                 .set("container.height", `400px`)
-                .set("twoPieces.height", `60%`)
-                .set("onePiece.height", `40%`)
+                .set("twoPieces.height", `30%`)
+                .set("onePiece.height", `70%`)
                 .set("left.width", `60%`)
                 .set("right.width", `40%`),
-            currentTheme: SIDEVIEW,
-            enabledAreas: [CONTENT,MAP,TIME]
+            currentTheme: EDITOR, // SIDEVIEW
+            enabledAreas: [CONTENT,TIME] // MAP,
         };
         console.log("build");
     }

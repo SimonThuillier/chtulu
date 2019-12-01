@@ -163,8 +163,6 @@ class ArticleDTO extends EntityMutableDTO
     /**
      * @return string
      * @Groups({"abstract"})
-     * @Assert\NotBlank()
-     * @Assert\NotNull()
      */
     public function getAbstract()
     {

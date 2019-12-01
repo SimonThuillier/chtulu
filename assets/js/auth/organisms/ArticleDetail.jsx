@@ -6,37 +6,80 @@ import {
     Well
 } from 'react-bootstrap';
 import Paragraphs from '../../shared/hoc/Paragraphs';
+import {HB_SUCCESS} from "../../util/server";
 
-const SubAbstract = ({abstract,linksData,children})=>{
-    let key=0;
-    console.log('subAbstract');
-    console.log(linksData);
 
-    let linksDescription = [];
-
-    if(typeof(linksData) !== 'undefined' && linksData !== null && linksData.length>0){
-        linksDescription = linksData
-            .filter((link) =>{
-                return (typeof(link.abstract) !== 'undefined' && link.abstract !== null && link.abstract!=='');
-            })
-            .map((link) =>{
-            return(
-                <Well bsSize="small" style={{padding:'4px'}}>
-                    <p key={`which-context`}>Par rapport à <strong>{link.parentTitle}</strong> : </p>
-                    {Paragraphs(link.abstract)}
-                </Well>
-            );
-        });
+class SubAbstract extends React.Component
+{
+    constructor(props)
+    {
+        super(props);
+        this.ref = React.createRef();
     }
 
-    const paragraphs =  Paragraphs(abstract,linksDescription);
-    return(
-        <div className="col-md-12">
-            {children}
-            {paragraphs}
-        </div>
-    )
-};
+    componentDidMount()
+    {
+        const {abstract,linksData,children} = this.props;
+        this.ref.current.innerHTML = abstract;
+    }
+
+    componentDidUpdate(prevProps)
+    {
+        if(prevProps.abstract !== this.props.abstract){
+            this.ref.current.innerHTML = this.props.abstract;
+        }
+    }
+
+    render()
+    {
+        return (
+            <div ref={this.ref} className="col-md-12">
+            </div>
+        );
+    }
+}
+
+
+
+//
+// const SubAbstract = ({abstract,linksData,children})=>{
+//     let key=0;
+//     console.log('subAbstract');
+//     console.log(linksData);
+//
+//     let linksDescription = [];
+//
+//     if(typeof(linksData) !== 'undefined' && linksData !== null && linksData.length>0){
+//         linksDescription = linksData
+//             .filter((link) =>{
+//                 return (typeof(link.abstract) !== 'undefined' && link.abstract !== null && link.abstract!=='');
+//             })
+//             .map((link) =>{
+//             return(
+//                 <Well bsSize="small" style={{padding:'4px'}}>
+//                     <p key={`which-context`}>Par rapport à <strong>{link.parentTitle}</strong> : </p>
+//                     {Paragraphs(link.abstract)}
+//                 </Well>
+//             );
+//         });
+//     }
+//
+//     console.log(abstract);
+//
+//     return (
+//         <div className="col-md-12">
+//             {abstract}
+//         </div>
+//     );
+//
+//     /*const paragraphs =  Paragraphs(abstract,linksDescription);
+//     return(
+//         <div className="col-md-12">
+//             {children}
+//             {paragraphs}
+//         </div>
+//     )*/
+// };
 
 const SubDetailImage = ({detailImageResource}) =>{
     if(!detailImageResource) return null;

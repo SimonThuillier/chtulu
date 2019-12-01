@@ -361,3 +361,13 @@ rect.area-default:hover {
 aside ::-webkit-scrollbar { width: 0 !important }
 aside { overflow: -moz-scrollbars-none;scrollbar-width: none; }
 aside { -ms-overflow-style: none; }
+
+.hb-richtext-marker {
+    color:#3c8dbc;
+    cursor:pointer;
+    margin:2px;
+}
+
+.hb-richtext-marker:hover {
+    color:#72afd2;
+}

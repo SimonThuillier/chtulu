@@ -316,8 +316,8 @@ export const makeGetPlusBabiesSelector = () =>{
                             if (k >= offset && k < (offset + limit)){
                                 pushIfNotAlreadyInMap(+v,+v,selectedEntries,controlMap);
                                 let thisSubIds = expandedIds[v];
-                                console.log("thisSubIds");
-                                console.log(thisSubIds);
+                                //console.log("thisSubIds");
+                                //console.log(thisSubIds);
                                 if(typeof thisSubIds !== 'undefined'){
                                     thisSubIds.forEach(sv =>{
                                         pushIfNotAlreadyInMap(+sv,+sv,selectedEntries,controlMap);

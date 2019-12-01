@@ -2,6 +2,18 @@
   "name": "hbase",
   "version": "0.0.1",
   "dependencies": {
+    "@ckeditor/ckeditor5-basic-styles": "^15.0.0",
+    "@ckeditor/ckeditor5-dev-utils": "^12.0.5",
+    "@ckeditor/ckeditor5-dev-webpack-plugin": "^8.0.5",
+    "@ckeditor/ckeditor5-editor-balloon": "^15.0.0",
+    "@ckeditor/ckeditor5-editor-classic": "^15.0.0",
+    "@ckeditor/ckeditor5-essentials": "^15.0.0",
+    "@ckeditor/ckeditor5-heading": "^15.0.0",
+    "@ckeditor/ckeditor5-link": "^15.0.0",
+    "@ckeditor/ckeditor5-media-embed": "^15.0.0",
+    "@ckeditor/ckeditor5-paragraph": "^15.0.0",
+    "@ckeditor/ckeditor5-react": "^2.0.0",
+    "@ckeditor/ckeditor5-theme-lark": "^15.0.0",
     "@symfony/webpack-encore": "^0.28.0",
     "admin-lte": "^2.4.12",
     "babel-install": "^2.1.0",
@@ -67,7 +79,10 @@
     "babel-register": "^6.26.0",
     "css-loader": "^2.1.1",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
-    "gulp-babel": "^8.0.0"
+    "gulp-babel": "^8.0.0",
+    "postcss-loader": "^3.0.0",
+    "raw-loader": "^4.0.0",
+    "style-loader": "^1.0.0"
   },
   "scripts": {
     "build": "webpack --mode development"

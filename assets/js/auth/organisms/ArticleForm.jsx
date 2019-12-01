@@ -27,6 +27,7 @@ import withExtraProps from '../hoc/withExtraProps';
 import ResourcePicker from './ResourcePicker';
 import ArticleLinkForm from '../molecules/ArticleLinkForm';
 import FormSubmit from '../molecules/FormSubmit';
+import ArticleContentEditor from './ArticleContentEditor';
 
 const Imm = require("immutable");
 const componentUid = require('uuid/v4')();
@@ -53,9 +54,6 @@ const validate = values => {
             errors.endHDate = 'Renseignez une date de fin ou décochez "A une fin ?"';
         }
     }
-    if (values.abstract && values.abstract.length > 2000) {
-        errors.abstract = `${values.abstract.length} caractères sur ${2000} autorisés`
-    }
     console.log(errors);
     return errors;
 };
@@ -64,9 +62,6 @@ const warn = values => {
     const warnings = {};
     if (values.title && values.title.length > 55) {
         warnings.title = `${values.title.length} caractères sur ${64} autorisés`
-    }
-    if (values.abstract && values.abstract.length > 1750) {
-        warnings.abstract = `${values.abstract.length} caractères sur ${2000} autorisés`
     }
     return warnings;
 };
@@ -300,9 +295,9 @@ class SubAbstract extends React.Component {
                         <Field
                             name="abstract"
                             type="textarea"
-                            alignment={'vertical'}
-                            component={HBFormField}
-                            label="Résumé"
+                            alignment={'horizontal'}
+                            component={ArticleContentEditor}
+                            label="Article"
                         />
                         {linksForm.length>0?linksForm:''}
                     </div>);

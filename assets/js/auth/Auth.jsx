@@ -21,6 +21,7 @@ import AccountPage from "./pages/AccountPage";
 import UserPublicPage from "../shared/pages/UserPublicPage";
 import ArticleTablePage from "./pages/ArticleTablePage";
 import ContactPage from "./pages/ContactPage";
+import TestCkeditorPage from "./pages/TestCkeditorPage";
 
 const routes = [
     {
@@ -77,6 +78,12 @@ const routes = [
         path:'/contact',
         exact:true,
         component:ContactPage
+    },
+    {
+        id:12,
+        path:'/test-ckeditor',
+        exact:true,
+        component:TestCkeditorPage
     }
 ];
 

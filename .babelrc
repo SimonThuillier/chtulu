@@ -2,5 +2,8 @@
   "plugins": ["@babel/plugin-transform-react-jsx",
     "@babel/plugin-proposal-class-properties",
   "@babel/plugin-proposal-export-default-from"],
-  "presets": ["@babel/preset-env","@babel/preset-react"]
+  "presets": ["@babel/preset-env","@babel/preset-react"],
+  "ignore": [
+    "**/assets/js/ckeditor/**" // all stuff in ckeditor directory is not transpiled to es5
+  ]
 }
