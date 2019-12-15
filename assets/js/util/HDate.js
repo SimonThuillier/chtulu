@@ -98,6 +98,24 @@ let _prototype = {
       this.endDate.getTime()  === hDate.endDate.getTime()
     );
   },
+    /**
+     * @doc : compare two HDates :returns -1 if this date (A) is inferior to date (B),1 if A is superior to B and 0 if equal
+     * @param {HDate} hDateB
+     * @returns {number}
+     */
+  compare: function(hDateB){
+      const timeA = this.beginDate.getTime();
+      const timeB = hDateB.beginDate.getTime();
+
+
+      if(timeA > timeB) return +1;
+      else if(timeA===timeB){
+          if(this.endDate.getTime()>hDateB.endDate.getTime()) return +1;
+          else if(this.endDate.getTime()===hDateB.endDate.getTime()) return +0;
+          else return -1;
+      }
+      else return -1;
+  },
   containsDate: function(date) {
     return date >= this.beginDate && date <= this.endDate;
   },

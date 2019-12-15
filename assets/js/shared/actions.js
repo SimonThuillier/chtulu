@@ -25,9 +25,7 @@ export const DISCARD = 'DISCARD';
 export const GET = 'GET';
 export const RECEIVE_GET = 'RECEIVE_GET';
 export const RECEIVE_GET_ONE_BY_ID = 'RECEIVE_GET_ONE_BY_ID';
-
 export const TIMEOUT = 5000;
-
 export const notify = (notifType,
                        senderKey=null,
                        senderParam=null,
@@ -250,7 +248,6 @@ export const changePassword = (data, senderKey) => (dispatch, getState) => {
             }
         )
 };
-
 
 
 

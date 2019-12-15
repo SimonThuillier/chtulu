@@ -58,7 +58,7 @@ class ResourceVersion extends DTOMutableEntity
 
     /**
      * @var User
-     * @ORM\ManyToOne(targetEntity="User",inversedBy="createdResourceVersions")
+     * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="creation_user_id", referencedColumnName="id")
      */
     protected $creationUser;

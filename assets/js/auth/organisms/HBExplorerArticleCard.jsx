@@ -110,7 +110,7 @@ class HBExplorerArticleCard extends React.Component {
                         </span>
                 </div>
 
-                <div className="panel-body" style={{overflow:'auto'}}>
+                <div id='hb-test-scroll' className="panel-body" style={{overflow:'auto'}}>
                     <Article
                         dispatch={dispatch}
                         id={id}

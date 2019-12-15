@@ -23,14 +23,19 @@ import Link from '@ckeditor/ckeditor5-link/src/link';
 import Heading from '@ckeditor/ckeditor5-heading/src/heading';
 import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
 import NewArticle from '../../ckeditor/NewArticlePlugin.js';
-import HDate from '../../ckeditor/HDatePlugin.js';
+import HDate from '../../ckeditor/ckeditor5-hdate-plugin/src/hdate';
 import HDatePicker from './HDatePicker';
 
-import {MODALS} from "../../ckeditor/util";
+import {MODALS,getDecoratedEditor} from "../../ckeditor/util";
+
+const UUID = require("uuid/v4");
 
 const editorConfiguration = {
     plugins: [ Essentials, Bold, Italic, Paragraph,Link,Heading,MediaEmbed,NewArticle,HDate ],
-    toolbar: [ 'heading','bold', 'italic','link','mediaEmbed','newArticle','hDate']
+    toolbar: [ 'heading','bold', 'italic','link','mediaEmbed','newArticle','hDate'],
+    link: {
+        addTargetToExternalLinks: true,
+    }
 };
 
 
@@ -41,6 +46,9 @@ class ArticleContentEditor extends React.Component
     {
         super(props);
         this.toggleModal = this.toggleModal.bind(this);
+        this.handleHBPluginOpen = this.handleHBPluginOpen.bind(this);
+        this.handleHBPluginSave = this.handleHBPluginSave.bind(this);
+        this.handleHBPluginClose = this.handleHBPluginClose.bind(this);
         //console.clear();
         console.log('Article content editor instanciation');
         console.log(props);
@@ -51,6 +59,7 @@ class ArticleContentEditor extends React.Component
 
         this.editor = null;
         this.hasFocused = false;
+        this.pluginCallback = null;
 
         this.componentUid = require("uuid/v4")();
     }
@@ -60,8 +69,44 @@ class ArticleContentEditor extends React.Component
         else this.setState({showModal:modal});
     }
 
+    /**
+     * when one of dedicated plugin is called the plugin access this function
+     * */
+    handleHBPluginOpen(modal,callback){
+
+        console.log("open hbPlugin",modal);
+
+        this.pluginCallback = callback;
+        this.setState({showModal:modal});
+
+    }
+
+    handleHBPluginSave(value){
+
+        console.log('HB plugin save',value);
+        this.pluginCallback(`hb-article-content-editor-${this.state.showModal}-${UUID()}`,value);
+
+
+
+        this.pluginCallback = null;
+        this.setState({showModal:null})
+
+
+    }
+
+    handleHBPluginClose(){
+        console.log("close hbPlugin");
+
+
+        this.pluginCallback = null;
+        this.setState({showModal:null})
+
+
+    }
+
     componentDidMount()
     {
+        console.log('jQuery ?',$);
         //console.clear();
         //console.log('Article content editor didmount');
         //console.log(this.props);
@@ -94,9 +139,16 @@ class ArticleContentEditor extends React.Component
                     data={""}
                     onInit={ editor => {
                         // You can store the "editor" and use when it is needed.
-                        console.log( 'Editor is ready to use!', editor );
-                        editor.toggleModal = this.toggleModal;
-                        this.editor = editor;
+                        this.editor = getDecoratedEditor(editor);
+                        // disable css ck-reset-all class
+                        const ckHiddenRoot = document.querySelector('.ck-reset_all');
+                        if(!!ckHiddenRoot) ckHiddenRoot.classList.remove('ck-reset_all');
+
+
+
+                        console.log( 'Editor is ready to use!', this.editor );
+                        editor.handleHBPluginOpen = this.handleHBPluginOpen;
+
                         this.editor.setData(this.props.input.value);
                     } }
                     onChange={ ( event, editor ) => {
@@ -122,12 +174,12 @@ class ArticleContentEditor extends React.Component
                     } }
                 />
                 <NewArticleModal show={showModal===MODALS.NEW_ARTICLE} handleClose={()=>{this.toggleModal(MODALS.NEW_ARTICLE)}}/>
-                <Modal show={showModal===MODALS.TIME_MARKER} onHide={()=>{this.toggleModal(MODALS.TIME_MARKER)}}>
+                <Modal show={showModal===MODALS.TIME_MARKER} onHide={this.handleHBPluginClose}>
                     <HDatePicker
                         initialValue={null}
                         onFocus={()=>{}}
-                        onClose={()=>{this.toggleModal(MODALS.TIME_MARKER)}}
-                        onSave={()=>{}}
+                        onClose={this.handleHBPluginClose}
+                        onSave={this.handleHBPluginSave}
                     />
                 </Modal>
             </div>

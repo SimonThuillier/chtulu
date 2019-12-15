@@ -28,7 +28,8 @@ const initialAppState = Imm.Map({
     currentUser:null,
     entitiesToPost:Imm.Map(),
     notifications: Imm.Map(),
-    articlesHistory:Imm.OrderedMap()
+    articlesHistory:Imm.OrderedMap(),
+    miscParams:Imm.Map()
 });
 
 export const appReducer = (state=initialAppState, action) =>{

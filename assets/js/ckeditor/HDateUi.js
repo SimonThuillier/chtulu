@@ -1,5 +1,5 @@
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
-import Link from '@ckeditor/ckeditor5-link/src/link';
+import LinkUi from '@ckeditor/ckeditor5-link/src/linkui';
 
 //import imageIcon from '@ckeditor/ckeditor5-core/theme/icons/image.svg';
 import imageIcon from './calendar.svg';
@@ -13,18 +13,48 @@ import clickOutsideHandler from '@ckeditor/ckeditor5-ui/src/bindings/clickoutsid
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 
 
-class HDatePlugin extends Link{
-    /**
-     * @inheritDoc
-     */
-    static get pluginName() {
-        return 'HDatePlugin';
+class HDateUi extends LinkUi{
+
+    _createToolbarLinkButton() {
+        const editor = this.editor;
+        const linkCommand = editor.commands.get( 'link' );
+        const t = editor.t;
+
+        // Handle the `Ctrl+K` keystroke and show the panel.
+        editor.keystrokes.set( linkKeystroke, ( keyEvtData, cancel ) => {
+            // Prevent focusing the search bar in FF and opening new tab in Edge. #153, #154.
+            cancel();
+
+            if ( linkCommand.isEnabled ) {
+                this._showUI( true );
+            }
+        } );
+
+        editor.ui.componentFactory.add( 'link', locale => {
+            const button = new ButtonView( locale );
+
+            button.isEnabled = true;
+            button.label = t( 'Link' );
+            button.icon = linkIcon;
+            button.keystroke = linkKeystroke;
+            button.tooltip = true;
+            button.isToggleable = true;
+
+            // Bind button to the command.
+            button.bind( 'isEnabled' ).to( linkCommand, 'isEnabled' );
+            button.bind( 'isOn' ).to( linkCommand, 'value', value => !!value );
+
+            // Show the panel on button click.
+            this.listenTo( button, 'execute', () => this._showUI( true ) );
+
+            return button;
+        } );
     }
 
 };
 
 
-export default HDatePlugin;
+export default HDateUi;
 
 
 

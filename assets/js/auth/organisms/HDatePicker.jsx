@@ -33,7 +33,7 @@ const defaultStyle = {
     boxShadow: "0 5px 10px rgba(0, 0, 0, 0.2)",
     border: "1px solid #CCC",
     borderRadius: 3,
-    marginLeft: 0,
+    //marginLeft: 0,
     marginTop: -0,
     minWidth: 350,
     zIndex: 2000
@@ -53,11 +53,12 @@ class HDatePicker extends Component {
         this.isValid = this.isValid.bind(this);
         this.state = {
             value: props.initialValue,
-            style: Object.assign(props.style || {}, defaultStyle),
             currentType: 1,
             currentInput: "",
             errors: []
         };
+
+        this.containerRef = React.createRef();
     }
 
     onRootFocus() {
@@ -99,6 +100,25 @@ class HDatePicker extends Component {
             currentType: this.state.value ? this.state.value.type : 1,
             currentInput: this.state.value ? this.state.value.getCanonicalInput() : ""
         });
+
+        if(!!this.props.setContainerRef){
+            this.props.setContainerRef(this.containerRef);
+        }
+
+
+    }
+
+    componentDidUpdate(prevProps){
+
+        if(!!this.props.initialValue && prevProps.initialValue !== this.props.initialValue){
+            const hdate = this.props.initialValue;
+
+            this.setState({
+                value:hdate,
+                currentType:hdate.type,
+                currentInput:hdate.getCanonicalInput()
+            });
+        }
     }
 
     onTypeChange(e) {
@@ -122,7 +142,7 @@ class HDatePicker extends Component {
     }
 
     onInputChange(e) {
-        console.log(`onInputChange :${e.target.value}`);
+        //console.log(`onInputChange :${e.target.value}`);
         const currentType = this.state.currentType;
         const currentInput = e.target.value;
         let errors = [];
@@ -135,7 +155,7 @@ class HDatePicker extends Component {
             });
             return;
         }
-        console.log("2");
+        //console.log("2");
         let date = null;
         if (currentType === "2") {
             const regex = new RegExp("^([^;]+);([^;]+)$");
@@ -179,7 +199,7 @@ class HDatePicker extends Component {
             }
         } else {
             date = _PARSERS[currentType](currentInput, errors);
-            console.log(date);
+            //console.log(date);
 
             this.setState({
                 currentInput: currentInput,
@@ -196,7 +216,7 @@ class HDatePicker extends Component {
     }
 
     render() {
-        const { className, onClose, onSave } = this.props;
+        const { className, onClose, onSave,style } = this.props;
         const options = Object.entries(trans.PARSING_TYPE_LABELS).map(
             ([key, value]) => {
                 return (
@@ -207,6 +227,8 @@ class HDatePicker extends Component {
             }
         );
 
+        const realStyle = Object.assign({},defaultStyle,style || {});
+
         /*console.log(this.state.errors);
         console.log(
             this.state.errors.map(err => {
@@ -215,7 +237,7 @@ class HDatePicker extends Component {
         );*/
 
         return (
-            <Panel style={this.state.style} className={className}>
+            <Panel ref={this.containerRef} id={this.props.id||null} style={realStyle} className={className}>
                 <Panel.Heading align="center">
                     Choisissez une date <Glyphicon glyph="pushpin" />
                 </Panel.Heading>

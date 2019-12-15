@@ -2,6 +2,7 @@ import React from "react";
 
 import MeasureAndRender from "../hoc/MeasureAndRender";
 import HBExplorerTimePanel from "./HBExplorerTimePanel.jsx";
+import HBExplorerTimePanel2 from "./HBExplorerTimePanel2.jsx";
 import HBExplorerTimeMenu from "./HBExplorerTimeMenu.jsx";
 import HBExplorerContent from "./HBExplorerContent.jsx";
 import HBMap from "./HBMap.jsx";
@@ -475,6 +476,36 @@ class HBExplorer extends React.Component {
       Z`;
                             //console.log(path);
                             //return <p>{path}</p>
+
+                            if(mainArticleId!==null){
+                                return [
+                                    <HBExplorerTimePanel2
+                                        key={"hg-time-panel"}
+                                        theme={theme}
+                                        bounds={bounds}
+                                        marginWidth={0}
+                                        path={path}
+                                        hInterval={hInterval}
+                                        setHInterval={setHInterval}
+                                        articles={articles}
+                                        minLinksCount={this.props.minLinksCount}
+                                        maxLinksCount={this.props.maxLinksCount}
+                                        mainArticleId={mainArticleId}
+                                        displayedArticles={displayedArticles}
+                                        hoveredArticleId={hoveredArticleId}
+                                        setHoveredArticle={setHoveredArticle}
+                                        selectArticle={selectArticle}
+                                        addArticle={addArticle}
+                                        cursorRate={cursorRate}
+                                        toggleTimeRecordMode = {toggleTimeRecordMode}
+                                        timeRecordMode = {timeRecordMode}
+                                        cursorDate = {cursorDate}
+                                        isCursorActive={isCursorActive}
+                                        setCursorRate = {setCursorRate}
+                                        toggleCursor = {toggleCursor}
+                                    />
+                                ];
+                            }
 
                             return [
                                 <HBExplorerTimePanel

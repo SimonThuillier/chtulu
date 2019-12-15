@@ -1,0 +1,184 @@
+import React from "react";
+import ProgressionCircle from "../atoms/ProgressionCircle";
+import HDate from "../../util/HDate";
+import RImageMini from '../../shared/atoms/RImageMini';
+import {COLORS} from "../../util/notifications";
+import {connect} from "react-redux";
+import {makeLocalGetByAttributeSelector} from "../../shared/selectors";
+import {getInlinedCss} from '../../util/cssUtil';
+
+const defaultTextStyle = {
+    fontFamily: "'Source Sans Pro','Helvetica Neue',Helvetica",
+    fontSize  : 16,
+    stroke     : "none",
+    fill       : "#000000",
+    fontStyle: 'normal'
+};
+
+
+// to prerender title text of the article and measure its width
+let mockSvgText = null;
+
+/**
+ * molecule level component defining display of one article in the panel
+ */
+class HBExplorerPanelMarker extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.handleOnClick = this.handleOnClick.bind(this);
+        this.hasAddedBox = false;
+        //console.log("HBExplorerPanelArticle created");
+        //console.log(props.article);
+
+        mockSvgText = document.getElementById(`time-panel-svg-article-mock`);
+    }
+
+    componentWillUnmount(){
+        console.log("HBExplorerPanelmarker will unmount");
+    }
+
+    handleOnClick (e){
+        const {selectArticle,article,onPanelMoveEnd} = this.props;
+        e.preventDefault();
+        e.stopPropagation();
+
+        selectArticle([article.id]);
+        onPanelMoveEnd(e);
+
+    }
+
+    render() {
+        const {marker, timeScale,originY,addBox,selected,width} = this.props;
+
+        const {hDate,html} = marker;
+
+        const id = 'time-panel-marker-' + marker.id;
+
+        const xMargin = 16;
+        const {max,min} = Math;
+
+        const x = timeScale(hDate.beginDate);
+        const endX = timeScale(hDate.endDate);
+
+
+        let realTitle = html;
+        if(endX>width && x <0) realTitle = realTitle + ' //';
+
+
+        let currentTextStyle = defaultTextStyle;
+        //console.log(`textStyle ${realTitle}`);
+        //console.log(currentTextStyle);
+
+        mockSvgText.setAttribute('style',getInlinedCss(Object.assign({visibility:'hidden',textLength:realTitle.length},currentTextStyle)));
+        mockSvgText.innerHTML=realTitle;
+        const textWidth = mockSvgText.getBBox().width+xMargin;
+        //console.log(mockSvgText);
+        //console.log(textWidth);
+
+
+        let realX = x-xMargin;
+        let realEndX = endX;
+        let deltaX = realX < 0 ? min(-realX,max(realEndX-realX,1)):0;
+        let viewportWidth = 1000;
+        //console.log(viewportWidth);
+
+
+        if((x<0 && endX<0) || (x>width && endX>width)){
+            viewportWidth = 0;
+            realX = -2000;
+            realEndX = -2000;
+            deltaX=0;
+        }
+        else if(realEndX>width && x <0){
+            realX=0;
+            realEndX = 2*xMargin+textWidth;
+            viewportWidth = realEndX-xMargin;
+            deltaX=0;
+        }
+
+
+
+
+        const viewportHeight = 50;
+        const y = 20;
+        const component= this;
+
+        setTimeout(()=>{
+            const element = document.getElementById('time-panel-marker-content-' + marker.id);
+            if(!!element) element.innerHTML = realTitle;
+        },5);
+
+
+        return (
+            <svg
+                key={`histo-article-svg-${marker.id}`}
+                id={`time-panel-marker-${marker.id}`}
+                viewBox={`0 0 ${viewportWidth} ${viewportHeight}`}
+                width={viewportWidth}
+                height={viewportHeight}
+                x={realX}
+                y={originY}
+                onMouseEnter={()=>{}}
+                onMouseLeave={()=>{}}
+                onClick={(e)=>{
+                   e.preventDefault();
+                   e.stopPropagation();
+                   const element = document.getElementById(marker.id);
+                   if(!!element){
+                       console.log(element);
+                       element.focus(new Boolean(false));
+                       element.click();
+                   }
+
+                   const scrollArea = document.getElementById('hb-test-scroll');
+
+                    var scrollAreaCoords = scrollArea.getBoundingClientRect();
+                    var elementCoords = element.getBoundingClientRect();
+                    console.log(scrollAreaCoords.top,elementCoords.top );
+                    scrollArea.scrollTo(0,elementCoords.top-scrollAreaCoords.top-5 );
+
+                }}
+                ref={node => {
+                    if(node && !component.hasAddedBox){
+                        addBox(node,marker[0]);
+                        component.hasAddedBox = true;
+                    }
+                }}
+                xmlns="http://www.w3.org/2000/svg">
+                <rect
+                    fill={"black"}
+                    stroke={'none'}
+                    x={xMargin}
+                    y={7}
+                    width={max(realEndX-realX-xMargin,1)}
+                    height={4}
+                    rx={2}
+                    ry={2}
+                    onClick={this.handleOnClick}
+                />
+                <foreignObject
+                    x={2*xMargin+deltaX}
+                    y={3}
+                    width="1000"
+                    height={viewportHeight}
+                >
+                    <div id={'time-panel-marker-content-' + marker.id} xmlns="http://www.w3.org/1999/xhtml">
+                        yolo
+                    </div>
+                </foreignObject>
+                {/*<text*/}
+                    {/*textAnchor="start"*/}
+                    {/*x={2*xMargin+deltaX}*/}
+                    {/*y={viewportHeight-3}*/}
+                    {/*style={currentTextStyle}*/}
+                    {/*onClick={this.handleOnClick}*/}
+                {/*>*/}
+                    {/*{realTitle}*/}
+                {/*</text>*/}
+            </svg>
+        );
+    }
+}
+
+export default HBExplorerPanelMarker;

@@ -137,7 +137,7 @@ export const getNeighbourArticleChronogically = (articles,currentId,sense) => {
     const {sortedArticles,index} = sortArticlesChronogically(articles);
     const currentIndex = sortedArticles.findIndex((element)=>{
         return +element.get('id') === +currentId}
-        );
+    );
 
     if(currentIndex === -1) return null;
 
@@ -190,3 +190,46 @@ export const AVAILABLE_AREAS = {
     MAP: `MAP`,
     TIME: `TIME`
 };
+
+/** analyze abstract of an article and returns temporal and geographical data from it */
+
+export const analyzeAbstract = createSelector(
+    [(article) =>article],
+    (article)=> {
+
+        const text = article.abstract;
+
+        const regex = /<icon[^>]+id="([^"]+)"[^>]+data-hdate="([^"]+)"[^>]*>[^>]+<\/icon>(.{400})(?!<icon[^>][^>]+data-hdate=")/g;
+
+        //console.log(text);
+        let array = [...text.matchAll(regex)];
+        //console.log(array);
+        //console.log(Array.from(array, x => x.index));
+        //console.log(results);
+
+        const marks = array.map((value)=>{
+            const index = value['index'];
+            const id = value[1];
+            const hDateKey = value[2].replace(/&quot;/gi,'"');
+            const html = value[3];
+            const hDate = HDate.prototype.parseFromJson(hDateKey);
+            const duration = hDate.getIntervalSize();
+
+            return {
+                index:index,
+                id:id,
+                hDate:hDate,
+                html:html,
+                duration:duration
+            };
+        });
+
+
+
+        marks.sort((a,b)=>{
+            return a.hDate.compare(b.hDate);
+        });
+        console.log(marks);
+        return marks;
+    }
+);

@@ -3,8 +3,8 @@ import { render } from 'react-dom'
 import { createStore,applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
 import Auth from './auth/Auth'
-import {rootReducer} from './auth/reducers'
-import thunk from 'redux-thunk'
+import {rootReducer} from './auth/reducers';
+import thunk from 'redux-thunk';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import {setRootUrl} from './util/server';
 require('./app.js');
