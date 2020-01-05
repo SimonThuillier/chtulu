@@ -24,7 +24,10 @@ const widget = {
     },
     getDOMElement:function(){
         const existingElement = document.getElementById(this.id);
-        if(!! existingElement) return existingElement;
+        if(!! existingElement){
+            //existingElement.remove();
+            return existingElement;
+        }
 
         // else create it
         // first unmount and clean the node
@@ -50,10 +53,13 @@ const widget = {
     setContainerRef:function(ref){
         this.containerRef = ref;
     },
-    showContainer:function(){
+    show:function(){
         console.log('widget containerRef',this.containerRef);
         const existingElement = document.getElementById(this.id);
+        const textElement = document.getElementById(this.id+'-input');
+
         if(! existingElement) return;
+        existingElement.focus();
 
         const windowWidth = window.innerWidth;
 
@@ -66,7 +72,23 @@ const widget = {
         else{
             this.props({style:{marginLeft:0}});
         }
-        existingElement.focus();
+
+        //textElement.focus();
+        //existingElement.removeEventListener('mousedown',this.onClick);
+        //existingElement.addEventListener('mousedown',this.onClick);
+
+
+    },
+    hide:function(){
+        const existingElement = document.getElementById(this.id);
+        //if(!! existingElement) container.appendChild(existingElement);
+
+    },
+
+    onClick:function(e){
+        //e.stopPropagation();
+        //e.preventDefault();
+        console.log('widget click');
     }
 
 };
@@ -74,5 +96,6 @@ const widget = {
 widget.props = widget.props.bind(widget);
 widget.getDOMElement = widget.getDOMElement.bind(widget);
 widget.setContainerRef = widget.setContainerRef.bind(widget);
+widget.onClick = widget.onClick.bind(widget);
 
 export default widget;

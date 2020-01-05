@@ -119,6 +119,22 @@ let _prototype = {
   containsDate: function(date) {
     return date >= this.beginDate && date <= this.endDate;
   },
+  intersects: function(hDate){
+      if(this.containsDate(hDate.beginDate) || this.containsDate(hDate.endDate)){
+          return true;
+      }
+
+      const beginTimeA = this.beginDate.getTime();
+      const beginTimeB = hDate.beginDate.getTime();
+      const endTimeA = this.endDate.getTime();
+      const endTimeB = hDate.endDate.getTime();
+
+
+      if(beginTimeA >=beginTimeB && beginTimeA<=endTimeB) return true;
+      if(endTimeA >=beginTimeB && endTimeA<=endTimeB) return true;
+
+      return false;
+  },
   getMiddleDate: function() {
     const intervalSize = this.getIntervalSize() + 1;
     if (intervalSize < 2) return dateUtil.clone(this.beginDate);
@@ -280,7 +296,8 @@ let _prototype = {
     }
     switch (type) {
       case "1":
-        this.endDate = dateUtil.clone(this.beginDate);
+          this.endDate = (this.endDate !== null)? this.endDate : dateUtil.clone(this.beginDate);
+          //if (dateUtil.dayDiff(this.endDate, this.beginDate) === 0) dateUtil.addDay(this.endDate, 1);
         break;
       case "2":
         this.endDate =
@@ -290,43 +307,49 @@ let _prototype = {
         break;
       case "3":
         dateUtil.rewindToMonthFirst(this.beginDate);
+        this.endDate = (this.endDate !== null)?this.endDate:dateUtil.clone(this.beginDate);
         this.endDate = dateUtil.addDay(
-          dateUtil.switchToNextMonth(dateUtil.clone(this.beginDate), true),
+          dateUtil.switchToNextMonth(this.endDate, true),
           -1
         );
         break;
       case "4":
         dateUtil.rewindToSeasonFirst(this.beginDate);
+        this.endDate = (this.endDate !== null)?this.endDate:dateUtil.clone(this.beginDate);
         this.endDate = dateUtil.addDay(
-          dateUtil.switchToNextSeason(dateUtil.clone(this.beginDate), true),
+          dateUtil.switchToNextSeason(this.endDate, true),
           -1
         );
         break;
       case "5":
         dateUtil.rewindToYearFirst(this.beginDate);
+        this.endDate = (this.endDate !== null)?this.endDate:dateUtil.clone(this.beginDate);
         this.endDate = dateUtil.addDay(
-          dateUtil.switchToNextYear(dateUtil.clone(this.beginDate), true),
+          dateUtil.switchToNextYear(this.endDate, true),
           -1
         );
         break;
       case "6":
         dateUtil.rewindToDecadeFirst(this.beginDate);
+        this.endDate = (this.endDate !== null)?this.endDate:dateUtil.clone(this.beginDate);
         this.endDate = dateUtil.addDay(
-          dateUtil.switchToNextDecade(dateUtil.clone(this.beginDate), true),
+          dateUtil.switchToNextDecade(this.endDate, true),
           -1
         );
         break;
       case "7":
         dateUtil.rewindToCenturyFirst(this.beginDate);
+        this.endDate = (this.endDate !== null)?this.endDate:dateUtil.clone(this.beginDate);
         this.endDate = dateUtil.addDay(
-          dateUtil.switchToNextCentury(dateUtil.clone(this.beginDate), true),
+          dateUtil.switchToNextCentury(this.endDate, true),
           -1
         );
         break;
       case "8":
         dateUtil.rewindToMillenniumFirst(this.beginDate);
+        this.endDate = (this.endDate !== null)?this.endDate:dateUtil.clone(this.beginDate);
         this.endDate = dateUtil.addDay(
-          dateUtil.switchToNextMillennium(dateUtil.clone(this.beginDate), true),
+          dateUtil.switchToNextMillennium(this.endDate, true),
           -1
         );
         break;
@@ -406,8 +429,88 @@ let _prototype = {
         trans.FORMAT_MILLENNIUM_LABEL +
         (BC ? " " + trans.FORMAT_BC_LABEL : "");
     }
+
+    if(this.type !== "2"){
+        const endLabel = this.__getEndLabel();
+        if(endLabel !== label) label = label+'~' + endLabel;
+    }
+
     return label;
-  }
+
+
+  },
+    /**
+     * @doc : private function to get endDate label, for use of the public getLabel function
+     * @returns {string}
+     */
+    __getEndLabel() {
+        let formatter = _formatters[this.type];
+        let pieces = [];
+        let label = formatter(this.endDate, pieces);
+        let BC;
+
+        // specific code for rendering
+        if (this.type === "2") {
+            let endPieces = [];
+            formatter(this.endDate, endPieces);
+            let totalLabel = "";
+            for (var index = 4; index > -1; index--) {
+                if (pieces[index] === endPieces[index]) {
+                    totalLabel = pieces[index] + totalLabel;
+                } else {
+                    index++;
+                    break;
+                }
+            }
+            let preBeginLabel = "",
+                preEndLabel = "";
+            for (let index2 = 0; index2 < index; index2++) {
+                preBeginLabel += pieces[index2];
+                preEndLabel += endPieces[index2];
+            }
+            if (preBeginLabel !== "") {
+                totalLabel = preBeginLabel + "~" + preEndLabel + totalLabel;
+            }
+            label = totalLabel;
+        } else if (this.type === "1") {
+            pieces[
+            trans.PARSING_PLACEMENT["1"].DAY - 1
+                ] += trans.FORMAT_DAY_NUMBER_SUFFIX(trans.PARSING_PLACEMENT["1"].DAY - 1);
+            label = pieces.join("");
+        } else if (
+            this.type === "4" &&
+            pieces[0].toUpperCase() === trans.SEASON_NAMES[0]
+        ) {
+            pieces[pieces.length - 1] =
+                pieces[pieces.length - 1] +
+                (Number(pieces[pieces.length - 1]) >= -1 ? "-" : "") +
+                (Number(pieces[pieces.length - 1]) + 1);
+            label = pieces.join("");
+        } else if (this.type === "6") {
+            label = trans.FORMAT_DECADE_LABEL + " " + label;
+        } else if (this.type === "7") {
+            let century = Math.floor(Number(label) / 100);
+            BC = century < 0;
+            let absoluteCentury = BC ? Math.abs(century) : century + 1;
+            label =
+                cmn.convertArabicToRoman(absoluteCentury) +
+                trans.FORMAT_CENTURY_NUMBER_SUFFIX(absoluteCentury + "") +
+                " " +
+                trans.FORMAT_CENTURY_LABEL +
+                (BC ? " " + trans.FORMAT_BC_LABEL : "");
+        } else if (this.type === "8") {
+            let millennium = Math.floor(Number(label) / 1000);
+            BC = millennium < 0;
+            let absoluteMillennium = BC ? Math.abs(millennium) : millennium + 1;
+            label =
+                cmn.convertArabicToRoman(absoluteMillennium) +
+                trans.FORMAT_CENTURY_NUMBER_SUFFIX(absoluteMillennium + "") +
+                " " +
+                trans.FORMAT_MILLENNIUM_LABEL +
+                (BC ? " " + trans.FORMAT_BC_LABEL : "");
+        }
+        return label;
+    }
 };
 
 Object.assign(HDate.prototype, _prototype);

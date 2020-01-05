@@ -45,16 +45,16 @@ class ArticleContentEditor extends React.Component
     constructor(props)
     {
         super(props);
-        this.toggleModal = this.toggleModal.bind(this);
-        this.handleHBPluginOpen = this.handleHBPluginOpen.bind(this);
-        this.handleHBPluginSave = this.handleHBPluginSave.bind(this);
-        this.handleHBPluginClose = this.handleHBPluginClose.bind(this);
+
+        this.activeHBWidget=false;
+        this.enableHBWidget=this.enableHBWidget.bind(this);
+        this.disableHBWidget=this.disableHBWidget.bind(this);
+
         //console.clear();
         console.log('Article content editor instanciation');
         console.log(props);
 
         this.state = {
-            showModal:null
         };
 
         this.editor = null;
@@ -64,52 +64,27 @@ class ArticleContentEditor extends React.Component
         this.componentUid = require("uuid/v4")();
     }
 
-    toggleModal(modal){
-        if(this.state.showModal === modal) this.setState({showModal:null});
-        else this.setState({showModal:modal});
-    }
-
-    /**
-     * when one of dedicated plugin is called the plugin access this function
-     * */
-    handleHBPluginOpen(modal,callback){
-
-        console.log("open hbPlugin",modal);
-
-        this.pluginCallback = callback;
-        this.setState({showModal:modal});
-
-    }
-
-    handleHBPluginSave(value){
-
-        console.log('HB plugin save',value);
-        this.pluginCallback(`hb-article-content-editor-${this.state.showModal}-${UUID()}`,value);
-
-
-
-        this.pluginCallback = null;
-        this.setState({showModal:null})
-
-
-    }
-
-    handleHBPluginClose(){
-        console.log("close hbPlugin");
-
-
-        this.pluginCallback = null;
-        this.setState({showModal:null})
-
-
-    }
-
     componentDidMount()
     {
-        console.log('jQuery ?',$);
-        //console.clear();
-        //console.log('Article content editor didmount');
-        //console.log(this.props);
+        window.addEventListener("hb.content-editor-widget.enable", this.enableHBWidget);
+        window.addEventListener("hb.content-editor-widget.disable", this.disableHBWidget);
+    }
+
+    componentWillUnmount(){
+        window.removeEventListener("hb.content-editor-widget.enable", this.enableHBWidget);
+        window.removeEventListener("hb.content-editor-widget.disable", this.disableHBWidget);
+    }
+
+    enableHBWidget(){
+        this.activeHBWidget=true;
+    }
+
+    disableHBWidget(){
+        this.activeHBWidget=false;
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return !this.hasFocused;
     }
 
     componentDidUpdate(prevProps)
@@ -125,9 +100,10 @@ class ArticleContentEditor extends React.Component
         }
     }
 
+
+
     render()
     {
-        const {showModal} = this.state;
         const {input} = this.props;
         console.log("render ArticleContentEditor");
 
@@ -153,35 +129,37 @@ class ArticleContentEditor extends React.Component
                     } }
                     onChange={ ( event, editor ) => {
                         this.editor = editor;
-                        /*console.log( 'Change.', editor );
-                        const data = editor.getData();
+                        console.log( 'Change.', event );
+                        if(this.activeHBWidget){
+                            console.log("widget enabled, stop the event");
+                            //event.off();
+                            //event.stop();
+                        }
+                        /*const data = editor.getData();
                         console.log( { event, editor, data } );
                         console.log("editor change",data);
                         console.log(data);*/
                         //input.onChange(data);
                     } }
+                    onUpdate={( event, editor ) => {
+                        this.editor = editor;
+                        console.log('Update.', editor);
+                    }}
                     onBlur={ ( event, editor ) => {
                         this.editor = editor;
-                        console.log( 'Blur.', editor );
+                        console.log( 'editor Blur.', event,editor );
                         const data = editor.getData();
                         input.onBlur(data);
+                        this.hasFocused=false;
                     } }
                     onFocus={ ( event, editor ) => {
                         this.hasFocused = true;
                         this.editor = editor;
-                        console.log( 'Focus.', editor );
+                        console.log( 'editor Focus.', event,editor );
                         input.onFocus(event);
+                        this.hasFocused=true;
                     } }
                 />
-                <NewArticleModal show={showModal===MODALS.NEW_ARTICLE} handleClose={()=>{this.toggleModal(MODALS.NEW_ARTICLE)}}/>
-                <Modal show={showModal===MODALS.TIME_MARKER} onHide={this.handleHBPluginClose}>
-                    <HDatePicker
-                        initialValue={null}
-                        onFocus={()=>{}}
-                        onClose={this.handleHBPluginClose}
-                        onSave={this.handleHBPluginSave}
-                    />
-                </Modal>
             </div>
         )
     }

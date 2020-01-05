@@ -199,8 +199,8 @@ export const analyzeAbstract = createSelector(
 
         const text = article.abstract;
 
-        const regex = /<icon[^>]+id="([^"]+)"[^>]+data-hdate="([^"]+)"[^>]*>[^>]+<\/icon>(.{400})(?!<icon[^>][^>]+data-hdate=")/g;
-
+        //const regex = /<icon[^>]+id="([^"]+)"[^>]+data-hdate="([^"]+)"[^>]*>[^>]+<\/icon>(.{400})(?!<icon[^>][^>]+data-hdate=")/g;
+        const regex = /(<icon[^>]+id="([^"]+)"[^>]+data-hdate="([^"]+)"[^>]*>[^>]+<\/icon>)/g;
         //console.log(text);
         let array = [...text.matchAll(regex)];
         //console.log(array);
@@ -209,9 +209,10 @@ export const analyzeAbstract = createSelector(
 
         const marks = array.map((value)=>{
             const index = value['index'];
-            const id = value[1];
-            const hDateKey = value[2].replace(/&quot;/gi,'"');
-            const html = value[3];
+            const id = value[2];
+            const hDateKey = value[3].replace(/&quot;/gi,'"');
+
+            const html = text.substr(index+value[1].length,400);
             const hDate = HDate.prototype.parseFromJson(hDateKey);
             const duration = hDate.getIntervalSize();
 
@@ -229,7 +230,7 @@ export const analyzeAbstract = createSelector(
         marks.sort((a,b)=>{
             return a.hDate.compare(b.hDate);
         });
-        console.log(marks);
+        console.log('marks : ' ,marks);
         return marks;
     }
 );

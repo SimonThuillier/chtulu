@@ -43,9 +43,8 @@ export default class HDateCommand extends Command {
 		 * @readonly
 		 * @type {module:utils/collection~Collection}
 		 */
-		this.manualDecorators = new Collection();
+		//this.manualDecorators = new Collection();
 
-		this.value=null;
         this.hdate=null;
         this.hDateElement= null;
 	}
@@ -53,11 +52,11 @@ export default class HDateCommand extends Command {
 	/**
 	 * Synchronizes the state of {@link #manualDecorators} with the currently present elements in the model.
 	 */
-	restoreManualDecoratorStates() {
-		for ( const manualDecorator of this.manualDecorators ) {
-			manualDecorator.value = this._getDecoratorStateFromModel( manualDecorator.id );
-		}
-	}
+	// restoreManualDecoratorStates() {
+	// 	for ( const manualDecorator of this.manualDecorators ) {
+	// 		manualDecorator.value = this._getDecoratorStateFromModel( manualDecorator.id );
+	// 	}
+	// }
 
 	/**
 	 * @inheritDoc
@@ -76,15 +75,8 @@ export default class HDateCommand extends Command {
             if(!!this.hDateElement)this.hdate = HDate.prototype.parseFromJson(this.hDateElement.getAttribute('data-hdate'));
         }
 
-		console.log('hdatecommand refresh',this.value);
-
-		this.value = doc.selection.getAttribute( 'linkHref' );
-
-		for ( const manualDecorator of this.manualDecorators ) {
-			manualDecorator.value = this._getDecoratorStateFromModel( manualDecorator.id );
-		}
-
-		this.isEnabled = model.schema.checkAttributeInSelection( doc.selection, 'linkHref' );
+		console.log('hdatecommand refresh',this.hdate);
+        this.isEnabled=true;
 	}
 
 	/**
@@ -141,8 +133,6 @@ export default class HDateCommand extends Command {
 	 *		} );
 	 *
 	 * **Note**: If the decorator attribute name is not specified, its state remains untouched.
-	 *
-	 * **Note**: {@link module:link/unlinkcommand~UnlinkCommand#execute `UnlinkCommand#execute()`} removes all
 	 * decorator attributes.
 	 *
 	 * @fires execute
@@ -159,13 +149,13 @@ export default class HDateCommand extends Command {
 		const truthyManualDecorators = [];
 		const falsyManualDecorators = [];
 
-		for ( const name in manualDecoratorIds ) {
+		/*for ( const name in manualDecoratorIds ) {
 			if ( manualDecoratorIds[ name ] ) {
 				truthyManualDecorators.push( name );
 			} else {
 				falsyManualDecorators.push( name );
 			}
-		}
+		}*/
 
 		model.change( writer => {
             console.log('hdate command is called !',hdate);
@@ -175,7 +165,7 @@ export default class HDateCommand extends Command {
             //If selection is collapsed and contains TimeMarker update it
             if (!!this.hDateElement) {
 
-                getHDateRange(this.hDateElement);
+                //getHDateRange(this.hDateElement);
                 const view = this.editor.editing.view;
                 //const hDateRange =model.createRange(selection.getFirstPosition(),model.createPositionAt(this.hDateElement,'after'));
 
@@ -183,27 +173,7 @@ export default class HDateCommand extends Command {
                 newAttributes['data-hdate'] = JSON.stringify(hdate);
                 newAttributes['title'] = hdate.getLabel();
 
-                writer.setAttributes(newAttributes,selection.getFirstPosition().nodeAfter);
-
-                this.hDateElement = null;
-                this.hdate = null;
-
-
-                //const linkRange = findLinkRange( lastPosition, selection.getAttribute( 'linkHref' ), model );
-                //
-                // 		writer.setAttribute( 'linkHref', href, linkRange );
-                //
-                // 		truthyManualDecorators.forEach( item => {
-                // 			writer.setAttribute( item, true, linkRange );
-                // 		} );
-                //
-                // 		falsyManualDecorators.forEach( item => {
-                // 			writer.removeAttribute( item, linkRange );
-                // 		} );
-                //
-                // 		// Create new range wrapping changed link.
-                // 		writer.setSelection( linkRange );
-
+                writer.setAttributes(newAttributes,firstPosition.nodeAfter);
             }
             else{
                 const key = `hb-article-content-editor-${MODALS.TIME_MARKER}-${UUID()}`;
@@ -214,72 +184,13 @@ export default class HDateCommand extends Command {
                         data_HDate:JSON.stringify(hdate)
                     });
                 model.insertContent(hDateElement, firstPosition,'before');
+                // Create new range wrapping created node.
+                writer.setSelection( writer.createRangeOn( hDateElement ) );
             }
 
-
-
-
-
-
-			// If selection is collapsed then update selected link or insert new one at the place of caret.
-			// if ( selection.isCollapsed ) {
-			// 	const position = selection.getFirstPosition();
-            //
-			// 	// When selection is inside text with `linkHref` attribute.
-			// 	if ( selection.hasAttribute( 'linkHref' ) ) {
-			// 		// Then update `linkHref` value.
-			// 		const linkRange = findLinkRange( position, selection.getAttribute( 'linkHref' ), model );
-            //
-			// 		writer.setAttribute( 'linkHref', href, linkRange );
-            //
-			// 		truthyManualDecorators.forEach( item => {
-			// 			writer.setAttribute( item, true, linkRange );
-			// 		} );
-            //
-			// 		falsyManualDecorators.forEach( item => {
-			// 			writer.removeAttribute( item, linkRange );
-			// 		} );
-            //
-			// 		// Create new range wrapping changed link.
-			// 		writer.setSelection( linkRange );
-			// 	}
-			// 	// If not then insert text node with `linkHref` attribute in place of caret.
-			// 	// However, since selection in collapsed, attribute value will be used as data for text node.
-			// 	// So, if `href` is empty, do not create text node.
-			// 	else if ( href !== '' ) {
-			// 		const attributes = toMap( selection.getAttributes() );
-            //
-			// 		attributes.set( 'linkHref', href );
-            //
-			// 		truthyManualDecorators.forEach( item => {
-			// 			attributes.set( item, true );
-			// 		} );
-            //
-			// 		const node = writer.createText( href, attributes );
-            //
-			// 		model.insertContent( node, position );
-            //
-			// 		// Create new range wrapping created node.
-			// 		writer.setSelection( writer.createRangeOn( node ) );
-			// 	}
-			// }
-			// else {
-			// 	// If selection has non-collapsed ranges, we change attribute on nodes inside those ranges
-			// 	// omitting nodes where `linkHref` attribute is disallowed.
-			// 	const ranges = model.schema.getValidRanges( selection.getRanges(), 'linkHref' );
-            //
-			// 	for ( const range of ranges ) {
-			// 		writer.setAttribute( 'linkHref', href, range );
-            //
-			// 		truthyManualDecorators.forEach( item => {
-			// 			writer.setAttribute( item, true, range );
-			// 		} );
-            //
-			// 		falsyManualDecorators.forEach( item => {
-			// 			writer.removeAttribute( item, range );
-			// 		} );
-			// 	}
-			// }
+            /*this.hDateElement = null;
+            this.hdate = null;
+            this.isEnabled=false;*/
 		} );
 	}
 

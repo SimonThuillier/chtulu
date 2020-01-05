@@ -116,8 +116,10 @@ class HDatePicker extends Component {
             this.setState({
                 value:hdate,
                 currentType:hdate.type,
-                currentInput:hdate.getCanonicalInput()
+                currentInput:hdate.getCanonicalInput(),
+                errors: []
             });
+
         }
     }
 
@@ -157,57 +159,58 @@ class HDatePicker extends Component {
         }
         //console.log("2");
         let date = null;
-        if (currentType === "2") {
-            const regex = new RegExp("^([^;]+);([^;]+)$");
-            let regexArray = regex.exec(currentInput);
-            if (regexArray === null) {
+        let endDate = null;
+        const compoundRegex = new RegExp("^([^;]+);([^;]+)$");
+        let regexArray = compoundRegex.exec(currentInput);
+
+        if(regexArray !== null){
+            date = _PARSERS[currentType](regexArray[1], errors);
+            endDate = _PARSERS[currentType](regexArray[2], errors);
+        }
+        else{
+            date = _PARSERS[currentType](currentInput, errors);
+            endDate = _PARSERS[currentType](currentInput, errors);
+        }
+
+        if (regexArray !== null && date !== null && endDate !== null) {
+            if (dateUtil.dayDiff(endDate, date) < 1) {
+                errors.push(
+                    "Si indiquée votre date de fin doit être strictement posterieure à la date de début"
+                );
                 this.setState({
                     currentInput: currentInput,
                     value: null,
-                    errors: errors.push(trans.PARSING_ERRORS[5])
-                });
-                return;
-            }
-            console.log(`3 ${regexArray[1]} , ${regexArray[2]}`);
-            console.log(_PARSERS["1"]);
-            console.log(_PARSERS["1"](new Date()));
-            date = _PARSERS["1"](regexArray[1], errors);
-            console.log(date);
-            let endDate = _PARSERS["1"](regexArray[2], errors);
-            console.log(endDate);
-            console.log("4");
-            if (date !== null && endDate !== null) {
-                if (dateUtil.dayDiff(endDate, date) < 1) {
-                    errors.push(
-                        "La date de fin doit être strictement posterieure à la date de début"
-                    );
-                    this.setState({
-                        currentInput: currentInput,
-                        value: null,
-                        errors: errors
-                    });
-                    console.log(errors);
-                    return;
-                }
-                console.log(`5`);
-                this.setState({
-                    currentInput: currentInput,
-                    value: errors.length < 1 ? new HDate("2", date, endDate) : null,
                     errors: errors
                 });
+                console.log(errors);
                 return;
             }
-        } else {
-            date = _PARSERS[currentType](currentInput, errors);
-            //console.log(date);
-
+            console.log(`5`);
             this.setState({
                 currentInput: currentInput,
-                value: errors.length < 1 ? new HDate(currentType, date) : null,
+                value: errors.length < 1 ? new HDate(currentType, date, endDate) : null,
                 errors: errors
             });
             return;
         }
+
+        this.setState({
+            currentInput: currentInput,
+            value: errors.length < 1 ? new HDate(currentType, date, endDate) : null,
+            errors: errors
+        });
+
+        // else {
+        //     date = _PARSERS[currentType](currentInput, errors);
+        //     //console.log(date);
+        //
+        //     this.setState({
+        //         currentInput: currentInput,
+        //         value: errors.length < 1 ? new HDate(currentType, date) : null,
+        //         errors: errors
+        //     });
+        //     return;
+        // }
     }
 
     onChange(e) {
@@ -244,96 +247,111 @@ class HDatePicker extends Component {
                 <Panel.Body>
                     <div>
 
-                    <Form horizontal>
-                        <FormGroup controlId="formControlsSelect">
-                            <Col sm={3}>
-                                <ControlLabel>Type</ControlLabel>
-                            </Col>
-                            <Col sm={9}>
-                                <FormControl
-                                    componentClass="select"
-                                    placeholder="select"
-                                    onChange={this.onTypeChange}
-                                    value={this.state.currentType}
-                                >
-                                    {options}
-                                </FormControl>
-                            </Col>
-                        </FormGroup>
-                        <HelpBlock>{trans.PARSING_HELP[this.state.currentType]}</HelpBlock>
-                        <FormGroup
-                            controlId="formBasicText"
-                            validationState={this.isValid() ? "success" : "error"}
-                        >
-                            <Col sm={3}>
-                                <ControlLabel>Date</ControlLabel>
-                            </Col>
-                            <Col sm={9}>
-                                <FormControl
-                                    componentClass="input"
-                                    onChange={this.onInputChange}
-                                    autoComplete="off"
-                                    value={this.state.currentInput}
-                                    type="text"
-                                    placeholder="date"
-                                />
-                                <FormControl.Feedback />
-                            </Col>
-                        </FormGroup>
-                    </Form>
-                    {this.isValid() && (
-                        <HelpBlock>
-                            <Row className="show-grid">
-                                <Col xs={3} sm={3} md={3}>
-                                    <strong>Rendu</strong>
+                        <Form horizontal id={(this.props.id||'hdatepicker') + '-form'}>
+                            <FormGroup controlId="formControlsSelect">
+                                <Col sm={3}>
+                                    <ControlLabel>Type</ControlLabel>
                                 </Col>
-                                <Col xs={9} md={9}>
-                                    {this.state.value ? this.state.value.getLabel() : ""}
+                                <Col sm={9}>
+                                    <FormControl
+                                        componentClass="select"
+                                        placeholder="select"
+                                        onChange={this.onTypeChange}
+                                        value={this.state.currentType}
+                                    >
+                                        {options}
+                                    </FormControl>
                                 </Col>
-                            </Row>
-                            <Row className="show-grid">
-                                <Col xs={3} sm={3} md={3}>
-                                    <strong>min;Max</strong>
+                            </FormGroup>
+                            <HelpBlock>{trans.PARSING_HELP[this.state.currentType]}</HelpBlock>
+                            <FormGroup
+                                controlId="formBasicText"
+                                validationState={this.isValid() ? "success" : "error"}
+                            >
+                                <Col sm={3}>
+                                    <ControlLabel>Date</ControlLabel>
                                 </Col>
-                                <Col xs={9} md={9}>
-                                    {this.state.value ? this.state.value.getIntervalLabel() : ""}
+                                <Col sm={9}>
+                                    <FormControl
+                                        id={this.props.id?this.props.id+'-input':null}
+                                        componentClass="input"
+                                        onChange={this.onInputChange}
+                                        autoComplete="off"
+                                        value={this.state.currentInput}
+                                        type="text"
+                                        placeholder="date"
+                                    />
+                                    <FormControl.Feedback />
                                 </Col>
-                            </Row>
-                        </HelpBlock>
-                    )}
-                    {!this.isValid() && (
-                        <Alert bsStyle="danger">
-                            <ul>
-                                {this.state.errors.map(err => (
-                                    <li>{err}</li>
-                                ))}
-                            </ul>
-                        </Alert>
-                    )}
+                            </FormGroup>
+                        </Form>
+                        {this.isValid() && (
+                            <HelpBlock>
+                                <Row className="show-grid">
+                                    <Col xs={3} sm={3} md={3}>
+                                        <strong>Rendu</strong>
+                                    </Col>
+                                    <Col xs={9} md={9}>
+                                        {this.state.value ? this.state.value.getLabel() : ""}
+                                    </Col>
+                                </Row>
+                                <Row className="show-grid">
+                                    <Col xs={3} sm={3} md={3}>
+                                        <strong>min;Max</strong>
+                                    </Col>
+                                    <Col xs={9} md={9}>
+                                        {this.state.value ? this.state.value.getIntervalLabel() : ""}
+                                    </Col>
+                                </Row>
+                            </HelpBlock>
+                        )}
+                        {!this.isValid() && (
+                            <Alert bsStyle="danger">
+                                <ul>
+                                    {this.state.errors.map(err => (
+                                        <li>{err}</li>
+                                    ))}
+                                </ul>
+                            </Alert>
+                        )}
                     </div>
                 </Panel.Body>
                 <Panel.Footer>
                     <Row className="show-grid">
                         <Col xs={6} sm={6} md={6}>
-                            <Button
-                                bsStyle="primary"
+                            <button
+                                type="button"
+                                className={"btn btn-primary"}
                                 disabled={!this.isValid()}
                                 align={"center"}
+                                ref={c=>(this.saveButtonRef=c)}
                                 onClick={() => {
                                     onSave(this.state.value);
+                                    //console.log(this.saveButtonRef.current);
+                                    //this.saveButtonRef.current.focus();
+                                    //document.activeElement.blur();
+                                    //const form = document.getElementById((this.props.id||'hdatepicker') + '-form');
+                                    //form.reset();
+                                    this.hiddenInputRef.focus();
                                     onClose();
                                 }}
                             >
                                 <Glyphicon glyph={this.isValid() ? "ok" : "ban-circle"} />
-                            </Button>
+                            </button>
                         </Col>
                         <Col xs={6} md={6}>
-                            <Button bsStyle="default" align={"center"} onClick={onClose}>
+                            <Button bsStyle="default" align={"center"} onClick={
+                                ()=>{
+                                    this.hiddenInputRef.focus();
+                                    onClose();
+                                }
+                            }>
                                 <Glyphicon glyph="off" />
                             </Button>
                         </Col>
                     </Row>
                 </Panel.Footer>
+                <input ref={c=>(this.hiddenInputRef=c)} style={{visibility:'hidden'}}/>
             </Panel>
         );
     }

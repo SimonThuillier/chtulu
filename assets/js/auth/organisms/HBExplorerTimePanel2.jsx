@@ -38,6 +38,9 @@ const animationParams = {
     exitingDuration: 400 // real ms,
 };
 
+const markerStartY=50;
+const markerDeltaY=35;
+
 
 const HistoProxy = (function() {
     const yGenerator = cmn.getIdGenerator(10,5);
@@ -330,16 +333,40 @@ class HBExplorerTimePanel2 extends React.Component {
     }
 
     updateHInterval() {
-        const { hInterval, bounds } = this.props;
+        const { hInterval, bounds,mainArticleId,getArticles } = this.props;
+
+        const mainArticle = getArticles(mainArticleId);
 
         const currentTime = new Date().getTime();
         const timeScale = this.getTimeScale(hInterval, bounds);
-        /*console.log("update timeScale");
-        console.log(timeScale(new Date()));*/
+        const stateToUpdate = {timeScale: timeScale};
 
-        this.setState({ timeScale: timeScale });
+        //this.manageCollisions();
+        console.log(`new originY : ${!this.state.isMovingPanel && !!mainArticle}`);
+        // if the timeUpdate is due to exterior command we autoUpdate the Y according to the time markers
+        if(!this.state.isMovingPanel && !!mainArticle){
+            /*const rawMarkers = analyzeAbstract(mainArticle);
+            let markerY = markerStartY-markerDeltaY;
+            let originY = -1;
+
+            for (const {hDate} of rawMarkers) {
+                if(hInterval.intersects(hDate)){
+                    originY = markerY;
+                    break;
+                }
+                markerY = markerY + markerDeltaY;
+            }
+            if(originY<0){
+                originY = markerY;
+            }
+            stateToUpdate.originY = originY-5;*/
+            //console.log(`new originY : ${originY}`);
+
+            stateToUpdate.originY = markerStartY-markerDeltaY-15;
+        }
+
+        this.setState(stateToUpdate);
         this.runAnimationIfNeeded(timeScale);
-        this.manageCollisions();
     }
 
     onPanelMoveBegin(e) {
@@ -560,13 +587,13 @@ class HBExplorerTimePanel2 extends React.Component {
     }
 
     onDblClick(e){
-        const {addArticle,bounds} = this.props;
+        /*const {addArticle,bounds} = this.props;
         //console.log(bounds);
         const position = { x: e.clientX, y: e.clientY };
         const addDate = this.state.timeScale.invert(
             position.x-bounds.x
         );
-        addArticle(addDate);
+        addArticle(addDate);*/
         e.preventDefault();
         e.stopPropagation();
     }
@@ -586,7 +613,7 @@ class HBExplorerTimePanel2 extends React.Component {
         const mainArticle = getArticles(mainArticleId);
 
         let markers = [];
-        let markerY = 40;
+        let markerY = markerStartY;
 
         if(!!mainArticle){
             const rawMarkers = analyzeAbstract(mainArticle);
@@ -595,24 +622,28 @@ class HBExplorerTimePanel2 extends React.Component {
 
             rawMarkers.forEach((v)=>{
 
-                console.log(v);
+                //console.log(v);
 
-                markers.push(
-                <HBExplorerPanelMarker
-                    key={`histo-marker-${v.id}`}
-                    selected={false}
-                    onPanelMoveEnd={this.onPanelMoveEnd} // to prevent some panel events when action on an article is performed
-                    hovered={false}
-                    setHoveredArticle={()=>{}}
-                    selectArticle={()=>{}}
-                    cursorDate = {cursorDate}
-                    marker={v}
-                    timeScale={timeScale}
-                    originY={markerY}
-                    addBox={()=>{}}
-                    width={width}
-                />);
-                markerY = markerY + 40;
+                console.log(`hInterval ${hInterval.getLabel()} intersects ${v.hDate.getLabel()} : ${hInterval.intersects(v.hDate)}`);
+
+                if(hInterval.intersects(v.hDate)){
+                    markers.push(
+                        <HBExplorerPanelMarker
+                            key={`histo-marker-${v.id}`}
+                            selected={false}
+                            onPanelMoveEnd={this.onPanelMoveEnd} // to prevent some panel events when action on an article is performed
+                            hovered={false}
+                            setHoveredArticle={()=>{}}
+                            selectArticle={()=>{}}
+                            cursorDate = {cursorDate}
+                            marker={v}
+                            timeScale={timeScale}
+                            originY={markerY-originY}
+                            addBox={()=>{}}
+                            width={width}
+                        />);
+                    markerY = markerY + markerDeltaY;
+                }
             });
         }
 

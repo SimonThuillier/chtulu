@@ -49,11 +49,13 @@ class HBExplorerPanelMarker extends React.Component {
     }
 
     render() {
-        const {marker, timeScale,originY,addBox,selected,width} = this.props;
+        const {marker, timeScale,originY,addBox,selected,width,cursorDate} = this.props;
 
         const {hDate,html} = marker;
 
         const id = 'time-panel-marker-' + marker.id;
+
+        const currentProgression = hDate.getRateOfDate(cursorDate);
 
         const xMargin = 16;
         const {max,min} = Math;
@@ -80,7 +82,7 @@ class HBExplorerPanelMarker extends React.Component {
         let realX = x-xMargin;
         let realEndX = endX;
         let deltaX = realX < 0 ? min(-realX,max(realEndX-realX,1)):0;
-        let viewportWidth = 1000;
+        let viewportWidth = max(1500,realEndX-realX);
         //console.log(viewportWidth);
 
 
@@ -100,7 +102,7 @@ class HBExplorerPanelMarker extends React.Component {
 
 
 
-        const viewportHeight = 50;
+        const viewportHeight = 35;
         const y = 20;
         const component= this;
 
@@ -134,9 +136,11 @@ class HBExplorerPanelMarker extends React.Component {
                    const scrollArea = document.getElementById('hb-test-scroll');
 
                     var scrollAreaCoords = scrollArea.getBoundingClientRect();
+                    var currentScroll = scrollArea.scrollTop;
                     var elementCoords = element.getBoundingClientRect();
-                    console.log(scrollAreaCoords.top,elementCoords.top );
-                    scrollArea.scrollTo(0,elementCoords.top-scrollAreaCoords.top-5 );
+                    console.log(scrollAreaCoords.top,currentScroll,elementCoords.top );
+                    scrollArea.scrollTo(0,currentScroll + (elementCoords.top-scrollAreaCoords.top));
+                    console.log(scrollArea.scrollTop);
 
                 }}
                 ref={node => {
@@ -159,23 +163,27 @@ class HBExplorerPanelMarker extends React.Component {
                 />
                 <foreignObject
                     x={2*xMargin+deltaX}
-                    y={3}
-                    width="1000"
-                    height={viewportHeight}
+                    y={12}
+                    width={viewportWidth-(2*xMargin+deltaX)}
+                    height={viewportHeight-18}
                 >
                     <div id={'time-panel-marker-content-' + marker.id} xmlns="http://www.w3.org/1999/xhtml">
-                        yolo
                     </div>
                 </foreignObject>
-                {/*<text*/}
-                    {/*textAnchor="start"*/}
-                    {/*x={2*xMargin+deltaX}*/}
-                    {/*y={viewportHeight-3}*/}
-                    {/*style={currentTextStyle}*/}
-                    {/*onClick={this.handleOnClick}*/}
-                {/*>*/}
-                    {/*{realTitle}*/}
-                {/*</text>*/}
+                <circle
+                    cx={xMargin + deltaX}//{deltaX + xMargin}
+                    cy={10}
+                    r="8"
+                    fill={`orange`}
+                    onClick={this.handleOnClick}
+                />
+                <ProgressionCircle
+                    key={`histo-article-progcircle-${id}`}
+                    staticRate={0}
+                    rate={currentProgression}
+                    cx={xMargin + deltaX}//{deltaX + xMargin}
+                    cy={10}
+                    r={8}/>
             </svg>
         );
     }
