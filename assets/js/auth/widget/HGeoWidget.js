@@ -1,20 +1,20 @@
 /**
- * define the HDatePicker widget : creates one single instance of the DOM panel
+ * define the HGeoPicker widget : creates one single instance of the DOM panel
  * returns a single widget object allowing fro retrieving the DOM panel element
  * and passing properties to it thanks to a redux container
  */
 
-import {HDatePickerAdapter} from '../hoc/HDatePickerAdapter';
+import {HGeoPickerAdapter} from '../hoc/HGeoPickerAdapter';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
 const windowPadding=15;
 
-
-const id = 'hdate-picker-widget';
-const containerId = 'hdate-picker-widget' + '-container';
+const id = 'hgeo-picker-widget';
+const containerId = 'hgeo-picker-widget' + '-container';
 
 const container = document.createElement("div");
+container.style=Object.assign(container.style,{"z-index":15000});
 container.id = containerId;
 document.getElementById('hb-data').appendChild(container);
 
@@ -22,6 +22,7 @@ const widget = {
     id:id,
     dispatch:null,
     containerRef:null,
+    map:null,
 
     props:function(props){
         if(!this.dispatch){
@@ -47,8 +48,9 @@ const widget = {
         }catch(e){};
         // then create
         ReactDOM.render(
-            React.createElement(HDatePickerAdapter, {
+            React.createElement(HGeoPickerAdapter, {
                 setDispatch:(dispatch)=>{widget.dispatch=dispatch},
+                setMap:(map)=>{this.map=map;},
                 key:widget.id,
                 id:widget.id,
                 initialValue:null,
@@ -73,6 +75,7 @@ const widget = {
         const textElement = document.getElementById(this.id+'-input');
 
         if(! existingElement) return;
+
 
         const style={marginLeft:0,marginTop:0};
         if(existingElement.style){
@@ -101,8 +104,9 @@ const widget = {
         }
 
         this.props({style:style});
+        existingElement.focus();
 
-
+        if(!!this.map) this.map.invalidateSize();
     },
     onClick:function(e){
         //e.stopPropagation();

@@ -8,11 +8,15 @@ require('icheck/skins/square/blue.css');
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 //require('bootstrap-table/dist/bootstrap-table.css');
 require('leaflet/dist/leaflet.css');
+require('leaflet-draw/dist/leaflet.draw.css');
+
+
 require('react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css');
 
 window.jQuery = window.$ = require('jquery');
 window.d3 = require('d3');
 window.L = require('leaflet');
+require('leaflet-draw');
 window.React = require('react');
 window.ReactDOM = require('react-dom');
 require('react-router-dom');

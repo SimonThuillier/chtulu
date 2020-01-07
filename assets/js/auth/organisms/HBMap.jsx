@@ -79,7 +79,7 @@ class HBMap extends React.Component {
     }
 
     onMapDblClick(e){
-        console.log("You dblclicked the map at " + e.latlng);
+        console.log("You dblclicked the map at ",e.latlng);
 
         const {displayedArticles} = this.props;
         displayedArticles.forEach((a,id)=>{
@@ -121,6 +121,7 @@ class HBMap extends React.Component {
             ]
         });
         this.map.on('dblclick',this.onMapDblClick);
+        this.map.on('zoom',()=>{this.map.invalidateSize();});
     }
 
     componentDidUpdate(prevProps){

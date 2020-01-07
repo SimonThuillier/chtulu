@@ -24,15 +24,15 @@ import Heading from '@ckeditor/ckeditor5-heading/src/heading';
 import MediaEmbed from '@ckeditor/ckeditor5-media-embed/src/mediaembed';
 import NewArticle from '../../ckeditor/NewArticlePlugin.js';
 import HDate from '../../ckeditor/ckeditor5-hdate-plugin/src/hdate';
-import HDatePicker from './HDatePicker';
+import HGeo from '../../ckeditor/ckeditor5-hgeo-plugin/src/hgeo';
 
-import {MODALS,getDecoratedEditor} from "../../ckeditor/util";
+import {getDecoratedEditor} from "../../ckeditor/util";
 
 const UUID = require("uuid/v4");
 
 const editorConfiguration = {
-    plugins: [ Essentials, Bold, Italic, Paragraph,Link,Heading,MediaEmbed,NewArticle,HDate ],
-    toolbar: [ 'heading','bold', 'italic','link','mediaEmbed','newArticle','hDate'],
+    plugins: [ Essentials, Bold, Italic, Paragraph,Link,Heading,MediaEmbed,NewArticle,HDate,HGeo ],
+    toolbar: [ 'heading','bold', 'italic','link','mediaEmbed','newArticle','hDate','hGeo'],
     link: {
         addTargetToExternalLinks: true,
     }

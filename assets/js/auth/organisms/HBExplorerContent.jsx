@@ -42,7 +42,7 @@ class HBExplorerContent extends React.Component {
             return (aSelectionDate.getTime() - bSelectionDate.getTime());
         });
 
-        console.log("render content");
+        //console.log("render content");
 
         const articleCards = articlesToDisplay.map(([id,value])=>{
             return (

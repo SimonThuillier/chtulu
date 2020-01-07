@@ -6,16 +6,16 @@ import clickOutsideHandler from '@ckeditor/ckeditor5-ui/src/bindings/clickoutsid
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 
 import { getHDateElement } from './utils';
-import HDateFormView from './ui/hdateformview';
+import HGeoFormView from './ui/hgeoformview';
 
-import HDateIcon from '../theme/icons/hdate.svg';
+import HGeoIcon from '../theme/icons/earth.svg';
 
-const linkKeystroke = 'Ctrl+Alt+H';
+const linkKeystroke = 'Ctrl+Alt+G';
 
 /**
  * The link UI plugin. It binds the HDatePicker widget and supports for the <kbd>Ctrl+ALT+H</kbd> keystroke.
  */
-export default class HDateUI extends Plugin {
+export default class HGeoUI extends Plugin {
     /**
      * @inheritDoc
      */
@@ -27,7 +27,7 @@ export default class HDateUI extends Plugin {
      * @inheritDoc
      */
     static get pluginName() {
-        return 'HDateUI';
+        return 'HGeoUI';
     }
 
     /**
@@ -69,11 +69,11 @@ export default class HDateUI extends Plugin {
      */
     _createFormView() {
         const editor = this.editor;
-        const hdateCommand = editor.commands.get( 'hdate' );
+        const hgeoCommand = editor.commands.get( 'hgeo' );
 
-        const formView = new HDateFormView( editor.locale);
+        const formView = new HGeoFormView( editor.locale);
 
-        formView.bind( 'hdate' ).to( hdateCommand, 'value' );
+        formView.bind( 'hgeo' ).to( hgeoCommand, 'value' );
 
         // Form elements should be read-only when corresponding commands are disabled.
         //formView.to( linkCommand, 'isEnabled', value => !value );
@@ -83,7 +83,7 @@ export default class HDateUI extends Plugin {
         this.listenTo( formView, 'submit', () => {
             //console.log('HDateInput saved !',formView.hDate);
             //window.dispatchEvent(new CustomEvent("hb.content-editor-widget.disable"));
-            editor.execute( 'hdate', formView.hDate);
+            editor.execute( 'hgeo', formView.data);
             this._hideUI();
         } );
 
@@ -109,31 +109,31 @@ export default class HDateUI extends Plugin {
      */
     _createToolbarLinkButton() {
         const editor = this.editor;
-        const hdateCommand = editor.commands.get( 'hdate' );
+        const hgeoCommand = editor.commands.get( 'hgeo' );
         const t = editor.t;
 
         // Handle the `Ctrl+Alt+H` keystroke and show the panel.
         editor.keystrokes.set( linkKeystroke, ( keyEvtData, cancel ) => {
             // Prevent focusing the search bar in FF and opening new tab in Edge. #153, #154.
             cancel();
-            if ( hdateCommand.isEnabled ) {
+            if ( hgeoCommand.isEnabled ) {
                 this._showUI( true );
             }
         } );
 
-        editor.ui.componentFactory.add( 'hdate', locale => {
+        editor.ui.componentFactory.add( 'hgeo', locale => {
             const button = new ButtonView( locale );
 
             button.isEnabled = true;
-            button.label = t( 'HDate' );
-            button.icon = HDateIcon;
+            button.label = t( 'HGeo' );
+            button.icon = HGeoIcon;
             button.keystroke = linkKeystroke;
             button.tooltip = true;
             button.isToggleable = true;
 
             // Bind button to the command.
-            button.bind( 'isEnabled' ).to( hdateCommand, 'isEnabled' );
-            button.bind( 'isOn' ).to( hdateCommand, 'isOn' );
+            button.bind( 'isEnabled' ).to( hgeoCommand, 'isEnabled' );
+            button.bind( 'isOn' ).to( hgeoCommand, 'isOn' );
 
             // Show the panel on button click.
             this.listenTo( button, 'execute', () => this._showUI( true ) );
@@ -236,7 +236,6 @@ export default class HDateUI extends Plugin {
         if(!!hdateCommand.hdate){
             this.formView.widget.props({initialValue:hdateCommand.hdate});
         }
-
         window.dispatchEvent(new CustomEvent('hb.widget.enable'));
         this.formView.widget.show();
     }

@@ -22,7 +22,7 @@ const Bar = styled.div`
   overflow: hidden;
   position: absolute;
   float: left;
-  z-index: 10000;
+  z-index: 1999;
   background: #777;
   opacity: ${({ isResizing }) => getOpacity(isResizing, false)};
   padding: 0px;
@@ -44,16 +44,23 @@ class ResizeBar extends React.Component {
         this.onDrag = this.onDrag.bind(this);
         this.onDragEnd = this.onDragEnd.bind(this);
 
-        this.state = {
-            isResizing: false
+        this.toggleEnabled = this.toggleEnabled.bind(this);
+
+            this.state = {
+            isResizing: false,
+                enabled:true
         };
 
         this.beginMousePosition = null;
     }
 
+    toggleEnabled(){
+        this.setState({enabled:!this.state.enabled});
+    }
+
     toggleResize(){
         this.setState({isResizing:!this.state.isResizing});
-        console.log("toggle resize");
+        //console.log("toggle resize");
     }
 
     onWindowResize(){
@@ -65,10 +72,15 @@ class ResizeBar extends React.Component {
         console.log("create resizebar");
         window.addEventListener('resize', this.onWindowResize);
         this.onWindowResize();
+
+        window.addEventListener('hb.widget.enable', this.toggleEnabled);
+        window.addEventListener('hb.widget.disable', this.toggleEnabled);
     }
 
     componentWillUnmount(){
         window.removeEventListener('resize', this.onWindowResize);
+        window.removeEventListener('hb.widget.enable', this.toggleEnabled);
+        window.removeEventListener('hb.widget.disable', this.toggleEnabled);
     }
 
     onDragBegin(e) {
@@ -123,12 +135,12 @@ class ResizeBar extends React.Component {
             document.getElementById("main-sidebar").getBoundingClientRect().width:0;
 
 
-        const { isResizing } = this.state;
+        const { isResizing,enabled } = this.state;
         const { placementType} = this.props;
 
         // console.log(sidebarWidth);
 
-        let style = {};
+        let style = enabled?{}:{"pointerEvents": "none"};
         Object.assign(style, this.props.style || {});
         style[placementType] = style[placementType] - getThickness(isResizing) / 2;
 

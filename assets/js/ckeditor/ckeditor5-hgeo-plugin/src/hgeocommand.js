@@ -26,15 +26,15 @@ export default class HDateCommand extends Command {
         this.hDateElement= null;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	refresh() {
+    /**
+     * @inheritDoc
+     */
+    refresh() {
         const view = this.editor.editing.view;
         const selection = view.document.selection;
 
-		this.hDateElement=null;
-		this.hdate=null;
+        this.hDateElement=null;
+        this.hdate=null;
         this.isEnabled=true;
         this.isOn=false;
         if ( selection.isCollapsed ) {
@@ -48,9 +48,9 @@ export default class HDateCommand extends Command {
 
         }
 
-		//console.log('hdatecommand refresh',this.hdate);
+        //console.log('hdatecommand refresh',this.hdate);
 
-	}
+    }
 
 	/**
 	 * Executes the command.
