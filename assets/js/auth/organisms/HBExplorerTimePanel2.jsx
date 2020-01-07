@@ -624,7 +624,7 @@ class HBExplorerTimePanel2 extends React.Component {
 
                 //console.log(v);
 
-                console.log(`hInterval ${hInterval.getLabel()} intersects ${v.hDate.getLabel()} : ${hInterval.intersects(v.hDate)}`);
+                //console.log(`hInterval ${hInterval.getLabel()} intersects ${v.hDate.getLabel()} : ${hInterval.intersects(v.hDate)}`);
 
                 if(hInterval.intersects(v.hDate)){
                     markers.push(

@@ -1,28 +1,13 @@
-/**
- * @license Copyright (c) 2003-2019, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
- */
-
-/**
- * @module link/linkediting
- */
 
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import HDateCommand from './hdatecommand';
-import '../theme/link.css';
-
-const HIGHLIGHT_CLASS = 'ck-link_selected';
-const DECORATOR_AUTOMATIC = 'automatic';
-const DECORATOR_MANUAL = 'manual';
-const EXTERNAL_LINKS_REGEXP = /^(https?:)?\/\//;
 
 /**
- * The link engine feature.
+ * The HDate engine feature.
  *
- * It introduces the `linkHref="url"` attribute in the model which renders to the view as a `<a href="url">` element
- * as well as `'link'` and `'unlink'` commands.
- *
- * @extends module:core/plugin~Plugin
+ * It introduces the `data_HDate="[HDate json serialization]"` attribute in the model which renders to the view
+ * as a `<icon data_HDate="[HDate json serialization]">` element
+ * as well as `'hdate'` command.
  */
 export default class HDateEditing extends Plugin {
 	/**
@@ -37,10 +22,6 @@ export default class HDateEditing extends Plugin {
 	 */
 	constructor( editor ) {
 		super( editor );
-
-		/*editor.config.define( 'link', {
-			addTargetToExternalLinks: false
-		} );*/
 	}
 
 	/**
@@ -52,7 +33,6 @@ export default class HDateEditing extends Plugin {
 
         editor.model.schema.register( 'TimeMarker', {
                 allowIn:"$block",
-                // allowAttributes: ['data-test'] ,
                 allowContentOf: [],
                 allowAttributes:['id','data_HDate','title'],
                 inheritTypesFrom: '$block'
@@ -110,7 +90,7 @@ export default class HDateEditing extends Plugin {
             }
         );
 
-		// Create linking commands.
+		// Create hdate command.
 		editor.commands.add( 'hdate', new HDateCommand( editor ) );
 	}
 }

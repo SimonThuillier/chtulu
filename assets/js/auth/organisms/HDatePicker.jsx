@@ -247,7 +247,7 @@ class HDatePicker extends Component {
                 <Panel.Body>
                     <div>
 
-                        <Form horizontal id={(this.props.id||'hdatepicker') + '-form'}>
+                        <Form horizontal>
                             <FormGroup controlId="formControlsSelect">
                                 <Col sm={3}>
                                     <ControlLabel>Type</ControlLabel>
@@ -324,15 +324,8 @@ class HDatePicker extends Component {
                                 className={"btn btn-primary"}
                                 disabled={!this.isValid()}
                                 align={"center"}
-                                ref={c=>(this.saveButtonRef=c)}
                                 onClick={() => {
                                     onSave(this.state.value);
-                                    //console.log(this.saveButtonRef.current);
-                                    //this.saveButtonRef.current.focus();
-                                    //document.activeElement.blur();
-                                    //const form = document.getElementById((this.props.id||'hdatepicker') + '-form');
-                                    //form.reset();
-                                    this.hiddenInputRef.focus();
                                     onClose();
                                 }}
                             >
@@ -340,18 +333,12 @@ class HDatePicker extends Component {
                             </button>
                         </Col>
                         <Col xs={6} md={6}>
-                            <Button bsStyle="default" align={"center"} onClick={
-                                ()=>{
-                                    this.hiddenInputRef.focus();
-                                    onClose();
-                                }
-                            }>
+                            <Button bsStyle="default" align={"center"} onClick={onClose}>
                                 <Glyphicon glyph="off" />
                             </Button>
                         </Col>
                     </Row>
                 </Panel.Footer>
-                <input ref={c=>(this.hiddenInputRef=c)} style={{visibility:'hidden'}}/>
             </Panel>
         );
     }

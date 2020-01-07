@@ -8,25 +8,9 @@
  */
 
 import View from '@ckeditor/ckeditor5-ui/src/view';
-import ViewCollection from '@ckeditor/ckeditor5-ui/src/viewcollection';
 
-import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
-import SwitchButtonView from '@ckeditor/ckeditor5-ui/src/button/switchbuttonview';
-import LabeledInputView from '@ckeditor/ckeditor5-ui/src/labeledinput/labeledinputview';
-import InputTextView from '@ckeditor/ckeditor5-ui/src/inputtext/inputtextview';
-
-import submitHandler from '@ckeditor/ckeditor5-ui/src/bindings/submithandler';
 import FocusTracker from '@ckeditor/ckeditor5-utils/src/focustracker';
-import FocusCycler from '@ckeditor/ckeditor5-ui/src/focuscycler';
 import KeystrokeHandler from '@ckeditor/ckeditor5-utils/src/keystrokehandler';
-
-import checkIcon from '@ckeditor/ckeditor5-core/theme/icons/check.svg';
-import cancelIcon from '@ckeditor/ckeditor5-core/theme/icons/cancel.svg';
-import '../../theme/linkform.css';
-
-import {HDatePickerAdapter,setProp,INITIAL_VALUE_KEY} from '../../../../auth/hoc/HDatePickerAdapter';
-import React from 'react';
-import ReactDOM from 'react-dom';
 
 import HDateWidget from '../../../../auth/widget/HDateWidget';
 
@@ -49,13 +33,14 @@ export default class HDateFormView extends View {
      */
     constructor(locale, manualDecorators = []) {
         super(locale);
-        const t = locale.t;
+        //const t = locale.t;
 
         this.widget = HDateWidget;
 
         this.onSave = this.onSave.bind(this);
-        this.hDate = null;
         this.onCancel = this.onCancel.bind(this);
+
+        this.hDate = null;
 
         /**
          * Tracks information about DOM focus in the form.
@@ -85,10 +70,7 @@ export default class HDateFormView extends View {
                 // https://github.com/ckeditor/ckeditor5-link/issues/90
                 tabindex: '-1'
             },
-
             children: [this.widget.getDOMElement()]
-
-            //this.children
         });
     }
 
@@ -129,12 +111,5 @@ export default class HDateFormView extends View {
         console.log("render widget");
         super.render();
         this._bindWidget();
-
-        /*submitHandler({
-            view: this
-        });*/
-
-        // Start listening for the keystrokes coming from #element.
-        //this.keystrokes.listenTo(this.element);
     }
 }

@@ -1,3 +1,9 @@
+/**
+ * define the HDatePicker widget : creates one single instance of the DOM panel
+ * returns a single widget object allowing fro retrieving the DOM panel element
+ * and passing properties to it thanks to a redux container
+ */
+
 import {HDatePickerAdapter,setProp,INITIAL_VALUE_KEY} from '../hoc/HDatePickerAdapter';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -17,11 +23,14 @@ const widget = {
 
     props:function(props){
         if(!this.dispatch){
-            console.warn("dispatch is null");
             return;
         }
         this.dispatch({type:'PROPS',props:props});
     },
+    /**
+     * returns the panel DOM element
+     * @returns {HTMLElement}
+     */
     getDOMElement:function(){
         const existingElement = document.getElementById(this.id);
         if(!! existingElement){
@@ -53,6 +62,9 @@ const widget = {
     setContainerRef:function(ref){
         this.containerRef = ref;
     },
+    /**
+     * adjust position of widget to stay inside the page
+     */
     show:function(){
         console.log('widget containerRef',this.containerRef);
         const existingElement = document.getElementById(this.id);
@@ -73,18 +85,8 @@ const widget = {
             this.props({style:{marginLeft:0}});
         }
 
-        //textElement.focus();
-        //existingElement.removeEventListener('mousedown',this.onClick);
-        //existingElement.addEventListener('mousedown',this.onClick);
-
-
+        textElement.focus();
     },
-    hide:function(){
-        const existingElement = document.getElementById(this.id);
-        //if(!! existingElement) container.appendChild(existingElement);
-
-    },
-
     onClick:function(e){
         //e.stopPropagation();
         //e.preventDefault();

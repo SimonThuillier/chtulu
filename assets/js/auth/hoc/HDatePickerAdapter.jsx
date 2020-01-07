@@ -1,3 +1,8 @@
+/**
+ * Adapter to use HDatePicker as a widget using a redux container to dynamically pass and update props
+ */
+
+
 import React, { Component } from "react";
 import HDatePicker from "../organisms/HDatePicker";
 import {createStore,applyMiddleware} from "redux";
@@ -7,7 +12,6 @@ const SET_PROP = 'SET_PROP';
 //const middleware = [ thunk ];
 
 const Imm = require("immutable");
-
 
 
 const reducer = (state=Imm.Map({}), action={}) =>{
@@ -35,27 +39,8 @@ class HDatePickerAdapterComponent extends Component {
         console.log("HDatePickerAdapterComponent build");
     }
 
-    componentDidUpdate(){
-        console.log("HDatePickerAdapter update");
-    }
-
-    componentWillUnmount(){
-        console.log("HDatePickerAdapterComponent unmount");
-    }
-
-
-
-
     render(){
-        console.log('reducer state',this.props);
-
-        /*setDispatch:this.setDispatch,
-            ref:this.pickerRef,
-            id:'hdate-formview-picker',
-            initialValue:null,
-            onFocus:()=>{},
-            onClose:this.onCancel,
-            onSave:this.onSave,*/
+        //console.log('reducer state',this.props);
 
         let {initialValue,onFocus,onClose,onSave,containerProps,setContainerRef,style} = this.props;
 
