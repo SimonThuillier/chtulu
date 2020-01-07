@@ -1,7 +1,7 @@
 import Command from '@ckeditor/ckeditor5-core/src/command';
 
 import {MODALS} from "../../util";
-import {getHDateElement,getHDateRange} from "./utils";
+import {getHDateElement} from "./utils";
 const UUID = require("uuid/v4");
 import HDate from '../../../util/HDate';
 

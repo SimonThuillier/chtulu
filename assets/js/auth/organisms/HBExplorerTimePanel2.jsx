@@ -173,8 +173,6 @@ class HBExplorerTimePanel2 extends React.Component {
                 articleProxies.set(+article.id, new HistoProxy(article, 40));
             });
 
-        console.log(timeScale(new Date()));
-
         this.setState({
             timeScale: timeScale,
             articles: articleProxies
@@ -192,6 +190,8 @@ class HBExplorerTimePanel2 extends React.Component {
 
     getTimeScale(hInterval, bounds) {
         const marginWidth = 0;//this.props.marginWidth ;
+
+        console.log('this.getTimeScale',hInterval, bounds);
 
         return scaleTime()
             .domain([hInterval.beginDate, hInterval.endDate])
@@ -269,42 +269,6 @@ class HBExplorerTimePanel2 extends React.Component {
         const oldBounds = prevProps.bounds;
         const oldHInterval = prevProps.hInterval;
         const { hInterval, bounds, articles,theme } = this.props;
-
-        // liste des articles
-        let articleProxies = null;
-        if (articles !== prevProps.articles) {
-            console.log("diff article dans le panel");
-            console.log(articles);
-            // 1 remove unnecessary references to allow deleted box suppression
-            for(let [id,ref] of this.boxRefs){
-                /*console.log(id);
-                console.log(ref);*/
-                console.log(typeof articles.find((a)=>{return +a.id===+id;}) === 'undefined');
-                if(typeof articles.find((a)=>{return +a.id===+id;}) === 'undefined'){
-                    /*const thisArticleRef = this.boxRefs.get(+id).boxRef;
-                    console.log(thisArticleRef);
-                    if(!!thisArticleRef){
-                        console.log(thisArticleRef);
-
-                    }*/
-                    this.boxRefs.delete(+id);
-                }
-            }
-
-            articleProxies = new Map();
-            (articles || [])
-                .filter(article => {return !!article.beginHDate;})
-                .sort( (a, b) =>{return a.beginHDate.beginDate.getTime() - b.beginHDate.beginDate.getTime();})
-                .forEach(article => {
-                    articleProxies.set(+article.id, this.state.articles.has(+article.id)?
-                        this.state.articles.get(+article.id).setArticle(article):new HistoProxy(article));
-                });
-            this.setState({ articles: articleProxies });
-            this.manageCollisions();
-
-        } else {
-            articleProxies = this.state.articles;
-        }
 
         // le time scale
         let timeScale = null;
@@ -602,10 +566,14 @@ class HBExplorerTimePanel2 extends React.Component {
         const {bounds,getArticles,mainArticleId,hInterval,setHInterval,
             cursorDate,cursorRate,isCursorActive,setCursorRate,timeRecordMode,toggleTimeRecordMode,toggleCursor} = this.props;
 
+
+
         const realArticles = this.props.articles;
         const marginWidth = this.props.marginWidth || 0;
         const strokeSize = 1;
         const { timeScale, articles,originY } = this.state;
+
+        console.log('hInterval,timeScale',hInterval,timeScale);
 
         const width = bounds.width;
         const height = bounds.height;
@@ -615,7 +583,7 @@ class HBExplorerTimePanel2 extends React.Component {
         let markers = [];
         let markerY = markerStartY;
 
-        if(!!mainArticle){
+        if(!!mainArticle && !!timeScale){
             const rawMarkers = analyzeAbstract(mainArticle);
 
 

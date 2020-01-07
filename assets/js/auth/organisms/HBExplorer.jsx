@@ -474,7 +474,7 @@ class HBExplorer extends React.Component {
       L${bounds.width},${bounds.height}
       L0,${bounds.height}
       Z`;
-                            //console.log(path);
+                            console.log('bounds',bounds);
                             //return <p>{path}</p>
 
                             if(mainArticleId!==null){

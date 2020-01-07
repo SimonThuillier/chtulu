@@ -1,12 +1,11 @@
 
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ClickObserver from '@ckeditor/ckeditor5-engine/src/view/observer/clickobserver';
-import { getHDateElement } from './utils';
 import ContextualBalloon from '@ckeditor/ckeditor5-ui/src/panel/balloon/contextualballoon';
-
 import clickOutsideHandler from '@ckeditor/ckeditor5-ui/src/bindings/clickoutsidehandler';
-
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
+
+import { getHDateElement } from './utils';
 import HDateFormView from './ui/hdateformview';
 
 import HDateIcon from '../theme/icons/hdate.svg';
