@@ -7,7 +7,15 @@ require('font-awesome/css/font-awesome.css');
 require('icheck/skins/square/blue.css');
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 //require('bootstrap-table/dist/bootstrap-table.css');
+window.L = require('leaflet');
 require('leaflet/dist/leaflet.css');
+// stupid hack so that leaflet's images work after going through webpack
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: `${window.location.origin}/build/images/marker-icon-2x.png`,
+    iconUrl: `${window.location.origin}/build/images/marker-icon.png`,
+    shadowUrl: `${window.location.origin}/build/images/marker-shadow.png`
+});
 require('leaflet-draw/dist/leaflet.draw.css');
 
 
@@ -15,7 +23,6 @@ require('react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.
 
 window.jQuery = window.$ = require('jquery');
 window.d3 = require('d3');
-window.L = require('leaflet');
 require('leaflet-draw');
 window.React = require('react');
 window.ReactDOM = require('react-dom');

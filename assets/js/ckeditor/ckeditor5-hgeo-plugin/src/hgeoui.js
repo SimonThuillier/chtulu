@@ -5,7 +5,7 @@ import ContextualBalloon from '@ckeditor/ckeditor5-ui/src/panel/balloon/contextu
 import clickOutsideHandler from '@ckeditor/ckeditor5-ui/src/bindings/clickoutsidehandler';
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 
-import { getHDateElement } from './utils';
+import { getHGeoElement } from './utils';
 import HGeoFormView from './ui/hgeoformview';
 
 import HGeoIcon from '../theme/icons/earth.svg';
@@ -73,7 +73,7 @@ export default class HGeoUI extends Plugin {
 
         const formView = new HGeoFormView( editor.locale);
 
-        formView.bind( 'hgeo' ).to( hgeoCommand, 'value' );
+        formView.bind( 'hgeo' ).to( hgeoCommand, 'data' );
 
         // Form elements should be read-only when corresponding commands are disabled.
         //formView.to( linkCommand, 'isEnabled', value => !value );
@@ -153,7 +153,7 @@ export default class HGeoUI extends Plugin {
         // Keep panel open until selection will be inside the same link element.
         this.listenTo( viewDocument, 'click', () => {
             //console.log('editor click');
-            const parentLink = this._getSelectedHDateElement();
+            const parentLink = this._getSelectedHGeoElement();
 
             if ( parentLink ) {
                 //console.log('editor click on hdate, show UI');
@@ -190,16 +190,16 @@ export default class HGeoUI extends Plugin {
     }
 
     /**
-     * Shows the hDateFormView UI
+     * Shows the hGeoFormView UI
      *
      * @param {Boolean} forceVisible
      * @private
      */
     _showUI( forceVisible = false ) {
         const editor = this.editor;
-        const hdateCommand = editor.commands.get( 'hdate' );
+        const hgeoCommand = editor.commands.get( 'hgeo' );
 
-        if ( !hdateCommand.isEnabled ) {
+        if ( !hgeoCommand.isEnabled ) {
             return;
         }
 
@@ -223,8 +223,8 @@ export default class HGeoUI extends Plugin {
         }
 
         const editor = this.editor;
-        const hdateCommand = editor.commands.get( 'hdate' );
-        hdateCommand.refresh();
+        const hgeoCommand = editor.commands.get( 'hgeo' );
+        hgeoCommand.refresh();
 
         //console.log('add form view',hdateCommand.hdate);
 
@@ -233,8 +233,8 @@ export default class HGeoUI extends Plugin {
             position: this._getBalloonPositionData()
         } );
 
-        if(!!hdateCommand.hdate){
-            this.formView.widget.props({initialValue:hdateCommand.hdate});
+        if(!!hgeoCommand.geoData){
+            this.formView.widget.props({initialValue:hgeoCommand.geoData});
         }
         window.dispatchEvent(new CustomEvent('hb.widget.enable'));
         this.formView.widget.show();
@@ -261,7 +261,7 @@ export default class HGeoUI extends Plugin {
     }
 
     /**
-     * Removes the hDateformView} from the _balloon
+     * Removes the hGeoformView} from the _balloon
      * @protected
      */
     _hideUI() {
@@ -297,7 +297,7 @@ export default class HGeoUI extends Plugin {
     }
 
     /**
-     * Returns positioning options for the {HDateFormView_balloon}. They control the way the balloon is attached
+     * Returns positioning options for the {HGeoFormView_balloon}. They control the way the balloon is attached
      * to the target element or selection.
      *
      * the position is the beginning of the selection or juste before the created TimeMarker
@@ -308,7 +308,7 @@ export default class HGeoUI extends Plugin {
     _getBalloonPositionData() {
         const view = this.editor.editing.view;
         const viewDocument = view.document;
-        const targetLink = this._getSelectedHDateElement();
+        const targetLink = this._getSelectedHGeoElement();
 
         const target = targetLink ?
             // When selection is inside link element, then attach panel to this element.
@@ -330,12 +330,12 @@ export default class HGeoUI extends Plugin {
      * @private
      * @returns {module:engine/view/attributeelement~AttributeElement|null}
      */
-    _getSelectedHDateElement() {
+    _getSelectedHGeoElement() {
         const view = this.editor.editing.view;
         const selection = view.document.selection;
 
         if ( selection.isCollapsed ) {
-            return getHDateElement( selection.getFirstPosition() );
+            return getHGeoElement( selection.getFirstPosition() );
         } else {
             return null;
         }

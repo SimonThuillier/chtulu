@@ -23,6 +23,13 @@ Encore
         language: 'fr'
     } ) )
     .addRule( {
+        test: /leaflet[/\\]dist[/\\]images[/\\][^/\\]+(png|svg|jpg|gif)$/,
+        loader: 'file-loader',
+        options: {
+            name:'images/[name].[ext]',
+        }
+    })
+    .addRule( {
     test: /ckeditor5-[^/\\]+[/\\]theme[/\\]icons[/\\][^/\\]+\.svg|assets[/\\]js[/\\]ckeditor[/\\][^/\\]+\.svg$/,
     loader: 'raw-loader'
     })

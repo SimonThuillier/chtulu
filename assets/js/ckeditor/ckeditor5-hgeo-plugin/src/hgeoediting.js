@@ -34,7 +34,7 @@ export default class HGeoEditing extends Plugin {
         editor.model.schema.register( 'GeoMarker', {
                 allowIn:"$block",
                 allowContentOf: [],
-                allowAttributes:['id','data_atomic_position','title'],
+                allowAttributes:['id','data_HGeo','title'],
                 inheritTypesFrom: '$block'
             }
         );
@@ -43,16 +43,25 @@ export default class HGeoEditing extends Plugin {
             model: 'GeoMarker',
             view: {
                 name: 'icon',
-                classes: 'fa fa-geo hb-richtext-marker'
+                classes: 'fa fa-map hb-richtext-marker'
             }
             ,
-            upcastAlso: [
-                'icon',
-                {
-                    classes  : 'fa fa-geo hb-richtext-marker'
-                }
-            ]
+            upcastAlso: {
+                classes:'fa-map'
+            }
         } );
+
+        editor.conversion.attributeToAttribute({
+                model: {
+                    name: 'GeoMarker',
+                    key: 'id'
+                },
+                view: {
+                    name: 'icon',
+                    key: 'id'
+                }
+            }
+        );
 
         editor.conversion.attributeToAttribute({
                 model: {
@@ -68,24 +77,12 @@ export default class HGeoEditing extends Plugin {
 
         editor.conversion.attributeToAttribute({
                 model: {
-                    name: 'TimeMarker',
-                    key: 'id'
+                    name: 'GeoMarker',
+                    key: 'data_HGeo'
                 },
                 view: {
                     name: 'icon',
-                    key: 'id'
-                }
-            }
-        );
-
-        editor.conversion.attributeToAttribute({
-                model: {
-                    name: 'TimeMarker',
-                    key: 'data_atomic_position'
-                },
-                view: {
-                    name: 'icon',
-                    key: 'data-atomic-position'
+                    key: 'data-hgeo'
                 }
             }
         );

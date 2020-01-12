@@ -1,6 +1,5 @@
 import Command from '@ckeditor/ckeditor5-core/src/command';
 
-import {MODALS} from "../../util";
 import {getHDateElement} from "./utils";
 const UUID = require("uuid/v4");
 import HDate from '../../../util/HDate';
@@ -82,7 +81,7 @@ export default class HDateCommand extends Command {
                 writer.setAttributes(newAttributes,firstPosition.nodeAfter);
             }
             else{
-                const key = `hb-article-content-editor-${MODALS.TIME_MARKER}-${UUID()}`;
+                const key = `hb-article-content-editor-TIME_MARKER-${UUID()}`;
                 const hDateElement = writer.createElement( 'TimeMarker',
                     {
                         id:key,

@@ -6,6 +6,7 @@ import HBExplorerTimePanel2 from "./HBExplorerTimePanel2.jsx";
 import HBExplorerTimeMenu from "./HBExplorerTimeMenu.jsx";
 import HBExplorerContent from "./HBExplorerContent.jsx";
 import HBMap from "./HBMap.jsx";
+import HBMap2 from "./HBMap2.jsx";
 
 import cmn from "../../util/common";
 import styled, { ThemeProvider } from "styled-components";
@@ -540,20 +541,37 @@ class HBExplorer extends React.Component {
             </TimeArea>
         );
 
-        const mapArea = (
-            <MapArea ref={this.mapAreaRef}>
-                <HBMap
-                    dispatch={dispatch}
-                    width={this.mapAreaRef.current?this.mapAreaRef.current.getBoundingClientRect().width:100}
-                    height={this.mapAreaRef.current?this.mapAreaRef.current.getBoundingClientRect().height:100}
-                    articles={articles}
-                    hoveredArticleId={hoveredArticleId}
-                    setHoveredArticle={setHoveredArticle}
-                    selectArticle={selectArticle}
-                    displayedArticles={displayedArticles}
-                    isResizing={false}
-                />
-            </MapArea>);
+        let mapArea = null;
+        if(mainArticleId!==null){
+            mapArea = (
+                <MapArea ref={this.mapAreaRef}>
+                    <HBMap2
+                        dispatch={dispatch}
+                        width={this.mapAreaRef.current?this.mapAreaRef.current.getBoundingClientRect().width:100}
+                        height={this.mapAreaRef.current?this.mapAreaRef.current.getBoundingClientRect().height:100}
+                        mainArticleId={mainArticleId}
+                        isResizing={false}
+                    />
+                </MapArea>);
+        }
+        else{
+             mapArea = (
+                <MapArea ref={this.mapAreaRef}>
+                    <HBMap
+                        dispatch={dispatch}
+                        width={this.mapAreaRef.current?this.mapAreaRef.current.getBoundingClientRect().width:100}
+                        height={this.mapAreaRef.current?this.mapAreaRef.current.getBoundingClientRect().height:100}
+                        articles={articles}
+                        hoveredArticleId={hoveredArticleId}
+                        setHoveredArticle={setHoveredArticle}
+                        selectArticle={selectArticle}
+                        displayedArticles={displayedArticles}
+                        isResizing={false}
+                    />
+                </MapArea>);
+        }
+
+
 
         const contentArea = (
             <ContentArea>

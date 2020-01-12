@@ -46,13 +46,20 @@ export default class HDateEditing extends Plugin {
                 classes: 'fa fa-history hb-richtext-marker'
             }
             ,
-            upcastAlso: [
-                'icon',
-                {
-                    classes  : 'fa fa-history hb-richtext-marker'
-                }
-            ]
+            upcastAlso: {
+                //attributes:{'data-hdate':/^.+$/}
+                classes:'fa-history'
+            }
         } );
+
+        // editor.conversion.attributeToElement( {
+        //     model: 'TimeMarker',
+        //     view: 'data-hdate'
+        //     ,
+        //     upcastAlso: [
+        //         {attributes: 'data-hdate'}
+        //     ]
+        // } );
 
         editor.conversion.attributeToAttribute({
                 model: {

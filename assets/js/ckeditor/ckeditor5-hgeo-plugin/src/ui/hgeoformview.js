@@ -31,7 +31,7 @@ export default class HDateFormView extends View {
         this.onSave = this.onSave.bind(this);
         this.onCancel = this.onCancel.bind(this);
 
-        this.hDate = null;
+        this.data = null;
 
         /**
          * Tracks information about DOM focus in the form.
@@ -76,9 +76,9 @@ export default class HDateFormView extends View {
         this.fire('cancel');
     }
 
-    onSave(value) {
-        console.log(value);
-        this.hDate = value;
+    onSave(data) {
+        console.log(data);
+        this.data = data;
         this.fire('submit');
         this.fire('cancel');
     }

@@ -191,9 +191,9 @@ export const AVAILABLE_AREAS = {
     TIME: `TIME`
 };
 
-/** analyze abstract of an article and returns temporal and geographical data from it */
+/** analyze abstract of an article and returns temporal data from it */
 
-export const analyzeAbstract = createSelector(
+export const getTimeDataFromAbstract = createSelector(
     [(article) =>article],
     (article)=> {
 
@@ -231,6 +231,41 @@ export const analyzeAbstract = createSelector(
             return a.hDate.compare(b.hDate);
         });
         console.log('marks : ' ,marks);
+        return marks;
+    }
+);
+
+/** analyze abstract of an article and returns temporal data from it */
+
+export const getGeoDataFromAbstract = createSelector(
+    [(article) =>article],
+    (article)=> {
+
+        const text = article.abstract;
+
+        const regex = /(<icon[^>]+id="([^"]+)"[^>]+data-hgeo="([^"]+)"[^>]*>[^>]+<\/icon>)/g;
+        //console.log(text);
+        let array = [...text.matchAll(regex)];
+        //console.log(array);
+        //console.log(Array.from(array, x => x.index));
+        //console.log(results);
+
+        const marks = array.map((value)=>{
+            const index = value['index'];
+            const id = value[2];
+            const hGeoKey = value[3].replace(/&quot;/gi,'"');
+
+            const html = text.substr(index+value[1].length,400);
+            const hGeo = JSON.parse(hGeoKey);
+
+            return {
+                index:index,
+                id:id,
+                hGeo:hGeo,
+                html:html
+            };
+        });
+
         return marks;
     }
 );

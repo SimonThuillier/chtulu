@@ -1,20 +1,18 @@
 /**
- * Returns the element if a given view node is the HDate element, null if not
+ * Returns the element if a given view node is the HGeo element, null if not
  *
  * @param {module:engine/model/position~Position} position
  * @returns {Element|null}
  */
-export function getHDateElement( position) {
+export function getHGeoElement( position) {
 
-    console.log('is my node HDate ?',position);
+    console.log('is my node HGeo ?',position);
 
     // case at the beginning of paragraph
     try{
-        //console.log('is my node HDate ?',position.parent.childCount);
         if(+position.offset ===0 && !!position.parent.childCount && +position.parent.childCount>0){
             const firstChild = position.parent.getChild(0);
-            //console.log('is my node HDate ?',position.parent.childCount,firstChild);
-            if(firstChild.hasAttribute('data-hdate')){
+            if(firstChild.hasAttribute('data-hgeo')){
                 //console.log('my node is HDate !');
                 return firstChild;
             }
@@ -26,7 +24,7 @@ export function getHDateElement( position) {
     if(!position.parent || !position.parent.nextSibling){
         // case after one containerElement (like another time or geomarker)
         const nodeAfter = position.nodeAfter;
-        if(!!nodeAfter && nodeAfter.hasAttribute('data-hdate')){
+        if(!!nodeAfter && nodeAfter.hasAttribute('data-hgeo')){
             return nodeAfter;
         }
     }
@@ -39,7 +37,7 @@ export function getHDateElement( position) {
 
         //console.log('is my node HDate ?',position.parent,nextSibling,offset,length);
 
-        if(+offset === +length && nextSibling.hasAttribute('data-hdate')){
+        if(+offset === +length && nextSibling.hasAttribute('data-hgeo')){
             //console.log('my node is HDate !');
             return nextSibling;
         }

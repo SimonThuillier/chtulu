@@ -1,18 +1,16 @@
 import Command from '@ckeditor/ckeditor5-core/src/command';
 
-import {MODALS} from "../../util";
-import {getHDateElement} from "./utils";
+import {getHGeoElement} from "./utils";
 const UUID = require("uuid/v4");
-import HDate from '../../../util/HDate';
 
 /**
  * The link command. It is used by the {@link module:link/link~Link link feature}.
  *
  * @extends module:core/command~Command
  */
-export default class HDateCommand extends Command {
+export default class HGeoCommand extends Command {
 	/**
-	 * The value of the `'data_HDate'` attribute if the start of the selection is located in a node with this attribute.
+	 * The value of the `'data_HGeo'` attribute if the start of the selection is located in a node with this attribute.
 	 *
 	 * @observable
 	 * @readonly
@@ -22,8 +20,8 @@ export default class HDateCommand extends Command {
 	constructor( editor ) {
 		super( editor );
 
-        this.hdate=null;
-        this.hDateElement= null;
+        this.geoData=null;
+        this.hGeoElement= null;
 	}
 
     /**
@@ -33,19 +31,18 @@ export default class HDateCommand extends Command {
         const view = this.editor.editing.view;
         const selection = view.document.selection;
 
-        this.hDateElement=null;
-        this.hdate=null;
+        this.hGeoElement=null;
+        this.geoData=null;
         this.isEnabled=true;
         this.isOn=false;
-        if ( selection.isCollapsed ) {
+        if (selection.isCollapsed) {
             //console.log('is my node HDate ? refresh');
-            this.hDateElement = getHDateElement( selection.getFirstPosition() );
-            if(!!this.hDateElement){
-                this.hdate = HDate.prototype.parseFromJson(this.hDateElement.getAttribute('data-hdate'));
+            this.hGeoElement = getHGeoElement( selection.getFirstPosition() );
+            if(!!this.hGeoElement){
+                this.geoData = JSON.parse(this.hGeoElement.getAttribute("data-hgeo"));
                 this.isOn=true;
-                console.log('hdate of hdateElement = ',this.hdate);
+                console.log('geoData of hgeoElement = ',this.geoData);
             }
-
         }
 
         //console.log('hdatecommand refresh',this.hdate);
@@ -55,47 +52,49 @@ export default class HDateCommand extends Command {
 	/**
 	 * Executes the command.
 	 *
-	 * if the element already exists its writer element data_HDate is updated according to the new hdate value
-	 * else a new model element is inserted with data_HDate corresponding to the given hdate
+	 * if the element already exists its writer element data_HGeo is updated according to the new geoData value
+	 * else a new model element is inserted with data_HGeo corresponding to the given geoData
 	 *
 	 * @fires execute
-	 * @param {String} hdate
+	 * @param {String} geoData
 	 * @param {Object} [manualDecoratorIds={}] The information about manual decorator attributes to be applied or removed upon execution.
 	 */
-	execute( hdate, manualDecoratorIds = {} ) {
+	execute( geoData, manualDecoratorIds = {} ) {
 
 		const model = this.editor.model;
 		const selection = model.document.selection;
 
 		model.change( writer => {
-            //console.log('hdate command is called !',hdate);
+            console.log('geo command is called !',geoData);
 
             const firstPosition = selection.getFirstPosition();
 
             //If selection is collapsed and contains TimeMarker update it
-            if (!!this.hDateElement) {
+            if (!!this.hGeoElement) {
 
                 const newAttributes = {};
-                newAttributes['data_HDate'] = JSON.stringify(hdate);
-                newAttributes['title'] = hdate.getLabel();
+
+                newAttributes['data_HGeo'] = JSON.stringify(geoData);
+                newAttributes['title'] = getTitleFromFeatures(newAttributes['data_HGeo']);
 
                 writer.setAttributes(newAttributes,firstPosition.nodeAfter);
             }
             else{
-                const key = `hb-article-content-editor-${MODALS.TIME_MARKER}-${UUID()}`;
-                const hDateElement = writer.createElement( 'TimeMarker',
+                const key = `hb-article-content-editor-GEO_MARKER-${UUID()}`;
+                const geoData = JSON.stringify(geoData);
+                const hGeoElement = writer.createElement( 'GeoMarker',
                     {
                         id:key,
-                        title:hdate.getLabel(),
-                        data_HDate:JSON.stringify(hdate)
+                        title:getTitleFromFeatures(geoData),
+                        data_HGeo:geoData
                     });
-                model.insertContent(hDateElement, firstPosition,'before');
+                model.insertContent(hGeoElement, firstPosition,'before');
                 // Create new range wrapping created node.
-                writer.setSelection( writer.createRangeOn( hDateElement ) );
+                writer.setSelection( writer.createRangeOn( hGeoElement ) );
             }
 
-            this.hDateElement = null;
-            this.hdate = null;
+            this.hGeoElement = null;
+            this.geoData = null;
             this.isEnabled=false;
 		} );
 	}
@@ -112,3 +111,19 @@ export default class HDateCommand extends Command {
 		return doc.selection.getAttribute( decoratorName ) || false;
 	}
 }
+
+function getTitleFromFeatures(features){
+
+    let title = '';
+
+    features.forEach((feature)=>{
+        if (!!feature.properties.title && feature.properties.title===''){
+            title=title+(title.length>0?', ':'')+ feature.properties.title;
+        }
+    });
+
+    if(title.length>50) title=title.substr(0,50)+'...';
+
+    return title;
+
+};

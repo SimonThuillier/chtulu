@@ -12,7 +12,7 @@ import TimeArrow from "./TimeArrow";
 import {connect} from "react-redux";
 import {makeGetOneByIdSelector} from "../../shared/selectors";
 
-import {analyzeAbstract} from '../../util/explorerUtil';
+import {getTimeDataFromAbstract} from '../../util/explorerUtil';
 
 const styles = {
     width: "100%",
@@ -122,7 +122,7 @@ class HBExplorerTimePanel2 extends React.Component {
         console.log(`new originY : ${!this.state.isMovingPanel && !!mainArticle}`);
         // if the timeUpdate is due to exterior command we autoUpdate the Y according to the time markers
         if(!this.state.isMovingPanel && !!mainArticle){
-            /*const rawMarkers = analyzeAbstract(mainArticle);
+            /*const rawMarkers = getTimeDataFromAbstract(mainArticle);
             let markerY = markerStartY-markerDeltaY;
             let originY = -1;
 
@@ -290,7 +290,7 @@ class HBExplorerTimePanel2 extends React.Component {
         let markerY = markerStartY;
 
         if(!!mainArticle && !!timeScale){
-            const rawMarkers = analyzeAbstract(mainArticle);
+            const rawMarkers = getTimeDataFromAbstract(mainArticle);
 
             rawMarkers.forEach((v)=>{
 
