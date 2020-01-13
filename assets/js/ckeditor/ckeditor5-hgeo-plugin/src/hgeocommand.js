@@ -75,18 +75,17 @@ export default class HGeoCommand extends Command {
                 const newAttributes = {};
 
                 newAttributes['data_HGeo'] = JSON.stringify(geoData);
-                newAttributes['title'] = getTitleFromFeatures(newAttributes['data_HGeo']);
+                newAttributes['title'] = getTitleFromFeatures(geoData.drawnItems.features);
 
                 writer.setAttributes(newAttributes,firstPosition.nodeAfter);
             }
             else{
                 const key = `hb-article-content-editor-GEO_MARKER-${UUID()}`;
-                const geoData = JSON.stringify(geoData);
                 const hGeoElement = writer.createElement( 'GeoMarker',
                     {
                         id:key,
-                        title:getTitleFromFeatures(geoData),
-                        data_HGeo:geoData
+                        data_HGeo:JSON.stringify(geoData),
+                        title:getTitleFromFeatures(geoData.drawnItems.features)
                     });
                 model.insertContent(hGeoElement, firstPosition,'before');
                 // Create new range wrapping created node.
@@ -117,7 +116,7 @@ function getTitleFromFeatures(features){
     let title = '';
 
     features.forEach((feature)=>{
-        if (!!feature.properties.title && feature.properties.title===''){
+        if (!!feature.properties.title && feature.properties.title!==''){
             title=title+(title.length>0?', ':'')+ feature.properties.title;
         }
     });

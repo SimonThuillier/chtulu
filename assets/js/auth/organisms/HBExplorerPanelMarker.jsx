@@ -124,24 +124,11 @@ class HBExplorerPanelMarker extends React.Component {
                 onMouseEnter={()=>{}}
                 onMouseLeave={()=>{}}
                 onClick={(e)=>{
-                   e.preventDefault();
-                   e.stopPropagation();
-                   const element = document.getElementById(marker.id);
-                   if(!!element){
-                       console.log(element);
-                       element.focus(new Boolean(false));
-                       element.click();
-                   }
-
-                   const scrollArea = document.getElementById('hb-test-scroll');
-
-                    var scrollAreaCoords = scrollArea.getBoundingClientRect();
-                    var currentScroll = scrollArea.scrollTop;
-                    var elementCoords = element.getBoundingClientRect();
-                    console.log(scrollAreaCoords.top,currentScroll,elementCoords.top );
-                    scrollArea.scrollTo(0,currentScroll + (elementCoords.top-scrollAreaCoords.top));
-                    console.log(scrollArea.scrollTop);
-
+                   //e.preventDefault();
+                   //e.stopPropagation();
+                    const event = new CustomEvent('hb.reader.set.marker');
+                    event.iconId = marker.id;
+                    window.dispatchEvent(event);
                 }}
                 ref={node => {
                     if(node && !component.hasAddedBox){

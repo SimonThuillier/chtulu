@@ -2,11 +2,6 @@ import React from "react";
 import GroupUtil from '../../util/GroupUtil';
 import RImageDetail from '../../shared/atoms/RImageDetail';
 import UserIconLink from '../../shared/molecules/UserIconLink';
-import {
-    Well
-} from 'react-bootstrap';
-import Paragraphs from '../../shared/hoc/Paragraphs';
-import {HB_SUCCESS} from "../../util/server";
 
 
 class SubAbstract extends React.Component
@@ -14,6 +9,7 @@ class SubAbstract extends React.Component
     constructor(props)
     {
         super(props);
+        this._addEventListeners=this._addEventListeners.bind(this);
         this.ref = React.createRef();
     }
 
@@ -21,12 +17,27 @@ class SubAbstract extends React.Component
     {
         const {abstract,linksData,children} = this.props;
         this.ref.current.innerHTML = abstract;
+        this._addEventListeners();
+    }
+
+    _addEventListeners(){
+
+        const markers = document.querySelectorAll(".hb-richtext-marker");
+        markers.forEach((element)=>{
+            element.addEventListener('click',(event)=>{
+                //console.log("article abstract markers=",element,event,element.id);
+                const mapEvent = new CustomEvent('hb.map.set.marker');
+                mapEvent.iconId = element.id;
+                window.dispatchEvent(mapEvent);
+            });
+        });
     }
 
     componentDidUpdate(prevProps)
     {
         if(prevProps.abstract !== this.props.abstract){
             this.ref.current.innerHTML = this.props.abstract;
+            this._addEventListeners();
         }
     }
 

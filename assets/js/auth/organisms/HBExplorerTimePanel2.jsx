@@ -274,10 +274,9 @@ class HBExplorerTimePanel2 extends React.Component {
         const {bounds,getArticles,mainArticleId,hInterval,setHInterval,
             cursorDate,cursorRate,isCursorActive,setCursorRate,timeRecordMode,toggleTimeRecordMode,toggleCursor} = this.props;
 
-        const realArticles = this.props.articles;
         const marginWidth = this.props.marginWidth || 0;
         const strokeSize = 1;
-        const { timeScale, articles,originY } = this.state;
+        const { timeScale, originY } = this.state;
 
         //console.log('hInterval,timeScale',hInterval,timeScale);
 

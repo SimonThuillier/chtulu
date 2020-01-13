@@ -1,12 +1,8 @@
 import React from "react";
-import ReactDOM from "react-dom";
-import RImageMini from '../../shared/atoms/RImageMini';
-import ArticleTitle from '../atoms/ArticleTitle';
-
 import L from "leaflet";
 
 import debounce from "debounce";
-import {articleIsOpen} from "../../util/explorerUtil";
+import { getGeoDataFromAbstract} from "../../util/explorerUtil";
 import {
      makeGetNewlyCreatedIdSelector, makeGetNextNewIdSelector, makeGetOneByIdSelector,
 } from "../../shared/selectors";
@@ -34,20 +30,31 @@ class HBMap2 extends React.Component {
         );
 
         this.map=null;
-
-        /*let achenSvgString = "<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000'><path d='M2,111 h300 l-242.7,176.3 92.7,-285.3 92.7,285.3 z' fill='#000000'/></svg>"
-        let myIconUrl = encodeURI("data:image/svg+xml," + achenSvgString).replace('#','%23');
-
-        this.templateIcon = L.icon({
-            iconUrl: myIconUrl,
-            iconSize: [30, 30],
-            iconAnchor: [15, 15],
-            popupAnchor: [7, -15],
-            shadowUrl: 'http://localhost:8000/media/personnage.jpeg',
-            shadowSize: [0, 0],
-            shadowAnchor: [0,0]
-        });*/
+        this.drawnItems = null;
+        this._updateLayers = this._updateLayers.bind(this);
+        this.setMarker = this.setMarker.bind(this);
+        this.geoMarkersIndex = new Map();
     }
+
+    setMarker(event){
+
+        const {iconId} = event;
+
+
+
+        const icon = document.getElementById(iconId);
+        if(!icon) return;
+
+        const markerIndex = this.geoMarkersIndex.get(iconId);
+        console.log('set map index=',iconId,markerIndex);
+        const {center,zoom} = markerIndex;
+
+        if(!!markerIndex){
+            this.map.setView(new L.LatLng(center.lat,center.lng),zoom,{animate:true});
+        }
+    }
+
+
 
     componentDidMount() {
         this.map = L.map('mymap', {
@@ -59,7 +66,61 @@ class HBMap2 extends React.Component {
                 }),
             ]
         });
+        // necessary to update map properly when its dimensions change
         this.map.on('zoom',()=>{this.map.invalidateSize();});
+
+        const drawnItems = new L.FeatureGroup();
+        this.map.addLayer(drawnItems);
+        this.drawnItems = drawnItems;
+
+        drawnItems
+            .on('click',(e)=>{
+                console.log('click on layer ; ',e);
+                const event = new CustomEvent('hb.reader.set.marker');
+                event.iconId = e.layer.feature.properties.iconId;
+                window.dispatchEvent(event);
+            })
+            .bindTooltip('<span id="shapeTooltip"></span>')
+            .on('mouseover',(e)=>{
+                const layer = e.layer;
+                const tooltip = document.getElementById('shapeTooltip');
+                tooltip.innerText = (layer.feature.properties.title||null);
+            });
+
+        if(!!this.props.mainArticleId) this._updateLayers();
+
+
+        // handle marker focus from reader or timeArea
+        window.addEventListener('hb.map.set.marker',this.setMarker);
+    }
+
+    componentWillUnmount(){
+        window.removeEventListener('hb.map.set.marker',this.setMarker);
+    }
+
+    _updateLayers(){
+        const mainArticle = this.props.getOneById(this.props.mainArticleId);
+        if(!!mainArticle){
+            const geoData = getGeoDataFromAbstract(mainArticle);
+            console.log('HBMap2 geoData',geoData);
+            this.drawnItems.clearLayers();
+            this.geoMarkersIndex = new Map();
+
+            geoData.forEach(({hGeo,html,id,index})=>{
+
+                this.geoMarkersIndex.set(id,{center:hGeo.center,zoom:hGeo.zoom});
+
+                hGeo.drawnItems.features.forEach((feature)=>{
+                    feature.properties.iconId= id;
+                    console.log("add layers, feature=",feature);
+                    let geoJsonFeature = L.geoJson(feature);
+                    console.log("add layers, GeoJsonFeature=",feature);
+                    this.drawnItems.addLayer(geoJsonFeature);
+                });
+
+
+            });
+        }
     }
 
     componentDidUpdate(prevProps){
@@ -77,21 +138,9 @@ class HBMap2 extends React.Component {
             setTimeout(this.handleContainerResizing, 2 * this.resizingDelay);
         }
 
-        // handle hovering
-        const {hoveredArticleId, getOneById} = this.props;
 
-        if(prevProps.hoveredArticleId !== hoveredArticleId){
-            if(!!prevProps.hoveredArticleId){
-                const oldHoveredMarker = this.markerRefs.get(+prevProps.hoveredArticleId);
-                if(!!oldHoveredMarker) oldHoveredMarker.fire('mouseout');
-            }
-            if(!!hoveredArticleId){
-                const hoveredMarker = this.markerRefs.get(+hoveredArticleId);
-                if(!!hoveredMarker) hoveredMarker.fire('mouseover');
-            }
-        }
-
-        if(getOneById !== prevProps.getOneById){
+        if(this.props.getOneById !== prevProps.getOneById || this.props.mainArticleId !== prevProps.mainArticleId){
+            this._updateLayers();
         }
     }
 
@@ -112,8 +161,6 @@ class HBMap2 extends React.Component {
         currentStyle.width = `${width}px`;
         currentStyle.height = `${height}px`;
 
-
-        const {} = this.props;
 
 
         return (

@@ -19,10 +19,42 @@ class HBExplorerArticleCard extends React.Component {
     constructor(props) {
         super(props);
 
+        this.setMarker = this.setMarker.bind(this);
+
         this.state = {
             askedNewLink:false
         };
     }
+
+    setMarker(event){
+
+        const {iconId} = event;
+
+        //console.log('set read index=',iconId);
+
+        const icon = document.getElementById(iconId);
+        if(!icon) return;
+
+
+
+        const scrollArea = document.getElementById('hb-test-scroll');
+
+        const scrollAreaCoords = scrollArea.getBoundingClientRect();
+        const currentScroll = scrollArea.scrollTop;
+        const iconCoords = icon.getBoundingClientRect();
+        console.log(scrollAreaCoords.top,currentScroll,iconCoords.top );
+        scrollArea.scrollTo(0,currentScroll + (iconCoords.top-scrollAreaCoords.top)-3);
+        console.log(scrollArea.scrollTop);
+    }
+
+    componentDidMount(){
+        window.addEventListener('hb.reader.set.marker',this.setMarker);
+    }
+
+    componentWillUnmount(){
+        window.removeEventListener('hb.reader.set.marker',this.setMarker);
+    }
+
 
     render() {
         const {dispatch,id,mainArticleId,articles,displayParameters,

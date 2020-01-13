@@ -25,7 +25,7 @@ export default class HBExplorerTimeMenu extends React.Component {
         this.onTimeTravelBegin = this.onTimeTravelBegin.bind(this);
         this.onTimeTravel = debounce(
             this.onTimeTravel.bind(this),
-            Math.floor(0.9 * timeTravellingPeriod)
+            Math.floor(0.2 * timeTravellingPeriod)
         );
         this.onTimeTravelEnd = this.onTimeTravelEnd.bind(this);
 
@@ -33,7 +33,7 @@ export default class HBExplorerTimeMenu extends React.Component {
         this.onTimeZoomingBegin = this.onTimeZoomingBegin.bind(this);
         this.onTimeZooming = debounce(
             this.onTimeZooming.bind(this),
-            Math.floor(0.9 * timeTravellingPeriod)
+            Math.floor(0.2 * timeTravellingPeriod)
         );
         this.onTimeZoomingEnd = this.onTimeZoomingEnd.bind(this);
 

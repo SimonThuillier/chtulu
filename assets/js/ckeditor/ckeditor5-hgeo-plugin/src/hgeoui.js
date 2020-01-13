@@ -73,7 +73,7 @@ export default class HGeoUI extends Plugin {
 
         const formView = new HGeoFormView( editor.locale);
 
-        formView.bind( 'hgeo' ).to( hgeoCommand, 'data' );
+        formView.bind( 'hgeo' ).to( hgeoCommand, 'geoData' );
 
         // Form elements should be read-only when corresponding commands are disabled.
         //formView.to( linkCommand, 'isEnabled', value => !value );

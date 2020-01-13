@@ -55,6 +55,7 @@ export default class HGeoPicker extends Component {
         this.onMapDblClick = this.onMapDblClick.bind(this);
 
         this.drawnItems = null;
+        this.drawControl = null;
     }
 
     isValid() {
@@ -108,18 +109,24 @@ export default class HGeoPicker extends Component {
             ]
         });
         // FeatureGroup is to store editable layers
-        var drawnItems = new L.FeatureGroup();
+        const drawnItems = new L.FeatureGroup();
         this.map.addLayer(drawnItems);
         this.drawnItems = drawnItems;
 
-        var drawControl = new L.Control.Draw({
+        const drawControl = new L.Control.Draw({
             edit: {
+                featureGroup: drawnItems
+            },
+            remove: {
                 featureGroup: drawnItems
             }
         });
         this.map.addControl(drawControl);
+        this.drawControl = drawControl;
+        console.log('draw control : ',drawControl);
 
         const map = this.map;
+        const component= this;
 
 
         this.map.on('draw:created', function (e) {
@@ -132,6 +139,14 @@ export default class HGeoPicker extends Component {
             props.id = UUID();
             props.title=null;
             drawnItems.addLayer(layer);
+            console.log('feature group added = ',drawnItems);
+            console.log(`geovalid, new item count : ${component.state.itemCount+1}`);
+            component.setState({itemCount:component.state.itemCount+1});
+        });
+
+        this.map.on('draw:deleted', function (e) {
+            console.log(`geovalid deleted, new item count : ${component.state.itemCount-e.layers.getLayers().length}`,e.layers.getLayers().length);
+            component.setState({itemCount:component.state.itemCount-e.layers.getLayers().length});
         });
 
 
@@ -189,6 +204,18 @@ export default class HGeoPicker extends Component {
                 itemCount=itemCount+1;
             });
 
+            /*this.map.removeControl(this.drawControl);
+            this.drawControl = new L.Control.Draw({
+                edit: {
+                    featureGroup: this.drawnItems
+                },
+                remove: {
+                    featureGroup: this.drawnItems
+                }
+            });
+            this.map.addControl(this.drawControl);*/
+
+            console.log('feature group init = ',this.drawnItems);
             this.setState({itemCount:itemCount});
 
         }
@@ -214,6 +241,8 @@ export default class HGeoPicker extends Component {
                 return err;
             })
         );*/
+
+        console.log(`geovalid, render : ${this.state.itemCount}`);
 
         return (
             <Panel ref={this.containerRef} id={this.props.id||null} style={realStyle} className={className}>
