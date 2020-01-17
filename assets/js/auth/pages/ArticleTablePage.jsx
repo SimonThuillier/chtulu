@@ -395,7 +395,7 @@ class ArticleTablePage extends React.Component{
                                     handleSwitch={()=>{this.handleComponentSwitch(activeComponent==='detail'?'form':'detail')}}
                                     onNothing={this.handleClose}
                                     context={'modal'}
-                                    groups={{minimal:true,date:true,detailImage:true,abstract:true,owner:{minimal:true}}}
+                                    groups={{minimal:true,date:true,detailImage:{activeVersion:{urlMini:true,urlDetailThumbnail:true}},abstract:true,owner:{minimal:true}}}
                                 >
                                     <div hidden={activeComponent!=='detail'}>
                                         <Article.Detail/>

@@ -99,12 +99,7 @@ const fetchWithTimeout = function( url,props, timeout=TIMEOUT ) {
 };
 
 export const uploadResource = (file,name,contentType,resourceType,senderKey,resourceId=null) => (dispatch,getState) => {
-    //console.log("upload resource");
-
-    let dataToPost = DataToPost();
-    /*console.log(`dataToPost`);
-    console.log(dataToPost);*/
-
+    console.log("upload resource",file,name,contentType,resourceType,senderKey);
 
     const url = getUrl(URL_UPLOAD,{
         name:name,
@@ -126,9 +121,8 @@ export const uploadResource = (file,name,contentType,resourceType,senderKey,reso
     return fetch(url,httpProps)
         .then(response => response.json())
         .then(json => {
-                console.log("post returned !");
                 json.data = JSON.parse(json.data);
-                console.log(json);
+                console.log("upload post returned !",json);
                 switch (json.status) {
                     case HB_SUCCESS:
                         // not canonical but fast to to

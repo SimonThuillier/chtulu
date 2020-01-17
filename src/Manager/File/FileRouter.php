@@ -50,9 +50,14 @@ class FileRouter
             '-' .$version->getNumber() .
             (($file->getType() && $file->getType() !== "")? '.' . $file->getType():"");
 
+
+
+
         try{
             $route = $this->cacheResolver->
             resolve($wantedPath,$filter);
+            if($this->cacheResolver->isStored($wantedPath,$filter)) return $route;
+
             $binary = $this->loader->find($version->getFile());
             $filters = $this->filterManager->getFilterConfiguration()->all();
             if($filter && $filter !== "") $binary = $this->filterManager->applyFilter($binary,$filter);

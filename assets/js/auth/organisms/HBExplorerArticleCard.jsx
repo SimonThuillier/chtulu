@@ -148,7 +148,7 @@ class HBExplorerArticleCard extends React.Component {
                         id={id}
                         handleSwitch={()=>{toggleActiveComponent([id]);}}
                         onNothing={null}
-                        groups={{"minimal":true,"date":true,"detailImage":true,"abstract":true}}
+                        groups={{"minimal":true,"date":true,"detailImage":{activeVersion:{urlMini:true}},"abstract":true}}
                     >
                         <div hidden={displayParameters.activeComponent!=='detail'}>
                             <Article.Detail/>

@@ -44,7 +44,7 @@ class SubAbstract extends React.Component
     render()
     {
         return (
-            <div ref={this.ref} className="col-md-12">
+            <div ref={this.ref} className="col-md-12 hb-content">
             </div>
         );
     }

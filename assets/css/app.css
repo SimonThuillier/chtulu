@@ -371,3 +371,63 @@ aside { -ms-overflow-style: none; }
 .hb-richtext-marker:hover {
     color:#72afd2;
 }
+
+.ck-content figure.image.hb-side-image {
+    float: right;
+    max-width: 40%;
+}
+
+
+.hb-content .image > img {
+    display:block;
+    margin:0 auto;
+    max-width:90%;
+    min-width:20px;
+}
+
+.hb-content figure.image.hb-side-image {
+    float:right;
+    max-width:33%;
+}
+
+.hb-content .media > div {
+    max-width:40%;
+}
+
+.ck-content .media > div {
+    max-width:40%;
+}
+
+.hb-content .image {
+    display: table;
+    clear: both;
+    text-align: center;
+
+    /* Make sure there is some space between the content and the image. Center image by default. */
+    margin: 1em auto;
+
+& > img {
+      /* Prevent unnecessary margins caused by line-height (see #44). */
+      display: block;
+
+      /* Center the image if its width is smaller than the content's width. */
+      margin: 0 auto;
+
+      /* Make sure the image never exceeds the size of the parent container (ckeditor/ckeditor5-ui#67). */
+      max-width: 100%;
+
+      /* Make sure the caption will be displayed properly (See: https://github.com/ckeditor/ckeditor5/issues/1870). */
+      min-width: 50px;
+  }
+}
+
+.hb-content .image > figcaption {
+    display: table-caption;
+    caption-side: bottom;
+    word-break: normal;
+    color: hsl(0, 0%, 20%);
+    background-color: hsl(0, 0%, 97%);
+    padding: .6em;
+    font-size: .85em;
+    outline-offset: -1px;
+}

@@ -139,6 +139,46 @@ class ResourceVersionDTO extends EntityMutableDTO
     }
 
     /**
+     * @return string
+     * @Groups({"urlW160"})
+     */
+    public function getUrlW160(): ?string
+    {
+        if(!array_key_exists('w160',$this->urls)) return null;
+        return $this->urls['w160'];
+    }
+
+    /**
+     * @return string
+     * @Groups({"urlW500"})
+     */
+    public function getUrlW500(): ?string
+    {
+        if(!array_key_exists('w500',$this->urls)) return null;
+        return $this->urls['w500'];
+    }
+
+    /**
+     * @return string
+     * @Groups({"urlW800"})
+     */
+    public function getUrlW800(): ?string
+    {
+        if(!array_key_exists('w800',$this->urls)) return null;
+        return $this->urls['w800'];
+    }
+
+    /**
+     * @return string
+     * @Groups({"urlW1500"})
+     */
+    public function getUrlW1500(): ?string
+    {
+        if(!array_key_exists('w1500',$this->urls)) return null;
+        return $this->urls['w1500'];
+    }
+
+    /**
      * @param array $urls
      * @return ResourceVersionDTO
      */

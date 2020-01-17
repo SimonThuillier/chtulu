@@ -5,6 +5,7 @@ import {Helmet} from 'react-helmet';
 import ArticleTitle from "../atoms/ArticleTitle";
 import HBExplorerProxy from "../organisms/HBExplorerProxy.jsx";
 import {makeGetOneByIdSelector} from "../../shared/selectors";
+import {getOneByIdIfNeeded} from '../../auth/actions';
 
 
 const getActiveComponent = actionParam =>(actionParam==='edit'?'form':'detail');
@@ -21,22 +22,31 @@ export class ArticlePage extends React.Component {
         this.state = {
             id: +props.id||+id,
             activeComponent:props.activeComponent||getActiveComponent(actionParam),
-            detailGroups:props.detailGroups || {"minimal":true,"abstract":true,"date":true,
+            /*detailGroups:props.detailGroups || {"minimal":true,"abstract":true,"date":true,
                 "detailImage":{"activeVersion":true}
             },
-            formGroups:props.formGroups || {"minimal":true,"abstract":true,"date":true,"detailImage":true},
+            formGroups:props.formGroups || {"minimal":true,"abstract":true,"date":true,"detailImage":true},*/
             //pendingData: (props.data)?Object.create(props.data):null,
         };
     }
 
     componentDidMount(){
-        /*const {dispatch,nextNewIdSelector} = this.props;
-        if(!this.state.id){
+        const {dispatch,nextNewIdSelector} = this.props;
+        /*if(!this.state.id){
             this.setState({id:nextNewIdSelector(),activeComponent:'form'})
         }*/
-        /*dispatch(getOneByIdIfNeeded("article",
-            this.state.formGroups,
-            this.state.id));*/
+        if(!!this.state.id){
+            dispatch(getOneByIdIfNeeded("article",
+                {
+                    minimal:true,
+                    date:true,
+                    detailImage:{minimal:true,urlMini:true},
+                    abstract:true,
+                    geometry:true,
+                    owner:{minimal:true}
+                },
+                this.state.id));
+        }
     }
 
     componentDidUpdate(prevProps) {

@@ -40,7 +40,7 @@ class ResourceVersionDTOMediator extends DTOMediator
         parent::__construct($locator,$dbActionObserver);
         $this->dtoClassName = ResourceVersionDTO::class;
         $this->entityClassName = ResourceVersion::class;
-        $this->groups = ['minimal','file','urlDetailThumbnail','urlMini'];
+        $this->groups = ['minimal','file','urlDetailThumbnail','urlMini','urlW160','urlW500','urlW800','urlW1500'];
     }
 
     /**
@@ -71,7 +71,11 @@ class ResourceVersionDTOMediator extends DTOMediator
 
     protected function mapDTOFileGroup(){}
 
-    protected function mapDTOUrlDetailThumbnailGroup()
+    /**
+     * factorize the logic to map a wanted urlGroup
+     * @param $urlGroupName
+     */
+    private function mapUrl($urlGroupName)
     {
         /** @var ResourceVersionDTO $dto */
         $dto = $this->dto;
@@ -80,23 +84,41 @@ class ResourceVersionDTOMediator extends DTOMediator
         if($version->getId() !== null && $version->getId()>0){
             $fileRouter = $this->locator->get(fileRouter::class);
             $dto->addUrls(
-                ["detailThumbnail"=>$fileRouter->getVersionRoute($version,"detail_thumbnail")]);
+                [$urlGroupName=>$fileRouter->getVersionRoute($version,
+                    strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $urlGroupName)))]);
         }
+    }
 
+
+
+    protected function mapDTOUrlDetailThumbnailGroup()
+    {
+        $this->mapUrl('detailThumbnail');
     }
 
     protected function mapDTOUrlMiniGroup()
     {
-        /** @var ResourceVersionDTO $dto */
-        $dto = $this->dto;
-        /** @var ResourceVersion $version*/
-        $version = $this->entity;
+        $this->mapUrl('mini');
+    }
 
-        if($version->getId() !== null && $version->getId()>0){
-            $fileRouter = $this->locator->get(fileRouter::class);
-            $dto->addUrls(
-                ["mini"=>$fileRouter->getVersionRoute($version,"mini")]);
-        }
+    protected function mapDTOUrlW160Group()
+    {
+        $this->mapUrl('w160');
+    }
+
+    protected function mapDTOUrlW500Group()
+    {
+        $this->mapUrl('w500');
+    }
+
+    protected function mapDTOUrlW800Group()
+    {
+        $this->mapUrl('w800');
+    }
+
+    protected function mapDTOUrlW1500Group()
+    {
+        $this->mapUrl('w1500');
     }
 
     protected function mediateFile()

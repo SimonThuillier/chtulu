@@ -263,7 +263,12 @@ class PostController extends AbstractController
             $sequenceOfActions = $dbActionObserver->getSequenceOfActions();
             $mapper->executeSequence($sequenceOfActions);
 
-            $backGroups = ['minimal'=>true,'activeVersion'=>['minimal'=>true,'urlMini'=>true,'urlDetailThumbnail'=>true]];
+            $activeVersionBackGroups = ['minimal'=>true,'urlMini'=>true,'urlDetailThumbnail'=>true];
+            if($handledRequest["senderKey"] === 'CK_HB_UPLOAD_ADAPTER'){
+                $activeVersionBackGroups = ['minimal'=>true,'urlW500'=>true,'urlW800'=>true];
+            }
+
+            $backGroups = ['minimal'=>true,'activeVersion'=>$activeVersionBackGroups];
             $resourceMediator->mapDTOGroups($backGroups);
             $waoType = $waoHelper->getAbridgedName(ResourceDTO::class);
             $serialization = $normalizer->normalize($resourceMediator->getDTO(),$backGroups);

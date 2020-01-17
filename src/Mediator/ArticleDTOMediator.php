@@ -87,6 +87,35 @@ class ArticleDTOMediator extends DTOMediator
         $article = $this->entity;
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
+
+        /** @var string $abstract */
+        $abstract = $article->getAbstract();
+        // images must be analyzed and cached for the article view to be rendered properly
+        $imageMatches = [];
+        $imagePattern = '#<img[^<]+HB://resource_id=(\d+) [^<]+>#';
+
+        $match = preg_match_all ($imagePattern , $abstract, $imageMatches);
+
+        $resourcePattern = '#HB://resource_id=(\d+) #';
+
+        foreach($imageMatches[1] as $resourceId){
+            $resourceId = intval($resourceId[1][0]);
+            $resource = $this->locator->get('doctrine')->getRepository(HResource::class)->find($resourceId);
+            try{
+                $resourceMediator = $this->locator->get(MediatorFactory::class)->create(ResourceDTO::class,$resourceId,$resource);
+                // force caching if not already in cache
+                $resourceMediator->mapDTOGroups(['activeVersion'=>['urlW500'=>true,'urlW800'=>true]]);
+                /** @var ResourceDTO $resource */
+                //$resource = $resourceMediator->getDTO();
+                //$urlW500 = $resource->getActiveVersion()->getUrlW500();
+                //$urlW800 = $resource->getActiveVersion()->getUrlW800();
+            }
+            catch (\Exception $e){}
+
+        }
+
+
+
         $dto
             ->setAbstract($article->getAbstract());
             //->addMappedGroup('abstract');

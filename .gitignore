@@ -28,6 +28,7 @@ public/js/
 app/config/hresources\.yml
 
 public/media/cache/*
+public/media/cache
 
 hresources/*
 
