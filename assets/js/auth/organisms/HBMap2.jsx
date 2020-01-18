@@ -7,16 +7,13 @@ import {
      makeGetNewlyCreatedIdSelector, makeGetNextNewIdSelector, makeGetOneByIdSelector,
 } from "../../shared/selectors";
 import {connect} from "react-redux";
-import {getOneByIdIfNeeded,submitLocally,deleteLocally,fetchNew} from "../actions";
+import {AVAILABLE_AREAS} from '../../util/explorerUtil';
 
 const style = {
     position: "relative",
     width: "100%",
     height: "100%"
 };
-const Imm = require("immutable");
-const geometryGroups = {minimal:true};
-const componentUid = require("uuid/v4")();
 
 class HBMap2 extends React.Component {
     constructor(props) {
@@ -37,10 +34,9 @@ class HBMap2 extends React.Component {
     }
 
     setMarker(event){
+        if(event.hbOrigin ===AVAILABLE_AREAS.MAP || !event.iconId.includes('GEO_MARKER')) return;
 
         const {iconId} = event;
-
-
 
         const icon = document.getElementById(iconId);
         if(!icon) return;
@@ -76,8 +72,9 @@ class HBMap2 extends React.Component {
         drawnItems
             .on('click',(e)=>{
                 console.log('click on layer ; ',e);
-                const event = new CustomEvent('hb.reader.set.marker');
+                const event = new CustomEvent('hb.explorer.set.marker');
                 event.iconId = e.layer.feature.properties.iconId;
+                event.hbOrigin = AVAILABLE_AREAS.MAP;
                 window.dispatchEvent(event);
             })
             .bindTooltip('<span id="shapeTooltip"></span>')
@@ -91,11 +88,11 @@ class HBMap2 extends React.Component {
 
 
         // handle marker focus from reader or timeArea
-        window.addEventListener('hb.map.set.marker',this.setMarker);
+        window.addEventListener('hb.explorer.set.marker',this.setMarker);
     }
 
     componentWillUnmount(){
-        window.removeEventListener('hb.map.set.marker',this.setMarker);
+        window.removeEventListener('hb.explorer.set.marker',this.setMarker);
     }
 
     _updateLayers(){
@@ -164,7 +161,19 @@ class HBMap2 extends React.Component {
 
 
         return (
-            <div id='mymap' style={style}>
+            <div
+                id='mymap'
+                style={style}
+                onDoubleClick={(e)=>{
+                    console.log('hbexplorer dbl click');
+                    const event = new CustomEvent('hb.explorer.magnify');
+                    event.hbOrigin = AVAILABLE_AREAS.MAP;
+                    window.dispatchEvent(event);
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                }
+            >
             </div>);
     }
 }

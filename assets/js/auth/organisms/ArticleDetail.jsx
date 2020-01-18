@@ -2,7 +2,7 @@ import React from "react";
 import GroupUtil from '../../util/GroupUtil';
 import RImageDetail from '../../shared/atoms/RImageDetail';
 import UserIconLink from '../../shared/molecules/UserIconLink';
-
+import {getDecoratedAbstractForDetail,AVAILABLE_AREAS} from '../../util/explorerUtil';
 
 class SubAbstract extends React.Component
 {
@@ -16,19 +16,21 @@ class SubAbstract extends React.Component
     componentDidMount()
     {
         const {abstract,linksData,children} = this.props;
-        this.ref.current.innerHTML = abstract;
+        this.ref.current.innerHTML = getDecoratedAbstractForDetail(abstract);
         this._addEventListeners();
     }
 
     _addEventListeners(){
 
         const markers = document.querySelectorAll(".hb-richtext-marker");
+        //console.log("article abstract markers addingEventListeners",markers);
         markers.forEach((element)=>{
             element.addEventListener('click',(event)=>{
                 //console.log("article abstract markers=",element,event,element.id);
-                const mapEvent = new CustomEvent('hb.map.set.marker');
-                mapEvent.iconId = element.id;
-                window.dispatchEvent(mapEvent);
+                const markerEvent = new CustomEvent('hb.explorer.set.marker');
+                markerEvent.iconId = element.id;
+                markerEvent.hbOrigin = AVAILABLE_AREAS.CONTENT;
+                window.dispatchEvent(markerEvent);
             });
         });
     }
@@ -44,7 +46,17 @@ class SubAbstract extends React.Component
     render()
     {
         return (
-            <div ref={this.ref} className="col-md-12 hb-content">
+            <div
+                ref={this.ref}
+                className="col-md-12 hb-content"
+                onDoubleClick={()=>{
+                    console.log('hbexplorer dbl click');
+                    const event = new CustomEvent('hb.explorer.magnify');
+                    event.hbOrigin = AVAILABLE_AREAS.CONTENT;
+                    window.dispatchEvent(event);
+                }
+                }
+            >
             </div>
         );
     }

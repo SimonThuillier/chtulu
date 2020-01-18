@@ -269,3 +269,52 @@ export const getGeoDataFromAbstract = createSelector(
         return marks;
     }
 );
+
+/** analyze abstract of an article and returns temporal data from it */
+
+// https://www.dailymotion.com/video/x7qp1ro
+// <iframe frameborder="0" width="480" height="270" src="https://www.dailymotion.com/embed/video/x7qp1ro" allowfullscreen allow="autoplay"></iframe>
+
+// https://www.youtube.com/watch?v=jNQXAC9IVRw
+// <iframe src="https://www.youtube.com/embed/jNQXAC9IVRw?loop=1&modestbranding=1" width=560 height=315 frameborder allowfullscreen></iframe>
+
+const mediaRegex = /<figure[^>]*class="media"[^>]*>[^<]*<oembed[^>]*url="([^"]+)"[^>]*>[^<]*<\/oembed[^>]*>[^<]*<\/figure[^>]*>/g;
+
+const urlYoutubeRegex = /.*www\.youtube\.com\/watch\?v=([^&?]+)/;
+const urlDailymotionRegex = /.*www\.dailymotion\.com\/video\/([^&?]+)/;
+
+export const getDecoratedAbstractForDetail = createSelector(
+    [(abstract) =>abstract],
+    (abstract)=> {
+
+        let transformedAbstract = abstract;
+
+        //console.log(text);
+        let array = [...abstract.matchAll(mediaRegex)];
+        console.log('media=',array);
+        //console.log(Array.from(array, x => x.index));
+        //console.log(results);
+
+        array.forEach((match)=>{
+            let figure = match[0];
+            let url = match[1];
+            let iframe;
+
+            let particularMediaMatch;
+
+            if((particularMediaMatch = urlYoutubeRegex.exec(url)) !== null) {
+                iframe = `<p align="center" class="hb-media-iframe"><iframe src="https://www.youtube.com/embed/${particularMediaMatch[1]}" frameborder allowfullscreen></iframe></p>`;
+                console.log('media, iframe youtube',iframe);
+                transformedAbstract = transformedAbstract.replace(figure,iframe);
+            }
+            else if((particularMediaMatch = urlDailymotionRegex.exec(url)) !== null) {
+                iframe = `<p align="center" class="hb-media-iframe"><iframe src="https://www.dailymotion.com/embed/video/${particularMediaMatch[1]}" frameborder allowfullscreen></iframe></p>`;
+                console.log('media, iframe dailymotion',iframe);
+                transformedAbstract = transformedAbstract.replace(figure,iframe);
+            }
+        });
+
+        return transformedAbstract;
+    }
+);
+

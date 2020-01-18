@@ -27,6 +27,8 @@ import {
 const { EDITOR, SIDEVIEW, VERTICAL } = AVAILABLE_THEMES;
 const { CONTENT, MAP, TIME } = AVAILABLE_AREAS;
 
+import debounce from "debounce";
+
 const explorerUid = require("uuid/v4")();
 
 let _idGenerator = cmn.getIdGenerator();
@@ -152,6 +154,27 @@ const THEMES = {
 
 let { context, provider } = React.createContext();
 
+const resizeMedias = debounce(()=>{
+    setTimeout(()=>{
+        const scrollArea = document.getElementById('hb-test-scroll');
+        const scrollAreaRect = scrollArea.getBoundingClientRect();
+        //console.log('resize medias',$('.hb-content .hb-media-iframe>iframe'),scrollAreaRect);
+
+        let factor = 0.4;
+        if(scrollAreaRect.width<1000) factor=0.65;
+        if(scrollAreaRect.width<600) factor=0.9;
+
+        const mediaWidth = Math.floor(scrollAreaRect.width*factor);
+        const mediaHeight = Math.floor(scrollAreaRect.width*factor*9/16);
+
+        const containers = $('.hb-content .hb-media-iframe');
+
+        //containers.attr({height:`${mediaHeight}px`});
+        containers.children().attr({width:`${mediaWidth}px`,height:`${mediaHeight}px`});
+    },50);
+
+},30);
+
 class HBExplorer extends React.Component {
     constructor(props) {
         super(props);
@@ -168,6 +191,7 @@ class HBExplorer extends React.Component {
         this.getRealFrameSize = this.getRealFrameSize.bind(this);
 
         this.setTheme = this.setTheme.bind(this);
+        this._setEnabledAreas = this._setEnabledAreas.bind(this);
         this.toggleArea = this.toggleArea.bind(this);
 
         this.onWindowResize = this.onWindowResize.bind(this);
@@ -175,6 +199,9 @@ class HBExplorer extends React.Component {
         this.onRightResize = this.onRightResize.bind(this);
 
         this.prependChild = this.prependChild.bind(this);
+
+        this.onSetMarker = this.onSetMarker.bind(this);
+        this.onMagnifyArea = this.onMagnifyArea.bind(this);
 
         this.resizeCounter=0;
 
@@ -192,6 +219,59 @@ class HBExplorer extends React.Component {
             enabledAreas: [CONTENT,TIME] // MAP,
         };
         console.log("build");
+    }
+
+    /**
+     * if click on a marker enable the wanted area if it's not the case
+     * @param event
+     */
+    onSetMarker(event){
+        const {iconId,hbOrigin} = event;
+        const {enabledAreas} = this.state;
+        console.log('hbexplorer onsetmarker',iconId,hbOrigin);
+
+        if(!this.state.enabledAreas.includes(hbOrigin)){
+            this.toggleArea(hbOrigin);
+        }
+
+        if(iconId.includes('GEO_MARKER') && !enabledAreas.includes(AVAILABLE_AREAS.MAP)){
+            this.toggleArea(AVAILABLE_AREAS.MAP);
+        }
+        if(iconId.includes('TIME_MARKER') && !enabledAreas.includes(AVAILABLE_AREAS.TIME)){
+            this.toggleArea(AVAILABLE_AREAS.TIME);
+        }
+        if((hbOrigin===AVAILABLE_AREAS.TIME || hbOrigin===AVAILABLE_AREAS.MAP) &&
+            !enabledAreas.includes(AVAILABLE_AREAS.CONTENT)){
+            this.toggleArea(AVAILABLE_AREAS.CONTENT);
+        }
+    }
+
+    onMagnifyArea(event){
+        const {hbOrigin} = event;
+        const {enabledAreas} = this.state;
+        console.log('hbexplorer magnify',hbOrigin);
+
+        if(hbOrigin ===AVAILABLE_AREAS.CONTENT){
+            if(
+                !enabledAreas.includes(AVAILABLE_AREAS.CONTENT) ||
+                enabledAreas.includes(AVAILABLE_AREAS.TIME) ||
+                enabledAreas.includes(AVAILABLE_AREAS.MAP)
+            ) this._setEnabledAreas([AVAILABLE_AREAS.CONTENT]);
+        }
+        if(hbOrigin ===AVAILABLE_AREAS.TIME){
+            if(
+                !enabledAreas.includes(AVAILABLE_AREAS.TIME) ||
+                enabledAreas.includes(AVAILABLE_AREAS.MAP) ||
+                enabledAreas.includes(AVAILABLE_AREAS.CONTENT)
+            ) this._setEnabledAreas([AVAILABLE_AREAS.TIME]);
+        }
+        if(hbOrigin ===AVAILABLE_AREAS.MAP){
+            if(
+                !enabledAreas.includes(AVAILABLE_AREAS.MAP) ||
+                enabledAreas.includes(AVAILABLE_AREAS.TIME) ||
+                enabledAreas.includes(AVAILABLE_AREAS.CONTENT)
+            ) this._setEnabledAreas([AVAILABLE_AREAS.MAP]);
+        }
     }
 
     /** returns the real frameSize from the frameSizes map, theme and enabled areas */
@@ -263,7 +343,17 @@ class HBExplorer extends React.Component {
         setTimeout(() => {
             console.log("gui2");
             this.setState({ guiInitialized: 2 });
+            window.dispatchEvent(new Event('resize'));
         }, 100);
+        setTimeout(resizeMedias,400);
+        window.addEventListener('hb.explorer.set.marker', this.onSetMarker);
+        window.addEventListener('hb.explorer.magnify', this.onMagnifyArea);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.onWindowResize);
+        window.removeEventListener('hb.explorer.set.marker', this.onSetMarker);
+        window.removeEventListener('hb.explorer.magnify', this.onMagnifyArea);
     }
 
     setTheme(theme) {
@@ -294,7 +384,10 @@ class HBExplorer extends React.Component {
         });
 
         if(!hasRemoved) newEnabledAreas.push(areaKey);
+        this._setEnabledAreas(newEnabledAreas);
+    }
 
+    _setEnabledAreas(newEnabledAreas){
         this.setState({enabledAreas:newEnabledAreas,guiInitialized: 1});
         setTimeout(() => {
             this.setState({ guiInitialized: 2 });
@@ -343,6 +436,7 @@ class HBExplorer extends React.Component {
                 }
             },100);
         }
+        resizeMedias();
     }
 
 // begin flag :set the scale and origin values for resize
@@ -382,6 +476,7 @@ class HBExplorer extends React.Component {
         this.setState({ frameSizes: newFrameSizes });
 
         //console.log(newPercentage);
+        resizeMedias();
     }
 
 // begin flag :set the scale and origin values for resize
@@ -419,6 +514,7 @@ class HBExplorer extends React.Component {
         this.setState({ frameSizes: newFrameSizes });
 
         //console.log(newPercentage);
+        resizeMedias();
     }
 
     prependChild(node){
@@ -426,10 +522,6 @@ class HBExplorer extends React.Component {
         if(!!this.containerRef && !!this.containerRef.current){
             this.containerRef.current.prepend(node);
         }
-    }
-
-    componentWillUnmount() {
-        window.removeEventListener("resize", this.onWindowResize);
     }
 
     render() {

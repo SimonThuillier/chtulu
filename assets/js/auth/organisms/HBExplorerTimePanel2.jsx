@@ -12,7 +12,7 @@ import TimeArrow from "./TimeArrow";
 import {connect} from "react-redux";
 import {makeGetOneByIdSelector} from "../../shared/selectors";
 
-import {getTimeDataFromAbstract} from '../../util/explorerUtil';
+import {AVAILABLE_AREAS, getTimeDataFromAbstract} from '../../util/explorerUtil';
 
 const styles = {
     width: "100%",
@@ -86,14 +86,20 @@ class HBExplorerTimePanel2 extends React.Component {
     componentDidUpdate(prevProps, prevState) {
         const oldBounds = prevProps.bounds;
         const oldHInterval = prevProps.hInterval;
-        const { hInterval, bounds, articles,theme } = this.props;
+        const { hInterval, bounds, articles,theme,cursorDate,mainArticleId } = this.props;
 
         // le time scale
         let timeScale = null;
         if (oldHInterval && !hInterval.equals(oldHInterval)) {
             //console.log(1);
             this.updateHInterval();
-        } else if (
+        }
+        else if(cursorDate !== prevProps.cursorDate){
+            if(!this.state.isMovingPanel && !!mainArticleId){
+                this.setState({ originY: this._getOriginY() });
+            }
+        }
+        else if (
             bounds.height !== oldBounds.height ||
             bounds.width !== oldBounds.width
         ) {
@@ -110,39 +116,43 @@ class HBExplorerTimePanel2 extends React.Component {
             this.updateHInterval();
             //setTimeout(this.updateHInterval,30);
         }
+
     }
 
     updateHInterval() {
-        const { hInterval, bounds,mainArticleId,getArticles } = this.props;
+        const { hInterval, bounds,mainArticleId} = this.props;
 
-        const mainArticle = getArticles(mainArticleId);
         const timeScale = this.getTimeScale(hInterval, bounds);
         const stateToUpdate = {timeScale: timeScale};
 
-        console.log(`new originY : ${!this.state.isMovingPanel && !!mainArticle}`);
         // if the timeUpdate is due to exterior command we autoUpdate the Y according to the time markers
-        if(!this.state.isMovingPanel && !!mainArticle){
-            /*const rawMarkers = getTimeDataFromAbstract(mainArticle);
-            let markerY = markerStartY-markerDeltaY;
-            let originY = -1;
-
-            for (const {hDate} of rawMarkers) {
-                if(hInterval.intersects(hDate)){
-                    originY = markerY;
-                    break;
-                }
-                markerY = markerY + markerDeltaY;
-            }
-            if(originY<0){
-                originY = markerY;
-            }
-            stateToUpdate.originY = originY-5;*/
-            //console.log(`new originY : ${originY}`);
-
-            stateToUpdate.originY = markerStartY-markerDeltaY-15;
+        // the startY is the Y of the first marker which begins after the beginDate
+        if(!this.state.isMovingPanel && !!mainArticleId){
+            stateToUpdate.originY = this._getOriginY();
         }
 
         this.setState(stateToUpdate);
+    }
+
+    _getOriginY(){
+        const { hInterval, mainArticleId,getArticles ,cursorDate} = this.props;
+        let originY = markerStartY-markerDeltaY-10;
+        const mainArticle = getArticles(mainArticleId);
+        if(!mainArticle) return originY;
+
+
+        const rawMarkers = getTimeDataFromAbstract(mainArticle);
+
+
+        for (const {hDate} of rawMarkers) {
+            if(hInterval.intersects(hDate)){
+                if(hDate.beginDate.getTime() >= cursorDate.getTime()){
+                    break;
+                }
+                originY = originY + markerDeltaY;
+            }
+        }
+        return originY;
     }
 
     onPanelMoveBegin(e) {
@@ -246,7 +256,7 @@ class HBExplorerTimePanel2 extends React.Component {
         const {max,min} = Math;
         let factor = 1;
         if(+e.deltaY>0) factor = 1 + min((e.deltaY/baseDeltaY * baseTimeDelta),baseTimeDelta*2);
-            else if (+e.deltaY<0) factor = 1 + max((e.deltaY/baseDeltaY * baseTimeDelta),-baseTimeDelta*2);
+        else if (+e.deltaY<0) factor = 1 + max((e.deltaY/baseDeltaY * baseTimeDelta),-baseTimeDelta*2);
 
         const middleDate = hInterval.getMiddleDate();
         const dayDiff = dU.dayDiff(mouseDate,middleDate);
@@ -259,13 +269,12 @@ class HBExplorerTimePanel2 extends React.Component {
     }
 
     onDblClick(e){
-        /*const {addArticle,bounds} = this.props;
-        //console.log(bounds);
-        const position = { x: e.clientX, y: e.clientY };
-        const addDate = this.state.timeScale.invert(
-            position.x-bounds.x
-        );
-        addArticle(addDate);*/
+        console.log('hbexplorer dbl click');
+        const event = new CustomEvent('hb.explorer.magnify');
+        event.hbOrigin = AVAILABLE_AREAS.TIME;
+        window.dispatchEvent(event);
+
+
         e.preventDefault();
         e.stopPropagation();
     }
@@ -318,13 +327,6 @@ class HBExplorerTimePanel2 extends React.Component {
             });
         }
 
-
-
-
-
-
-
-
         return (
             <svg
                 id={"main-histo-panel"}
@@ -346,7 +348,7 @@ class HBExplorerTimePanel2 extends React.Component {
                     />
                     <svg>
                         <text id={`time-panel-svg-article-mock`} style={{visibility:'hidden'}}/></svg>
-                        {markers}
+                    {markers}
                 </g>
                 <TimeArrow
                     key={"hg-time-arrow"}

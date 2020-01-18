@@ -1,10 +1,6 @@
 import React from "react";
 import ProgressionCircle from "../atoms/ProgressionCircle";
-import HDate from "../../util/HDate";
-import RImageMini from '../../shared/atoms/RImageMini';
-import {COLORS} from "../../util/notifications";
-import {connect} from "react-redux";
-import {makeLocalGetByAttributeSelector} from "../../shared/selectors";
+import {AVAILABLE_AREAS} from '../../util/explorerUtil';
 import {getInlinedCss} from '../../util/cssUtil';
 
 const defaultTextStyle = {
@@ -126,8 +122,9 @@ class HBExplorerPanelMarker extends React.Component {
                 onClick={(e)=>{
                    //e.preventDefault();
                    //e.stopPropagation();
-                    const event = new CustomEvent('hb.reader.set.marker');
+                    const event = new CustomEvent('hb.explorer.set.marker');
                     event.iconId = marker.id;
+                    event.hbOrigin=AVAILABLE_AREAS.TIME;
                     window.dispatchEvent(event);
                 }}
                 ref={node => {

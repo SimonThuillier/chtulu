@@ -6,7 +6,7 @@ import { Button,
     Tooltip, } from "react-bootstrap";
 import ArticleExpander from '../atoms/ArticleExpander';
 import TimeBreadcrumb from '../atoms/TimeBreadcrumb';
-import {getNeighbourArticleChronogically} from '../../util/explorerUtil';
+import {AVAILABLE_AREAS, getNeighbourArticleChronogically} from '../../util/explorerUtil';
 
 import ArticleTitle from "../atoms/ArticleTitle";
 import ArticleType from "../atoms/ArticleType";
@@ -27,15 +27,13 @@ class HBExplorerArticleCard extends React.Component {
     }
 
     setMarker(event){
+        if(event.hbOrigin ===AVAILABLE_AREAS.CONTENT) return;
 
         const {iconId} = event;
-
         //console.log('set read index=',iconId);
 
         const icon = document.getElementById(iconId);
         if(!icon) return;
-
-
 
         const scrollArea = document.getElementById('hb-test-scroll');
 
@@ -48,11 +46,11 @@ class HBExplorerArticleCard extends React.Component {
     }
 
     componentDidMount(){
-        window.addEventListener('hb.reader.set.marker',this.setMarker);
+        window.addEventListener('hb.explorer.set.marker',this.setMarker);
     }
 
     componentWillUnmount(){
-        window.removeEventListener('hb.reader.set.marker',this.setMarker);
+        window.removeEventListener('hb.explorer.set.marker',this.setMarker);
     }
 
 
@@ -142,7 +140,11 @@ class HBExplorerArticleCard extends React.Component {
                         </span>
                 </div>
 
-                <div id='hb-test-scroll' className="panel-body" style={{overflow:'auto'}}>
+                <div
+                    id='hb-test-scroll'
+                    className="panel-body"
+                    style={{overflow:'auto'}}
+                >
                     <Article
                         dispatch={dispatch}
                         id={id}
