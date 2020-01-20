@@ -4,16 +4,28 @@ import L from "leaflet";
 import debounce from "debounce";
 import { getGeoDataFromAbstract} from "../../util/explorerUtil";
 import {
-     makeGetNewlyCreatedIdSelector, makeGetNextNewIdSelector, makeGetOneByIdSelector,
+     makeGetOneByIdSelector,
 } from "../../shared/selectors";
 import {connect} from "react-redux";
 import {AVAILABLE_AREAS} from '../../util/explorerUtil';
+import HDate from '../../util/HDate';
 
 const style = {
     position: "relative",
     width: "100%",
     height: "100%"
 };
+
+function highlight (layer) {
+    layer.setStyle({
+        weight: 5,
+        dashArray: ''
+    });
+    if (!L.Browser.ie && !L.Browser.opera) {
+        layer.bringToFront();
+    }
+}
+
 
 class HBMap2 extends React.Component {
     constructor(props) {
@@ -29,8 +41,10 @@ class HBMap2 extends React.Component {
         this.map=null;
         this.drawnItems = null;
         this._updateLayers = this._updateLayers.bind(this);
+        this._updateTime = this._updateTime.bind(this);
         this.setMarker = this.setMarker.bind(this);
         this.geoMarkersIndex = new Map();
+        this.timedGeoMarkersIndex = [];
     }
 
     setMarker(event){
@@ -43,10 +57,21 @@ class HBMap2 extends React.Component {
 
         const markerIndex = this.geoMarkersIndex.get(iconId);
         console.log('set map index=',iconId,markerIndex);
-        const {center,zoom} = markerIndex;
 
         if(!!markerIndex){
+            const {center,zoom,layers} = markerIndex;
             this.map.setView(new L.LatLng(center.lat,center.lng),zoom,{animate:true});
+            layers.forEach((layer)=>{
+                console.log(L.GeoJSON);
+                console.log(layer._leaflet_id);
+                console.log(L);
+                const realLayer = this.drawnItems.getLayer(layer._leaflet_id);
+                realLayer.fire('mouseover',{layer:realLayer});
+                highlight(this.drawnItems.getLayer(layer._leaflet_id));
+                setTimeout(()=>{
+                    realLayer.resetStyle();
+                },600);
+            });
         }
     }
 
@@ -81,7 +106,9 @@ class HBMap2 extends React.Component {
             .on('mouseover',(e)=>{
                 const layer = e.layer;
                 const tooltip = document.getElementById('shapeTooltip');
-                tooltip.innerText = (layer.feature.properties.title||null);
+                tooltip.innerText = ((layer.feature.properties.title||'') +
+                    (layer.feature.properties.hDate?(' - ' + HDate.prototype.parseFromJson(layer.feature.properties.hDate).getLabel()):'')
+                );
             });
 
         if(!!this.props.mainArticleId) this._updateLayers();
@@ -102,22 +129,48 @@ class HBMap2 extends React.Component {
             console.log('HBMap2 geoData',geoData);
             this.drawnItems.clearLayers();
             this.geoMarkersIndex = new Map();
+            this.timedGeoMarkersIndex = [];
 
             geoData.forEach(({hGeo,html,id,index})=>{
-
-                this.geoMarkersIndex.set(id,{center:hGeo.center,zoom:hGeo.zoom});
+                let layers = [];
 
                 hGeo.drawnItems.features.forEach((feature)=>{
                     feature.properties.iconId= id;
                     console.log("add layers, feature=",feature);
-                    let geoJsonFeature = L.geoJson(feature);
-                    console.log("add layers, GeoJsonFeature=",feature);
+                    let geoJsonFeature = new L.GeoJSON(feature);
+                    if(!!feature.properties.hDate) {
+                        console.log('HBMap2 feature with HDate', feature, feature.properties.hDate);
+                        this.timedGeoMarkersIndex.push({
+                            hDate:HDate.prototype.parseFromJson(feature.properties.hDate),
+                            layer:geoJsonFeature,
+                            displayed:true
+                        });
+                    }
+                    console.log("add layers, GeoJsonFeature=",geoJsonFeature);
                     this.drawnItems.addLayer(geoJsonFeature);
+                    layers.push(geoJsonFeature);
                 });
+                this.geoMarkersIndex.set(id,{center:hGeo.center,zoom:hGeo.zoom,layers:layers});
 
 
             });
         }
+    }
+
+    _updateTime(){
+        const {hInterval} = this.props;
+
+        this.timedGeoMarkersIndex.forEach(({hDate,layer})=>{
+            console.log('HBMap2 update hInterval : ',hDate,layer);
+            if(!hDate.intersects(hInterval)){
+                this.drawnItems.removeLayer(layer);
+            }
+            else if(!this.drawnItems.hasLayer(layer)){
+                this.drawnItems.addLayer(layer);
+            }
+        });
+
+
     }
 
     componentDidUpdate(prevProps){
@@ -138,6 +191,10 @@ class HBMap2 extends React.Component {
 
         if(this.props.getOneById !== prevProps.getOneById || this.props.mainArticleId !== prevProps.mainArticleId){
             this._updateLayers();
+        }
+
+        if(this.props.hInterval !== prevProps.hInterval){
+            this._updateTime();
         }
     }
 

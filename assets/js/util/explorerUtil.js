@@ -2,6 +2,7 @@ import HDate from "./HDate";
 import {LEFT, RIGHT} from "./geometry";
 import dU from "./date";
 import {createSelector} from "reselect/lib/index";
+import L from "leaflet";
 
 
 export const articleIsOpen = (displayedArticles,id) => {
@@ -191,7 +192,9 @@ export const AVAILABLE_AREAS = {
     TIME: `TIME`
 };
 
-/** analyze abstract of an article and returns temporal data from it */
+/** analyze abstract of an article and returns temporal data from it
+ * @returns array
+ * */
 
 export const getTimeDataFromAbstract = createSelector(
     [(article) =>article],
@@ -207,7 +210,7 @@ export const getTimeDataFromAbstract = createSelector(
         //console.log(Array.from(array, x => x.index));
         //console.log(results);
 
-        const marks = array.map((value)=>{
+        let marks = array.map((value)=>{
             const index = value['index'];
             const id = value[2];
             const hDateKey = value[3].replace(/&quot;/gi,'"');
@@ -225,8 +228,9 @@ export const getTimeDataFromAbstract = createSelector(
             };
         });
 
+        marks = marks.concat(getTimedGeoData(article));
 
-
+        // get GeoData set in time too
         marks.sort((a,b)=>{
             return a.hDate.compare(b.hDate);
         });
@@ -235,8 +239,9 @@ export const getTimeDataFromAbstract = createSelector(
     }
 );
 
-/** analyze abstract of an article and returns temporal data from it */
-
+/** analyze abstract of an article and returns temporal data from it
+ * @returns array
+ * */
 export const getGeoDataFromAbstract = createSelector(
     [(article) =>article],
     (article)=> {
@@ -265,6 +270,57 @@ export const getGeoDataFromAbstract = createSelector(
                 html:html
             };
         });
+
+        return marks;
+    }
+);
+
+/** analyse abstract of an article (use getGeoDataFromAbstract to do so) and returns temporal data from it
+ * @returns array
+ * **/
+const getTimedGeoData = createSelector(
+    [(article) =>article],
+    (article)=> {
+
+        const geoData = getGeoDataFromAbstract(article);
+        const marks = [];
+
+        geoData.forEach(({hGeo,html,id,index})=>{
+
+            //this.geoMarkersIndex.set(id,{center:hGeo.center,zoom:hGeo.zoom});
+
+            hGeo.drawnItems.features.forEach((feature)=>{
+                if(!!feature.properties.hDate){
+                    console.log('geoData with HDate',feature,feature.properties.hDate);
+
+                    const html = feature.properties.title;
+                    const hDate = HDate.prototype.parseFromJson(feature.properties.hDate);
+                    const duration = hDate.getIntervalSize();
+
+                    marks.push({
+                        index:0,
+                        id:id+'-'+feature.properties.id,
+                        markerId:id,
+                        hDate:hDate,
+                        html:html,
+                        duration:duration
+                    });
+                }
+
+
+                /*feature.properties.iconId= id;
+                console.log("add layers, feature=",feature);
+                let geoJsonFeature = L.geoJson(feature);
+                //if(!!feature.hDate)
+                console.log("add layers, GeoJsonFeature=",geoJsonFeature);
+                this.drawnItems.addLayer(geoJsonFeature);*/
+            });
+
+
+        });
+
+        console.log('geoData=',marks);
+
 
         return marks;
     }

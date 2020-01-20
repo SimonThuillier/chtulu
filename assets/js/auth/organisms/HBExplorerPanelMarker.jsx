@@ -123,7 +123,7 @@ class HBExplorerPanelMarker extends React.Component {
                    //e.preventDefault();
                    //e.stopPropagation();
                     const event = new CustomEvent('hb.explorer.set.marker');
-                    event.iconId = marker.id;
+                    event.iconId = !!marker.markerId?marker.markerId:marker.id;
                     event.hbOrigin=AVAILABLE_AREAS.TIME;
                     window.dispatchEvent(event);
                 }}
@@ -158,7 +158,7 @@ class HBExplorerPanelMarker extends React.Component {
                     cx={xMargin + deltaX}//{deltaX + xMargin}
                     cy={10}
                     r="8"
-                    fill={`orange`}
+                    fill={marker.id.includes('GEO_MARKER')?`blue`:`orange`}
                     onClick={this.handleOnClick}
                 />
                 <ProgressionCircle

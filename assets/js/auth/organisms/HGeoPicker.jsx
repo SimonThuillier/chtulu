@@ -14,6 +14,8 @@ import {
 } from "react-bootstrap";
 import L from "leaflet";
 const UUID = require("uuid/v4");
+import HGeoInfoWidget from '../widget/HGeoInfoWidget';
+import HDate from '../../util/HDate';
 
 const defaultStyle = {
     position: "absolute",
@@ -56,6 +58,8 @@ export default class HGeoPicker extends Component {
 
         this.drawnItems = null;
         this.drawControl = null;
+
+        this.infoWidget = HGeoInfoWidget;
     }
 
     isValid() {
@@ -138,6 +142,7 @@ export default class HGeoPicker extends Component {
             let props = feature.properties = feature.properties || {}; // Initialize feature.properties
             props.id = UUID();
             props.title=null;
+            props.hDate=null;
             drawnItems.addLayer(layer);
             console.log('feature group added = ',drawnItems);
             console.log(`geovalid, new item count : ${component.state.itemCount+1}`);
@@ -149,13 +154,26 @@ export default class HGeoPicker extends Component {
             component.setState({itemCount:component.state.itemCount-e.layers.getLayers().length});
         });
 
-
         drawnItems
-            .bindPopup('<span><b>Shape Name</b></span><br/><input id="shapeName" type="text"/><br/><br/><br/><input type="button" id="shapeSaveBtn" value="Save"/>')
+            //.bindPopup('<span><b>Shape Name</b></span><br/><input id="shapeName" type="text"/><br/><br/><br/><input type="button" id="shapeSaveBtn" value="Save"/>')
+            .bindPopup(this.infoWidget.getDOMElement())
             .on('click',(e)=>{
                 console.log('click on layer ; ',e)})
             .on('popupopen',(e)=>{
                 const layer = e.layer;
+                console.log('hGeoInfo layer : ',layer);
+                console.log('hGeoInfo element in theory : ',layer.feature.properties);
+                this.infoWidget.props({
+                    initialValue:{
+                    hDate:layer.feature.properties.hDate?HDate.prototype.parseFromJson(layer.feature.properties.hDate):null,
+                        title:layer.feature.properties.title||null},
+                onSave:(value)=>{
+                        console.log('onSave hGeo=',value);
+                    layer.feature.properties.hDate = value.hDate?JSON.stringify(value.hDate):null;
+                    layer.feature.properties.title = value.title;
+                }});
+                this.infoWidget.show();
+                /*
                 const input = $('#shapeName');
                 const saveButton = $("#shapeSaveBtn");
                 input.val(layer.feature.properties.title||null);
@@ -164,14 +182,17 @@ export default class HGeoPicker extends Component {
                     console.log('save layer name',input.val());
                     layer.feature.properties.title = input.val();
                     map.closePopup();
-                });
+                });*/
             })
             .bindTooltip('<span id="shapeTooltip"></span>')
             .on('mouseover',(e)=>{
             const layer = e.layer;
             const tooltip = document.getElementById('shapeTooltip');
-            tooltip.innerText = (layer.feature.properties.title||null);
+            tooltip.innerText = ((layer.feature.properties.title||'') +
+                (layer.feature.properties.hDate?` - ${HDate.prototype.parseFromJson(layer.feature.properties.hDate).getLabel()}`:''));
         });
+
+        this.infoWidget.props({onClose:()=>{map.closePopup();}});
 
 
 
@@ -196,24 +217,22 @@ export default class HGeoPicker extends Component {
 
             let itemCount=0;
 
-            drawnItems.features.forEach((feature)=>{
-                console.log("add layers, feature=",feature);
-                let geoJsonFeature = L.geoJson(feature);
-                console.log("add layers, GeoJsonFeature=",feature);
+            drawnItems.features.forEach((geoJson)=>{
+                console.log("add layers, feature=",geoJson);
+                let geoJsonFeature = L.GeoJSON.geometryToLayer(geoJson);
+
+                // this quite weird workaround allows for some extra props appearance in toGeoJSON function result
+                let feature = geoJsonFeature.feature = geoJsonFeature.feature || {}; // Initialize feature
+                feature.type = feature.type || "Feature"; // Initialize feature.type
+                let props = feature.properties = feature.properties || {}; // Initialize feature.properties
+                props.id = (geoJson.properties && geoJson.properties.id) || UUID();
+                props.title=(geoJson.properties && geoJson.properties.title) || 'test';
+                props.hDate=(geoJson.properties && geoJson.properties.hDate) || null;
+                console.log("add layers, GeoJsonFeature=",geoJsonFeature);
                 this.drawnItems.addLayer(geoJsonFeature);
                 itemCount=itemCount+1;
             });
 
-            /*this.map.removeControl(this.drawControl);
-            this.drawControl = new L.Control.Draw({
-                edit: {
-                    featureGroup: this.drawnItems
-                },
-                remove: {
-                    featureGroup: this.drawnItems
-                }
-            });
-            this.map.addControl(this.drawControl);*/
 
             console.log('feature group init = ',this.drawnItems);
             this.setState({itemCount:itemCount});

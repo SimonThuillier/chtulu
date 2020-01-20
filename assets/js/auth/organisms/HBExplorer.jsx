@@ -230,19 +230,25 @@ class HBExplorer extends React.Component {
         const {enabledAreas} = this.state;
         console.log('hbexplorer onsetmarker',iconId,hbOrigin);
 
+        const newEnabledAreas = enabledAreas.concat([]);
+
         if(!this.state.enabledAreas.includes(hbOrigin)){
-            this.toggleArea(hbOrigin);
+            newEnabledAreas.push(hbOrigin);
         }
 
         if(iconId.includes('GEO_MARKER') && !enabledAreas.includes(AVAILABLE_AREAS.MAP)){
-            this.toggleArea(AVAILABLE_AREAS.MAP);
+            newEnabledAreas.push(AVAILABLE_AREAS.MAP);
         }
         if(iconId.includes('TIME_MARKER') && !enabledAreas.includes(AVAILABLE_AREAS.TIME)){
-            this.toggleArea(AVAILABLE_AREAS.TIME);
+            newEnabledAreas.push(AVAILABLE_AREAS.TIME);
         }
         if((hbOrigin===AVAILABLE_AREAS.TIME || hbOrigin===AVAILABLE_AREAS.MAP) &&
             !enabledAreas.includes(AVAILABLE_AREAS.CONTENT)){
-            this.toggleArea(AVAILABLE_AREAS.CONTENT);
+            newEnabledAreas.push(AVAILABLE_AREAS.CONTENT);
+        }
+
+        if(newEnabledAreas.length !== enabledAreas.length){
+            this._setEnabledAreas(newEnabledAreas);
         }
     }
 
@@ -643,6 +649,7 @@ class HBExplorer extends React.Component {
                         height={this.mapAreaRef.current?this.mapAreaRef.current.getBoundingClientRect().height:100}
                         mainArticleId={mainArticleId}
                         isResizing={false}
+                        hInterval={hInterval}
                     />
                 </MapArea>);
         }

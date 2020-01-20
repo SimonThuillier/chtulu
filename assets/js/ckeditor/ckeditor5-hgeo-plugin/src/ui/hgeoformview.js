@@ -4,6 +4,7 @@ import FocusTracker from '@ckeditor/ckeditor5-utils/src/focustracker';
 import KeystrokeHandler from '@ckeditor/ckeditor5-utils/src/keystrokehandler';
 
 import HGeoWidget from '../../../../auth/widget/HGeoWidget';
+import HGeoInfoWidget from '../../../../auth/widget/HGeoInfoWidget';
 
 /**
  * The link form view controller class.
@@ -50,6 +51,9 @@ export default class HDateFormView extends View {
         this.keystrokes = new KeystrokeHandler();
 
         const classList = ['ck', 'ck-link-form'];
+
+        // instanciate geoInfo widget DomElement (if not it's not done in time for binding with the map popup weirdly)
+        const geoInfoElement = HGeoInfoWidget.getDOMElement();
 
 
         this.setTemplate({
