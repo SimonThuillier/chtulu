@@ -320,7 +320,7 @@ class ArticleForm extends React.Component{
         console.log(props);
         this.componentUid = props.form;
 
-        this.handleSwitch = this.handleSwitch.bind(this);
+        this.onLeave = this.onLeave.bind(this);
         this.submit = this.submit.bind(this);
         this.handleServerSubmit = this.handleServerSubmit.bind(this);
         this.handleReset = this.handleReset.bind(this);
@@ -411,8 +411,25 @@ class ArticleForm extends React.Component{
     }
 
     componentDidMount() {
-        console.log("component didmount");
+        console.log("form, component didmount");
         this.initializeFormData();
+        window.addEventListener('hb.article.leave.form',this.onLeave);
+    }
+
+    componentWillUnmount(){
+        window.removeEventListener('hb.article.leave.form',this.onLeave);
+        if(this.props.valid) this.submit(this.props.id);
+    }
+
+    onLeave(event){
+        console.log("form, component will leave");
+        if(+event.articleId === +this.props.id){
+            const {anyTouched,pristine} = this.props;
+            const {data} = this.state;
+            if(anyTouched && !pristine){
+                this.submit(this.props.id);
+            }
+        }
     }
 
     componentDidUpdate(prevProps) {
@@ -516,10 +533,6 @@ class ArticleForm extends React.Component{
         this.setState({localSubmitCount:this.state.localSubmitCount+1});
     }
 
-    componentWillUnmount(){
-        if(this.props.valid) this.submit(this.props.id);
-    }
-
     handleServerSubmit(){
         const {anyTouched,dispatch,id} = this.props;
         this.submit();
@@ -528,10 +541,6 @@ class ArticleForm extends React.Component{
         },5);
     }
 
-    handleSwitch(){
-        if(this.props.valid) this.submit();
-        this.props.handleSwitch('detail');
-    }
 
     render(){
         // console.log("render article form");
@@ -583,7 +592,6 @@ class ArticleForm extends React.Component{
                             isDirty={data?data.isDirty(data):true}
                             isToDelete={data && data.get("toDelete")}
                             objectLabel={'votre article'}
-                            handleSwitch={this.handleSwitch}
                             handleServerSubmit={this.handleServerSubmit}
                             handleReset={this.handleReset}
                             handleDelete={this.handleDelete}

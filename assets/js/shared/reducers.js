@@ -34,6 +34,7 @@ const initialAppState = Imm.Map({
 
 export const appReducer = (state=initialAppState, action) =>{
     const {notifType,senderKey,senderParam,status,waoType,groups,id,extraData,message,errors} = action;
+    console.log(action);
     //console.log(action);
     switch (action.type) {
         case NOTIFY:

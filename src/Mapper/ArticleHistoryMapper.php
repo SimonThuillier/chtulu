@@ -8,36 +8,17 @@
 
 namespace App\Mapper;
 
-use App\Entity\ArticleHistory;
 use App\Entity\DTOMutableEntity;
-use App\Entity\Article;
-use App\Entity\ArticleType;
+use App\Entity\ArticleHistory;
 use App\Factory\ArticleFactory;
-use App\Factory\ArticleHistoryFactory;
-use App\Serializer\HDateNormalizer;
-use App\Serializer\SimpleEntityNormalizer;
-use App\Util\HDate;
+use App\Factory\FactoryException;
+use App\Mediator\NullColleagueException;
 use Psr\Log\LoggerInterface;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterface
+class ArticleHistoryMapper extends AbstractEntityMapper implements EntityMapperInterface
 {
-    /**
-     * @var SimpleEntityNormalizer
-     */
-    private $simpleEntityNormalizer;
-    /**
-     * @var HDateNormalizer
-     */
-    private $hDateNormalizer;
-    /**
-     * @var ArticleHistoryFactory
-     */
-    private $historyFactory;
-
-
-
     /**
      * ArticleMapper constructor.
      *
@@ -45,24 +26,15 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterfac
      * @param ArticleFactory $entityFactory
      * @param LoggerInterface $logger
      * @param TokenStorageInterface $tokenStorage
-     * @param SimpleEntityNormalizer $simpleEntityNormalizer
-     * @param HDateNormalizer $hDateNormalizer
-     * @param ArticleHistoryFactory $historyFactory
      */
     public function __construct(
         ManagerRegistry $doctrine,
         TokenStorageInterface $tokenStorage,
         LoggerInterface $logger,
-        ArticleFactory $entityFactory,
-        SimpleEntityNormalizer $simpleEntityNormalizer,
-        HDateNormalizer $hDateNormalizer,
-        ArticleHistoryFactory $historyFactory
+        ArticleFactory $entityFactory
     )
     {
-        $this->entityClassName = Article::class;
-        $this->simpleEntityNormalizer = $simpleEntityNormalizer;
-        $this->hDateNormalizer = $hDateNormalizer;
-        $this->historyFactory = $historyFactory;
+        $this->entityClassName = ArticleHistory::class;
         parent::__construct(
             $doctrine,
             $tokenStorage,
@@ -74,50 +46,39 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterfac
     /**
      * @param DTOMutableEntity $entity
      * @param boolean $commit
-     * @return Article
+     * @return ArticleHistory
      * @throws EntityMapperException
      */
     public function add(DTOMutableEntity $entity,$commit=true)
     {
         $this->checkAdd($entity);
-        /** @var Article $article */
-        $article = $this->defaultAdd($entity);
-        $article
+        /** @var ArticleHistory $articleHistory */
+        $articleHistory = $this->defaultAdd($entity);
+        $articleHistory
             ->setEditionDate(new \DateTime())
             ->setEditionUser($this->getUser());
         if($commit){
             $this->getManager()->flush();
         }
-
-        // add the first mandatory history for the article
-        /** @var ArticleHistory $history */
-        $history = $this->historyFactory->create();
-        $history->setArticle($article);
-        $this->defaultAdd($history);
-        if($commit){
-            $this->getManager()->flush();
-        }
-
-
-        return $article;
+        return $articleHistory;
     }
 
     /**
      * @param DTOMutableEntity $entity
      * @param boolean $commit
-     * @return Article
+     * @return ArticleHistory
      * @throws EntityMapperException
      */
     public function edit(DTOMutableEntity $entity,$commit=true)
     {
         $this->checkEdit($entity);
-        /** @var Article $article */
-        $article = $this->defaultEdit($entity);
-        $article
+        /** @var ArticleHistory $articleHistory */
+        $articleHistory = $this->defaultEdit($entity);
+        $articleHistory
             ->setEditionDate(new \DateTime())
             ->setEditionUser($this->getUser());
         if($commit) $this->getManager()->flush();
-        return $article;
+        return $articleHistory;
     }
 
     /**
@@ -127,9 +88,9 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterfac
      */
     public function confirmDelete(int $id)
     {
-        /** @var Article $article */
-        $article = $this->find($id);
-        return "êtes vous sûr de vouloir supprimer l'article " . $article->getTitle() . " ?";
+        /** @var ArticleHistory $articleHistory */
+        $articleHistory = $this->find($id);
+        return "êtes vous sûr de vouloir supprimer l'article History " . $articleHistory->getId() . " ?";
     }
 
     /**
@@ -144,6 +105,12 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterfac
         $this->getManager()->flush();
     }
 
+    protected function getCountAllQB(){
+        return $this->doctrine->getManager()->createQueryBuilder()
+            ->from(ArticleHistory::class,'o')
+            ->select('COUNT(o.id)');
+    }
+
     /**
      * @inheritdoc
      */
@@ -151,12 +118,6 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterfac
     {
         return $this->repository->createQueryBuilder('o')
             ->select('o')
-            ->leftJoin('o.type','type')
-            ->addSelect('type')
-            ->leftJoin('o.detailImage','image')
-            ->addSelect('image')
-            ->leftJoin('o.geometry','geometry')
-            ->addSelect('geometry')
             ->orderBy('o.editionDate','DESC');
     }
 
@@ -170,15 +131,6 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterfac
         $tSearch = [];
         foreach((array)($search) as $key => $value){
             switch($key){
-                case 'type':
-                    $tSearch[$key] = $this->simpleEntityNormalizer->denormalize($value,ArticleType::class);
-                    break;
-                case 'beginHDate':
-                    $tSearch[$key] = $this->hDateNormalizer->denormalize($value,HDate::class);
-                    break;
-                case 'endHDate':
-                    $tSearch[$key] = $this->hDateNormalizer->denormalize($value,HDate::class);
-                    break;
                 default :
                     $tSearch[$key] = $value;
                     break;

@@ -140,7 +140,7 @@ class HBExplorerProxy extends React.Component {
 
             this.selectArticle.bind(this);
         this.closeArticle = this.closeArticle.bind(this);
-        this.toggleActiveComponent = this.toggleActiveComponent.bind(this);
+        this.setActiveComponent = this.setActiveComponent.bind(this);
         this.addArticle = this.addArticle.bind(this);
         this.expandArticle = this.expandArticle.bind(this);
         this.linkArticle = this.linkArticle.bind(this);
@@ -479,14 +479,19 @@ class HBExplorerProxy extends React.Component {
         this.setState({displayedArticles:newDisplayedArticles});
     }
 
-    toggleActiveComponent(ids){
+    /**
+     *
+     * @param ids array of ids of the concerned articles
+     * @param activeComponent a string which must be in [detail,form,admin]
+     */
+    setActiveComponent(ids,activeComponent){
         const {displayedArticles} = this.state;
 
         let newDisplayedArticles = new Map(displayedArticles);
 
         newDisplayedArticles.forEach((article,id)=>{
             if(ids.includes(+id)){
-                article.activeComponent= article.activeComponent==='detail'?'form':'detail';
+                article.activeComponent= activeComponent;
             }
         });
         this.setState({displayedArticles:newDisplayedArticles});
@@ -659,7 +664,7 @@ class HBExplorerProxy extends React.Component {
                     setHoveredArticle={this.setHoveredArticle}
                     selectArticle={this.selectArticle}
                     closeArticle={this.closeArticle}
-                    toggleActiveComponent={this.toggleActiveComponent}
+                    setActiveComponent={this.setActiveComponent}
                     expandArticle={this.expandArticle}
                     linkArticle={this.linkArticle}
                     addArticle = {this.addArticle}

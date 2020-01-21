@@ -9,7 +9,9 @@
 namespace App\Factory;
 
 use App\Entity\Article;
+use App\Entity\ArticleHistory;
 use App\Entity\ArticleLink;
+use App\Entity\ArticleStatus;
 use App\Entity\DTOMutableEntity;
 use App\Entity\HResource;
 use App\Entity\PendingAction;
@@ -47,7 +49,8 @@ class EntityFactory implements ServiceSubscriberInterface
             ResourceVersion::class => ResourceVersionFactory::class,
             ResourceGeometry::class => ResourceGeometryFactory::class,
             PendingAction::class => PendingActionFactory::class,
-            User::class => UserFactory::class
+            User::class => UserFactory::class,
+            ArticleHistory::class => ArticleHistoryFactory::class
         ];
     }
 

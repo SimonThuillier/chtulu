@@ -52,3 +52,13 @@ DROP SEQUENCE hb_article_link_id_seq;
 CREATE SEQUENCE hb_article_link_id_seq;
 SELECT setval('hb_article_link_id_seq', (SELECT MAX(id) FROM hb_article_link));
 ALTER TABLE hb_article_link ALTER id SET DEFAULT nextval('hb_article_link_id_seq');
+
+DROP SEQUENCE hb_article_status_id_seq;
+CREATE SEQUENCE hb_article_status_id_seq;
+SELECT setval('hb_article_status_id_seq', (SELECT MAX(id) FROM hb_article_status));
+ALTER TABLE hb_article_status ALTER id SET DEFAULT nextval('hb_article_status_id_seq');
+
+DROP SEQUENCE hb_article_history_id_seq;
+CREATE SEQUENCE hb_article_history_id_seq;
+SELECT setval('hb_article_history_id_seq', (SELECT MAX(id) FROM hb_article_history));
+ALTER TABLE hb_article_history ALTER id SET DEFAULT nextval('hb_article_history_id_seq');

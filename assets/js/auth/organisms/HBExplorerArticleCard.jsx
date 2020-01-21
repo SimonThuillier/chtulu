@@ -45,6 +45,19 @@ class HBExplorerArticleCard extends React.Component {
         console.log(scrollArea.scrollTop);
     }
 
+
+
+    componentDidUpdate(prevProps){
+        if(prevProps.activeComponent==='form' &&
+            prevProps.activeComponent!==this.props.activeComponent &&
+            prevProps.mainArticleId !==null
+        ){
+            const event = new CustomEvent('hb.article.leave.form');
+            event.articleId = prevProps.mainArticleId;
+            window.dispatchEvent(event);
+        }
+    }
+
     componentDidMount(){
         window.addEventListener('hb.explorer.set.marker',this.setMarker);
     }
@@ -56,9 +69,11 @@ class HBExplorerArticleCard extends React.Component {
 
     render() {
         const {dispatch,id,mainArticleId,articles,displayParameters,
-            setHoveredArticle,toggleActiveComponent,closeArticle,
+            setHoveredArticle,setActiveComponent,closeArticle,
             selectArticle,expandArticle,linkArticle,
             getLinks} = this.props;
+
+        const {activeComponent} = displayParameters;
 
         const {askedNewLink} = this.state;
 
@@ -91,7 +106,7 @@ class HBExplorerArticleCard extends React.Component {
                     <span><h4><ArticleType articleId={id}/></h4></span>
                     {alreadyCreatedArticle?
                         <Link
-                            to={`/article/${id}/${displayParameters.activeComponent==='form'?'edit':''}`}
+                            to={`/article/${id}/${setActiveComponent==='form'?'edit':''}`}
                             className={'btn btn-link'}
                             title={"Page principale de l'article"}
                             style={{paddingBottom:0}}
@@ -104,11 +119,23 @@ class HBExplorerArticleCard extends React.Component {
                             <ArticleExpander id={id} expanded={displayParameters.isExpanded} onClick={()=>{expandArticle(id)}}/>
                             <TimeBreadcrumb sense={-1} target={previousArticle} switcher={(id)=>{return selectArticle([id]);}}/>
                             <TimeBreadcrumb sense={1} target={nextArticle} switcher={(id)=>{return selectArticle([id]);}}/>
-                        <Button bsStyle="primary"
+
+                        <Button bsStyle={activeComponent==='detail'?'primary':'default'}
                                 disabled={false}
-                                onClick={()=>{toggleActiveComponent([id])}}>
-                               <Glyphicon glyph={displayParameters.activeComponent==='detail'?'edit':'eye-open'}/>
-                            </Button>
+                                onClick={()=>{setActiveComponent([id],'detail');}}>
+                               <Glyphicon glyph='eye-open'/>
+                        </Button>
+                        <Button bsStyle={activeComponent==='form'?'primary':'default'}
+                                disabled={false}
+                                onClick={()=>{setActiveComponent([id],'form')}}>
+                               <Glyphicon glyph='edit'/>
+                        </Button>
+                        <Button bsStyle={activeComponent==='admin'?'primary':'default'}
+                                disabled={false}
+                                onClick={()=>{setActiveComponent([id],'admin')}}>
+                               <Glyphicon glyph='cog'/>
+                        </Button>
+
 
                         {isLinked !==null && <span>
                             <OverlayTrigger
@@ -132,11 +159,6 @@ class HBExplorerArticleCard extends React.Component {
                                 </OverlayTrigger>
                             &nbsp;&nbsp;
                             </span>}
-                            <Button bsStyle="default"
-                                    disabled={false}
-                                    onClick={()=>{closeArticle([id])}}>
-                               <Glyphicon glyph={'remove'}/>
-                            </Button>
                         </span>
                 </div>
 
@@ -148,15 +170,24 @@ class HBExplorerArticleCard extends React.Component {
                     <Article
                         dispatch={dispatch}
                         id={id}
-                        handleSwitch={()=>{toggleActiveComponent([id]);}}
                         onNothing={null}
                         groups={{"minimal":true,"date":true,"detailImage":{activeVersion:{urlMini:true}},"abstract":true}}
                     >
-                        <div hidden={displayParameters.activeComponent!=='detail'}>
-                            <Article.Detail/>
+                        {/*{activeComponent==='detail'?*/}
+                            {/*(<Article.Detail/>):*/}
+                            {/*activeComponent==='form'?*/}
+                                {/*(<Article.Form/>):*/}
+                                {/*activeComponent==='admin'?*/}
+                                    {/*(<Article.Admin/>):null*/}
+                        {/*}*/}
+                        <div hidden={activeComponent!=='detail'}>
+                        <Article.Detail/>
                         </div>
-                        <div hidden={displayParameters.activeComponent!=='form'}>
-                            <Article.Form/>
+                        <div hidden={activeComponent!=='form'}>
+                        <Article.Form/>
+                        </div>
+                        <div hidden={activeComponent!=='admin'}>
+                        <Article.Admin/>
                         </div>
                     </Article>
                     <div style={{minHeight:'30px'}}/>

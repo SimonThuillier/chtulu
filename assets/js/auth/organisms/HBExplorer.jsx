@@ -215,10 +215,9 @@ class HBExplorer extends React.Component {
                 .set("onePiece.height", `70%`)
                 .set("left.width", `60%`)
                 .set("right.width", `40%`),
-            currentTheme: EDITOR, // SIDEVIEW
-            enabledAreas: [CONTENT,TIME] // MAP,
+            currentTheme: SIDEVIEW,
+            enabledAreas: [CONTENT,TIME,MAP]
         };
-        console.log("build");
     }
 
     /**
@@ -283,7 +282,19 @@ class HBExplorer extends React.Component {
     /** returns the real frameSize from the frameSizes map, theme and enabled areas */
     getRealFrameSize(key){
         const {currentTheme,frameSizes,enabledAreas} = this.state;
-        if(enabledAreas.length===3) return frameSizes.get(key);
+        const {displayedArticles,mainArticleId} = this.props;
+
+        // if article is in activeComponent form or admin, only content area must be enabled
+        let realEnabledAreas = [].concat(enabledAreas);
+
+        if(!!mainArticleId && displayedArticles.has(+mainArticleId)){
+            if(['form','admin'].includes(displayedArticles.get(+mainArticleId).activeComponent)){
+                realEnabledAreas = [AVAILABLE_AREAS.CONTENT];
+            }
+        }
+
+
+        if(realEnabledAreas.length===3) return frameSizes.get(key);
 
         const realFrameSizes = new Map()
             .set("twoPieces.height", frameSizes.get("twoPieces.height"))
@@ -293,45 +304,45 @@ class HBExplorer extends React.Component {
 
         switch(currentTheme){
             case EDITOR:
-                if(!enabledAreas.includes(CONTENT)){
+                if(!realEnabledAreas.includes(CONTENT)){
                     realFrameSizes.set("onePiece.height",'0%').set("twoPieces.height",'100%');
                 }
-                if(!enabledAreas.includes(TIME)){
+                if(!realEnabledAreas.includes(TIME)){
                     realFrameSizes.set("left.width",'0%').set("right.width",'100%');
                 }
-                if(!enabledAreas.includes(MAP)){
+                if(!realEnabledAreas.includes(MAP)){
                     realFrameSizes.set("left.width",'100%').set("right.width",'0%');
                 }
-                if(!enabledAreas.includes(TIME) && !enabledAreas.includes(MAP)){
+                if(!realEnabledAreas.includes(TIME) && !realEnabledAreas.includes(MAP)){
                     realFrameSizes.set("onePiece.height",'100%').set("twoPieces.height",'0%');
                 }
                 break;
             case SIDEVIEW :
-                if(!enabledAreas.includes(CONTENT)){
+                if(!realEnabledAreas.includes(CONTENT)){
                     realFrameSizes.set("left.width",'0%').set("right.width",'100%');
                 }
-                if(!enabledAreas.includes(TIME)){
+                if(!realEnabledAreas.includes(TIME)){
                     realFrameSizes.set("twoPieces.height",'0%').set("onePiece.height",'100%');
                 }
-                if(!enabledAreas.includes(MAP)){
+                if(!realEnabledAreas.includes(MAP)){
                     realFrameSizes.set("left.width",'100%').set("right.width",'0%');
                 }
-                if(enabledAreas.includes(TIME) && !enabledAreas.includes(CONTENT) && !enabledAreas.includes(MAP)){
+                if(realEnabledAreas.includes(TIME) && !realEnabledAreas.includes(CONTENT) && !realEnabledAreas.includes(MAP)){
                     realFrameSizes.set("onePiece.height",'0%').set("twoPieces.height",'100%')
                         .set("left.width",'100%').set("right.width",'0%');
                 }
                 break;
             case VERTICAL:
-                if(!enabledAreas.includes(CONTENT)){
+                if(!realEnabledAreas.includes(CONTENT)){
                     realFrameSizes.set("onePiece.height",'0%').set("twoPieces.height",'100%');
                 }
-                if(!enabledAreas.includes(TIME)){
+                if(!realEnabledAreas.includes(TIME)){
                     realFrameSizes.set("left.width",'0%').set("right.width",'100%');
                 }
-                if(!enabledAreas.includes(MAP)){
+                if(!realEnabledAreas.includes(MAP)){
                     realFrameSizes.set("left.width",'100%').set("right.width",'0%');
                 }
-                if(!enabledAreas.includes(TIME) && !enabledAreas.includes(MAP)){
+                if(!realEnabledAreas.includes(TIME) && !realEnabledAreas.includes(MAP)){
                     realFrameSizes.set("onePiece.height",'100%').set("twoPieces.height",'0%');
                 }
                 break;
@@ -430,7 +441,7 @@ class HBExplorer extends React.Component {
             let newFrameSizes = new Map(frameSizes);
             newFrameSizes
                 .set("container.width", `${newContainerWidth}px`)
-                .set("container.height", `${newContainerHeight}px`);
+                .set("container.height", `${newContainerHeight-1}px`);
 
             this.setState({ frameSizes: newFrameSizes,isResizing:true});
             const counter = this.resizeCounter;
@@ -535,7 +546,7 @@ class HBExplorer extends React.Component {
         const { searchBag,setLimit,hInterval,setHInterval,cursorRate,timeRecordMode,toggleTimeRecordMode,
             cursorDate,isCursorActive,setCursorRate,toggleCursor,
             articles,mainArticleId,displayedArticles,invisibles,
-            hoveredArticleId, setHoveredArticle,selectArticle,closeArticle,expandArticle,linkArticle,toggleActiveComponent,addArticle,
+            hoveredArticleId, setHoveredArticle,selectArticle,closeArticle,expandArticle,linkArticle,setActiveComponent,addArticle,
             dispatch,onFilter} = this.props;
         const theme = THEMES[currentTheme];
         //console.log(currentTheme);
@@ -681,7 +692,7 @@ class HBExplorer extends React.Component {
                     displayedArticles={displayedArticles}
                     setHoveredArticle={setHoveredArticle}
                     selectArticle={selectArticle}
-                    toggleActiveComponent={toggleActiveComponent}
+                    setActiveComponent={setActiveComponent}
                     closeArticle={closeArticle}
                     expandArticle={expandArticle}
                     linkArticle={linkArticle}

@@ -10,6 +10,7 @@ namespace App\Helper;
 
 
 use App\DTO\EntityMutableDTO;
+use App\Entity\ArticleStatus;
 use App\Entity\ArticleType;
 use App\Entity\DateType;
 use App\Entity\ResourceType;
@@ -40,7 +41,8 @@ class WAOHelper
         $this->simpleEntityClasses = array(
             ArticleType::class,
             DateType::class,
-            ResourceType::class
+            ResourceType::class,
+            ArticleStatus::class
         );
     }
 

@@ -201,6 +201,7 @@ export const getTimeDataFromAbstract = createSelector(
     (article)=> {
 
         const text = article.abstract;
+        if (!text) return [];
 
         //const regex = /<icon[^>]+id="([^"]+)"[^>]+data-hdate="([^"]+)"[^>]*>[^>]+<\/icon>(.{400})(?!<icon[^>][^>]+data-hdate=")/g;
         const regex = /(<icon[^>]+id="([^"]+)"[^>]+data-hdate="([^"]+)"[^>]*>[^>]+<\/icon>)/g;
@@ -247,6 +248,7 @@ export const getGeoDataFromAbstract = createSelector(
     (article)=> {
 
         const text = article.abstract;
+        if (!text) return [];
 
         const regex = /(<icon[^>]+id="([^"]+)"[^>]+data-hgeo="([^"]+)"[^>]*>[^>]+<\/icon>)/g;
         //console.log(text);
@@ -342,8 +344,10 @@ const urlDailymotionRegex = /.*www\.dailymotion\.com\/video\/([^&?]+)/;
 export const getDecoratedAbstractForDetail = createSelector(
     [(abstract) =>abstract],
     (abstract)=> {
+        if (!abstract) return abstract;
 
         let transformedAbstract = abstract;
+
 
         //console.log(text);
         let array = [...abstract.matchAll(mediaRegex)];

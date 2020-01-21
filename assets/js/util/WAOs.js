@@ -148,6 +148,21 @@ const defaultPrototypes = {
             }
             return rec;
         }
+    },
+    /**
+     * @class ArticleHistory
+     */
+    articleHistory:{
+        receiveRecord: function(rec){
+            //console.log("article receiveRecord");
+            //console.log(rec);
+
+            if(rec.has("editionDate") && rec.get("editionDate") !== null){
+                let date = DateUtil.parseRegularServerDate(rec.get("editionDate"));
+                rec = rec.set("editionDate",date);
+            }
+            return rec;
+        }
     }
 };
 

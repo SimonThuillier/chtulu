@@ -383,6 +383,7 @@ export const resetAll = (waoType,ids,groups) => (dispatch,getState) =>{
         items.entrySeq().forEach((entry)=>{
             let id = entry[0];
             let groups = entry[1];
+            console.log('remove pending',waoType,id,groups);
             dispatch(removePending(waoType,id,groups));
             let normData = state.getIn([waoType,"items",+id]);
             normData = denormalize(normData,WAOs.getIn([waoType,"schema"]),entities);
@@ -398,8 +399,7 @@ export const resetAll = (waoType,ids,groups) => (dispatch,getState) =>{
 
     Object.keys(dataToPost.waos).forEach((waoType)=>{
         const normData = normalize(dataToPost.waos[waoType],[WAOs.getIn([waoType,"schema"])]);
-        /*console.log("renormalized data");
-        console.log(normData);*/
+        //console.log("resetAll renormalized data",normData);
         Object.keys(normData.entities).forEach((normWaoType)=>{
             dispatch({
                 type: RESET,

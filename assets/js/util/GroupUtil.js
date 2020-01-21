@@ -41,17 +41,22 @@ const GroupUtil = {
         if (typeof groups === "string") groups = WAOs.getIn([type, "groups"]);
         let diff = {};
 
+        console.log('groupUtil : ',type,base,toCompare,groups);
+
         if (typeof base === "boolean") base = groups.toJS();
         Object.keys(base).forEach(key => {
             if (typeof toCompare[key] === "undefined") diff[key] = base[key];
             else if (typeof toCompare[key] === "object") {
-                if (!groups.has(key))
-                    throw `Group ${key} isn't valid, please remove or edit it`;
-                let subDiff = GroupUtil.leftDiff(
-                    groups.get(key),
-                    base[key],
-                    toCompare[key]
-                );
+                let subDiff = {};
+                if (typeof groups ==="object" && groups.has(key)){
+                    subDiff = GroupUtil.leftDiff(
+                        groups.get(key),
+                        base[key],
+                        toCompare[key]
+                    );
+                }
+                    //throw `Group ${key} isn't valid, please remove or edit it`;
+
                 if (Object.keys(subDiff).length > 0) diff[key] = subDiff;
             }
         });

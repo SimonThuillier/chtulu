@@ -28,7 +28,7 @@ class HBExplorerContent extends React.Component {
 
     render() {
         const {dispatch,mainArticleId,articles,displayedArticles,setHoveredArticle,
-            toggleActiveComponent,closeArticle,selectArticle,expandArticle,linkArticle,
+            setActiveComponent,closeArticle,selectArticle,expandArticle,linkArticle,
             theme} = this.props;
 
 
@@ -55,7 +55,7 @@ class HBExplorerContent extends React.Component {
                    displayParameters={value}
                    activeComponent = {value.activeComponent}
                    setHoveredArticle={setHoveredArticle}
-                   toggleActiveComponent={toggleActiveComponent}
+                   setActiveComponent={setActiveComponent}
                    closeArticle={closeArticle}
                    selectArticle={selectArticle}
                    expandArticle={expandArticle}

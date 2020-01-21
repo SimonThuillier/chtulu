@@ -45,6 +45,7 @@ class UserConnectionInfoCard extends React.Component
     render()
     {
         const {getNotifications,dispatch,user} = this.props;
+        if(!user) return null;
         const notifications = getNotifications(changePasswordUid);
         const submitting = (notifications && notifications.hasIn(['DEFAULT',SUBMITTING]))||false;
 

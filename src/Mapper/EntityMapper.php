@@ -10,6 +10,7 @@ namespace App\Mapper;
 
 
 use App\Entity\Article;
+use App\Entity\ArticleHistory;
 use App\Entity\ArticleLink;
 use App\Entity\DTOMutableEntity;
 use App\Entity\HResource;
@@ -77,7 +78,8 @@ class EntityMapper implements ServiceSubscriberInterface
             HResource::class => ResourceMapper::class,
             ResourceVersion::class => ResourceVersionMapper::class,
             ArticleLink::class => ArticleLinkMapper::class,
-            User::class => UserMapper::class
+            User::class => UserMapper::class,
+            ArticleHistory::class => ArticleHistoryMapper::class
         ];
     }
 

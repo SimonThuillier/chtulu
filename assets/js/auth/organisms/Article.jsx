@@ -4,6 +4,7 @@ import { getOneByIdIfNeeded} from "../actions";
 import { notifyArticleSelection} from "../../shared/actions";
 import ArticleDetail from './ArticleDetail';
 import ArticleForm from './ArticleForm';
+import ArticleAdmin from './ArticleAdmin';
 import {
     makeGetNotificationsSelector, makeGetOneByIdSelector, makeLocalGetByAttributeSelector
 } from "../../shared/selectors";
@@ -19,14 +20,13 @@ const ArticleContext = React.createContext();
 const SubDetail = ({groups}) => {
     return (
         <ArticleContext.Consumer>
-            {({ id, groups:cGroups,data,handleSwitch,linksData }) => {
+            {({ id, groups:cGroups,data,linksData }) => {
                 return (
                     <ArticleDetail
                         id={id}
                         data={data}
                         linksData={linksData}
                         groups={groups || cGroups}
-                        handleSwitch={handleSwitch}
                     />
                 )
             }
@@ -39,7 +39,7 @@ const SubDetail = ({groups}) => {
 const SubForm = ({groups}) => {
     return (
         <ArticleContext.Consumer>
-            {({ id, groups:cGroups,data,handleSwitch,container,linksData,form}) => {
+            {({ id, groups:cGroups,data,container,linksData,form}) => {
                 console.log(`I call ArticleForm with form key ${form}`);
                 return (<Groupable groups={groups || cGroups} subKey={`article-${id}-form`}>
                         <ArticleForm
@@ -48,7 +48,6 @@ const SubForm = ({groups}) => {
                             linksData = {linksData}
                             container={container}
                             groups={groups || cGroups}
-                            handleSwitch={handleSwitch}
                         >
                         </ArticleForm>
                     </Groupable>
@@ -59,10 +58,28 @@ const SubForm = ({groups}) => {
     );
 };
 //SubForm.contextType = ArticleContext;
+const SubAdmin = ({groups}) => {
+    return (
+        <ArticleContext.Consumer>
+            {({ id, groups:cGroups,data,container,linksData}) => {
+                return (
+                        <ArticleAdmin
+                            id={id}
+                            data={data}
+                            linksData={linksData}
+                            groups={groups || cGroups}
+                        />
+                );
+            }
+            }
+        </ArticleContext.Consumer>
+    );
+};
 
 class Article extends React.Component{
     static Detail = SubDetail;
     static Form = SubForm;
+    static Admin = SubAdmin;
 
     constructor(props) {
         super(props);
@@ -124,10 +141,8 @@ class Article extends React.Component{
     }
 
     render(){
-
         //console.log("reRender");
-
-        const {getOneById,getNotifications,handleSwitch,container,groups,id,getLinks} = this.props;
+        const {getOneById,getNotifications,container,groups,id,getLinks} = this.props;
         const notifications = getNotifications(componentUid);
         const loading = (notifications && notifications.hasIn([id || 'DEFAULT',LOADING]))||false;
         //,this.state.id || 'DEFAULT',LOADING]);
@@ -135,28 +150,24 @@ class Article extends React.Component{
         console.log(loading);
         console.log(notifications);*/
 
-        const links = getLinks('childId',id);
-        /*console.log('links');
-        console.log(links);*/
-
-        const linksData = links.map(rec => {
-            const parent = getOneById(+rec.get('parentId'));
-            return {
-                id:+rec.get('id'),
-                parentId:+rec.get('parentId'),
-                parentTitle:parent?parent.get('title'):null,
-                abstract:rec.get('abstract')
-            }
-        });
-
-        console.log(linksData);
+        // TODO links are put in standby for now
+        // const links = getLinks('childId',id);
+        // const linksData = links.map(rec => {
+        //     const parent = getOneById(+rec.get('parentId'));
+        //     return {
+        //         id:+rec.get('id'),
+        //         parentId:+rec.get('parentId'),
+        //         parentTitle:parent?parent.get('title'):null,
+        //         abstract:rec.get('abstract')
+        //     }
+        // });
+        const linksData = [];
 
         const contextValue = {
                 id: id,
                 data: getOneById(id),
                 linksData: linksData,
                 groups: groups,
-                handleSwitch: handleSwitch,
                 container: container || null,
                 form: `article-${id}`
             }
@@ -184,13 +195,13 @@ class Article extends React.Component{
 const makeMapStateToProps = () => {
     const getOneByIdSelector = makeGetOneByIdSelector();
     const getNotificationsSelector = makeGetNotificationsSelector();
-    const getLinksSelector = makeLocalGetByAttributeSelector();
+    //const getLinksSelector = makeLocalGetByAttributeSelector();
 
     return state => {
         return {
             getOneById: getOneByIdSelector(state.get("article")),
             getNotifications: getNotificationsSelector(state.get("app")),
-            getLinks : getLinksSelector(state.get("articleLink"))
+            //getLinks : getLinksSelector(state.get("articleLink"))
         }
     }
 };
