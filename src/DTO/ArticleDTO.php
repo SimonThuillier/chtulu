@@ -26,6 +26,8 @@ class ArticleDTO extends EntityMutableDTO
     protected $type;
     /** @var \DateTime */
     protected $editionDate;
+    /** @var \DateTime */
+    protected $firstPublishedDate;
     /** @var integer */
     protected $firstRankLinksCount;
     /** @var integer */
@@ -113,6 +115,25 @@ class ArticleDTO extends EntityMutableDTO
     public function setEditionDate(?\DateTime $editionDate): ArticleDTO
     {
         $this->editionDate = $editionDate;
+        return $this;
+    }
+
+    /**
+     * @return \DateTime|null
+     * @groups({"minimal"})
+     */
+    public function getFirstPublishedDate(): ?\DateTime
+    {
+        return $this->firstPublishedDate;
+    }
+
+    /**
+     * @param \DateTime $firstPublishedDate
+     * @return ArticleDTO
+     */
+    public function setFirstPublishedDate(\DateTime $firstPublishedDate): ArticleDTO
+    {
+        $this->firstPublishedDate = $firstPublishedDate;
         return $this;
     }
 

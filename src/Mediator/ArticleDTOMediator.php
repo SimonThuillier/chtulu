@@ -73,6 +73,7 @@ class ArticleDTOMediator extends DTOMediator
             ->setTitle($article->getTitle())
             ->setType($article->getType())
             ->setEditionDate($article->getEditionDate())
+            ->setFirstPublishedDate($article->getFirstPublishedDate())
             ->setFirstRankLinksCount($article->getFirstRankLinksCount())
             ->setSecondRankLinksCount($article->getSecondRankLinksCount())
             ->setId($article->getId());

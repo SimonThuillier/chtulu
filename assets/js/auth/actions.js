@@ -320,8 +320,8 @@ export const removePending = (waoType,id,groups) => ({
     }
 );
 
-// pour gestion du cas limite d'edition dun element en cours de creation
-const pendingCreations = new Map();
+// pour gestion du cas limite d'edition d'un element en cours de creation
+const pendingCreations = {};
 
 export const submitLocally = (waoType,data,id,groups) => (dispatch,getState) => {
     if(getState().hasIn([waoType,"items",+id])){
@@ -334,7 +334,7 @@ export const submitLocally = (waoType,data,id,groups) => (dispatch,getState) => 
         });
     }
     else{
-        if(!pendingCreations.has(`${waoType}-${id}`)){
+        /*if(!pendingCreations.has(`${waoType}-${id}`)){
             dispatch(getOneByIdIfNeeded(waoType,groups,id));
             setTimeout(()=>{
                 pendingCreations.set(`${waoType}-${id}`,{data:data,groups:groups});
@@ -342,7 +342,7 @@ export const submitLocally = (waoType,data,id,groups) => (dispatch,getState) => 
         }
         else{
             pendingCreations.set(`${waoType}-${id}`,{data:data,groups:groups});
-        }
+        }*/
     }
 };
 
@@ -540,6 +540,7 @@ export const receiveGetOneById = (waoType,groups,id,data,message="Données bien 
     /*console.log(`denormalizedData ${waoType} with id ${id}`);
     console.log(data);*/
     const normData = normalize(data,WAOs.getIn([waoType,"schema"]));
+        console.log('normalize receive data',waoType,WAOs.getIn([waoType,"schema"]), data,normData);
     /*console.log("normalizedData");
     console.log(normData);*/
     Object.keys(normData.entities).forEach((key)=>{
@@ -619,22 +620,25 @@ export const getOneByIdIfNeeded = (waoType,groups=true,id,senderKey=null) => (di
     if (id===null) return;
     // new case
     if(+id<0){
+        // only one new item can be created at a time, so be carefull different components don't ask it at the same time !!!!
         if(shouldFetchNew(getState(),waoType)){
-            //console.log(`should fetch new ${waoType}`);
+            console.log(`should fetch new ${waoType}`);
             dispatch(fetchNew(waoType,id,senderKey));
-            pendingCreations.set(`${waoType}-${id}`,{data:{},groups:groups});
+            pendingCreations[waoType] = pendingCreations[waoType] || new Map();
+            pendingCreations[waoType].set(id,{groups:groups,senderKey:senderKey});
+            console.log(`should fetch new ${waoType}`,pendingCreations);
         }
         else {
             setTimeout(()=>{
-                if (!getState().hasIn([waoType,"items",+id]) && !getState().hasIn([waoType,"createdItemIds",+id])){
+                if (!getState().hasIn([waoType,"items",+id]) && +id>=+getState().getIn([waoType,"nextNewId"])){
                     dispatch(createNew(waoType));
-                    if(pendingCreations.has(`${waoType}-${id}`)){
+                    /*if(pendingCreations.has(`${waoType}-${id}`)){
                         const {data,groups} = pendingCreations.get(`${waoType}-${id}`);
                         setTimeout(()=>{
                             dispatch(submitLocally(waoType,data,id,groups));
-                        },20);
+                        },10);
                         pendingCreations.delete(`${waoType}-${id}`);
-                    }
+                    }*/
                 }
             },5);
         }
@@ -659,12 +663,28 @@ export const fetchNew = (waoType,id,senderKey) => (dispatch) => {
         .then(json => {
                 switch (json.status) {
                     case HB_SUCCESS:
+
+                        const normData = normalize(json.data,WAOs.getIn([waoType,"schema"]));
+                        console.log('normalize receiveNew data',waoType,WAOs.getIn([waoType,"schema"]), json.data,normData);
+                        Object.keys(normData.entities).forEach((key)=>{
+                            if(key !== waoType){
+                                dispatch(subReceiveGet(key,Object.values(normData.entities[key])));
+                            }
+                        });
+                        dispatch(receiveNew(waoType,normData.entities[waoType][0]));
                         setTimeout(()=>{
-                            dispatch(notify(LOADING_COMPLETED,senderKey,id,HB_SUCCESS));
+                            console.log('pendingCreations=',pendingCreations);
+                            if(!!pendingCreations[waoType]){
+                                pendingCreations[waoType].forEach(({senderKey},id)=>{
+                                    dispatch(createNew(waoType));
+                                    dispatch(notify(LOADING_COMPLETED,senderKey,id,HB_SUCCESS));
+                                });
+                            }
+
+
                             dispatch(notify(LOADING_COMPLETED,waoType,null,HB_SUCCESS));
-                            dispatch(createNew(waoType));
-                        },10);
-                        setTimeout(()=>{
+                        },20);
+                        /*setTimeout(()=>{
                             if(pendingCreations.has(`${waoType}-${id}`)){
                                 const {data,groups} = pendingCreations.get(`${waoType}-${id}`);
                                 setTimeout(()=>{
@@ -672,9 +692,8 @@ export const fetchNew = (waoType,id,senderKey) => (dispatch) => {
                                 },20);
                                 pendingCreations.delete(`${waoType}-${id}`);
                             }
-                        },30);
-                        //console.info(json);
-                        dispatch(receiveNew(waoType,json.data));
+                        },30);*/
+
                         break;
                     case HB_ERROR:
                         setTimeout(()=>{

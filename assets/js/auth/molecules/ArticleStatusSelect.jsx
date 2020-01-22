@@ -7,7 +7,7 @@ import HBFormField from '../hoc/HBFormField';
 import SearchBagUtil from '../../util/SearchBagUtil';
 
 
-class ArticleHistorySelect extends Component {
+class ArticleStatusSelect extends Component {
     constructor(props) {
         super(props);
 
@@ -24,7 +24,7 @@ class ArticleHistorySelect extends Component {
 
     componentDidMount() {
         const {dispatch} = this.props;
-        dispatch(getIfNeeded("articleHistory",true,this.state.searchBag));
+        dispatch(getIfNeeded("articleStatus",true,this.state.searchBag));
     }
 
     render(){
@@ -54,9 +54,9 @@ const makeMapStateToProps = () => {
     const getSelector = makeGetSelector();
     return state => {
         return {
-            get: getSelector(state.get("articleHistory"))
+            get: getSelector(state.get("articleStatus"))
         }
     }
 };
 
-export default connect(makeMapStateToProps)(ArticleHistorySelect);
+export default connect(makeMapStateToProps)(ArticleStatusSelect);

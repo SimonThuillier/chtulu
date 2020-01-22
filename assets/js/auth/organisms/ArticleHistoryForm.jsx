@@ -1,33 +1,18 @@
 import React from "react";
 import {
-    makeGetNotificationsSelector, makeGetOneByIdSelector,makeGetFormSelector
+    makeGetOneByIdSelector,makeGetFormSelector
 } from "../../shared/selectors";
 import { connect} from 'react-redux';
-import GroupUtil from '../../util/GroupUtil';
 import {
-    Alert,
     Form,
-    Col,Popover,Overlay
+    Button
 } from 'react-bootstrap';
 import { Field, reduxForm,change as formChange,
     blur as formBlur,focus as formFocus,touch as formTouch,untouch as formUntouch} from 'redux-form/immutable';
 import { stopSubmit} from 'redux-form';
-import {getOneByIdIfNeeded,submitLocally,postOne,reset as stateReset,TIMEOUT,discard,deleteLocally} from '../actions';
-import ArticleHistorySelect from "../molecules/ArticleHistorySelect";
-import HDateInput from "../molecules/HDateInput";
-import HDateInputFormBinder from "../hoc/HDateInputFormBinder";
-import ImageInput from "../molecules/ImageInput";
+import {getOneByIdIfNeeded,submitLocally} from '../actions';
+import ArticleStatusSelect from "../molecules/ArticleStatusSelect";
 import HBFormField from '../hoc/HBFormField';
-import Loadable from 'react-loading-overlay';
-import {LOADING,SUBMITTING,SUBMITTING_COMPLETED,COLORS} from '../../util/notifications';
-import {HB_SUCCESS} from "../../util/server";
-import {getAllPropertiesInGroups} from '../../util/WAOUtil';
-import withContainer from '../hoc/withContainer';
-import withExtraProps from '../hoc/withExtraProps';
-import ResourcePicker from './ResourcePicker';
-import ArticleLinkForm from '../molecules/ArticleLinkForm';
-import FormSubmit from '../molecules/FormSubmit';
-import ArticleContentEditor from './ArticleContentEditor';
 
 const Imm = require("immutable");
 const componentUid = require('uuid/v4')();
@@ -38,30 +23,18 @@ const validate = values => {
     const errors = {};
     console.log("VALIDATE");
     console.log(values);
-    if (!values.title) {
-        errors.title = 'Le titre est obligatoire'
-    } else if (values.title.length > 64) {
-        errors.title = `${values.title.length} caractères sur ${64} autorisés`
+    if (!values.message) {
+        errors.message = 'Le titre est obligatoire'
+    } else if (values.message.length > 250) {
+        errors.message = `${values.message.length} caractères sur ${250} autorisés`
     }
-    if (!values.beginHDate) {
-        errors.beginHDate = 'La date de début est obligatoire'
-    }
-    if (values.hasEndDate) {
-        if(values.errors && values.errors.endHDate && Date.now() >(values.receivedAt + 500)){
-            errors.endHDate = values.errors.endHDate;
-        }
-        else if(!values.endHDate){
-            errors.endHDate = 'Renseignez une date de fin ou décochez "A une fin ?"';
-        }
-    }
-    console.log(errors);
     return errors;
 };
 
 const warn = values => {
     const warnings = {};
-    if (values.title && values.title.length > 55) {
-        warnings.title = `${values.title.length} caractères sur ${64} autorisés`
+    if (values.message && values.message.length > 200) {
+        warnings.message = `${values.message.length} caractères sur ${250} autorisés`
     }
     return warnings;
 };
@@ -72,11 +45,11 @@ class ArticleHistoryForm extends React.Component{
         super(props);
         console.log(props);
         this.componentUid = props.form;
+        this.submit = this.submit.bind(this);
 
         //console.log(props);
 
         this.state = {
-            groups:props.groups || {"minimal":true},
             data:null,
         };
         
@@ -94,7 +67,7 @@ class ArticleHistoryForm extends React.Component{
         console.log("erreurs");
         console.log(data?data.get("errors"):null);
         if(!data || typeof data==='undefined') return null;
-        console.log('initial form data');
+        console.log('initial form data',data,id);
         initialize(data.set("pendingModification",true));
 
         if(data.get("initialValues")){
@@ -109,6 +82,14 @@ class ArticleHistoryForm extends React.Component{
 
     componentDidMount() {
         console.log("form, component didmount");
+        if(this.props.id !== null){
+            this.props.dispatch(getOneByIdIfNeeded("articleHistory",
+                {minimal:true},
+                this.props.id,
+                this.componentUid));
+        }
+
+
         this.initializeFormData();
     }
 
@@ -116,36 +97,54 @@ class ArticleHistoryForm extends React.Component{
     }
 
     componentDidUpdate(prevProps) {
+        if(this.props.id === null){return}
+        let data = this.state.data;
+
+        if (prevProps.id !== this.props.id){
+            console.log('form',this.props.id);
+            this.props.dispatch(getOneByIdIfNeeded("articleHistory",
+                {minimal:true},
+                this.props.id,
+                this.componentUid));
+            data = this.props.getOneById(this.props.id);
+        }
+        if (this.props.getOneById(this.props.id) !== prevProps.getOneById(this.props.id)) {
+            data = this.props.getOneById(this.props.id);
+            console.log("reception de nouvelles données",data);
+        }
+
+        if(data !== this.state.data){
+            this.initializeFormData();
+        }
 
     }
 
-    submit(id=null){
-        id = id || this.props.id;
+    submit(){
 
-        const {getForm,anyTouched,dispatch} = this.props;
-        const pendingForm = getForm(this.componentUid);
-        console.log('form component uid');
-        console.log(this.componentUid);
+        const {getForm,dispatch,onSubmit,id,articleId,form} = this.props;
+        const pendingForm = getForm(form);
         const touchedFields = pendingForm.get("fields");
         const values = pendingForm.get("values");
 
         const touchedKeys = touchedFields?touchedFields.keySeq():null;
 
-        if(anyTouched && touchedKeys){
-            let touchedValues = Imm.Map();
-            touchedKeys.forEach((k)=>{
-                touchedValues = touchedValues.set(k,values.get(k));
-            });
-
-            dispatch(submitLocally("articleHistory",touchedValues,id,this.state.groups));
-        }
+        let touchedValues = Imm.Map();
+        touchedKeys.forEach((k)=>{
+            touchedValues = touchedValues.set(k,values.get(k));
+        });
+        // history is bound to current article
+        touchedValues = touchedValues.set('articleId',+articleId).set('editionDate',new Date());
+        console.log('submit history form',touchedValues,id);
+        dispatch(submitLocally("articleHistory",touchedValues,id,{minimal:true}));
+        onSubmit();
     }
 
     render(){
         // console.log("render article form");
-        const { onSubmit, reset, load,valid,getForm,dispatch,getNotifications,pristine,container,id,anyTouched,linksData} = this.props;
-        const {groups,data,localSubmitCount} = this.state;
-        const pendingForm = getForm(this.componentUid);
+        const {id,getOneById,valid} = this.props;
+        let initialized = true;
+        if(!id || !getOneById(id)) initialized = false;
+
 
 
         return (
@@ -153,15 +152,20 @@ class ArticleHistoryForm extends React.Component{
                     <Field
                         name="status"
                         type="select"
-                        component={ArticleHistorySelect}
+                        component={ArticleStatusSelect}
                         label="Statut"
                     />
                     <Field
-                        name="comment"
+                        name="message"
                         type="textarea"
                         component={HBFormField}
                         label="Commentaire"
                     />
+                    <Button bsStyle="info"
+                            disabled={!valid || !initialized}
+                            onClick={this.submit}>
+                        Valider
+                    </Button>
                 </Form>
         );
     }
@@ -185,6 +189,7 @@ ArticleHistoryForm = connect(
 )(ArticleHistoryForm);
 
 ArticleHistoryForm =  reduxForm({
+
     destroyOnUnmount:true,
     validate:validate,
     warn:warn

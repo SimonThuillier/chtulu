@@ -8,6 +8,7 @@
 
 namespace App\Mapper;
 
+use App\Entity\ArticleStatus;
 use App\Entity\DTOMutableEntity;
 use App\Entity\ArticleHistory;
 use App\Factory\ArticleFactory;
@@ -57,9 +58,18 @@ class ArticleHistoryMapper extends AbstractEntityMapper implements EntityMapperI
         $articleHistory
             ->setEditionDate(new \DateTime())
             ->setEditionUser($this->getUser());
+
+
+        // if this is a public history of an article not previously published , its first published date is set
+        if(! $articleHistory->getArticle()->getFirstPublishedDate() &&
+            $articleHistory->getStatus()->getId() === ArticleStatus::PUBLIC){
+            $articleHistory->getArticle()->setFirstPublishedDate(new \DateTime());
+        }
+
         if($commit){
             $this->getManager()->flush();
         }
+
         return $articleHistory;
     }
 

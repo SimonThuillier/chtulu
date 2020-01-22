@@ -29,18 +29,21 @@ class ArticleHistoryDTONormalizer extends HNormalizer
      * @param ManagerRegistry $doctrine
      * @param MediatorFactory $mediatorFactory
      * @param DateNormalizer $dateNormalizer
+     * @param SimpleEntityNormalizer $simpleEntityNormalizer
      * @param ArticleDTONormalizer $articleDTONormalizer
      */
     public function __construct(WAOHelper $waoHelper,
                                 ManagerRegistry $doctrine,
                                 MediatorFactory $mediatorFactory,
                                 DateNormalizer $dateNormalizer,
+                                SimpleEntityNormalizer $simpleEntityNormalizer,
                                 ArticleDTONormalizer $articleDTONormalizer
                                 )
     {
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
         $normalizers = array(
             $articleDTONormalizer,
+            $simpleEntityNormalizer,
             $dateNormalizer,
             new HGetSetMethodNormalizer($classMetadataFactory),
             new ObjectNormalizer($classMetadataFactory)

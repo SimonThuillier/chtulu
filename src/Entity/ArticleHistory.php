@@ -69,7 +69,7 @@ class ArticleHistory extends DTOMutableEntity
 
     /**
      * @var string
-     * @ORM\Column(name="message", type="string", length=2000,nullable=true)
+     * @ORM\Column(name="message", type="string", length=250,nullable=true)
      */
     protected $message;
 
@@ -84,9 +84,9 @@ class ArticleHistory extends DTOMutableEntity
     }
 
     /**
-     * @return Article
+     * @return Article|null
      */
-    public function getArticle(): Article
+    public function getArticle(): ?Article
     {
         return $this->article;
     }

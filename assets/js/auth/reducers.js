@@ -16,12 +16,21 @@ import { reducer as reduxFormReducer } from "redux-form/immutable";
 import Common from '../util/common';
 import {appReducer,updateOnRecordReception,SearchCacheEntry} from '../shared/reducers';
 
+/**
+ * creates new item if its prototype is available, else does nothing
+ * @param state
+ * @param idGenerator
+ * @returns {*}
+ */
 const createNew = (state,idGenerator)=>{
-    if(! state.get("newItem")) return state;
+    if(!state.get("newItem")){
+        return state;
+    }
+
     let newId = idGenerator();
     let babyRec = state.get("newItem");
-    console.log(babyRec);
-    babyRec = babyRec.set("id",newId).set("initialValues",Imm.Map({id:0}));
+    console.log("babyRec",babyRec);
+    babyRec = babyRec.set("id",newId);
     state = state.
     setIn(["items",newId],babyRec).
     setIn(["babyItemIds",newId],newId).
@@ -65,7 +74,7 @@ const concreteWaoType = (waoType) => {
                     action.data.entrySeq().forEach((value,key)=>{
                         /*console.log(key);
                         console.log(value);*/
-                        if(value[1]!==oldItem.get(value[0]))
+                        if(key!== 'id' && value[1]!==oldItem.get(value[0]))
                             newInitialValues = newInitialValues.set(value[0],oldItem.get(value[0]));
                     });
                 }

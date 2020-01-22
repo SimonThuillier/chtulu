@@ -1,7 +1,10 @@
 import React from "react";
 import {Table} from 'react-bootstrap';
 import {connect} from "react-redux";
-import {makeLocalGetByAttributeSelector,makeGetOneByIdSelector} from "../../shared/selectors";
+import {
+    makeLocalGetByAttributeSelector, makeGetOneByIdSelector,
+    makeGetNextNewIdSelector, makeGetNewlyCreatedIdSelector
+} from "../../shared/selectors";
 import {getIfNeeded} from "../actions";
 import SearchBagUtil from "../../util/SearchBagUtil";
 import SearchBag from "../../util/SearchBag";
@@ -11,14 +14,28 @@ import HistoryForm from './ArticleHistoryForm';
 const historySearchbag = {};
 const componentUid = require("uuid/v4")();
 const dateFormatter = DateUtil.getFormatterFromPattern('d/m/Y H:i');
-
+import {COLORS} from "../../util/notifications";
 class ArticleAdmin extends React.Component
 {
     constructor(props)
     {
         super(props);
 
+        this.onHistorySubmit = this.onHistorySubmit.bind(this);
+
+        this.state = {
+            historyId:null
+        };
+
         this.loadHistoryIfNecessary = this.loadHistoryIfNecessary.bind(this);
+    }
+
+    onHistorySubmit(){
+        const {getNextNewHistoryId} = this.props;
+
+        console.log('nextNewHistoryId',getNextNewHistoryId());
+
+        this.setState({historyId:getNextNewHistoryId()});
     }
 
     loadHistoryIfNecessary(){
@@ -32,6 +49,10 @@ class ArticleAdmin extends React.Component
     componentDidMount()
     {
         this.loadHistoryIfNecessary();
+        const {getNextNewHistoryId} = this.props;
+        const newHistoryId = getNextNewHistoryId();
+        console.log('newHistoryId=',newHistoryId);
+        this.setState({historyId:newHistoryId});
     }
 
     componentDidUpdate(prevProps)
@@ -44,14 +65,20 @@ class ArticleAdmin extends React.Component
     render()
     {
         const {getHistory,getStatus,dispatch,id} = this.props;
+        const {historyId} = this.state;
 
-        const searchBag = SearchBag({article_id:this.props.id},'id',SearchBagUtil.DESC,0,1000);
+        console.log('article history id',id);
 
-        const historyRows = getHistory(searchBag).map((rec)=>{
+        const historyRows = getHistory('articleId',id)
+            .sort((a,b)=>{return b.get('editionDate').getTime()-a.get('editionDate').getTime();})
+            .map((rec)=>{
             console.log('article history ',rec.toJS());
 
+            const style = {};
+            if(+rec.get('id')<0) style.backgroundColor=COLORS.NEW;
+
             return (
-                <tr key={rec.get('id')}>
+                <tr style={style} key={rec.get('id')}>
                     <td>{getStatus(+rec.get('status')).get('label')}</td>
                     <td>{dateFormatter(rec.get('editionDate'))}</td>
                     <td>{rec.get('message')}</td>
@@ -67,8 +94,14 @@ class ArticleAdmin extends React.Component
                 <div
                     className="col-md-6"
                 >
-
-                    {(!!id)?<HistoryForm form={`article-${id}-history-form`}/>:null}
+                    {(!!id && !!historyId)?
+                        <HistoryForm
+                            articleId={id}
+                            id={historyId}
+                            form={`article-${id}-history-form`}
+                            onSubmit={this.onHistorySubmit}
+                        />
+                        :null}
                 </div>
                 <div
                     className="col-md-6"
@@ -96,11 +129,15 @@ class ArticleAdmin extends React.Component
 const makeMapStateToProps = () => {
     const getHistorySelector = makeLocalGetByAttributeSelector();
     const getStatusSelector = makeGetOneByIdSelector();
+    const getNextNewIdSelector = makeGetNextNewIdSelector();
+    const getNewlyCreatedIdSelector = makeGetNewlyCreatedIdSelector();
 
     return state => {
         return {
             getHistory : getHistorySelector(state.get("articleHistory")),
-            getStatus : getStatusSelector(state.get("articleStatus"))
+            getStatus : getStatusSelector(state.get("articleStatus")),
+            getNextNewHistoryId: getNextNewIdSelector(state.get("articleHistory")),
+            getNewlyCreatedHistoryId:getNewlyCreatedIdSelector(state.get("articleHistory"))
         }
     }
 };

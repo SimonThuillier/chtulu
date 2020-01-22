@@ -66,6 +66,12 @@ class Article extends DTOMutableEntity
     protected $editionDate;
 
     /**
+     * @var \DateTime
+     * @ORM\Column(name="first_published_date", type="datetime",nullable=true)
+     */
+    protected $firstPublishedDate;
+
+    /**
      * @var boolean
      * @ORM\Column(name="active", type="boolean",nullable=false)
      */
@@ -285,6 +291,24 @@ class Article extends DTOMutableEntity
      */
     public function setEditionDate($editionDate){
         $this->editionDate = $editionDate;
+        return $this;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getFirstPublishedDate(): ?\DateTime
+    {
+        return $this->firstPublishedDate;
+    }
+
+    /**
+     * @param \DateTime $firstPublishedDate
+     * @return Article
+     */
+    public function setFirstPublishedDate(\DateTime $firstPublishedDate): Article
+    {
+        $this->firstPublishedDate = $firstPublishedDate;
         return $this;
     }
 
