@@ -81,6 +81,11 @@ class SideBar extends Component {
                     </div>
                     <ul className="sidebar-menu" data-widget="tree">
                         <li>
+                            <Link title="Accueil du site" className={""} to='/welcome'>
+                                <i className="fa fa-circle"></i> <span>Accueil</span>
+                            </Link>
+                        </li>
+                        <li>
                             <Link title="Tout se passe ici" className={""} to='/explorer'>
                                 <i className="fa fa-globe"></i> <span>Explorateur</span>
                             </Link>

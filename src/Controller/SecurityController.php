@@ -202,7 +202,7 @@ class SecurityController extends AbstractController
                 ->setMessage('Connexion réussie <strong>'. $user->getUsername() .'</strong>')
                 ->setData(["redirectTo"=>$this->generateUrl(
                     'auth_homepage',
-                    ['page'=>'explorer'],
+                    ['page'=>'welcome'],
                     UrlGeneratorInterface::ABSOLUTE_URL)]);
         }
         catch(\Exception $e){

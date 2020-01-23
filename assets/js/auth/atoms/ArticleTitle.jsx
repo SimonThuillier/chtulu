@@ -9,7 +9,7 @@ const style= {
     maxWidth: '100%',
     height: '1em',
     lineHeight: '1em',
-    whiteSpace: 'nowrap',
+    whiteSpace: 'pre-wrap',
 };
 
 const ArticleTitle = (props) => {

@@ -9,7 +9,7 @@ import {Button,
     MenuItem
 } from 'react-bootstrap';
 import { Field, reduxForm} from 'redux-form/immutable';
-import ArticleTypeSelect from "../molecules/ArticleTypeSelect";
+import ArticleTypeSelect from "../molecules/ArticleStatusSelect";
 import HDateInput from "../molecules/HDateInput";
 import HBFormField from '../hoc/HBFormField';
 

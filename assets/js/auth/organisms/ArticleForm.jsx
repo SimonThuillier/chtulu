@@ -317,7 +317,7 @@ class ArticleForm extends React.Component{
 
     constructor(props) {
         super(props);
-        console.log(props);
+
         this.componentUid = props.form;
 
         this.onLeave = this.onLeave.bind(this);

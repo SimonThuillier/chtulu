@@ -4,6 +4,7 @@ import RImageDetail from '../../shared/atoms/RImageDetail';
 import UserIconLink from '../../shared/molecules/UserIconLink';
 import {getDecoratedAbstractForDetail,AVAILABLE_AREAS} from '../../util/explorerUtil';
 
+
 class SubAbstract extends React.Component
 {
     constructor(props)
@@ -15,8 +16,8 @@ class SubAbstract extends React.Component
 
     componentDidMount()
     {
-        const {abstract,linksData,children} = this.props;
-        this.ref.current.innerHTML = getDecoratedAbstractForDetail(abstract);
+        const {data} = this.props;
+        this.ref.current.innerHTML = getDecoratedAbstractForDetail(data.abstract);
         this._addEventListeners();
     }
 
@@ -37,8 +38,8 @@ class SubAbstract extends React.Component
 
     componentDidUpdate(prevProps)
     {
-        if(prevProps.abstract !== this.props.abstract){
-            this.ref.current.innerHTML = this.props.abstract;
+        if(prevProps.data !== this.props.data){
+            this.ref.current.innerHTML = this.props.data.abstract;
             this._addEventListeners();
         }
     }
@@ -104,8 +105,17 @@ class SubAbstract extends React.Component
 //     )*/
 // };
 
-const SubDetailImage = ({detailImageResource}) =>{
-    if(!detailImageResource) return null;
+
+const SubUser = ({data}) =>{
+    return(<div className="hb-flex-center">
+                <UserIconLink id={data.ownerUser}/>
+            </div>
+    );
+};
+
+
+const SubDetailImage = ({data}) =>{
+    if(!data.detailImageResource) return null;
     const style = {
         float:'right',
         clear:'right',
@@ -115,38 +125,59 @@ const SubDetailImage = ({detailImageResource}) =>{
 
     return (
         <div style={style}>
-            <RImageDetail id={detailImageResource}/>
+            <RImageDetail id={data.detailImageResource}/>
         </div>
     );
 };
 
-const ArticleDetail = function(props){
-    const {data,id,linksData} = props;
-    if (!data) return null;
-
-    //console.log(`articleDetail render ${id}`);
-
-    const availableGroups = GroupUtil.intersect('article',props.groups,data.loadedGroups||{});
-    const {minimal,detailImage,abstract} = availableGroups;
-    const context = props.context || 'main';
-
-    return (
-        <div>
-            {(!!abstract || !!detailImage) &&
-            <div className="row">
-                <SubAbstract abstract={data.abstract} linksData={linksData}>
-                    {!!detailImage &&
-                    <SubDetailImage detailImageResource={data.detailImageResource}/>
-                    }
-                </SubAbstract>
-            </div>
-            }
-            <div className="hb-flex-center">
-                <UserIconLink id={data.ownerUser}/>
-            </div>
-        </div>
-    );
+/**
+ * in React if no children undefined, if one children this children object, if several an array of them
+ * this helper returns always an array to ensure compatibility with further operations
+ */
+const getChildrenAsArray = (children)=>{
+    if(!children) return [];
+    else if(!Array.isArray(children)) return [children];
+    else return children;
 };
 
 
-export default ArticleDetail;
+
+export default class ArticleDetail extends React.Component{
+    static User = SubUser;
+    static DetailImage = SubDetailImage;
+    static Abstract = SubAbstract;
+
+    constructor(props) {
+        super(props);
+        //this.context = React.createContext({});
+    }
+
+    render(){
+        const {data,id,linksData,children} = this.props;
+        if (!data) return null;
+
+        const childrenWithData = getChildrenAsArray(children).map((c)=>{
+            return React.cloneElement(c,{data:data});
+        });
+
+
+        console.log('children',children);
+
+
+        return (
+            <div>
+                {childrenWithData}
+                    {/*{this.props.children}*/}
+                {/*{(!!abstract || !!detailImage) &&*/}
+                {/*<div className="row">*/}
+                {/*<SubAbstract abstract={data.abstract} linksData={linksData}>*/}
+                {/*{!!detailImage &&*/}
+                {/*<SubDetailImage detailImageResource={data.detailImageResource}/>*/}
+                {/*}*/}
+                {/*</SubAbstract>*/}
+                {/*</div>*/}
+                {/*}*/}
+            </div>
+        );
+    }
+}

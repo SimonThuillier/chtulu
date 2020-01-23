@@ -128,10 +128,10 @@ class ArticleDTO extends EntityMutableDTO
     }
 
     /**
-     * @param \DateTime $firstPublishedDate
+     * @param \DateTime|null $firstPublishedDate
      * @return ArticleDTO
      */
-    public function setFirstPublishedDate(\DateTime $firstPublishedDate): ArticleDTO
+    public function setFirstPublishedDate(?\DateTime $firstPublishedDate): ArticleDTO
     {
         $this->firstPublishedDate = $firstPublishedDate;
         return $this;

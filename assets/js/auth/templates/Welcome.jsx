@@ -1,22 +1,30 @@
 import React from "react";
-import {loadInitialHResponse} from '../actions';
+import {getIfNeeded, loadInitialHResponse} from '../actions';
 
 import Header from '../organisms/Header';
-import {makeGetNotificationsSelector} from "../../shared/selectors";
+import {makeGetNotificationsSelector, makeGetSelector} from "../../shared/selectors";
 import {connect} from "react-redux";
 import { PoseGroup } from "react-pose";
 import Shade from '../../shared/atoms/Shade';
 import {INITIAL} from "../../util/notifications";
 import NotificationAlert from '../../shared/molecules/NotificationAlert';
+import ArticleGrid from '../organisms/ArticleGrid';
+import ArticleFilter2 from '../organisms/ArticleFilter2';
 
 const Imm = require("immutable");
 const componentUid = require("uuid/v4")();
+
 
 class Welcome extends React.Component
 {
     constructor(props)
     {
         super(props);
+        this.onFilter = this.onFilter.bind(this);
+
+        this.state = {
+            searchBag:null,
+       };
     }
 
     componentDidMount()
@@ -28,9 +36,15 @@ class Welcome extends React.Component
 
     }
 
+    onFilter(newSearchBag){
+        this.setState({searchBag:newSearchBag});
+
+    }
+
     render()
     {
         const {getNotifications,dispatch} = this.props;
+        const {searchBag} = this.state;
         const notifications = getNotifications(componentUid);
 
         let initialNotif = (notifications && notifications.getIn(['DEFAULT',INITIAL]))||null;
@@ -42,9 +56,7 @@ class Welcome extends React.Component
 
         return (
             <div className="content-wrapper hb-container">
-                <section className="content-header">
-                    <h4>Bienvenue !</h4>
-                </section>
+
                 <section className="content">
                     <PoseGroup>
                         {initialNotif &&
@@ -57,12 +69,13 @@ class Welcome extends React.Component
                         }
                         {!initialNotif &&
                         <Shade key={`${componentUid}-content`}>
-                            <div>Merci de vous être inscrit sur mon projet d'histoire interactive :)</div>
-                            <div>Vous allez désormais pouvoir faire plein de chose (a venir)...
-                            </div>
+                            <h4>Derniers articles publiés</h4>
+                            <ArticleFilter2 fields={['keyword']} onFilter={this.onFilter}/>
+                            <ArticleGrid searchBag={searchBag}/>
                         </Shade>
                         }
                     </PoseGroup>
+
                 </section>
             </div>
         );

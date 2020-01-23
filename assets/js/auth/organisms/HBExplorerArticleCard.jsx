@@ -11,6 +11,7 @@ import {AVAILABLE_AREAS, getNeighbourArticleChronogically} from '../../util/expl
 import ArticleTitle from "../atoms/ArticleTitle";
 import ArticleType from "../atoms/ArticleType";
 import Article from "./Article.jsx";
+import ArticleDetail from "./ArticleDetail.jsx";
 import { Link } from "react-router-dom";
 import {makeLocalGetByAttributeSelector} from "../../shared/selectors";
 import {connect} from "react-redux";
@@ -181,7 +182,9 @@ class HBExplorerArticleCard extends React.Component {
                                     {/*(<Article.Admin/>):null*/}
                         {/*}*/}
                         <div hidden={activeComponent!=='detail'}>
-                        <Article.Detail/>
+                        <Article.Detail>
+                            <ArticleDetail.Abstract/>
+                        </Article.Detail>
                         </div>
                         <div hidden={activeComponent!=='form'}>
                         <Article.Form/>

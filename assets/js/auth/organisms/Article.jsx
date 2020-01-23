@@ -17,7 +17,7 @@ const componentUid = require('uuid/v4')();
 const ArticleContext = React.createContext();
 
 
-const SubDetail = ({groups}) => {
+const SubDetail = ({groups,children}) => {
     return (
         <ArticleContext.Consumer>
             {({ id, groups:cGroups,data,linksData }) => {
@@ -27,7 +27,9 @@ const SubDetail = ({groups}) => {
                         data={data}
                         linksData={linksData}
                         groups={groups || cGroups}
-                    />
+                    >
+                        {children}
+                    </ArticleDetail>
                 )
             }
             }
