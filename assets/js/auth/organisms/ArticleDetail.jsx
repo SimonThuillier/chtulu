@@ -47,18 +47,18 @@ class SubAbstract extends React.Component
     render()
     {
         return (
-            <div
-                ref={this.ref}
-                className="col-md-12 hb-content"
-                onDoubleClick={()=>{
-                    console.log('hbexplorer dbl click');
-                    const event = new CustomEvent('hb.explorer.magnify');
-                    event.hbOrigin = AVAILABLE_AREAS.CONTENT;
-                    window.dispatchEvent(event);
-                }
-                }
-            >
-            </div>
+                <div
+                    ref={this.ref}
+                    className="col-md-12 hb-content"
+                    onDoubleClick={()=>{
+                        console.log('hbexplorer dbl click');
+                        const event = new CustomEvent('hb.explorer.magnify');
+                        event.hbOrigin = AVAILABLE_AREAS.CONTENT;
+                        window.dispatchEvent(event);
+                    }
+                    }
+                >
+                </div>
         );
     }
 }
@@ -108,8 +108,8 @@ class SubAbstract extends React.Component
 
 const SubUser = ({data}) =>{
     return(<div className="hb-flex-center">
-                <UserIconLink id={data.ownerUser}/>
-            </div>
+            <UserIconLink id={data.ownerUser}/>
+        </div>
     );
 };
 
@@ -167,7 +167,7 @@ export default class ArticleDetail extends React.Component{
         return (
             <div>
                 {childrenWithData}
-                    {/*{this.props.children}*/}
+                {/*{this.props.children}*/}
                 {/*{(!!abstract || !!detailImage) &&*/}
                 {/*<div className="row">*/}
                 {/*<SubAbstract abstract={data.abstract} linksData={linksData}>*/}

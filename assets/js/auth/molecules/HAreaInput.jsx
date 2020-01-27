@@ -2,14 +2,10 @@ import React, { Component } from "react";
 import {
     ControlLabel,
     FormGroup,
-    FormControl,
-    Overlay,
-    OverlayTrigger,
-    Popover,
+    Button,
     Col,
     HelpBlock
 } from "react-bootstrap";
-import HDatePicker from "../organisms/HDatePicker";
 import {defaultInputStyles} from "../../util/cssUtil";
 const componentUid = require('uuid/v4')();
 
@@ -26,55 +22,48 @@ let defaultStyles = {
 
 const SubLabel = ({}) => {
     return (
-        <HDateInputContext.Consumer>
+        <HAreaInputContext.Consumer>
             {({label}) => (<ControlLabel>{label}</ControlLabel>)}
-        </HDateInputContext.Consumer>
+        </HAreaInputContext.Consumer>
     );
 };
 
 const SubInput = ({}) => {
     return (
-        <HDateInputContext.Consumer>
-            {({toggleShow,show,hDateLabel,id,onFocus,onBlur}) => (
-                <FormControl
-                    value={hDateLabel}
-                             component={(<input/>)}
-                             onFocus={()=>{
-                                 if(!show){
+        <HAreaInputContext.Consumer>
+            {({toggleShow,show,hDateLabel,id,onFocus,onBlur,buttonLabel}) => (
+                <Button
+                    onClick={()=>{
+                        if(!show){
 
-                                 }
-                                 onFocus();
-                                 toggleShow();
-                             }}
-                             type="text"
-                             style={{
-                                 textAlign: "inherit",
-                                 display: "inline",
-                                 //fontSize: thisDefaultStyles.fontSize
-                             }}
-                             placeholder={'renseignez une date'}
-                />
+                        }
+                        onFocus();
+                        toggleShow();
+                    }}
+                >
+                    {buttonLabel}
+                </Button>
             )}
-        </HDateInputContext.Consumer>
+        </HAreaInputContext.Consumer>
     );
 };
 
 const SubHelpBlock = ({}) => {
     return (
-        <HDateInputContext.Consumer>
+        <HAreaInputContext.Consumer>
             {({touched,error,warning}) => (
                 <span>
                     {touched && (error || warning) &&
                     <HelpBlock>{error || warning}</HelpBlock>}
                 </span>
             )}
-        </HDateInputContext.Consumer>
+        </HAreaInputContext.Consumer>
     );
 };
 
-const HDateInputContext = React.createContext({});
+const HAreaInputContext = React.createContext({});
 
-class HDateInput2 extends Component {
+export default class HAreaInput extends Component {
     static Label=SubLabel;
     static Input=SubInput;
     static HelpBlock=SubHelpBlock;
@@ -98,28 +87,23 @@ class HDateInput2 extends Component {
 
     render() {
         const { input, label, type,  meta: {touched,error,warning} ,
-            dispatch,selector,value,toggleShow,show} = this.props;
+            dispatch,selector,value,toggleShow,show,initialValue} = this.props;
 
 
         const alignment = this.props.alignment || "horizontal";
         let thisDefaultStyles = { ...defaultStyles[alignment] };
         const style = Object.assign(thisDefaultStyles, this.props.style || {});
-        /*console.log("HDate rendered");
-        console.log(input);
-        console.log(meta);*/
-        const hDateLabel =
-            input.value && typeof input.value.getLabel !== "undefined"
-                ? input.value.getLabel()
-                : input.value;
-        /*console.log(input.value);
-        console.log(hDateLabel);*/
+
+        const buttonLabel =
+            initialValue ? 'positionné':'non positionné';
+
         const contextValue = {
             label:label,
             toggleShow:toggleShow,
             show:show,
             onFocus:input.onFocus,
             onBlur:input.onBlur,
-            hDateLabel : hDateLabel,
+            buttonLabel : buttonLabel,
             touched:touched,
             error:error,
             warning:warning
@@ -127,11 +111,11 @@ class HDateInput2 extends Component {
 
         return (
             <FormGroup
-                key={`hdate-input-${componentUid}`}
+                key={`harea-input-${componentUid}`}
                 validationState={!touched?null:(error?"error":(warning?"warning":"success"))}
                 style={style}
             >
-                <HDateInputContext.Provider value={contextValue}>
+                <HAreaInputContext.Provider value={contextValue}>
                         <div>
                             <Col sm={3} md={2}>
                                 <SubLabel/>
@@ -141,10 +125,8 @@ class HDateInput2 extends Component {
                             </Col>
                             <SubHelpBlock/>
                         </div>
-                </HDateInputContext.Provider>
+                </HAreaInputContext.Provider>
             </FormGroup>
         );
     }
 }
-
-export default HDateInput2;

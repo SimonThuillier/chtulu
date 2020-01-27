@@ -172,7 +172,14 @@ class HBExplorerArticleCard extends React.Component {
                         dispatch={dispatch}
                         id={id}
                         onNothing={null}
-                        groups={{"minimal":true,"date":true,"detailImage":{activeVersion:{urlMini:true}},"abstract":true}}
+                        groups={{
+                            minimal:true,
+                            date:true,
+                            area:true,
+                            detailImage:{minimal:true,activeVersion:{minimal:true,urlMini:true,urlDetailThumbnail:true}},
+                            abstract:true,
+                            owner:{minimal:true}
+                        }}
                     >
                         {/*{activeComponent==='detail'?*/}
                             {/*(<Article.Detail/>):*/}

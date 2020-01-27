@@ -41,7 +41,7 @@ const GroupUtil = {
         if (typeof groups === "string") groups = WAOs.getIn([type, "groups"]);
         let diff = {};
 
-        console.log('groupUtil : ',type,base,toCompare,groups);
+        //console.log('groupUtil : ',type,base,toCompare,groups);
 
         if (typeof base === "boolean") base = groups.toJS();
         Object.keys(base).forEach(key => {

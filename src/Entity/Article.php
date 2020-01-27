@@ -79,6 +79,12 @@ class Article extends DTOMutableEntity
 
     /**
      * @var string
+     * @ORM\Column(name="summary", type="string", length=500,nullable=true)
+     */
+    protected $summary;
+
+    /**
+     * @var string
      * @ORM\Column(name="abstract", type="text",nullable=true)
      */
     protected $abstract;
@@ -171,6 +177,13 @@ class Article extends DTOMutableEntity
      * @ORM\JoinColumn(name="hb_resource_geometry_id", referencedColumnName="id", nullable=true)
      */
     protected $geometry;
+
+    /**
+     * the json serialization of the map area of the article
+     * @var string
+     * @ORM\Column(name="area", type="string", length=1000,nullable=true)
+     */
+    protected $area;
 
     public function __toString()
     {
@@ -327,6 +340,24 @@ class Article extends DTOMutableEntity
     public function setActive(bool $active): Article
     {
         $this->active = $active;
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getSummary(): ?string
+    {
+        return $this->summary;
+    }
+
+    /**
+     * @param string $summary
+     * @return Article
+     */
+    public function setSummary(string $summary): Article
+    {
+        $this->summary = $summary;
         return $this;
     }
 
@@ -599,6 +630,26 @@ class Article extends DTOMutableEntity
         $this->geometry = $geometry;
         return $this;
     }
+
+    /**
+     * @return string|null
+     */
+    public function getArea(): ?string
+    {
+        return $this->area;
+    }
+
+    /**
+     * @param string|null $area
+     * @return Article
+     */
+    public function setArea(?string $area): Article
+    {
+        $this->area = $area;
+        return $this;
+    }
+
+
 
 
 

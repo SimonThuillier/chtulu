@@ -1,11 +1,7 @@
 import React, { Component } from "react";
 import {
-    Alert,
     Button,
-    FormControl,
     FormGroup,
-    ControlLabel,
-    HelpBlock,
     Row,
     Col,
     Glyphicon,
@@ -13,9 +9,11 @@ import {
     Panel
 } from "react-bootstrap";
 import L from "leaflet";
-const UUID = require("uuid/v4");
 import HGeoInfoWidget from '../widget/HGeoInfoWidget';
 import HDate from '../../util/HDate';
+import {MAP_TILE_LAYER_URL,MAP_TILE_LAYER_ATTRIBUTION} from '../../util/explorerUtil';
+
+const UUID = require("uuid/v4");
 
 const defaultStyle = {
     position: "absolute",
@@ -107,8 +105,8 @@ export default class HGeoPicker extends Component {
             center: [0, 0],
             zoom: 0,
             layers: [
-                L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-                    attribution: null
+                L.tileLayer(MAP_TILE_LAYER_URL, {
+                    attribution: MAP_TILE_LAYER_ATTRIBUTION
                 }),
             ]
         });

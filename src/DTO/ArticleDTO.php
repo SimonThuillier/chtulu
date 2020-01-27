@@ -8,6 +8,7 @@
 
 namespace App\DTO;
 
+use App\Util\GeoArea;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Entity\ArticleType;
 use App\Mediator\DTOMediator;
@@ -33,6 +34,8 @@ class ArticleDTO extends EntityMutableDTO
     /** @var integer */
     protected $secondRankLinksCount;
     /** @var string */
+    protected $summary;
+    /** @var string */
     protected $abstract;
     /** @var HDate */
     protected $beginHDate;
@@ -44,6 +47,8 @@ class ArticleDTO extends EntityMutableDTO
     protected $detailImageResource;
     /** @var ResourceGeometryDTO */
     protected $geometry;
+    /** @var GeoArea */
+    protected $area;
     /** @var UserDTO */
     protected $ownerUser;
     /** @var UserDTO */
@@ -178,6 +183,26 @@ class ArticleDTO extends EntityMutableDTO
             if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('secondRankLinksCount');
             $this->secondRankLinksCount = $secondRankLinksCount;
         }
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     * @Groups({"minimal"})
+     */
+    public function getSummary(): ?string
+    {
+        return $this->summary;
+    }
+
+    /**
+     * @param string|null $summary
+     * @return ArticleDTO
+     */
+    public function setSummary(?string $summary): ArticleDTO
+    {
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('summary');
+        $this->summary = $summary;
         return $this;
     }
 
@@ -340,4 +365,23 @@ class ArticleDTO extends EntityMutableDTO
         return $this;
     }
 
+    /**
+     * @return GeoArea|null
+     * @Groups({"area"})
+     */
+    public function getArea(): ?GeoArea
+    {
+        return $this->area;
+    }
+
+    /**
+     * @param GeoArea|null $area
+     * @return ArticleDTO
+     */
+    public function setArea(?GeoArea $area): ArticleDTO
+    {
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('area');
+        $this->area = $area;
+        return $this;
+    }
 }

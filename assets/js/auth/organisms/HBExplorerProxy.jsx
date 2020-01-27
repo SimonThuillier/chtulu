@@ -27,9 +27,9 @@ const componentUid = require("uuid/v4")();
 const mainArticleGroups = {
     minimal:true,
     date:true,
-    detailImage:{minimal:true,activeVersion:{minimal:true,urlMini:true}},
+    area:true,
+    detailImage:{minimal:true,activeVersion:{minimal:true,urlMini:true,urlDetailThumbnail:true}},
     abstract:true,
-    geometry:true,
     owner:{minimal:true}
 };
 // default groups for articles

@@ -7,7 +7,7 @@ import {
      makeGetOneByIdSelector,
 } from "../../shared/selectors";
 import {connect} from "react-redux";
-import {AVAILABLE_AREAS} from '../../util/explorerUtil';
+import {AVAILABLE_AREAS,MAP_TILE_LAYER_URL,MAP_TILE_LAYER_ATTRIBUTION} from '../../util/explorerUtil';
 import HDate from '../../util/HDate';
 
 const style = {
@@ -78,12 +78,24 @@ class HBMap2 extends React.Component {
 
 
     componentDidMount() {
+
+        const area = {center:[0,0],zoom:2};
+
+        const mainArticle = this.props.getOneById(this.props.mainArticleId);
+        if(!!mainArticle && !!mainArticle.area) {
+            if(!!mainArticle.area.center){
+                area.center[0]= mainArticle.area.center.lat;
+                area.center[1]= mainArticle.area.center.lng;
+            }
+            area.zoom = mainArticle.area.zoom||area.zoom;
+        }
+
+
         this.map = L.map('mymap', {
-            center: [0, 0],
-            zoom: 2,
+            ...area,
             layers: [
-                L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-                    attribution: null
+                L.tileLayer(MAP_TILE_LAYER_URL, {
+                    attribution: MAP_TILE_LAYER_ATTRIBUTION
                 }),
             ]
         });
@@ -125,6 +137,15 @@ class HBMap2 extends React.Component {
     _updateLayers(){
         const mainArticle = this.props.getOneById(this.props.mainArticleId);
         if(!!mainArticle){
+
+            const area = {center:{lat:0,lng:0},zoom:2};
+
+            if(!!mainArticle.area) {
+                area.center = mainArticle.area.center||area.center;
+                area.zoom = mainArticle.area.zoom||area.zoom;
+            }
+            this.map.setView(new L.LatLng(area.center.lat,area.center.lng),area.zoom,{animate:true});
+
             const geoData = getGeoDataFromAbstract(mainArticle);
             console.log('HBMap2 geoData',geoData);
             this.drawnItems.clearLayers();

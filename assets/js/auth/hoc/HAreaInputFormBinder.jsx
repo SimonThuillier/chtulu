@@ -4,11 +4,11 @@ import { Field} from 'redux-form/immutable';
 import {
     Popover,Overlay
 } from 'react-bootstrap';
-import HDateInput from '../molecules/HDateInput2';
-import HDatePicker from '../organisms/HDatePicker';
+import HAreaInput from '../molecules/HAreaInput';
+import HAreaPicker from '../organisms/HAreaPicker';
 
 
-export default class HDateInputFormBinder extends React.Component {
+export default class HAreaInputFormBinder extends React.Component {
     constructor(props) {
         super(props);
         this.componentUid = props.componentUid;
@@ -26,7 +26,8 @@ export default class HDateInputFormBinder extends React.Component {
         this.realInput = null; // ugly but ok for now to handle save
 
         this.state = {
-            show:false
+            show:false,
+            submitCount:0
         };
     }
 
@@ -73,6 +74,7 @@ export default class HDateInputFormBinder extends React.Component {
         console.log(this.realInput);
 
         this.realInput.handleSave(value);
+        this.setState({submitCount:this.state.submitCount+1})
     }
 
     onClick(e){
@@ -87,7 +89,7 @@ export default class HDateInputFormBinder extends React.Component {
     render(){
         const {dispatch,container,name,label} = this.props;
         const {target} = this;
-        const {show} = this.state;
+        const {show,submitCount} = this.state;
 
         const initialValue= (this.realInput && this.realInput.props.input && this.realInput.props.input.value) || null;
 
@@ -95,14 +97,16 @@ export default class HDateInputFormBinder extends React.Component {
                     <div>
                         <Field
                             ref={target}
-                            key={`hdate-input-${this.componentUid}-${name}`}
+                            key={`harea-input-${this.componentUid}-${name}`}
                             name={name}
                             type="text"
-                            component={withExtraProps(HDateInput,{
+                            component={withExtraProps(HAreaInput,{
                                 container:container||null,
                                 show:show,
                                 toggleShow:this.toggleShow,
-                                setRealInput:this.setRealInput // ugly but ok for now
+                                setRealInput:this.setRealInput, // ugly but ok for now
+                                initialValue:initialValue,
+                                submitCount:submitCount
                             })}
                             label={label}
                         />
@@ -115,7 +119,7 @@ export default class HDateInputFormBinder extends React.Component {
                         >
                             <Popover key={`popover-contained-${this.componentUid}-${name}`} id={`popover-contained-${this.componentUid}`}>
                                 <div ref={this.overlay}>
-                                    <HDatePicker
+                                    <HAreaPicker
                                         initialValue={initialValue}
                                         onClose={this.toggleShow}
                                         onSave={this.handleSave}

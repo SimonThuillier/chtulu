@@ -14,8 +14,8 @@ import { Field, reduxForm,change as formChange,
 import { stopSubmit} from 'redux-form';
 import {getOneByIdIfNeeded,submitLocally,postOne,reset as stateReset,TIMEOUT,discard,deleteLocally} from '../actions';
 import ArticleTypeSelect from "../molecules/ArticleTypeSelect";
-import HDateInput from "../molecules/HDateInput";
 import HDateInputFormBinder from "../hoc/HDateInputFormBinder";
+import HAreaInputFormBinder from "../hoc/HAreaInputFormBinder";
 import ImageInput from "../molecules/ImageInput";
 import HBFormField from '../hoc/HBFormField';
 import Loadable from 'react-loading-overlay';
@@ -36,13 +36,21 @@ const ArticleFormContext = React.createContext({});
 
 const validate = values => {
     const errors = {};
-    console.log("VALIDATE");
-    console.log(values);
+    //console.log("VALIDATE");
+    //console.log(values);
     if (!values.title) {
         errors.title = 'Le titre est obligatoire'
     } else if (values.title.length > 64) {
         errors.title = `${values.title.length} caractères sur ${64} autorisés`
     }
+
+    if (!values.summary) {
+        errors.summary = 'Le résumé est obligatoire'
+    } else if (values.summary.length > 500) {
+        errors.summary = `${values.summary.length} caractères sur ${500} autorisés`
+    }
+
+
     if (!values.beginHDate) {
         errors.beginHDate = 'La date de début est obligatoire'
     }
@@ -54,7 +62,7 @@ const validate = values => {
             errors.endHDate = 'Renseignez une date de fin ou décochez "A une fin ?"';
         }
     }
-    console.log(errors);
+    //console.log(errors);
     return errors;
 };
 
@@ -62,6 +70,9 @@ const warn = values => {
     const warnings = {};
     if (values.title && values.title.length > 55) {
         warnings.title = `${values.title.length} caractères sur ${64} autorisés`
+    }
+    if (values.summary && values.summary.length > 450) {
+        errors.summary = `${values.summary.length} caractères sur ${500} autorisés`
     }
     return warnings;
 };
@@ -95,6 +106,12 @@ const SubMinimal = ({}) => {
                         component={ArticleTypeSelect}
                         label="Type"
                     />
+                    <Field
+                        name="summary"
+                        type="textarea"
+                        component={HBFormField}
+                        label="Résumé"
+                    />
                 </div>
             )}
         </ArticleFormContext.Consumer>
@@ -121,8 +138,8 @@ const SubDate = ({}) => {
                         label="A une fin ?"
                         //if(hasEndDate) pendingForm.setIn(["values","endHDate"],null);
                         onChange={()=>{
-                            console.log("click on hasEndDate");
-                            console.log(componentUid);
+                            //console.log("click on hasEndDate");
+                            //console.log(componentUid);
                             dispatch(formChange(componentUid, 'endHDate', null));
                             dispatch(formTouch(componentUid, 'hasEndDate','endHDate'));
                             //console.log(`hasEndDate : ${hasEndDate}`);
@@ -147,7 +164,24 @@ const SubDate = ({}) => {
         </ArticleFormContext.Consumer>
     );
 };
-//SubDate.contextType = ArticleFormContext;
+
+const SubArea = ({}) => {
+    return (
+        <ArticleFormContext.Consumer>
+            {({dispatch,container,componentUid}) => (
+                <div>
+                    <HAreaInputFormBinder
+                        name="area"
+                        dispatch={dispatch}
+                        container={container}
+                        componentUid={componentUid + '-begin'}
+                        label="Zone"
+                    />
+                </div>
+            )}
+        </ArticleFormContext.Consumer>
+    );
+};
 
 class SubDetailImage extends React.Component {
     constructor(props) {
@@ -180,7 +214,7 @@ class SubDetailImage extends React.Component {
 
     toggleShow(e){
         if(!this.state.show){
-            console.log("toggle show");
+            //console.log("toggle show");
             setTimeout(()=>{
                 //console.log(this.overlay);
                 if(this.overlay && this.overlay.current &&
@@ -191,7 +225,7 @@ class SubDetailImage extends React.Component {
                     let top = +((overlayRoot.style.top).replace('px',''));
                     overlayRoot.style.left = `${left+150}px`;
                     overlayRoot.style.top = `${top-380}px`;
-                    console.log(overlayRoot);
+                    //console.log(overlayRoot);
 
                 }
             },20);
@@ -207,8 +241,8 @@ class SubDetailImage extends React.Component {
     }
 
     handleSave(value) {
-        console.log(value);
-        console.log(this.realInput);
+        //console.log(value);
+        //console.log(this.realInput);
 
         this.realInput.handleSave(value);
     }
@@ -312,8 +346,10 @@ class SubAbstract extends React.Component {
 class ArticleForm extends React.Component{
     static Minimal = SubMinimal;
     static Date = SubDate;
+    static Area = SubArea;
     static DetailImage = SubDetailImage;
     static Abstract = SubAbstract;
+
 
     constructor(props) {
         super(props);
@@ -392,12 +428,12 @@ class ArticleForm extends React.Component{
         const data = getOneById(id);
 
         this.setState({data:data});
-        console.log("initialData");
-        console.log(data);
-        console.log("erreurs");
-        console.log(data?data.get("errors"):null);
+        //console.log("initialData");
+        //console.log(data);
+        //console.log("erreurs");
+       // console.log(data?data.get("errors"):null);
         if(!data || typeof data==='undefined') return null;
-        console.log('initial form data');
+        //console.log('initial form data');
         initialize(data.set("pendingModification",true));
 
         if(data.get("initialValues")){
@@ -411,7 +447,7 @@ class ArticleForm extends React.Component{
     }
 
     componentDidMount() {
-        console.log("form, component didmount");
+        //console.log("form, component didmount");
         this.initializeFormData();
         window.addEventListener('hb.article.leave.form',this.onLeave);
     }
@@ -422,7 +458,7 @@ class ArticleForm extends React.Component{
     }
 
     onLeave(event){
-        console.log("form, component will leave");
+        //console.log("form, component will leave");
         if(+event.articleId === +this.props.id){
             const {anyTouched,pristine} = this.props;
             const {data} = this.state;
@@ -451,13 +487,13 @@ class ArticleForm extends React.Component{
                 this.state.groups,
                 this.props.id,
                 this.componentUid));
-            console.log("<br>loading data</br>");
+            //console.log("<br>loading data</br>");
             this.loadingArticleId = this.props.id;
         }
         if (this.props.getOneById(this.props.id) !== prevProps.getOneById(this.props.id)) {
             data = this.props.getOneById(this.props.id);
-            console.log("reception de nouvelles données");
-            console.log(data);
+            //console.log("reception de nouvelles données");
+            //console.log(data);
         }
 
         if(data !== this.state.data){
@@ -508,8 +544,8 @@ class ArticleForm extends React.Component{
 
         const {getForm,anyTouched,dispatch} = this.props;
         const pendingForm = getForm(this.componentUid);
-        console.log('form component uid');
-        console.log(this.componentUid);
+        //console.log('form component uid');
+        //console.log(this.componentUid);
         const touchedFields = pendingForm.get("fields");
         const values = pendingForm.get("values");
 
@@ -524,12 +560,12 @@ class ArticleForm extends React.Component{
                 pendingForm.getIn(["values","hasEndDate"]):true;
             touchedValues=touchedValues.set('hasEndDate',hasEndDate);
 
-            console.log('touchedValues');
-            console.log(touchedValues);
+            //console.log('touchedValues');
+            //console.log(touchedValues);
             dispatch(submitLocally("article",touchedValues,id,this.state.groups));
         }
 
-        console.log('trigger link submission');
+        //console.log('trigger link submission');
         this.setState({localSubmitCount:this.state.localSubmitCount+1});
     }
 
@@ -582,31 +618,31 @@ class ArticleForm extends React.Component{
                     <ArticleFormContext.Provider key={`article-form-provider-${id}`} value={contextValue}>
                         {this.props.children}
                     </ArticleFormContext.Provider>
-                    <div key={`article-form-submit-${id}`}>
-                        <FormSubmit
-                            hasData={!!data}
-                            pristine={pristine}
-                            valid={valid}
-                            submitting={submitting}
-                            isNew={data && data.isNew(data)}
-                            isDirty={data?data.isDirty(data):true}
-                            isToDelete={data && data.get("toDelete")}
-                            objectLabel={'votre article'}
-                            handleServerSubmit={this.handleServerSubmit}
-                            handleReset={this.handleReset}
-                            handleDelete={this.handleDelete}
-                            anyTouched ={anyTouched}
-                        >
-                            <Col md={9}>
-                                <FormSubmit.Preview/>
-                                <FormSubmit.ServerSubmit/>
-                                <FormSubmit.Reset/>
-                            </Col>
-                            <Col md={3}>
-                                <FormSubmit.Delete/>
-                            </Col>
-                        </FormSubmit>
-                    </div>
+                    {/*<div key={`article-form-submit-${id}`}>*/}
+                        {/*<FormSubmit*/}
+                            {/*hasData={!!data}*/}
+                            {/*pristine={pristine}*/}
+                            {/*valid={valid}*/}
+                            {/*submitting={submitting}*/}
+                            {/*isNew={data && data.isNew(data)}*/}
+                            {/*isDirty={data?data.isDirty(data):true}*/}
+                            {/*isToDelete={data && data.get("toDelete")}*/}
+                            {/*objectLabel={'votre article'}*/}
+                            {/*handleServerSubmit={this.handleServerSubmit}*/}
+                            {/*handleReset={this.handleReset}*/}
+                            {/*handleDelete={this.handleDelete}*/}
+                            {/*anyTouched ={anyTouched}*/}
+                        {/*>*/}
+                            {/*<Col md={9}>*/}
+                                {/*<FormSubmit.Preview/>*/}
+                                {/*<FormSubmit.ServerSubmit/>*/}
+                                {/*<FormSubmit.Reset/>*/}
+                            {/*</Col>*/}
+                            {/*<Col md={3}>*/}
+                                {/*<FormSubmit.Delete/>*/}
+                            {/*</Col>*/}
+                        {/*</FormSubmit>*/}
+                    {/*</div>*/}
                 </Form>
             </Loadable>
         );

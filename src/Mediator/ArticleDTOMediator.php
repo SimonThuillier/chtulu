@@ -23,6 +23,7 @@ use App\Observer\DBActionObserver;
 use App\Serializer\HDateNormalizer;
 use App\Util\Command\EntityMapperCommand;
 use App\Util\Command\LinkCommand;
+use App\Util\GeoArea;
 use App\Util\HDate;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Psr\Container\ContainerInterface;
@@ -44,7 +45,7 @@ class ArticleDTOMediator extends DTOMediator
         parent::__construct($locator,$dbActionObserver);
         $this->dtoClassName = self::DTO_CLASS_NAME;
         $this->entityClassName = self::ENTITY_CLASS_NAME;
-        $this->groups = ['minimal','abstract','date','type','detailImage','geometry','owner'];
+        $this->groups = ['minimal','abstract','date','type','detailImage','geometry','owner','area'];
         //'subArticles','hteRange'
     }
 
@@ -71,6 +72,7 @@ class ArticleDTOMediator extends DTOMediator
         $dto = $this->dto;
         $dto
             ->setTitle($article->getTitle())
+            ->setSummary($article->getSummary())
             ->setType($article->getType())
             ->setEditionDate($article->getEditionDate())
             ->setFirstPublishedDate($article->getFirstPublishedDate())
@@ -80,6 +82,30 @@ class ArticleDTOMediator extends DTOMediator
 
         // ensure mapped children are loaded
         $article->getType()->getLabel();
+    }
+
+    protected function mapDTOAreaGroup()
+    {
+        /** @var Article $article */
+        $article = $this->entity;
+        /** @var ArticleDTO $dto */
+        $dto = $this->dto;
+
+        $area=null;
+
+        if($article->getArea()!=null){
+            $rawArea = json_decode($article->getArea(),true);
+            if(isset($rawArea["center"]) && isset($rawArea["zoom"]) ){
+                $area=new GeoArea();
+                $area
+                    ->setCenter($rawArea["center"])
+                    ->setZoom($rawArea["zoom"]);
+            }
+
+
+        }
+        $dto
+            ->setArea($area);
     }
 
     protected function mapDTOAbstractGroup()
@@ -365,6 +391,26 @@ class ArticleDTOMediator extends DTOMediator
         else{
             $article->setGeometry(null);
         }
+        return true;
+    }
+
+    protected function mediateArea()
+    {
+        /** @var ArticleDTO $dto */
+        $dto = $this->dto;
+        /** @var Article $article */
+        $article = $this->entity;
+        $area = $dto->getArea();
+
+        if($area !== null){
+            $article
+                ->setArea(GeoArea::toJson($area));
+        }
+        else{
+            $article
+                ->setArea(null);
+        }
+
         return true;
     }
 

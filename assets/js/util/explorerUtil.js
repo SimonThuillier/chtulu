@@ -192,6 +192,9 @@ export const AVAILABLE_AREAS = {
     TIME: `TIME`
 };
 
+export const MAP_TILE_LAYER_URL = 'http://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png';
+export const MAP_TILE_LAYER_ATTRIBUTION = null;
+
 /** analyze abstract of an article and returns temporal data from it
  * @returns array
  * */
