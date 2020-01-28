@@ -27,67 +27,24 @@ class HBExplorerContent extends React.Component {
     }
 
     render() {
-        const {dispatch,mainArticleId,articles,displayedArticles,setHoveredArticle,
-            setActiveComponent,closeArticle,selectArticle,expandArticle,linkArticle,
-            theme} = this.props;
-
-
-        const articlesToDisplay = Array.from(displayedArticles).
-        filter(([id,value])=>{
-            return value.isOpen;
-        }).
-        sort((a,b)=>{
-            const aSelectionDate = a[1].selectionDate;
-            const bSelectionDate = b[1].selectionDate;
-            return (aSelectionDate.getTime() - bSelectionDate.getTime());
-        });
-
-        //console.log("render content");
-
-        const articleCards = articlesToDisplay.map(([id,value])=>{
-            return (
-               <HBExplorerArticleCard
-                   key={`hg-container-article-card-${id}`}
-                   dispatch={dispatch}
-                   id={+id}
-                   mainArticleId={mainArticleId}
-                   articles={articles}
-                   displayParameters={value}
-                   activeComponent = {value.activeComponent}
-                   setHoveredArticle={setHoveredArticle}
-                   setActiveComponent={setActiveComponent}
-                   closeArticle={closeArticle}
-                   selectArticle={selectArticle}
-                   expandArticle={expandArticle}
-                   linkArticle={linkArticle}
-               />
-            );
-        });
+        const {dispatch,mainArticleId,article,displayParameters,setHoveredArticle,
+            setActiveComponent,theme} = this.props;
 
         return (
             <Container>
-                {/*<div*/}
-                    {/*hidden={theme===AVAILABLE_THEMES.SIDEVIEW}*/}
-                    {/*className="hg-content-panel"*/}
-                    {/*key={`hg-container-history`}*/}
-                    {/*id={`hg-container-history`}*/}
-                    {/*style={{height:'100%',width:'180px'}}*/}
-                {/*>*/}
-                    {/*<HBExplorerContentHistory*/}
-                        {/*selectArticle = {selectArticle}*/}
-                        {/*displayedArticles = {displayedArticles}*/}
-
-                    {/*/>*/}
-                {/*</div>*/}
-
-                {articleCards}
-
+                <HBExplorerArticleCard
+                    key={`hg-container-article-card-${mainArticleId}`}
+                    dispatch={dispatch}
+                    id={mainArticleId}
+                    article={article}
+                    displayParameters={displayParameters}
+                    setHoveredArticle={setHoveredArticle}
+                    setActiveComponent={setActiveComponent}
+                />
             </Container>
         );
 
-
     }
-
 }
 
 export default HBExplorerContent;

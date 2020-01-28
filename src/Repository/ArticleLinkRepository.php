@@ -17,9 +17,10 @@ class ArticleLinkRepository extends \Doctrine\ORM\EntityRepository
      * 
      * @param integer $parentId
      * @param integer $childId
+     * @param int $limit
      * @return ArticleLink|NULL
      */
-    public function findByParentChild($parentId,$childId)
+    public function findByParentChild($parentId,$childId,?int $limit)
     {
         $qb = $this->createQueryBuilder('l')
         ->where('l.parentArticle = :parent')
@@ -32,9 +33,10 @@ class ArticleLinkRepository extends \Doctrine\ORM\EntityRepository
     /**
      * @param QueryBuilder $qb
      * @param int $parentId
+     * @param int $limit
      * @return QueryBuilder
      */
-    public function filterByParent_id(QueryBuilder $qb,int $parentId){
+    public function filterByParent_id(QueryBuilder $qb,int $parentId,?int $limit){
         return $qb
             ->join('o.parent','p')
             ->where('p.id = :parentId')

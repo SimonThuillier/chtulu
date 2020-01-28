@@ -16,9 +16,10 @@ class ArticleHistoryRepository extends \Doctrine\ORM\EntityRepository
     /**
      * @param QueryBuilder $qb
      * @param int $articleId
+     * @param int|null $limit
      * @return QueryBuilder
      */
-    public function filterByArticle_id(QueryBuilder $qb,int $articleId){
+    public function filterByArticle_id(QueryBuilder $qb,int $articleId,?int $limit){
         return $qb
             ->join('o.article','a')
             ->where('a.id = :articleId')

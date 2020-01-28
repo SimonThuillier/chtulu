@@ -24,7 +24,9 @@ const articleGroups = {
     geometry:true,
     owner:{minimal:true}
 };
+
 const defaultSearchBag = SearchBag({},'editionDate');
+defaultSearchBag.limit=12;
 
 class ArticleGrid extends React.Component
 {

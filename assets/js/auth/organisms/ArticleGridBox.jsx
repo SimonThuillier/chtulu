@@ -5,6 +5,7 @@ import {
 } from 'react-bootstrap';
 import ArticleDetail from './ArticleDetail';
 
+
 import { Link} from 'react-router-dom';
 import ArticleTitle from '../atoms/ArticleTitle';
 
@@ -40,8 +41,7 @@ export default class ArticleGridBox extends React.Component
                     </Panel.Heading>
                     <Panel.Body>
                         <ArticleDetail data={article}>
-                            <ArticleDetail.DetailImage/>
-                            <ArticleDetail.User/>
+                            <ArticleDetail.FullSummary/>
                         </ArticleDetail>
                     </Panel.Body>
                 </Panel>

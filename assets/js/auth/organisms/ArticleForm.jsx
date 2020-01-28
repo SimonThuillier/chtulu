@@ -72,7 +72,7 @@ const warn = values => {
         warnings.title = `${values.title.length} caractères sur ${64} autorisés`
     }
     if (values.summary && values.summary.length > 450) {
-        errors.summary = `${values.summary.length} caractères sur ${500} autorisés`
+        warnings.summary = `${values.summary.length} caractères sur ${500} autorisés`
     }
     return warnings;
 };

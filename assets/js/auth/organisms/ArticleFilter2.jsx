@@ -19,22 +19,31 @@ export default class ArticleFilter2 extends React.Component{
         this.state = {
             data:null,
             fields:props.fields || ["keyword","type","beginHDate","endHDate"],
-            lastFilterKey:(props.searchBag && props.searchBag.search) || {},
-            formValue:{keyword:null}
+            formValue:props.initialValue||{keyword:null}
         };
 
-        console.log(props.searchBag);
-        console.log(this.state.lastFilterKey);
+        //console.log(props.searchBag);
     }
 
     componentDidMount() {
     }
 
+    componentDidUpdate(prevProps){
+        if(this.props.initialValue !== prevProps.initialValue){
+            this.setState({formValue:this.props.initialValue});
+        }
+    }
+
     onSubmit(){
         const {formValue}= this.state;
         const {onFilter} = this.props;
-        const newSearchBag = SearchBag({keyword:formValue.keyword},'editionDate');
-        onFilter(newSearchBag);
+        let searchBag = SearchBag({keyword:formValue.keyword},'editionDate');
+        searchBag.limit=12;
+        if(!!formValue.keyword && formValue.keyword.trim()!==''){
+            searchBag.search={keyword:formValue.keyword};
+            searchBag.sort = 'keyword';
+        }
+        onFilter(searchBag);
     }
 
     handleChange(e,controlId)

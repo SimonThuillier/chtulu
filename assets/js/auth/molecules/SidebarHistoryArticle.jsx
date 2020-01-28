@@ -4,21 +4,31 @@ import { connect } from 'react-redux';
 import RImageMini from '../../shared/atoms/RImageMini';
 import {Tooltip,Overlay,OverlayTrigger} from 'react-bootstrap';
 import {previewTooltip} from "../atoms/tooltips";
+import { withRouter} from 'react-router-dom';
 
-const historyLine = (article,sidebarStatus="EXPANDED") => (
-    <li key={article.id}
-        onClick={(e)=>{
-            e.preventDefault();
-            e.stopPropagation();
-            window.dispatchEvent(new CustomEvent('hb.article.select',{detail:{id:article.id}}));}
-        }
+function HistoryLine({article,sidebarStatus="EXPANDED",history}){
+    //const history = useHistory();
+
+    function handleClick(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        history.push(`/article/${article.id}`);
+        /*const event = new CustomEvent('hb.article.select');
+        event.articleId = article.id;
+        window.dispatchEvent(event);*/
+    }
+
+
+    return(<li key={article.id}
+               onClick={handleClick}
     >
-        <a style={{paddingLeft:sidebarStatus==="EXPANDED"?"15px":"8px"}} href={"#"}>
+        <a style={{paddingLeft: sidebarStatus === "EXPANDED" ? "15px" : "8px"}} href={"#"}>
             <RImageMini id={article.detailImageResource} useDefault={true}/>&nbsp;&nbsp;
-            <span style={{whiteSpace:'pre-wrap'}}>{article.title}</span>
+            <span style={{whiteSpace: 'pre-wrap'}}>{article.title}</span>
         </a>
-    </li>
-);
+    </li>);
+
+};
 
 
 class SidebarHistoryArticle extends Component {
@@ -33,11 +43,11 @@ class SidebarHistoryArticle extends Component {
     }
 
     render(){
-        const {id,getOneById,sidebarStatus} = this.props;
+        const {id,getOneById,sidebarStatus,history} = this.props;
         const article = getOneById(+id);
 
         if (!article) return null;
-        const line = historyLine(article,sidebarStatus);
+        const line = HistoryLine({article: article, sidebarStatus: sidebarStatus,history:history});
         if(sidebarStatus === "EXPANDED") return line;
 
         const tooltip = (<Tooltip key={`tootip-history-${id}`}>

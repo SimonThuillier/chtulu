@@ -22,9 +22,7 @@ class HBExplorerArticleCard extends React.Component {
 
         this.setMarker = this.setMarker.bind(this);
 
-        this.state = {
-            askedNewLink:false
-        };
+        this.state = {};
     }
 
     setMarker(event){
@@ -49,12 +47,11 @@ class HBExplorerArticleCard extends React.Component {
 
 
     componentDidUpdate(prevProps){
-        if(prevProps.activeComponent==='form' &&
-            prevProps.activeComponent!==this.props.activeComponent &&
-            prevProps.mainArticleId !==null
+        if(prevProps.displayParameters.activeComponent==='form' &&
+            prevProps.displayParameters.activeComponent!==this.props.displayParameters.activeComponent
         ){
             const event = new CustomEvent('hb.article.leave.form');
-            event.articleId = prevProps.mainArticleId;
+            event.articleId = prevProps.id;
             window.dispatchEvent(event);
         }
     }
@@ -69,100 +66,16 @@ class HBExplorerArticleCard extends React.Component {
 
 
     render() {
-        const {dispatch,id,mainArticleId,articles,displayParameters,
-            setHoveredArticle,setActiveComponent,closeArticle,
-            selectArticle,expandArticle,linkArticle,
-            getLinks} = this.props;
+        const {dispatch,id,article,displayParameters,
+            setActiveComponent} = this.props;
 
         const {activeComponent} = displayParameters;
 
-        const {askedNewLink} = this.state;
-
         const alreadyCreatedArticle = +id > 0;
-        const nextArticle = getNeighbourArticleChronogically(articles,id,1);
-        const previousArticle = getNeighbourArticleChronogically(articles,id,-1);
-        const isArticleMain = (+id === mainArticleId);
-        const headerStyle = isArticleMain?{backgroundColor:"#F3E3F6"}:{};
+        const headerStyle = {backgroundColor:"#F3E3F6"};
 
-        let isLinked = null;
-        if(mainArticleId !== null && !isArticleMain){
-            const links = getLinks('childId',id);
-            const currentLink = links.find((link)=>{return +link.get('parentId') === +mainArticleId  && link.get('toDelete')===false});
-            if(typeof currentLink !== 'undefined'){
-                isLinked=true;
-                if(askedNewLink){this.setState({askedNewLink:false});}
-            }
-            else{
-                isLinked=false;
-            }
-        }
-
-        console.log('render card');
         return (
-            <div className="panel panel-default hg-content-panel"
-                 onMouseOver={()=>{setHoveredArticle(+id);}}
-            >
-
-                <div className="hg-content-panel-heading" style={headerStyle}>
-                    <span><h4><ArticleType articleId={id}/></h4></span>
-                    {alreadyCreatedArticle?
-                        <Link
-                            to={`/article/${id}/${setActiveComponent==='form'?'edit':''}`}
-                            className={'btn btn-link'}
-                            title={"Page principale de l'article"}
-                            style={{paddingBottom:0}}
-                        >
-                            <h4><ArticleTitle id={id}/></h4>
-                        </Link>
-                        :
-                        <span><h4><ArticleTitle id={id}/></h4></span>}
-                    <span>
-                            <ArticleExpander id={id} expanded={displayParameters.isExpanded} onClick={()=>{expandArticle(id)}}/>
-                            <TimeBreadcrumb sense={-1} target={previousArticle} switcher={(id)=>{return selectArticle([id]);}}/>
-                            <TimeBreadcrumb sense={1} target={nextArticle} switcher={(id)=>{return selectArticle([id]);}}/>
-
-                        <Button bsStyle={activeComponent==='detail'?'primary':'default'}
-                                disabled={false}
-                                onClick={()=>{setActiveComponent([id],'detail');}}>
-                               <Glyphicon glyph='eye-open'/>
-                        </Button>
-                        <Button bsStyle={activeComponent==='form'?'primary':'default'}
-                                disabled={false}
-                                onClick={()=>{setActiveComponent([id],'form')}}>
-                               <Glyphicon glyph='edit'/>
-                        </Button>
-                        <Button bsStyle={activeComponent==='admin'?'primary':'default'}
-                                disabled={false}
-                                onClick={()=>{setActiveComponent([id],'admin')}}>
-                               <Glyphicon glyph='cog'/>
-                        </Button>
-
-
-                        {isLinked !==null && <span>
-                            <OverlayTrigger
-                                placement={'bottom'}
-                                overlay={
-                                    <Tooltip id={`${isLinked?'unlink':'link'}-${id}-to-${mainArticleId}-message`}>
-                                        {isLinked?'delier cet article':'lier cet article'}
-                                    </Tooltip>
-                                }>
-                                <Button
-                                    id={`unlink-${id}-to-${mainArticleId}`}
-                                    bsStyle={isLinked?'warning':'info'}
-                                    disabled={askedNewLink}
-                                    onClick={()=>{
-                                        linkArticle(+id,!isLinked);
-                                        if(!isLinked) this.setState({askedNewLink:true});
-                                    }}
-                                >
-                                <Glyphicon glyph={isLinked?'resize-full':'resize-small'}/>
-                            </Button>
-                                </OverlayTrigger>
-                            &nbsp;&nbsp;
-                            </span>}
-                        </span>
-                </div>
-
+            <div className="panel panel-default hg-content-panel">
                 <div
                     id='hb-test-scroll'
                     className="panel-body"
@@ -211,7 +124,7 @@ class HBExplorerArticleCard extends React.Component {
     }
 }
 
-const makeMapStateToProps = () => {
+/*const makeMapStateToProps = () => {
     const getLinksSelector = makeLocalGetByAttributeSelector();
 
     return state => {
@@ -219,6 +132,6 @@ const makeMapStateToProps = () => {
             getLinks : getLinksSelector(state.get("articleLink"))
         }
     }
-};
+};*/
 
-export default connect(makeMapStateToProps)(HBExplorerArticleCard);
+export default HBExplorerArticleCard;

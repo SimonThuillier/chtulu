@@ -181,7 +181,7 @@ export default class HBExplorerTimeMenu extends React.Component {
     }
 
     onTimeZoomingEnd(e) {
-        const {hInterval,setHInterval,invisibles} = this.props;
+        const {hInterval,setHInterval} = this.props;
 
         if (this.isTimeZooming !== 0) {
             e.preventDefault();
@@ -198,42 +198,42 @@ export default class HBExplorerTimeMenu extends React.Component {
 
     render(){
 
-        const {hInterval,setHInterval,invisibles} = this.props;
+        const {hInterval,setHInterval} = this.props;
 
         return(<div className="hg-menu">
-            <Button
-                onClick={e => {
-                    const leftMargin = Math.max(
-                        Math.ceil(
-                            dU.dayDiff(
-                                invisibles[RIGHT].maxDate,
-                                invisibles[LEFT].minDate
-                            ) * 0.05
-                        ),
-                        3
-                    );
+            {/*<Button*/}
+                {/*onClick={e => {*/}
+                    {/*const leftMargin = Math.max(*/}
+                        {/*Math.ceil(*/}
+                            {/*dU.dayDiff(*/}
+                                {/*invisibles[RIGHT].maxDate,*/}
+                                {/*invisibles[LEFT].minDate*/}
+                            {/*) * 0.05*/}
+                        {/*),*/}
+                        {/*3*/}
+                    {/*);*/}
 
-                    const newHInterval = new HDate(
-                        "2",
-                        dU.addDay(dU.clone(invisibles[LEFT].minDate), -leftMargin),
-                        dU.clone(hInterval.endDate)
-                    );
-                    setHInterval(newHInterval);
-                }}
-            >
-                {invisibles[LEFT].number > 0 ? (
-                    <span>
-                <Glyphicon glyph="arrow-left" />
-                <Glyphicon glyph="object-align-left" />
-              </span>
-                ) : (
-                    <span>
-                <Glyphicon glyph="object-align-left" />
-                <Glyphicon glyph="arrow-right" />
-              </span>
-                )}
-                {invisibles[LEFT].number > 0 ? `(${invisibles[LEFT].number})` : ""}
-            </Button>
+                    {/*const newHInterval = new HDate(*/}
+                        {/*"2",*/}
+                        {/*dU.addDay(dU.clone(invisibles[LEFT].minDate), -leftMargin),*/}
+                        {/*dU.clone(hInterval.endDate)*/}
+                    {/*);*/}
+                    {/*setHInterval(newHInterval);*/}
+                {/*}}*/}
+            {/*>*/}
+                {/*{invisibles[LEFT].number > 0 ? (*/}
+                    {/*<span>*/}
+                {/*<Glyphicon glyph="arrow-left" />*/}
+                {/*<Glyphicon glyph="object-align-left" />*/}
+              {/*</span>*/}
+                {/*) : (*/}
+                    {/*<span>*/}
+                {/*<Glyphicon glyph="object-align-left" />*/}
+                {/*<Glyphicon glyph="arrow-right" />*/}
+              {/*</span>*/}
+                {/*)}*/}
+                {/*{invisibles[LEFT].number > 0 ? `(${invisibles[LEFT].number})` : ""}*/}
+            {/*</Button>*/}
             <span>
             <Button
                 onClick={e => {
@@ -299,41 +299,41 @@ export default class HBExplorerTimeMenu extends React.Component {
             </Button>
           </span>
             <span>
-            <Button
-                onClick={e => {
-                    const rightMargin = Math.max(
-                        Math.ceil(
-                            dU.dayDiff(
-                                invisibles[RIGHT].maxDate,
-                                invisibles[LEFT].minDate
-                            ) * 0.05
-                        ),
-                        3
-                    );
+            {/*<Button*/}
+                {/*onClick={e => {*/}
+                    {/*const rightMargin = Math.max(*/}
+                        {/*Math.ceil(*/}
+                            {/*dU.dayDiff(*/}
+                                {/*invisibles[RIGHT].maxDate,*/}
+                                {/*invisibles[LEFT].minDate*/}
+                            {/*) * 0.05*/}
+                        {/*),*/}
+                        {/*3*/}
+                    {/*);*/}
 
-                    const newHInterval = new HDate(
-                        "2",
-                        dU.clone(hInterval.beginDate),
-                        dU.addDay(dU.clone(invisibles[RIGHT].maxDate), rightMargin)
-                    );
-                    setHInterval(newHInterval);
-                }}
-            >
-                {invisibles[RIGHT].number > 0 ? (
-                    <span>
-                <Glyphicon glyph="object-align-right" />
-                <Glyphicon glyph="arrow-right" />
-              </span>
-                ) : (
-                    <span>
-                <Glyphicon glyph="arrow-left" />
-                <Glyphicon glyph="object-align-right" />
-              </span>
-                )}
-                {invisibles[RIGHT].number > 0
-                    ? `(${invisibles[RIGHT].number})`
-                    : ""}
-            </Button>
+                    {/*const newHInterval = new HDate(*/}
+                        {/*"2",*/}
+                        {/*dU.clone(hInterval.beginDate),*/}
+                        {/*dU.addDay(dU.clone(invisibles[RIGHT].maxDate), rightMargin)*/}
+                    {/*);*/}
+                    {/*setHInterval(newHInterval);*/}
+                {/*}}*/}
+            {/*>*/}
+                {/*{invisibles[RIGHT].number > 0 ? (*/}
+                    {/*<span>*/}
+                {/*<Glyphicon glyph="object-align-right" />*/}
+                {/*<Glyphicon glyph="arrow-right" />*/}
+              {/*</span>*/}
+                {/*) : (*/}
+                    {/*<span>*/}
+                {/*<Glyphicon glyph="arrow-left" />*/}
+                {/*<Glyphicon glyph="object-align-right" />*/}
+              {/*</span>*/}
+                {/*)}*/}
+                {/*{invisibles[RIGHT].number > 0*/}
+                    {/*? `(${invisibles[RIGHT].number})`*/}
+                    {/*: ""}*/}
+            {/*</Button>*/}
           </span>
 
         </div>);

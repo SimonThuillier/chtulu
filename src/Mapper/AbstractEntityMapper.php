@@ -191,7 +191,7 @@ abstract class AbstractEntityMapper
         foreach((array)($search) as $key => $value){
             $function = 'filterBy' . str_replace('.','_',ucfirst($key));
             if(method_exists($this->repository,$function)){
-                $this->repository->$function($qb,$value);
+                $this->repository->$function($qb,$value,$searchBag->getLimit());
             }
             else{
                 $qb->andWhere('o.'. $key . ' = ' . $value);
@@ -249,6 +249,27 @@ abstract class AbstractEntityMapper
         $truc = $qb->getQuery();
         $truc2 = $truc->getSQL();
 
-        return $qb->getQuery()->getResult();
+        return $this->postProcessResult($qb->getQuery()->getResult(),$searchBag);
+    }
+
+    /**
+     * can perform various actions on the result after query 's completed
+     * @param mixed $result
+     * @param SearchBag|null $searchBag
+     * @return mixed
+     */
+    protected function postProcessResult($result,?SearchBag $searchBag){
+        if(!$searchBag) return $result;
+        $search = $this->getTransformedSearch($searchBag->getSearch());
+
+        foreach((array)($search) as $key => $value){
+            if($key ==='keyword'){
+                if(method_exists($this->repository,'postProcessResultByKeyword')){
+                    $result = $this->repository->postProcessResultByKeyword($result,$value);
+                }
+            }
+        }
+
+        return $result;
     }
 }

@@ -24,6 +24,9 @@ use Doctrine\ORM\QueryBuilder;
  */
 class ArticleRepository extends EntityRepository
 {
+    private $keywordIndex =[];
+
+
     /**
      * @param QueryBuilder $qb
      * @param ArticleType|null $type
@@ -45,14 +48,24 @@ class ArticleRepository extends EntityRepository
     }
 
     /**
+     * do nothing since the sort is already made by relevance inside the filterByKeyword function
      * @param QueryBuilder $qb
-     * @param string|null $keyword
+     * @param string $order
      * @return QueryBuilder
      */
-    public function filterByKeyword(QueryBuilder $qb,?string $keyword){
-        if($keyword === null || $keyword === "") return $qb;
-        $keywordPieces = explode(':',$keyword);
+    public function sortByKeyword(QueryBuilder $qb,string $order){
+        return $qb;
+    }
 
+    /**
+     * @param QueryBuilder $qb
+     * @param string|null $keyword
+     * @param int|null $limit
+     * @return QueryBuilder
+     */
+    public function filterByKeyword(QueryBuilder $qb,?string $keyword,?int $limit){
+        if($keyword === null || $keyword === "") return $qb;
+        /*$keywordPieces = explode(':',$keyword);
         $conditions = [];
         foreach ($keywordPieces as $piece){
             $piece = "'%" . strtolower(trim($piece)) . "%'";
@@ -62,9 +75,41 @@ class ArticleRepository extends EntityRepository
             );
         }
 
-        $condition = $qb->expr()->orX()->addMultiple($conditions);
+        $condition = $qb->expr()->orX()->addMultiple($conditions);*/
 
-        return $qb->andWhere($condition);
+        $getIdByRelevanceQuery = "select * from get_article_ids_by_relevance(?,?);";
+        $statement = $this->getEntityManager()->getConnection()->prepare($getIdByRelevanceQuery);
+        $statement->execute([$keyword,$limit]);
+        $idsAndRelevance = $statement->fetchAll();
+        $idsByRelevance = [];
+
+        foreach($idsAndRelevance as $record){
+            $idsByRelevance[$record['id']] = $record['relevance'];
+        }
+
+        $qb->andWhere($qb->expr()->in('o.id',array_keys($idsByRelevance)));
+
+        $this->keywordIndex[$keyword] = $idsByRelevance;
+
+
+        return $qb;
+    }
+
+    public function postProcessResultByKeyword($result,$keyword){
+
+        if(array_key_exists($keyword,$this->keywordIndex)){
+            $index = $this->keywordIndex[$keyword];
+            $truc = 'la';
+
+            usort($result,function($a,$b) use ($index) {
+                return $index[intval($a->getId())] >= $index[intval($b->getId())]?-1:1;
+
+            });
+        }
+
+        $truc = 'la';
+
+        return $result;
     }
 
     /**
@@ -82,7 +127,7 @@ class ArticleRepository extends EntityRepository
      * @param HDate|null $hDate
      * @return QueryBuilder
      */
-    public function filterByBeginHDate(QueryBuilder $qb,?HDate $hDate){
+    public function filterByBeginHDate(QueryBuilder $qb,?HDate $hDate,?int $limit){
         if($hDate === null) return $qb;
         return $qb->andWhere('(o.endDateType IS NULL OR o.endDateMaxIndex >= :beginDateMinIndex)')
             ->setParameter('beginDateMinIndex', DateHelper::dateToIndex($hDate->getBeginDate()));
@@ -100,9 +145,10 @@ class ArticleRepository extends EntityRepository
     /**
      * @param QueryBuilder $qb
      * @param HDate|null $hDate
+     * @param int|null $limit
      * @return QueryBuilder
      */
-    public function filterByEndHDate(QueryBuilder $qb,?HDate $hDate){
+    public function filterByEndHDate(QueryBuilder $qb,?HDate $hDate,?int $limit){
         if($hDate === null) return $qb;
         return $qb->andWhere('(o.beginDateType IS NULL OR o.beginDateMinIndex <= :endDateMaxIndex)')
             ->setParameter('endDateMaxIndex', DateHelper::dateToIndex($hDate->getEndDate()));
@@ -120,9 +166,10 @@ class ArticleRepository extends EntityRepository
     /**
      * @param QueryBuilder $qb
      * @param int|null $ownerId
+     * @param int|null $limit
      * @return QueryBuilder
      */
-    public function filterByOwnerId(QueryBuilder $qb,$ownerId){
+    public function filterByOwnerId(QueryBuilder $qb,$ownerId,?int $limit){
         if($ownerId === null) return $qb;
         return $qb->andWhere('(o.ownerUser = :ownerId)')
             ->setParameter('ownerId', $ownerId);

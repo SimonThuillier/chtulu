@@ -1,4 +1,7 @@
 {
+  "plugins": [
+    "react-hooks"
+  ],
 	"env": {
 		"browser": true,
 		"amd": true
@@ -55,8 +58,10 @@
 		"no-multi-spaces": 2,
 		"no-sequences": 2,
 		"no-new": 2,
-		"no-caller": 2
-	},
+		"no-caller": 2,
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "warn"
+    },
 
 	"extends": "eslint:recommended"
 }

@@ -135,9 +135,9 @@ class HBExplorerTimePanel2 extends React.Component {
     }
 
     _getOriginY(){
-        const { hInterval, mainArticleId,getArticles ,cursorDate} = this.props;
+        const { hInterval, mainArticleId,article,cursorDate} = this.props;
         let originY = markerStartY-markerDeltaY-10;
-        const mainArticle = getArticles(mainArticleId);
+        const mainArticle = article
         if(!mainArticle) return originY;
 
 
@@ -280,7 +280,7 @@ class HBExplorerTimePanel2 extends React.Component {
     }
 
     render() {
-        const {bounds,getArticles,mainArticleId,hInterval,setHInterval,
+        const {bounds,mainArticleId,article,hInterval,setHInterval,
             cursorDate,cursorRate,isCursorActive,setCursorRate,timeRecordMode,toggleTimeRecordMode,toggleCursor} = this.props;
 
         const marginWidth = this.props.marginWidth || 0;
@@ -292,7 +292,7 @@ class HBExplorerTimePanel2 extends React.Component {
         const width = bounds.width;
         const height = bounds.height;
 
-        const mainArticle = getArticles(mainArticleId);
+        const mainArticle = article;
 
         let markers = [];
         let markerY = markerStartY;
@@ -374,14 +374,5 @@ class HBExplorerTimePanel2 extends React.Component {
     }
 }
 
-const makeMapStateToProps = () => {
-    const getArticlesSelector = makeGetOneByIdSelector();
-
-    return state => {
-        return {
-            getArticles : getArticlesSelector(state.get("article"))
-        }
-    }
-};
-export default connect(makeMapStateToProps)(HBExplorerTimePanel2);
+export default HBExplorerTimePanel2;
 

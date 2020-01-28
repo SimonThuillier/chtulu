@@ -1,0 +1,78 @@
+--CREATE EXTENSION Unaccent;
+
+DROP FUNCTION get_article_ids_by_relevance(character varying,INT);
+
+CREATE OR REPLACE FUNCTION public.get_article_ids_by_relevance(keyword character varying,_limit INT)
+  RETURNS TABLE(id bigint, relevance int)
+AS $$
+DECLARE
+  unac_keyword character varying;
+BEGIN
+  DROP TABLE IF EXISTS temp_count;
+  CREATE TEMP TABLE temp_count(
+    id BIGINT,
+    title_occurences INT DEFAULT 0,
+    summary_occurences INT DEFAULT 0,
+    abstract_occurences INT DEFAULT 0,
+    relevance INT DEFAULT 0
+  );
+
+  unac_keyword := unaccent(keyword);
+
+  INSERT INTO temp_count(id)
+    SELECT a.id from hb_article a;
+  --where (a.title~*unac_keyword or a.summary~*unac_keyword or a.abstract~*unac_keyword);
+
+  -- title occurences
+  UPDATE temp_count set title_occurences = tt.occurences
+  FROM
+    (select t.id,count(t.id) as occurences FROM
+      (
+        select hb_article.id,
+          regexp_matches(unaccent(title), unac_keyword,'ig') AS count
+        from hb_article
+        where (unaccent(title)~*unac_keyword)
+      ) t
+    group by t.id
+    ) tt  where temp_count.id = tt.id;
+
+  -- summary occurences
+  UPDATE temp_count set summary_occurences = tt.occurences
+  FROM
+    (select t.id,count(t.id) as occurences FROM
+      (
+        select hb_article.id,
+          regexp_matches(unaccent(summary), unac_keyword,'ig') AS count
+        from hb_article
+        where (unaccent(summary)~*unac_keyword)
+      ) t
+    group by t.id
+    ) tt  where temp_count.id = tt.id;
+
+  -- abstract occurences
+  UPDATE temp_count set abstract_occurences = tt.occurences
+  FROM
+    (select t.id,count(t.id) as occurences FROM
+      (
+        select hb_article.id,
+          regexp_matches(unaccent(abstract), unac_keyword,'ig') AS count
+        from hb_article
+        where (unaccent(abstract)~*unac_keyword)
+      ) t
+    group by t.id
+    ) tt  where temp_count.id = tt.id;
+
+
+
+  UPDATE temp_count set relevance = (10*title_occurences + 5*summary_occurences + abstract_occurences);
+
+  return QUERY (select t.id,t.relevance from temp_count t where t.relevance>0
+                order by t.relevance DESC limit _limit);
+END; $$
+LANGUAGE PLPGSQL;
+
+
+ALTER FUNCTION public.get_article_ids_by_relevance(character varying,INT)
+OWNER TO postgres;
+
+select * from get_article_ids_by_relevance('telecommunications',10);

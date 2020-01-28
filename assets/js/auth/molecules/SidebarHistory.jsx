@@ -2,6 +2,7 @@ import React,{ Component } from "react";
 import {getArticlesHistory} from "../../shared/selectors";
 import { connect } from 'react-redux';
 import SidebarHistoryArticle from './SidebarHistoryArticle';
+import {withRouter} from 'react-router-dom';
 
 class SidebarHistory extends Component {
     constructor(props) {
@@ -28,10 +29,11 @@ class SidebarHistory extends Component {
     }
 
     render(){
+        console.log('sidebar history props',this.props);
         const {height} = this.state;
         const historyIds = this.props.getHistory();
         const sidebarHistoryArticles = historyIds.map((id)=>(
-            <SidebarHistoryArticle id={id} sidebarStatus={this.props.sidebarStatus}/>
+            <SidebarHistoryArticle id={id} sidebarStatus={this.props.sidebarStatus} history={this.props.history}/>
         ));
 
         return (
@@ -55,4 +57,4 @@ const mapStateToProps = state => {
         }
 };
 
-export default connect(mapStateToProps)(SidebarHistory);
+export default withRouter(connect(mapStateToProps)(SidebarHistory));

@@ -1,12 +1,10 @@
 import React from 'react';
 import {connect} from "react-redux";
-import {getNewlyCreatedIdSelector, getNextNewIdSelector, getOneByIdSelector} from "../../shared/selectors";
 import {Helmet} from 'react-helmet';
-import ArticleTitle from "../atoms/ArticleTitle";
 import HBExplorerProxy from "../organisms/HBExplorerProxy.jsx";
 import {makeGetOneByIdSelector} from "../../shared/selectors";
 import {getOneByIdIfNeeded} from '../../auth/actions';
-
+import {notifyArticleSelection} from '../../shared/actions';
 
 const getActiveComponent = actionParam =>(actionParam==='edit'?'form':'detail');
 
@@ -46,6 +44,8 @@ export class ArticlePage extends React.Component {
                     owner:{minimal:true}
                 },
                 this.state.id));
+
+            dispatch(notifyArticleSelection(+this.state.id));
         }
     }
 
@@ -63,6 +63,7 @@ export class ArticlePage extends React.Component {
 
         if (id !== oldId) {
             this.setState({id:+id});
+            this.props.dispatch(notifyArticleSelection(+id));
         }
         if (activeComponent !== oldActiveComponent) {
             this.setState({activeComponent:activeComponent});

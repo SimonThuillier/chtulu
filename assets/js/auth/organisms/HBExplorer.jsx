@@ -1,11 +1,9 @@
 import React from "react";
 
 import MeasureAndRender from "../hoc/MeasureAndRender";
-import HBExplorerTimePanel from "./HBExplorerTimePanel.jsx";
 import HBExplorerTimePanel2 from "./HBExplorerTimePanel2.jsx";
 import HBExplorerTimeMenu from "./HBExplorerTimeMenu.jsx";
 import HBExplorerContent from "./HBExplorerContent.jsx";
-import HBMap from "./HBMap.jsx";
 import HBMap2 from "./HBMap2.jsx";
 
 import cmn from "../../util/common";
@@ -21,6 +19,11 @@ import {
     AVAILABLE_THEMES,
     AVAILABLE_AREAS
 } from "../../util/explorerUtil";
+
+import ArticleTitle from "../atoms/ArticleTitle";
+import ArticleType from "../atoms/ArticleType";
+import { Button,
+    Glyphicon} from "react-bootstrap";
 
 
 
@@ -78,13 +81,17 @@ const DEFAULT_LAYOUT = {
         padding: "2px"
     },
     header: {
-        order: 1,
-        overflow: `auto`,
-        height: `40px`,
-        border: `2px solid rgb(23, 88, 190)`,
-        padding: `0px`,
-        display: `flex`,
-        flexDirection: `column`
+        height:`35px`,
+        paddingBottom:`1px`,
+        paddingTop:`5px`,
+        paddingLeft:`5px`,
+        color:"#333",
+        backgroundColor:`#f5f5f5`,
+        borderColor:`#ddd`,
+        display:'flex',
+        flexDirection: `row`,
+        justifyContent: `space-between`,
+        alignItems: `flex-end`,
     },
     twoPieces: {
         order: 5,
@@ -262,6 +269,7 @@ class HBExplorer extends React.Component {
                 enabledAreas.includes(AVAILABLE_AREAS.TIME) ||
                 enabledAreas.includes(AVAILABLE_AREAS.MAP)
             ) this._setEnabledAreas([AVAILABLE_AREAS.CONTENT]);
+            else this._setEnabledAreas([AVAILABLE_AREAS.CONTENT,AVAILABLE_AREAS.TIME,AVAILABLE_AREAS.MAP]);
         }
         if(hbOrigin ===AVAILABLE_AREAS.TIME){
             if(
@@ -269,6 +277,7 @@ class HBExplorer extends React.Component {
                 enabledAreas.includes(AVAILABLE_AREAS.MAP) ||
                 enabledAreas.includes(AVAILABLE_AREAS.CONTENT)
             ) this._setEnabledAreas([AVAILABLE_AREAS.TIME]);
+            else this._setEnabledAreas([AVAILABLE_AREAS.CONTENT,AVAILABLE_AREAS.TIME,AVAILABLE_AREAS.MAP]);
         }
         if(hbOrigin ===AVAILABLE_AREAS.MAP){
             if(
@@ -276,22 +285,23 @@ class HBExplorer extends React.Component {
                 enabledAreas.includes(AVAILABLE_AREAS.TIME) ||
                 enabledAreas.includes(AVAILABLE_AREAS.CONTENT)
             ) this._setEnabledAreas([AVAILABLE_AREAS.MAP]);
+            else this._setEnabledAreas([AVAILABLE_AREAS.CONTENT,AVAILABLE_AREAS.TIME,AVAILABLE_AREAS.MAP]);
         }
     }
 
     /** returns the real frameSize from the frameSizes map, theme and enabled areas */
     getRealFrameSize(key){
         const {currentTheme,frameSizes,enabledAreas} = this.state;
-        const {displayedArticles,mainArticleId} = this.props;
+        const {displayParameters} = this.props;
 
         // if article is in activeComponent form or admin, only content area must be enabled
         let realEnabledAreas = [].concat(enabledAreas);
 
-        if(!!mainArticleId && displayedArticles.has(+mainArticleId)){
-            if(['form','admin'].includes(displayedArticles.get(+mainArticleId).activeComponent)){
+
+        if(['form','admin'].includes(displayParameters.activeComponent)){
                 realEnabledAreas = [AVAILABLE_AREAS.CONTENT];
-            }
         }
+
 
 
         if(realEnabledAreas.length===3) return frameSizes.get(key);
@@ -373,14 +383,26 @@ class HBExplorer extends React.Component {
         window.removeEventListener('hb.explorer.magnify', this.onMagnifyArea);
     }
 
+    componentDidUpdate(prevProps){
+        if(prevProps.displayParameters.activeComponent !== this.props.displayParameters.activeComponent &&
+            this.props.displayParameters.activeComponent === 'detail'){
+            setTimeout(()=>{window.dispatchEvent(new Event('resize'))},20);
+        }
+    }
+
     setTheme(theme) {
         console.log(theme);
-        this.setState({ currentTheme: theme, guiInitialized: 1 });
-        setTimeout(() => {
-            this.setState({ guiInitialized: 2 });
-        }, 10);
+        this.setState({ currentTheme: theme,
+            frameSizes:new Map(this.state.frameSizes),
+            guiInitialized: 2,enabledAreas:[].concat(this.state.enabledAreas) });
+        const component=this;
+        //
+
         setTimeout(()=>{window.dispatchEvent(new Event('resize'))},20);
-        setTimeout(()=>{this.onOnePieceResize(null);},25);
+        setTimeout(()=>{component.onOnePieceResize(null);},30);
+        setTimeout(() => {
+            component.setState({ guiInitialized: 2 });
+        }, 100);
     }
 
     toggleArea(areaKey){
@@ -405,19 +427,20 @@ class HBExplorer extends React.Component {
     }
 
     _setEnabledAreas(newEnabledAreas){
-        this.setState({enabledAreas:newEnabledAreas,guiInitialized: 1});
-        setTimeout(() => {
-            this.setState({ guiInitialized: 2 });
-        }, 10);
-        setTimeout(()=>{window.dispatchEvent(new Event('resize'))},20);
-        setTimeout(()=>{this.onOnePieceResize(null);},25);
+        this.setState({enabledAreas:newEnabledAreas});
+        const component=this;
+        /*setTimeout(() => {
+            component.setState({ guiInitialized: 2 });
+        }, 20);*/
+        setTimeout(()=>{window.dispatchEvent(new Event('resize'))},30);
+        //setTimeout(()=>{component.onOnePieceResize(null);},50);
     }
 
     onWindowResize() {
         const {
             containerRef: { current }
         } = this;
-        const { frameSizes,guiInitialized } = this.state;
+        const { frameSizes,guiInitialized,currentTheme } = this.state;
         if (!current || current === null) return;
 
         const containerRect = this.containerRef.current.getBoundingClientRect();
@@ -443,7 +466,16 @@ class HBExplorer extends React.Component {
                 .set("container.width", `${newContainerWidth}px`)
                 .set("container.height", `${newContainerHeight-1}px`);
 
-            this.setState({ frameSizes: newFrameSizes,isResizing:true});
+            const stateToUpdate = { frameSizes: newFrameSizes,isResizing:true};
+            if(window.innerWidth < window.innerHeight && currentTheme!== VERTICAL){
+                stateToUpdate.currentTheme = VERTICAL;
+            }
+            else if(window.innerWidth >= window.innerHeight && currentTheme!== SIDEVIEW){
+                stateToUpdate.currentTheme = SIDEVIEW;
+            }
+
+            this.setState(stateToUpdate);
+            this.resizeCounter=this.resizeCounter+1;
             const counter = this.resizeCounter;
             const component = this;
 
@@ -451,7 +483,7 @@ class HBExplorer extends React.Component {
                 if(component.state.isResizing && counter === component.resizeCounter){
                     component.setState({isResizing:false});
                 }
-            },100);
+            },30);
         }
         resizeMedias();
     }
@@ -542,13 +574,27 @@ class HBExplorer extends React.Component {
     }
 
     render() {
+        /*
+        dispatch={dispatch}
+                    mainArticleId={mainArticleId}
+                    hInterval={hInterval}
+                    cursorDate = {cursorDate}
+                    cursorRate = {cursorRate}
+                    setCursorRate = {this.setCursorRate}
+                    toggleCursor = {this.toggleCursor}
+                    toggleTimeRecordMode = {this.toggleTimeRecordMode}
+                    timeRecordMode = {timeRecordMode}
+                    article={article}
+                    displayedArticles={displayedArticles}
+                    setActiveComponent={this.setActiveComponent}
+         */
         const { currentTheme,enabledAreas, frameSizes, guiInitialized,isResizing } = this.state;
-        const { searchBag,setLimit,hInterval,setHInterval,cursorRate,timeRecordMode,toggleTimeRecordMode,
+        const {hInterval,setHInterval,cursorRate,timeRecordMode,toggleTimeRecordMode,
             cursorDate,isCursorActive,setCursorRate,toggleCursor,
-            articles,mainArticleId,displayedArticles,invisibles,
-            hoveredArticleId, setHoveredArticle,selectArticle,closeArticle,expandArticle,linkArticle,setActiveComponent,addArticle,
-            dispatch,onFilter} = this.props;
+            article,mainArticleId,displayParameters,
+            setActiveComponent,dispatch} = this.props;
         const theme = THEMES[currentTheme];
+        const activeComponent = displayParameters.activeComponent;
         //console.log(currentTheme);
 
         if(this.timeAreaRef.current){
@@ -562,7 +608,6 @@ class HBExplorer extends React.Component {
                     <HBExplorerTimeMenu
                         hInterval={hInterval}
                         setHInterval={setHInterval}
-                        invisibles={invisibles}
                     />
                 </TimeFooter>
                 <TimePanel id={"time-panel"}
@@ -571,7 +616,7 @@ class HBExplorer extends React.Component {
                     <MeasureAndRender
                         stretch={true}
                         debounce={1}
-                        onWindowResize={this.onPanelAreaResize}
+                        onWindowResize={()=>{}}
                         updaterVar={frameSizes}
                         /*ref={node => {
                             this.panelMeasureRef = node;
@@ -587,99 +632,43 @@ class HBExplorer extends React.Component {
                             //console.log('bounds',bounds);
                             //return <p>{path}</p>
 
-                            if(mainArticleId!==null){
-                                return [
-                                    <HBExplorerTimePanel2
-                                        key={"hg-time-panel"}
-                                        theme={theme}
-                                        bounds={bounds}
-                                        marginWidth={0}
-                                        path={path}
-                                        hInterval={hInterval}
-                                        setHInterval={setHInterval}
-                                        articles={articles}
-                                        minLinksCount={this.props.minLinksCount}
-                                        maxLinksCount={this.props.maxLinksCount}
-                                        mainArticleId={mainArticleId}
-                                        displayedArticles={displayedArticles}
-                                        hoveredArticleId={hoveredArticleId}
-                                        setHoveredArticle={setHoveredArticle}
-                                        selectArticle={selectArticle}
-                                        addArticle={addArticle}
-                                        cursorRate={cursorRate}
-                                        toggleTimeRecordMode = {toggleTimeRecordMode}
-                                        timeRecordMode = {timeRecordMode}
-                                        cursorDate = {cursorDate}
-                                        isCursorActive={isCursorActive}
-                                        setCursorRate = {setCursorRate}
-                                        toggleCursor = {toggleCursor}
-                                    />
-                                ];
-                            }
 
-                            return [
-                                <HBExplorerTimePanel
-                                    key={"hg-time-panel"}
-                                    theme={theme}
-                                    bounds={bounds}
-                                    marginWidth={0}
-                                    path={path}
-                                    hInterval={hInterval}
-                                    setHInterval={setHInterval}
-                                    articles={articles}
-                                    minLinksCount={this.props.minLinksCount}
-                                    maxLinksCount={this.props.maxLinksCount}
-                                    mainArticleId={mainArticleId}
-                                    displayedArticles={displayedArticles}
-                                    hoveredArticleId={hoveredArticleId}
-                                    setHoveredArticle={setHoveredArticle}
-                                    selectArticle={selectArticle}
-                                    addArticle={addArticle}
-                                    cursorRate={cursorRate}
-                                    toggleTimeRecordMode = {toggleTimeRecordMode}
-                                    timeRecordMode = {timeRecordMode}
-                                    cursorDate = {cursorDate}
-                                    isCursorActive={isCursorActive}
-                                    setCursorRate = {setCursorRate}
-                                    toggleCursor = {toggleCursor}
-                                />
-                            ];
+                            return (<HBExplorerTimePanel2
+                                key={"hg-time-panel"}
+                                theme={theme}
+                                bounds={bounds}
+                                marginWidth={0}
+                                path={path}
+                                hInterval={hInterval}
+                                setHInterval={setHInterval}
+                                article={article}
+                                mainArticleId={mainArticleId}
+                                cursorRate={cursorRate}
+                                toggleTimeRecordMode = {toggleTimeRecordMode}
+                                timeRecordMode = {timeRecordMode}
+                                cursorDate = {cursorDate}
+                                isCursorActive={isCursorActive}
+                                setCursorRate = {setCursorRate}
+                                toggleCursor = {toggleCursor}
+                            />);
                         }}
                     </MeasureAndRender>
                 </TimePanel>
             </TimeArea>
         );
 
-        let mapArea = null;
-        if(mainArticleId!==null){
-            mapArea = (
-                <MapArea ref={this.mapAreaRef}>
-                    <HBMap2
-                        dispatch={dispatch}
-                        width={this.mapAreaRef.current?this.mapAreaRef.current.getBoundingClientRect().width:100}
-                        height={this.mapAreaRef.current?this.mapAreaRef.current.getBoundingClientRect().height:100}
-                        mainArticleId={mainArticleId}
-                        isResizing={false}
-                        hInterval={hInterval}
-                    />
-                </MapArea>);
-        }
-        else{
-             mapArea = (
-                <MapArea ref={this.mapAreaRef}>
-                    <HBMap
-                        dispatch={dispatch}
-                        width={this.mapAreaRef.current?this.mapAreaRef.current.getBoundingClientRect().width:100}
-                        height={this.mapAreaRef.current?this.mapAreaRef.current.getBoundingClientRect().height:100}
-                        articles={articles}
-                        hoveredArticleId={hoveredArticleId}
-                        setHoveredArticle={setHoveredArticle}
-                        selectArticle={selectArticle}
-                        displayedArticles={displayedArticles}
-                        isResizing={false}
-                    />
-                </MapArea>);
-        }
+        const mapArea = (
+            <MapArea ref={this.mapAreaRef}>
+                <HBMap2
+                    dispatch={dispatch}
+                    width={this.mapAreaRef.current?this.mapAreaRef.current.getBoundingClientRect().width:100}
+                    height={this.mapAreaRef.current?this.mapAreaRef.current.getBoundingClientRect().height:100}
+                    mainArticleId={mainArticleId}
+                    isResizing={false}
+                    hInterval={hInterval}
+                />
+            </MapArea>);
+
 
 
 
@@ -688,14 +677,9 @@ class HBExplorer extends React.Component {
                 <HBExplorerContent
                     dispatch={dispatch}
                     mainArticleId={mainArticleId}
-                    articles={articles}
-                    displayedArticles={displayedArticles}
-                    setHoveredArticle={setHoveredArticle}
-                    selectArticle={selectArticle}
+                    article={article}
+                    displayParameters={displayParameters}
                     setActiveComponent={setActiveComponent}
-                    closeArticle={closeArticle}
-                    expandArticle={expandArticle}
-                    linkArticle={linkArticle}
                     theme={theme}
                 />
             </ContentArea>);
@@ -717,15 +701,35 @@ class HBExplorer extends React.Component {
                             ref={this.containerRef}
                         >
                             <Header ref={this.headerRef}>
-                                <HBExplorerHeader
-                                    theme={this.state.currentTheme}
-                                    enabledAreas={enabledAreas}
-                                    toggleArea={this.toggleArea}
-                                    onChange={this.setTheme}
-                                    onFilter={onFilter}
-                                    searchBag={searchBag}
-                                    setLimit={setLimit}
-                                />
+                                    <span><h4><ArticleType articleId={mainArticleId}/></h4></span>
+                                            <h4><ArticleTitle id={mainArticleId}/></h4>
+                                    <span>
+                        <Button bsStyle={displayParameters.activeComponent==='detail'?'primary':'default'}
+                                disabled={false}
+                                onClick={()=>{setActiveComponent([mainArticleId],'detail');}}>
+                               <Glyphicon glyph='eye-open'/>
+                        </Button>
+                        <Button bsStyle={displayParameters.activeComponent==='form'?'primary':'default'}
+                                disabled={false}
+                                onClick={()=>{setActiveComponent([mainArticleId],'form')}}>
+                               <Glyphicon glyph='edit'/>
+                        </Button>
+                        <Button bsStyle={displayParameters.activeComponent==='admin'?'primary':'default'}
+                                disabled={false}
+                                onClick={()=>{setActiveComponent([mainArticleId],'admin')}}>
+                               <Glyphicon glyph='cog'/>
+                        </Button>
+                        </span>
+                                {/*</div>*/}
+                                {/*<HBExplorerHeader*/}
+                                    {/*theme={this.state.currentTheme}*/}
+                                    {/*enabledAreas={enabledAreas}*/}
+                                    {/*toggleArea={this.toggleArea}*/}
+                                    {/*onChange={this.setTheme}*/}
+                                    {/*onFilter={onFilter}*/}
+                                    {/*searchBag={searchBag}*/}
+                                    {/*setLimit={setLimit}*/}
+                                {/*/>*/}
                             </Header>
                             <OnePiece
                                 ref={this.onePieceRef}
@@ -743,7 +747,7 @@ class HBExplorer extends React.Component {
                                     ? contentArea
                                     : timeArea}
                             </OnePiece>
-                            {!isResizing && guiInitialized > 1 && !!this.onePieceRef.current && (
+                            {!isResizing && guiInitialized > 1 && activeComponent==='detail' &&enabledAreas.length>1 && !!this.onePieceRef.current && (
                                 <ResizeBar
                                     key={"onePiece-resize-bar"}
                                     placementType={"bottom"}
@@ -783,7 +787,7 @@ class HBExplorer extends React.Component {
                                         ? timeArea
                                         : contentArea}
                                 </Left>
-                                {!isResizing && guiInitialized > 1 && !!this.rightRef.current && (
+                                {!isResizing && guiInitialized > 1 && activeComponent==='detail' && enabledAreas.length>1 &&  !!this.rightRef.current && (
                                     <ResizeBar
                                         key={`right-resize-bar-${currentTheme}`}
                                         placementType={

@@ -450,8 +450,13 @@ aside { -ms-overflow-style: none; }
     max-height:150px;
 }
 
+.hb-articles-grid .box {
+    color:#333;
+}
+
 .hvr-grow {
     display: inline-block;
+    min-height: 140px;
     vertical-align: middle;
     -webkit-transform: perspective(1px) translateZ(0);
     transform: perspective(1px) translateZ(0);

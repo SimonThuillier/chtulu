@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { BrowserRouter,Route,Switch} from 'react-router-dom';
+import { BrowserRouter,Route,Switch,useHistory} from 'react-router-dom';
 import Header from "./organisms/Header";
 import SideBar from "./organisms/SideBar";
 
@@ -15,12 +15,14 @@ import AppContext from "../util/AppContext";
 import {loadInitialHResponse} from "./actions";
 
 import WelcomePage from "./pages/WelcomePage";
-import ExplorerPage from "./pages/ExplorerPage";
 import ArticlePage from "./pages/ArticlePage";
 import AccountPage from "./pages/AccountPage";
 import UserPublicPage from "../shared/pages/UserPublicPage";
 import ArticleTablePage from "./pages/ArticleTablePage";
 import ContactPage from "./pages/ContactPage";
+
+
+
 
 const routes = [
     {
@@ -31,9 +33,9 @@ const routes = [
     },
     {
         id:2,
-        path:'/explorer',
+        path:'/welcome?:search',
         exact:true,
-        component:ExplorerPage
+        component:WelcomePage
     },
     {
         id:4,
@@ -85,6 +87,7 @@ const routes = [
 class Auth extends Component {
     constructor(props) {
         super(props);
+        this.onArticleSelect = this.onArticleSelect.bind(this);
         this.onPostAll = this.onPostAll.bind(this);
         this.onResetAll = this.onResetAll.bind(this);
 
@@ -99,10 +102,17 @@ class Auth extends Component {
     {
         const {dispatch,getNotifications} = this.props;
         dispatch(loadInitialHResponse("DEFAULT"));
+        //window.addEventListener("hb.article.select", this.onArticleSelect);
     }
 
     componentWillUnmount()
     {
+        //window.removeEventListener("hb.article.select", this.onArticleSelect);
+    }
+
+    onArticleSelect(e){
+        /*const history = useHistory();
+        history.push(`/article/${e.articleId}`);*/
     }
 
     onPostAll(){

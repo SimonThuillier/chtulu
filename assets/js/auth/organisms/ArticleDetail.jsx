@@ -3,7 +3,8 @@ import GroupUtil from '../../util/GroupUtil';
 import RImageDetail from '../../shared/atoms/RImageDetail';
 import UserIconLink from '../../shared/molecules/UserIconLink';
 import {getDecoratedAbstractForDetail,AVAILABLE_AREAS} from '../../util/explorerUtil';
-
+import DateUtil from "../../util/date";
+const dateFormatter = DateUtil.getFormatterFromPattern('d/m/Y H:i');
 
 class SubAbstract extends React.Component
 {
@@ -107,8 +108,31 @@ class SubAbstract extends React.Component
 
 
 const SubUser = ({data}) =>{
-    return(<div className="hb-flex-center">
+    return(<div>
             <UserIconLink id={data.ownerUser}/>
+        </div>
+    );
+};
+
+const SubFullSummary = ({data}) =>{
+
+    const style = {
+        float:'left',
+        clear:'left',
+        marginBottom:'3px'
+    };
+
+    return(
+        <div >
+            <div style={{display:'flex',flexDirection:'column',alignContent:'space-between'}}>
+                <div style={{display:'inline-flex',justifyContent:'space-between'}}>
+                    <div style={style}>{data.summary}</div>
+                    <SubDetailImage data={data}/>
+                </div>
+                <div>
+                    <i>Derniere edition le {dateFormatter(data.editionDate)} par <SubUser data={data}/></i>
+                </div>
+            </div>
         </div>
     );
 };
@@ -120,7 +144,7 @@ const SubDetailImage = ({data}) =>{
         float:'right',
         clear:'right',
         marginLeft:'5px',
-        marginBottom:'3px'
+        marginBottom:'3px',
     };
 
     return (
@@ -146,6 +170,7 @@ export default class ArticleDetail extends React.Component{
     static User = SubUser;
     static DetailImage = SubDetailImage;
     static Abstract = SubAbstract;
+    static FullSummary = SubFullSummary;
 
     constructor(props) {
         super(props);

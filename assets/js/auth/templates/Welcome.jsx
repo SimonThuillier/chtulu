@@ -10,10 +10,24 @@ import {INITIAL} from "../../util/notifications";
 import NotificationAlert from '../../shared/molecules/NotificationAlert';
 import ArticleGrid from '../organisms/ArticleGrid';
 import ArticleFilter2 from '../organisms/ArticleFilter2';
+import SearchBag from "../../util/SearchBag";
 
 const Imm = require("immutable");
 const componentUid = require("uuid/v4")();
 
+
+const defaultSearchBag = SearchBag({},'editionDate');
+defaultSearchBag.limit=12;
+
+const getSearchBagFromSearch = (search)=>{
+    let searchBag = {};
+    Object.assign(searchBag,defaultSearchBag);
+    if(!!search && search!==''){
+        searchBag.search={keyword:search};
+        searchBag.sort='keyword';
+    }
+    return searchBag;
+};
 
 class Welcome extends React.Component
 {
@@ -22,8 +36,10 @@ class Welcome extends React.Component
         super(props);
         this.onFilter = this.onFilter.bind(this);
 
+        let searchBag = getSearchBagFromSearch(props.search);
+
         this.state = {
-            searchBag:null,
+            searchBag:searchBag,
        };
     }
 
@@ -33,7 +49,9 @@ class Welcome extends React.Component
 
     componentDidUpdate(prevProps)
     {
-
+        if(this.props.search !== prevProps.search){
+            this.setState({searchBag:getSearchBagFromSearch(this.props.search)});
+        }
     }
 
     onFilter(newSearchBag){
@@ -43,14 +61,14 @@ class Welcome extends React.Component
 
     render()
     {
-        const {getNotifications,dispatch} = this.props;
+        const {getNotifications,dispatch,search} = this.props;
         const {searchBag} = this.state;
         const notifications = getNotifications(componentUid);
 
         let initialNotif = (notifications && notifications.getIn(['DEFAULT',INITIAL]))||null;
         initialNotif = (initialNotif && !initialNotif.get("discardedAt"))?initialNotif:null;
 
-        console.log(initialNotif);
+        console.log('welcome',initialNotif,searchBag);
 
 
 
@@ -70,7 +88,7 @@ class Welcome extends React.Component
                         {!initialNotif &&
                         <Shade key={`${componentUid}-content`}>
                             <h4>Derniers articles publiés</h4>
-                            <ArticleFilter2 fields={['keyword']} onFilter={this.onFilter}/>
+                            <ArticleFilter2 initialValue={{keyword:search}} fields={['keyword']} onFilter={this.onFilter}/>
                             <ArticleGrid searchBag={searchBag}/>
                         </Shade>
                         }
