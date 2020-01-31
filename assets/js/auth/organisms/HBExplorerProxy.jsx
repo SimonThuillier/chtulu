@@ -7,11 +7,15 @@ import HBExplorer from "./HBExplorer";
 import {makeGetNotificationsSelector,makeGetOneByIdSelector} from "../../shared/selectors";
 import {getOneByIdIfNeeded} from "../actions";
 import {COLORS, LOADING} from "../../util/notifications";
-import {getHIntervalFromArticles,defaultHInterval} from "../../util/explorerUtil";
+import {getHIntervalFromArticles, defaultHInterval, AVAILABLE_AREAS} from "../../util/explorerUtil";
 import {getLastBegunArticle} from '../../util/explorerUtil';
+import HDate from '../../util/HDate';
+import dateUtil from '../../util/date';
 
 const Imm = require("immutable");
 const componentUid = require("uuid/v4")();
+
+const { CONTENT} = AVAILABLE_AREAS;
 
 // groups for main article
 const articleGroups = {
@@ -48,14 +52,19 @@ class HBExplorerProxy extends React.Component {
         this.toggleTimeRecordMode = this.toggleTimeRecordMode.bind(this);
         this.setActiveComponent = this.setActiveComponent.bind(this);
 
+        this.onSetMarker = this.onSetMarker.bind(this);
+
         this.state = {
             hInterval: props.hInterval || defaultHInterval,
             hasSelfUpdatedHInterval:false,
-            cursorRate:0.35,
+            cursorRate:0.013,
+            cursorDate:(props.hInterval || defaultHInterval).getBarycenterDate(0.013),
             timeRecordMode:false,
             isCursorActive:false,
             displayParameters:getInitialDisplayed()
         };
+
+        this.articleDuration=null;
     }
 
     componentDidMount(){
@@ -67,15 +76,17 @@ class HBExplorerProxy extends React.Component {
             if(mainArticleId !== null){
                 this.setState({hasSelfUpdatedHInterval:false});
                 if(!!article){
-                    this.setHInterval(getHIntervalFromArticles([article]));
+                    this.setHInterval(getHIntervalFromArticles([article]),true);
                 }
             }
         }
         //window.addEventListener("hb.article.select", this.onExternalArticleSelect);
+        window.addEventListener('hb.explorer.set.marker', this.onSetMarker);
     }
 
     componentWillUnmount() {
         //window.removeEventListener("hb.article.select", this.onExternalArticleSelect);
+        window.removeEventListener('hb.explorer.set.marker', this.onSetMarker);
     }
 
     componentDidUpdate(prevProps)
@@ -85,30 +96,83 @@ class HBExplorerProxy extends React.Component {
 
         const article = getOneById(mainArticleId);
 
-        if(mainArticleId !== prevProps.mainArticleId){
+        if(!!article && (mainArticleId !== prevProps.mainArticleId || getOneById !== prevProps.getOneById)){
             this.setState({hasSelfUpdatedHInterval:false});
             if(!!article){
-                this.setHInterval(getHIntervalFromArticles([article]));
+                this.setHInterval(getHIntervalFromArticles([article]),true);
             }
         }
 
-        if(!hasSelfUpdatedHInterval &&!!article && getOneById !== prevProps.getOneById){
-            this.setHInterval(getHIntervalFromArticles([article]));
-        }
     }
 
-    setHInterval(hInterval) {
+    setHInterval(hInterval,changeArticle=false) {
         if(!hInterval) return;
 
-        this.setState({ hInterval: hInterval, hasSelfUpdatedHInterval:true });
+        const stateToUpdate = {hInterval: hInterval};
 
-        if(this.state.timeRecordMode){
+        if(changeArticle){
+            stateToUpdate.cursorRate=0.013;
+            stateToUpdate.cursorDate=hInterval.getBarycenterDate(0.013);
+            const {mainArticleId, getOneById} = this.props;
+            const article = getOneById(mainArticleId);
+            this.articleDuration = dateUtil.dayDiff(article.endHDate?article.endHDate.endDate:new Date(),article.beginHDate.beginDate);
+        }
+        else{
+            stateToUpdate.cursorDate=hInterval.getBarycenterDate(this.state.cursorRate);
+        }
+
+        this.setState(stateToUpdate);
+
+        /*if(this.state.timeRecordMode){
             const {cursorRate} = this.state;
             const cursorDate = (hInterval!==null && cursorRate!==null)?hInterval.getBarycenterDate(cursorRate):null;
             const lastBegunArticle = getLastBegunArticle(this.getArticles(),cursorDate);
             if(lastBegunArticle !== null && typeof lastBegunArticle!=='undefined'){
                 this.selectArticle([lastBegunArticle.id]);
             }
+        }*/
+    }
+
+    /**
+     * if click on a marker set the new HInterval
+     * @param event
+     */
+    onSetMarker(event){
+        const {iconId,hbOrigin} = event;
+
+
+        if(!iconId.includes('TIME_MARKER') || hbOrigin !== CONTENT){
+            return;
+        }
+        const element = document.getElementById(iconId);
+        if(!element) return;
+
+        const markerHDate = HDate.prototype.parseFromJson(element.getAttribute('data-hdate'));
+        console.log('hbexplorerproxy onsetmarker',iconId,hbOrigin,element,markerHDate,this.articleDuration);
+
+        const {hInterval,cursorDate,cursorRate:stateCursorRate} = this.state;
+        const {max,min,ceil} = Math;
+
+        const cursorRate=min(0.75,stateCursorRate);
+        let duration = ceil(max(ceil(0.1*this.articleDuration),markerHDate.getIntervalSize()*(1-cursorRate)));
+        console.log('new interval ',duration,markerHDate.beginDate);
+        let beginDate = dateUtil.addDay(dateUtil.clone(markerHDate.beginDate),-cursorRate*duration);
+        let endDate = dateUtil.addDay(dateUtil.clone(markerHDate.beginDate),(1-cursorRate)*duration);
+        let newHInterval = new HDate("2",beginDate,endDate);
+
+        console.log('new interval ',newHInterval);
+
+        this.setHInterval(newHInterval);
+
+    }
+
+    setCursorRate(rate){
+        const {hInterval} = this.state;
+        const cursorDate = (hInterval!==null && rate!==null)?hInterval.getBarycenterDate(rate):null;
+        this.setState({cursorRate:rate,cursorDate:cursorDate});
+
+        if(this.state.timeRecordMode){
+
         }
     }
 
@@ -119,28 +183,9 @@ class HBExplorerProxy extends React.Component {
     toggleTimeRecordMode(){
 
         if(!this.state.timeRecordMode){
-            const {cursorRate,hInterval} = this.state;
-            const cursorDate = (hInterval!==null && cursorRate!==null)?hInterval.getBarycenterDate(cursorRate):null;
-            const lastBegunArticle = getLastBegunArticle(this.getArticles(),cursorDate);
-            if(lastBegunArticle !== null && typeof lastBegunArticle!=='undefined'){
-                this.selectArticle([lastBegunArticle.id]);
-            }
+
         }
         this.setState({timeRecordMode:!this.state.timeRecordMode});
-    }
-
-    setCursorRate(rate){
-
-        this.setState({cursorRate:rate});
-
-        if(this.state.timeRecordMode){
-            const {cursorRate,hInterval} = this.state;
-            const cursorDate = (hInterval!==null && cursorRate!==null)?hInterval.getBarycenterDate(rate):null;
-            const lastBegunArticle = getLastBegunArticle(this.getArticles(),cursorDate);
-            if(lastBegunArticle !== null && typeof lastBegunArticle!=='undefined'){
-                this.selectArticle([lastBegunArticle.id]);
-            }
-        }
     }
 
     /**
@@ -155,9 +200,7 @@ class HBExplorerProxy extends React.Component {
     }
 
     render() {
-        const {hInterval,cursorRate,timeRecordMode,displayParameters} = this.state;
-
-        const cursorDate = (hInterval!==null && cursorRate!==null)?hInterval.getBarycenterDate(cursorRate):null;
+        const {hInterval,cursorRate,timeRecordMode,displayParameters,cursorDate} = this.state;
 
         const {mainArticleId=null,getNotifications,dispatch,getOneById} = this.props;
         const article = getOneById(mainArticleId);

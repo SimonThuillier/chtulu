@@ -67,12 +67,12 @@ class ArticleAdmin extends React.Component
         const {getHistory,getStatus,dispatch,id} = this.props;
         const {historyId} = this.state;
 
-        console.log('article history id',id);
+        //console.log('article history id',id);
 
         const historyRows = getHistory('articleId',id)
             .sort((a,b)=>{return b.get('editionDate').getTime()-a.get('editionDate').getTime();})
             .map((rec)=>{
-            console.log('article history ',rec.toJS());
+            //console.log('article history ',rec.toJS());
 
             const style = {};
             if(+rec.get('id')<0) style.backgroundColor=COLORS.NEW;

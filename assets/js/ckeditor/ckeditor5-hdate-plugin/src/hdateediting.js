@@ -32,10 +32,10 @@ export default class HDateEditing extends Plugin {
 		const locale = editor.locale;
 
         editor.model.schema.register( 'TimeMarker', {
-                allowIn:"$block",
+                isObject:true,
+                allowIn:["$block","$text","$root"],
                 allowContentOf: [],
                 allowAttributes:['id','data_HDate','title'],
-                inheritTypesFrom: '$block'
             }
         );
 

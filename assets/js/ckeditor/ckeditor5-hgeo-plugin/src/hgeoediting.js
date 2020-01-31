@@ -32,10 +32,10 @@ export default class HGeoEditing extends Plugin {
 		const locale = editor.locale;
 
         editor.model.schema.register( 'GeoMarker', {
-                allowIn:"$block",
+                isObject:true,
+                allowIn:["$block","$text","$root"],
                 allowContentOf: [],
                 allowAttributes:['id','data_HGeo','title'],
-                inheritTypesFrom: '$block'
             }
         );
 

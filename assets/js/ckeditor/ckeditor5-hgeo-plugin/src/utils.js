@@ -6,7 +6,8 @@
  */
 export function getHGeoElement( position) {
 
-    console.log('is my node HGeo ?',position);
+    if (!position) return null;
+    console.log('is my node HGeo ?',position,);
 
     // case at the beginning of paragraph
     try{
@@ -20,8 +21,33 @@ export function getHGeoElement( position) {
     }
     catch(e){}
 
+    if(!!position.parent && !!position.parent._textData && position.parent._textData.length === +position.offset){
+        const ancestors = position.getAncestors();
+        let ancestor = null;
 
-    if(!position.parent || !position.parent.nextSibling){
+        for (let i=ancestors.length-1;i>=0;i--){
+            ancestor = ancestors[i];
+            if(!!ancestor.nextSibling){
+                if(ancestor.nextSibling.hasAttribute('data-hgeo')) return ancestor.nextSibling;
+                else return null;
+            }
+        }
+    }
+
+
+    /*const ancestors = position.getAncestors();
+    let ancestor = null;
+
+    for (let i=ancestors.length-1;i>=0;i--){
+        ancestor = ancestors[i];
+        if(!!ancestor.nextSibling){
+            if(ancestor.nextSibling.hasAttribute('data-hgeo')) return ancestor.nextSibling;
+            else return null;
+        }
+    }*/
+
+
+    /*if(!position.parent || !position.parent.nextSibling){
         // case after one containerElement (like another time or geomarker)
         const nodeAfter = position.nodeAfter;
         if(!!nodeAfter && nodeAfter.hasAttribute('data-hgeo')){
@@ -41,7 +67,7 @@ export function getHGeoElement( position) {
             //console.log('my node is HDate !');
             return nextSibling;
         }
-    }
+    }*/
 
 	return null;
 }

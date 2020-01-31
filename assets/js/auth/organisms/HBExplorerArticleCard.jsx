@@ -36,12 +36,18 @@ class HBExplorerArticleCard extends React.Component {
 
         const scrollArea = document.getElementById('hb-test-scroll');
 
+        icon.classList.add("activated");
+        setTimeout(()=>{
+            icon.classList.remove("activated");
+        },520);
+
         const scrollAreaCoords = scrollArea.getBoundingClientRect();
         const currentScroll = scrollArea.scrollTop;
         const iconCoords = icon.getBoundingClientRect();
         console.log(scrollAreaCoords.top,currentScroll,iconCoords.top );
-        scrollArea.scrollTo(0,currentScroll + (iconCoords.top-scrollAreaCoords.top)-3);
+        scrollArea.scrollTo(0,currentScroll + ((iconCoords.top-scrollAreaCoords.height/2)-scrollAreaCoords.top)-3);
         console.log(scrollArea.scrollTop);
+
     }
 
 

@@ -135,18 +135,27 @@ class HBExplorerTimePanel2 extends React.Component {
     }
 
     _getOriginY(){
-        const { hInterval, mainArticleId,article,cursorDate} = this.props;
+        const { hInterval, mainArticleId,article,cursorDate,timeRecordMode} = this.props;
         let originY = markerStartY-markerDeltaY-10;
-        const mainArticle = article
+        const mainArticle = article;
         if(!mainArticle) return originY;
 
 
         const rawMarkers = getTimeDataFromAbstract(mainArticle);
 
+        //console.log('rawMarker',rawMarkers);
 
-        for (const {hDate} of rawMarkers) {
+        for (const {hDate,id,markerId} of rawMarkers) {
             if(hInterval.intersects(hDate)){
                 if(hDate.beginDate.getTime() >= cursorDate.getTime()){
+
+                    if(timeRecordMode && this.currentMarkerId!==id){
+                        const event = new CustomEvent('hb.explorer.set.marker');
+                        event.iconId = !!markerId?markerId:id;
+                        event.hbOrigin=AVAILABLE_AREAS.TIME;
+                        window.dispatchEvent(event);
+                    }
+                    this.currentMarkerId = id;
                     break;
                 }
                 originY = originY + markerDeltaY;

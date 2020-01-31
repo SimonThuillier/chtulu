@@ -24,7 +24,7 @@ class SubAbstract extends React.Component
 
     _addEventListeners(){
 
-        const markers = document.querySelectorAll(".hb-richtext-marker");
+        const markers = document.querySelectorAll("#article-detail-div .hb-richtext-marker");
         //console.log("article abstract markers addingEventListeners",markers);
         markers.forEach((element)=>{
             element.addEventListener('click',(event)=>{
@@ -35,12 +35,15 @@ class SubAbstract extends React.Component
                 window.dispatchEvent(markerEvent);
             });
         });
+
+        const jQmarkers=$("#article-detail-div .hb-richtext-marker");
+        jQmarkers.tooltip();
     }
 
     componentDidUpdate(prevProps)
     {
         if(prevProps.data !== this.props.data){
-            this.ref.current.innerHTML = this.props.data.abstract;
+            this.ref.current.innerHTML = getDecoratedAbstractForDetail(this.props.data.abstract);
             this._addEventListeners();
         }
     }
@@ -49,6 +52,7 @@ class SubAbstract extends React.Component
     {
         return (
                 <div
+                    id={"article-detail-div"}
                     ref={this.ref}
                     className="col-md-12 hb-content"
                     onDoubleClick={()=>{

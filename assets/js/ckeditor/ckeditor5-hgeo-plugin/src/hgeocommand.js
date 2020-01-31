@@ -2,6 +2,7 @@ import Command from '@ckeditor/ckeditor5-core/src/command';
 
 import {getHGeoElement} from "./utils";
 const UUID = require("uuid/v4");
+import {makeNewGeoMarker,getTitleFromFeatures} from '../../../util/explorerUtil';
 
 /**
  * The link command. It is used by the {@link module:link/link~Link link feature}.
@@ -80,14 +81,22 @@ export default class HGeoCommand extends Command {
                 writer.setAttributes(newAttributes,firstPosition.nodeAfter);
             }
             else{
-                const key = `hb-article-content-editor-GEO_MARKER-${UUID()}`;
-                const hGeoElement = writer.createElement( 'GeoMarker',
+                const hGeoElement = makeNewGeoMarker(
+                    writer,
+                    getTitleFromFeatures(geoData.drawnItems.features),
+                    JSON.stringify(geoData)
+                );
+
+
+                    /*writer.createElement( 'GeoMarker',
                     {
                         id:key,
                         data_HGeo:JSON.stringify(geoData),
                         title:getTitleFromFeatures(geoData.drawnItems.features)
-                    });
+                    });*/
+                writer.insertText(' ', firstPosition,'before');
                 model.insertContent(hGeoElement, firstPosition,'before');
+                writer.insertText(' ', firstPosition,'before');
                 // Create new range wrapping created node.
                 writer.setSelection( writer.createRangeOn( hGeoElement ) );
             }
@@ -110,19 +119,3 @@ export default class HGeoCommand extends Command {
 		return doc.selection.getAttribute( decoratorName ) || false;
 	}
 }
-
-function getTitleFromFeatures(features){
-
-    let title = '';
-
-    features.forEach((feature)=>{
-        if (!!feature.properties.title && feature.properties.title!==''){
-            title=title+(title.length>0?', ':'')+ feature.properties.title;
-        }
-    });
-
-    if(title.length>50) title=title.substr(0,50)+'...';
-
-    return title;
-
-};

@@ -30,8 +30,13 @@ class HBExplorerPanelMarker extends React.Component {
         mockSvgText = document.getElementById(`time-panel-svg-article-mock`);
     }
 
+    componentDidMount(){
+        if(this.rectangleId){
+            $(`#${this.rectangleId}`).tooltip({placement:'bottom',title:'salut !'});
+        }
+    }
+
     componentWillUnmount(){
-        console.log("HBExplorerPanelmarker will unmount");
     }
 
     handleOnClick (e){
@@ -107,6 +112,9 @@ class HBExplorerPanelMarker extends React.Component {
             if(!!element) element.innerHTML = realTitle;
         },5);
 
+        this.rectangleId = `time-panel-marker-${marker.id}-rectangle`;
+        this.pointId = `time-panel-marker-${marker.id}-point`;
+        const title = hDate.getLabel();
 
         return (
             <svg
@@ -135,6 +143,8 @@ class HBExplorerPanelMarker extends React.Component {
                 }}
                 xmlns="http://www.w3.org/2000/svg">
                 <rect
+                    id={this.rectangleId}
+                    name={"salut !"}
                     fill={"black"}
                     stroke={'none'}
                     x={xMargin}
@@ -144,7 +154,9 @@ class HBExplorerPanelMarker extends React.Component {
                     rx={2}
                     ry={2}
                     onClick={this.handleOnClick}
-                />
+                >
+                    <title>{title}</title>
+                </rect>
                 <foreignObject
                     x={2*xMargin+deltaX}
                     y={12}
@@ -160,7 +172,9 @@ class HBExplorerPanelMarker extends React.Component {
                     r="8"
                     fill={marker.id.includes('GEO_MARKER')?`blue`:`orange`}
                     onClick={this.handleOnClick}
-                />
+                >
+                    <title>{title}</title>
+                </circle>
                 <ProgressionCircle
                     key={`histo-article-progcircle-${id}`}
                     staticRate={0}

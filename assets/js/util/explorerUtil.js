@@ -2,7 +2,8 @@ import HDate from "./HDate";
 import {LEFT, RIGHT} from "./geometry";
 import dU from "./date";
 import {createSelector} from "reselect/lib/index";
-import L from "leaflet";
+const UUID = require("uuid/v4");
+
 
 
 export const articleIsOpen = (displayedArticles,id) => {
@@ -380,4 +381,65 @@ export const getDecoratedAbstractForDetail = createSelector(
         return transformedAbstract;
     }
 );
+
+export function makeNewTimeMarker(writer,title,data_HDate){
+    const key = `hb-article-content-editor-TIME_MARKER-${UUID()}`;
+    return writer.createElement( 'TimeMarker',
+        {
+            id:key,
+            title:title,
+            data_HDate:data_HDate
+        });
+};
+
+export function makeNewUITimeMarker(dwriter,title,data_HDate){
+
+    const key = `hb-article-content-editor-TIME_MARKER-${UUID()}`;
+    return dwriter.createUIElement( 'icon',
+        {
+            class:'fa fa-history hb-richtext-marker',
+            id:key,
+            'data-hdate':data_HDate,
+            title:title
+        });
+};
+
+export function getTitleFromFeatures(features){
+
+    let title = '';
+
+    features.forEach((feature)=>{
+        if (!!feature.properties.title && feature.properties.title!==''){
+            title=title+(title.length>0?', ':'')+ feature.properties.title;
+        }
+    });
+
+    if(title.length>50) title=title.substr(0,50)+'...';
+
+    return title;
+
+};
+
+export function makeNewGeoMarker(writer,title,data_HGeo){
+
+    const key = `hb-article-content-editor-GEO_MARKER-${UUID()}`;
+    return writer.createElement( 'GeoMarker',
+        {
+            id:key,
+            data_HGeo:data_HGeo,
+            title:title
+        });
+};
+
+export function makeNewUIGeoMarker(dwriter,title,data_HGeo){
+
+    const key = `hb-article-content-editor-GEO_MARKER-${UUID()}`;
+    return dwriter.createUIElement( 'icon',
+        {
+            class:'fa fa-map hb-richtext-marker',
+            id:key,
+            'data-hgeo':data_HGeo,
+            title:title
+        });
+};
 

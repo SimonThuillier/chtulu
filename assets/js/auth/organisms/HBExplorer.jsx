@@ -164,6 +164,7 @@ let { context, provider } = React.createContext();
 const resizeMedias = debounce(()=>{
     setTimeout(()=>{
         const scrollArea = document.getElementById('hb-test-scroll');
+        if(!scrollArea) return;
         const scrollAreaRect = scrollArea.getBoundingClientRect();
         //console.log('resize medias',$('.hb-content .hb-media-iframe>iframe'),scrollAreaRect);
 
@@ -666,6 +667,7 @@ class HBExplorer extends React.Component {
                     mainArticleId={mainArticleId}
                     isResizing={false}
                     hInterval={hInterval}
+                    cursorDate = {cursorDate}
                 />
             </MapArea>);
 

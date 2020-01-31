@@ -234,18 +234,19 @@ export default class HBExplorerTimeMenu extends React.Component {
                 {/*)}*/}
                 {/*{invisibles[LEFT].number > 0 ? `(${invisibles[LEFT].number})` : ""}*/}
             {/*</Button>*/}
+            <span/>
             <span>
-            <Button
-                onClick={e => {
-                    let newHInterval = hInterval.clone();
-                    newHInterval = newHInterval
-                        .setType("2")
-                        .addDay(-Math.floor(newHInterval.getIntervalSize() / 2));
-                    setHInterval(newHInterval);
-                }}
-            >
-              <Glyphicon glyph="backward" />
-            </Button>
+            {/*<Button*/}
+                {/*onClick={e => {*/}
+                    {/*let newHInterval = hInterval.clone();*/}
+                    {/*newHInterval = newHInterval*/}
+                        {/*.setType("2")*/}
+                        {/*.addDay(-Math.floor(newHInterval.getIntervalSize() / 2));*/}
+                    {/*setHInterval(newHInterval);*/}
+                {/*}}*/}
+            {/*>*/}
+              {/*<Glyphicon glyph="backward" />*/}
+            {/*</Button>*/}
             <Button
                 onMouseDown={e => {
                     this.onTimeTravelBegin(e, -1);
@@ -286,17 +287,17 @@ export default class HBExplorerTimeMenu extends React.Component {
             >
               <Glyphicon glyph="arrow-right" />
             </Button>
-            <Button
-                onClick={e => {
-                    let newHInterval = hInterval.clone();
-                    newHInterval = newHInterval
-                        .setType("2")
-                        .addDay(Math.floor(newHInterval.getIntervalSize() / 2));
-                    setHInterval(newHInterval);
-                }}
-            >
-              <Glyphicon glyph="forward" />
-            </Button>
+            {/*<Button*/}
+                {/*onClick={e => {*/}
+                    {/*let newHInterval = hInterval.clone();*/}
+                    {/*newHInterval = newHInterval*/}
+                        {/*.setType("2")*/}
+                        {/*.addDay(Math.floor(newHInterval.getIntervalSize() / 2));*/}
+                    {/*setHInterval(newHInterval);*/}
+                {/*}}*/}
+            {/*>*/}
+              {/*<Glyphicon glyph="forward" />*/}
+            {/*</Button>*/}
           </span>
             <span>
             {/*<Button*/}

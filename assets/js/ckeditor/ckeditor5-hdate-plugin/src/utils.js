@@ -6,7 +6,7 @@
  */
 export function getHDateElement( position) {
 
-    console.log('is my node HDate ?',position);
+    console.log('is my node HDate ?',position,position.getAncestors());
 
     // case at the beginning of paragraph
     try{
@@ -22,8 +22,23 @@ export function getHDateElement( position) {
     }
     catch(e){}
 
+    console.log('is my node HDate2 ?',position,position.parent._textData,position.offset);
+    if(!!position.parent && !!position.parent._textData && position.parent._textData.length === +position.offset){
+        const ancestors = position.getAncestors();
+        let ancestor = null;
 
-    if(!position.parent || !position.parent.nextSibling){
+        for (let i=ancestors.length-1;i>=0;i--){
+            ancestor = ancestors[i];
+            if(!!ancestor.nextSibling){
+                if(ancestor.nextSibling.hasAttribute('data-hdate')) return ancestor.nextSibling;
+                else return null;
+            }
+        }
+    }
+
+
+
+    /*if(!position.parent || !position.parent.nextSibling){
         // case after one containerElement (like another time or geomarker)
         const nodeAfter = position.nodeAfter;
         if(!!nodeAfter && nodeAfter.hasAttribute('data-hdate')){
@@ -43,7 +58,7 @@ export function getHDateElement( position) {
             //console.log('my node is HDate !');
             return nextSibling;
         }
-    }
+    }*/
 
 	return null;
 }

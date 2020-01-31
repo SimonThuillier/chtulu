@@ -3,6 +3,7 @@ import Command from '@ckeditor/ckeditor5-core/src/command';
 import {getHDateElement} from "./utils";
 const UUID = require("uuid/v4");
 import HDate from '../../../util/HDate';
+import {makeNewTimeMarker} from '../../../util/explorerUtil';
 
 /**
  * The link command. It is used by the {@link module:link/link~Link link feature}.
@@ -81,16 +82,20 @@ export default class HDateCommand extends Command {
                 writer.setAttributes(newAttributes,firstPosition.nodeAfter);
             }
             else{
-                const key = `hb-article-content-editor-TIME_MARKER-${UUID()}`;
-                const hDateElement = writer.createElement( 'TimeMarker',
+                const hDateElement = makeNewTimeMarker(
+                    writer,hdate.getLabel(),JSON.stringify(hdate));
+
+                    /*writer.createElement( 'TimeMarker',
                     {
                         id:key,
                         title:hdate.getLabel(),
                         data_HDate:JSON.stringify(hdate)
-                    });
+                    });*/
+                writer.insertText(' ', firstPosition,'before');
                 model.insertContent(hDateElement, firstPosition,'before');
+                writer.insertText(' ', firstPosition,'before');
                 // Create new range wrapping created node.
-                writer.setSelection( writer.createRangeOn( hDateElement ) );
+                //writer.setSelection( writer.createRangeOn( hDateElement ) );
             }
 
             this.hDateElement = null;

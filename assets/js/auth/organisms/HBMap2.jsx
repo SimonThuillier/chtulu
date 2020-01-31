@@ -179,7 +179,9 @@ class HBMap2 extends React.Component {
     }
 
     _updateTime(){
-        const {hInterval} = this.props;
+        const {hInterval:fullHInterval,cursorDate} = this.props;
+
+        const hInterval = new HDate("2",cursorDate,fullHInterval.endDate);
 
         this.timedGeoMarkersIndex.forEach(({hDate,layer})=>{
             console.log('HBMap2 update hInterval : ',hDate,layer);
@@ -214,7 +216,7 @@ class HBMap2 extends React.Component {
             this._updateLayers();
         }
 
-        if(this.props.hInterval !== prevProps.hInterval){
+        if(this.props.hInterval !== prevProps.hInterval || this.props.cursorDate !== prevProps.cursorDate){
             this._updateTime();
         }
     }

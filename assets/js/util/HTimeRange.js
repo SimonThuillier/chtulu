@@ -129,9 +129,10 @@ let _createGrads = function(beginDate, endDate, type) {
 
 /** @doc function adding/removing graduations according to a new beginDate */
 let _handleLeftSide = function(hTimeRange, newBeginDate) {
-    /*console.log(hb.util.date.equals(hTimeRange.hDate.beginDate,newBeginDate));
-    console.log(hTimeRange.hDate.beginDate);
-    console.log(newBeginDate);*/
+    // TODO : check deeper causes of this bug later
+    if(hTimeRange.grads.length===0) return;
+
+    //console.log('HTimeRange',hTimeRange);
     if (date.equals(hTimeRange.hDate.beginDate, newBeginDate)) return;
     else if (newBeginDate < hTimeRange.hDate.beginDate) {
         // this case we need to add grads at the beginning of grad array
@@ -163,6 +164,9 @@ let _handleLeftSide = function(hTimeRange, newBeginDate) {
 
 /** @doc function adding/removing graduations according to a new endDate */
 let _handleRightSide = function(hTimeRange, newEndDate) {
+    // TODO : check deeper causes of this bug later
+    if(hTimeRange.grads.length===0) return;
+
     if (date.equals(hTimeRange.hDate.endDate, newEndDate)) return;
     else if (newEndDate > hTimeRange.hDate.endDate) {
         // this case we need to add grads at the end of grad array
@@ -205,7 +209,7 @@ Object.assign(HTimeRange.prototype, {
     setHDate: function(hDate, width = 1000) {
         //console.log(`new width ${width}`);
         let newType = _getTypeFromHDate(hDate, width);
-        if (newType === this.type) {
+        if (newType === this.type && this.grads.length!==0 && hDate.intersects(this.hDate)) {
             // add new elements
             //console.log("creer sur les cotes");
             _handleLeftSide(this, hDate.beginDate);
