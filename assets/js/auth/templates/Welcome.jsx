@@ -16,14 +16,14 @@ const Imm = require("immutable");
 const componentUid = require("uuid/v4")();
 
 
-const defaultSearchBag = SearchBag({},'editionDate');
+const defaultSearchBag = SearchBag({publicOnly:true},'firstPublishedDate');
 defaultSearchBag.limit=12;
 
 const getSearchBagFromSearch = (search)=>{
     let searchBag = {};
     Object.assign(searchBag,defaultSearchBag);
     if(!!search && search!==''){
-        searchBag.search={keyword:search};
+        searchBag.search={keyword:search,publicOnly:true};
         searchBag.sort='keyword';
     }
     return searchBag;
@@ -39,7 +39,7 @@ class Welcome extends React.Component
         let searchBag = getSearchBagFromSearch(props.search);
 
         this.state = {
-            searchBag:searchBag,
+            searchBag:searchBag
        };
     }
 
@@ -61,7 +61,7 @@ class Welcome extends React.Component
 
     render()
     {
-        const {getNotifications,dispatch,search} = this.props;
+        const {getNotifications,dispatch} = this.props;
         const {searchBag} = this.state;
         const notifications = getNotifications(componentUid);
 
@@ -69,6 +69,8 @@ class Welcome extends React.Component
         initialNotif = (initialNotif && !initialNotif.get("discardedAt"))?initialNotif:null;
 
         console.log('welcome',initialNotif,searchBag);
+
+        const keyword = (searchBag && searchBag.search.keyword)?searchBag.search.keyword:null;
 
 
 
@@ -88,14 +90,16 @@ class Welcome extends React.Component
                         {!initialNotif &&
                         <Shade key={`${componentUid}-content`}>
                             <h4>Derniers articles publiés</h4>
-                            <ArticleFilter2 initialValue={{keyword:search}} fields={['keyword']} onFilter={this.onFilter}/>
+                            <ArticleFilter2 initialValue={{keyword:keyword}} fields={['keyword']} onFilter={this.onFilter}/>
                             <ArticleGrid searchBag={searchBag}/>
                         </Shade>
                         }
                     </PoseGroup>
 
                 </section>
+                <section className="footer"/>
             </div>
+
         );
     }
 }

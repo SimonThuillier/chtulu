@@ -671,6 +671,17 @@ class HBExplorer extends React.Component {
                 />
             </MapArea>);
 
+        let allowedEdit = false;
+        let allowedAdmin = false;
+
+        if(!!article && !!article.authorizationBag && article.authorizationBag.EDIT.allowed){
+            allowedEdit = true;
+        }
+        if(!!article && !!article.authorizationBag && article.authorizationBag.ADMIN.allowed){
+            allowedAdmin = true;
+        }
+
+
 
 
 
@@ -711,16 +722,16 @@ class HBExplorer extends React.Component {
                                 onClick={()=>{setActiveComponent([mainArticleId],'detail');}}>
                                <Glyphicon glyph='eye-open'/>
                         </Button>
-                        <Button bsStyle={displayParameters.activeComponent==='form'?'primary':'default'}
+                                        {allowedEdit?<Button bsStyle={displayParameters.activeComponent==='form'?'primary':'default'}
                                 disabled={false}
                                 onClick={()=>{setActiveComponent([mainArticleId],'form')}}>
                                <Glyphicon glyph='edit'/>
-                        </Button>
-                        <Button bsStyle={displayParameters.activeComponent==='admin'?'primary':'default'}
+                        </Button>:null}
+                                        {allowedAdmin?<Button bsStyle={displayParameters.activeComponent==='admin'?'primary':'default'}
                                 disabled={false}
                                 onClick={()=>{setActiveComponent([mainArticleId],'admin')}}>
                                <Glyphicon glyph='cog'/>
-                        </Button>
+                        </Button>:null}
                         </span>
                                 {/*</div>*/}
                                 {/*<HBExplorerHeader*/}

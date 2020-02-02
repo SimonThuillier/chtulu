@@ -23,7 +23,7 @@ class ArticleHistory extends DTOMutableEntity
     
     /**
      * @var Article
-     * @ORM\ManyToOne(targetEntity="Article")
+     * @ORM\ManyToOne(targetEntity="Article",inversedBy="history")
      * @ORM\JoinColumn(name="article_id", referencedColumnName="id",nullable=false)
      */
     private $article;

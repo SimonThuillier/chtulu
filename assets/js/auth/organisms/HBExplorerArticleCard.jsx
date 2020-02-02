@@ -80,6 +80,16 @@ class HBExplorerArticleCard extends React.Component {
         const alreadyCreatedArticle = +id > 0;
         const headerStyle = {backgroundColor:"#F3E3F6"};
 
+        let allowedEdit = false;
+        let allowedAdmin = false;
+
+        if(!!article && !!article.authorizationBag && article.authorizationBag.EDIT.allowed){
+            allowedEdit = true;
+        }
+        if(!!article && !!article.authorizationBag && article.authorizationBag.ADMIN.allowed){
+            allowedAdmin = true;
+        }
+
         return (
             <div className="panel panel-default hg-content-panel">
                 <div
@@ -112,12 +122,12 @@ class HBExplorerArticleCard extends React.Component {
                             <ArticleDetail.Abstract/>
                         </Article.Detail>
                         </div>
-                        <div hidden={activeComponent!=='form'}>
+                        {allowedEdit?<div hidden={activeComponent!=='form'}>
                         <Article.Form/>
-                        </div>
-                        <div hidden={activeComponent!=='admin'}>
+                        </div>:null}
+                        {allowedAdmin?<div hidden={activeComponent!=='admin'}>
                         <Article.Admin/>
-                        </div>
+                        </div>:null}
                     </Article>
                     <div style={{minHeight:'30px'}}/>
                 </div>

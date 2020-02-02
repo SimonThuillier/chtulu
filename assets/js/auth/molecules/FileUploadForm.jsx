@@ -107,7 +107,7 @@ class FileUploadForm extends React.Component{
     }
 
     onUpload(e){
-        console.clear();
+        //console.clear();
         const {dispatch} = this.props;
         const {file,finalName} = this.state;
         dispatch(uploadResource(file,finalName,file.type,RESOURCE_IMAGE,componentUid,null));

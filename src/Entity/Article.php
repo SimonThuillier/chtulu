@@ -97,6 +97,14 @@ class Article extends DTOMutableEntity
     protected $type;
 
     /**
+     * not the reference (articleHistory is the reference) but to speed up right handling for now
+     * @var ArticleStatus
+     * @ORM\ManyToOne(targetEntity="ArticleStatus")
+     * @ORM\JoinColumn(name="status_id", referencedColumnName="id",nullable=true)
+     */
+    protected $status;
+
+    /**
      * @var integer
      * @ORM\Column(name="begin_date_min_index", type="integer",nullable=true)
      */
@@ -184,6 +192,13 @@ class Article extends DTOMutableEntity
      * @ORM\Column(name="area", type="string", length=1000,nullable=true)
      */
     protected $area;
+
+    /**
+     * @var ArrayCollection
+     * @ORM\OneToMany(targetEntity="ArticleHistory", mappedBy="article")
+     */
+    protected $history;
+
 
     public function __toString()
     {
@@ -394,6 +409,24 @@ class Article extends DTOMutableEntity
      */
     public function setType($type){
         $this->type = $type;
+        return $this;
+    }
+
+    /**
+     * @return ArticleStatus
+     */
+    public function getStatus(): ?ArticleStatus
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param ArticleStatus $status
+     * @return Article
+     */
+    public function setStatus(ArticleStatus $status): Article
+    {
+        $this->status = $status;
         return $this;
     }
 
@@ -649,9 +682,12 @@ class Article extends DTOMutableEntity
         return $this;
     }
 
-
-
-
-
+    /**
+     * @return ArrayCollection
+     */
+    public function getHistory()
+    {
+        return $this->history;
+    }
 }
 

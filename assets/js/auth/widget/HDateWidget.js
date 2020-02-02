@@ -102,7 +102,6 @@ const widget = {
 
         this.props({style:style});
 
-
     },
     onClick:function(e){
         //e.stopPropagation();

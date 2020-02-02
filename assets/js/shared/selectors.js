@@ -160,10 +160,10 @@ export const makeGetOneByIdPlusBabiesSelector = () =>{
                 console.log(thisSubIds);
                 if(typeof thisSubIds !== 'undefined'){
                     thisSubIds.forEach(sv =>{
-                        if(items.has(+sv)){
-                            pushIfNotAlreadyInMap(items.get(+sv),+sv,selectedEntries,controlMap)
-                            //selectedEntries.push(items.get(+sv));
-                        }
+                            if(items.has(+sv)){
+                                pushIfNotAlreadyInMap(items.get(+sv),+sv,selectedEntries,controlMap)
+                                //selectedEntries.push(items.get(+sv));
+                            }
                         }
                     );
                 }
@@ -250,7 +250,7 @@ export const makeGetSelector = () =>{
                     });
                     return selectedEntries.map((id)=> items.get(+id)).filter((v,k)=>v || false);
                 }
-                );
+            );
         }
     );
 };
@@ -284,13 +284,11 @@ export const makeGetPlusBabiesSelector = () =>{
         (babyItemIds,items,searchCache) => {
             //console.log("create getPlusBabiesSelector");
             return createSelector([
-                    (searchBag,extraIds,expandedIds) => JSON.stringify(SearchBagUtil.getCoreBag(searchBag)),
-                    (searchBag,extraIds,expandedIds) => (searchBag.offset),
-                    (searchBag,extraIds,expandedIds) => (searchBag.limit),
-                    (searchBag,extraIds,expandedIds) => (searchBag.order),
-                    (searchBag,extraIds=[]) => (extraIds.join(',')),
-                    (searchBag,extraIds=[],expandedIds=[]) => (JSON.stringify(expandedIds))
-                ], (coreBagKey, offset, limit, order,extraIds,expandedIds) => {
+                    (searchBag) => JSON.stringify(SearchBagUtil.getCoreBag(searchBag)),
+                    (searchBag) => (searchBag.offset),
+                    (searchBag) => (searchBag.limit),
+                    (searchBag) => (searchBag.order)
+                ], (coreBagKey, offset, limit, order) => {
                     /*console.log("call getPlusBabiesSelector");
                     console.log(items);
                     // get selector
@@ -301,47 +299,51 @@ export const makeGetPlusBabiesSelector = () =>{
                     console.log(extraIds);*/
                     const controlMap = new Map();
                     const searchCacheEntry = searchCache.get(coreBagKey);
-                    expandedIds = JSON.parse(expandedIds);
-                    console.log("expandedIds");
-                    console.log(expandedIds);
+                    console.log("items call to getPlusBaby selector",coreBagKey, offset, limit, order,searchCacheEntry);
+                    console.log("items-"+coreBagKey);
                     let selectedEntries = [];
 
-                    // 1 regular articles by get
+                    console.log("items-babyItemsId",babyItemIds);
+
+
+                    // 1 add babies
+                    babyItemIds.keySeq().forEach((k) => {
+                        if (items.has(+k) || false) pushIfNotAlreadyInMap(+k,+k,selectedEntries,controlMap);
+                    });
+
+                    console.log('baby 1',selectedEntries);
+
+                    // 2 regular articles by get
                     if (!!searchCacheEntry) {
                         let indexMap = searchCacheEntry.get("indexMap");
                         indexMap = (order === SearchBagUtil.ASC) ? indexMap :
                             SearchBagUtil.invertIndexMap(indexMap, searchCacheEntry.get("total"));
 
+                        console.log('items',indexMap);
+
                         indexMap.forEach((v, k) => {
                             if (k >= offset && k < (offset + limit)){
                                 pushIfNotAlreadyInMap(+v,+v,selectedEntries,controlMap);
-                                let thisSubIds = expandedIds[v];
+                                /*let thisSubIds = expandedIds[v];
                                 //console.log("thisSubIds");
                                 //console.log(thisSubIds);
                                 if(typeof thisSubIds !== 'undefined'){
                                     thisSubIds.forEach(sv =>{
-                                        pushIfNotAlreadyInMap(+sv,+sv,selectedEntries,controlMap);
+                                            pushIfNotAlreadyInMap(+sv,+sv,selectedEntries,controlMap);
                                         }
                                     );
-                                }
+                                }*/
                             }
                         });
-                        selectedEntries = selectedEntries.map((id) => items.get(+id)).filter((v, k) => v || false);
-                        console.log(selectedEntries);
+
                     }
-                    // 2 add extra Ids
-                    extraIds = extraIds.split(',');
-                    extraIds.forEach((k)=>{
-                        if (items.has(+k) || false) pushIfNotAlreadyInMap(items.get(+k),+k,selectedEntries,controlMap);
-                    });
-
-
-
-                    // 3 add babies
-                    babyItemIds.keySeq().forEach((k) => {
-                        if (items.has(+k) || false) pushIfNotAlreadyInMap(items.get(+k),+k,selectedEntries,controlMap);
-                    });
-                    return selectedEntries;
+                    console.log('baby 2',selectedEntries);
+                    // 3 add extra Ids
+                    // extraIds = extraIds.split(',');
+                    // extraIds.forEach((k)=>{
+                    //     if (items.has(+k) || false) pushIfNotAlreadyInMap(items.get(+k),+k,selectedEntries,controlMap);
+                    // });
+                    return selectedEntries.map((id) => items.get(+id)).filter((v, k) => v || false);
                 }
             );
         }
@@ -413,9 +415,9 @@ export const makeGetFormSelector = () =>{
     return createSelector(
         [(state) => (state)],
         (state) => {
-                return createSelector([(componentUid)=>componentUid], (componentUid) => {
-                    return state.get(componentUid);
-                });
+            return createSelector([(componentUid)=>componentUid], (componentUid) => {
+                return state.get(componentUid);
+            });
         }
     );
 };

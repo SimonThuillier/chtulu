@@ -9,6 +9,7 @@
 namespace App\Mapper;
 
 use App\Entity\ArticleHistory;
+use App\Entity\ArticleStatus;
 use App\Entity\DTOMutableEntity;
 use App\Entity\Article;
 use App\Entity\ArticleType;
@@ -17,6 +18,7 @@ use App\Factory\ArticleHistoryFactory;
 use App\Serializer\HDateNormalizer;
 use App\Serializer\SimpleEntityNormalizer;
 use App\Util\HDate;
+use Doctrine\ORM\Query\Expr;
 use Psr\Log\LoggerInterface;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -149,15 +151,40 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterfac
      */
     public function getFindAllQB()
     {
-        return $this->repository->createQueryBuilder('o')
+        $qb = $this->repository->createQueryBuilder('o');
+
+        // can access article that are either public or whose owner user is this user
+        $user = $this->getUser();
+        $userCondition ='o.status=' . ArticleStatus::PUBLIC;
+        if($user !== null){
+            $userCondition = $qb->expr()->orX($userCondition,'o.ownerUser='.$user->getId());
+        }
+
+
+        $qb
             ->select('o')
+            // for now we use the shortcut field article status
+//            ->join('o.history','currentHistory',Expr\Join::WITH,
+//                $qb->expr()->andX(
+//                    $qb->expr()->eq('currentHistory.article','o.id'),
+//                        'currentHistory.active=true'
+//
+//                )
+//            )
             ->leftJoin('o.type','type')
             ->addSelect('type')
             ->leftJoin('o.detailImage','image')
             ->addSelect('image')
             ->leftJoin('o.geometry','geometry')
             ->addSelect('geometry')
+            ->andWhere($userCondition)
             ->orderBy('o.editionDate','DESC');
+
+        $query=$qb->getDQL();
+        $truc='la';
+
+        return $qb;
+
     }
 
     /**

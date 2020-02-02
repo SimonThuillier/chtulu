@@ -79,6 +79,7 @@ class Contact extends React.Component
                         </Shade>
                     </PoseGroup>
                 </section>
+                <section className="footer"/>
             </div>
         );
     }

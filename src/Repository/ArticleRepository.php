@@ -1,10 +1,13 @@
 <?php
 namespace App\Repository;
 
+use App\Entity\ArticleStatus;
 use App\Entity\ArticleType;
+use App\Entity\User;
 use App\Helper\DateHelper;
 use App\Mapper\AutoMapper;
 use App\Util\HDate;
+use App\Util\SearchBag;
 use Doctrine\ORM\EntityRepository;
 use App\Entity\Article;
 use App\Factory\ArticleDTOFactory;
@@ -40,6 +43,16 @@ class ArticleRepository extends EntityRepository
 
     /**
      * @param QueryBuilder $qb
+     * @param $publicOnly
+     * @return QueryBuilder
+     */
+    public function filterByPublicOnly(QueryBuilder $qb,$publicOnly){
+        return $qb->andWhere('o.status = :status')
+            ->setParameter('status',ArticleStatus::PUBLIC);
+    }
+
+    /**
+     * @param QueryBuilder $qb
      * @param string $order
      * @return QueryBuilder
      */
@@ -60,10 +73,10 @@ class ArticleRepository extends EntityRepository
     /**
      * @param QueryBuilder $qb
      * @param string|null $keyword
-     * @param int|null $limit
+     * @param $options
      * @return QueryBuilder
      */
-    public function filterByKeyword(QueryBuilder $qb,?string $keyword,?int $limit){
+    public function filterByKeyword(QueryBuilder $qb,?string $keyword,$options){
         if($keyword === null || $keyword === "") return $qb;
         /*$keywordPieces = explode(':',$keyword);
         $conditions = [];
@@ -74,12 +87,29 @@ class ArticleRepository extends EntityRepository
                 $qb->expr()->like($qb->expr()->lower('o.abstract'),$piece)
             );
         }
-
         $condition = $qb->expr()->orX()->addMultiple($conditions);*/
 
-        $getIdByRelevanceQuery = "select * from get_article_ids_by_relevance(?,?);";
+        $limit = 20;
+        $publicOnly = 'false';
+        $userId = null;
+
+        if ($options!==null && array_key_exists('searchBag',$options)){
+            $searchBag = $options['searchBag'];
+            /** @var SearchBag $searchBag */
+            if($searchBag !== null){
+                $limit=$searchBag->getLimit();
+                $publicOnly = array_key_exists('publicOnly',(array)($searchBag->getSearch()))?'true':'false';
+            }
+        }
+        if ($options!==null && array_key_exists('user',$options)) {
+            /** @var User $user */
+            $user = $options['user'];
+            $userId = $user->getId();
+        }
+
+        $getIdByRelevanceQuery = "select * from get_article_ids_by_relevance(?,?,?,?);";
         $statement = $this->getEntityManager()->getConnection()->prepare($getIdByRelevanceQuery);
-        $statement->execute([$keyword,$limit]);
+        $statement->execute([$keyword,$limit,$userId,$publicOnly]);
         $idsAndRelevance = $statement->fetchAll();
         $idsByRelevance = [];
 
@@ -127,7 +157,7 @@ class ArticleRepository extends EntityRepository
      * @param HDate|null $hDate
      * @return QueryBuilder
      */
-    public function filterByBeginHDate(QueryBuilder $qb,?HDate $hDate,?int $limit){
+    public function filterByBeginHDate(QueryBuilder $qb,?HDate $hDate,$options){
         if($hDate === null) return $qb;
         return $qb->andWhere('(o.endDateType IS NULL OR o.endDateMaxIndex >= :beginDateMinIndex)')
             ->setParameter('beginDateMinIndex', DateHelper::dateToIndex($hDate->getBeginDate()));
@@ -145,10 +175,10 @@ class ArticleRepository extends EntityRepository
     /**
      * @param QueryBuilder $qb
      * @param HDate|null $hDate
-     * @param int|null $limit
+     * @param $options
      * @return QueryBuilder
      */
-    public function filterByEndHDate(QueryBuilder $qb,?HDate $hDate,?int $limit){
+    public function filterByEndHDate(QueryBuilder $qb,?HDate $hDate,$options){
         if($hDate === null) return $qb;
         return $qb->andWhere('(o.beginDateType IS NULL OR o.beginDateMinIndex <= :endDateMaxIndex)')
             ->setParameter('endDateMaxIndex', DateHelper::dateToIndex($hDate->getEndDate()));
@@ -166,10 +196,10 @@ class ArticleRepository extends EntityRepository
     /**
      * @param QueryBuilder $qb
      * @param int|null $ownerId
-     * @param int|null $limit
+     * @param $options
      * @return QueryBuilder
      */
-    public function filterByOwnerId(QueryBuilder $qb,$ownerId,?int $limit){
+    public function filterByOwnerId(QueryBuilder $qb,$ownerId,$options){
         if($ownerId === null) return $qb;
         return $qb->andWhere('(o.ownerUser = :ownerId)')
             ->setParameter('ownerId', $ownerId);
@@ -182,6 +212,15 @@ class ArticleRepository extends EntityRepository
      */
     public function sortByEditionDate(QueryBuilder $qb,string $order){
         return $qb->orderBy('o.editionDate',$order);
+    }
+
+    /**
+     * @param QueryBuilder $qb
+     * @param string $order
+     * @return QueryBuilder
+     */
+    public function sortByFirstPublishedDate(QueryBuilder $qb,string $order){
+        return $qb->orderBy('o.firstPublishedDate',$order);
     }
 
     /**

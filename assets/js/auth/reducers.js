@@ -121,9 +121,14 @@ const concreteWaoType = (waoType) => {
                     if(state.hasIn(["items",+id])){
                         let newInitialValues = state.getIn(["items",+id,"initialValues"]) || Imm.Map();
                         newInitialValues = newInitialValues.set("toDelete",false);
-                        state = state.
-                        setIn(["items",+id,"toDelete"],true).
-                        setIn(["items",+id,"initialValues"],newInitialValues);
+                        if(+id>0){
+                            state = state.
+                            setIn(["items",+id,"toDelete"],true).
+                            setIn(["items",+id,"initialValues"],newInitialValues);
+                        }
+                        else{
+                            state = state.removeIn(["items",+id]);
+                        }
                     }
                 }
                 return state;

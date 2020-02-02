@@ -2,6 +2,7 @@
 
 namespace App\DTO;
 
+use App\Util\AuthorizationBag;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Mediator\DTOMediator;
 
@@ -13,6 +14,8 @@ abstract class EntityMutableDTO
     protected $id=0;
     /** @var DTOMediator */
     protected $mediator;
+    /** @var AuthorizationBag|null */
+    protected $authorizationBag;
     /** @var array */
     protected $groups;
     /** @var array */
@@ -103,6 +106,25 @@ abstract class EntityMutableDTO
         if($this->mediator !== null) $this->mediator->setDTO(null);
         $this->mediator = $mediator;
         if($this->mediator !== null) $this->mediator->setDTO($this);
+    }
+
+    /**
+     * @return AuthorizationBag
+     * @Groups({"minimal"})
+     */
+    public function getAuthorizationBag(): ?AuthorizationBag
+    {
+        return $this->authorizationBag;
+    }
+
+    /**
+     * @param AuthorizationBag $authorizationBag
+     * @return EntityMutableDTO
+     */
+    public function setAuthorizationBag(AuthorizationBag $authorizationBag): EntityMutableDTO
+    {
+        $this->authorizationBag = $authorizationBag;
+        return $this;
     }
 
     /**

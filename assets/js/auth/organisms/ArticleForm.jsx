@@ -453,17 +453,28 @@ class ArticleForm extends React.Component{
     }
 
     componentWillUnmount(){
+
         window.removeEventListener('hb.article.leave.form',this.onLeave);
-        if(this.props.valid) this.submit(this.props.id);
+        if(!!this.props.autoSubmit && this.props.autoSubmit===true && this.props.valid) this.submit(this.props.id);
+        else if(!this.props.valid && +this.props.id<0){
+            setTimeout(()=>{
+                this.props.dispatch(deleteLocally('article',[+this.props.id]));
+            },50);
+        }
     }
 
     onLeave(event){
         //console.log("form, component will leave");
         if(+event.articleId === +this.props.id){
-            const {anyTouched,pristine} = this.props;
+            const {anyTouched,pristine,autoSubmit} = this.props;
             const {data} = this.state;
-            if(anyTouched && !pristine){
+            if(anyTouched && !pristine && this.props.valid){
                 this.submit(this.props.id);
+            }
+            else if(!this.props.valid && +event.articleId<0){
+                setTimeout(()=>{
+                    this.props.dispatch(deleteLocally('article',[+event.articleId]));
+                },50);
             }
         }
     }
@@ -508,6 +519,13 @@ class ArticleForm extends React.Component{
             //console.log("submittingCompleted : untouching form");
             if(submittingCompleted){
                 this.props.dispatch(formUntouch(this.componentUid, ...getAllPropertiesInGroups('article',Object.keys(this.state.groups))));
+            }
+        }
+
+        if(prevProps.valid !== this.props.valid){
+            console.log('form valid',this.props.valid);
+            if(!!this.props.setValid){
+                this.props.setValid(this.props.valid);
             }
         }
     }
@@ -559,6 +577,10 @@ class ArticleForm extends React.Component{
             const hasEndDate = (pendingForm && pendingForm.hasIn(["values","hasEndDate"]))?
                 pendingForm.getIn(["values","hasEndDate"]):true;
             touchedValues=touchedValues.set('hasEndDate',hasEndDate);
+
+            if(!this.props.valid){
+                console.warn('a non valid article form has been submitted locally');
+            }
 
             //console.log('touchedValues');
             //console.log(touchedValues);

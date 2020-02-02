@@ -124,6 +124,7 @@ class AccountComponent extends React.Component
                     </PoseGroup>
                     {currentComponent}
                 </section>
+                <section className="footer"/>
             </div>
         );
     }

@@ -16,6 +16,7 @@ use App\Factory\EntityFactory;
 use App\Manager\File\FileLocalUploader;
 use App\Manager\File\FileRouter;
 use App\Observer\DBActionObserver;
+use App\Util\AuthorizationBag;
 use App\Util\Command\EntityMapperCommand;
 use App\Util\Command\LinkCommand;
 use Psr\Container\ContainerInterface;
@@ -34,10 +35,10 @@ class ResourceVersionDTOMediator extends DTOMediator
      */
     public function __construct(
         ContainerInterface $locator,
-        DBActionObserver $dbActionObserver
+        DBActionObserver $dbActionObserver,$user
     )
     {
-        parent::__construct($locator,$dbActionObserver);
+        parent::__construct($locator,$dbActionObserver,$user);
         $this->dtoClassName = ResourceVersionDTO::class;
         $this->entityClassName = ResourceVersion::class;
         $this->groups = ['minimal','file','urlDetailThumbnail','urlMini','urlW160','urlW500','urlW800','urlW1500'];
@@ -54,6 +55,14 @@ class ResourceVersionDTOMediator extends DTOMediator
             FileRouter::class,
             FileLocalUploader::class
         ];
+    }
+
+    protected function setAuthorizationBag(){
+        $this->authorizationBag = new AuthorizationBag();
+        $this->authorizationBag
+            ->setRight(AuthorizationBag::READ,true,'a definir ...')
+            ->setRight(AuthorizationBag::EDIT,true,'a definir ...')
+            ->setRight(AuthorizationBag::ADMIN,true,'a definir ...');
     }
 
     protected function mapDTOMinimalGroup()

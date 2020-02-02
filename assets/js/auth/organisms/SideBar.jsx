@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { NavLink,Link,withRouter} from 'react-router-dom';
-import {getHbaseVersionSelector} from "../../shared/selectors";
+import {getCurrentUserSelector, getHbaseVersionSelector} from "../../shared/selectors";
 import {connect} from "react-redux";
 import SidebarHistory from '../molecules/SidebarHistory';
 const componentUid = require("uuid/v4")();
@@ -44,6 +44,7 @@ class SideBar extends Component {
     render(){
         const version = this.props.getHbaseVersion();
         const status = this.state.sidebarStatus;
+        const currentUser = this.props.getCurrentUser();
 
         return (
             <aside id="main-sidebar" className="main-sidebar">
@@ -86,6 +87,12 @@ class SideBar extends Component {
                                 <i className="fa fa-circle"></i> <span>Accueil</span>
                             </Link>
                         </li>
+                        {currentUser &&
+                        <li>
+                            <Link title="Mes articles" className={""} to='/account/articles'>
+                                <i className="fa fa-book"></i> <span>Mes articles</span>
+                            </Link>
+                        </li>}
                         <li>
                             <Link title="Contacter le webmaster" className={""} to='/contact'>
                                 <i className="fa fa-envelope"></i> <span>Contact</span>
@@ -107,7 +114,8 @@ class SideBar extends Component {
 
 const mapStateToProps = (state) => {
     return {
-        getHbaseVersion: getHbaseVersionSelector(state.get("app"))
+        getHbaseVersion: getHbaseVersionSelector(state.get("app")),
+        getCurrentUser: getCurrentUserSelector(state.get("app"),state.get("user"))
     }
 };
 

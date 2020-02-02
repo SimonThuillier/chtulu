@@ -6,7 +6,7 @@
  */
 export function getHDateElement( position) {
 
-    console.log('is my node HDate ?',position,position.getAncestors());
+    //console.log('is my node HDate ?',position,position.getAncestors());
 
     // case at the beginning of paragraph
     try{
@@ -22,7 +22,7 @@ export function getHDateElement( position) {
     }
     catch(e){}
 
-    console.log('is my node HDate2 ?',position,position.parent._textData,position.offset);
+    //console.log('is my node HDate2 ?',position,position.parent._textData,position.offset);
     if(!!position.parent && !!position.parent._textData && position.parent._textData.length === +position.offset){
         const ancestors = position.getAncestors();
         let ancestor = null;

@@ -98,7 +98,7 @@ class HBExplorerProxy extends React.Component {
 
         if(!!article && (mainArticleId !== prevProps.mainArticleId || getOneById !== prevProps.getOneById)){
             this.setState({hasSelfUpdatedHInterval:false});
-            if(!!article){
+            if(!!article && article.beginHDate!==null){
                 this.setHInterval(getHIntervalFromArticles([article]),true);
             }
         }
@@ -205,8 +205,15 @@ class HBExplorerProxy extends React.Component {
         const {mainArticleId=null,getNotifications,dispatch,getOneById} = this.props;
         const article = getOneById(mainArticleId);
         const notifications = getNotifications(componentUid);
-
         const loading = (notifications && notifications.hasIn([mainArticleId || 'DEFAULT',LOADING]))||false;
+
+        if(!!article && !!article.authorizationBag && !article.authorizationBag.READ.allowed){
+            return (<div>
+                <h2>{article.authorizationBag.READ.message}</h2>
+            </div>);
+        }
+
+
 
         return (
             <Loadable

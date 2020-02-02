@@ -776,7 +776,7 @@ const dateUtil = {
         /*console.log('parsing date');
         console.log(sDate);*/
 
-        const serverDateRegex = new RegExp(/^#DATE#(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})Z#$/);
+        const serverDateRegex = new RegExp(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})Z#$/);
         const p = serverDateRegex.exec(sDate);
         if(p === null) return null;
 

@@ -94,8 +94,8 @@ export default class HAreaInput extends Component {
         let thisDefaultStyles = { ...defaultStyles[alignment] };
         const style = Object.assign(thisDefaultStyles, this.props.style || {});
 
-        const buttonLabel =
-            initialValue ? 'positionné':'non positionné';
+        const buttonLabel = 'Cliquez pour positionner';
+            //initialValue ? 'positionné':'non positionné';
 
         const contextValue = {
             label:label,

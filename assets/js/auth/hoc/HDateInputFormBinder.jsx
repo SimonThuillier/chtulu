@@ -41,12 +41,14 @@ export default class HDateInputFormBinder extends React.Component {
 
     toggleShow(e){
         if(!this.state.show){
-            console.log("toggle show");
+
             setTimeout(()=>{
                 //console.log(this.overlay);
+
                 if(this.overlay && this.overlay.current &&
                     this.overlay.current.parentNode &&
                     this.overlay.current.parentNode.parentNode){
+
                     const overlayRoot = this.overlay.current.parentNode.parentNode;
                     let left = +((overlayRoot.style.left).replace('px',''));
                     let top = +((overlayRoot.style.top).replace('px',''));
@@ -116,6 +118,7 @@ export default class HDateInputFormBinder extends React.Component {
                             <Popover key={`popover-contained-${this.componentUid}-${name}`} id={`popover-contained-${this.componentUid}`}>
                                 <div ref={this.overlay}>
                                     <HDatePicker
+                                        id = {'reactbs-overlayed-date-picker'}
                                         initialValue={initialValue}
                                         onClose={this.toggleShow}
                                         onSave={this.handleSave}

@@ -9,7 +9,8 @@ import {Button,
     MenuItem
 } from 'react-bootstrap';
 import { Field, reduxForm} from 'redux-form/immutable';
-import ArticleTypeSelect from "../molecules/ArticleStatusSelect";
+import ArticleStatusSelect from "../molecules/ArticleStatusSelect";
+import ArticleTypeSelect from "../molecules/ArticleTypeSelect";
 import HDateInput from "../molecules/HDateInput";
 import HBFormField from '../hoc/HBFormField';
 
@@ -116,10 +117,10 @@ class ArticleFilter extends React.Component{
         this.mini = false;
         if(!this.props.mini || typeof this.props.mini==='undefined') this.mini=false;
         else this.mini=true;
-        console.clear();
+        //console.clear();
         this.state = {
             data:null,
-            fields:props.fields || ["keyword","type","beginHDate","endHDate"],
+            fields:props.fields || ["keyword","type","status"],
             lastFilterKey:(props.searchBag && props.searchBag.search) || {}
         };
 
@@ -186,6 +187,18 @@ class ArticleFilter extends React.Component{
                         component={ArticleTypeSelect}
                         required={false}
                         label="Type"
+                        style={fieldStyle}
+                    />
+                </FieldWrapper>
+                }
+                {this.state.fields.includes("status") &&
+                <FieldWrapper mini={mini}>
+                    <Field
+                        name="status"
+                        type="select"
+                        component={ArticleStatusSelect}
+                        required={false}
+                        label="Statut"
                         style={fieldStyle}
                     />
                 </FieldWrapper>

@@ -38,7 +38,7 @@ const SubDetail = ({groups,children}) => {
 };
 //SubDetail.contextType = ArticleContext;
 
-const SubForm = ({groups}) => {
+const SubForm = ({groups,setValid,autoSubmit}) => {
     return (
         <ArticleContext.Consumer>
             {({ id, groups:cGroups,data,container,linksData,form}) => {
@@ -50,6 +50,8 @@ const SubForm = ({groups}) => {
                             linksData = {linksData}
                             container={container}
                             groups={groups || cGroups}
+                            setValid={setValid}
+                            autoSubmit={autoSubmit}
                         >
                         </ArticleForm>
                     </Groupable>

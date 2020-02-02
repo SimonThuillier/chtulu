@@ -6,12 +6,12 @@ import {
 import ArticleDetail from './ArticleDetail';
 
 
-import { Link} from 'react-router-dom';
+import {Link, withRouter} from 'react-router-dom';
 import ArticleTitle from '../atoms/ArticleTitle';
 
 
 
-export default class ArticleGridBox extends React.Component
+class ArticleGridBox extends React.Component
 {
     constructor(props)
     {
@@ -29,12 +29,17 @@ export default class ArticleGridBox extends React.Component
 
     render()
     {
-        const {article} = this.props;
+        const {article,history} = this.props;
 
         return(
-            <Link to={`/article/${article.id}`}>
+
                 <Panel
                     className={"box hvr-grow"}
+                    onClick={(e)=>{
+                        e.preventDefault();
+                        e.stopPropagation();
+                        history.push(`/article/${article.id}`);
+                    }}
                 >
                     <Panel.Heading align="center">
                         <ArticleTitle id={article.id}/>
@@ -45,9 +50,11 @@ export default class ArticleGridBox extends React.Component
                         </ArticleDetail>
                     </Panel.Body>
                 </Panel>
-            </Link>
+
 
 
         );
     }
 }
+
+export default withRouter(ArticleGridBox);

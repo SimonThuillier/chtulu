@@ -9,6 +9,8 @@
 namespace App\Mediator;
 
 
+use App\Entity\User;
+use App\Util\AuthorizationBag;
 use App\Util\ClearableInterface;
 use App\Util\Command\EntityMapperCommand;
 use App\DTO\EntityMutableDTO;
@@ -29,6 +31,10 @@ abstract class DTOMediator implements ServiceSubscriberInterface,ClearableInterf
     protected $dto;
     /** @var DTOMutableEntity */
     protected $entity;
+    /** @var User|null */
+    protected $user;
+    /** @var AuthorizationBag */
+    protected $authorizationBag;
     /** @var array */
     protected $groups;
     /** @var array */
@@ -52,8 +58,9 @@ abstract class DTOMediator implements ServiceSubscriberInterface,ClearableInterf
      * DTOBuilder constructor.
      * @param ContainerInterface $locator
      * @param DBActionObserver $dbActionObserver
+     * @param User|null $user
      */
-    public function __construct(ContainerInterface $locator, DBActionObserver $dbActionObserver)
+    public function __construct(ContainerInterface $locator, DBActionObserver $dbActionObserver,?User $user)
     {
         $this->locator = $locator;
         $this->groups = [];
@@ -61,7 +68,10 @@ abstract class DTOMediator implements ServiceSubscriberInterface,ClearableInterf
         $this->pendingSetDTO = false;
         $this->pendingSetEntity = false;
         $this->dbActionObserver = $dbActionObserver;
+        $this->user = $user;
     }
+
+    protected abstract function setAuthorizationBag();
 
     /**
      * unlink entities and dto to allow garbage collector to clear memory
@@ -195,6 +205,14 @@ abstract class DTOMediator implements ServiceSubscriberInterface,ClearableInterf
      */
     public function mapDTOGroups(?array $groups=null,$mode = self::CREATE_IF_NULL)
     {
+        $this->setAuthorizationBag();
+
+        $this->dto
+            ->setId($this->entity->getId())
+            ->setAuthorizationBag($this->authorizationBag)
+        ;
+
+        if(!$this->authorizationBag->isAllowed(AuthorizationBag::READ)) return $this;
         if ($groups === null) $groups = ArrayUtil::normalizeGroups($this->getAvailableGroups());
         if(!array_key_exists("minimal",$groups) || !array_search("minimal",$groups)){
             $groups = array_merge(["minimal"=>true],$groups);
@@ -300,6 +318,11 @@ abstract class DTOMediator implements ServiceSubscriberInterface,ClearableInterf
             $this->entity->$entityFunction($this->dto->$dtoFunction());
         }
         return $mapperCommands;
+    }
+
+    protected function mediateAuthorizationBag()
+    {
+        // nothing
     }
 
     /**

@@ -191,7 +191,9 @@ abstract class AbstractEntityMapper
         foreach((array)($search) as $key => $value){
             $function = 'filterBy' . str_replace('.','_',ucfirst($key));
             if(method_exists($this->repository,$function)){
-                $this->repository->$function($qb,$value,$searchBag->getLimit());
+                $this->repository->$function($qb,$value,[
+                    'searchBag'=>$searchBag,
+                'user'=>$this->getUser()]);
             }
             else{
                 $qb->andWhere('o.'. $key . ' = ' . $value);

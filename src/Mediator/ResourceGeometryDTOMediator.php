@@ -13,6 +13,7 @@ use App\Entity\ResourceGeometry;
 use App\Factory\DTOFactory;
 use App\Factory\EntityFactory;
 use App\Observer\DBActionObserver;
+use App\Util\AuthorizationBag;
 use App\Util\Geometry;
 use Psr\Container\ContainerInterface;
 
@@ -27,9 +28,9 @@ class ResourceGeometryDTOMediator extends DTOMediator
      * @param ContainerInterface $locator
      * @param DBActionObserver $dbActionObserver
      */
-    public function __construct(ContainerInterface $locator, DBActionObserver $dbActionObserver)
+    public function __construct(ContainerInterface $locator, DBActionObserver $dbActionObserver,$user)
     {
-        parent::__construct($locator,$dbActionObserver);
+        parent::__construct($locator,$dbActionObserver,$user);
         $this->dtoClassName = self::DTO_CLASS_NAME;
         $this->entityClassName = self::ENTITY_CLASS_NAME;
         $this->groups = ['minimal'];
@@ -44,6 +45,14 @@ class ResourceGeometryDTOMediator extends DTOMediator
             EntityFactory::class,
             DTOFactory::class
         ];
+    }
+
+    protected function setAuthorizationBag(){
+        $this->authorizationBag = new AuthorizationBag();
+        $this->authorizationBag
+            ->setRight(AuthorizationBag::READ,true,'a definir ...')
+            ->setRight(AuthorizationBag::EDIT,true,'a definir ...')
+            ->setRight(AuthorizationBag::ADMIN,true,'a definir ...');
     }
 
     protected function mapDTOMinimalGroup()

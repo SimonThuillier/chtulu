@@ -15,7 +15,7 @@ export default class ArticleFilter2 extends React.Component{
         this.onSubmit = this.onSubmit.bind(this);
 
         this.id = require('uuid/v4')();
-        console.clear();
+        //console.clear();
         this.state = {
             data:null,
             fields:props.fields || ["keyword","type","beginHDate","endHDate"],
@@ -37,10 +37,10 @@ export default class ArticleFilter2 extends React.Component{
     onSubmit(){
         const {formValue}= this.state;
         const {onFilter} = this.props;
-        let searchBag = SearchBag({keyword:formValue.keyword},'editionDate');
+        let searchBag = SearchBag({keyword:formValue.keyword,publicOnly:true},'firstPublishedDate');
         searchBag.limit=12;
         if(!!formValue.keyword && formValue.keyword.trim()!==''){
-            searchBag.search={keyword:formValue.keyword};
+            searchBag.search={keyword:formValue.keyword,publicOnly:true};
             searchBag.sort = 'keyword';
         }
         onFilter(searchBag);

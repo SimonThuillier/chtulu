@@ -7,7 +7,7 @@
 export function getHGeoElement( position) {
 
     if (!position) return null;
-    console.log('is my node HGeo ?',position,);
+    //console.log('is my node HGeo ?',position,);
 
     // case at the beginning of paragraph
     try{

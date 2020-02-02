@@ -19,9 +19,10 @@ import {
 } from 'react-bootstrap';
 import ArticleFilter from '../organisms/ArticleFilter';
 import ArticleType from '../atoms/ArticleType';
+import ArticleStatus from '../atoms/ArticleStatus';
 import ArticleTitle from '../atoms/ArticleTitle';
 import RImageMini from "../../shared/atoms/RImageMini";
-import {Edit,Submit,Reset,Delete,CancelDelete,CancelAdd} from '../atoms/actions';
+import {Edit,Admin,Submit,Reset,Delete,CancelDelete,CancelAdd} from '../atoms/actions';
 import Article from "../organisms/Article";
 import BootstrapTable from 'react-bootstrap-table-next';
 import { Link } from "react-router-dom";
@@ -39,16 +40,23 @@ const dateFormatter = DateUtil.getFormatterFromPattern('d/m/Y H:i');
 const columns = (dispatch,onSelection,getNotifications) => [{
     dataField: 'title',
     text: 'Titre',
+    headerStyle:{'width':'20%'},
     formatter: function(cell,row,rowIndex){
         const value = row.detailImageResource;
+
+
+        //const label = cell
+
         return (
             <ul>
                 {value?<RImageMini id={value}/>:''}&nbsp;
-                <a onClick={()=>{onSelection(row,rowIndex)}}
-                         title={"Previsualiser l'article"}
-            >
-                {cell}
-            </a>
+                {+row.id>0?
+                    <Link title="page de l'article" className={""} to={`/article/${row.id}`}>
+                        <ArticleTitle id={row.id}/>
+                    </Link>
+                    :
+                    <ArticleTitle id={row.id}/>
+                }
             </ul>
         );
     },
@@ -61,84 +69,91 @@ const columns = (dispatch,onSelection,getNotifications) => [{
     },
     sort: true
 }, {
-    dataField: 'firstRankLinksCount',
-    text: 'sous-Articles',
+    dataField: 'status',
+    text: 'Statut',
     formatter: function(cell){
-        if(cell==0) return '';
-        else return cell;
+        return <ArticleStatus id={cell}/>
     },
     sort: true
 }
-,{
-    dataField: 'editionDate',
-    text: 'Derniere edition',
-    formatter: function(cell,row){
-        if(!row.editionUser) return dateFormatter(cell);
-        else return (<UserIconLink id={row.editionUser} prefix={dateFormatter(cell) + ' par '} mini={true}/>);
+    ,{
+        dataField: 'editionDate',
+        text: 'Derniere edition',
+        formatter: function(cell,row){
+            return dateFormatter(cell);
+            //if(!row.editionUser) return dateFormatter(cell);
+            //else return (<UserIconLink id={row.editionUser} prefix={dateFormatter(cell) + ' par '} mini={true}/>);
+        },
+        sort: true
+    },{
+        dataField: 'summary',
+        text: 'Résumé',
+        sort:false,
+        headerStyle:{'width':'30%'}
     },
-    sort: true
-},
+//
+//     {
+//     dataField: 'beginHDate',
+//     text: 'Début',
+//     formatter: function(cell){
+//         //console.log(cell);
+//         if(cell === null) return '-';
+//         return cell.getLabel();
+//     },
+//     sort:true
+// }, {
+//     dataField: 'endHDate',
+//     text: 'Fin',
+//     formatter: function(cell){
+//         //console.log(cell);
+//         if(cell === null) return '-';
+//         return cell.getLabel();
+//     },
+//     sort:true
+// },
     {
-    dataField: 'beginHDate',
-    text: 'Début',
-    formatter: function(cell){
-        //console.log(cell);
-        if(cell === null) return '-';
-        return cell.getLabel();
-    },
-    sort:true
-}, {
-    dataField: 'endHDate',
-    text: 'Fin',
-    formatter: function(cell){
-        //console.log(cell);
-        if(cell === null) return '-';
-        return cell.getLabel();
-    },
-    sort:true
-},{
-    dataField: 'initialValues',
-    text: 'Actions',
-    formatExtraData:getNotifications,
-    formatter: (cell, row, rowIndex,getNotifications) => {
-        const toDelete = (row && row.has("toDelete") && row.get("toDelete"));
-        const isNew = !toDelete && (row && row.has("isNew") && row.get("isNew")(row));
-        const isDirty = !toDelete && !isNew && (row.has("isDirty") && row.get("isDirty")(row));
+        dataField: 'initialValues',
+        text: 'Actions',
+        formatExtraData:getNotifications,
+        formatter: (cell, row, rowIndex,getNotifications) => {
+            const toDelete = (row && row.has("toDelete") && row.get("toDelete"));
+            const isNew = !toDelete && (row && row.has("isNew") && row.get("isNew")(row));
+            const isDirty = !toDelete && !isNew && (row.has("isDirty") && row.get("isDirty")(row));
 
-        //console.log(`actions formatter id ${row.get("id")} : toDelete:${toDelete}, isNew:${isNew}, isDirty:${isDirty} `);
-        const actionUid = componentUid+'#' + row.get("id");
-        const notifications = getNotifications(actionUid);
-        const submitting = (notifications && notifications.hasIn([+row.get("id"),SUBMITTING]))||false;
+            //console.log(`actions formatter id ${row.get("id")} : toDelete:${toDelete}, isNew:${isNew}, isDirty:${isDirty} `);
+            const actionUid = componentUid+'#' + row.get("id");
+            const notifications = getNotifications(actionUid);
+            const submitting = (notifications && notifications.hasIn([+row.get("id"),SUBMITTING]))||false;
 
-        return (
-            <Loadable
-                active={submitting}
-                animate
-                text='Enregistrement ...'
-                color={COLORS.SUBMITTING}
-                background={COLORS.LOADING_BACKGROUND}
-            >
-                <div>
-                    {!toDelete?
-                        <Edit onClick={() => onSelection(row,rowIndex,'form')}/>:''}
-                    &nbsp;&nbsp;
-                    {toDelete || isNew || isDirty ?
-                        <Submit onClick={() => dispatch(postOne("article",null,row.get("id"),actionUid))}/>:''}
-                    &nbsp;&nbsp;&nbsp;&nbsp;
-                    {!toDelete && !isNew && isDirty ?
-                        <Reset onClick={() =>dispatch(stateReset("article",[row.get("id")],null))}/>:''}
-                    {toDelete ?
-                        <CancelDelete onClick={() =>dispatch(stateReset("article",[row.get("id")],null))}/>:''}
-                    {isNew ?
-                        <CancelAdd onClick={() =>dispatch(stateReset("article",[row.get("id")],null))}/>:''}
-                    &nbsp;&nbsp;
-                    {(!toDelete && !isNew)
-                        ?
-                        <Delete onClick={() => dispatch(deleteLocally("article",[row.get("id")]))}/>:''}
-                </div>
-            </Loadable>);
+            return (
+                <Loadable
+                    active={submitting}
+                    animate
+                    text='Enregistrement ...'
+                    color={COLORS.SUBMITTING}
+                    background={COLORS.LOADING_BACKGROUND}
+                >
+                    <div>
+                        {!toDelete?
+                            <Admin onClick={() => onSelection(row,rowIndex,'admin')}/>:''}
+                        &nbsp;&nbsp;
+                        {toDelete || isNew || isDirty ?
+                            <Submit onClick={() => dispatch(postOne("article",null,row.get("id"),actionUid))}/>:''}
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        {!toDelete && !isNew && isDirty ?
+                            <Reset onClick={() =>dispatch(stateReset("article",[row.get("id")],null))}/>:''}
+                        {toDelete ?
+                            <CancelDelete onClick={() =>dispatch(stateReset("article",[row.get("id")],null))}/>:''}
+                        {isNew ?
+                            <CancelAdd onClick={() =>dispatch(stateReset("article",[row.get("id")],null))}/>:''}
+                        &nbsp;&nbsp;
+                        {(!toDelete && !isNew)
+                            ?
+                            <Delete onClick={() => dispatch(deleteLocally("article",[row.get("id")]))}/>:''}
+                    </div>
+                </Loadable>);
+        }
     }
-}
 ];
 
 const customTotal = () => (from, to, size) => (
@@ -179,8 +194,13 @@ class UserArticleList extends React.Component{
         this.onFilter = this.onFilter.bind(this);
 
         this.onNewArticle = this.onNewArticle.bind(this);
+        this.validateNewArticle = this.validateNewArticle.bind(this);
 
         this.onRowSelection = this.onRowSelection.bind(this);
+
+        this.getUserId = this.getUserId.bind(this);
+
+        this.onSetValid=this.onSetValid.bind(this);
 
         this.modalRef = null;
 
@@ -195,23 +215,27 @@ class UserArticleList extends React.Component{
             page:1,
             sizePerPage:10,
             activeComponent: 'detail',
+            formValid:false
         };
     }
 
+    onSetValid(valid){
+        this.setState({formValid:valid});
+        console.log('form valid',valid);
+    }
+
+    getUserId(){
+        return this.props.ownerId || CURRENT_USER_ID;
+    }
+
     componentDidMount(){
-        let ownerId = this.props.ownerId;
-        console.log(ownerId);
-        console.log(CURRENT_USER_ID);
-        if(!ownerId && CURRENT_USER_ID){
-            ownerId = CURRENT_USER_ID;
-        }
         let searchBag = this.state.searchBag;
-        if(ownerId){
-            searchBag = Object.assign(searchBag,{search:{ownerId:ownerId}});
+        if(this.getUserId()){
+            searchBag = Object.assign({},searchBag,{search:{ownerId:this.getUserId()}});
             this.setState({searchBag:searchBag});
         }
 
-        console.log(searchBag);
+        console.log('items ownerId searchBag',this.getUserId(),searchBag);
 
 
 
@@ -254,6 +278,15 @@ class UserArticleList extends React.Component{
         return breadcrumb;
     }
 
+    validateNewArticle(){
+        const event = new CustomEvent('hb.article.leave.form');
+        event.articleId = this.state.activeId;
+        window.dispatchEvent(event);
+        setTimeout(()=>{
+            this.handleClose();
+        },50);
+    }
+
     onNewArticle(){
         console.log('vous voulez un nouvel article ?');
         const {getNextNewId} = this.props;
@@ -265,7 +298,7 @@ class UserArticleList extends React.Component{
         });
     }
 
-    onRowSelection(row,rowIndex,activeComponent='detail'){
+    onRowSelection(row,rowIndex,activeComponent='admin'){
 
         this.setState({
             selected:[row.id],
@@ -300,7 +333,7 @@ class UserArticleList extends React.Component{
         console.log("filter submitted");
         console.log(values);
 
-        const searchBag = Object.assign({}, this.state.searchBag,{search:values});
+        const searchBag = Object.assign({}, this.state.searchBag,{search:Object.assign(values,{ownerId:this.getUserId()})});
         this.loadSearchBag(this.state.groups,searchBag);
         this.setState({searchBag:searchBag});
     }
@@ -330,15 +363,17 @@ class UserArticleList extends React.Component{
 
     render(){
         const {getPlusBabies,getTotal,getNotifications,dispatch} = this.props;
-        const {activeComponent,breadcrumb} = this.state;
+        const {activeComponent,breadcrumb,searchBag,formValid} = this.state;
 
-        let items = getPlusBabies(this.state.searchBag);
-        /*console.log("items");
-        console.log(items);*/
-        let total = getTotal(this.state.searchBag);
+        const coreBagKey = JSON.stringify(SearchBagUtil.getCoreBag(searchBag));
+
+        let items = getPlusBabies(searchBag);
+        console.log("searchbag - items",searchBag,coreBagKey,items);
+        console.log("items-"+coreBagKey);
+        let total = getTotal(searchBag);
         const notifications = getNotifications(componentUid);
 
-        const coreBagKey = JSON.stringify(SearchBagUtil.getCoreBag(this.state.searchBag));
+
         const loading = (notifications && notifications.hasIn([coreBagKey || 'DEFAULT',LOADING]))||false;
 
         const activeArticleTitle = ((items.find((item)=> item.id === this.state.activeId) &&
@@ -361,6 +396,7 @@ class UserArticleList extends React.Component{
                     <BootstrapTable
                         keyField='id'
                         data={ items }
+                        wrapperClasses={'hb-table'}
                         rowStyle={rowStyle}
                         pagination={ paginationFactory({
                             page:this.state.page,
@@ -424,11 +460,11 @@ class UserArticleList extends React.Component{
                                 context={'modal'}
                                 groups={{minimal:true,date:true,detailImage:true,abstract:true,owner:{minimal:true}}}
                             >
-                                <div hidden={activeComponent!=='detail'}>
-                                    <Article.Detail/>
+                                <div hidden={this.state.activeId<0 ||  activeComponent!=='admin'}>
+                                    <Article.Admin/>
                                 </div>
-                                <div hidden={activeComponent!=='form'}>
-                                    <Article.Form/>
+                                <div hidden={this.state.activeId>0 && activeComponent!=='form'}>
+                                    <Article.Form setValid={this.onSetValid} autoSubmit={false}/>
                                 </div>
                             </Article>
                         </Modal.Body>
@@ -443,8 +479,8 @@ class UserArticleList extends React.Component{
                                     }
                                     {
                                         activeComponent==='form' &&
-                                        <Button bsStyle="success" onClick={this.onNewArticle}>
-                                            Ajouter&nbsp;<Glyphicon glyph="plus" />
+                                        <Button bsStyle="success" disabled={!formValid} onClick={this.validateNewArticle}>
+                                            Valider creation&nbsp;<Glyphicon glyph="ok" />
                                         </Button>
                                     }
                                 </Col>
@@ -452,7 +488,7 @@ class UserArticleList extends React.Component{
 
                                 </Col>
                                 <Col md={2}>
-                                    <Button onClick={this.handleClose}>Fermer</Button>
+                                    <Button onClick={this.handleClose}>Annuler</Button>
                                 </Col>
                             </Row>
                         </Modal.Footer>

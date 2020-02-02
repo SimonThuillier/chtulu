@@ -15,6 +15,7 @@ use App\Entity\Article;
 use App\Entity\ArticleHistory;
 use App\Factory\MediatorFactory;
 use App\Observer\DBActionObserver;
+use App\Util\AuthorizationBag;
 use App\Util\Command\EntityMapperCommand;
 use App\Util\Command\LinkCommand;
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -30,9 +31,9 @@ class ArticleHistoryDTOMediator extends DTOMediator
      * @param ContainerInterface $locator
      * @param DBActionObserver $dbActionObserver
      */
-    public function __construct(ContainerInterface $locator, DBActionObserver $dbActionObserver)
+    public function __construct(ContainerInterface $locator, DBActionObserver $dbActionObserver,$user)
     {
-        parent::__construct($locator,$dbActionObserver);
+        parent::__construct($locator,$dbActionObserver,$user);
         $this->dtoClassName = self::DTO_CLASS_NAME;
         $this->entityClassName = self::ENTITY_CLASS_NAME;
         $this->groups = ['minimal','article'];
@@ -47,6 +48,14 @@ class ArticleHistoryDTOMediator extends DTOMediator
             MediatorFactory::class,
             'doctrine' => ManagerRegistry::class
         ];
+    }
+
+    protected function setAuthorizationBag(){
+        $this->authorizationBag = new AuthorizationBag();
+        $this->authorizationBag
+            ->setRight(AuthorizationBag::READ,true,'a definir ...')
+            ->setRight(AuthorizationBag::EDIT,true,'a definir ...')
+            ->setRight(AuthorizationBag::ADMIN,true,'a definir ...');
     }
 
     protected function mapDTOMinimalGroup()

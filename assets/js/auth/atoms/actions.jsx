@@ -19,6 +19,20 @@ export function Edit(props) {
     );
 }
 
+export function Admin(props) {
+    return (
+        <a className="admin"
+           style={{color:COLORS.ACTION_EDIT} }
+           href="javascript:void(0)"
+           title="Administration">
+            <Glyphicon
+                onClick={props.onClick}
+                glyph="cog"
+            />
+        </a>
+    );
+}
+
 export function Submit(props) {
     return (
         <a className="submit"

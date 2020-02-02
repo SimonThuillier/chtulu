@@ -14,6 +14,7 @@ use App\DTO\ResourceDTO;
 use App\DTO\ResourceGeometryDTO;
 use App\DTO\UserDTO;
 use App\Entity\Article;
+use App\Entity\ArticleStatus;
 use App\Entity\HResource;
 use App\Entity\ResourceGeometry;
 use App\Factory\MediatorFactory;
@@ -21,6 +22,7 @@ use App\Helper\AssetHelper;
 use App\Helper\DateHelper;
 use App\Observer\DBActionObserver;
 use App\Serializer\HDateNormalizer;
+use App\Util\AuthorizationBag;
 use App\Util\Command\EntityMapperCommand;
 use App\Util\Command\LinkCommand;
 use App\Util\GeoArea;
@@ -40,9 +42,9 @@ class ArticleDTOMediator extends DTOMediator
      * @param ContainerInterface $locator
      * @param DBActionObserver $dbActionObserver
      */
-    public function __construct(ContainerInterface $locator, DBActionObserver $dbActionObserver)
+    public function __construct(ContainerInterface $locator, DBActionObserver $dbActionObserver,$user)
     {
-        parent::__construct($locator,$dbActionObserver);
+        parent::__construct($locator,$dbActionObserver,$user);
         $this->dtoClassName = self::DTO_CLASS_NAME;
         $this->entityClassName = self::ENTITY_CLASS_NAME;
         $this->groups = ['minimal','abstract','date','type','detailImage','geometry','owner','area'];
@@ -64,16 +66,48 @@ class ArticleDTOMediator extends DTOMediator
         ];
     }
 
+    protected function setAuthorizationBag(){
+
+        $this->authorizationBag = new AuthorizationBag();
+        /** @var Article $article */
+        $article = $this->entity;
+        if(!$this->entity || $this->entity->getId()<=1) return;
+
+
+        if($this->user->getId() === $article->getOwnerUser()->getId()){
+            $this->authorizationBag
+                ->setRight(AuthorizationBag::READ,true,'Vous êtes le proprietaire de cet article')
+                ->setRight(AuthorizationBag::EDIT,true,'Vous êtes le proprietaire de cet article')
+                ->setRight(AuthorizationBag::ADMIN,true,'Vous êtes le proprietaire de cet article');
+        }
+        elseif($article->getStatus()->getId() === ArticleStatus::PUBLIC){
+            $this->authorizationBag
+                ->setRight(AuthorizationBag::READ,true,'Cet article est public')
+                ->setRight(AuthorizationBag::EDIT,false,"Vous n'êtes le proprietaire de cet article, vous ne pouvez donc pas l'editer")
+                ->setRight(AuthorizationBag::ADMIN,false,"Vous n'êtes le proprietaire de cet article, vous ne pouvez donc pas l'administrer");
+        }
+        else{
+            $this->authorizationBag
+                ->setRight(AuthorizationBag::READ,false,'Vous n\'avez pas accès à cet article')
+                ->setRight(AuthorizationBag::EDIT,false,"Vous n'avez pas accès à cet article")
+                ->setRight(AuthorizationBag::ADMIN,false,"Vous n'avez pas accès à cet article");
+        }
+    }
+
+
+
     protected function mapDTOMinimalGroup()
     {
         /** @var Article $article */
         $article = $this->entity;
         /** @var ArticleDTO $dto */
         $dto = $this->dto;
+
         $dto
             ->setTitle($article->getTitle())
             ->setSummary($article->getSummary())
             ->setType($article->getType())
+            ->setStatus($article->getStatus())
             ->setEditionDate($article->getEditionDate())
             ->setFirstPublishedDate($article->getFirstPublishedDate())
             ->setFirstRankLinksCount($article->getFirstRankLinksCount())
@@ -411,6 +445,15 @@ class ArticleDTOMediator extends DTOMediator
                 ->setArea(null);
         }
 
+        return true;
+    }
+
+    /**
+     * does nothing because status update is done with new articleHistory in the articleHistory mapper
+     * @return bool
+     */
+    protected function mediateStatus()
+    {
         return true;
     }
 

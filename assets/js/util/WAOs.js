@@ -99,6 +99,10 @@ const defaultPrototypes = {
                 let date = DateUtil.parseRegularServerDate(rec.get("editionDate"));
                 rec = rec.set("editionDate",date);
             }
+            if(rec.has("firstPublishedDate") && rec.get("firstPublishedDate") !== null){
+                let date = DateUtil.parseRegularServerDate(rec.get("firstPublishedDate"));
+                rec = rec.set("firstPublishedDate",date);
+            }
 
             if(rec.has("beginHDate") && rec.get("beginHDate") !== null){
                 rec = rec.set("beginHDate",HDate.prototype.parseFromJson(JSON.stringify(rec.get("beginHDate"))));

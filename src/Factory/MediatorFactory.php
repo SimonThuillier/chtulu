@@ -129,7 +129,7 @@ class MediatorFactory implements ServiceSubscriberInterface,ClearableInterface
      */
     public static function getSubscribedServices()
     {
-        return array_merge(self::MEDIATOR_SERVICES,self::OTHER_SERVICES);
+        return array_merge(self::OTHER_SERVICES);
     }
 
     public static function getEntityClassForDTOClass($dtoClass){
@@ -158,7 +158,7 @@ class MediatorFactory implements ServiceSubscriberInterface,ClearableInterface
         if (!class_exists($className)) {
             throw new FactoryException('Class ' . $className . ' doesn\'t exist');
         }
-        if (!$this->locator->has($className)) {
+        if (!array_key_exists($className,self::MEDIATOR_SERVICES)) {
             throw new FactoryException(
                 'This factory isn\'t configured to create a mediator for DTO class ' . $className);
         }
@@ -180,8 +180,8 @@ class MediatorFactory implements ServiceSubscriberInterface,ClearableInterface
             throw new FactoryException('Class ' . $className . ' isn\'t a valid mediator class');
         }*/
         /** @var DTOMediator $mediator */
-        $mediatorClassName = self::getSubscribedServices()[$className];
-        $mediator = new $mediatorClassName($this->locator,$this->dbActionObserver);
+        $mediatorClassName = self::MEDIATOR_SERVICES[$className];
+        $mediator = new $mediatorClassName($this->locator,$this->dbActionObserver,$this->user);
 
         if ($entity === null && $mode === DTOMediator::CREATE_IF_NULL){
             $entity = $this->locator->get(EntityFactory::class)->create($mediator->getEntityClassName());

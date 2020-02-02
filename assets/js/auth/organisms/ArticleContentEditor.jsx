@@ -179,18 +179,18 @@ class ArticleContentEditor extends React.Component
                         this.editor.setData(this.props.input.value);
                     } }
                     onChange={ ( event, editor ) => {
-                        this.editor = editor;
+                        //this.editor = editor;
 
-                        const data = editor.getData();
-                        input.onChange(data);
+                        //const data = editor.getData();
+                        //input.onChange(data);
                     } }
                     onUpdate={( event, editor ) => {
                         this.editor = editor;
-                        console.log('Update.', editor);
+                        //console.log('Update.', editor);
                     }}
                     onBlur={ ( event, editor ) => {
                         this.editor = editor;
-                        console.log( 'editor Blur.', event,editor );
+                        //console.log( 'editor Blur.', event,editor );
                         const data = editor.getData();
                         input.onBlur(data);
                         this.hasFocused=false;
@@ -198,7 +198,7 @@ class ArticleContentEditor extends React.Component
                     onFocus={ ( event, editor ) => {
                         this.hasFocused = true;
                         this.editor = editor;
-                        console.log( 'editor Focus.', event,editor );
+                        //console.log( 'editor Focus.', event,editor );
                         input.onFocus(event);
                         this.hasFocused=true;
                     } }

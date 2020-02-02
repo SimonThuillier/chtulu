@@ -13,6 +13,8 @@ import HDatePicker from "../organisms/HDatePicker";
 import {defaultInputStyles} from "../../util/cssUtil";
 const componentUid = require('uuid/v4')();
 
+const windowPadding=15;
+
 let defaultStyles = {
     horizontal: Object.assign({
         //position: "relative",
@@ -37,7 +39,8 @@ class HDateInput extends Component {
         this.inputRef = null;
         this.state = {
             show:false,
-            value: ""
+            value: "",
+            pickerStyle:{}
         };
 
         this.targetLol = React.createRef();
@@ -45,6 +48,45 @@ class HDateInput extends Component {
 
     handleFocus(){
         this.setState({show:true});
+
+        setTimeout(()=>{
+            const existingElement = document.getElementById('reactbs-overlayed-date-picker');
+            console.log("toggle show hDatePicker",existingElement);
+
+            if(! existingElement) return;
+
+            const style={marginLeft:0,marginTop:0};
+            if(existingElement.style){
+                style.marginLeft = +existingElement.style.marginLeft.replace('px','');
+                style.marginTop = +existingElement.style.marginTop.replace('px','');
+            }
+            //console.log('style',style);
+
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+
+            const bounds = existingElement.getBoundingClientRect();
+            console.log('widget bounding Rect',bounds,windowWidth);
+
+            if(bounds.right + windowPadding > windowWidth){
+                style.marginLeft+=windowWidth-(bounds.right + windowPadding);
+            }
+            else{
+                style.marginLeft+=Math.min(-style.marginLeft,windowWidth-(bounds.right + windowPadding));
+            }
+            if(bounds.bottom + windowPadding > windowHeight){
+                style.marginTop+=windowHeight-(bounds.bottom + windowPadding);
+            }
+            else{
+                style.marginTop+=Math.min(-style.marginTop,windowHeight-(bounds.bottom + windowPadding));
+            }
+
+            console.log("hDatePicker ",style);
+
+            this.setState({pickerStyle:style});
+        },20);
+
+
     }
 
     handleBlur(){
@@ -74,6 +116,8 @@ class HDateInput extends Component {
             meta: { touched, error, warning },
             dispatch
         } = this.props;
+
+        const {pickerStyle} = this.state;
 
         const alignment = this.props.alignment || "horizontal";
         let thisDefaultStyles = { ...defaultStyles[alignment] };
@@ -133,6 +177,8 @@ class HDateInput extends Component {
                                 <Popover key={`popover-contained-${componentUid}`} id={`popover-contained-${componentUid}`}>
                                     <div ref={this.overlay}>
                                         <HDatePicker
+                                            id={'reactbs-overlayed-date-picker'}
+                                            style={pickerStyle}
                                             initialValue={input.value}
                                             onFocus={this.handleFocus}
                                             onClose={this.handleClose}
@@ -173,6 +219,8 @@ class HDateInput extends Component {
                                 overlay={
                                     <Popover id="popover-contained" arrowProps={null}>
                                         <HDatePicker
+                                            id={'reactbs-overlayed-date-picker'}
+                                            style={pickerStyle}
                                             initialValue={input.value}
                                             onClose={dateInput.handleClose}
                                             onSave={dateInput.handleSave}

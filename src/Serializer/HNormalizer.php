@@ -45,7 +45,7 @@ abstract class HNormalizer implements NormalizerInterface,DenormalizerInterface
                                 ManagerRegistry $doctrine,
                                 MediatorFactory $mediatorFactory)
     {
-        $normalizers = array_merge([new MediatorNormalizer()],$normalizers);
+        $normalizers = array_merge([new MediatorNormalizer(),new AuthorizationBagNormalizer()],$normalizers);
         $this->serializer = new Serializer($normalizers,[]);
         $this->waoHelper = $waoHelper;
         $this->doctrine = $doctrine;

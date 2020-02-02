@@ -230,6 +230,8 @@ class HDatePicker extends Component {
             }
         );
 
+        console.log('hDatePicker style',style);
+
         const realStyle = Object.assign({},defaultStyle,style || {});
 
         /*console.log(this.state.errors);

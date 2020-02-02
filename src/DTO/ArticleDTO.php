@@ -8,6 +8,7 @@
 
 namespace App\DTO;
 
+use App\Entity\ArticleStatus;
 use App\Util\GeoArea;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Entity\ArticleType;
@@ -25,6 +26,8 @@ class ArticleDTO extends EntityMutableDTO
     protected $title;
     /** @var ArticleType */
     protected $type;
+    /** @var ArticleStatus */
+    protected $status;
     /** @var \DateTime */
     protected $editionDate;
     /** @var \DateTime */
@@ -88,7 +91,7 @@ class ArticleDTO extends EntityMutableDTO
      * @return ArticleType|null
      * @groups({"minimal"})
      */
-    public function getType()
+    public function getType(): ?ArticleType
     {
         return $this->type;
     }
@@ -101,6 +104,26 @@ class ArticleDTO extends EntityMutableDTO
     {
         $this->type = $type;
         if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('type');
+        return $this;
+    }
+
+    /**
+     * @return ArticleStatus|null
+     * @groups({"minimal"})
+     */
+    public function getStatus(): ?ArticleStatus
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param ArticleStatus $status
+     * @return ArticleDTO
+     */
+    public function setStatus($status): ArticleDTO
+    {
+        $this->status = $status;
+        if($this->mediator !== null) $this->mediator->notifyChangeOfProperty('status');
         return $this;
     }
 
@@ -146,7 +169,7 @@ class ArticleDTO extends EntityMutableDTO
      * @return int
      * @groups({"minimal"})
      */
-    public function getFirstRankLinksCount(): int
+    public function getFirstRankLinksCount()
     {
         return $this->firstRankLinksCount;
     }
@@ -168,7 +191,7 @@ class ArticleDTO extends EntityMutableDTO
      * @return int
      * @groups({"minimal"})
      */
-    public function getSecondRankLinksCount(): int
+    public function getSecondRankLinksCount()
     {
         return $this->secondRankLinksCount;
     }
@@ -330,7 +353,7 @@ class ArticleDTO extends EntityMutableDTO
      * @return UserDTO
      * @Groups({"owner"})
      */
-    public function getOwnerUser(): UserDTO
+    public function getOwnerUser(): ?UserDTO
     {
         return $this->ownerUser;
     }

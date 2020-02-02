@@ -52,22 +52,46 @@ class ArticleHistoryMapper extends AbstractEntityMapper implements EntityMapperI
      */
     public function add(DTOMutableEntity $entity,$commit=true)
     {
+        /*$allHistory = $entity->getArticle()->getHistory();
+        /** @var ArticleHistory $previousHistory */
+        /*foreach ($allHistory as $previousHistory){
+            $previousHistory->setActive(false);
+        }*/
+
         $this->checkAdd($entity);
         /** @var ArticleHistory $articleHistory */
         $articleHistory = $this->defaultAdd($entity);
         $articleHistory
+            ->setActive(true)
+            ->setCreationDate(new \DateTime())
             ->setEditionDate(new \DateTime())
             ->setEditionUser($this->getUser());
 
 
+        //$allHistory = $articleHistory->getArticle()->getHistory();
+
         // if this is a public history of an article not previously published , its first published date is set
+        $articleHistory->getArticle()->setStatus($articleHistory->getStatus());
         if(! $articleHistory->getArticle()->getFirstPublishedDate() &&
             $articleHistory->getStatus()->getId() === ArticleStatus::PUBLIC){
             $articleHistory->getArticle()->setFirstPublishedDate(new \DateTime());
         }
 
-        if($commit){
+        if($commit || true){ // must commit to be able to handle active on articleHistory TODO optimize that
             $this->getManager()->flush();
+            $activeHistory = $this->doctrine->getRepository(ArticleHistory::class)
+                ->findBy(["article"=>$articleHistory->getArticle(),"active"=>true]);
+            if($activeHistory!==null && !is_array($activeHistory)) $activeHistory = [$activeHistory];
+            if($activeHistory!==null){
+                $maxId = 0;
+                foreach ($activeHistory as $oneActiveHistory) {
+                    $maxId = max($maxId,$oneActiveHistory->getId());
+                }
+                foreach ($activeHistory as $oneActiveHistory) {
+                    if($oneActiveHistory->getId()!== $maxId) $oneActiveHistory->setActive(false);
+                }
+                $this->getManager()->flush();
+            }
         }
 
         return $articleHistory;
