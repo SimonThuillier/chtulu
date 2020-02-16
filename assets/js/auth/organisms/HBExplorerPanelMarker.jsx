@@ -66,7 +66,7 @@ class HBExplorerPanelMarker extends React.Component {
 
 
         let realTitle = html;
-        if(endX>width && x <0) realTitle = realTitle + ' //';
+        //if(endX>width && x <0) realTitle = realTitle + ' //';
 
 
         let currentTextStyle = defaultTextStyle;
@@ -95,7 +95,7 @@ class HBExplorerPanelMarker extends React.Component {
         }
         else if(realEndX>width && x <0){
             realX=0;
-            realEndX = 2*xMargin+textWidth;
+            //realEndX = width;
             viewportWidth = realEndX-xMargin;
             deltaX=0;
         }

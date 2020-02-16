@@ -25,7 +25,7 @@ export default class HBExplorerTimeMenu extends React.Component {
         this.onTimeTravelBegin = this.onTimeTravelBegin.bind(this);
         this.onTimeTravel = debounce(
             this.onTimeTravel.bind(this),
-            Math.floor(0.2 * timeTravellingPeriod)
+            30
         );
         this.onTimeTravelEnd = this.onTimeTravelEnd.bind(this);
 
