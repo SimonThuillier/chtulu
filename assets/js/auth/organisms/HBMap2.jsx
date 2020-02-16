@@ -56,15 +56,15 @@ class HBMap2 extends React.Component {
         if(!icon) return;
 
         const markerIndex = this.geoMarkersIndex.get(iconId);
-        console.log('set map index=',iconId,markerIndex);
+        //console.log('set map index=',iconId,markerIndex);
 
         if(!!markerIndex){
             const {center,zoom,layers} = markerIndex;
             this.map.setView(new L.LatLng(center.lat,center.lng),zoom,{animate:true});
             layers.forEach((layer)=>{
-                console.log(L.GeoJSON);
+                /*console.log(L.GeoJSON);
                 console.log(layer._leaflet_id);
-                console.log(L);
+                console.log(L);*/
                 const realLayer = this.drawnItems.getLayer(layer._leaflet_id);
                 realLayer.fire('mouseover',{layer:realLayer});
                 highlight(this.drawnItems.getLayer(layer._leaflet_id));
@@ -147,7 +147,7 @@ class HBMap2 extends React.Component {
             this.map.setView(new L.LatLng(area.center.lat,area.center.lng),area.zoom,{animate:true});
 
             const geoData = getGeoDataFromAbstract(mainArticle);
-            console.log('HBMap2 geoData',geoData);
+            //console.log('HBMap2 geoData',geoData);
             this.drawnItems.clearLayers();
             this.geoMarkersIndex = new Map();
             this.timedGeoMarkersIndex = [];
@@ -157,17 +157,17 @@ class HBMap2 extends React.Component {
 
                 hGeo.drawnItems.features.forEach((feature)=>{
                     feature.properties.iconId= id;
-                    console.log("add layers, feature=",feature);
+                    //console.log("add layers, feature=",feature);
                     let geoJsonFeature = new L.GeoJSON(feature);
                     if(!!feature.properties.hDate) {
-                        console.log('HBMap2 feature with HDate', feature, feature.properties.hDate);
+                        //console.log('HBMap2 feature with HDate', feature, feature.properties.hDate);
                         this.timedGeoMarkersIndex.push({
                             hDate:HDate.prototype.parseFromJson(feature.properties.hDate),
                             layer:geoJsonFeature,
                             displayed:true
                         });
                     }
-                    console.log("add layers, GeoJsonFeature=",geoJsonFeature);
+                    //console.log("add layers, GeoJsonFeature=",geoJsonFeature);
                     this.drawnItems.addLayer(geoJsonFeature);
                     layers.push(geoJsonFeature);
                 });
@@ -184,7 +184,7 @@ class HBMap2 extends React.Component {
         const hInterval = new HDate("2",cursorDate,fullHInterval.endDate);
 
         this.timedGeoMarkersIndex.forEach(({hDate,layer})=>{
-            console.log('HBMap2 update hInterval : ',hDate,layer);
+            // console.log('HBMap2 update hInterval : ',hDate,layer);
             if(!hDate.intersects(hInterval)){
                 this.drawnItems.removeLayer(layer);
             }

@@ -76,6 +76,7 @@ export default class HGeoCommand extends Command {
                 const newAttributes = {};
 
                 newAttributes['data_HGeo'] = JSON.stringify(geoData);
+                newAttributes['data_HInterval'] = (geoData && geoData.hInterval)? JSON.stringify(geoData.hInterval):null;
                 newAttributes['title'] = getTitleFromFeatures(geoData.drawnItems.features);
 
                 writer.setAttributes(newAttributes,firstPosition.nodeAfter);
@@ -84,7 +85,8 @@ export default class HGeoCommand extends Command {
                 const hGeoElement = makeNewGeoMarker(
                     writer,
                     getTitleFromFeatures(geoData.drawnItems.features),
-                    JSON.stringify(geoData)
+                    JSON.stringify(geoData),
+                    (geoData && geoData.hInterval)? JSON.stringify(geoData.hInterval):null
                 );
 
 

@@ -87,6 +87,18 @@ export default class HGeoEditing extends Plugin {
             }
         );
 
+        editor.conversion.attributeToAttribute({
+                model: {
+                    name: 'GeoMarker',
+                    key: 'data_HInterval'
+                },
+                view: {
+                    name: 'icon',
+                    key: 'data-hinterval'
+                }
+            }
+        );
+
 		// Create hgeo command.
 		editor.commands.add( 'hgeo', new HGeoCommand( editor ) );
 	}

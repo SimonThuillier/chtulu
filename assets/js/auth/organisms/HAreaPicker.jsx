@@ -132,7 +132,7 @@ export default class HAreaPicker extends Component {
 
                         <Form horizontal>
                             <FormGroup
-                                controlId="formBasicText"
+                                // controlId="formBasicText"
                                 validationState="success"
                             >
                                 <Row>

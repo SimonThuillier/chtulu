@@ -15,7 +15,7 @@ const Imm = require("immutable");
 
 
 const reducer = (state=Imm.Map({}), action={}) =>{
-    console.log('reducer state',state);
+    //console.log('reducer state',state);
     for (let prop in action.props) {
         if (Object.prototype.hasOwnProperty.call(action.props, prop)) {
             state = state.set(prop,action.props[prop]);

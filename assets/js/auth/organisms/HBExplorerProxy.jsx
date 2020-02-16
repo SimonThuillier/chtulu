@@ -15,7 +15,7 @@ import dateUtil from '../../util/date';
 const Imm = require("immutable");
 const componentUid = require("uuid/v4")();
 
-const { CONTENT} = AVAILABLE_AREAS;
+const { CONTENT,MAP,TIME} = AVAILABLE_AREAS;
 
 // groups for main article
 const articleGroups = {
@@ -141,13 +141,26 @@ class HBExplorerProxy extends React.Component {
         const {iconId,hbOrigin} = event;
 
 
-        if(!iconId.includes('TIME_MARKER') || hbOrigin !== CONTENT){
+        /*if(!iconId.includes('TIME_MARKER') || hbOrigin !== CONTENT){
+            return;
+        }*/
+        if(!(iconId.includes('TIME_MARKER') || iconId.includes('GEO_MARKER')) || hbOrigin === TIME){
             return;
         }
+
         const element = document.getElementById(iconId);
         if(!element) return;
 
-        const markerHDate = HDate.prototype.parseFromJson(element.getAttribute('data-hdate'));
+        let markerHDate = null;
+        if(iconId.includes('TIME_MARKER')){
+            markerHDate = HDate.prototype.parseFromJson(element.getAttribute('data-hdate'));
+        }
+        else if(element.hasAttribute('data-hinterval') && !!element.getAttribute('data-hinterval')){
+            markerHDate = HDate.prototype.parseFromJson(element.getAttribute('data-hinterval'));
+        }
+
+        if(!markerHDate) return;
+
         console.log('hbexplorerproxy onsetmarker',iconId,hbOrigin,element,markerHDate,this.articleDuration);
 
         const {hInterval,cursorDate,cursorRate:stateCursorRate} = this.state;

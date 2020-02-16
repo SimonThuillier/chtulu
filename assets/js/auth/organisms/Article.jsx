@@ -42,7 +42,7 @@ const SubForm = ({groups,setValid,autoSubmit}) => {
     return (
         <ArticleContext.Consumer>
             {({ id, groups:cGroups,data,container,linksData,form}) => {
-                console.log(`I call ArticleForm with form key ${form}`);
+                //console.log(`I call ArticleForm with form key ${form}`);
                 return (<Groupable groups={groups || cGroups} subKey={`article-${id}-form`}>
                         <ArticleForm
                             form={form}

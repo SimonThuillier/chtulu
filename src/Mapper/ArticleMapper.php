@@ -142,8 +142,11 @@ class ArticleMapper extends AbstractEntityMapper implements EntityMapperInterfac
     public function delete(int $id,$commit=true)
     {
         $this->checkDelete($id);
-        $this->defaultDelete($id);
+        /** @var Article $article */
+        $article = $this->find($id);
+        $article->removeAllHistory();
         $this->getManager()->flush();
+        $this->defaultDelete($id);
     }
 
     /**

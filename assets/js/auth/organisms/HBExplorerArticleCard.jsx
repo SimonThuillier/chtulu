@@ -1,20 +1,18 @@
 import React from "react";
-
-import { Button,
-    Glyphicon,
-    OverlayTrigger,
-    Tooltip, } from "react-bootstrap";
-import ArticleExpander from '../atoms/ArticleExpander';
-import TimeBreadcrumb from '../atoms/TimeBreadcrumb';
-import {AVAILABLE_AREAS, getNeighbourArticleChronogically} from '../../util/explorerUtil';
-
-import ArticleTitle from "../atoms/ArticleTitle";
-import ArticleType from "../atoms/ArticleType";
+import {AVAILABLE_AREAS} from '../../util/explorerUtil';
 import Article from "./Article.jsx";
 import ArticleDetail from "./ArticleDetail.jsx";
-import { Link } from "react-router-dom";
-import {makeLocalGetByAttributeSelector} from "../../shared/selectors";
-import {connect} from "react-redux";
+
+const scrollElement = (targetElement,areaElement) => {
+    if(!targetElement || !areaElement) return;
+
+    const areaCoords = areaElement.getBoundingClientRect();
+    const currentScroll = areaElement.scrollTop;
+    const targetCoords = targetElement.getBoundingClientRect();
+    console.log(areaCoords.top,currentScroll,targetCoords.top );
+    areaElement.scrollTo(0,currentScroll + ((targetCoords.top-areaCoords.height/2)-areaCoords.top)-3);
+    console.log(areaElement.scrollTop);
+};
 
 class HBExplorerArticleCard extends React.Component {
     constructor(props) {
@@ -31,25 +29,18 @@ class HBExplorerArticleCard extends React.Component {
         const {iconId} = event;
         //console.log('set read index=',iconId);
 
-        const icon = document.getElementById(iconId);
-        if(!icon) return;
+        const contentIcon = document.getElementById(iconId);
+        if(!contentIcon) return;
 
-        const scrollArea = document.getElementById('hb-test-scroll');
+        const scrollArea = document.getElementById('article-content-panel-body');
 
-        icon.classList.add("activated");
+        contentIcon.classList.add("activated");
         setTimeout(()=>{
-            icon.classList.remove("activated");
+            contentIcon.classList.remove("activated");
         },520);
 
-        const scrollAreaCoords = scrollArea.getBoundingClientRect();
-        const currentScroll = scrollArea.scrollTop;
-        const iconCoords = icon.getBoundingClientRect();
-        console.log(scrollAreaCoords.top,currentScroll,iconCoords.top );
-        scrollArea.scrollTo(0,currentScroll + ((iconCoords.top-scrollAreaCoords.height/2)-scrollAreaCoords.top)-3);
-        console.log(scrollArea.scrollTop);
-
+        scrollElement(contentIcon,scrollArea);
     }
-
 
 
     componentDidUpdate(prevProps){
@@ -93,9 +84,8 @@ class HBExplorerArticleCard extends React.Component {
         return (
             <div className="panel panel-default hg-content-panel">
                 <div
-                    id='hb-test-scroll'
                     className="panel-body"
-                    style={{overflow:'auto'}}
+                    id={'article-content-panel-body'}
                 >
                     <Article
                         dispatch={dispatch}

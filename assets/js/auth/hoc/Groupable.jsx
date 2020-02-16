@@ -48,11 +48,7 @@ function Groupable(props) {
                 firstChildClass[cmn.capitalize(group)]({ key: { group } })
             );*/
         } else {
-            console.warn(
-                `non-existent group ${cmn.capitalize(
-                    group
-                )} called for ${firstChildClass}`
-            );
+           // console.warn(`non-existent group ${cmn.capitalize(group)} called for ${firstChildClass}`);
         }
     });
 

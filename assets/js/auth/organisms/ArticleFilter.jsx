@@ -150,6 +150,17 @@ class ArticleFilter extends React.Component{
         }
     }
 
+    componentDidUpdate(prevProps){
+        if(prevProps.searchBag !== this.props.searchBag){
+            const prevSearch = (prevProps.searchBag && prevProps.searchBag.search) || {};
+            const search = (this.props.searchBag && this.props.searchBag.search) || {};
+            if(JSON.stringify(prevSearch) !== JSON.stringify(search)){
+                this.setState({lastFilterKey:search});
+                this.props.initialize(Imm.Map(search));
+            }
+        }
+    }
+
     getCurrentFilter(){
         const {pendingForm} = this.props;
         const values = pendingForm.get("values");

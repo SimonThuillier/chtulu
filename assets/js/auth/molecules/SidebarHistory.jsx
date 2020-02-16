@@ -29,11 +29,11 @@ class SidebarHistory extends Component {
     }
 
     render(){
-        console.log('sidebar history props',this.props);
+        //console.log('sidebar history props',this.props);
         const {height} = this.state;
         const historyIds = this.props.getHistory();
         const sidebarHistoryArticles = historyIds.map((id)=>(
-            <SidebarHistoryArticle id={id} sidebarStatus={this.props.sidebarStatus} history={this.props.history}/>
+            <SidebarHistoryArticle key={id} id={id} sidebarStatus={this.props.sidebarStatus} history={this.props.history}/>
         ));
 
         return (

@@ -471,12 +471,12 @@ aside { -ms-overflow-style: none; }
     box-shadow: 0 0 0 2px rgba(246, 183, 60, 0.7), 0 0 1px rgba(0, 0, 0, 0)
 }
 
-#article-detail-div .hb-richtext-marker.activated {
+#article-content-panel-body .hb-richtext-marker.activated {
     color:rgba(246, 183, 60, 1);
     transform: scale(3);
 }
 
-#article-detail-div .hb-richtext-marker {
+#article-content-panel-body .hb-richtext-marker {
     transition-duration: 0.4s;  /* zero it if you don't want to add a fade */
     transition-timing-function: ease;
     transition-delay:0.05s; /* delay will last for 2 seconds */

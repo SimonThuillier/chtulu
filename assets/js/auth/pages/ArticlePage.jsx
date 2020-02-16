@@ -12,8 +12,8 @@ export class ArticlePage extends React.Component {
     constructor(props) {
         super(props);
 
-        console.log(props);
-        console.log(props.match.params.id);
+        /*console.log(props);
+        console.log(props.match.params.id);*/
 
         const {id,actionParam} = props.match.params;
 
@@ -50,13 +50,13 @@ export class ArticlePage extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        console.log('article page props');
-        console.log(this.props);
+        /*console.log('article page props');
+        console.log(this.props);*/
 
         const id = +this.props.id||+this.props.match.params.id;
         const activeComponent = this.props.activeComponent||getActiveComponent(this.props.match.params);
-        console.log(id);
-        console.log(activeComponent);
+        /*console.log(id);
+        console.log(activeComponent);*/
 
         const oldId = +this.state.id;
         const oldActiveComponent = this.state.activeComponent;
@@ -76,7 +76,7 @@ export class ArticlePage extends React.Component {
         const article = getOneById(id);
 
         const articleTitle = (article && article.get("title")) || 'Nouvel article';
-        console.log(+id);
+        //console.log(+id);
 
         return (
             <div className="content-wrapper hb-container">

@@ -15,14 +15,11 @@ import ArticleStatusSelect from "../molecules/ArticleStatusSelect";
 import HBFormField from '../hoc/HBFormField';
 
 const Imm = require("immutable");
-const componentUid = require('uuid/v4')();
-
-const ArticleFormContext = React.createContext({});
 
 const validate = values => {
     const errors = {};
-    console.log("VALIDATE");
-    console.log(values);
+    /*console.log("VALIDATE");
+    console.log(values);*/
     if (!values.message) {
         errors.message = 'Le titre est obligatoire'
     } else if (values.message.length > 250) {
@@ -43,7 +40,7 @@ class ArticleHistoryForm extends React.Component{
 
     constructor(props) {
         super(props);
-        console.log(props);
+        //console.log(props);
         this.componentUid = props.form;
         this.submit = this.submit.bind(this);
 
@@ -62,12 +59,12 @@ class ArticleHistoryForm extends React.Component{
         const data = getOneById(id);
 
         this.setState({data:data});
-        console.log("initialData");
+        /*console.log("initialData");
         console.log(data);
         console.log("erreurs");
-        console.log(data?data.get("errors"):null);
+        console.log(data?data.get("errors"):null);*/
         if(!data || typeof data==='undefined') return null;
-        console.log('initial form data',data,id);
+        //console.log('initial form data',data,id);
         initialize(data.set("pendingModification",true));
 
         if(data.get("initialValues")){
@@ -81,7 +78,7 @@ class ArticleHistoryForm extends React.Component{
     }
 
     componentDidMount() {
-        console.log("form, component didmount");
+        //console.log("form, component didmount");
         if(this.props.id !== null){
             this.props.dispatch(getOneByIdIfNeeded("articleHistory",
                 {minimal:true},
@@ -101,7 +98,7 @@ class ArticleHistoryForm extends React.Component{
         let data = this.state.data;
 
         if (prevProps.id !== this.props.id){
-            console.log('form',this.props.id);
+            //console.log('form',this.props.id);
             this.props.dispatch(getOneByIdIfNeeded("articleHistory",
                 {minimal:true},
                 this.props.id,
@@ -110,7 +107,7 @@ class ArticleHistoryForm extends React.Component{
         }
         if (this.props.getOneById(this.props.id) !== prevProps.getOneById(this.props.id)) {
             data = this.props.getOneById(this.props.id);
-            console.log("reception de nouvelles données",data);
+            //console.log("reception de nouvelles données",data);
         }
 
         if(data !== this.state.data){
@@ -134,7 +131,7 @@ class ArticleHistoryForm extends React.Component{
         });
         // history is bound to current article
         touchedValues = touchedValues.set('articleId',+articleId).set('editionDate',new Date());
-        console.log('submit history form',touchedValues,id);
+        //console.log('submit history form',touchedValues,id);
         dispatch(submitLocally("articleHistory",touchedValues,id,{minimal:true}));
         onSubmit();
     }

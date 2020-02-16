@@ -229,6 +229,10 @@ export const postAll = (senderKey=null) => (dispatch,getState) => {
     const pendingTotalSelector = getPendingTotalSelector(state.get("app"));
     if(pendingTotalSelector()<1) return;
 
+    const event = new CustomEvent('hb.has_posted.all');
+    event.newItems = [];
+    window.dispatchEvent(event);
+
     let entities = entitiesSelector(state);
     let dataToPost = DataToPost();//.add(waoType,id,normData);
     state.getIn(["app","entitiesToPost"]).entrySeq().forEach((entry)=>{
@@ -238,6 +242,7 @@ export const postAll = (senderKey=null) => (dispatch,getState) => {
             let id = entry[0];
             let groups = entry[1];
             let normData = state.getIn([waoType,"items",+id]);
+            if(!event.newItems.includes(waoType)) event.newItems.push(waoType);
             console.log(`post all : ${waoType} , ${id} `);
             console.log(normData);
             normData = denormalize(normData,WAOs.getIn([waoType,"schema"]),entities);
@@ -270,6 +275,7 @@ export const postAll = (senderKey=null) => (dispatch,getState) => {
                     case HB_SUCCESS:
                         dispatch(notify(SUBMITTING_COMPLETED,senderKey || 'HBAPP',null,HB_SUCCESS));
                         handlePostBackData(json.data,dispatch);
+                        window.dispatchEvent(event);
                         //dispatch(receiveGet(waoType,groups,searchBag,json.rows,json.total,json.message));
                         break;
                     case HB_ERROR:
@@ -540,7 +546,7 @@ export const receiveGetOneById = (waoType,groups,id,data,message="Données bien 
     /*console.log(`denormalizedData ${waoType} with id ${id}`);
     console.log(data);*/
     const normData = normalize(data,WAOs.getIn([waoType,"schema"]));
-        console.log('normalize receive data',waoType,WAOs.getIn([waoType,"schema"]), data,normData);
+        //console.log('normalize receive data',waoType,WAOs.getIn([waoType,"schema"]), data,normData);
     /*console.log("normalizedData");
     console.log(normData);*/
     Object.keys(normData.entities).forEach((key)=>{
@@ -665,7 +671,7 @@ export const fetchNew = (waoType,id,senderKey) => (dispatch) => {
                     case HB_SUCCESS:
 
                         const normData = normalize(json.data,WAOs.getIn([waoType,"schema"]));
-                        console.log('normalize receiveNew data',waoType,WAOs.getIn([waoType,"schema"]), json.data,normData);
+                        //console.log('normalize receiveNew data',waoType,WAOs.getIn([waoType,"schema"]), json.data,normData);
                         Object.keys(normData.entities).forEach((key)=>{
                             if(key !== waoType){
                                 dispatch(subReceiveGet(key,Object.values(normData.entities[key])));
@@ -673,7 +679,7 @@ export const fetchNew = (waoType,id,senderKey) => (dispatch) => {
                         });
                         dispatch(receiveNew(waoType,normData.entities[waoType][0]));
                         setTimeout(()=>{
-                            console.log('pendingCreations=',pendingCreations);
+                            //console.log('pendingCreations=',pendingCreations);
                             if(!!pendingCreations[waoType]){
                                 pendingCreations[waoType].forEach(({senderKey},id)=>{
                                     dispatch(createNew(waoType));

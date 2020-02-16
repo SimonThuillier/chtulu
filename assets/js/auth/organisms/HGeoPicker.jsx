@@ -78,16 +78,29 @@ export default class HGeoPicker extends Component {
     onSave(){
         const {onSave} = this.props;
 
+        let hDates = [];
+        for(let index in this.drawnItems._layers){
+            if(this.drawnItems._layers.hasOwnProperty(index)){
+                const layer = this.drawnItems._layers[index];
+                //console.log("saved layer",layer);
+                const properties = layer.feature.properties;
+                //console.log("saved layer",layer,properties);
+
+                if(!!properties.hDate) hDates.push(HDate.prototype.parseFromJson(properties.hDate));
+            }
+        }
+
+        let hInterval = HDate.prototype.merge(hDates);
+        //console.log("saved layer",hDates,hInterval);
+
         const data = {
             center:this.map.getCenter(),
             zoom:this.map.getZoom(),
             drawnItems:this.drawnItems.toGeoJSON(),
-
+            hInterval:hInterval
         };
 
-        console.log('on save hgeopicker = ',data);
-
-
+        //console.log('on save hgeopicker = ',data);
 
         onSave(data);
         this.drawnItems.clearLayers();
@@ -156,17 +169,18 @@ export default class HGeoPicker extends Component {
             //.bindPopup('<span><b>Shape Name</b></span><br/><input id="shapeName" type="text"/><br/><br/><br/><input type="button" id="shapeSaveBtn" value="Save"/>')
             .bindPopup(this.infoWidget.getDOMElement())
             .on('click',(e)=>{
-                console.log('click on layer ; ',e)})
+                //console.log('click on layer ; ',e);
+                })
             .on('popupopen',(e)=>{
                 const layer = e.layer;
-                console.log('hGeoInfo layer : ',layer);
-                console.log('hGeoInfo element in theory : ',layer.feature.properties);
+                /*console.log('hGeoInfo layer : ',layer);
+                console.log('hGeoInfo element in theory : ',layer.feature.properties);*/
                 this.infoWidget.props({
                     initialValue:{
                     hDate:layer.feature.properties.hDate?HDate.prototype.parseFromJson(layer.feature.properties.hDate):null,
                         title:layer.feature.properties.title||null},
                 onSave:(value)=>{
-                        console.log('onSave hGeo=',value);
+                        //console.log('onSave hGeo=',value);
                     layer.feature.properties.hDate = value.hDate?JSON.stringify(value.hDate):null;
                     layer.feature.properties.title = value.title;
                 }});
@@ -271,7 +285,7 @@ export default class HGeoPicker extends Component {
 
                         <Form horizontal>
                             <FormGroup
-                                controlId="formBasicText"
+                                // controlId="formBasicText"
                                 validationState={this.isValid() ? "success" : "error"}
                             >
                                 <Row>

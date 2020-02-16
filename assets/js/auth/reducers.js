@@ -11,10 +11,11 @@ import {
 
 import WAOs from '../util/WAOs';
 import SearchBagUtil from '../util/SearchBagUtil';
-const Imm = require("immutable");
 import { reducer as reduxFormReducer } from "redux-form/immutable";
 import Common from '../util/common';
 import {appReducer,updateOnRecordReception,SearchCacheEntry} from '../shared/reducers';
+
+const Imm = require("immutable");
 
 /**
  * creates new item if its prototype is available, else does nothing
@@ -29,7 +30,7 @@ const createNew = (state,idGenerator)=>{
 
     let newId = idGenerator();
     let babyRec = state.get("newItem");
-    console.log("babyRec",babyRec);
+    //console.log("babyRec",babyRec);
     babyRec = babyRec.set("id",newId);
     state = state.
     setIn(["items",newId],babyRec).

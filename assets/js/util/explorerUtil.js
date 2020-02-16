@@ -68,8 +68,8 @@ export const getHIntervalFromArticles = (articles) => {
 
     });
 
-    console.log(`minDate : ${minDate}`);
-    console.log(`maxDate : ${maxDate}`);
+    /*console.log(`minDate : ${minDate}`);
+    console.log(`maxDate : ${maxDate}`);*/
 
     if(minDate ===null || maxDate===null) return null;
     return (new HDate("2", dU.addDay(minDate,-1),maxDate)).multiply(1.03);
@@ -239,7 +239,7 @@ export const getTimeDataFromAbstract = createSelector(
         marks.sort((a,b)=>{
             return a.hDate.compare(b.hDate);
         });
-        console.log('marks : ' ,marks);
+        //console.log('marks : ' ,marks);
         return marks;
     }
 );
@@ -297,7 +297,7 @@ const getTimedGeoData = createSelector(
 
             hGeo.drawnItems.features.forEach((feature)=>{
                 if(!!feature.properties.hDate){
-                    console.log('geoData with HDate',feature,feature.properties.hDate);
+                    //console.log('geoData with HDate',feature,feature.properties.hDate);
 
                     const html = feature.properties.title;
                     const hDate = HDate.prototype.parseFromJson(feature.properties.hDate);
@@ -325,7 +325,7 @@ const getTimedGeoData = createSelector(
 
         });
 
-        console.log('geoData=',marks);
+        //console.log('geoData=',marks);
 
 
         return marks;
@@ -420,13 +420,14 @@ export function getTitleFromFeatures(features){
 
 };
 
-export function makeNewGeoMarker(writer,title,data_HGeo){
+export function makeNewGeoMarker(writer,title,data_HGeo,data_HInterval){
 
     const key = `hb-article-content-editor-GEO_MARKER-${UUID()}`;
     return writer.createElement( 'GeoMarker',
         {
             id:key,
             data_HGeo:data_HGeo,
+            data_HInterval:data_HInterval,
             title:title
         });
 };

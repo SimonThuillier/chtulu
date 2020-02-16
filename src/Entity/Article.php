@@ -195,7 +195,7 @@ class Article extends DTOMutableEntity
 
     /**
      * @var ArrayCollection
-     * @ORM\OneToMany(targetEntity="ArticleHistory", mappedBy="article")
+     * @ORM\OneToMany(targetEntity="ArticleHistory", mappedBy="article",orphanRemoval=true)
      */
     protected $history;
 
@@ -688,6 +688,11 @@ class Article extends DTOMutableEntity
     public function getHistory()
     {
         return $this->history;
+    }
+
+    public function removeAllHistory()
+    {
+        $this->history = new ArrayCollection();
     }
 }
 

@@ -41,6 +41,13 @@ const defaultStyle = {
     //width: "500px"
 };
 
+const getStateUpdateFromHDate = (hDate)=>{
+    return {
+        currentType: hDate ? hDate.type : 1,
+        currentInput: hDate ? hDate.getCanonicalInput() : ""
+    };
+};
+
 class HDatePicker extends Component {
     constructor(props) {
         super(props);
@@ -86,6 +93,8 @@ class HDatePicker extends Component {
         return this.state.errors.length < 1;
     }
 
+
+
     componentDidMount() {
         /*document
             .getElementById("hb-wrapper")
@@ -96,30 +105,18 @@ class HDatePicker extends Component {
 
         /*console.log("component did mount");
         console.log(this.state.value);*/
-        this.setState({
-            currentType: this.state.value ? this.state.value.type : 1,
-            currentInput: this.state.value ? this.state.value.getCanonicalInput() : ""
-        });
+        this.setState(getStateUpdateFromHDate(this.state.value));
 
         if(!!this.props.setContainerRef){
             this.props.setContainerRef(this.containerRef);
         }
-
-
     }
 
     componentDidUpdate(prevProps){
 
         if(!!this.props.initialValue && prevProps.initialValue !== this.props.initialValue){
-            const hdate = this.props.initialValue;
-
-            this.setState({
-                value:hdate,
-                currentType:hdate.type,
-                currentInput:hdate.getCanonicalInput(),
-                errors: []
-            });
-
+            const hDate = this.props.initialValue;
+            this.setState(Object.assign({value:hDate, errors: []},getStateUpdateFromHDate(hDate)));
         }
     }
 
@@ -250,7 +247,9 @@ class HDatePicker extends Component {
                     <div>
 
                         <Form horizontal>
-                            <FormGroup controlId="formControlsSelect">
+                            <FormGroup
+                                // controlId="formControlsSelect"
+                            >
                                 <Col sm={3}>
                                     <ControlLabel>Type</ControlLabel>
                                 </Col>
@@ -267,7 +266,7 @@ class HDatePicker extends Component {
                             </FormGroup>
                             <HelpBlock>{trans.PARSING_HELP[this.state.currentType]}</HelpBlock>
                             <FormGroup
-                                controlId="formBasicText"
+                                // controlId="formBasicText"
                                 validationState={this.isValid() ? "success" : "error"}
                             >
                                 <Col sm={3}>

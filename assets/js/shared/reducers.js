@@ -39,7 +39,7 @@ export const appReducer = (state=initialAppState, action) =>{
     switch (action.type) {
         case NOTIFY:
             let notification=null;
-            console.log(action);
+            //console.log(action);
             switch(notifType){
                 case INITIAL :
                     notification = Imm.Map({

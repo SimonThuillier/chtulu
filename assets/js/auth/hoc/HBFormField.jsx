@@ -94,7 +94,7 @@ const HBFormField = (props) => {
 
     return (
         <FormGroup
-            controlId={(type === 'select')?'formControlsSelect':'formBasicText'}
+            // controlId={(type === 'select')?'formControlsSelect':'formBasicText'}
             validationState={error?"error":(warning?"warning":"success")}
             style={style}
         >

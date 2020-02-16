@@ -193,6 +193,8 @@ class UserArticleList extends React.Component{
         this.onTableChange = this.onTableChange.bind(this);
         this.onFilter = this.onFilter.bind(this);
 
+        this.onHasPostedAll = this.onHasPostedAll.bind(this);
+
         this.onNewArticle = this.onNewArticle.bind(this);
         this.validateNewArticle = this.validateNewArticle.bind(this);
 
@@ -236,11 +238,13 @@ class UserArticleList extends React.Component{
         }
 
         console.log('items ownerId searchBag',this.getUserId(),searchBag);
-
-
-
-
         this.loadSearchBag(this.state.groups,searchBag);
+
+        window.addEventListener('hb.has_posted.all',this.onHasPostedAll);
+    }
+
+    componentWillUnmount(){
+        window.removeEventListener('hb.has_posted.all',this.onHasPostedAll);
     }
 
     componentDidUpdate(prevProps) {
@@ -285,6 +289,14 @@ class UserArticleList extends React.Component{
         setTimeout(()=>{
             this.handleClose();
         },50);
+    }
+
+    onHasPostedAll(event){
+        if(event.newItems.includes('article')){
+            const searchBag = Object.assign(SearchBag({},"editionDate"),{search:{ownerId:this.getUserId()}});
+            this.loadSearchBag(this.state.groups,searchBag);
+            this.setState({searchBag:searchBag});
+        }
     }
 
     onNewArticle(){
@@ -392,7 +404,7 @@ class UserArticleList extends React.Component{
                     <Button bsStyle="success" onClick={this.onNewArticle}>
                         Ajouter&nbsp;<Glyphicon glyph="plus" />
                     </Button>
-                    <ArticleFilter onSubmit={this.onFilter}/>
+                    <ArticleFilter searchBag={searchBag} onSubmit={this.onFilter}/>
                     <BootstrapTable
                         keyField='id'
                         data={ items }

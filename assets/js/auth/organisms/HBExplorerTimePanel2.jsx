@@ -1,16 +1,10 @@
 import React from "react";
 import { scaleTime } from "d3-scale";
-import { tween, easing } from "popmotion";
 import dU from "../../util/date";
 import HBExplorerPanelMarker from './HBExplorerPanelMarker';
 import TimeArrowCursor from "../molecules/TimeArrowCursor";
 import debounce from "debounce";
-import {
-    nodesCollide,
-} from "../../util/geometry";
 import TimeArrow from "./TimeArrow";
-import {connect} from "react-redux";
-import {makeGetOneByIdSelector} from "../../shared/selectors";
 
 import {AVAILABLE_AREAS, getTimeDataFromAbstract} from '../../util/explorerUtil';
 
@@ -76,7 +70,7 @@ class HBExplorerTimePanel2 extends React.Component {
     getTimeScale(hInterval, bounds) {
         const marginWidth = 0;//this.props.marginWidth ;
 
-        console.log('this.getTimeScale',hInterval, bounds);
+        //console.log('this.getTimeScale',hInterval, bounds);
 
         return scaleTime()
             .domain([hInterval.beginDate, hInterval.endDate])

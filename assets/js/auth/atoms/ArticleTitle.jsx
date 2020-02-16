@@ -23,7 +23,7 @@ const ArticleTitle = (props) => {
 
     let paragraphs = [];
 
-    paragraphs.push(<span>{(article && article.title) || "Nouvel article"}</span>);
+    paragraphs.push(<span key={'text'}>{(article && article.title) || "Nouvel article"}</span>);
 
     let dateLabel = null;
     if(article.beginHDate && article.endHDate && article.beginHDate.equals(article.endHDate)){
@@ -33,7 +33,7 @@ const ArticleTitle = (props) => {
         dateLabel = ` (${article.beginHDate.getLabel()} - ${article.endHDate?article.endHDate.getLabel():""})`;
     }
 
-    if(dateLabel !==null){paragraphs.push(<span style={{fontSize:'small',textOverflow: 'ellipsis'}}>{dateLabel}</span>);}
+    if(dateLabel !==null){paragraphs.push(<span key={'date'} style={{fontSize:'small',textOverflow: 'ellipsis'}}>{dateLabel}</span>);}
 
     return <span style={style}>{paragraphs}</span>
 };

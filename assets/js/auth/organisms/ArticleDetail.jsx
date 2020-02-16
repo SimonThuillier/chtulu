@@ -24,7 +24,7 @@ class SubAbstract extends React.Component
 
     _addEventListeners(){
 
-        const markers = document.querySelectorAll("#article-detail-div .hb-richtext-marker");
+        const markers = document.querySelectorAll("#article-content-panel-body .hb-richtext-marker");
         //console.log("article abstract markers addingEventListeners",markers);
         markers.forEach((element)=>{
             element.addEventListener('click',(event)=>{
@@ -36,7 +36,7 @@ class SubAbstract extends React.Component
             });
         });
 
-        const jQmarkers=$("#article-detail-div .hb-richtext-marker");
+        const jQmarkers=$("#article-content-panel-body .hb-richtext-marker");
         jQmarkers.tooltip();
     }
 
@@ -52,7 +52,6 @@ class SubAbstract extends React.Component
     {
         return (
                 <div
-                    id={"article-detail-div"}
                     ref={this.ref}
                     className="col-md-12 hb-content"
                     onDoubleClick={()=>{
@@ -185,12 +184,15 @@ export default class ArticleDetail extends React.Component{
         const {data,id,linksData,children} = this.props;
         if (!data) return null;
 
+        let key=0;
+
         const childrenWithData = getChildrenAsArray(children).map((c)=>{
-            return React.cloneElement(c,{data:data});
+            key=key+1;
+            return React.cloneElement(c,{data:data,key:key});
         });
 
 
-        console.log('children',children);
+        //console.log('children',children);
 
 
         return (

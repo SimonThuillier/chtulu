@@ -154,10 +154,10 @@ class ArticleContentEditor extends React.Component
     render()
     {
         const {input} = this.props;
-        console.log("render ArticleContentEditor");
+        //console.log("render ArticleContentEditor");
 
         return (
-            <div>
+            <div className={'col-md-12'}>
                 <CKEditor
                     editor={ BalloonEditor }
                     config={ editorConfiguration }
@@ -171,12 +171,12 @@ class ArticleContentEditor extends React.Component
 
 
 
-                        console.log( 'Editor is ready to use!', this.editor );
-                        console.log('ckeditor names', Array.from(this.editor.ui.componentFactory.names()),this.editor.config._config.plugins.map((p)=>{return p.pluginName}) );
+                        //console.log( 'Editor is ready to use!', this.editor );
+                        //console.log('ckeditor names', Array.from(this.editor.ui.componentFactory.names()),this.editor.config._config.plugins.map((p)=>{return p.pluginName}) );
 
                         this.editor.plugins.get( 'Clipboard' ).on( 'inputTransformation',this.onPaste );
 
-                        this.editor.setData(this.props.input.value);
+                        this.editor.setData(this.props.input.value || "Renseignez le corps de l'article");
                     } }
                     onChange={ ( event, editor ) => {
                         //this.editor = editor;

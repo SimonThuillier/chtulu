@@ -63,6 +63,17 @@ let HDate = function(type, date, endDate = null) {
 
 let _prototype = {
     /**
+     * @doc returns the hDate merge of different hDate (including all)
+     * @param hDates Array
+     */
+    merge: function(hDates){
+        if(!Array.isArray(hDates) || hDates.length<1) return null;
+        const beginDate = hDates.map((hDate)=>{return hDate.beginDate}).reduce(function (a, b) { return a < b ? a : b; });
+        const endDate = hDates.map((hDate)=>{return hDate.endDate}).reduce(function (a, b) { return a> b ? a: b; });
+        //console.log(beginDate,endDate);
+        return new HDate("1",beginDate,endDate);
+    },
+    /**
      * @doc HDate prototype clone function
      * @returns {HDate}
      */

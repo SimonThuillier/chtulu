@@ -19,7 +19,7 @@ const getInnerHtmlOrNa = (domId) =>{
 
 
 let initialHResponse = getDataUrlOrNa('hb-initial-response');
-console.log(initialHResponse);
+//console.log(initialHResponse);
 if(initialHResponse && initialHResponse !== '_NA_') initialHResponse = JSON.parse(initialHResponse);
 else initialHResponse = null;
 let currentUserId = null;

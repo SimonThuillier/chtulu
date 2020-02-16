@@ -39,6 +39,13 @@ const defaultStyle = {
     //width: "500px"
 };
 
+const getStateUpdateFromHDate = (hDate)=>{
+    return {
+        currentType: hDate ? hDate.type : 1,
+        currentInput: hDate ? hDate.getCanonicalInput() : ""
+    };
+};
+
 class HGeoInfoPicker extends Component {
     constructor(props) {
         super(props);
@@ -68,16 +75,11 @@ class HGeoInfoPicker extends Component {
 
         const hDate = (this.state.value && this.state.value.hDate) ? this.state.value.hDate : null;
 
-        this.setState({
-            currentType: hDate ? hDate.type : 1,
-            currentInput: hDate ? hDate.getCanonicalInput() : ""
-        });
+        this.setState(getStateUpdateFromHDate(hDate));
 
         if(!!this.props.setContainerRef){
             this.props.setContainerRef(this.containerRef);
         }
-
-
     }
 
     componentDidUpdate(prevProps){
@@ -88,10 +90,7 @@ class HGeoInfoPicker extends Component {
             const hDate = (this.props.initialValue && this.props.initialValue.hDate) ?
                 this.props.initialValue.hDate : null;
 
-            if(!!hDate){
-                stateToUpdate.currentType=hDate;
-                stateToUpdate.currentInput=hDate.getCanonicalInput();
-            }
+            Object.assign(stateToUpdate,getStateUpdateFromHDate(hDate));
             this.setState(stateToUpdate);
         }
     }
@@ -182,7 +181,7 @@ class HGeoInfoPicker extends Component {
 
         const value = Object.assign({},this.state.value,{title:e.target.value});
 
-        console.log(`hGeoInfo on titleChange`,value);
+        //console.log(`hGeoInfo on titleChange`,value);
 
         this.setState({value:value});
     }
@@ -199,7 +198,7 @@ class HGeoInfoPicker extends Component {
             }
         );
 
-        console.log("render HGeoInfoPicker",this.props.id);
+        //console.log("render HGeoInfoPicker",this.props.id);
 
         const realStyle = Object.assign({},defaultStyle,style || {});
 
@@ -213,7 +212,7 @@ class HGeoInfoPicker extends Component {
 
                         <Form horizontal>
                             <FormGroup
-                                controlId="formBasicText"
+                                // controlId="formBasicText"
                             >
                                 <Col sm={3}>
                                     <ControlLabel>Nom</ControlLabel>
@@ -233,7 +232,9 @@ class HGeoInfoPicker extends Component {
                             </FormGroup>
                             <h4>Date (optionelle)</h4>
 
-                            <FormGroup controlId="formControlsSelect">
+                            <FormGroup
+                                // controlId="formControlsSelect"
+                            >
                                 <Col sm={3}>
                                     <ControlLabel>Type</ControlLabel>
                                 </Col>
@@ -250,7 +251,7 @@ class HGeoInfoPicker extends Component {
                             </FormGroup>
                             <HelpBlock>{trans.PARSING_HELP[this.state.currentType]}</HelpBlock>
                             <FormGroup
-                                controlId="formBasicText"
+                                // controlId="formBasicText"
                                 validationState={this.isValid() ? "success" : "error"}
                             >
                                 <Col sm={3}>
