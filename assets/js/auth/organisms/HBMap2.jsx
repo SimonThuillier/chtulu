@@ -66,11 +66,13 @@ class HBMap2 extends React.Component {
                 console.log(layer._leaflet_id);
                 console.log(L);*/
                 const realLayer = this.drawnItems.getLayer(layer._leaflet_id);
-                realLayer.fire('mouseover',{layer:realLayer});
-                highlight(this.drawnItems.getLayer(layer._leaflet_id));
-                setTimeout(()=>{
-                    realLayer.resetStyle();
-                },600);
+                if(!!realLayer){
+                    realLayer.fire('mouseover',{layer:realLayer});
+                    highlight(this.drawnItems.getLayer(layer._leaflet_id));
+                    setTimeout(()=>{
+                        realLayer.resetStyle();
+                    },600);
+                }
             });
         }
     }
