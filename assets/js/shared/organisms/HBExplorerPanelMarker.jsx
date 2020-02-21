@@ -1,5 +1,5 @@
 import React from "react";
-import ProgressionCircle from "../atoms/ProgressionCircle";
+import ProgressionCircle from "../../auth/atoms/ProgressionCircle";
 import {AVAILABLE_AREAS} from '../../util/explorerUtil';
 import {getInlinedCss} from '../../util/cssUtil';
 

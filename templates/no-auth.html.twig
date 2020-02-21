@@ -26,6 +26,11 @@
         <div data-url="{{ url('security_login') }}" id="hb-url-security-login"></div>
         <div data-url="{{ url('security_ask_password_recovery') }}" id="hb-url-security-ask-password-recovery"></div>
         <div data-url="{{ url('security_change_password') }}" id="hb-url-security-change-password"></div>
+
+        <div data-url="{{ url('public_get_get_one_by_id') }}" id="hb-url-get-get-one-by-id"></div>
+        <div data-url="{{ url('public_get_get') }}" id="hb-url-get-get"></div>
+        <div data-url="{{ url('public_get_get_new') }}" id="hb-url-get-get-new"></div>
+
         {% for wao in waoList() %}
             <div class="hb-wao-mapping" data-mapping="{{ wao|getMapping() }}" id="hb-mapping-{{ wao|getAbridgedName() }}"></div>
             <div class="hb-wao-structure" data-structure="{{ wao|getStructure() }}" id="hb-structure-{{ wao|getAbridgedName() }}"></div>

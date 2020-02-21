@@ -105,7 +105,7 @@ class MediatorFactory implements ServiceSubscriberInterface,ClearableInterface
     {
         $this->locator = $locator;
         $this->dbActionObserver = $dbActionObserver;
-        $this->user = $tokenStorage->getToken()->getUser();
+        $this->user = $tokenStorage->getToken()?$tokenStorage->getToken()->getUser():null;
     }
 
 

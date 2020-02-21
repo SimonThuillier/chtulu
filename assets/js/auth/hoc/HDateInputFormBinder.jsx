@@ -4,8 +4,8 @@ import { Field} from 'redux-form/immutable';
 import {
     Popover,Overlay
 } from 'react-bootstrap';
-import HDateInput from '../molecules/HDateInput2';
-import HDatePicker from '../organisms/HDatePicker';
+import HDateInput from '../../shared/molecules/HDateInput2';
+import HDatePicker from '../../shared/organisms/HDatePicker';
 
 
 export default class HDateInputFormBinder extends React.Component {

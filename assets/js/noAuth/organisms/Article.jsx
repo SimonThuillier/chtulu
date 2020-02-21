@@ -1,16 +1,11 @@
 import React from "react";
 import Loadable from 'react-loading-overlay';
-import { getOneByIdIfNeeded} from "../../shared/actions";
-import { notifyArticleSelection} from "../../shared/actions";
+import { getOneByIdIfNeeded,notifyArticleSelection} from "../../shared/actions";
 import ArticleDetail from '../../shared/organisms/ArticleDetail';
-import ArticleForm from './ArticleForm';
-import ArticleAdmin from './ArticleAdmin';
 import {
-    makeGetNotificationsSelector, makeGetOneByIdSelector, makeLocalGetByAttributeSelector
-} from "../../shared/selectors";
+    makeGetNotificationsSelector, makeGetOneByIdSelector} from "../../shared/selectors";
 import {connect} from "react-redux";
 import {LOADING,COLORS} from '../../util/notifications';
-import Groupable from '../hoc/Groupable';
 const componentUid = require('uuid/v4')();
 
 // This creates the "Article Context" i.e. an object containing a Provider and a Consumer component
@@ -36,54 +31,9 @@ const SubDetail = ({groups,children}) => {
         </ArticleContext.Consumer>
     );
 };
-//SubDetail.contextType = ArticleContext;
-
-const SubForm = ({groups,setValid,autoSubmit}) => {
-    return (
-        <ArticleContext.Consumer>
-            {({ id, groups:cGroups,data,container,linksData,form}) => {
-                //console.log(`I call ArticleForm with form key ${form}`);
-                return (<Groupable groups={groups || cGroups} subKey={`article-${id}-form`}>
-                        <ArticleForm
-                            form={form}
-                            id={id}
-                            linksData = {linksData}
-                            container={container}
-                            groups={groups || cGroups}
-                            setValid={setValid}
-                            autoSubmit={autoSubmit}
-                        >
-                        </ArticleForm>
-                    </Groupable>
-                );
-            }
-                }
-        </ArticleContext.Consumer>
-    );
-};
-//SubForm.contextType = ArticleContext;
-const SubAdmin = ({groups}) => {
-    return (
-        <ArticleContext.Consumer>
-            {({ id, groups:cGroups,data,container,linksData}) => {
-                return (
-                        <ArticleAdmin
-                            id={id}
-                            data={data}
-                            linksData={linksData}
-                            groups={groups || cGroups}
-                        />
-                );
-            }
-            }
-        </ArticleContext.Consumer>
-    );
-};
 
 class Article extends React.Component{
     static Detail = SubDetail;
-    static Form = SubForm;
-    static Admin = SubAdmin;
 
     constructor(props) {
         super(props);

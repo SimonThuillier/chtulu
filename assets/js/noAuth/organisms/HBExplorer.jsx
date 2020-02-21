@@ -22,16 +22,12 @@ import ArticleTitle from "../../shared/atoms/ArticleTitle";
 import ArticleType from "../../shared/atoms/ArticleType";
 import { Button,
     Glyphicon} from "react-bootstrap";
-
-
+import debounce from "debounce";
+import HBExplorerPresentation from "../../shared/organisms/HBExplorerPresentation";
 
 const { EDITOR, SIDEVIEW, VERTICAL } = AVAILABLE_THEMES;
 const { CONTENT, MAP, TIME } = AVAILABLE_AREAS;
-
-import debounce from "debounce";
-
 const explorerUid = require("uuid/v4")();
-
 let _idGenerator = cmn.getIdGenerator();
 
 const Container = styled.div`
@@ -298,7 +294,7 @@ class HBExplorer extends React.Component {
 
 
         if(['form','admin'].includes(displayParameters.activeComponent)){
-                realEnabledAreas = [AVAILABLE_AREAS.CONTENT];
+            realEnabledAreas = [AVAILABLE_AREAS.CONTENT];
         }
 
 
@@ -697,6 +693,7 @@ class HBExplorer extends React.Component {
 
         return (
             <ThemeProvider theme={theme}>
+                <HBExplorerPresentation/>
                 <div ref={this.containerRef} style={{ padding: "0px" }}>
                     <ul role={"menu"} className={"dropdown-menu"}>
                         <li role={"presentation"} className={""}><a role={"menuitem"} tabIndex={"-1"} href="#">10</a></li>
@@ -712,35 +709,9 @@ class HBExplorer extends React.Component {
                             ref={this.containerRef}
                         >
                             <Header ref={this.headerRef}>
-                                    <span><h4><ArticleType articleId={mainArticleId}/></h4></span>
-                                            <h4><ArticleTitle id={mainArticleId}/></h4>
-                                    <span>
-                        <Button bsStyle={displayParameters.activeComponent==='detail'?'primary':'default'}
-                                disabled={false}
-                                onClick={()=>{setActiveComponent([mainArticleId],'detail');}}>
-                               <Glyphicon glyph='eye-open'/>
-                        </Button>
-                                        {allowedEdit?<Button bsStyle={displayParameters.activeComponent==='form'?'primary':'default'}
-                                disabled={false}
-                                onClick={()=>{setActiveComponent([mainArticleId],'form')}}>
-                               <Glyphicon glyph='edit'/>
-                        </Button>:null}
-                                        {allowedAdmin?<Button bsStyle={displayParameters.activeComponent==='admin'?'primary':'default'}
-                                disabled={false}
-                                onClick={()=>{setActiveComponent([mainArticleId],'admin')}}>
-                               <Glyphicon glyph='cog'/>
-                        </Button>:null}
-                        </span>
-                                {/*</div>*/}
-                                {/*<HBExplorerHeader*/}
-                                    {/*theme={this.state.currentTheme}*/}
-                                    {/*enabledAreas={enabledAreas}*/}
-                                    {/*toggleArea={this.toggleArea}*/}
-                                    {/*onChange={this.setTheme}*/}
-                                    {/*onFilter={onFilter}*/}
-                                    {/*searchBag={searchBag}*/}
-                                    {/*setLimit={setLimit}*/}
-                                {/*/>*/}
+                                <span><h4><ArticleType articleId={mainArticleId}/></h4></span>
+                                <h4><ArticleTitle id={mainArticleId}/></h4>
+                                <span/>
                             </Header>
                             <OnePiece
                                 ref={this.onePieceRef}

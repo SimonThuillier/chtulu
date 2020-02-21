@@ -1,8 +1,5 @@
 import React from "react";
-import dU from "../../util/date";
-import HDate from "../../util/HDate";
 import HBExplorerDateInput from "../molecules/HBExplorerDateInput";
-import { LEFT, RIGHT } from "../../util/geometry";
 
 import { Button, Glyphicon } from "react-bootstrap";
 import debounce from "debounce";
@@ -15,7 +12,6 @@ const timeTravellingPace = 0.1;
 const timeZoomingPace = 1.075;
 const timeZoomingTurbo = 1.5;
 const timeTravellingAcceleration = 1.4; // by second
-const timeFirstTravelDuration = 250;
 
 export default class HBExplorerTimeMenu extends React.Component {
     constructor(props) {

@@ -1,9 +1,9 @@
 import React,{ Component } from "react";
-import {makeGetOneByIdSelector} from "../../shared/selectors";
+import {makeGetOneByIdSelector} from "../selectors";
 import { connect } from 'react-redux';
-import RImageMini from '../../shared/atoms/RImageMini';
+import RImageMini from '../atoms/RImageMini';
 import {Tooltip,Overlay,OverlayTrigger} from 'react-bootstrap';
-import {previewTooltip} from "../atoms/tooltips";
+import {previewTooltip} from "../../auth/atoms/tooltips";
 import { withRouter} from 'react-router-dom';
 
 function HistoryLine({article,sidebarStatus="EXPANDED",history}){

@@ -1,13 +1,13 @@
 import { combineReducers } from 'redux-immutable'
 import {
-    RECEIVE_GET,
     RECEIVE_GET_ONE_BY_ID
-} from '../auth/actions';
+} from '../shared/actions';
 
 import WAOs from '../util/WAOs';
 import SearchBagUtil from '../util/SearchBagUtil';
 const Imm = require("immutable");
 import {appReducer,updateOnRecordReception,SearchCacheEntry} from '../shared/reducers';
+import {RECEIVE_GET} from "../shared/actions";
 
 /** SIMPLIFIED READ ONLY REDUCERS FOR WAOS */
 const concreteWaoType = (waoType) => {

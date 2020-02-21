@@ -1,7 +1,7 @@
 import React from 'react';
 import {Helmet} from 'react-helmet';
 
-import Welcome from '../templates/Welcome';
+import Welcome from '../../shared/templates/Welcome';
 
 class WelcomePage extends React.Component
 {
@@ -22,12 +22,19 @@ class WelcomePage extends React.Component
 
     render()
     {
+        console.log('welcome props',this.props);
+
+        let search=null;
+        if(this.props.location && this.props.location.search){
+            search = this.props.location.search.replace('?','');
+        }
+
         return (
             <div>
                 <Helmet>
                     <title>Bienvenue !</title>
                 </Helmet>
-                <Welcome/>
+                <Welcome search={search}/>
             </div>
         )
     }

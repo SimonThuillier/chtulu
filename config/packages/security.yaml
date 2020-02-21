@@ -11,7 +11,7 @@ security:
 
     firewalls:
         noauth:
-            pattern: ^/(web|test|)/|^/_security/(register|validate-register|login)
+            pattern: ^/(web|test|_hb_public_get)/|^/_security/(register|validate-register|login)
             security: false
         main:
             provider: app_user_provider

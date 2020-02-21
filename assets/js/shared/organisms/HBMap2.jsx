@@ -5,7 +5,7 @@ import debounce from "debounce";
 import { getGeoDataFromAbstract} from "../../util/explorerUtil";
 import {
      makeGetOneByIdSelector,
-} from "../../shared/selectors";
+} from "../selectors";
 import {connect} from "react-redux";
 import {AVAILABLE_AREAS,MAP_TILE_LAYER_URL,MAP_TILE_LAYER_ATTRIBUTION} from '../../util/explorerUtil';
 import HDate from '../../util/HDate';

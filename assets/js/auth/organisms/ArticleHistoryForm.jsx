@@ -10,9 +10,10 @@ import {
 import { Field, reduxForm,change as formChange,
     blur as formBlur,focus as formFocus,touch as formTouch,untouch as formUntouch} from 'redux-form/immutable';
 import { stopSubmit} from 'redux-form';
-import {getOneByIdIfNeeded,submitLocally} from '../actions';
+import {submitLocally} from '../actions';
 import ArticleStatusSelect from "../molecules/ArticleStatusSelect";
 import HBFormField from '../hoc/HBFormField';
+import {getOneByIdIfNeeded} from "../../shared/actions";
 
 const Imm = require("immutable");
 

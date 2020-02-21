@@ -1,18 +1,15 @@
 import React from "react";
-import {getIfNeeded, loadInitialHResponse} from '../actions';
 
-import Header from '../organisms/Header';
-import {makeGetNotificationsSelector, makeGetSelector} from "../../shared/selectors";
+import {makeGetNotificationsSelector} from "../selectors";
 import {connect} from "react-redux";
 import { PoseGroup } from "react-pose";
-import Shade from '../../shared/atoms/Shade';
+import Shade from '../atoms/Shade';
 import {INITIAL} from "../../util/notifications";
-import NotificationAlert from '../../shared/molecules/NotificationAlert';
+import NotificationAlert from '../molecules/NotificationAlert';
 import ArticleGrid from '../organisms/ArticleGrid';
 import ArticleFilter2 from '../organisms/ArticleFilter2';
 import SearchBag from "../../util/SearchBag";
 
-const Imm = require("immutable");
 const componentUid = require("uuid/v4")();
 
 

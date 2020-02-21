@@ -1,13 +1,9 @@
 import React from "react";
-import {getIfNeeded, loadInitialHResponse} from '../actions';
+import {getIfNeeded} from '../actions';
 import Loadable from 'react-loading-overlay';
-import Header from '../organisms/Header';
-import {makeGetNotificationsSelector, makeGetSelector} from "../../shared/selectors";
+import {makeGetNotificationsSelector, makeGetSelector} from "../selectors";
 import {connect} from "react-redux";
-import { PoseGroup } from "react-pose";
-import Shade from '../../shared/atoms/Shade';
-import {COLORS, INITIAL, LOADING} from "../../util/notifications";
-import NotificationAlert from '../../shared/molecules/NotificationAlert';
+import {COLORS, LOADING} from "../../util/notifications";
 import SearchBag from "../../util/SearchBag";
 import SearchBagUtil from "../../util/SearchBagUtil";
 import ArticleGridBox from './ArticleGridBox';
@@ -70,8 +66,17 @@ class ArticleGrid extends React.Component
                 active={loading}
                 spinner
                 text='Chargement des données ...'
-                color={COLORS.LOADING}
-                background={COLORS.LOADING_BACKGROUND}
+                styles={{
+                    content: (base) => ({
+                        ...base,
+                        background: COLORS.LOADING_BACKGROUND,
+                        color: COLORS.LOADING
+                    }),
+                    spinner: (base) => ({
+                        ...base,
+                        color: COLORS.LOADING
+                    })
+                }}
             >
                 <div className={'hb-articles-grid'}>
                     {articleBoxes}

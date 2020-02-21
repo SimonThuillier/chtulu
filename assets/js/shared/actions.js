@@ -10,6 +10,8 @@ import {
     HTTP_POST,
     URL_CHANGE_PASSWORD,
     URL_GET,
+    URL_GET_NEW,
+    URL_GET_ONE_BY_ID,
 } from '../util/server';
 import {normalize} from 'normalizr';
 import WAOs from '../util/WAOs';
@@ -24,7 +26,13 @@ export const DISCARD = 'DISCARD';
 // data reception actions
 export const GET = 'GET';
 export const RECEIVE_GET = 'RECEIVE_GET';
+export const GET_ONE_BY_ID = 'GET_ONE_BY_ID';
 export const RECEIVE_GET_ONE_BY_ID = 'RECEIVE_GET_ONE_BY_ID';
+// items creation
+export const CREATE_NEW = 'CREATE_NEW';
+export const RECEIVE_NEW = 'RECEIVE_NEW';
+
+
 export const TIMEOUT = 5000;
 export const notify = (notifType,
                        senderKey=null,
@@ -43,11 +51,21 @@ export const notify = (notifType,
     errors:errors
 });
 
+// MAP to hold the various get called made and prevent double calls
+const pendingAPICalls = new Map();
+
+const pendingCreations = new Map();
+
 export const discard = (notifType,senderKey=null,senderParam=null) => ({
     type: DISCARD,
     notifType : notifType,
     senderKey : senderKey || 'HBAPP',
     senderParam: senderParam
+});
+
+export const notifyArticleSelection = (id) => ({
+    type: NOTIFY_ARTICLE_SELECTION,
+    id:id
 });
 
 export const get = (waoType,groups,searchBag=null) => ({
@@ -56,12 +74,6 @@ export const get = (waoType,groups,searchBag=null) => ({
     groups : groups,
     searchBag : searchBag || SearchBag()
 });
-
-export const notifyArticleSelection = (id) => ({
-    type: NOTIFY_ARTICLE_SELECTION,
-    id:id
-});
-
 
 export const subReceiveGet = (waoType,rows) => {
     //console.log("subreceive get");
@@ -121,6 +133,16 @@ export const errorGet = (waoType,searchBag,message) => {
     console.error(`error Get fetching ${waoType} : ${message}`);
 };
 
+export const getIfNeeded = (waoType, groups = true, searchBag, senderKey = null) => (dispatch, getState) => {
+    searchBag = searchBag || SearchBag();
+    //console.log(`shouldFetchGet : ${shouldFetchGet(getState(), waoType,groups,searchBag,senderKey)}`);
+
+    if (shouldFetchGet(getState(), waoType, groups, searchBag, senderKey)) {
+        return dispatch(fetchGet(waoType, groups, searchBag, senderKey))
+    }
+};
+
+
 const fetchGet = (waoType,groups=true,searchBag,senderKey) => (dispatch,state) => {
     const coreBagKey = JSON.stringify(SearchBagUtil.getCoreBag(searchBag));
 
@@ -169,14 +191,14 @@ const shouldFetchGet = (state, waoType,groups,searchBag,senderKey=null) => {
     return false;
 };
 
-export const getIfNeeded = (waoType,groups=true,searchBag,senderKey=null) => (dispatch, getState) => {
-    searchBag = searchBag || SearchBag();
-    //console.log(`shouldFetchGet : ${shouldFetchGet(getState(), waoType,groups,searchBag,senderKey)}`);
-
-    if (shouldFetchGet(getState(), waoType,groups,searchBag,senderKey)) {
-        return dispatch(fetchGet(waoType,groups,searchBag,senderKey))
-    }
-};
+// export const getIfNeeded = (waoType,groups=true,searchBag,senderKey=null) => (dispatch, getState) => {
+//     searchBag = searchBag || SearchBag();
+//     //console.log(`shouldFetchGet : ${shouldFetchGet(getState(), waoType,groups,searchBag,senderKey)}`);
+//
+//     if (shouldFetchGet(getState(), waoType,groups,searchBag,senderKey)) {
+//         return dispatch(fetchGet(waoType,groups,searchBag,senderKey))
+//     }
+// };
 
 export const receiveGetOneById = (waoType,groups,id,data,message="Données bien recues du serveur") =>
     (dispatch,state) => {
@@ -249,6 +271,167 @@ export const changePassword = (data, senderKey) => (dispatch, getState) => {
         )
 };
 
+const fetchGetOneById = (waoType, groups = true, id, senderKey) => (dispatch, state) => {
+    pendingAPICalls.set(APICallKey('getOneById', waoType, groups, id), new Date());
+    dispatch(notify(LOADING, senderKey, id));
+    const url = getUrl(URL_GET_ONE_BY_ID, getHBProps(waoType, groups, id));
+
+    return fetch(url, getHTTPProps())
+        .then(response => response.json())
+        .then(json => {
+                pendingAPICalls.delete(APICallKey('getOneById', waoType, groups, id));
+                switch (json.status) {
+                    case HB_SUCCESS:
+                        console.info(json);
+                        dispatch(notify(LOADING_COMPLETED, senderKey, id, HB_SUCCESS));
+                        dispatch(receiveGetOneById(waoType, groups, id, json.data, json.message));
+                        break;
+                    case HB_ERROR:
+                        dispatch(notify(LOADING_COMPLETED, senderKey, id, HB_ERROR));
+                        dispatch(errorGet(waoType, groups, id, json.message));
+                        break;
+                    default:
+                }
+            }
+        )
+};
+
+const APICallKey = (callType, waoType, groups = true, id = null, searchBag = null) => {
+    switch (callType) {
+        case 'getOneById' :
+            return `${waoType}_${id}_${JSON.stringify(groups)}`;
+        default :
+            return 'NA';
+    }
+};
+
+
+
+const shouldFetchGetOneById = (state, waoType, groups, id, senderKey = null) => {
+    if (pendingAPICalls.has(APICallKey('getOneById', waoType, groups, id))) return false;
+    if (state.hasIn(["app", "notifications", senderKey || 'HBAPP', id || 'DEFAULT', LOADING])) return false;
+
+    const item = state.getIn([waoType, "items", id]);
+    if (!item || !item.get("loadedGroups")) return true;
+
+    if (item.get("loadedGroups")) {
+        /*console.log("groupes deja charges");
+        console.log(item.get("loadedGroups"));
+        console.log("groupes a charger");
+        console.log(groups);
+        console.log("diff");*/
+        let diff = GroupUtil.leftDiff(waoType, groups, item.get("loadedGroups"));
+        //console.log(diff);
+        if (Object.keys(diff).length < 1) return false;
+    }
+    return true;
+};
+
+export const getOneByIdIfNeeded = (waoType, groups = true, id, senderKey = null) => (dispatch, getState) => {
+    if (id === null) return;
+    // new case
+    if (+id < 0) {
+        // only one new item can be created at a time, so be carefull different components don't ask it at the same time !!!!
+        if (shouldFetchNew(getState(), waoType)) {
+            console.log(`should fetch new ${waoType}`);
+            dispatch(fetchNew(waoType, id, senderKey));
+            pendingCreations[waoType] = pendingCreations[waoType] || new Map();
+            pendingCreations[waoType].set(id, {groups: groups, senderKey: senderKey});
+            console.log(`should fetch new ${waoType}`, pendingCreations);
+        }
+        else {
+            setTimeout(() => {
+                if (!getState().hasIn([waoType, "items", +id]) && +id >= +getState().getIn([waoType, "nextNewId"])) {
+                    dispatch(createNew(waoType));
+                    /*if(pendingCreations.has(`${waoType}-${id}`)){
+                        const {data,groups} = pendingCreations.get(`${waoType}-${id}`);
+                        setTimeout(()=>{
+                            dispatch(submitLocally(waoType,data,id,groups));
+                        },10);
+                        pendingCreations.delete(`${waoType}-${id}`);
+                    }*/
+                }
+            }, 5);
+        }
+    }
+    // standard case
+    else if (shouldFetchGetOneById(getState(), waoType, groups, id, senderKey)) {
+        return dispatch(fetchGetOneById(waoType, groups, id, senderKey))
+    }
+};
+
+const shouldFetchNew = (state, waoType) => {
+    if (state.hasIn(["app", "notifications", waoType, 'DEFAULT'])) return false;
+    return !state.getIn([waoType, "newItem"]);
+};
+
+export const fetchNew = (waoType, id, senderKey) => (dispatch) => {
+    const url = getUrl(URL_GET_NEW, getHBProps(waoType, null, 0));
+    dispatch(notify(LOADING, waoType, null));
+    dispatch(notify(LOADING, senderKey, id));
+    return fetch(url, getHTTPProps())
+        .then(response => response.json())
+        .then(json => {
+                switch (json.status) {
+                    case HB_SUCCESS:
+
+                        const normData = normalize(json.data, WAOs.getIn([waoType, "schema"]));
+                        //console.log('normalize receiveNew data',waoType,WAOs.getIn([waoType,"schema"]), json.data,normData);
+                        Object.keys(normData.entities).forEach((key) => {
+                            if (key !== waoType) {
+                                dispatch(subReceiveGet(key, Object.values(normData.entities[key])));
+                            }
+                        });
+                        dispatch(receiveNew(waoType, normData.entities[waoType][0]));
+                        setTimeout(() => {
+                            //console.log('pendingCreations=',pendingCreations);
+                            if (!!pendingCreations[waoType]) {
+                                pendingCreations[waoType].forEach(({senderKey}, id) => {
+                                    dispatch(createNew(waoType));
+                                    dispatch(notify(LOADING_COMPLETED, senderKey, id, HB_SUCCESS));
+                                });
+                            }
+
+
+                            dispatch(notify(LOADING_COMPLETED, waoType, null, HB_SUCCESS));
+                        }, 20);
+                        /*setTimeout(()=>{
+                            if(pendingCreations.has(`${waoType}-${id}`)){
+                                const {data,groups} = pendingCreations.get(`${waoType}-${id}`);
+                                setTimeout(()=>{
+                                    dispatch(submitLocally(waoType,data,id,groups));
+                                },20);
+                                pendingCreations.delete(`${waoType}-${id}`);
+                            }
+                        },30);*/
+
+                        break;
+                    case HB_ERROR:
+                        setTimeout(() => {
+                            dispatch(notify(LOADING_COMPLETED, senderKey, id, HB_ERROR));
+                            dispatch(notify(LOADING_COMPLETED, waoType, null, HB_ERROR));
+                        }, 10);
+                        dispatch(errorGet(waoType, null, 0, json.message));
+                        break;
+                    default:
+                }
+            }
+        )
+};
+
+
+const receiveNew = (waoType, data) => ({
+    type: RECEIVE_NEW,
+    waoType: waoType,
+    receivedAt: Date.now(),
+    wao: data
+});
+
+const createNew = (waoType) => ({
+    type: CREATE_NEW,
+    waoType: waoType,
+    receivedAt: Date.now()
+});
 
 
 

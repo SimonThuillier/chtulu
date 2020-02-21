@@ -2,10 +2,6 @@ import { combineReducers } from 'redux-immutable'
 import {
     SUBMIT_LOCALLY,
     RESET,
-    RECEIVE_GET,
-    RECEIVE_GET_ONE_BY_ID,
-    RECEIVE_NEW,
-    CREATE_NEW,
     DELETE
 } from './actions';
 
@@ -14,6 +10,7 @@ import SearchBagUtil from '../util/SearchBagUtil';
 import { reducer as reduxFormReducer } from "redux-form/immutable";
 import Common from '../util/common';
 import {appReducer,updateOnRecordReception,SearchCacheEntry} from '../shared/reducers';
+import {CREATE_NEW, RECEIVE_GET, RECEIVE_GET_ONE_BY_ID, RECEIVE_NEW} from "../shared/actions";
 
 const Imm = require("immutable");
 

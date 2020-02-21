@@ -44,13 +44,6 @@ class HBExplorerArticleCard extends React.Component {
 
 
     componentDidUpdate(prevProps){
-        if(prevProps.displayParameters.activeComponent==='form' &&
-            prevProps.displayParameters.activeComponent!==this.props.displayParameters.activeComponent
-        ){
-            const event = new CustomEvent('hb.article.leave.form');
-            event.articleId = prevProps.id;
-            window.dispatchEvent(event);
-        }
     }
 
     componentDidMount(){
@@ -63,23 +56,7 @@ class HBExplorerArticleCard extends React.Component {
 
 
     render() {
-        const {dispatch,id,article,displayParameters,
-            setActiveComponent} = this.props;
-
-        const {activeComponent} = displayParameters;
-
-        const alreadyCreatedArticle = +id > 0;
-        const headerStyle = {backgroundColor:"#F3E3F6"};
-
-        let allowedEdit = false;
-        let allowedAdmin = false;
-
-        if(!!article && !!article.authorizationBag && article.authorizationBag.EDIT.allowed){
-            allowedEdit = true;
-        }
-        if(!!article && !!article.authorizationBag && article.authorizationBag.ADMIN.allowed){
-            allowedAdmin = true;
-        }
+        const {dispatch,id} = this.props;
 
         return (
             <div className="panel panel-default hg-content-panel">
@@ -100,26 +77,10 @@ class HBExplorerArticleCard extends React.Component {
                             owner:{minimal:true}
                         }}
                     >
-                        {/*{activeComponent==='detail'?*/}
-                            {/*(<Article.Detail/>):*/}
-                            {/*activeComponent==='form'?*/}
-                                {/*(<Article.Form/>):*/}
-                                {/*activeComponent==='admin'?*/}
-                                    {/*(<Article.Admin/>):null*/}
-                        {/*}*/}
-                        <div hidden={activeComponent!=='detail'}>
                         <Article.Detail>
                             <ArticleDetail.Abstract/>
                         </Article.Detail>
-                        </div>
-                        {allowedEdit?<div hidden={activeComponent!=='form'}>
-                        <Article.Form/>
-                        </div>:null}
-                        {allowedAdmin?<div hidden={activeComponent!=='admin'}>
-                        <Article.Admin/>
-                        </div>:null}
                     </Article>
-                    <div style={{minHeight:'30px'}}/>
                 </div>
                 <div className="panel-footer hg-content-panel-footer">
 

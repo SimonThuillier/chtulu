@@ -1,6 +1,6 @@
 import React from "react";
 
-import {makeGetOneByIdSelector} from "../../shared/selectors";
+import {makeGetOneByIdSelector} from "../selectors";
 import {connect} from "react-redux";
 
 const style= {

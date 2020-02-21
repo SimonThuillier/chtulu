@@ -73,7 +73,12 @@ export const CONTACT_TYPES = [
     {id:'THANKS',label:"Remercier l'équipe car ça fait toujours plaisir :)"}
     ];
 
-let ROOT_URL = '/app';
+function _getServerUrl(url) {
+    return url.toString().replace(/^(.*\/\/[^\/?#]*).*$/,"$1");
+}
+
+
+let ROOT_URL = document.location.host;
 export const setRootUrl = (root)=>{
     ROOT_URL = root;
 };

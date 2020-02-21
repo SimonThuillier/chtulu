@@ -73,6 +73,22 @@ class ArticleDTOMediator extends DTOMediator
         $article = $this->entity;
         if(!$this->entity || $this->entity->getId()<=1) return;
 
+        if(!$this->user){
+            if($article->getStatus()->getId() === ArticleStatus::PUBLIC){
+                $this->authorizationBag
+                    ->setRight(AuthorizationBag::READ,true,'Cet article est public')
+                    ->setRight(AuthorizationBag::EDIT,false,"Vous n'êtes pas connecté sur le site")
+                    ->setRight(AuthorizationBag::ADMIN,false,"Vous n'êtes pas connecté sur le site");
+            }
+            else{
+                $this->authorizationBag
+                    ->setRight(AuthorizationBag::READ,false,'Cet article n\' est pas public')
+                    ->setRight(AuthorizationBag::EDIT,false,"Vous n'êtes pas connecté sur le site")
+                    ->setRight(AuthorizationBag::ADMIN,false,"Vous n'êtes pas connecté sur le site");
+            }
+            return;
+        }
+
 
         if($this->user->getId() === $article->getOwnerUser()->getId()){
             $this->authorizationBag

@@ -2,11 +2,16 @@ import React, { Component } from 'react';
 import { BrowserRouter,Route,Switch} from 'react-router-dom';
 import AppContext from "../util/AppContext";
 
+import Header from "./organisms/Header";
+import SideBar from "../shared/organisms/SideBar";
+
 import WelcomePage from "./pages/WelcomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import AskPasswordRecoveryPage from "./pages/AskPasswordRecoveryPage";
 import RecoverPasswordPage from "./pages/RecoverPasswordPage";
+import ArticlePage from "./pages/ArticlePage";
+
 
 const routes = [
     {
@@ -16,7 +21,7 @@ const routes = [
         component:WelcomePage
     },
     {
-        id:3,
+        id:2,
         path:'/login',
         exact:false,
         component:LoginPage
@@ -38,6 +43,12 @@ const routes = [
         path:'/recover-password',
         exact:false,
         component:RecoverPasswordPage
+    },
+    {
+        id:6,
+        path:'/article/:id',
+        exact:true,
+        component:ArticlePage
     }
 ];
 
@@ -66,17 +77,24 @@ class NoAuth extends Component
         return (
             <AppContext.Provider key={`app-provider`} value={{...this.state}}>
                 <BrowserRouter {...this.props} basename="/web/">
-                    <AppContext.Provider key={`app-provider`} value={{...this.state}}>
-                        <Switch >
-                            {routes.map(({id,path,exact,component:C}) =>
-                                <Route
-                                    key={id}
-                                    exact={exact}
-                                    path={path}
-                                    render={(props) => <C {...this.props} {...props}/>}/>
-                            )}
-                        </Switch>
-                    </AppContext.Provider>
+                    <div className="wrapper hold-transition skin-blue sidebar-mini">
+                            <Header/>
+                            <AppContext.Provider key={`app-provider`} value={{...this.state}}>
+                                {routes.map(({id,path,exact,component:C}) =>
+                                    <Route
+                                        key={id}
+                                        exact={exact}
+                                        path={path}
+                                        render={(props) =>
+                                            <div>
+                                                <SideBar {...this.props} {...props}/>
+                                                <C {...this.props} {...props}/>
+                                            </div>}
+
+                                    />
+                                )}
+                            </AppContext.Provider>
+                    </div>
                 </BrowserRouter>
             </AppContext.Provider>
         );

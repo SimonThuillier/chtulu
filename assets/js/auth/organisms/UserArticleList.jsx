@@ -1,5 +1,5 @@
 import React from "react";
-import {deleteLocally, getIfNeeded, postOne, reset as stateReset} from '../actions';
+import {deleteLocally, postOne, reset as stateReset} from '../actions';
 import {
     makeGetNewlyCreatedIdSelector, makeGetNextNewIdSelector, makeGetNotificationsSelector,
     makeGetPlusBabiesSelector, makeGetSelector, makeGetTotalSelector
@@ -18,9 +18,9 @@ import {
     Glyphicon
 } from 'react-bootstrap';
 import ArticleFilter from '../organisms/ArticleFilter';
-import ArticleType from '../atoms/ArticleType';
-import ArticleStatus from '../atoms/ArticleStatus';
-import ArticleTitle from '../atoms/ArticleTitle';
+import ArticleType from '../../shared/atoms/ArticleType';
+import ArticleStatus from '../../shared/atoms/ArticleStatus';
+import ArticleTitle from '../../shared/atoms/ArticleTitle';
 import RImageMini from "../../shared/atoms/RImageMini";
 import {Edit,Admin,Submit,Reset,Delete,CancelDelete,CancelAdd} from '../atoms/actions';
 import Article from "../organisms/Article";
@@ -31,6 +31,7 @@ import Loadable from 'react-loading-overlay';
 import DateUtil from '../../util/date';
 import {CURRENT_USER_ID} from '../../util/server';
 import UserIconLink from '../../shared/molecules/UserIconLink';
+import {getIfNeeded} from "../../shared/actions";
 
 const Imm = require("immutable");
 const componentUid = require("uuid/v4")();

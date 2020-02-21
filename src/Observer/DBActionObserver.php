@@ -51,7 +51,7 @@ class DBActionObserver implements ClearableInterface
         ManagerRegistry $doctrine
     )
     {
-        $this->user = $tokenStorage->getToken()->getUser();
+        $this->user = $tokenStorage->getToken()?$tokenStorage->getToken()->getUser():null;
         $this->doctrine = $doctrine;
     }
 

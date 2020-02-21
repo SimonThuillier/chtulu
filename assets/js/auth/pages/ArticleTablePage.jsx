@@ -14,12 +14,12 @@ import {
     Glyphicon
 } from 'react-bootstrap';
 import Article from "../organisms/Article";
-import {deleteLocally, getIfNeeded, postOne, reset as stateReset} from "../actions";
+import {deleteLocally, postOne, reset as stateReset} from "../actions";
 import SearchBag from '../../util/SearchBag';
 import SearchBagUtil from '../../util/SearchBagUtil';
-import ArticleType from '../atoms/ArticleType';
-import ArticleStatus from '../atoms/ArticleStatus';
-import ArticleTitle from '../atoms/ArticleTitle';
+import ArticleType from '../../shared/atoms/ArticleType';
+import ArticleStatus from '../../shared/atoms/ArticleStatus';
+import ArticleTitle from '../../shared/atoms/ArticleTitle';
 import {connect} from "react-redux";
 import RImageMini from "../../shared/atoms/RImageMini";
 import paginationFactory from 'react-bootstrap-table2-paginator';
@@ -33,6 +33,7 @@ import {
     makeGetSelector,makeGetTotalSelector
 } from "../../shared/selectors";
 import TimeBreadcrumb from '../atoms/TimeBreadcrumb';
+import {getIfNeeded} from "../../shared/actions";
 const componentUid = require('uuid/v4')();
 
 

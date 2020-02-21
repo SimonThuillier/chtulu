@@ -14,9 +14,9 @@ import { Field, reduxForm,change as formChange,
     blur as formBlur,focus as formFocus,touch as formTouch,untouch as formUntouch} from 'redux-form/immutable';
 import { stopSubmit} from 'redux-form';
 const Imm = require("immutable");
-import {getOneByIdIfNeeded,submitLocally,postOne,reset as stateReset,TIMEOUT,discard,deleteLocally} from '../actions';
+import {submitLocally,postOne,reset as stateReset,TIMEOUT,discard,deleteLocally} from '../actions';
 import ArticleTypeSelect from "./ArticleTypeSelect";
-import HDateInput from "./HDateInput";
+import HDateInput from "../../shared/molecules/HDateInput";
 import ImageInput from "./ImageInput";
 import HBFormField from '../hoc/HBFormField';
 import {Button,Row,Col,Popover,Overlay} from 'react-bootstrap';
@@ -24,6 +24,7 @@ import Loadable from 'react-loading-overlay';
 import {LOADING,SUBMITTING,SUBMITTING_COMPLETED,COLORS} from '../../util/notifications';
 import {HB_SUCCESS} from "../../util/server";
 import {getAllPropertiesInGroups} from '../../util/WAOUtil';
+import {getOneByIdIfNeeded} from "../../shared/actions";
 
 const validate = values => {
     const errors = {};

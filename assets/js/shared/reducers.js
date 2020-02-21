@@ -7,12 +7,12 @@ import {
 } from "../util/notifications";
 
 import {
+    DISCARD,
+    NOTIFY,
     NOTIFY_ARTICLE_SELECTION
 } from "./actions";
 
 import {
-    NOTIFY,
-    DISCARD,
     ADD_PENDING,
     REMOVE_PENDING
 } from '../auth/actions';

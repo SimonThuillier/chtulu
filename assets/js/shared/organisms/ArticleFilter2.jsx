@@ -1,6 +1,5 @@
 import React from "react";
-import {FormGroup,InputGroup,ControlLabel,FormControl,HelpBlock,Glyphicon,
-    Grid,Row,Col,Button} from 'react-bootstrap';
+import {FormControl,Glyphicon,Button} from 'react-bootstrap';
 
 const formUid = require('uuid/v4')();
 const Imm = require("immutable");

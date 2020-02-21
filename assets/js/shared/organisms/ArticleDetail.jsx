@@ -1,7 +1,6 @@
 import React from "react";
-import GroupUtil from '../../util/GroupUtil';
-import RImageDetail from '../../shared/atoms/RImageDetail';
-import UserIconLink from '../../shared/molecules/UserIconLink';
+import RImageDetail from '../atoms/RImageDetail';
+import UserIconLink from '../molecules/UserIconLink';
 import {getDecoratedAbstractForDetail,AVAILABLE_AREAS} from '../../util/explorerUtil';
 import DateUtil from "../../util/date";
 const dateFormatter = DateUtil.getFormatterFromPattern('d/m/Y H:i');

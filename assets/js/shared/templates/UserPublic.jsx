@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 import UserPublicCard from '../molecules/UserPublicCard';
 import {Nav,NavItem} from 'react-bootstrap';
 import {makeGetOneByIdSelector} from "../selectors";
-import {getOneByIdIfNeeded} from "../../auth/actions";
+import {getOneByIdIfNeeded} from "../actions";
 
 
 const NAV_INFO = 'INFORMATIONS';

@@ -5,7 +5,7 @@ import {
     makeLocalGetByAttributeSelector, makeGetOneByIdSelector,
     makeGetNextNewIdSelector, makeGetNewlyCreatedIdSelector
 } from "../../shared/selectors";
-import {getIfNeeded} from "../actions";
+import {getIfNeeded} from "../../shared/actions";
 import SearchBagUtil from "../../util/SearchBagUtil";
 import SearchBag from "../../util/SearchBag";
 import DateUtil from "../../util/date";

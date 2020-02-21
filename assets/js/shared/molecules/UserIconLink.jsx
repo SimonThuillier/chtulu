@@ -1,7 +1,7 @@
 import React from "react";
 import {getCurrentUserSelector, makeGetOneByIdSelector} from "../selectors";
 import { connect } from 'react-redux'
-import {getOneByIdIfNeeded} from "../../auth/actions";
+import {getOneByIdIfNeeded} from "../actions";
 import RImageMini from '../atoms/RImageMini';
 import {Tooltip,OverlayTrigger} from 'react-bootstrap';
 import DateUtil from '../../util/date';

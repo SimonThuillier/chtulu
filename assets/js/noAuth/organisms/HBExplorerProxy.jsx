@@ -43,12 +43,11 @@ const getInitialDisplayed = () =>{
 class HBExplorerProxy extends React.Component {
     constructor(props) {
         super(props);
-        
+
         this.setHInterval = this.setHInterval.bind(this);
         this.setCursorRate = this.setCursorRate.bind(this);
         this.toggleCursor = this.toggleCursor.bind(this);
         this.toggleTimeRecordMode = this.toggleTimeRecordMode.bind(this);
-        this.setActiveComponent = this.setActiveComponent.bind(this);
 
         this.onSetMarker = this.onSetMarker.bind(this);
 
@@ -199,17 +198,6 @@ class HBExplorerProxy extends React.Component {
         this.setState({timeRecordMode:!this.state.timeRecordMode});
     }
 
-    /**
-     *
-     * @param ids array of ids of the concerned articles
-     * @param activeComponent a string which must be in [detail,form,admin]
-     */
-    setActiveComponent(ids,activeComponent){
-        const displayParameters = Object.assign({},this.state.displayParameters) ;
-        displayParameters.activeComponent= activeComponent;
-        this.setState({displayParameters:displayParameters});
-    }
-
     render() {
         const {hInterval,cursorRate,timeRecordMode,displayParameters,cursorDate} = this.state;
 
@@ -247,7 +235,6 @@ class HBExplorerProxy extends React.Component {
                     timeRecordMode = {timeRecordMode}
                     article={article}
                     displayParameters={displayParameters}
-                    setActiveComponent={this.setActiveComponent}
                 />
             </Loadable>
         );

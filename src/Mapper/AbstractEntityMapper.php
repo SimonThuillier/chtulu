@@ -62,7 +62,7 @@ abstract class AbstractEntityMapper
      * @return mixed
      */
     protected function getUser(){
-        return $this->tokenStorage->getToken()->getUser();
+        return $this->tokenStorage->getToken()?$this->tokenStorage->getToken()->getUser():null;
     }
 
     /**

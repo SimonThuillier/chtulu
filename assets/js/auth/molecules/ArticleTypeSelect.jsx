@@ -1,5 +1,5 @@
 import React,{ Component } from "react";
-import {getIfNeeded} from '../actions';
+import {getIfNeeded} from '../../shared/actions';
 import {makeGetSelector} from "../../shared/selectors";
 import { connect } from 'react-redux'
 import SearchBag from "../../util/SearchBag";

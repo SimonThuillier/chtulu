@@ -1,5 +1,5 @@
 import React,{ Component } from "react";
-import {getArticlesHistory} from "../../shared/selectors";
+import {getArticlesHistory} from "../selectors";
 import { connect } from 'react-redux';
 import SidebarHistoryArticle from './SidebarHistoryArticle';
 import {withRouter} from 'react-router-dom';

@@ -104,7 +104,7 @@ class ArticleRepository extends EntityRepository
         if ($options!==null && array_key_exists('user',$options)) {
             /** @var User $user */
             $user = $options['user'];
-            $userId = $user->getId();
+            $userId = $user?$user->getId():null;
         }
 
         $getIdByRelevanceQuery = "select * from get_article_ids_by_relevance(?,?,?,?);";

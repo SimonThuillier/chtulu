@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import RImageMini from '../../shared/atoms/RImageMini';
-import ArticleTitle from '../atoms/ArticleTitle';
+import ArticleTitle from '../../shared/atoms/ArticleTitle';
 
 import L from "leaflet";
 
@@ -11,7 +11,8 @@ import {
      makeGetNewlyCreatedIdSelector, makeGetNextNewIdSelector, makeGetOneByIdSelector,
 } from "../../shared/selectors";
 import {connect} from "react-redux";
-import {getOneByIdIfNeeded,submitLocally,deleteLocally,fetchNew} from "../actions";
+import {submitLocally,deleteLocally} from "../actions";
+import {fetchNew, getOneByIdIfNeeded} from "../../shared/actions";
 
 const style = {
     position: "relative",

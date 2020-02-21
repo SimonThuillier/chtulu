@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { NavLink,Link,withRouter} from 'react-router-dom';
-import {getCurrentUserSelector, getHbaseVersionSelector} from "../../shared/selectors";
+import {getCurrentUserSelector, getHbaseVersionSelector} from "../selectors";
 import {connect} from "react-redux";
 import SidebarHistory from '../molecules/SidebarHistory';
 const componentUid = require("uuid/v4")();
@@ -93,11 +93,12 @@ class SideBar extends Component {
                                 <i className="fa fa-book"></i> <span>Mes articles</span>
                             </Link>
                         </li>}
+                        {currentUser &&
                         <li>
                             <Link title="Contacter le webmaster" className={""} to='/contact'>
                                 <i className="fa fa-envelope"></i> <span>Contact</span>
                             </Link>
-                        </li>
+                        </li>}
                         <li style={{color: "#4b646f", background: "#1a2226"}}>
                             <a href="#">
                                 <i className="glyphicon glyphicon-book"></i>

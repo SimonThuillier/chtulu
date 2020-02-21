@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { getComponentClassType } from "../../util/formUtil";
 import {
     Alert,
     Button,

@@ -194,7 +194,7 @@ export const AVAILABLE_AREAS = {
 };
 
 export const MAP_TILE_LAYER_URL = 'http://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png';
-export const MAP_TILE_LAYER_ATTRIBUTION = null;
+export const MAP_TILE_LAYER_ATTRIBUTION = '<a href="https://www.openstreetmap.fr/" title="Site OpenStreetMap France">openstreetmap.fr</a>';
 
 /** analyze abstract of an article and returns temporal data from it
  * @returns array

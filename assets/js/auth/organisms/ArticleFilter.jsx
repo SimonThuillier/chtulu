@@ -11,7 +11,7 @@ import {Button,
 import { Field, reduxForm} from 'redux-form/immutable';
 import ArticleStatusSelect from "../molecules/ArticleStatusSelect";
 import ArticleTypeSelect from "../molecules/ArticleTypeSelect";
-import HDateInput from "../molecules/HDateInput";
+import HDateInput from "../../shared/molecules/HDateInput";
 import HBFormField from '../hoc/HBFormField';
 
 const formUid = require('uuid/v4')();

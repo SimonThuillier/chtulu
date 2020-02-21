@@ -4,7 +4,7 @@
 
 
 import React, { Component } from "react";
-import HDatePicker from "../organisms/HDatePicker";
+import HDatePicker from "../../shared/organisms/HDatePicker";
 import {createStore,applyMiddleware} from "redux";
 import {connect,Provider} from "react-redux";
 import thunk from 'redux-thunk';

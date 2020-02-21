@@ -12,7 +12,7 @@ import {
 import { Field, reduxForm,change as formChange,
     blur as formBlur,focus as formFocus,touch as formTouch,untouch as formUntouch} from 'redux-form/immutable';
 import { stopSubmit} from 'redux-form';
-import {getOneByIdIfNeeded,submitLocally,postOne,reset as stateReset,TIMEOUT,discard,deleteLocally} from '../actions';
+import {submitLocally,postOne,reset as stateReset,TIMEOUT,discard,deleteLocally} from '../actions';
 import ArticleTypeSelect from "../molecules/ArticleTypeSelect";
 import HDateInputFormBinder from "../hoc/HDateInputFormBinder";
 import HAreaInputFormBinder from "../hoc/HAreaInputFormBinder";
@@ -28,6 +28,7 @@ import ResourcePicker from './ResourcePicker';
 import ArticleLinkForm from '../molecules/ArticleLinkForm';
 import FormSubmit from '../molecules/FormSubmit';
 import ArticleContentEditor from './ArticleContentEditor';
+import {getOneByIdIfNeeded} from "../../shared/actions";
 
 const Imm = require("immutable");
 const componentUid = require('uuid/v4')();

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { BrowserRouter,Route,Switch,useHistory} from 'react-router-dom';
 import Header from "./organisms/Header";
-import SideBar from "./organisms/SideBar";
+import SideBar from "../shared/organisms/SideBar";
 
 import {
     makeGetPendingTotalSelector, makeGetNotificationsSelector,

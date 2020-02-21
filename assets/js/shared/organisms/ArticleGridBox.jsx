@@ -36,8 +36,8 @@ class ArticleGridBox extends React.Component
                 <Panel
                     className={"box hvr-grow"}
                     onClick={(e)=>{
-                        e.preventDefault();
-                        e.stopPropagation();
+                        //e.preventDefault();
+                        //e.stopPropagation();
                         history.push(`/article/${article.id}`);
                     }}
                 >

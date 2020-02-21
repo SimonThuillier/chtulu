@@ -1,27 +1,16 @@
 import React from "react";
-import HTimeRange from "../../util/HTimeRange";
 import { scaleTime } from "d3-scale";
 import { tween, easing } from "popmotion";
-import styler from "stylefire";
-import posed, { PoseGroup } from "react-pose";
 import dU from "../../util/date";
 import {articleIsOpen} from "../../util/explorerUtil";
 import HBExplorerPanelArticle from './HBExplorerPanelArticle';
-import HDate from "../../util/HDate";
-import TimeArrowCursor from "../molecules/TimeArrowCursor";
+import TimeArrowCursor from "../../shared/molecules/TimeArrowCursor";
 import debounce from "debounce";
 import {
-    distance,
-    vectorDiff,
-    nodesCollide,
-    LEFT,
-    RIGHT,
-    VERTICAL,
-    PORTRAIT,
-    LANDSCAPE
+    nodesCollide
 } from "../../util/geometry";
 import cmn from "../../util/common";
-import TimeArrow from "./TimeArrow";
+import TimeArrow from "../../shared/organisms/TimeArrow";
 import {connect} from "react-redux";
 import {makeLocalGetByAttributeSelector} from "../../shared/selectors";
 
