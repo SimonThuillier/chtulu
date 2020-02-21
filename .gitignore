@@ -1,3 +1,9 @@
+.env
+/.env
+.env.local
+/.env.local
+
+
 *parameters.yml
 app/config/parameters.yml
 /app/config/parameters.yml
