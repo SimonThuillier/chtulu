@@ -233,7 +233,7 @@ class ResourceVersion extends DTOMutableEntity
      * @param User $creationUser
      * @return ResourceVersion
      */
-    public function setCreationUser(User $creationUser): ResourceVersion
+    public function setCreationUser(?User $creationUser): ResourceVersion
     {
         $this->creationUser = $creationUser;
         return $this;
@@ -269,7 +269,7 @@ class ResourceVersion extends DTOMutableEntity
      * @param User $editionUser
      * @return ResourceVersion
      */
-    public function setEditionUser(User $editionUser): ResourceVersion
+    public function setEditionUser(?User $editionUser): ResourceVersion
     {
         $this->editionUser = $editionUser;
         return $this;
@@ -305,7 +305,7 @@ class ResourceVersion extends DTOMutableEntity
      * @param User $archivingUser
      * @return ResourceVersion
      */
-    public function setArchivingUser(User $archivingUser): ResourceVersion
+    public function setArchivingUser(?User $archivingUser): ResourceVersion
     {
         $this->archivingUser = $archivingUser;
         return $this;
@@ -341,7 +341,7 @@ class ResourceVersion extends DTOMutableEntity
      * @param User $deletionUser
      * @return ResourceVersion
      */
-    public function setDeletionUser(User $deletionUser): ResourceVersion
+    public function setDeletionUser(?User $deletionUser): ResourceVersion
     {
         $this->deletionUser = $deletionUser;
         return $this;
