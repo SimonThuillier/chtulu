@@ -129,7 +129,7 @@ class HResource extends DTOMutableEntity
      * @param User $creationUser
      * @return Resource
      */
-    public function setCreationUser(User $creationUser): HResource
+    public function setCreationUser($creationUser): HResource
     {
         $this->creationUser = $creationUser;
         return $this;
@@ -165,7 +165,7 @@ class HResource extends DTOMutableEntity
      * @param User $editionUser
      * @return self
      */
-    public function setEditionUser(User $editionUser): HResource
+    public function setEditionUser($editionUser): HResource
     {
         $this->editionUser = $editionUser;
         return $this;
