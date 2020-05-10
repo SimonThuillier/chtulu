@@ -13,6 +13,7 @@ use App\DTO\EntityMutableDTO;
 use App\Entity\ArticleStatus;
 use App\Entity\ArticleType;
 use App\Entity\DateType;
+use App\Entity\PopType;
 use App\Entity\ResourceType;
 use App\Factory\DTOFactory;
 
@@ -42,7 +43,8 @@ class WAOHelper
             ArticleType::class,
             DateType::class,
             ResourceType::class,
-            ArticleStatus::class
+            ArticleStatus::class,
+            PopType::class
         );
     }
 

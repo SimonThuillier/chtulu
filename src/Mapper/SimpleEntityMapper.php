@@ -190,8 +190,10 @@ class SimpleEntityMapper
         if($searchBag !== null){
             $this->filterBy($className,$qb,$searchBag);
             $this->sortBy($className,$qb,$searchBag);
-            $qb->setMaxResults($searchBag->getLimit())
-                ->setFirstResult($searchBag->getOffset());
+            $qb->setFirstResult($searchBag->getOffset());
+            if($searchBag->getLimit()>0){
+                $qb->setMaxResults($searchBag->getLimit());
+            }
         }
 
         return $qb->getQuery()->getResult();

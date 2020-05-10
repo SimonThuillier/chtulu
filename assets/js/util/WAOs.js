@@ -136,6 +136,37 @@ const defaultPrototypes = {
         }
     },
     /**
+     * @class Pop
+     */
+    pop : {
+        getPointCoords() {
+            if (typeof this.targetGeometry === 'undefined' ||
+                typeof this.targetGeometry.value === 'undefined' ||
+                typeof this.targetGeometry.value.type === 'undefined' ||
+                this.targetGeometry.value.type !== 'Point') return [0, 0];
+            return this.targetGeometry.value.coordinates;
+        },
+        getPointLat() {
+            return this.getPointCoords()[1];
+        },
+        getPointLng() {
+            return this.getPointCoords()[0];
+        },
+        toGeoJSON() {
+            return {
+                "type": "Feature",
+                "customType" : "pop",
+                "properties": {
+                    "id": this.id
+                },
+                "geometry": {
+                    "type": this.targetGeometry.value.type,
+                    "coordinates": this.targetGeometry.value.coordinates
+                }
+            };
+        }
+    },
+    /**
      * @class User
      */
     user:{

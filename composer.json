@@ -27,6 +27,7 @@
 		"php": "7.2.*",
 		"ext-ctype": "*",
 		"ext-iconv": "*",
+		"doctrine/doctrine-cache-bundle": "^1.4",
 		"friendsofsymfony/rest-bundle": "^2.5",
 		"jsor/doctrine-postgis": "^1.7",
 		"liip/imagine-bundle": "^2.1",

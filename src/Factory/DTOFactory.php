@@ -12,6 +12,7 @@ use App\DTO\ArticleDTO;
 use App\DTO\ArticleHistoryDTO;
 use App\DTO\ArticleLinkDTO;
 use App\DTO\EntityMutableDTO;
+use App\DTO\PopDTO;
 use App\DTO\ResourceDTO;
 use App\DTO\ResourceGeometryDTO;
 use App\DTO\ResourceImageDTO;
@@ -47,7 +48,8 @@ class DTOFactory implements ServiceSubscriberInterface
             ResourceGeometryDTO::class => ResourceGeometryDTOFactory::class,
             ArticleLinkDTO::class => ArticleLinkDTOFactory::class,
             UserDTO::class => UserDTOFactory::class,
-            ArticleHistoryDTO::class => ArticleHistoryDTOFactory::class
+            ArticleHistoryDTO::class => ArticleHistoryDTOFactory::class,
+            PopDTO::class => PopDTOFactory::class
         ];
     }
 

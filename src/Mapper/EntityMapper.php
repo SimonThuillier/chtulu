@@ -14,6 +14,7 @@ use App\Entity\ArticleHistory;
 use App\Entity\ArticleLink;
 use App\Entity\DTOMutableEntity;
 use App\Entity\HResource;
+use App\Entity\Pop;
 use App\Entity\ResourceFile;
 use App\Entity\ResourceGeometry;
 use App\Entity\ResourceVersion;
@@ -79,7 +80,8 @@ class EntityMapper implements ServiceSubscriberInterface
             ResourceVersion::class => ResourceVersionMapper::class,
             ArticleLink::class => ArticleLinkMapper::class,
             User::class => UserMapper::class,
-            ArticleHistory::class => ArticleHistoryMapper::class
+            ArticleHistory::class => ArticleHistoryMapper::class,
+            Pop::class => PopMapper::class
         ];
     }
 

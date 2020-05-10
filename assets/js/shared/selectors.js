@@ -216,7 +216,7 @@ export const getSelector = createSelector(
 
         indexMap.forEach((v,k)=>{
             // console.log(`k : ${k}, v : ${v}`);
-            if(k>=offset && k<(offset+limit)) selectedEntries[k] = +v;
+            if(k>=offset && (limit>0?k<(offset+limit):true) ) selectedEntries[k] = +v;
         });
         return selectedEntries.map((id)=> items.get(+id)).filter((v,k)=>v || false);
     }
@@ -234,11 +234,14 @@ export const makeGetSelector = () =>{
                 ],
                 (coreBagKey, offset, limit, order)=>{
                     const controlMap = new Map();
+                    //console.log(searchCache);
+                    //console.log(coreBagKey);
                     const searchCacheEntry = searchCache.get(coreBagKey);
                     //console.log('searchCacheEntry');
                     //console.log(coreBagKey);
                     //console.log(searchCacheEntry);
                     if(! searchCacheEntry) return [];
+                    //console.log(searchCacheEntry);
                     let indexMap = searchCacheEntry.get("indexMap");
                     indexMap = (order===SearchBagUtil.ASC)?indexMap:
                         SearchBagUtil.invertIndexMap(indexMap,searchCacheEntry.get("total"));
@@ -246,8 +249,10 @@ export const makeGetSelector = () =>{
 
                     indexMap.forEach((v,k)=>{
                         //console.log(`k : ${k}, v : ${v}`);
-                        if(k>=offset && k<(offset+limit)) pushIfNotAlreadyInMap(+v,+v,selectedEntries,controlMap);
+                        if(k>=offset && (limit>0?k<(offset+limit):true) ) pushIfNotAlreadyInMap(+v,+v,selectedEntries,controlMap);
                     });
+                    // console.log(selectedEntries);
+
                     return selectedEntries.map((id)=> items.get(+id)).filter((v,k)=>v || false);
                 }
             );
@@ -322,7 +327,7 @@ export const makeGetPlusBabiesSelector = () =>{
                         console.log('items',indexMap);
 
                         indexMap.forEach((v, k) => {
-                            if (k >= offset && k < (offset + limit)){
+                            if (k >= offset && (limit>0?k<(offset+limit):true) ){
                                 pushIfNotAlreadyInMap(+v,+v,selectedEntries,controlMap);
                                 /*let thisSubIds = expandedIds[v];
                                 //console.log("thisSubIds");

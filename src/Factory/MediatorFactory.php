@@ -12,6 +12,7 @@ use App\DTO\ArticleDTO;
 use App\DTO\ArticleHistoryDTO;
 use App\DTO\ArticleLinkDTO;
 use App\DTO\EntityMutableDTO;
+use App\DTO\PopDTO;
 use App\DTO\ResourceDTO;
 use App\DTO\ResourceGeometryDTO;
 use App\DTO\ResourceVersionDTO;
@@ -21,6 +22,7 @@ use App\Entity\ArticleHistory;
 use App\Entity\ArticleLink;
 use App\Entity\DTOMutableEntity;
 use App\Entity\HResource;
+use App\Entity\Pop;
 use App\Entity\ResourceGeometry;
 use App\Entity\ResourceVersion;
 use App\Entity\User;
@@ -31,6 +33,7 @@ use App\Mediator\ArticleDTOMediator;
 use App\Mediator\ArticleHistoryDTOMediator;
 use App\Mediator\ArticleLinkDTOMediator;
 use App\Mediator\DTOMediator;
+use App\Mediator\PopDTOMediator;
 use App\Mediator\ResourceDTOMediator;
 use App\Mediator\ResourceGeometryDTOMediator;
 use App\Mediator\ResourceVersionDTOMediator;
@@ -65,7 +68,8 @@ class MediatorFactory implements ServiceSubscriberInterface,ClearableInterface
         ResourceGeometryDTO::class => ResourceGeometryDTOMediator::class,
         ArticleLinkDTO::class => ArticleLinkDTOMediator::class,
         UserDTO::class => UserDTOMediator::class,
-        ArticleHistoryDTO::class => ArticleHistoryDTOMediator::class
+        ArticleHistoryDTO::class => ArticleHistoryDTOMediator::class,
+        PopDTO::class => PopDTOMediator::class
     ];
 
     private const DEFAULT_ENTITY_DTO = [
@@ -75,7 +79,8 @@ class MediatorFactory implements ServiceSubscriberInterface,ClearableInterface
         ResourceGeometry::class => ResourceGeometryDTO::class,
         ArticleLink::class => ArticleLinkDTO::class,
         User::class => UserDTO::class,
-        ArticleHistory::class => ArticleHistoryDTO::class
+        ArticleHistory::class => ArticleHistoryDTO::class,
+        Pop::class=> PopDTO::class
     ];
 
     private const OTHER_SERVICES = [

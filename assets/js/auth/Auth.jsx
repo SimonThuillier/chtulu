@@ -20,7 +20,7 @@ import AccountPage from "./pages/AccountPage";
 import UserPublicPage from "../shared/pages/UserPublicPage";
 import ArticleTablePage from "./pages/ArticleTablePage";
 import ContactPage from "./pages/ContactPage";
-
+import PopEditionPage from "./pages/PopEditionPage";
 
 
 
@@ -79,6 +79,12 @@ const routes = [
         path:'/contact',
         exact:true,
         component:ContactPage
+    },
+    {
+        id:12,
+        path:'/pop-edition',
+        exact:true,
+        component:PopEditionPage
     }
 ];
 

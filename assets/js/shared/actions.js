@@ -365,6 +365,12 @@ const shouldFetchNew = (state, waoType) => {
     return !state.getIn([waoType, "newItem"]);
 };
 
+export const fetchNewIfNeeded = (waoType) => (dispatch,getState) =>{
+    if(!! shouldFetchNew(getState(),waoType)){
+        dispatch(fetchNew(waoType,-1,null));
+    }
+};
+
 export const fetchNew = (waoType, id, senderKey) => (dispatch) => {
     const url = getUrl(URL_GET_NEW, getHBProps(waoType, null, 0));
     dispatch(notify(LOADING, waoType, null));
@@ -427,7 +433,7 @@ const receiveNew = (waoType, data) => ({
     wao: data
 });
 
-const createNew = (waoType) => ({
+export const createNew = (waoType) => ({
     type: CREATE_NEW,
     waoType: waoType,
     receivedAt: Date.now()

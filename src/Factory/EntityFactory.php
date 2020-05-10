@@ -15,6 +15,7 @@ use App\Entity\ArticleStatus;
 use App\Entity\DTOMutableEntity;
 use App\Entity\HResource;
 use App\Entity\PendingAction;
+use App\Entity\Pop;
 use App\Entity\ResourceFile;
 use App\Entity\ResourceGeometry;
 use App\Entity\ResourceVersion;
@@ -50,7 +51,8 @@ class EntityFactory implements ServiceSubscriberInterface
             ResourceGeometry::class => ResourceGeometryFactory::class,
             PendingAction::class => PendingActionFactory::class,
             User::class => UserFactory::class,
-            ArticleHistory::class => ArticleHistoryFactory::class
+            ArticleHistory::class => ArticleHistoryFactory::class,
+            Pop::class => PopFactory::class
         ];
     }
 

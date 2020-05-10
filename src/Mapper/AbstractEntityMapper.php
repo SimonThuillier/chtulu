@@ -244,12 +244,14 @@ abstract class AbstractEntityMapper
         if($searchBag !== null){
             $this->filterBy($qb,$searchBag);
             $this->sortBy($qb,$searchBag);
-            $qb->setMaxResults($searchBag->getLimit())
-                ->setFirstResult($searchBag->getOffset());
+            $qb->setFirstResult($searchBag->getOffset());
+            if($searchBag->getLimit()>0){
+                $qb->setMaxResults($searchBag->getLimit());
+            }
         }
 
-        $truc = $qb->getQuery();
-        $truc2 = $truc->getSQL();
+        //$truc = $qb->getQuery();
+        //$truc2 = $truc->getSQL();
 
         return $this->postProcessResult($qb->getQuery()->getResult(),$searchBag);
     }

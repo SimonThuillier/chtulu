@@ -95,6 +95,12 @@ class SideBar extends Component {
                         </li>}
                         {currentUser &&
                         <li>
+                            <Link title="Editer les POPs" className={""} to='/pop-edition'>
+                                <i className="fa fa-map-pin"></i> <i className="fa fa-users"></i> <span>Editer les POPs</span>
+                            </Link>
+                        </li>}
+                        {currentUser &&
+                        <li>
                             <Link title="Contacter le webmaster" className={""} to='/contact'>
                                 <i className="fa fa-envelope"></i> <span>Contact</span>
                             </Link>

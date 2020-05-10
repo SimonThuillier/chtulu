@@ -62,3 +62,14 @@ DROP SEQUENCE hb_article_history_id_seq;
 CREATE SEQUENCE hb_article_history_id_seq;
 SELECT setval('hb_article_history_id_seq', (SELECT MAX(id) FROM hb_article_history));
 ALTER TABLE hb_article_history ALTER id SET DEFAULT nextval('hb_article_history_id_seq');
+
+
+DROP SEQUENCE ct_pop_id_seq;
+CREATE SEQUENCE ct_pop_id_seq;
+SELECT setval('ct_pop_id_seq', (SELECT MAX(id) FROM ct_pop));
+ALTER TABLE ct_pop ALTER id SET DEFAULT nextval('ct_pop_id_seq');
+
+DROP SEQUENCE ct_pop_type_id_seq;
+CREATE SEQUENCE ct_pop_type_id_seq;
+SELECT setval('ct_pop_type_id_seq', (SELECT MAX(id) FROM ct_pop_type));
+ALTER TABLE ct_pop_type ALTER id SET DEFAULT nextval('ct_pop_type_id_seq');
